@@ -2364,7 +2364,13 @@ async function autoRunFromQuickStart() {
 async function initAuth() {
   if (!sb) return;
   const { data: { session } } = await sb.auth.getSession();
-  if (!session) return; // 비로그인도 free로 분석 허용 (생명수만)
+  if (!session) {
+    const next = encodeURIComponent(
+      `${window.location.pathname.split('/').pop() || 'analysis.html'}${window.location.search || ''}${window.location.hash || ''}`
+    );
+    window.location.replace(`login.html?next=${next}`);
+    return;
+  }
   CURRENT_USER_ID = session.user?.id || 'guest';
 
   const { data: profile } = await sb.from('profiles')

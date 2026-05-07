@@ -7,6 +7,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@200;300;400;600&family=Gowun+Batang:wght@400;700&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.2/dist/jspdf.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 :root {
   --void: #100c08;
@@ -2100,6 +2101,24 @@ function doReset() {
 }
 
 document.addEventListener('keydown', e=>{ if(e.key==='Enter') runAnalysis(); });
+
+(async function ensureAuthGate() {
+  try {
+    const SUPABASE_URL = 'https://sghsryumnrnftyjoqmwf.supabase.co';
+    const SUPABASE_ANON_KEY = 'sb_publishable_6S3W_oWrzG-Nv8wLK98gmg_q_KcB2I1';
+    const g = window.supabase || globalThis.supabase;
+    if (!g || typeof g.createClient !== 'function') return;
+    const sb = g.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    const { data: { session } } = await sb.auth.getSession();
+    if (session) return;
+    const next = encodeURIComponent(
+      `${window.location.pathname.split('/').pop() || 'compatibility.html'}${window.location.search || ''}${window.location.hash || ''}`
+    );
+    window.location.replace(`login.html?next=${next}`);
+  } catch {
+    // 인증 확인 실패 시 기존 동작 유지
+  }
+})();
 </script>
 </body>
 </html>
