@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Professional 결제 — 팔자연구소 8CODE</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500&family=Noto+Serif+KR:wght@400;500&family=DM+Mono:wght@400&display=swap" rel="stylesheet"/>
+  <script src="https://js.tosspayments.com/v2/standard"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    :root {
+      --cream: #f5f0e8;
+      --deep: #4a3520;
+      --ink: #2c1f0e;
+      --muted: #9a8570;
+      --accent: #c8a96e;
+      --border: rgba(139,111,71,.18);
+      --font-serif: 'Cormorant Garamond', 'Noto Serif KR', serif;
+      --font-body: 'Noto Serif KR', serif;
+      --font-mono: 'DM Mono', monospace;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: var(--font-body); background: var(--cream); color: var(--ink); min-height: 100vh; padding: 40px 20px 80px; }
+    .wrap { max-width: 520px; margin: 0 auto; }
+    h1 { font-family: var(--font-serif); font-size: 26px; font-weight: 400; color: var(--deep); margin-bottom: 8px; }
+    .sub { font-size: 13px; color: var(--muted); line-height: 1.7; margin-bottom: 28px; }
+    .amount { font-family: var(--font-serif); font-size: 36px; color: var(--deep); margin-bottom: 24px; }
+    .amount small { font-size: 14px; color: var(--muted); font-family: var(--font-body); }
+    #payment-method, #agreement { width: 100%; margin-bottom: 16px; }
+    .btn {
+      display: inline-block; width: 100%; text-align: center; padding: 14px 20px; border: none; border-radius: 8px;
+      font-family: var(--font-body); font-size: 14px; font-weight: 500; cursor: pointer;
+      background: var(--deep); color: var(--cream); margin-top: 8px;
+    }
+    .btn:disabled { opacity: .5; cursor: not-allowed; }
+    .btn.secondary { background: white; color: var(--deep); border: 1px solid var(--border); }
+    .back { font-family: var(--font-mono); font-size: 10px; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); text-decoration: none; display: inline-block; margin-bottom: 24px; }
+    .back:hover { color: var(--deep); }
+    #msg { display: none; font-size: 13px; padding: 12px 14px; border-radius: 8px; margin-bottom: 16px; line-height: 1.5; }
+    #msg.err { background: #fef2f2; color: #991b1b; border: 1px solid #fecaca; }
+    #msg.info { background: #fffbeb; color: #92400e; border: 1px solid #fde68a; }
+    #demo-box { display: none; margin-top: 28px; padding-top: 24px; border-top: 1px solid var(--border); }
+    #demo-box p { font-size: 12px; color: var(--muted); margin-bottom: 12px; line-height: 1.65; }
+  </style>
+</head>
+<body>
+<div class="wrap">
+  <a class="back" href="pricing.html">← 요금제</a>
+  <h1>Professional · 상담사 플랜</h1>
+  <p class="sub">결제가 완료되면 계정에 즉시 반영되며, 상담사 허브와 라이프코드 분석의 상담사용 필드를 바로 쓸 수 있어요.</p>
+  <div class="amount" id="amountLine">—</div>
+  <div id="msg"></div>
+  <div id="pay-ui">
+    <div id="payment-method"></div>
+    <div id="agreement"></div>
+    <button type="button" class="btn" id="payBtn" disabled>결제하기</button>
+  </div>
+  <div id="demo-box">
+    <p><strong>개발/스테이징</strong> 서버에 데모 업그레이드가 켜져 있을 때만 보입니다. 운영에서는 토스 키로 실결제만 사용하세요.</p>
+    <button type="button" class="btn secondary" id="demoBtn">데모: Professional 즉시 적용</button>
+  </div>
+</div>
+
+<script>
+(function () {
+  const SUPABASE_URL = 'https://sghsryumnrnftyjoqmwf.supabase.co';
+  const SUPABASE_ANON_KEY = 'sb_publishable_6S3W_oWrzG-Nv8wLK98gmg_q_KcB2I1';
+  const { createClient } = supabase;
+  const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+  const PRICES = {
+    monthly: 49900,
+    annual: 39920 * 12,
+  };
+
+  const params = new URLSearchParams(location.search);
+  const cycle = params.get('cycle') === 'annual' ? 'annual' : 'monthly';
+  const amount = PRICES[cycle];
+
+  function showMsg(text, kind) {
+    const el = document.getElementById('msg');
+    el.style.display = 'block';
+    el.className = kind === 'err' ? 'err' : 'info';
+    el.textContent = text;
+  }
+
+  document.getElementById('amountLine').innerHTML =
+    new Intl.NumberFormat('ko-KR').format(amount) + '원 <small>' +
+    (cycle === 'annual' ? '(연간 일시 납부)' : '(월간)') + '</small>';
+
+  async function main() {
+    const { data: { session } } = await sb.auth.getSession();
+    if (!session) {
+      window.location.replace('login.html?next=' + encodeURIComponent(location.pathname + location.search));
+      return;
+    }
+
+    const { data: profile } = await sb.from('profiles').select('plan, plan_active_until').eq('id', session.user.id).single();
+    const proActive =
+      profile?.plan === 'professional' &&
+      (!profile?.plan_active_until || new Date(profile.plan_active_until) > new Date());
+    if (proActive) {
+      showMsg('이미 Professional 이용 기간이 유효합니다. 상담사 허브로 이동할 수 있어요.', 'info');
+      document.getElementById('pay-ui').innerHTML = '<a class="btn" href="counselor.html" style="text-decoration:none;display:inline-block">상담사 허브</a>';
+      return;
+    }
+
+    let cfg = { tossClientKey: '', demoUpgrade: false };
+    try {
+      const r = await fetch('/api/checkout-config');
+      if (r.ok) cfg = await r.json();
+    } catch (_) {
+      showMsg('결제 서버(api)에 연결할 수 없습니다. Node 서버(node paljaweb/server.js)로 이 사이트를 열었는지 확인해주세요.', 'err');
+      document.getElementById('payBtn').disabled = true;
+      return;
+    }
+
+    if (cfg.demoUpgrade) {
+      document.getElementById('demo-box').style.display = 'block';
+      document.getElementById('demoBtn').onclick = async () => {
+        const btn = document.getElementById('demoBtn');
+        btn.disabled = true;
+        try {
+          const { data: { session: s2 } } = await sb.auth.getSession();
+          const res = await fetch('/api/demo-upgrade-professional', {
+            method: 'POST',
+            headers: { Authorization: 'Bearer ' + s2.access_token },
+          });
+          if (!res.ok) {
+            const j = await res.json().catch(() => ({}));
+            showMsg(j.error || '적용 실패', 'err');
+            btn.disabled = false;
+            return;
+          }
+          window.location.href = 'counselor.html';
+        } catch (e) {
+          showMsg('요청 실패', 'err');
+          btn.disabled = false;
+        }
+      };
+    }
+
+    if (!cfg.tossClientKey) {
+      showMsg('TOSS_CLIENT_KEY가 설정되지 않았습니다. .env에 키를 넣거나 스테이징에서 데모 업그레이드를 사용하세요.', 'err');
+      document.getElementById('payBtn').disabled = true;
+      return;
+    }
+
+    const clientKey = cfg.tossClientKey;
+    const customerKey = session.user.id;
+    const tossPayments = TossPayments(clientKey);
+    const widgets = tossPayments.widgets({ customerKey });
+
+    await widgets.setAmount({ currency: 'KRW', value: amount });
+    await widgets.renderPaymentMethods({
+      selector: '#payment-method',
+      variantKey: 'DEFAULT',
+    });
+    await widgets.renderAgreement({
+      selector: '#agreement',
+      variantKey: 'AGREEMENT',
+    });
+
+    document.getElementById('payBtn').disabled = false;
+    document.getElementById('payBtn').onclick = async () => {
+      const btn = document.getElementById('payBtn');
+      btn.disabled = true;
+      const uidCompact = customerKey.replace(/-/g, '');
+      const cycleTag = cycle === 'annual' ? 'a' : 'm';
+      const orderId =
+        'ppro_' + cycleTag + '_' + uidCompact + '_' + Date.now() + '_' + Math.random().toString(36).slice(2, 8);
+      const origin = window.location.origin;
+      try {
+        const { data: { session: s2 } } = await sb.auth.getSession();
+        await widgets.requestPayment({
+          orderId,
+          orderName: 'Professional 상담사 플랜',
+          successUrl: origin + '/payment-success.html',
+          failUrl: origin + '/payment-fail.html',
+          customerEmail: s2.user.email || undefined,
+          customerName: s2.user.user_metadata?.full_name || s2.user.email || '회원',
+        });
+      } catch (e) {
+        showMsg(e?.message || '결제 창을 열 수 없습니다.', 'err');
+        btn.disabled = false;
+      }
+    };
+  }
+
+  main();
+})();
+</script>
+</body>
+</html>

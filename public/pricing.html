@@ -1,0 +1,909 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>요금제 — 팔자연구소 8CODE</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Noto+Serif+KR:wght@300;400;500;600&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <style>
+    :root {
+      --cream:      #f5f0e8;
+      --parchment:  #ede5d4;
+      --sand:       #d4c4a8;
+      --warm-brown: #8b6f47;
+      --deep-brown: #4a3520;
+      --ink:        #2c1f0e;
+      --accent:     #c8a96e;
+      --accent-lt:  #e8d5b0;
+      --muted:      #9a8570;
+      --border:     rgba(139,111,71,.15);
+      --shadow:     rgba(44,31,14,.08);
+      --teal:       #2e8b7a;
+      --teal-lt:    rgba(46,139,122,.1);
+
+      --font-serif: 'Cormorant Garamond', 'Noto Serif KR', serif;
+      --font-body:  'Noto Serif KR', serif;
+      --font-mono:  'DM Mono', monospace;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: var(--font-body);
+      background: var(--cream);
+      color: var(--ink);
+      min-height: 100vh;
+    }
+
+    /* ── TOPBAR ── */
+    .topbar {
+      height: 56px;
+      background: rgba(245,240,232,.92);
+      backdrop-filter: blur(8px);
+      border-bottom: 1px solid var(--border);
+      display: flex; align-items: center;
+      padding: 0 40px;
+      position: sticky; top: 0; z-index: 100;
+      justify-content: space-between;
+    }
+    .topbar-logo {
+      font-family: var(--font-serif);
+      font-size: 18px;
+      font-weight: 500;
+      color: var(--deep-brown);
+      text-decoration: none;
+    }
+    .topbar-right { display: flex; align-items: center; gap: 16px; }
+    .topbar-link {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+      color: var(--muted);
+      text-decoration: none;
+      transition: color .15s;
+    }
+    .topbar-link:hover { color: var(--deep-brown); }
+
+    /* ── HERO ── */
+    .hero {
+      padding: 80px 40px 64px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .hero::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 50%;
+      transform: translateX(-50%);
+      width: 600px; height: 300px;
+      background: radial-gradient(ellipse, rgba(200,169,110,.08) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .hero-tag {
+      font-family: var(--font-mono);
+      font-size: 9px;
+      letter-spacing: .25em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 16px;
+    }
+    .hero-title {
+      font-family: var(--font-serif);
+      font-size: 52px;
+      font-weight: 300;
+      color: var(--deep-brown);
+      line-height: 1.1;
+      margin-bottom: 16px;
+    }
+    .hero-title em { font-style: italic; color: var(--warm-brown); }
+    .hero-desc {
+      font-size: 14px;
+      color: var(--muted);
+      line-height: 1.8;
+      max-width: 480px;
+      margin: 0 auto 32px;
+    }
+
+    /* 연간/월간 토글 */
+    .billing-toggle {
+      display: inline-flex;
+      background: var(--parchment);
+      border: 1px solid var(--border);
+      border-radius: 30px;
+      padding: 4px;
+      gap: 2px;
+      margin-bottom: 64px;
+    }
+    .toggle-btn {
+      padding: 8px 20px;
+      border-radius: 24px;
+      border: none;
+      background: none;
+      font-family: var(--font-mono);
+      font-size: 10px;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      color: var(--muted);
+      cursor: pointer;
+      transition: all .2s;
+    }
+    .toggle-btn.active {
+      background: var(--deep-brown);
+      color: var(--cream);
+    }
+    .save-badge {
+      font-family: var(--font-mono);
+      font-size: 8px;
+      background: var(--teal);
+      color: white;
+      padding: 2px 8px;
+      border-radius: 10px;
+      margin-left: 6px;
+      letter-spacing: .06em;
+    }
+
+    /* ── PRICING GRID ── */
+    .pricing-wrap {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 0 40px 80px;
+    }
+    .pricing-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+      align-items: start;
+    }
+
+    .plan-card {
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 28px 24px;
+      position: relative;
+      transition: box-shadow .2s, transform .2s;
+      animation: fadeUp .5s ease forwards;
+      opacity: 0;
+    }
+    .plan-card:hover {
+      box-shadow: 0 12px 40px var(--shadow);
+      transform: translateY(-4px);
+    }
+    .plan-card.featured {
+      background: var(--deep-brown);
+      border-color: var(--deep-brown);
+      transform: translateY(-8px);
+    }
+    .plan-card.featured:hover { transform: translateY(-12px); }
+    .plan-card.professional {
+      background: var(--parchment);
+      border-color: var(--accent);
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(16px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .plan-card:nth-child(1) { animation-delay: .1s; }
+    .plan-card:nth-child(2) { animation-delay: .2s; }
+    .plan-card:nth-child(3) { animation-delay: .3s; }
+    .plan-card:nth-child(4) { animation-delay: .4s; }
+    .plan-card.featured { animation-delay: .2s; }
+
+    .popular-badge {
+      position: absolute;
+      top: -12px; left: 50%;
+      transform: translateX(-50%);
+      background: var(--accent);
+      color: white;
+      font-family: var(--font-mono);
+      font-size: 8px;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+      padding: 4px 14px;
+      border-radius: 20px;
+      white-space: nowrap;
+    }
+
+    .plan-name {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      letter-spacing: .2em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 12px;
+    }
+    .plan-card.featured .plan-name { color: rgba(245,240,232,.5); }
+    .plan-card.professional .plan-name { color: var(--warm-brown); }
+
+    .plan-price {
+      font-family: var(--font-serif);
+      font-size: 44px;
+      font-weight: 300;
+      color: var(--deep-brown);
+      line-height: 1;
+      margin-bottom: 4px;
+    }
+    .plan-card.featured .plan-price { color: var(--cream); }
+    .plan-price-unit {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--muted);
+      letter-spacing: .06em;
+    }
+    .plan-card.featured .plan-price-unit { color: rgba(245,240,232,.5); }
+
+    .plan-tagline {
+      font-size: 12px;
+      color: var(--muted);
+      margin: 8px 0 20px;
+      line-height: 1.6;
+    }
+    .plan-card.featured .plan-tagline { color: rgba(245,240,232,.6); }
+
+    .plan-divider {
+      height: 1px;
+      background: var(--border);
+      margin-bottom: 20px;
+    }
+    .plan-card.featured .plan-divider { background: rgba(245,240,232,.1); }
+
+    .feature-list {
+      list-style: none;
+      margin-bottom: 28px;
+    }
+    .feature-list li {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      font-size: 12.5px;
+      color: var(--ink);
+      padding: 5px 0;
+      line-height: 1.5;
+    }
+    .plan-card.featured .feature-list li { color: rgba(245,240,232,.8); }
+    .feature-list li.no { color: var(--sand); }
+    .plan-card.featured .feature-list li.no { color: rgba(245,240,232,.25); }
+
+    .feature-check {
+      width: 16px; height: 16px;
+      border-radius: 50%;
+      background: var(--teal-lt);
+      border: 1px solid var(--teal);
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+      margin-top: 1px;
+      font-size: 8px;
+      color: var(--teal);
+    }
+    .plan-card.featured .feature-check {
+      background: rgba(46,139,122,.2);
+      border-color: rgba(46,139,122,.5);
+      color: #7ecdc0;
+    }
+    .feature-x {
+      width: 16px; height: 16px;
+      border-radius: 50%;
+      background: var(--parchment);
+      border: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+      margin-top: 1px;
+      font-size: 8px;
+      color: var(--sand);
+    }
+
+    .plan-btn {
+      display: block;
+      width: 100%;
+      padding: 12px;
+      border-radius: 8px;
+      border: none;
+      font-family: var(--font-body);
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all .15s;
+      text-align: center;
+      text-decoration: none;
+      letter-spacing: .02em;
+    }
+    .plan-btn-outline {
+      background: none;
+      border: 1px solid var(--border);
+      color: var(--deep-brown);
+    }
+    .plan-btn-outline:hover { border-color: var(--accent); background: var(--accent-lt); }
+    .plan-btn-cream {
+      background: var(--cream);
+      color: var(--deep-brown);
+    }
+    .plan-btn-cream:hover { background: var(--accent-lt); }
+    .plan-btn-accent {
+      background: var(--accent);
+      color: white;
+    }
+    .plan-btn-accent:hover { background: var(--warm-brown); }
+    .plan-btn-dark {
+      background: var(--deep-brown);
+      color: var(--cream);
+    }
+    .plan-btn-dark:hover { background: var(--warm-brown); }
+    .plan-btn:disabled {
+      opacity: .5;
+      cursor: not-allowed;
+    }
+
+    /* ── COMPARE TABLE ── */
+    .compare-section {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 0 40px 80px;
+    }
+    .compare-header {
+      text-align: center;
+      margin-bottom: 40px;
+    }
+    .compare-title {
+      font-family: var(--font-serif);
+      font-size: 32px;
+      font-weight: 300;
+      color: var(--deep-brown);
+      margin-bottom: 8px;
+    }
+    .compare-desc { font-size: 13px; color: var(--muted); }
+
+    .compare-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    .compare-table th {
+      font-family: var(--font-mono);
+      font-size: 9px;
+      letter-spacing: .16em;
+      text-transform: uppercase;
+      padding: 12px 16px;
+      text-align: center;
+      color: var(--muted);
+      border-bottom: 1px solid var(--border);
+    }
+    .compare-table th:first-child { text-align: left; }
+    .compare-table th.featured-col {
+      background: var(--deep-brown);
+      color: rgba(245,240,232,.6);
+      border-radius: 8px 8px 0 0;
+    }
+    .compare-table td {
+      padding: 12px 16px;
+      font-size: 12.5px;
+      color: var(--ink);
+      border-bottom: 1px solid var(--border);
+      text-align: center;
+    }
+    .compare-table td:first-child {
+      text-align: left;
+      color: var(--muted);
+      font-size: 12px;
+    }
+    .compare-table td.featured-col {
+      background: rgba(74,53,32,.03);
+    }
+    .compare-table tr:hover td { background: var(--parchment); }
+    .compare-table tr:hover td.featured-col { background: rgba(74,53,32,.06); }
+    .check { color: var(--teal); font-size: 14px; }
+    .cross { color: var(--sand); font-size: 14px; }
+    .category-row td {
+      font-family: var(--font-mono);
+      font-size: 8px;
+      letter-spacing: .16em;
+      text-transform: uppercase;
+      color: var(--accent);
+      background: var(--accent-lt) !important;
+      padding: 8px 16px;
+      font-weight: 500;
+    }
+
+    /* ── FAQ ── */
+    .faq-section {
+      max-width: 680px;
+      margin: 0 auto;
+      padding: 0 40px 80px;
+    }
+    .faq-header {
+      text-align: center;
+      margin-bottom: 40px;
+    }
+    .faq-title {
+      font-family: var(--font-serif);
+      font-size: 32px;
+      font-weight: 300;
+      color: var(--deep-brown);
+    }
+    .faq-item {
+      border-bottom: 1px solid var(--border);
+    }
+    .faq-q {
+      padding: 18px 0;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--deep-brown);
+      user-select: none;
+    }
+    .faq-arrow { font-size: 11px; color: var(--muted); transition: transform .2s; }
+    .faq-item.open .faq-arrow { transform: rotate(180deg); }
+    .faq-a {
+      display: none;
+      padding: 0 0 18px;
+      font-size: 13px;
+      color: var(--muted);
+      line-height: 1.8;
+    }
+    .faq-item.open .faq-a { display: block; }
+
+    /* ── CTA ── */
+    .cta-section {
+      background: var(--deep-brown);
+      padding: 64px 40px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .cta-section::before {
+      content: '8';
+      position: absolute;
+      left: 50%; top: 50%;
+      transform: translate(-50%, -50%);
+      font-family: var(--font-serif);
+      font-size: 400px;
+      color: rgba(200,169,110,.04);
+      line-height: 1;
+      pointer-events: none;
+    }
+    .cta-tag {
+      font-family: var(--font-mono);
+      font-size: 9px;
+      letter-spacing: .25em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 16px;
+    }
+    .cta-title {
+      font-family: var(--font-serif);
+      font-size: 40px;
+      font-weight: 300;
+      color: var(--cream);
+      margin-bottom: 12px;
+      line-height: 1.2;
+    }
+    .cta-desc { font-size: 13px; color: rgba(245,240,232,.5); margin-bottom: 32px; }
+    .cta-btn {
+      display: inline-block;
+      background: var(--accent);
+      color: var(--deep-brown);
+      padding: 14px 36px;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      text-decoration: none;
+      transition: background .15s;
+      font-family: var(--font-body);
+    }
+    .cta-btn:hover { background: #d4b87a; }
+
+    /* ── TOAST ── */
+    .toast {
+      position: fixed;
+      bottom: 24px; left: 50%;
+      transform: translateX(-50%) translateY(20px);
+      background: var(--deep-brown);
+      color: var(--cream);
+      padding: 12px 24px;
+      border-radius: 8px;
+      font-size: 13px;
+      opacity: 0;
+      transition: all .3s;
+      z-index: 999;
+      pointer-events: none;
+    }
+    .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 900px) {
+      .pricing-grid { grid-template-columns: 1fr 1fr; }
+      .plan-card.featured { transform: none; }
+      .hero-title { font-size: 36px; }
+      .pricing-wrap, .compare-section, .faq-section { padding-left: 20px; padding-right: 20px; }
+      .topbar { padding: 0 20px; }
+    }
+    @media (max-width: 560px) {
+      .pricing-grid { grid-template-columns: 1fr; }
+      .hero { padding: 48px 20px 40px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- TOPBAR -->
+<header class="topbar">
+  <a class="topbar-logo" href="index.html">팔자연구소</a>
+  <div class="topbar-right">
+    <a class="topbar-link" href="analysis.html">분석하기</a>
+    <a class="topbar-link" href="login.html">로그인</a>
+    <a class="topbar-link" href="signup.html">회원가입</a>
+  </div>
+</header>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-tag">Pricing · 요금제</div>
+  <h1 class="hero-title">나에게 맞는<br><em>플랜을 선택하세요</em></h1>
+  <p class="hero-desc">언제든지 업그레이드하거나 취소할 수 있어요.<br>첫 달은 무료로 시작할 수 있습니다.</p>
+  <div class="billing-toggle">
+    <button class="toggle-btn active" id="btnMonthly" onclick="setBilling('monthly')">월간</button>
+    <button class="toggle-btn" id="btnAnnual" onclick="setBilling('annual')">
+      연간 <span class="save-badge">20% 절약</span>
+    </button>
+  </div>
+</section>
+
+<!-- PRICING GRID -->
+<div class="pricing-wrap">
+  <div class="pricing-grid">
+
+    <!-- FREE -->
+    <div class="plan-card">
+      <div class="plan-name">Free</div>
+      <div class="plan-price">0<span class="plan-price-unit">원</span></div>
+      <p class="plan-tagline">처음 만나는 수비학.<br>핵심 수만 무료로.</p>
+      <div class="plan-divider"></div>
+      <ul class="feature-list">
+        <li><div class="feature-check">✓</div>인생여정수 · 문 넘버</li>
+        <li><div class="feature-check">✓</div>오늘의 에너지 흐름</li>
+        <li><div class="feature-check">✓</div>생애 주기 기본</li>
+        <li class="no"><div class="feature-x">×</div>AI 종합 요약</li>
+        <li class="no"><div class="feature-x">×</div>10년 타임라인</li>
+        <li class="no"><div class="feature-x">×</div>월간 흐름 분석</li>
+        <li class="no"><div class="feature-x">×</div>Growth Map</li>
+        <li class="no"><div class="feature-x">×</div>PDF 저장</li>
+      </ul>
+      <a href="analysis.html" class="plan-btn plan-btn-outline">무료로 시작</a>
+    </div>
+
+    <!-- BASIC -->
+    <div class="plan-card featured">
+      <div class="popular-badge">가장 인기</div>
+      <div class="plan-name">Basic</div>
+      <div class="plan-price" id="basic-price">9,900<span class="plan-price-unit">원/월</span></div>
+      <p class="plan-tagline">꾸준히 나를 알아가는 분.<br>AI 분석 포함.</p>
+      <div class="plan-divider"></div>
+      <ul class="feature-list">
+        <li><div class="feature-check">✓</div>Free 모든 기능</li>
+        <li><div class="feature-check">✓</div>AI 종합 성격 요약</li>
+        <li><div class="feature-check">✓</div>10년 타임라인</li>
+        <li><div class="feature-check">✓</div>월간 흐름 12개월</li>
+        <li><div class="feature-check">✓</div>Growth Map 성장 지도</li>
+        <li class="no"><div class="feature-x">×</div>AI 오늘의 메시지</li>
+        <li class="no"><div class="feature-x">×</div>로슈 격자 분석</li>
+        <li class="no"><div class="feature-x">×</div>PDF 저장</li>
+      </ul>
+      <button class="plan-btn plan-btn-cream" onclick="handleSubscribe('basic')">시작하기</button>
+    </div>
+
+    <!-- PRO -->
+    <div class="plan-card">
+      <div class="plan-name">Pro</div>
+      <div class="plan-price" id="pro-price">19,900<span class="plan-price-unit">원/월</span></div>
+      <p class="plan-tagline">깊이 있는 분석이 필요한 분.<br>전체 기능 이용.</p>
+      <div class="plan-divider"></div>
+      <ul class="feature-list">
+        <li><div class="feature-check">✓</div>Basic 모든 기능</li>
+        <li><div class="feature-check">✓</div>AI 오늘의 맞춤 메시지</li>
+        <li><div class="feature-check">✓</div>로슈 격자 심층 분석</li>
+        <li><div class="feature-check">✓</div>PDF 저장 · 공유</li>
+        <li><div class="feature-check">✓</div>분석 히스토리 저장</li>
+        <li><div class="feature-check">✓</div>신규 기능 우선 이용</li>
+        <li class="no"><div class="feature-x">×</div>고객 관리</li>
+        <li class="no"><div class="feature-x">×</div>다중 분석</li>
+      </ul>
+      <button class="plan-btn plan-btn-accent" onclick="handleSubscribe('pro')">시작하기</button>
+    </div>
+
+    <!-- PROFESSIONAL -->
+    <div class="plan-card professional">
+      <div class="plan-name">Professional</div>
+      <div class="plan-price" id="pro2-price">49,900<span class="plan-price-unit">원/월</span></div>
+      <p class="plan-tagline">수비학 상담사를 위한 플랜.<br>고객 관리 포함.</p>
+      <div class="plan-divider"></div>
+      <ul class="feature-list">
+        <li><div class="feature-check">✓</div>Pro 모든 기능</li>
+        <li><div class="feature-check">✓</div>고객 정보 관리</li>
+        <li><div class="feature-check">✓</div>다중 고객 분석</li>
+        <li><div class="feature-check">✓</div>AI 상담 리포트 생성</li>
+        <li><div class="feature-check">✓</div>고객용 PDF 자동 생성</li>
+        <li><div class="feature-check">✓</div>분석 무제한</li>
+        <li><div class="feature-check">✓</div>우선 고객 지원</li>
+        <li><div class="feature-check">✓</div>월 1회 1:1 컨설팅</li>
+      </ul>
+      <button class="plan-btn plan-btn-dark" onclick="handleSubscribe('professional')">시작하기</button>
+    </div>
+
+  </div>
+
+  <!-- 개별 구독 -->
+  <div style="margin-top:40px;text-align:center;padding:24px;background:white;border:1px solid var(--border);border-radius:10px;">
+    <div style="font-family:var(--font-mono);font-size:9px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);margin-bottom:12px;">개별 서비스</div>
+    <div style="font-size:13px;color:var(--muted);margin-bottom:16px;">특정 서비스만 필요하다면 개별 구독도 가능해요.</div>
+    <div style="display:flex;justify-content:center;gap:12px;flex-wrap:wrap;">
+      <div style="background:var(--parchment);border:1px solid var(--border);border-radius:20px;padding:8px 20px;font-size:12.5px;">라이프코드 <strong style="color:var(--deep-brown)">4,900원/월</strong></div>
+      <div style="background:var(--parchment);border:1px solid var(--border);border-radius:20px;padding:8px 20px;font-size:12.5px;">소울하모니 <strong style="color:var(--deep-brown)">4,900원/월</strong> <span style="font-size:10px;color:var(--muted)">(출시 예정)</span></div>
+      <div style="background:var(--parchment);border:1px solid var(--border);border-radius:20px;padding:8px 20px;font-size:12.5px;">점성학 <strong style="color:var(--deep-brown)">4,900원/월</strong> <span style="font-size:10px;color:var(--muted)">(출시 예정)</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- COMPARE TABLE -->
+<div class="compare-section">
+  <div class="compare-header">
+    <h2 class="compare-title">플랜 상세 비교</h2>
+    <p class="compare-desc">어떤 플랜이 나에게 맞는지 한눈에 확인하세요.</p>
+  </div>
+  <table class="compare-table">
+    <thead>
+      <tr>
+        <th></th>
+        <th>Free</th>
+        <th class="featured-col">Basic</th>
+        <th>Pro</th>
+        <th>Professional</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr class="category-row"><td colspan="5">기본 분석</td></tr>
+      <tr>
+        <td>인생여정수 · 문 넘버</td>
+        <td><span class="check">✓</span></td>
+        <td class="featured-col"><span class="check">✓</span></td>
+        <td><span class="check">✓</span></td>
+        <td><span class="check">✓</span></td>
+      </tr>
+      <tr>
+        <td>오늘의 에너지 흐름</td>
+        <td><span class="check">✓</span></td>
+        <td class="featured-col"><span class="check">✓</span></td>
+        <td><span class="check">✓</span></td>
+        <td><span class="check">✓</span></td>
+      </tr>
+      <tr>
+        <td>생애 주기 기본</td>
+        <td><span class="check">✓</span></td>
+        <td class="featured-col"><span class="check">✓</span></td>
+        <td><span class="check">✓</span></td>
+        <td><span class="check">✓</span></td>
+      </tr>
+
+      <tr class="category-row"><td colspan="5">심층 분석</td></tr>
+      <tr>
+        <td>10년 타임라인</td>
+        <td><span class="cross">—</span></td>
+        <td class="featured-col"><span class="check">✓</span></td>
+        <td><span class="check">✓</span></td>
+        <td><span class="check">✓</span></td>
+      </tr>
+      <tr>
+        <td>월간 흐름 12개월</td>
+        <td><span class="cross">—</span></td>
+        <td class="featured-col"><span class="check">✓</span></td>
+        <td><span class="check">✓</span></td>
+        <td><span class="check">✓</span></td>
+      </tr>
+      <tr>
+        <td>Growth Map 성장 지도</td>
+        <td><span class="cross">—</span></td>
+        <td class="featured-col"><span class="check">✓</span></td>
+        <td><span class="check">✓</span></td>
+        <td><span class="check">✓</span></td>
+      </tr>
+      <tr>
+        <td>로슈 격자 분석</td>
+        <td><span class="cross">—</span></td>
+        <td class="featured-col"><span class="cross">—</span></td>
+        <td><span class="check">✓</span></td>
+        <td><span class="check">✓</span></td>
+      </tr>
+
+      <tr class="category-row"><td colspan="5">AI 기능</td></tr>
+      <tr>
+        <td>AI 종합 성격 요약</td>
+        <td><span class="cross">—</span></td>
+        <td class="featured-col"><span class="check">✓</span></td>
+        <td><span class="check">✓</span></td>
+        <td><span class="check">✓</span></td>
+      </tr>
+      <tr>
+        <td>AI 오늘의 맞춤 메시지</td>
+        <td><span class="cross">—</span></td>
+        <td class="featured-col"><span class="cross">—</span></td>
+        <td><span class="check">✓</span></td>
+        <td><span class="check">✓</span></td>
+      </tr>
+      <tr>
+        <td>AI 상담 리포트 자동생성</td>
+        <td><span class="cross">—</span></td>
+        <td class="featured-col"><span class="cross">—</span></td>
+        <td><span class="cross">—</span></td>
+        <td><span class="check">✓</span></td>
+      </tr>
+
+      <tr class="category-row"><td colspan="5">저장 · 공유</td></tr>
+      <tr>
+        <td>PDF 저장</td>
+        <td><span class="cross">—</span></td>
+        <td class="featured-col"><span class="cross">—</span></td>
+        <td><span class="check">✓</span></td>
+        <td><span class="check">✓</span></td>
+      </tr>
+      <tr>
+        <td>분석 히스토리</td>
+        <td><span class="cross">—</span></td>
+        <td class="featured-col"><span class="cross">—</span></td>
+        <td><span class="check">✓</span></td>
+        <td><span class="check">✓</span></td>
+      </tr>
+
+      <tr class="category-row"><td colspan="5">상담사 전용</td></tr>
+      <tr>
+        <td>고객 정보 관리</td>
+        <td><span class="cross">—</span></td>
+        <td class="featured-col"><span class="cross">—</span></td>
+        <td><span class="cross">—</span></td>
+        <td><span class="check">✓</span></td>
+      </tr>
+      <tr>
+        <td>다중 고객 분석</td>
+        <td><span class="cross">—</span></td>
+        <td class="featured-col"><span class="cross">—</span></td>
+        <td><span class="cross">—</span></td>
+        <td><span class="check">✓</span></td>
+      </tr>
+      <tr>
+        <td>월 1회 1:1 컨설팅</td>
+        <td><span class="cross">—</span></td>
+        <td class="featured-col"><span class="cross">—</span></td>
+        <td><span class="cross">—</span></td>
+        <td><span class="check">✓</span></td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- FAQ -->
+<div class="faq-section">
+  <div class="faq-header">
+    <h2 class="faq-title">자주 묻는 질문</h2>
+  </div>
+
+  <div class="faq-item" onclick="this.classList.toggle('open')">
+    <div class="faq-q">언제든지 취소할 수 있나요? <span class="faq-arrow">▼</span></div>
+    <div class="faq-a">네, 언제든지 취소 가능합니다. 결제일 기준으로 다음 달부터 청구되지 않으며, 취소 후에도 남은 기간은 계속 이용할 수 있어요.</div>
+  </div>
+  <div class="faq-item" onclick="this.classList.toggle('open')">
+    <div class="faq-q">연간 플랜은 어떻게 결제되나요? <span class="faq-arrow">▼</span></div>
+    <div class="faq-a">연간 플랜은 1년치 금액이 한 번에 결제됩니다. 월간 대비 20% 저렴하게 이용할 수 있어요. 중도 해지 시 남은 기간에 대한 환불 정책은 이용약관을 참고해주세요.</div>
+  </div>
+  <div class="faq-item" onclick="this.classList.toggle('open')">
+    <div class="faq-q">플랜 업그레이드는 언제 적용되나요? <span class="faq-arrow">▼</span></div>
+    <div class="faq-a">업그레이드는 결제 즉시 적용됩니다. 상위 플랜의 모든 기능을 바로 이용할 수 있어요.</div>
+  </div>
+  <div class="faq-item" onclick="this.classList.toggle('open')">
+    <div class="faq-q">AI 분석은 얼마나 정확한가요? <span class="faq-arrow">▼</span></div>
+    <div class="faq-a">AI 분석은 수비학 데이터를 기반으로 개인화된 인사이트를 제공합니다. MBTI나 에니어그램처럼 자기이해를 돕는 참고 도구로 활용하시길 권장드립니다.</div>
+  </div>
+  <div class="faq-item" onclick="this.classList.toggle('open')">
+    <div class="faq-q">Professional 플랜의 1:1 컨설팅은 무엇인가요? <span class="faq-arrow">▼</span></div>
+    <div class="faq-a">수비학 전문가와 월 1회 화상 또는 채팅 상담을 받을 수 있습니다. 고객 분석 방법, 상담 활용법 등을 안내해드려요.</div>
+  </div>
+  <div class="faq-item" onclick="this.classList.toggle('open')">
+    <div class="faq-q">결제 수단은 무엇을 지원하나요? <span class="faq-arrow">▼</span></div>
+    <div class="faq-a">토스페이먼츠를 통해 신용카드, 체크카드, 카카오페이, 토스페이 등 다양한 결제 수단을 지원합니다.</div>
+  </div>
+</div>
+
+<!-- CTA -->
+<section class="cta-section">
+  <div class="cta-tag">지금 시작하세요</div>
+  <h2 class="cta-title">무료로 먼저<br>경험해보세요</h2>
+  <p class="cta-desc">신용카드 없이 바로 시작할 수 있습니다.</p>
+  <a href="analysis.html" class="cta-btn">무료 분석 시작하기 →</a>
+</section>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ── SUPABASE CONFIG ──
+const SUPABASE_URL = 'https://sghsryumnrnftyjoqmwf.supabase.co';
+const SUPABASE_ANON_KEY = 'sb_publishable_6S3W_oWrzG-Nv8wLK98gmg_q_KcB2I1';
+const { createClient } = supabase;
+const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+// ── 요금 데이터 ──
+const PRICES = {
+  monthly: { basic: '9,900', pro: '19,900', professional: '49,900' },
+  annual:  { basic: '7,920', pro: '15,920', professional: '39,920' }
+};
+
+let billing = 'monthly';
+
+function setBilling(type) {
+  billing = type;
+  document.getElementById('btnMonthly').classList.toggle('active', type === 'monthly');
+  document.getElementById('btnAnnual').classList.toggle('active', type === 'annual');
+
+  const unit = type === 'monthly' ? '원/월' : '원/월 (연간)';
+  document.getElementById('basic-price').innerHTML = `${PRICES[type].basic}<span class="plan-price-unit">${unit}</span>`;
+  document.getElementById('pro-price').innerHTML = `${PRICES[type].pro}<span class="plan-price-unit">${unit}</span>`;
+  document.getElementById('pro2-price').innerHTML = `${PRICES[type].professional}<span class="plan-price-unit">${unit}</span>`;
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2800);
+}
+
+async function handleSubscribe(plan) {
+  const { data: { session } } = await sb.auth.getSession();
+
+  if (!session) {
+    window.location.href = `signup.html?plan=${plan}`;
+    return;
+  }
+
+  if (plan === 'professional') {
+    window.location.href = `checkout-professional.html?cycle=${billing}`;
+    return;
+  }
+
+  showToast('Basic·Pro 플랜 결제는 순차적으로 열립니다. Professional은 지금 바로 결제할 수 있어요.');
+}
+
+// 현재 플랜 표시
+async function initAuth() {
+  const { data: { session } } = await sb.auth.getSession();
+  if (!session) return;
+
+  const { data: profile } = await sb.from('profiles')
+    .select('plan, plan_active_until')
+    .eq('id', session.user.id)
+    .single();
+
+  const plan = profile?.plan || 'free';
+  if (plan === 'free') return;
+
+  const proActive =
+    plan === 'professional' &&
+    (!profile?.plan_active_until || new Date(profile.plan_active_until) > new Date());
+
+  if (plan === 'professional' && !proActive) {
+    showToast('Professional 이용 기간이 만료되었습니다. 아래에서 갱신할 수 있어요.');
+    return;
+  }
+
+  showToast(`현재 ${plan} 플랜을 이용 중입니다.`);
+}
+
+initAuth();
+</script>
+</body>
+</html>

@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>회원가입 — 팔자연구소</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,400&family=Noto+Sans+KR:wght@300;400;500;700&family=Noto+Serif+KR:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css?v=20260507b">
+</head>
+<body>
+  <nav class="navbar" id="navbar">
+    <div class="nav-inner">
+      <a href="/" class="nav-logo">
+        <div class="logo-mark">8</div>
+        <span class="logo-text">팔자연구소</span>
+      </a>
+      <div class="nav-actions">
+        <a href="login.html" class="btn-nav-ghost">로그인</a>
+      </div>
+    </div>
+  </nav>
+
+  <main style="padding:120px 24px; max-width:720px; margin:0 auto;">
+    <h1 style="font-family:var(--font-display); margin-bottom:8px;">회원가입</h1>
+    <p style="color:var(--text2); margin-bottom:24px;">이메일과 비밀번호로 계정을 만드세요.</p>
+
+    <div id="auth-msg" style="margin-bottom:12px;"></div>
+
+    <form id="signup-form" style="display:grid; gap:12px;">
+      <label>
+        이메일
+        <input type="email" id="signup-email" required style="width:100%; padding:10px; border:1px solid var(--border); border-radius:8px;" />
+      </label>
+      <label>
+        비밀번호
+        <input type="password" id="signup-password" required minlength="6" style="width:100%; padding:10px; border:1px solid var(--border); border-radius:8px;" />
+      </label>
+      <button type="submit" class="btn-fill" style="width:100%;">회원가입</button>
+    </form>
+
+    <div style="text-align:center; margin:18px 0; color:var(--text3)">또는</div>
+    <div style="display:flex; gap:12px; flex-direction:column;">
+      <button id="google-signup" data-provider="google" class="btn-cta" style="width:100%;">구글로 계속하기</button>
+      <button id="kakao-signup" data-provider="kakao" class="btn-cta" style="width:100%;">카카오로 계속하기</button>
+      <button id="naver-signup" data-provider="naver" class="btn-cta" style="width:100%;">네이버로 계속하기</button>
+    </div>
+
+    <p style="margin-top:18px; color:var(--text2);">이미 계정이 있으신가요? <a href="login.html">로그인</a></p>
+  </main>
+
+  <script type="module" src="js/supabase-auth.js"></script>
+  <script type="module" src="js/main.js"></script>
+</body>
+</html>
+

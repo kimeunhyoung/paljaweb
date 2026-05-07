@@ -1,0 +1,1613 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>이름 분석 — 팔자연구소</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<style>
+:root {
+  --cream:      #f5f0e8;
+  --parchment:  #ede5d4;
+  --sand:       #d4c4a8;
+  --warm-brown: #8b6f47;
+  --deep-brown: #4a3520;
+  --ink:        #2c1f0e;
+  --accent:     #c8a96e;
+  --accent-lt:  #e8d5b0;
+  --muted:      #9a8570;
+  --border:     rgba(139,111,71,.15);
+  --shadow:     rgba(44,31,14,.08);
+  --teal:       #2e8b7a;
+  --teal-lt:    rgba(46,139,122,.12);
+  --red:        #b85555;
+  --red-lt:     rgba(184,85,85,.1);
+  --font-serif: 'Noto Serif KR',serif;
+  --font-body:  'Noto Serif KR',serif;
+  --font-mono:  'Noto Serif KR',serif;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{font-family:var(--font-body);background:var(--cream);color:var(--ink);min-height:100vh;}
+
+/* TOPBAR */
+.topbar{
+  min-height:52px;
+  background:rgba(245,240,232,.92);
+  backdrop-filter:blur(8px);
+  border-bottom:1px solid var(--border);
+  display:flex;align-items:center;justify-content:space-between;
+  padding:10px 32px;
+  position:sticky;top:0;z-index:100;
+  gap:16px;
+  box-shadow:0 6px 18px rgba(45, 38, 28, 0.06);
+}
+.topbar-left{display:flex;align-items:center;gap:20px;}
+.topbar-logo{display:flex;align-items:center;gap:10px;text-decoration:none;}
+.topbar-logo-mark{
+  width: 30px; height: 30px;
+  background: linear-gradient(160deg, #5a402d 0%, #3d2b1f 65%, #2d1f16 100%);
+  border-radius: 11px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-serif);
+  font-size: 17px;
+  color: var(--cream);
+  font-weight: 700;
+  border: 1px solid rgba(245,240,232,.22);
+  position: relative;
+  overflow: hidden;
+  line-height: 1;
+}
+.topbar-logo-mark::before{
+  content:'';
+  position:absolute;
+  inset:0;
+  background: linear-gradient(145deg, rgba(255,255,255,.16), rgba(255,255,255,0) 46%);
+  pointer-events:none;
+}
+.topbar-logo-mark::after{
+  content:'八';
+  position:absolute;
+  right:2px;
+  top:0;
+  font-size:11px;
+  font-weight:700;
+  color: rgba(255,255,255,.30);
+  line-height:1;
+  pointer-events:none;
+}
+.topbar-logo-text{font-family:var(--font-body);font-size:16px;font-weight:700;color:var(--deep-brown);letter-spacing:.01em;}
+.topbar-sep{width:1px;height:16px;background:var(--border);}
+.topbar-title{font-family:var(--font-body);font-size:14px;font-weight:600;color:var(--deep-brown);line-height:1.35;}
+.topbar-right{display:flex;align-items:center;gap:10px;flex-wrap:wrap;justify-content:flex-end;}
+.plan-badge{
+  font-family:var(--font-body);
+  font-size:10px;
+  letter-spacing:.04em;
+  text-transform:uppercase;
+  padding:4px 10px;
+  border-radius:20px;
+  border:1px solid var(--deep-brown);
+  color:var(--deep-brown);
+  background:var(--parchment);
+  font-weight:700;
+}
+.topbar-export-btns{display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:flex-end;}
+.counselor-bar-btn{
+  font-family:var(--font-body);
+  font-size:11px;
+  font-weight:600;
+  letter-spacing:.02em;
+  color:var(--deep-brown);
+  background:#fff;
+  border:1px solid var(--border);
+  border-radius:6px;
+  padding:6px 12px;
+  cursor:pointer;
+  transition:border-color .15s, background .15s, color .15s;
+}
+.counselor-bar-btn:hover{
+  background:var(--parchment);
+  border-color:var(--warm-brown);
+  color:var(--ink);
+}
+.back-btn{font-family:var(--font-body);font-size:13px;font-weight:600;letter-spacing:.02em;color:var(--deep-brown);text-decoration:none;display:flex;align-items:center;gap:6px;transition:color .15s;}
+.back-btn:hover{color:var(--ink);}
+
+/* HERO */
+.hero{background:var(--deep-brown);padding:52px 40px 44px;position:relative;overflow:hidden;}
+.hero::before{content:'名';position:absolute;right:-10px;top:-30px;font-family:var(--font-serif);font-size:260px;color:rgba(200,169,110,.05);line-height:1;pointer-events:none;}
+.hero-inner{max-width:900px;margin:0 auto;}
+.hero-tag{font-family:var(--font-mono);font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--accent);margin-bottom:12px;}
+.hero-title{font-family:var(--font-serif);font-size:36px;font-weight:300;color:var(--cream);line-height:1.2;margin-bottom:8px;}
+.hero-title em{font-style:italic;color:var(--accent);}
+.hero-desc{font-size:13px;color:rgba(245,240,232,.55);margin-bottom:28px;line-height:1.7;}
+
+/* TABS */
+.hero-tabs{display:flex;gap:4px;background:rgba(245,240,232,.08);border:1px solid rgba(200,169,110,.2);border-radius:10px;padding:4px;margin-bottom:24px;width:fit-content;}
+.hero-tab{padding:9px 24px;border:none;border-radius:7px;font-family:var(--font-body);font-size:13px;font-weight:500;cursor:pointer;transition:all .2s;color:rgba(245,240,232,.5);background:transparent;letter-spacing:.02em;}
+.hero-tab.active{background:var(--accent);color:var(--deep-brown);box-shadow:0 2px 8px rgba(200,169,110,.3);}
+.hero-tab:hover:not(.active){color:rgba(245,240,232,.8);}
+.tab-panel{display:none;}
+.tab-panel.active{display:block;}
+
+/* INPUT */
+.input-wrap{background:rgba(245,240,232,.06);border:1px solid rgba(200,169,110,.2);border-radius:14px;padding:28px 32px;}
+.input-section-title{font-family:var(--font-mono);font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:rgba(200,169,110,.72);margin-bottom:14px;margin-top:20px;}
+.input-section-title:first-child{margin-top:0;}
+.birth-row{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:4px;}
+.input-group{display:flex;flex-direction:column;gap:6px;}
+.input-label{font-family:var(--font-mono);font-size:11px;letter-spacing:.04em;text-transform:uppercase;color:rgba(200,169,110,.76);}
+.input-field{background:rgba(245,240,232,.08);border:1px solid rgba(200,169,110,.2);border-radius:8px;padding:10px 14px;color:var(--cream);font-family:var(--font-body);font-size:14px;outline:none;transition:border-color .15s;width:100%;color-scheme:dark;}
+.input-field:focus{border-color:var(--accent);}
+.input-field::placeholder{color:rgba(245,240,232,.25);}
+.names-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:16px;}
+.name-slot{display:flex;flex-direction:column;gap:6px;}
+.name-slot-num{font-family:var(--font-mono);font-size:10px;letter-spacing:.04em;color:rgba(200,169,110,.62);text-align:center;}
+.name-input-wrap{position:relative;}
+.name-field{background:rgba(245,240,232,.08);border:1px solid rgba(200,169,110,.2);border-radius:8px;padding:10px 12px;color:var(--cream);font-family:var(--font-body);font-size:14px;outline:none;transition:all .15s;width:100%;text-align:center;}
+.name-field:focus{border-color:var(--accent);background:rgba(200,169,110,.06);}
+.name-field::placeholder{color:rgba(245,240,232,.2);font-size:12px;}
+.name-field.filled{border-color:rgba(200,169,110,.4);}
+.analyze-btn{display:block;width:100%;background:var(--accent);color:var(--deep-brown);border:none;padding:13px 28px;border-radius:8px;font-family:var(--font-body);font-size:14px;font-weight:600;cursor:pointer;transition:all .15s;letter-spacing:.02em;}
+.analyze-btn:hover{background:#d4b87a;transform:translateY(-1px);}
+.analyze-btn:disabled{opacity:.5;cursor:not-allowed;transform:none;}
+
+/* 추천탭 */
+.energy-chips{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:8px;}
+.energy-chip{padding:7px 14px;border:1px solid rgba(200,169,110,.25);border-radius:20px;background:transparent;color:rgba(245,240,232,.55);font-family:var(--font-body);font-size:12px;cursor:pointer;transition:all .2s;}
+.energy-chip:hover{border-color:rgba(200,169,110,.5);color:rgba(245,240,232,.85);}
+.energy-chip.selected{background:rgba(200,169,110,.2);border-color:var(--accent);color:var(--accent-lt);}
+.gender-row{display:flex;gap:10px;margin-bottom:8px;}
+.gender-btn{padding:8px 20px;border:1px solid rgba(200,169,110,.25);border-radius:8px;background:transparent;color:rgba(245,240,232,.55);font-family:var(--font-body);font-size:13px;cursor:pointer;transition:all .2s;}
+.gender-btn.selected{background:rgba(200,169,110,.15);border-color:var(--accent);color:var(--accent-lt);}
+
+/* CONTENT */
+.content{max-width:960px;margin:0 auto;padding:40px 32px 80px;}
+.section{margin-bottom:48px;}
+.section-header{display:flex;align-items:center;gap:16px;margin-bottom:20px;}
+.section-line{flex:1;height:1px;background:var(--border);}
+.section-label{font-family:var(--font-body);font-size:15px;font-weight:700;color:var(--deep-brown);}
+
+/* ── 생년월일 수 분포 패널 ── */
+.birth-analysis-panel{background:white;border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:32px;box-shadow:0 2px 16px var(--shadow);}
+.bap-header{background:var(--deep-brown);padding:16px 22px;display:flex;align-items:center;justify-content:space-between;}
+.bap-title{font-family:var(--font-serif);font-size:16px;color:var(--cream);}
+.bap-lp{font-family:var(--font-mono);font-size:10px;letter-spacing:.12em;color:var(--accent);}
+.bap-body{padding:20px 22px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;}
+.bap-col-title{font-family:var(--font-mono);font-size:9px;letter-spacing:.15em;text-transform:uppercase;margin-bottom:10px;}
+.bap-col-title.good{color:var(--teal);}
+.bap-col-title.warn{color:var(--red);}
+.bap-col-title.neutral{color:var(--muted);}
+.num-pills{display:flex;flex-wrap:wrap;gap:6px;}
+.num-pill{display:inline-flex;align-items:center;gap:5px;padding:5px 10px;border-radius:20px;font-size:12px;}
+.num-pill.missing{background:rgba(46,139,122,.1);border:1px solid rgba(46,139,122,.3);color:var(--teal);}
+.num-pill.excess{background:rgba(184,85,85,.1);border:1px solid rgba(184,85,85,.3);color:var(--red);}
+.num-pill.normal{background:var(--parchment);border:1px solid var(--border);color:var(--muted);}
+.num-pill .pn{font-family:var(--font-serif);font-size:16px;font-weight:300;line-height:1;}
+.num-pill .pt{font-size:11px;}
+.bap-guide{background:var(--parchment);padding:14px 22px;border-top:1px solid var(--border);font-size:13px;color:var(--ink);line-height:1.75;}
+.bap-guide strong{color:var(--deep-brown);}
+
+/* ── 순위 헤더 ── */
+.rank-header{background:white;border:1px solid var(--border);border-radius:12px;padding:20px 24px;margin-bottom:20px;box-shadow:0 2px 12px var(--shadow);}
+.rank-header-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;}
+.rank-header-title{font-family:var(--font-serif);font-size:18px;color:var(--deep-brown);}
+.rank-count{font-family:var(--font-mono);font-size:10px;color:var(--muted);letter-spacing:.1em;}
+.rank-summary{font-size:13.5px;color:var(--ink);line-height:1.75;}
+.rank-summary strong{color:var(--deep-brown);}
+.rank-summary .best-name{color:var(--teal);font-weight:600;}
+
+/* ── 이름 카드 (새 구조) ── */
+.name-cards{display:flex;flex-direction:column;gap:16px;}
+
+.name-card-v2{background:white;border:1px solid var(--border);border-radius:14px;overflow:hidden;box-shadow:0 2px 16px var(--shadow);transition:box-shadow .2s;}
+.name-card-v2:hover{box-shadow:0 6px 32px var(--shadow);}
+.name-card-v2.rank-1{border-color:var(--teal);box-shadow:0 0 0 2px rgba(46,139,122,.15),0 4px 24px var(--shadow);}
+.name-card-v2.rank-2{border-color:var(--accent);box-shadow:0 0 0 1px rgba(200,169,110,.2),0 2px 16px var(--shadow);}
+.name-card-v2.danger{border-color:var(--red);}
+
+/* 카드 헤더 */
+.nc2-header{padding:18px 22px 16px;display:flex;align-items:flex-start;justify-content:space-between;gap:16px;}
+.nc2-header-left{flex:1;}
+.nc2-rank-badge{display:inline-flex;align-items:center;gap:6px;margin-bottom:8px;}
+.nc2-rank-num{font-family:var(--font-mono);font-size:9px;letter-spacing:.12em;color:var(--muted);}
+.nc2-verdict-badge{display:inline-block;font-size:9px;font-weight:700;letter-spacing:.08em;padding:3px 10px;border-radius:20px;}
+.verdict-best{background:var(--teal);color:white;}
+.verdict-good{background:var(--accent);color:var(--deep-brown);}
+.verdict-caution{background:var(--red-lt);color:var(--red);border:1px solid rgba(184,85,85,.3);}
+.verdict-normal{background:var(--parchment);color:var(--muted);border:1px solid var(--border);}
+.nc2-name{font-family:var(--font-serif);font-size:30px;font-weight:300;color:var(--deep-brown);letter-spacing:.05em;line-height:1;}
+.nc2-master-tag{display:inline-block;font-size:10px;background:rgba(46,139,122,.12);color:var(--teal);border:1px solid rgba(46,139,122,.3);padding:2px 8px;border-radius:20px;margin-left:8px;vertical-align:middle;font-family:var(--font-mono);}
+
+/* 점수 표시 */
+.nc2-score-wrap{text-align:center;flex-shrink:0;}
+.nc2-score-ring{width:72px;height:72px;position:relative;}
+.nc2-score-ring svg{transform:rotate(-90deg);}
+.nc2-score-center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;}
+.nc2-score-num{font-family:var(--font-serif);font-size:22px;font-weight:300;line-height:1;}
+.nc2-score-label{font-size:9px;color:var(--muted);margin-top:2px;}
+.nc2-score-text{font-size:11px;font-weight:600;margin-top:4px;text-align:center;}
+
+/* 핵심 판단 박스 */
+.nc2-verdict-box{margin:0 22px 16px;border-radius:10px;padding:14px 16px;}
+.nc2-verdict-box.vb-best{background:rgba(46,139,122,.06);border:1px solid rgba(46,139,122,.2);}
+.nc2-verdict-box.vb-good{background:rgba(200,169,110,.06);border:1px solid rgba(200,169,110,.2);}
+.nc2-verdict-box.vb-caution{background:rgba(184,85,85,.05);border:1px solid rgba(184,85,85,.15);}
+.nc2-verdict-box.vb-normal{background:var(--parchment);border:1px solid var(--border);}
+.vb-title{font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;margin-bottom:8px;}
+.vb-title.t-best{color:var(--teal);}
+.vb-title.t-good{color:var(--warm-brown);}
+.vb-title.t-caution{color:var(--red);}
+.vb-title.t-normal{color:var(--muted);}
+.vb-text{font-size:13.5px;line-height:1.8;color:var(--ink);font-family:var(--font-serif);}
+
+/* 강점/주의 섹션 */
+.nc2-strengths-warnings{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:0 22px 16px;}
+.sw-box{border-radius:8px;padding:12px 14px;}
+.sw-box.s-box{background:rgba(46,139,122,.05);border:1px solid rgba(46,139,122,.15);}
+.sw-box.w-box{background:rgba(184,85,85,.04);border:1px solid rgba(184,85,85,.12);}
+.sw-title{font-size:10px;font-weight:700;letter-spacing:.06em;margin-bottom:8px;}
+.sw-title.st{color:var(--teal);}
+.sw-title.wt{color:var(--red);}
+.sw-item{display:flex;gap:7px;align-items:flex-start;font-size:12.5px;color:var(--ink);line-height:1.65;margin-bottom:5px;}
+.sw-item:last-child{margin-bottom:0;}
+.sw-dot{flex-shrink:0;margin-top:3px;font-size:10px;}
+
+/* 수리 데이터 (접힘) */
+.nc2-nums-toggle{margin:0 22px 16px;cursor:pointer;display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:var(--parchment);border-radius:8px;border:none;width:calc(100% - 44px);font-family:var(--font-body);}
+.nc2-nums-label{font-size:12px;color:var(--muted);font-weight:500;}
+.nc2-nums-arrow{font-size:10px;color:var(--muted);transition:transform .2s;}
+.nc2-nums-toggle.open .nc2-nums-arrow{transform:rotate(180deg);}
+.nc2-nums-detail{display:none;margin:0 22px 16px;background:var(--parchment);border-radius:0 0 8px 8px;overflow:hidden;}
+.nc2-nums-detail.open{display:block;}
+.nc2-nums-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--border);}
+.nc2-num-item{background:white;padding:12px 14px;text-align:center;}
+.nc2-num-item.wide{grid-column:1/-1;}
+.nni-label{font-family:var(--font-mono);font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:5px;}
+.nni-val{font-family:var(--font-serif);font-size:32px;font-weight:300;color:var(--deep-brown);line-height:1;}
+.nni-val.master{color:var(--teal);}
+.nni-pre{font-family:var(--font-mono);font-size:10px;color:var(--muted);margin-left:4px;vertical-align:middle;}
+.nni-name{font-size:11px;color:var(--warm-brown);font-weight:500;margin-top:2px;}
+.nni-desc{font-size:11px;color:var(--muted);line-height:1.5;margin-top:4px;}
+
+/* 비교 테이블 */
+.compare-table-wrap{background:white;border:1px solid var(--border);border-radius:12px;overflow:hidden;box-shadow:0 4px 24px var(--shadow);}
+.compare-table{width:100%;border-collapse:collapse;}
+.compare-table th{background:var(--deep-brown);color:var(--cream);font-family:var(--font-body);font-size:12px;font-weight:500;padding:14px 16px;text-align:left;letter-spacing:.02em;white-space:nowrap;}
+.compare-table th.name-col{font-family:var(--font-serif);font-size:16px;text-align:center;min-width:110px;}
+.compare-table td{padding:11px 16px;border-bottom:1px solid var(--border);font-size:13px;color:var(--ink);vertical-align:middle;}
+.compare-table td.row-label{background:var(--parchment);font-weight:600;font-size:12px;color:var(--deep-brown);white-space:nowrap;width:130px;}
+.compare-table td.num-cell{text-align:center;}
+.compare-table tr:last-child td{border-bottom:none;}
+.num-badge{display:inline-flex;flex-direction:column;align-items:center;gap:1px;}
+.num-badge .n{font-family:var(--font-serif);font-size:26px;font-weight:300;color:var(--deep-brown);line-height:1;}
+.num-badge .n.master{color:var(--teal);}
+.num-badge .pre{font-family:var(--font-mono);font-size:9px;color:var(--muted);}
+.num-badge .title{font-size:10px;color:var(--warm-brown);font-weight:500;}
+.score-cell{text-align:center;}
+.sc-num{font-family:var(--font-serif);font-size:22px;font-weight:300;line-height:1;display:block;}
+.sc-bar{width:56px;height:4px;background:var(--parchment);border-radius:2px;overflow:hidden;margin:3px auto;}
+.sc-fill{height:100%;border-radius:2px;}
+.sc-label{font-size:10px;color:var(--muted);display:block;}
+.score-high{color:var(--teal);}
+.score-mid{color:var(--accent);}
+.score-low{color:var(--red);}
+.fill-high{background:var(--teal);}
+.fill-mid{background:var(--accent);}
+.fill-low{background:var(--red);}
+
+/* AI */
+.ai-wrap{background:white;border:1px solid var(--border);border-left:3px solid var(--accent);border-radius:0 12px 12px 0;padding:24px;}
+.ai-tag{font-family:var(--font-mono);font-size:8px;letter-spacing:.2em;text-transform:uppercase;color:var(--accent);margin-bottom:12px;display:flex;align-items:center;gap:6px;}
+.ai-dot{width:6px;height:6px;border-radius:50%;background:var(--accent);animation:pulse 1.8s ease-in-out infinite;}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1);}50%{opacity:.4;transform:scale(.8);}}
+.ai-text{font-size:14px;line-height:1.9;color:var(--ink);font-family:var(--font-serif);}
+.ai-loading{display:flex;align-items:center;gap:10px;font-size:12px;color:var(--muted);font-family:var(--font-mono);}
+.ai-spinner{width:14px;height:14px;border:1.5px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .8s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg);}}
+
+/* 추천 결과 */
+.rec-result-wrap{background:white;border:1px solid var(--border);border-radius:12px;overflow:hidden;box-shadow:0 4px 24px var(--shadow);}
+.rec-result-header{background:var(--deep-brown);padding:16px 20px;display:flex;align-items:center;justify-content:space-between;}
+.rec-result-title{font-family:var(--font-serif);font-size:16px;font-weight:400;color:var(--cream);}
+.rec-result-sub{font-family:var(--font-mono);font-size:9px;letter-spacing:.15em;color:rgba(200,169,110,.6);}
+.rec-name-row{padding:16px 20px;border-bottom:1px solid var(--border);display:grid;grid-template-columns:24px 1fr auto;gap:14px;align-items:center;}
+.rec-name-row:last-child{border-bottom:none;}
+.rec-rank{font-family:var(--font-mono);font-size:10px;color:var(--muted);text-align:center;}
+.rec-name-kr{font-family:var(--font-serif);font-size:22px;font-weight:300;color:var(--deep-brown);margin-bottom:3px;}
+.rec-name-nums{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:4px;}
+.rec-nc{font-size:11px;color:var(--muted);}
+.rec-nc strong{color:var(--deep-brown);font-family:var(--font-serif);font-size:14px;}
+.rec-reason{font-size:12px;color:var(--muted);line-height:1.55;font-style:italic;}
+.rec-actions{display:flex;flex-direction:column;align-items:center;gap:6px;}
+.rec-score-num{font-family:var(--font-serif);font-size:24px;font-weight:300;line-height:1;}
+.rec-score-lbl{font-size:9px;color:var(--muted);}
+.send-btn{padding:6px 12px;background:var(--accent-lt);border:1px solid var(--accent);border-radius:6px;font-size:11px;font-weight:600;color:var(--deep-brown);cursor:pointer;transition:all .15s;white-space:nowrap;}
+.send-btn:hover{background:var(--accent);}
+.rec-loading{padding:40px;text-align:center;color:var(--muted);font-family:var(--font-mono);font-size:12px;}
+
+/* 인쇄 */
+@media print{
+  .topbar,.hero,.print-btn,.analyze-btn{display:none!important;}
+  .content{padding:0;max-width:100%;}
+  .name-card-v2{break-inside:avoid;}
+  body{background:white;}
+}
+/* 소리 에너지 */
+.sound-section{margin:0 22px 16px;padding:14px 16px;background:linear-gradient(135deg,rgba(46,139,122,.04),rgba(200,169,110,.04));border:1px solid rgba(46,139,122,.15);border-radius:10px;}
+.sound-title{font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--teal);margin-bottom:10px;}
+.sound-summary{font-size:13.5px;line-height:1.8;color:var(--ink);font-family:var(--font-serif);margin-bottom:12px;}
+.sound-tags{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px;}
+.sound-tag{display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border-radius:20px;font-size:11px;}
+.sound-tag.bright{background:rgba(200,169,110,.12);border:1px solid rgba(200,169,110,.3);color:var(--warm-brown);}
+.sound-tag.warm{background:rgba(184,120,80,.1);border:1px solid rgba(184,120,80,.25);color:#8b5e3c;}
+.sound-tag.deep{background:rgba(80,100,160,.08);border:1px solid rgba(80,100,160,.2);color:#4a5a8b;}
+.sound-tag.neutral{background:var(--parchment);border:1px solid var(--border);color:var(--muted);}
+.sound-tag.sharp{background:rgba(150,80,150,.08);border:1px solid rgba(150,80,150,.2);color:#7a4a8b;}
+.sound-detail{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px;padding-top:10px;border-top:1px solid rgba(46,139,122,.1);}
+.sd-item{font-size:12px;color:var(--muted);line-height:1.6;}
+.sd-item strong{color:var(--deep-brown);display:block;font-size:11px;margin-bottom:2px;}
+
+.compare-table tr.score-divider td{background:var(--parchment);padding:4px 16px;font-family:var(--font-mono);font-size:8px;letter-spacing:.15em;text-transform:uppercase;color:var(--muted);}
+.compare-table td.row-label.score-section{background:rgba(200,169,110,.08);border-top:2px solid var(--border);}
+.compare-table td.score-section{border-top:2px solid var(--border);}
+
+@media(max-width:700px){
+  .hero{padding:36px 20px 32px;}
+  .content{padding:24px 16px 60px;}
+  .birth-row{grid-template-columns:1fr;}
+  .names-grid{grid-template-columns:repeat(2,1fr);}
+  .nc2-strengths-warnings{grid-template-columns:1fr;}
+  .bap-body{grid-template-columns:1fr;}
+  .topbar{padding:8px 16px;}
+  .topbar-logo-mark{width:30px;height:30px;font-size:17px;}
+  .topbar-logo-text{font-size:15px;}
+  .topbar-title{font-size:13px;}
+  .back-btn{font-size:12px;}
+  .topbar-left{gap:12px;min-width:0;}
+  .topbar-right{gap:8px;justify-content:flex-end;}
+  .topbar-export-btns{gap:6px;}
+  .counselor-bar-btn{font-size:10px;padding:5px 10px;}
+  .plan-badge{font-size:9px;padding:3px 8px;}
+}
+@media(max-width:560px){
+  .topbar{
+    display:grid;
+    grid-template-columns:1fr auto;
+    align-items:center;
+    row-gap:6px;
+  }
+  .topbar-left{grid-column:1 / -1;}
+  .topbar-right{grid-column:1 / -1;justify-content:flex-end;}
+  .topbar-sep{display:none;}
+  .topbar-title{font-size:12px;}
+}
+@media(max-width:430px){
+  .topbar-right{justify-content:flex-start;}
+  .topbar-export-btns{width:100%;}
+  .counselor-bar-btn{flex:1 1 auto;text-align:center;}
+}
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="topbar-left">
+    <a class="topbar-logo" href="index.html">
+      <span class="topbar-logo-mark">八</span>
+      <span class="topbar-logo-text">팔자연구소</span>
+    </a>
+    <div class="topbar-sep"></div>
+    <span class="topbar-title">이름 분석</span>
+  </div>
+  <div class="topbar-right">
+    <span class="plan-badge">Professional</span>
+    <div class="topbar-export-btns">
+      <button type="button" class="counselor-bar-btn" onclick="window.print()">🖨 인쇄</button>
+      <button type="button" class="counselor-bar-btn" id="pdfBtn" onclick="savePDF()">⬇ PDF 저장</button>
+    </div>
+    <a class="back-btn" href="dashboard.html">대시보드</a>
+  </div>
+</header>
+
+<section class="hero">
+  <div class="hero-inner">
+    <div class="hero-tag">Name Analysis · 수비학 이름 분석</div>
+    <h1 class="hero-title">이름 속에 담긴<br><em>에너지를 읽다</em></h1>
+    <p class="hero-desc">생년월일에 부족한 수, 과잉된 수를 분석해 어떤 이름이 왜 좋은지 명확하게 알려드립니다.</p>
+
+    <div class="hero-tabs">
+      <button class="hero-tab active" onclick="switchTab('analyze',this)">✦ 이름 분석</button>
+      <button class="hero-tab" onclick="switchTab('recommend',this)">✧ 이름 추천</button>
+    </div>
+
+    <!-- 분석 탭 -->
+    <div class="tab-panel active" id="panel-analyze">
+      <div class="input-wrap">
+        <div class="input-section-title">기본 정보</div>
+        <div class="birth-row" style="margin-bottom:20px;">
+          <div class="input-group">
+            <label class="input-label">대상자 이름 / 성 <span style="color:rgba(200,169,110,.4);font-size:9px;">(선택)</span></label>
+            <input class="input-field" id="baseName" type="text" placeholder="예) 김은형 또는 김">
+          </div>
+          <div class="input-group">
+            <label class="input-label">생년월일 <span style="color:rgba(200,169,110,.4);font-size:9px;">(선택 — 입력 시 훨씬 정확해요)</span></label>
+            <input class="input-field" id="birthDate" type="date">
+          </div>
+        </div>
+        <div class="input-section-title">분석할 이름 (최대 5개)</div>
+        <div class="names-grid">
+          <div class="name-slot"><div class="name-slot-num">이름 1</div><div class="name-input-wrap"><input class="name-field" data-idx="0" type="text" placeholder="이름 입력" oninput="onNameInput(this)" autocomplete="off"></div></div>
+          <div class="name-slot"><div class="name-slot-num">이름 2</div><div class="name-input-wrap"><input class="name-field" data-idx="1" type="text" placeholder="이름 입력" oninput="onNameInput(this)" autocomplete="off"></div></div>
+          <div class="name-slot"><div class="name-slot-num">이름 3</div><div class="name-input-wrap"><input class="name-field" data-idx="2" type="text" placeholder="이름 입력" oninput="onNameInput(this)" autocomplete="off"></div></div>
+          <div class="name-slot"><div class="name-slot-num">이름 4</div><div class="name-input-wrap"><input class="name-field" data-idx="3" type="text" placeholder="이름 입력" oninput="onNameInput(this)" autocomplete="off"></div></div>
+          <div class="name-slot"><div class="name-slot-num">이름 5</div><div class="name-input-wrap"><input class="name-field" data-idx="4" type="text" placeholder="이름 입력" oninput="onNameInput(this)" autocomplete="off"></div></div>
+        </div>
+        <div style="font-size:11px;color:rgba(245,240,232,.35);text-align:center;margin-bottom:16px;">한글 또는 영문 모두 가능 · 이름 1개만 입력해도 분석됩니다</div>
+        <button class="analyze-btn" id="analyzeBtn" onclick="runAnalysis()">✦ 이름 분석 시작</button>
+      </div>
+    </div>
+
+    <!-- 추천 탭 -->
+    <div class="tab-panel" id="panel-recommend">
+      <div class="input-wrap">
+        <div class="input-section-title">기본 정보</div>
+        <div class="birth-row" style="margin-bottom:4px;">
+          <div class="input-group">
+            <label class="input-label">성(姓) <span style="color:rgba(200,169,110,.4);font-size:9px;">(선택)</span></label>
+            <input class="input-field" id="recSurname" type="text" placeholder="예) 김">
+          </div>
+          <div class="input-group">
+            <label class="input-label">생년월일 <span style="color:rgba(200,169,110,.4);font-size:9px;">(선택 — 부족수 기반 자동 추천)</span></label>
+            <input class="input-field" id="recBirth" type="date">
+          </div>
+        </div>
+        <div class="birth-row" style="margin-bottom:20px;">
+          <div class="input-group">
+            <label class="input-label">이름 음절 수</label>
+            <select class="input-field" id="recSyllable" style="cursor:pointer;">
+              <option value="any">무관</option>
+              <option value="1">1음절</option>
+              <option value="2" selected>2음절</option>
+              <option value="3">3음절</option>
+            </select>
+          </div>
+          <div class="input-group">
+            <label class="input-label">성별</label>
+            <div class="gender-row" style="margin:0;">
+              <button class="gender-btn selected" data-gender="무관" onclick="selectGender(this)">무관</button>
+              <button class="gender-btn" data-gender="여자" onclick="selectGender(this)">여자</button>
+              <button class="gender-btn" data-gender="남자" onclick="selectGender(this)">남자</button>
+            </div>
+          </div>
+        </div>
+        <div class="input-section-title">원하는 에너지 <span style="color:rgba(200,169,110,.4);font-size:9px;">(선택 · 복수 가능 · 미선택 시 생년월일 부족수 기반)</span></div>
+        <div class="energy-chips" style="margin-bottom:20px;">
+          <button class="energy-chip" data-val="1" onclick="toggleChip(this)">1 · 독립·추진력</button>
+          <button class="energy-chip" data-val="2" onclick="toggleChip(this)">2 · 조화·공감</button>
+          <button class="energy-chip" data-val="3" onclick="toggleChip(this)">3 · 창의·표현</button>
+          <button class="energy-chip" data-val="4" onclick="toggleChip(this)">4 · 안정·성실</button>
+          <button class="energy-chip" data-val="5" onclick="toggleChip(this)">5 · 자유·변화</button>
+          <button class="energy-chip" data-val="6" onclick="toggleChip(this)">6 · 돌봄·책임</button>
+          <button class="energy-chip" data-val="7" onclick="toggleChip(this)">7 · 지혜·통찰</button>
+          <button class="energy-chip" data-val="8" onclick="toggleChip(this)">8 · 성취·야망</button>
+          <button class="energy-chip" data-val="9" onclick="toggleChip(this)">9 · 포용·완성</button>
+          <button class="energy-chip" data-val="11" onclick="toggleChip(this)">11 · 직관·영감 ✦</button>
+          <button class="energy-chip" data-val="22" onclick="toggleChip(this)">22 · 비전·실현 ✦</button>
+          <button class="energy-chip" data-val="33" onclick="toggleChip(this)">33 · 치유·사랑 ✦</button>
+        </div>
+        <div class="input-section-title">추가 요청 <span style="color:rgba(200,169,110,.4);font-size:9px;">(선택)</span></div>
+        <input class="input-field" id="recExtra" type="text" placeholder="예) 부드러운 발음, 획수 적게, 자연 관련 의미 등" style="margin-bottom:16px;">
+        <button class="analyze-btn" id="recBtn" onclick="runRecommend()">✧ AI 이름 추천 받기</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 분석 결과 -->
+<div class="content" id="resultArea" style="display:none;">
+
+  <!-- 생년월일 수 분포 -->
+  <div class="section fade-up" id="birthAnalysisSection" style="display:none;animation-delay:.05s;">
+    <div class="section-header">
+      <div class="section-line"></div>
+      <span class="section-label">생년월일 수 분포 분석</span>
+      <div class="section-line"></div>
+    </div>
+    <div class="birth-analysis-panel" id="birthAnalysisPanel"></div>
+  </div>
+
+  <!-- 순위 요약 -->
+  <div class="section fade-up" style="animation-delay:.1s;">
+    <div class="section-header">
+      <div class="section-line"></div>
+      <span class="section-label">이름 분석 결과</span>
+      <div class="section-line"></div>
+    </div>
+    <div class="rank-header" id="rankHeader"></div>
+    <div class="name-cards" id="nameCards"></div>
+  </div>
+
+  <!-- 비교 테이블 -->
+  <div class="section fade-up" style="animation-delay:.2s;">
+    <div class="section-header">
+      <div class="section-line"></div>
+      <span class="section-label">수리 비교표</span>
+      <div class="section-line"></div>
+    </div>
+    <div class="compare-table-wrap"><table class="compare-table" id="compareTable"></table></div>
+  </div>
+
+  <!-- AI 코멘트 -->
+  <div class="section fade-up" style="animation-delay:.25s;">
+    <div class="section-header">
+      <div class="section-line"></div>
+      <span class="section-label">AI 종합 의견</span>
+      <div class="section-line"></div>
+    </div>
+    <div class="ai-wrap" id="aiWrap">
+      <div class="ai-tag"><div class="ai-dot"></div>AI 분석 중</div>
+      <div class="ai-loading"><div class="ai-spinner"></div>종합 분석을 생성하고 있습니다...</div>
+    </div>
+  </div>
+</div>
+
+<!-- 추천 결과 -->
+<div class="content" id="recResultArea" style="display:none;">
+  <div class="section fade-up" style="animation-delay:.1s;">
+    <div class="section-header">
+      <div class="section-line"></div>
+      <span class="section-label">AI 이름 추천 결과</span>
+      <div class="section-line"></div>
+    </div>
+    <div id="recResultWrap">
+      <div class="rec-loading"><div class="ai-spinner" style="margin:0 auto 12px;width:20px;height:20px;"></div>추천 중...</div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ══════════════════════════════
+// PDF 저장
+// ══════════════════════════════
+async function savePDF() {
+  const resultArea = document.getElementById('resultArea');
+  if(!resultArea || resultArea.style.display === 'none') {
+    alert('먼저 이름 분석을 실행해주세요.');
+    return;
+  }
+
+  const btn = document.getElementById('pdfBtn');
+  btn.textContent = '⏳ 생성 중...';
+  btn.disabled = true;
+
+  try {
+    const { jsPDF } = window.jspdf;
+
+    // A4 기준
+    const pdf = new jsPDF({ orientation:'portrait', unit:'mm', format:'a4' });
+    const pageW = 210;
+    const pageH = 297;
+    const margin = 12;
+    const contentW = pageW - margin * 2;
+
+    // 섹션별로 캡처해서 페이지 구성
+    const sections = [
+      document.getElementById('birthAnalysisSection'),
+      document.querySelector('.rank-header'),
+      ...document.querySelectorAll('.name-card-v2'),
+      document.querySelector('.compare-table-wrap'),
+      document.getElementById('aiWrap'),
+    ].filter(el => el && el.offsetParent !== null);
+
+    let yPos = margin;
+    let isFirstPage = true;
+
+    // 헤더 추가
+    const baseName = document.getElementById('baseName')?.value?.trim() || '';
+    const birthDate = document.getElementById('birthDate')?.value || '';
+    pdf.setFillColor(74, 53, 32);
+    pdf.rect(0, 0, pageW, 18, 'F');
+    pdf.setTextColor(200, 169, 110);
+    pdf.setFontSize(11);
+    pdf.setFont('helvetica','bold');
+    pdf.text('팔자연구소 · 이름 수비학 분석 리포트', margin, 12);
+    pdf.setTextColor(180, 150, 100);
+    pdf.setFontSize(8);
+    pdf.setFont('helvetica','normal');
+    const dateStr = new Date().toLocaleDateString('ko-KR');
+    const infoStr = `${baseName ? baseName + ' · ' : ''}${birthDate || ''} · ${dateStr}`;
+    pdf.text(infoStr, pageW - margin - pdf.getTextWidth(infoStr), 12);
+    yPos = 24;
+
+    for(const section of sections) {
+      try {
+        const canvas = await html2canvas(section, {
+          scale: 2,
+          useCORS: true,
+          backgroundColor: '#ffffff',
+          logging: false,
+        });
+
+        const imgData = canvas.toDataURL('image/jpeg', 0.92);
+        const imgH = (canvas.height * contentW) / canvas.width;
+
+        // 페이지 넘김 처리
+        if(yPos + imgH > pageH - margin) {
+          pdf.addPage();
+          yPos = margin;
+          // 새 페이지 헤더
+          pdf.setFillColor(74, 53, 32);
+          pdf.rect(0, 0, pageW, 10, 'F');
+          pdf.setTextColor(200, 169, 110);
+          pdf.setFontSize(7);
+          pdf.text('팔자연구소 · 이름 분석', margin, 7);
+          yPos = 14;
+        }
+
+        pdf.addImage(imgData, 'JPEG', margin, yPos, contentW, imgH);
+        yPos += imgH + 5;
+      } catch(e) {
+        console.warn('섹션 캡처 실패:', e);
+      }
+    }
+
+    // 면책 문구
+    if(yPos + 12 > pageH - margin) { pdf.addPage(); yPos = margin; }
+    pdf.setTextColor(150, 130, 110);
+    pdf.setFontSize(7);
+    pdf.setFont('helvetica','normal');
+    pdf.text('※ 이 리포트는 수비학 + 소리 에너지 기준의 참고 자료입니다. 최종 이름 선택은 종합적으로 판단하시길 권합니다.', margin, yPos + 8);
+
+    // 저장
+    const fileName = `팔자연구소_이름분석_${baseName || '리포트'}_${dateStr.replace(/\./g,'')}.pdf`;
+    pdf.save(fileName);
+
+  } catch(e) {
+    console.error('PDF 생성 오류:', e);
+    alert('PDF 생성 중 오류가 발생했습니다. 브라우저 인쇄(Ctrl+P)를 이용해주세요.');
+  }
+
+  btn.textContent = '⬇ PDF 저장';
+  btn.disabled = false;
+}
+
+// ══════════════════════════════
+// 수비학 엔진
+// ══════════════════════════════
+const PY={A:1,B:2,C:3,D:4,E:5,F:6,G:7,H:8,I:9,J:1,K:2,L:3,M:4,N:5,O:6,P:7,Q:8,R:9,S:1,T:2,U:3,V:4,W:5,X:6,Y:7,Z:8};
+const VOWELS=new Set('AEIOU');
+const HC={'ㄱ':1,'ㄲ':1,'ㄴ':2,'ㄷ':3,'ㄸ':3,'ㄹ':4,'ㅁ':5,'ㅂ':6,'ㅃ':6,'ㅅ':7,'ㅆ':7,'ㅇ':8,'ㅈ':9,'ㅉ':9,'ㅊ':1,'ㅋ':2,'ㅌ':3,'ㅍ':4,'ㅎ':5};
+const HV={'ㅏ':1,'ㅑ':2,'ㅓ':3,'ㅕ':4,'ㅗ':5,'ㅛ':6,'ㅜ':7,'ㅠ':8,'ㅡ':9,'ㅣ':1,'ㅐ':2,'ㅒ':3,'ㅔ':4,'ㅖ':5,'ㅘ':6,'ㅙ':7,'ㅚ':8,'ㅝ':9,'ㅞ':1,'ㅟ':2,'ㅢ':3};
+const CHOS=['ㄱ','ㄲ','ㄴ','ㄷ','ㄸ','ㄹ','ㅁ','ㅂ','ㅃ','ㅅ','ㅆ','ㅇ','ㅈ','ㅉ','ㅊ','ㅋ','ㅌ','ㅍ','ㅎ'];
+const JUNGS=['ㅏ','ㅐ','ㅑ','ㅒ','ㅓ','ㅔ','ㅕ','ㅖ','ㅗ','ㅘ','ㅙ','ㅚ','ㅛ','ㅜ','ㅝ','ㅞ','ㅟ','ㅠ','ㅡ','ㅢ','ㅣ'];
+const JONGS=['','ㄱ','ㄲ','ㄳ','ㄴ','ㄵ','ㄶ','ㄷ','ㄹ','ㄺ','ㄻ','ㄼ','ㄽ','ㄾ','ㄿ','ㅀ','ㅁ','ㅂ','ㅄ','ㅅ','ㅆ','ㅇ','ㅈ','ㅊ','ㅋ','ㅌ','ㅍ','ㅎ'];
+
+function reduce(n,master=true){
+  if(master&&(n===11||n===22||n===33))return n;
+  while(n>9){n=String(n).split('').reduce((s,d)=>s+Number(d),0);if(master&&(n===11||n===22||n===33))return n;}
+  return n;
+}
+function decomposeChar(ch){const c=ch.charCodeAt(0)-0xAC00;if(c<0||c>11171)return null;return{cho:CHOS[Math.floor(c/(21*28))],jung:JUNGS[Math.floor((c%(21*28))/28)],jong:JONGS[c%28]||''};}
+function calcName(name){
+  const s=(name||'').replace(/\s/g,'');const hasHangul=/[가-힣ㄱ-ㅎㅏ-ㅣ]/.test(s);let cv=0,vv=0;
+  if(hasHangul){
+    for(const ch of s){
+      const d=decomposeChar(ch);
+      if(d){cv+=HC[d.cho]||0;if(d.jong)for(const j of d.jong)cv+=HC[j]||0;vv+=HV[d.jung]||0;continue;}
+      cv+=HC[ch]||0; vv+=HV[ch]||0;
+    }
+  } else {
+    const clean=s.toUpperCase().replace(/[^A-Z]/g,'');for(const ch of clean){const v=PY[ch]||0;if(VOWELS.has(ch))vv+=v;else cv+=v;}
+  }
+  const total=cv+vv;
+  return{expression:{raw:total,val:reduce(total)},soul:{raw:vv,val:reduce(vv)},personality:{raw:cv,val:reduce(cv)}};
+}
+function calcLifePath(dob){
+  if(!dob)return null;
+  const [yy,mm,dd]=dob.split('-').map(Number);
+  if(!yy||!mm||!dd) return null;
+  const yr=reduce(String(yy).split('').reduce((a,b)=>a+Number(b),0));
+  const mr=reduce(mm);
+  const dr=reduce(dd);
+  const raw=yr+mr+dr;
+  return{raw,val:reduce(raw)};
+}
+function calcMaturity(exprRaw,lpRaw){const raw=exprRaw+lpRaw;return{raw,val:reduce(raw)};}
+
+// 생년월일 수 분포
+function calcBirthDist(dob){
+  const digits=dob.replace(/-/g,'').split('').map(Number).filter(n=>n>0);
+  const counts={};
+  for(let i=1;i<=9;i++)counts[i]=0;
+  digits.forEach(d=>{const r=reduce(d,false);if(r>=1&&r<=9)counts[r]=(counts[r]||0)+1;});
+  const missing=Object.keys(counts).filter(k=>counts[k]===0).map(Number);
+  const excess=Object.keys(counts).filter(k=>counts[k]>=3).map(Number);
+  const normal=Object.keys(counts).filter(k=>counts[k]===1||counts[k]===2).map(Number);
+  return{counts,missing,excess,normal};
+}
+
+// ══════════════════════════════
+// 소리 에너지 분석 시스템
+// ══════════════════════════════
+
+// 모음 에너지 맵
+const VOWEL_ENERGY = {
+  'ㅏ':{energy:'양(陽)',feel:'밝음·개방',desc:'밝고 활기찬 에너지. 외향적이고 적극적인 울림을 줍니다.',type:'bright'},
+  'ㅑ':{energy:'양(陽)',feel:'활발·자신감',desc:'생동감 있고 자신감 넘치는 울림입니다.',type:'bright'},
+  'ㅓ':{energy:'음(陰)',feel:'포근함·안정',desc:'따뜻하고 포용적인 에너지. 편안함을 주는 울림입니다.',type:'warm'},
+  'ㅕ':{energy:'음(陰)',feel:'따뜻함·확장',desc:'부드럽고 따뜻한 울림. 관계 친화적인 에너지입니다.',type:'warm'},
+  'ㅗ':{energy:'양(陽)',feel:'긍정·원만',desc:'둥글고 밝은 에너지. 원만한 관계와 긍정성을 줍니다.',type:'bright'},
+  'ㅛ':{energy:'양(陽)',feel:'경쾌·즐거움',desc:'경쾌하고 유쾌한 울림. 주변을 밝게 만드는 에너지입니다.',type:'bright'},
+  'ㅜ':{energy:'음(陰)',feel:'깊이·내면',desc:'깊고 묵직한 에너지. 내면이 풍부한 울림입니다.',type:'deep'},
+  'ㅠ':{energy:'음(陰)',feel:'사색·신중',desc:'차분하고 사색적인 울림. 신중하고 깊은 인상을 줍니다.',type:'deep'},
+  'ㅡ':{energy:'중(中)',feel:'중립·집중',desc:'중성적이고 집중된 에너지. 흔들리지 않는 안정감입니다.',type:'neutral'},
+  'ㅣ':{energy:'음(陰)',feel:'예민·섬세',desc:'날카롭고 섬세한 울림. 예민한 감수성과 직관을 줍니다.',type:'sharp'},
+  'ㅐ':{energy:'양(陽)',feel:'명확·직선',desc:'명확하고 직접적인 에너지. 솔직하고 분명한 인상입니다.',type:'bright'},
+  'ㅔ':{energy:'중(中)',feel:'현실·실용',desc:'실용적이고 현실적인 울림입니다.',type:'neutral'},
+  'ㅒ':{energy:'양(陽)',feel:'활기·명랑',desc:'밝고 활기찬 울림입니다.',type:'bright'},
+  'ㅖ':{energy:'양(陽)',feel:'지성·청명',desc:'맑고 지적인 에너지를 줍니다.',type:'bright'},
+  'ㅘ':{energy:'양(陽)',feel:'넉넉함·포용',desc:'넉넉하고 포용적인 에너지입니다.',type:'warm'},
+  'ㅝ':{energy:'음(陰)',feel:'깊은 따뜻함',desc:'깊은 내면의 따뜻함이 느껴지는 울림입니다.',type:'warm'},
+  'ㅢ':{energy:'중(中)',feel:'독립·개성',desc:'독립적이고 개성 있는 울림입니다.',type:'neutral'},
+};
+
+// 자음 에너지 맵
+const CONS_ENERGY = {
+  'ㄱ':{strength:'중강',feel:'결단·추진',desc:'결단력 있고 추진하는 에너지'},
+  'ㄴ':{strength:'부드',feel:'온화·친근',desc:'온화하고 친근한 에너지'},
+  'ㄷ':{strength:'강',feel:'단단·의지',desc:'단단하고 의지 있는 에너지'},
+  'ㄹ':{strength:'부드',feel:'유연·흐름',desc:'유연하고 자연스럽게 흐르는 에너지'},
+  'ㅁ':{strength:'부드',feel:'포근·모성',desc:'포근하고 따뜻한 에너지'},
+  'ㅂ':{strength:'강',feel:'힘·안정',desc:'힘차고 안정된 에너지'},
+  'ㅅ':{strength:'중',feel:'날렵·지성',desc:'날렵하고 지적인 에너지'},
+  'ㅇ':{strength:'부드',feel:'열린·수용',desc:'열려 있고 수용적인 에너지'},
+  'ㅈ':{strength:'중강',feel:'명확·직진',desc:'명확하고 직진하는 에너지'},
+  'ㅊ':{strength:'강',feel:'청명·순수',desc:'맑고 순수한 강한 에너지'},
+  'ㅋ':{strength:'강',feel:'카리스마',desc:'카리스마 있는 강한 에너지'},
+  'ㅌ':{strength:'강',feel:'열정·개방',desc:'열정적이고 개방적인 에너지'},
+  'ㅍ':{strength:'강',feel:'폭발·확장',desc:'확장하고 폭발하는 에너지'},
+  'ㅎ':{strength:'부드',feel:'따뜻·호흡',desc:'따뜻하고 부드러운 호흡 에너지'},
+  'ㄲ':{strength:'강',feel:'강렬·집중',desc:'강렬하게 집중하는 에너지'},
+  'ㄸ':{strength:'강',feel:'강한의지',desc:'강한 의지의 에너지'},
+  'ㅃ':{strength:'강',feel:'폭발·패기',desc:'패기 있는 강한 에너지'},
+  'ㅆ':{strength:'강',feel:'예리·분석',desc:'예리하게 분석하는 에너지'},
+  'ㅉ':{strength:'강',feel:'강한직진',desc:'강하게 직진하는 에너지'},
+};
+
+// 받침 에너지
+const JONG_ENERGY = {
+  'ㄱ':{feel:'끊음·결단',desc:'명확하게 끊어지는 힘 있는 마무리'},
+  'ㄴ':{feel:'연결·여운',desc:'부드럽게 이어지는 따뜻한 여운'},
+  'ㄷ':{feel:'묵직·견고',desc:'묵직하고 견고한 닫힘'},
+  'ㄹ':{feel:'흐름·유연',desc:'자연스럽게 흐르는 유연한 여운'},
+  'ㅁ':{feel:'포근·마무리',desc:'포근하게 감싸는 따뜻한 마무리'},
+  'ㅂ':{feel:'힘찬·완결',desc:'힘차게 완결되는 강한 닫힘'},
+  'ㅇ':{feel:'울림·공명',desc:'길게 울리는 공명 에너지'},
+  'ㄱ':{feel:'끊음·결단',desc:'명확하게 끊어지는 힘 있는 마무리'},
+  'ㅅ':{feel:'날렵·경쾌',desc:'날렵하고 경쾌한 마무리'},
+  'ㄻ':{feel:'깊이·무게',desc:'깊고 무게감 있는 마무리'},
+};
+
+function analyzeSoundEnergy(name) {
+  const s = name.replace(/\s/g,'');
+  if(!/[가-힣]/.test(s)) return null; // 영문은 소리 분석 제외
+
+  const vowels = [];
+  const consonants = [];
+  const jongseongs = [];
+  let hasJong = false;
+
+  for(const ch of s) {
+    const d = decomposeChar(ch);
+    if(!d) continue;
+    consonants.push(d.cho);
+    vowels.push(d.jung);
+    if(d.jong) { jongseongs.push(d.jong); hasJong = true; }
+  }
+
+  // 모음 에너지 분석
+  const vowelTypes = vowels.map(v => VOWEL_ENERGY[v] || {energy:'중',feel:'중성',desc:'',type:'neutral'});
+  const typeCounts = {bright:0, warm:0, deep:0, neutral:0, sharp:0};
+  vowelTypes.forEach(v => typeCounts[v.type]=(typeCounts[v.type]||0)+1);
+
+  // 주조 에너지 결정
+  const dominant = Object.entries(typeCounts).sort((a,b)=>b[1]-a[1])[0][0];
+  const dominantLabels = {bright:'밝고 개방적인',warm:'따뜻하고 포용적인',deep:'깊고 내면적인',neutral:'차분하고 균형잡힌',sharp:'섬세하고 예민한'};
+
+  // 자음 강도
+  const strengthCounts = {부드:0, 중:0, 중강:0, 강:0};
+  consonants.forEach(c => { const e=CONS_ENERGY[c]; if(e) strengthCounts[e.strength]=(strengthCounts[e.strength]||0)+1; });
+  const softCount = (strengthCounts['부드']||0);
+  const hardCount = (strengthCounts['강']||0)+(strengthCounts['중강']||0);
+  const consChar = hardCount > softCount ? '강인한' : softCount > hardCount ? '부드러운' : '균형잡힌';
+
+  // 받침 유무
+  const endingChar = hasJong ? '묵직하게 마무리되는' : '열려 있고 가볍게 끝나는';
+
+  // 종합 울림 설명
+  const vowelDesc = vowels.slice(0,3).map(v => {
+    const e = VOWEL_ENERGY[v];
+    return e ? `${v}(${e.feel})` : v;
+  }).join(' · ');
+
+  const consDesc = consonants.slice(0,3).map(c => {
+    const e = CONS_ENERGY[c];
+    return e ? `${c}(${e.feel})` : c;
+  }).join(' · ');
+
+  // 소리 에너지 종합 점수 (다양성·조화 기준)
+  const variety = Object.values(typeCounts).filter(v=>v>0).length;
+  const soundScore = variety >= 3 ? '풍부' : variety === 2 ? '조화' : '집중';
+  const soundScoreDesc = {풍부:'다양한 에너지가 풍부하게 어우러집니다',조화:'두 가지 에너지가 조화롭게 공존합니다',집중:'하나의 에너지가 일관되게 흐릅니다'};
+
+  return {
+    vowels, consonants, jongseongs, hasJong,
+    vowelDesc, consDesc,
+    dominant, dominantLabel: dominantLabels[dominant],
+    consChar, endingChar,
+    soundScore, soundScoreDesc: soundScoreDesc[soundScore],
+    summary: `${dominantLabels[dominant]} 울림에, ${consChar} 자음과 ${endingChar} 이름입니다.`
+  };
+}
+
+const TRAITS={
+  1:{name:'개척자',key:'자립·추진력·독창성',desc:'스스로 길을 여는 선구적 에너지. 주도적이고 독립적인 삶을 이끕니다.',miss:'주도성과 결단력이 약할 수 있어요. 이름이 이 에너지를 채워주면 좋습니다.',excess:'자기주장이 지나치게 강해지거나 독주 경향이 있을 수 있습니다.'},
+  2:{name:'조화자',key:'협력·공감·균형',desc:'둘 사이를 잇는 섬세한 에너지. 관계 속에서 조화를 만들어냅니다.',miss:'관계에서 경직되거나 공감 능력이 부족할 수 있어요.',excess:'지나친 의존심이나 우유부단함이 나타날 수 있습니다.'},
+  3:{name:'창조자',key:'표현·창의·소통',desc:'말과 글로 세상을 밝히는 에너지. 자신을 표현할 때 가장 빛납니다.',miss:'자기표현이 서툴거나 창의성이 억눌릴 수 있어요.',excess:'산만함이나 과도한 표현 욕구가 생길 수 있습니다.'},
+  4:{name:'건설자',key:'안정·성실·체계',desc:'기반을 다지고 신뢰를 쌓는 에너지. 꾸준함이 가장 큰 무기입니다.',miss:'끈기와 체계가 부족하거나 기반이 흔들릴 수 있어요.',excess:'고집이 세지거나 변화를 거부하는 경향이 생길 수 있습니다.'},
+  5:{name:'탐험가',key:'자유·변화·모험',desc:'새로운 자극과 변화 속에서 성장하는 에너지. 적응력이 탁월합니다.',miss:'변화에 적응하기 어렵거나 새로운 시도를 두려워할 수 있어요.',excess:'방향을 잃고 산만해지거나 책임을 회피할 수 있습니다.'},
+  6:{name:'양육자',key:'책임·돌봄·헌신',desc:'주변을 살피고 조화로운 환경을 만드는 에너지. 따뜻한 안정감을 줍니다.',miss:'책임감이나 따뜻함이 부족하게 느껴질 수 있어요.',excess:'지나친 희생이나 과보호로 자신이 소진될 수 있습니다.'},
+  7:{name:'탐구자',key:'지혜·분석·통찰',desc:'본질을 파고드는 고차원적 에너지. 전문성과 통찰로 신뢰를 줍니다.',miss:'깊이 있는 사고나 전문성 발휘가 어려울 수 있어요.',excess:'고립되거나 지나치게 분석적이 되어 행동이 늦어질 수 있습니다.'},
+  8:{name:'성취자',key:'야망·실행력·권위',desc:'목표를 결과로 증명하는 강력한 에너지. 현실적 해법을 찾습니다.',miss:'현실 감각이나 추진력이 약할 수 있어요.',excess:'지나친 물질 추구나 권위적 성향이 나타날 수 있습니다.'},
+  9:{name:'인도자',key:'포용·완성·이타심',desc:'모든 경험을 통합해 더 큰 가치를 추구하는 에너지. 베풀수록 풍요로워집니다.',miss:'포용력이나 큰 그림을 보는 시야가 부족할 수 있어요.',excess:'이상주의에 빠지거나 현실적인 것을 무시할 수 있습니다.'},
+  11:{name:'영적 스승',key:'직관·영감·비전',desc:'비범한 직관으로 사람들의 의식을 일깨우는 마스터 에너지입니다.',miss:'',excess:''},
+  22:{name:'마스터 빌더',key:'건설·이상·실현',desc:'이상을 실제 시스템으로 구현하는 위대한 마스터 에너지입니다.',miss:'',excess:''},
+  33:{name:'마스터 티처',key:'치유·사랑·가르침',desc:'조건 없는 자비와 사랑으로 치유하는 최고의 마스터 에너지입니다.',miss:'',excess:''},
+};
+const tr=n=>TRAITS[n]||TRAITS[reduce(n,false)]||TRAITS[1];
+
+// ── 궁합 점수 (조합별 세분화) ──
+const COMPAT_TABLE={
+  '1-1':72,'1-2':58,'1-3':82,'1-4':45,'1-5':78,'1-6':62,'1-7':68,'1-8':48,'1-9':88,'1-11':75,'1-22':70,'1-33':60,
+  '2-2':74,'2-3':65,'2-4':80,'2-5':55,'2-6':85,'2-7':60,'2-8':82,'2-9':70,'2-11':78,'2-22':65,'2-33':80,
+  '3-3':70,'3-4':58,'3-5':72,'3-6':75,'3-7':88,'3-8':65,'3-9':85,'3-11':80,'3-22':68,'3-33':72,
+  '4-4':68,'4-5':42,'4-6':86,'4-7':55,'4-8':75,'4-9':62,'4-11':58,'4-22':88,'4-33':70,
+  '5-5':65,'5-6':60,'5-7':70,'5-8':48,'5-9':82,'5-11':75,'5-22':58,'5-33':65,
+  '6-6':72,'6-7':65,'6-8':70,'6-9':88,'6-11':68,'6-22':75,'6-33':90,
+  '7-7':66,'7-8':45,'7-9':78,'7-11':92,'7-22':70,'7-33':75,
+  '8-8':68,'8-9':65,'8-11':60,'8-22':88,'8-33':58,
+  '9-9':70,'9-11':82,'9-22':75,'9-33':88,
+  '11-11':78,'11-22':85,'11-33':88,
+  '22-22':72,'22-33':80,'33-33':76
+};
+function compat(a,b){if(!a||!b)return null;const k=[Math.min(a,b),Math.max(a,b)].join('-');return COMPAT_TABLE[k]??65;}
+function compatLabel(s){if(s>=88)return'탁월한 조화';if(s>=80)return'높은 공명';if(s>=70)return'자연스러운 흐름';if(s>=60)return'보완적 관계';return'긴장 관계';}
+function compatClass(s){if(s>=80)return'score-high';if(s>=65)return'score-mid';return'score-low';}
+function fillClass(s){if(s>=80)return'fill-high';if(s>=65)return'fill-mid';return'fill-low';}
+
+// ── 이름 종합 평가 ──
+function evaluateName(r, dist) {
+  const expr = r.nums.expression.val;
+  const soul = r.nums.soul.val;
+  const pers = r.nums.personality.val;
+  const isMaster = [11,22,33].includes(expr);
+  const strengths = [];
+  const warnings  = [];
+  const soundWarnings = [];
+  const soundStrengths = [];
+  let numBonus = 0;   // 수비학 보너스
+  let soundBonus = 0; // 소리 균형 보너스 (별도 표기)
+
+  // 1. 생년월일 부족수 채움
+  if(dist && dist.missing.includes(expr)) {
+    strengths.push(`운명수 ${expr}번 — 생년월일에 없는 에너지를 이름이 정확히 채워줍니다. 수비학적으로 가장 이상적인 보완이에요.`);
+    numBonus += 15;
+  }
+  if(dist && dist.missing.includes(soul)) {
+    strengths.push(`혼의수 ${soul}번 — 내면의 갈망이 생년월일에 부족한 에너지와 일치해요.`);
+    numBonus += 8;
+  }
+
+  // 2. 과잉수 겹침
+  if(dist && dist.excess.includes(expr)) {
+    warnings.push(`운명수 ${expr}번 — 생년월일에 이미 많은 에너지예요. 이름까지 같으면 과잉될 수 있습니다.`);
+    numBonus -= 12;
+  }
+
+  // 3. 마스터 넘버
+  if(isMaster) {
+    strengths.push(`마스터 넘버 ${expr}번 — 평범함을 넘어선 사명과 깊이를 이름에 담습니다.`);
+    numBonus += 8;
+  }
+
+  // 4. 인생여정수 궁합
+  if(r.lp) {
+    const sc = r.totalCompat;
+    if(sc >= 88) {
+      strengths.push(`인생여정수(${r.lp.val})와 탁월한 조화(${sc}점) — 삶의 방향과 이름 에너지가 강하게 공명합니다.`);
+      numBonus += 10;
+    } else if(sc >= 80) {
+      strengths.push(`인생여정수(${r.lp.val})와 높은 공명(${sc}점) — 이름이 삶의 방향을 자연스럽게 강화해줍니다.`);
+      numBonus += 5;
+    } else if(sc < 55) {
+      warnings.push(`인생여정수(${r.lp.val})와의 궁합이 낮습니다(${sc}점) — 내면의 긴장감이 생길 수 있어요.`);
+      numBonus -= 8;
+    }
+  }
+
+  // 5. 겉/속 일치
+  if(expr === soul) {
+    strengths.push(`운명수와 혼의수가 일치해, 이름이 주는 방향성과 내면 욕구가 같은 흐름으로 맞물립니다.`);
+    numBonus += 3;
+  }
+
+  // 6. 인생여정수 없을 때
+  if(!r.lp) {
+    if(isMaster) numBonus += 5;
+    if([1,3,6,9].includes(expr)) numBonus += 3;
+  }
+
+  // 7. 소리 균형 점수 (별도 집계)
+  const se = analyzeSoundEnergy(r.name);
+  if(se) {
+    const name = r.name.replace(/\s/g,'');
+    const chars = [...name];
+    const uniqueChars = new Set(chars).size;
+
+    // 같은 글자 반복
+    if(chars.length >= 2 && uniqueChars < chars.length) {
+      const repeatCount = chars.length - uniqueChars;
+      soundWarnings.push(`같은 글자 반복 (-${repeatCount*8}점)`);
+      soundBonus -= repeatCount * 8;
+    }
+
+    // 모음 단일
+    const uniqueVowels = new Set(se.vowels).size;
+    if(se.vowels.length >= 2 && uniqueVowels === 1) {
+      soundWarnings.push(`모음이 단일해 울림이 단조롭습니다 (-5점)`);
+      soundBonus -= 5;
+    }
+
+    // 자음 강도 과잉
+    const sc2 = {부드:0,중:0,중강:0,강:0};
+    se.consonants.forEach(c=>{const e=CONS_ENERGY[c];if(e)sc2[e.strength]=(sc2[e.strength]||0)+1;});
+    const totalCons = se.consonants.length||1;
+    const hardRatio = ((sc2['강']||0)+(sc2['중강']||0))/totalCons;
+    if(hardRatio >= 0.8) {
+      soundWarnings.push(`강한 자음 집중으로 거칠게 들릴 수 있어요 (-8점)`);
+      soundBonus -= 8;
+    } else if(hardRatio <= 0.2) {
+      soundStrengths.push(`부드러운 자음 구성으로 온화한 인상 (+4점)`);
+      soundBonus += 4;
+    }
+
+    // 모음 다양성
+    const typeSet = new Set(se.vowels.map(v=>VOWEL_ENERGY[v]?.type||'neutral'));
+    if(typeSet.size >= 3) {
+      soundStrengths.push(`모음 에너지 다양해 풍부한 울림 (+5점)`);
+      soundBonus += 5;
+    } else if(typeSet.size === 2) {
+      soundBonus += 2;
+    }
+
+    // 끝소리 열림
+    const lastDecomp = decomposeChar(chars[chars.length-1]);
+    if(lastDecomp && !lastDecomp.jong) {
+      soundStrengths.push(`끝소리가 열려 부르기 자연스러운 이름 (+3점)`);
+      soundBonus += 3;
+    }
+  }
+
+  const bonus = numBonus + soundBonus;
+  return { strengths, warnings, soundStrengths, soundWarnings, numBonus, soundBonus, bonus };
+}
+
+// ── 판정 ──
+function getVerdict(score, bonus, isBest) {
+  const total = (score || 70) + bonus;
+  if(isBest && total >= 75) return {key:'best',label:'✦ 추천',cls:'verdict-best',vbCls:'vb-best',tCls:'t-best'};
+  if(total >= 83) return {key:'good',label:'◆ 좋음',cls:'verdict-good',vbCls:'vb-good',tCls:'t-good'};
+  if(total < 58) return {key:'caution',label:'⚠ 주의',cls:'verdict-caution',vbCls:'vb-caution',tCls:'t-caution'};
+  return {key:'normal',label:'— 보통',cls:'verdict-normal',vbCls:'vb-normal',tCls:'t-normal'};
+}
+
+function verdictText(v, r, dist) {
+  const expr = r.nums.expression.val;
+  const exprT = tr(expr);
+  const name = r.name;
+  if(v.key === 'best') {
+    const reason = r.lp
+      ? `인생여정수(${r.lp.val})와 강하게 공명하며${dist && dist.missing.includes(expr) ? ' 생년월일의 부족한 에너지까지 채워주는' : ''} 이 이름은 수비학적으로 가장 조화로운 선택입니다.`
+      : `${exprT.name}(${expr})의 에너지가 삶 전반에 긍정적인 방향을 제시하는 이름입니다.`;
+    return `<strong>${name}</strong>이 가장 좋은 이름입니다. ${reason}`;
+  }
+  if(v.key === 'good') return `좋은 선택입니다. ${exprT.name}(${expr})의 에너지가 삶을 안정적으로 지지해줍니다.`;
+  if(v.key === 'caution') {
+    const w = dist && dist.excess.includes(expr)
+      ? `생년월일에 이미 ${expr}번 에너지가 많아 이름까지 더해지면 과잉될 수 있습니다.`
+      : r.lp && r.totalCompat < 55 ? `인생여정수와의 에너지 충돌이 있어 주의가 필요합니다.` : `에너지 조합에 주의가 필요합니다.`;
+    return w;
+  }
+  return `균형적인 이름입니다. 특별히 강한 시너지나 충돌 없이 안정적인 에너지를 줍니다.`;
+}
+
+// ── UI 헬퍼 ──
+function onNameInput(el){el.classList.toggle('filled',el.value.trim().length>0);}
+function switchTab(tab,btn){document.querySelectorAll('.hero-tab').forEach(b=>b.classList.remove('active'));document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));btn.classList.add('active');document.getElementById('panel-'+tab).classList.add('active');document.getElementById('resultArea').style.display='none';document.getElementById('recResultArea').style.display='none';}
+function toggleChip(el){el.classList.toggle('selected');}
+function selectGender(el){document.querySelectorAll('.gender-btn').forEach(b=>b.classList.remove('selected'));el.classList.add('selected');}
+function toggleNums(btn){btn.classList.toggle('open');const detail=btn.nextElementSibling;detail.classList.toggle('open');}
+
+// ── 생년월일 분포 패널 렌더 ──
+function renderBirthPanel(dist, lp, dob) {
+  const sec = document.getElementById('birthAnalysisSection');
+  const panel = document.getElementById('birthAnalysisPanel');
+  if(!dob || !dist) { sec.style.display='none'; return; }
+  sec.style.display='block';
+
+  const pillHtml = (nums, cls) => nums.length
+    ? nums.map(n=>`<span class="num-pill ${cls}"><span class="pn">${n}</span><span class="pt">${tr(n).name}</span></span>`).join('')
+    : `<span style="font-size:12px;color:var(--muted);">없음</span>`;
+
+  const guideText = dist.missing.length > 0
+    ? `생년월일에 <strong>${dist.missing.map(n=>`${n}번(${tr(n).name})`).join(', ')}</strong>이 없습니다. 이 수가 운명수로 오는 이름이 특히 좋아요. 부족한 에너지를 이름이 채워줄 수 있습니다.${dist.excess.length > 0 ? ` 반면 <strong>${dist.excess.map(n=>`${n}번`).join(', ')}</strong>은 이미 많으니 운명수로 오면 과잉될 수 있어요.` : ''}`
+    : `생년월일에 골고루 분포되어 있습니다. 어떤 이름을 선택해도 큰 무리가 없어요.`;
+
+  panel.innerHTML = `
+    <div class="bap-header">
+      <div class="bap-title">생년월일 수 분포</div>
+      <div class="bap-lp">인생여정수 ${lp.val}번 · ${tr(lp.val).name}</div>
+    </div>
+    <div class="bap-body">
+      <div>
+        <div class="bap-col-title good">✦ 없는 수 — 이름으로 채우면 좋아요</div>
+        <div class="num-pills">${pillHtml(dist.missing,'missing')}</div>
+      </div>
+      <div>
+        <div class="bap-col-title warn">⚠ 많은 수 — 이름에 또 나오면 과잉</div>
+        <div class="num-pills">${pillHtml(dist.excess,'excess')}</div>
+      </div>
+      <div>
+        <div class="bap-col-title neutral">· 적정 수</div>
+        <div class="num-pills">${pillHtml(dist.normal,'normal')}</div>
+      </div>
+    </div>
+    <div class="bap-guide">${guideText}</div>`;
+}
+
+// ── 순위 요약 헤더 ──
+function renderRankHeader(results, bestIdx, dist) {
+  const best = results[bestIdx];
+  const hasBirth = !!results[0]?.lp;
+  let text = '';
+  if(hasBirth) {
+    const sc = best.totalCompat;
+    const missing = dist?.missing || [];
+    const fillsGap = missing.includes(best.nums.expression.val);
+    text = `<strong class="best-name">${best.name}</strong>이 가장 좋은 이름입니다. 인생여정수(${best.lp.val})와 ${compatLabel(sc)}(${sc}점)${fillsGap ? '이며, 생년월일의 부족한 에너지를 채워주는 이상적인 조합' : ''}입니다.`;
+  } else {
+    const isMaster = [11,22,33].includes(best.nums.expression.val);
+    text = `<strong class="best-name">${best.name}</strong>이 수비학적으로 가장 강한 이름입니다. ${isMaster ? `마스터 넘버 ${best.nums.expression.val}번 — 평범함을 넘어선 깊이를 담고 있습니다.` : `${tr(best.nums.expression.val).name}(${best.nums.expression.val})의 에너지가 삶을 긍정적으로 이끌어줍니다.`}`;
+  }
+  document.getElementById('rankHeader').innerHTML = `
+    <div class="rank-header-top">
+      <div class="rank-header-title">${results.length}개 이름 분석 완료</div>
+      <div class="rank-count">총 ${results.length}개 분석</div>
+    </div>
+    <div class="rank-summary">${text}</div>
+    <div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--border);font-size:11.5px;color:var(--muted);line-height:1.7;">
+      ※ 이 결과는 <strong style="color:var(--deep-brown)">수비학 + 소리 에너지</strong> 기준의 참고 자료입니다. 수비학은 학파마다 계산 방식이 다를 수 있으며, 최종 이름 선택은 상담사와 함께 종합적으로 판단하시길 권합니다.
+    </div>`;
+}
+
+// ── 개별 카드 렌더 ──
+function renderNameCards(results, sortedResults, dist) {
+  const container = document.getElementById('nameCards');
+  container.innerHTML = sortedResults.map((r, rankIdx) => {
+    const isBest = rankIdx === 0;
+    const expr = r.nums.expression.val;
+    const soul = r.nums.soul.val;
+    const pers = r.nums.personality.val;
+    const mat  = r.mat;
+    const isMaster = [11,22,33].includes(expr);
+    const evaluation = evaluateName(r, dist);
+    const verdict = getVerdict(r.totalCompat, evaluation.bonus, isBest);
+    const vtext = verdictText(verdict, r, dist);
+
+    // 점수 표시 — 수비학 / 소리균형 / 종합 분리
+    const numScore = Math.min((r.totalCompat||70) + evaluation.numBonus, 99);
+    const totalDisp = Math.min(r.totalScore, 99);
+    const soundBonusDisp = evaluation.soundBonus;
+    const soundBonusStr = soundBonusDisp > 0 ? `+${soundBonusDisp}` : `${soundBonusDisp}`;
+    const soundBonusColor = soundBonusDisp >= 0 ? 'var(--teal)' : 'var(--red)';
+
+    const scoreSvg = `
+      <div class="nc2-score-wrap" style="min-width:90px;">
+        <div style="display:flex;flex-direction:column;gap:6px;align-items:flex-end;">
+          <div style="text-align:right;">
+            <div style="font-family:var(--font-mono);font-size:8px;letter-spacing:.1em;color:var(--muted);margin-bottom:2px;">수비학</div>
+            <div style="display:flex;align-items:baseline;gap:4px;justify-content:flex-end;">
+              <span style="font-family:var(--font-serif);font-size:26px;font-weight:300;line-height:1;color:${numScore>=80?'var(--teal)':numScore>=65?'var(--accent)':'var(--red)'};">${numScore}</span>
+              <span style="font-size:10px;color:var(--muted);">점</span>
+            </div>
+          </div>
+          <div style="text-align:right;padding:6px 8px;background:${soundBonusDisp>=0?'rgba(46,139,122,.06)':'rgba(184,85,85,.06)'};border:1px solid ${soundBonusDisp>=0?'rgba(46,139,122,.2)':'rgba(184,85,85,.2)'};border-radius:6px;min-width:80px;">
+            <div style="font-family:var(--font-mono);font-size:8px;letter-spacing:.1em;color:var(--muted);margin-bottom:2px;">소리균형</div>
+            <div style="font-family:var(--font-serif);font-size:20px;font-weight:300;line-height:1;color:${soundBonusColor};">${soundBonusStr}</div>
+          </div>
+          <div style="text-align:right;border-top:1px solid var(--border);padding-top:6px;width:100%;">
+            <div style="font-family:var(--font-mono);font-size:8px;letter-spacing:.1em;color:var(--muted);margin-bottom:2px;">종합</div>
+            <div style="font-family:var(--font-serif);font-size:22px;font-weight:600;line-height:1;color:${totalDisp>=80?'var(--teal)':totalDisp>=65?'var(--accent)':'var(--red)'};">${totalDisp}</div>
+          </div>
+        </div>
+      </div>`;
+
+    // 강점/주의 박스
+    const strengthsHtml = evaluation.strengths.length
+      ? evaluation.strengths.map(s=>`<div class="sw-item"><span class="sw-dot" style="color:var(--teal)">✦</span><span>${s}</span></div>`).join('')
+      : '<div class="sw-item"><span class="sw-dot" style="color:var(--muted)">·</span><span style="color:var(--muted)">특별한 강점 없음</span></div>';
+
+    const warningsHtml = evaluation.warnings.length
+      ? evaluation.warnings.map(w=>`<div class="sw-item"><span class="sw-dot" style="color:var(--red)">⚠</span><span>${w}</span></div>`).join('')
+      : '<div class="sw-item"><span class="sw-dot" style="color:var(--muted)">·</span><span style="color:var(--muted)">특별한 주의사항 없음</span></div>';
+
+    const soundItemsHtml = (evaluation.soundStrengths.length || evaluation.soundWarnings.length) ? `
+      <div style="margin:0 22px 14px;padding:10px 14px;background:var(--parchment);border-radius:8px;border:1px solid var(--border);">
+        <div style="font-size:9px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:8px;">♪ 소리 균형 평가</div>
+        ${evaluation.soundStrengths.map(s=>`<div class="sw-item"><span class="sw-dot" style="color:var(--teal);font-size:9px;">▲</span><span style="font-size:12px;color:var(--teal);">${s}</span></div>`).join('')}
+        ${evaluation.soundWarnings.map(w=>`<div class="sw-item"><span class="sw-dot" style="color:var(--red);font-size:9px;">▼</span><span style="font-size:12px;color:var(--red);">${w}</span></div>`).join('')}
+      </div>` : '';
+
+    // 수리 상세
+    const matHtml = mat ? `
+      <div class="nc2-num-item wide">
+        <div class="nni-label">완성수 (인생여정수+운명수)</div>
+        <div><span class="nni-val ${[11,22,33].includes(mat.val)?'master':''}">${mat.val}</span><span class="nni-pre">(${mat.raw})</span></div>
+        <div class="nni-name">${tr(mat.val).name}</div>
+        <div class="nni-desc">${tr(mat.val).desc}</div>
+      </div>` : '';
+
+    return `
+      <div class="name-card-v2 ${isBest?'rank-1':rankIdx===1?'rank-2':verdict.key==='caution'?'danger':''}">
+        <div class="nc2-header">
+          <div class="nc2-header-left">
+            <div class="nc2-rank-badge">
+              <span class="nc2-rank-num">${rankIdx+1}위</span>
+              <span class="nc2-verdict-badge ${verdict.cls}">${verdict.label}</span>
+              ${isMaster?`<span class="nc2-master-tag">마스터 ${expr}</span>`:''}
+            </div>
+            <div class="nc2-name">${r.name}</div>
+          </div>
+          ${scoreSvg}
+        </div>
+
+        <div class="nc2-verdict-box ${verdict.vbCls}">
+          <div class="vb-title ${verdict.tCls}">핵심 판단</div>
+          <div class="vb-text">${vtext}</div>
+        </div>
+
+        ${soundItemsHtml}
+
+        <div class="nc2-strengths-warnings">
+          <div class="sw-box s-box">
+            <div class="sw-title st">✦ 이 이름이 좋은 이유</div>
+            ${strengthsHtml}
+          </div>
+          <div class="sw-box w-box">
+            <div class="sw-title wt">⚠ 주의할 점</div>
+            ${warningsHtml}
+          </div>
+        </div>
+
+        ${(() => {
+          const se = analyzeSoundEnergy(r.name);
+          if(!se) return '';
+          const typeColorMap = {bright:'bright',warm:'warm',deep:'deep',neutral:'neutral',sharp:'sharp'};
+          const vowelTagsHtml = se.vowels.slice(0,4).map(v => {
+            const e = VOWEL_ENERGY[v];
+            if(!e) return '';
+            return `<span class="sound-tag ${typeColorMap[e.type]||'neutral'}">${v} ${e.feel}</span>`;
+          }).filter(Boolean).join('');
+          return `
+          <div class="sound-section">
+            <div class="sound-title">♪ 소리 에너지 분석</div>
+            <div class="sound-summary">${se.summary}</div>
+            <div class="sound-tags">${vowelTagsHtml}</div>
+            <div class="sound-detail">
+              <div class="sd-item"><strong>모음 울림</strong>${se.vowelDesc}</div>
+              <div class="sd-item"><strong>자음 강도</strong>${se.consChar} 자음 구성</div>
+              <div class="sd-item"><strong>끝소리</strong>${se.endingChar} 이름</div>
+              <div class="sd-item"><strong>에너지 다양성</strong>${se.soundScore} — ${se.soundScoreDesc}</div>
+            </div>
+          </div>`;
+        })()}
+
+        <button class="nc2-nums-toggle" onclick="toggleNums(this)">
+          <span class="nc2-nums-label">수리 상세 보기 (운명수 ${expr} · 혼의수 ${soul} · 성격수 ${pers})</span>
+          <span class="nc2-nums-arrow">▼</span>
+        </button>
+        <div class="nc2-nums-detail">
+          <div class="nc2-nums-grid">
+            <div class="nc2-num-item">
+              <div class="nni-label">운명수 · 표현수</div>
+              <div><span class="nni-val ${isMaster?'master':''}">${expr}</span><span class="nni-pre">(${r.nums.expression.raw})</span></div>
+              <div class="nni-name">${tr(expr).name}</div>
+              <div class="nni-desc">${tr(expr).desc}</div>
+            </div>
+            <div class="nc2-num-item">
+              <div class="nni-label">혼의수 · 영혼 갈망</div>
+              <div><span class="nni-val ${[11,22,33].includes(soul)?'master':''}">${soul}</span><span class="nni-pre">(${r.nums.soul.raw})</span></div>
+              <div class="nni-name">${tr(soul).name}</div>
+              <div class="nni-desc">${tr(soul).desc}</div>
+            </div>
+            <div class="nc2-num-item">
+              <div class="nni-label">성격수 · 외적 인상</div>
+              <div><span class="nni-val ${[11,22,33].includes(pers)?'master':''}">${pers}</span><span class="nni-pre">(${r.nums.personality.raw})</span></div>
+              <div class="nni-name">${tr(pers).name}</div>
+              <div class="nni-desc">${tr(pers).desc}</div>
+            </div>
+            ${matHtml}
+          </div>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+// ── 비교 테이블 ──
+function renderCompareTable(sortedResults, dist) {
+  const lp = sortedResults[0]?.lp;
+
+  // 수비학 점수만으로 1위 찾기
+  const numScores = sortedResults.map(r => {
+    const ev = evaluateName(r, dist);
+    return { r, numScore: Math.min((r.totalCompat||70) + ev.numBonus, 99), soundBonus: ev.soundBonus };
+  });
+  const numFirstIdx = numScores.reduce((best, cur, i) =>
+    cur.numScore > numScores[best].numScore ? i : best, 0);
+
+  let html = '<thead><tr><th style="width:130px;">구분</th>';
+  sortedResults.forEach((r, i) => {
+    const isOverallFirst = i === 0;
+    const isNumFirst = i === numFirstIdx;
+    const ns = numScores[i];
+
+    // 수비학 1위인데 종합 1위가 아닌 경우 (소리 감점으로 밀려난 경우)
+    const droppedBySound = isNumFirst && !isOverallFirst && ns.soundBonus < 0;
+
+    let tag = '';
+    let tagColor = '';
+    if(droppedBySound) {
+      tag = `수비학 최고 · 소리 주의`;
+      tagColor = 'var(--warm-brown)';
+    }
+
+    html += `<th class="name-col">
+      ${isOverallFirst ? '<span style="color:var(--teal)">' : ''}${r.name}${isOverallFirst ? '</span>' : ''}
+      ${tag ? `<br><span style="font-size:9px;color:${tagColor};font-family:var(--font-mono);background:rgba(139,111,71,.1);padding:2px 6px;border-radius:10px;">${tag}</span>` : ''}
+    </th>`;
+  });
+  html += '</tr></thead><tbody>';
+
+  const badge=(n,raw)=>{const t=tr(n);const im=[11,22,33].includes(n);return`<div class="num-badge"><span class="n ${im?'master':''}">${n}</span><span class="pre">(${raw})</span><span class="title">${t.name}</span></div>`;};
+
+  const rows=[
+    {label:'운명수',fn:r=>badge(r.nums.expression.val,r.nums.expression.raw)},
+    {label:'혼의수',fn:r=>badge(r.nums.soul.val,r.nums.soul.raw)},
+    {label:'성격수',fn:r=>badge(r.nums.personality.val,r.nums.personality.raw)},
+    lp?{label:'완성수',fn:r=>r.mat?badge(r.mat.val,r.mat.raw):'—'}:null,
+    lp?{label:'인생여정수 궁합',fn:null,compat:true}:null,
+    {label:'수비학 점수',fn:null,numscore:true},
+    {label:'소리 균형',fn:null,soundscore:true},
+    {label:'종합 점수',fn:null,total:true},
+  ].filter(Boolean);
+
+  rows.forEach(row=>{
+    const isScoreRow = row.numscore || row.soundscore || row.total;
+    html+=`<tr><td class="row-label${isScoreRow?' score-section':''}">${row.label}</td>`;
+    if(row.compat){
+      sortedResults.forEach(r=>{
+        const s=r.totalCompat;
+        if(s==null){html+='<td class="num-cell" style="color:var(--muted);">—</td>';return;}
+        html+=`<td class="score-cell"><span class="sc-num ${compatClass(s)}">${s}</span><div class="sc-bar"><div class="sc-fill ${fillClass(s)}" style="width:${s}%"></div></div><span class="sc-label">${compatLabel(s)}</span></td>`;
+      });
+    } else if(row.numscore){
+      sortedResults.forEach((r,i)=>{
+        const ev=evaluateName(r,dist);
+        const s=Math.min((r.totalCompat||70)+ev.numBonus,99);
+        const nb=ev.numBonus>0?`+${ev.numBonus}보너스`:ev.numBonus<0?`${ev.numBonus}감점`:'기본';
+        html+=`<td class="score-cell score-section"><span class="sc-num ${compatClass(s)}">${s}</span><div class="sc-bar"><div class="sc-fill ${fillClass(s)}" style="width:${s}%"></div></div><span class="sc-label">${nb}</span></td>`;
+      });
+    } else if(row.soundscore){
+      sortedResults.forEach(r=>{
+        const ev=evaluateName(r,dist);
+        const sb=ev.soundBonus;
+        const sbStr=sb>0?`+${sb}`:String(sb);
+        const sbColor=sb>=0?'var(--teal)':'var(--red)';
+        const sbLabel=sb>0?'소리 좋음':sb<0?'소리 주의':'중립';
+        html+=`<td class="score-cell"><span class="sc-num" style="color:${sbColor};font-size:20px;">${sbStr}</span><div class="sc-bar"><div class="sc-fill" style="width:${Math.min(Math.abs(sb)*3,100)}%;background:${sbColor};"></div></div><span class="sc-label">${sbLabel}</span></td>`;
+      });
+    } else if(row.total){
+      sortedResults.forEach(r=>{
+        const s=Math.min(r.totalScore,99);
+        const bonusStr=r.bonus>0?`+${r.bonus}합산`:r.bonus<0?`${r.bonus}합산`:'기본점수';
+        html+=`<td class="score-cell" style="background:rgba(200,169,110,.04);"><span class="sc-num ${compatClass(s)}" style="font-size:22px;font-weight:700;">${s}</span><div class="sc-bar"><div class="sc-fill ${fillClass(s)}" style="width:${s}%"></div></div><span class="sc-label" style="font-weight:600;">${bonusStr}</span></td>`;
+      });
+    } else {
+      sortedResults.forEach(r=>{html+=`<td class="num-cell">${row.fn(r)}</td>`;});
+    }
+    html+='</tr>';
+  });
+  html+='</tbody>';
+  document.getElementById('compareTable').innerHTML=html;
+}
+
+// ── 메인 분석 ──
+function runAnalysis(){
+  const baseName=document.getElementById('baseName').value.trim();
+  const birthDate=document.getElementById('birthDate').value;
+  const names=[...document.querySelectorAll('.name-field')].map(el=>el.value.trim()).filter(Boolean);
+  if(!names.length){alert('이름을 최소 1개 입력해주세요.');return;}
+  document.getElementById('analyzeBtn').disabled=true;
+
+  const lp=calcLifePath(birthDate);
+  const dist=birthDate?calcBirthDist(birthDate):null;
+
+  const results=names.map((name,i)=>{
+    const nums=calcName(name);
+    const mat=lp?calcMaturity(nums.expression.raw,lp.raw):null;
+    const compatLp=lp?compat(nums.expression.val,lp.val):null;
+    const compatSoul=lp?compat(nums.soul.val,lp.val):null;
+    const compatPers=lp?compat(nums.personality.val,lp.val):null;
+    const totalCompat=compatLp!=null?Math.round(compatLp*.5+(compatSoul||compatLp)*.3+(compatPers||compatLp)*.2):null;
+    return{name,idx:i+1,nums,mat,lp,totalCompat,compatLp,compatSoul,compatPers};
+  });
+
+  // 점수 계산 후 정렬
+  const scored=results.map(r=>{const ev=evaluateName(r,dist);return{...r,bonus:ev.bonus,totalScore:(r.totalCompat||70)+ev.bonus};});
+  const sorted=[...scored].sort((a,b)=>b.totalScore-a.totalScore);
+
+  renderBirthPanel(dist,lp,birthDate);
+  renderRankHeader(sorted,0,dist);
+  renderNameCards(results,sorted,dist);
+  renderCompareTable(sorted,dist);
+
+  document.getElementById('resultArea').style.display='block';
+  document.getElementById('resultArea').scrollIntoView({behavior:'smooth'});
+  callAI(sorted,baseName,birthDate,lp,dist);
+  document.getElementById('analyzeBtn').disabled=false;
+}
+
+// ── AI 코멘트 ──
+async function callAI(results,baseName,birthDate,lp,dist){
+  const namesStr=results.map(r=>`• ${r.name}: 운명수 ${r.nums.expression.val}(${tr(r.nums.expression.val).name}), 혼의수 ${r.nums.soul.val}(${tr(r.nums.soul.val).name}), 성격수 ${r.nums.personality.val}(${tr(r.nums.personality.val).name}), 종합점수 ${Math.min(r.totalScore,99)}점`).join('\n');
+  const missingStr=dist?.missing.length?`생년월일 부족수: ${dist.missing.map(n=>`${n}번(${tr(n).name})`).join(', ')}`:'';
+  const excessStr=dist?.excess.length?`과잉수: ${dist.excess.map(n=>`${n}번(${tr(n).name})`).join(', ')}`:'';
+  const lpDesc=lp?`인생여정수 ${lp.val}번 · ${tr(lp.val).name} — ${tr(lp.val).desc}`:'';
+
+  const prompt=`당신은 수비학 전문 상담사입니다. 아래 데이터를 바탕으로 깊이 있고 따뜻한 이름 분석 코멘트를 작성해주세요.
+
+${baseName?`대상: ${baseName}\n`:''}${birthDate?`생년월일: ${birthDate}\n`:''}${lpDesc?`${lpDesc}\n`:''}${missingStr?`${missingStr}\n`:''}${excessStr?`${excessStr}\n`:''}
+분석된 이름 (종합점수 순):
+${namesStr}
+
+추천 1위: ${results[0]?.name} (${Math.min(results[0]?.totalScore,99)}점)
+${results.length>1?`주의 이름: ${results[results.length-1]?.name} (${Math.min(results[results.length-1]?.totalScore,99)}점)`:''}
+
+작성 지침 (반드시 따르세요):
+1. 첫 문단: 이 사람의 인생여정수(${lp?.val||'미입력'}번)가 삶에서 어떤 방향과 숙제를 갖는지 한 문장으로 짚고 시작하세요.
+2. 둘째 문단: 추천 이름이 왜 이 인생여정수와 잘 맞는지 에너지의 조화를 스토리로 설명하세요. ${missingStr?`부족한 수를 이름이 어떻게 채워주는지도 언급하세요.`:''}
+3. 셋째 문단: 점수가 낮은 이름이 있다면 왜 충돌하는지 구체적으로 설명하세요. (예: "9번은 넓게 품어야 하는데 이 이름은 에너지를 안으로 좁히는 구조입니다")
+4. 마지막 문장: "이름은 평생 불리는 에너지입니다. 수비학 점수와 함께 직접 소리 내어 불러보며 느낌도 꼭 확인해보세요." 로 마무리하세요.
+5. 번호·목록 없이 자연스러운 문단으로만, 3~4문단으로 작성하세요.`;
+  try{
+    const res=await fetch('/api/ai/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:600,messages:[{role:'user',content:prompt}]})});
+    const data=await res.json();
+    const text=data.content?.map(i=>i.text||'').join('')||'';
+    document.getElementById('aiWrap').innerHTML=`<div class="ai-tag"><div class="ai-dot"></div>AI 종합 의견</div><div class="ai-text">${text}</div>`;
+  }catch(e){document.getElementById('aiWrap').innerHTML=`<div class="ai-tag">AI 분석</div><div class="ai-text" style="color:var(--muted)">AI 분석을 일시적으로 사용할 수 없습니다.</div>`;}
+}
+
+// ── AI 이름 추천 (이름만 받아서 로컬 계산) ──
+async function runRecommend(){
+  const surname  = document.getElementById('recSurname').value.trim();
+  const birth    = document.getElementById('recBirth').value;
+  const syllable = document.getElementById('recSyllable').value;
+  const gender   = document.querySelector('.gender-btn.selected')?.dataset.gender || '무관';
+  const extra    = document.getElementById('recExtra').value.trim();
+  const chips    = [...document.querySelectorAll('.energy-chip.selected')].map(c => c.dataset.val);
+  const lp   = calcLifePath(birth);
+  const dist = birth ? calcBirthDist(birth) : null;
+
+  document.getElementById('recBtn').disabled = true;
+  document.getElementById('recResultArea').style.display = 'block';
+  document.getElementById('recResultWrap').innerHTML = `
+    <div class="rec-loading">
+      <div class="ai-spinner" style="margin:0 auto 12px;width:20px;height:20px;"></div>
+      AI가 이름을 추천하고 있어요...
+    </div>`;
+  document.getElementById('recResultArea').scrollIntoView({behavior:'smooth'});
+
+  const missingStr = dist?.missing.length
+    ? `생년월일에 없는 수(이름으로 채우면 좋음): ${dist.missing.map(n=>`${n}번(${tr(n).name})`).join(', ')}` : '';
+  const excessStr = dist?.excess.length
+    ? `생년월일에 많은 수(이름에 또 나오면 과잉 주의): ${dist.excess.map(n=>`${n}번`).join(', ')}` : '';
+  const energyDesc = chips.length > 0
+    ? `원하는 에너지(운명수 기준): ${chips.map(v=>`${v}번(${tr(Number(v)).name})`).join(', ')}`
+    : missingStr ? `부족한 수를 채우는 방향으로 추천` : '';
+
+  // AI에게 이름 텍스트만 요청 (숫자 계산은 로컬에서)
+  const prompt = `당신은 한국 이름 전문가입니다. 아래 조건에 맞는 한국 이름을 10개 추천해주세요. 이름 텍스트만 주세요. 숫자 계산은 하지 않아도 됩니다.
+
+조건:
+- 성(姓): ${surname || '미정 (성 없이 이름만)'}
+- 성별: ${gender}
+- 음절 수: ${syllable === 'any' ? '무관' : syllable + '음절 (이름만, 성 제외)'}
+${lp ? `- 인생여정수: ${lp.val}번(${tr(lp.val).name}) — ${tr(lp.val).key}` : ''}
+${missingStr ? `- ${missingStr}` : ''}
+${excessStr ? `- ${excessStr}` : ''}
+${energyDesc ? `- ${energyDesc}` : ''}
+${extra ? `- 추가 요청: ${extra}` : ''}
+
+반드시 아래 JSON 형식으로만 응답하세요 (다른 텍스트 없이):
+{"names":["이름1","이름2","이름3","이름4","이름5","이름6","이름7","이름8","이름9","이름10"]}
+
+주의: 
+- 성이 있으면 이름만 반환 (성 제외)
+- 실제 한국에서 사용되는 이름이어야 함
+- 다양한 에너지의 이름을 골고루 추천`;
+
+  try {
+    const res = await fetch('/api/ai/messages', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({
+        model:'claude-sonnet-4-20250514',
+        max_tokens:400,
+        messages:[{role:'user',content:prompt}]
+      })
+    });
+    const data = await res.json();
+    const raw = data.content?.map(i=>i.text||'').join('') || '';
+    const cleaned = raw.replace(/```json|```/g,'').trim();
+    const match = cleaned.match(/\{[\s\S]*\}/);
+    const parsed = JSON.parse(match ? match[0] : cleaned);
+    const nameList = parsed.names || [];
+
+    if(!nameList.length) throw new Error('이름 없음');
+
+    // 로컬에서 직접 계산
+    document.getElementById('recResultWrap').innerHTML = `
+      <div class="rec-loading">
+        <div class="ai-spinner" style="margin:0 auto 12px;width:20px;height:20px;"></div>
+        수비학 점수 계산 중...
+      </div>`;
+
+    const results = nameList.map((name, i) => {
+      const fullName = surname ? surname + name : name;
+      const nums = calcName(fullName);
+      const mat  = lp ? calcMaturity(nums.expression.raw, lp.raw) : null;
+      const compatLp   = lp ? compat(nums.expression.val, lp.val) : null;
+      const compatSoul = lp ? compat(nums.soul.val, lp.val) : null;
+      const compatPers = lp ? compat(nums.personality.val, lp.val) : null;
+      const totalCompat = compatLp != null
+        ? Math.round(compatLp*.5 + (compatSoul||compatLp)*.3 + (compatPers||compatLp)*.2)
+        : null;
+      return { name: fullName, idx: i+1, nums, mat, lp, totalCompat, compatLp, compatSoul, compatPers };
+    });
+
+    // 점수 계산 후 정렬 (상위 5개)
+    const scored = results.map(r => {
+      const ev = evaluateName(r, dist);
+      return { ...r, bonus: ev.bonus, numBonus: ev.numBonus, soundBonus: ev.soundBonus, totalScore: (r.totalCompat||70) + ev.bonus };
+    });
+    const sorted = [...scored].sort((a,b) => b.totalScore - a.totalScore).slice(0, 5);
+
+    renderRecResultFull(sorted, dist, lp, birth, surname);
+
+  } catch(e) {
+    document.getElementById('recResultWrap').innerHTML =
+      `<div class="rec-loading" style="color:var(--red);">추천 생성 중 오류가 발생했습니다. 다시 시도해주세요.</div>`;
+  }
+  document.getElementById('recBtn').disabled = false;
+}
+
+// ── 추천 결과 렌더링 (이름 분석과 동일한 구조) ──
+function renderRecResultFull(sorted, dist, lp, birth, surname) {
+  const wrap = document.getElementById('recResultWrap');
+
+  // 상단 요약
+  const best = sorted[0];
+  const bestScore = Math.min(best.totalScore, 99);
+  const missingFill = dist?.missing.includes(best.nums.expression.val);
+
+  let summaryText = `<strong class="best-name">${best.name}</strong>이 가장 좋은 이름입니다. `;
+  if(lp) {
+    summaryText += `인생여정수(${lp.val})와 ${compatLabel(best.totalCompat)}(${best.totalCompat}점)`;
+    if(missingFill) summaryText += `이며, 생년월일의 부족한 에너지를 채워주는 이상적인 조합`;
+    summaryText += `입니다.`;
+  } else {
+    summaryText += `${tr(best.nums.expression.val).name}(${best.nums.expression.val})의 에너지가 삶을 긍정적으로 이끌어줍니다.`;
+  }
+
+  // 생년월일 분포 패널
+  let birthPanelHtml = '';
+  if(birth && dist) {
+    const pillHtml = (nums, cls) => nums.length
+      ? nums.map(n=>`<span class="num-pill ${cls}"><span class="pn">${n}</span><span class="pt">${tr(n).name}</span></span>`).join('')
+      : `<span style="font-size:12px;color:var(--muted);">없음</span>`;
+    birthPanelHtml = `
+      <div class="birth-analysis-panel" style="margin-bottom:20px;">
+        <div class="bap-header">
+          <div class="bap-title">생년월일 수 분포</div>
+          <div class="bap-lp">인생여정수 ${lp?.val}번 · ${tr(lp?.val).name}</div>
+        </div>
+        <div class="bap-body">
+          <div>
+            <div class="bap-col-title good">✦ 없는 수 — 이름으로 채우면 좋아요</div>
+            <div class="num-pills">${pillHtml(dist.missing,'missing')}</div>
+          </div>
+          <div>
+            <div class="bap-col-title warn">⚠ 많은 수 — 이름에 또 나오면 과잉</div>
+            <div class="num-pills">${pillHtml(dist.excess,'excess')}</div>
+          </div>
+          <div>
+            <div class="bap-col-title neutral">· 적정 수</div>
+            <div class="num-pills">${pillHtml(dist.normal,'normal')}</div>
+          </div>
+        </div>
+        <div class="bap-guide">${dist.missing.length > 0
+          ? `생년월일에 <strong>${dist.missing.map(n=>`${n}번(${tr(n).name})`).join(', ')}</strong>이 없습니다. 이 수가 운명수로 오는 이름이 특히 좋아요.`
+          : `생년월일에 골고루 분포되어 있습니다.`}</div>
+      </div>`;
+  }
+
+  wrap.innerHTML = `
+    ${birthPanelHtml}
+    <div class="rank-header" style="margin-bottom:16px;">
+      <div class="rank-header-top">
+        <div class="rank-header-title">AI 추천 이름 ${sorted.length}개 · 수비학 분석 완료</div>
+        <div class="rank-count">10개 후보 → 상위 ${sorted.length}개 선별</div>
+      </div>
+      <div class="rank-summary">${summaryText}</div>
+      <div style="margin-top:10px;padding-top:10px;border-top:1px solid var(--border);font-size:11.5px;color:var(--muted);line-height:1.7;">
+        ※ AI가 제안한 이름을 팔자연구소 수비학 엔진으로 직접 계산한 결과입니다. 수비학은 참고 자료이며 최종 선택은 종합적으로 판단하세요.
+      </div>
+    </div>
+    <div class="name-cards" id="recNameCards"></div>`;
+
+  // 이름 분석과 동일한 카드 렌더링
+  renderNameCards([], sorted, dist);
+
+  // recNameCards에 복사 (renderNameCards는 nameCards에 씀)
+  const src = document.getElementById('nameCards');
+  const dst = document.getElementById('recNameCards');
+  if(src && dst) dst.innerHTML = src.innerHTML;
+}
+
+function sendToAnalysis(name){
+  const analyzeTab=document.querySelector('.hero-tab');
+  switchTab('analyze',analyzeTab);
+  const slots=document.querySelectorAll('.name-field');
+  let inserted=false;
+  for(const slot of slots){if(!slot.value.trim()){slot.value=name;slot.classList.add('filled');inserted=true;break;}}
+  if(!inserted){slots[0].value=name;slots[0].classList.add('filled');}
+  document.querySelector('.hero').scrollIntoView({behavior:'smooth'});
+}
+
+document.addEventListener('keydown',e=>{
+  if(e.key!=='Enter' || e.target.tagName!=='INPUT') return;
+  const activePanel = document.querySelector('.tab-panel.active')?.id;
+  if(activePanel === 'panel-recommend') runRecommend();
+  else runAnalysis();
+});
+</script>
+</body>
+</html>

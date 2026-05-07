@@ -1,0 +1,1243 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>대시보드 — 팔자연구소 8CODE</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+
+  <!-- Supabase CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <style>
+    :root {
+      --cream:      #f5f0e8;
+      --parchment:  #ede5d4;
+      --sand:       #d4c4a8;
+      --warm-brown: #8b6f47;
+      --deep-brown: #4a3520;
+      --ink:        #2c1f0e;
+      --accent:     #c8a96e;
+      --accent-lt:  #e8d5b0;
+      --muted:      #9a8570;
+      --border:     rgba(139,111,71,.18);
+      --shadow:     rgba(44,31,14,.08);
+
+      --font-serif: 'Noto Serif KR', serif;
+      --font-body:  'Noto Serif KR', serif;
+      --font-mono:  'Noto Serif KR', serif;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: var(--font-body);
+      background: var(--cream);
+      color: var(--ink);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* ── AUTH GUARD ── */
+    #auth-guard {
+      position: fixed; inset: 0;
+      background: var(--cream);
+      display: flex; align-items: center; justify-content: center;
+      z-index: 9999;
+      flex-direction: column;
+      gap: 16px;
+    }
+    #auth-guard .spinner {
+      width: 36px; height: 36px;
+      border: 2px solid var(--border);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin .9s linear infinite;
+    }
+    #auth-guard p { font-size: 13px; color: var(--muted); font-family: var(--font-mono); letter-spacing: .04em; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── LAYOUT ── */
+    .layout { display: flex; min-height: 100vh; }
+
+    /* ── SIDEBAR ── */
+    .sidebar {
+      width: 240px;
+      flex-shrink: 0;
+      background: linear-gradient(180deg, #f2ebdd 0%, #efe6d7 100%);
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      padding: 32px 0;
+      position: fixed;
+      top: 0; left: 0; bottom: 0;
+      z-index: 100;
+      transition: transform .3s ease;
+    }
+
+    .sidebar-logo {
+      padding: 0 28px 32px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 24px;
+    }
+    .sidebar-logo a {
+      text-decoration: none;
+      display: block;
+    }
+    .sidebar-logo .en {
+      font-family: var(--font-serif);
+      font-size: 10px;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: var(--muted);
+      display: block;
+      margin-bottom: 4px;
+    }
+    .sidebar-logo-brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 6px;
+    }
+    .sidebar-logo-mark {
+      width: 30px;
+      height: 30px;
+      border-radius: 9px;
+      background: linear-gradient(160deg, #5a402d 0%, #3d2b1f 65%, #2d1f16 100%);
+      color: var(--cream);
+      font-family: var(--font-serif);
+      font-size: 17px;
+      font-weight: 700;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid rgba(245,240,232,.22);
+      position: relative;
+      overflow: hidden;
+      line-height: 1;
+      flex-shrink: 0;
+    }
+    .sidebar-logo-mark::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(145deg, rgba(255,255,255,.16), rgba(255,255,255,0) 46%);
+      pointer-events: none;
+    }
+    .sidebar-logo-mark::after {
+      content: '八';
+      position: absolute;
+      right: 2px;
+      top: 0;
+      font-size: 11px;
+      font-weight: 700;
+      color: rgba(255,255,255,.30);
+      line-height: 1;
+      pointer-events: none;
+    }
+    .sidebar-logo .ko {
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--deep-brown);
+      letter-spacing: -.01em;
+    }
+
+    .nav-section {
+      padding: 0 16px;
+      flex: 1;
+    }
+    .nav-label {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      letter-spacing: .04em;
+      text-transform: uppercase;
+      color: var(--muted);
+      padding: 0 12px;
+      margin-bottom: 8px;
+      margin-top: 20px;
+    }
+    .nav-link {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 12px;
+      border-radius: 9px;
+      text-decoration: none;
+      color: var(--deep-brown);
+      font-size: 14px;
+      font-weight: 400;
+      transition: background .15s, color .15s;
+      cursor: pointer;
+      border: none;
+      background: none;
+      width: 100%;
+      text-align: left;
+    }
+    .nav-link:hover { background: var(--accent-lt); color: var(--deep-brown); }
+    .nav-link.active { background: rgba(200,169,110,.22); color: var(--deep-brown); font-weight: 600; }
+    .nav-link svg { opacity: .65; flex-shrink: 0; }
+    .nav-link.active svg { opacity: 1; }
+
+    .nav-badge {
+      margin-left: auto;
+      font-family: var(--font-mono);
+      font-size: 9px;
+      background: var(--accent);
+      color: white;
+      padding: 2px 6px;
+      border-radius: 20px;
+      letter-spacing: .04em;
+    }
+
+    .sidebar-footer {
+      padding: 20px 28px 0;
+      border-top: 1px solid var(--border);
+    }
+    .user-chip {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .user-avatar {
+      width: 32px; height: 32px;
+      border-radius: 50%;
+      background: var(--accent);
+      display: flex; align-items: center; justify-content: center;
+      font-family: var(--font-serif);
+      font-size: 14px;
+      color: white;
+      font-weight: 500;
+      flex-shrink: 0;
+    }
+    .user-info { flex: 1; min-width: 0; }
+    .user-name {
+      font-size: 12.5px;
+      font-weight: 500;
+      color: var(--deep-brown);
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .user-plan {
+      font-family: var(--font-mono);
+      font-size: 9px;
+      color: var(--muted);
+      letter-spacing: .08em;
+      text-transform: uppercase;
+    }
+    .logout-btn {
+      background: none; border: none;
+      cursor: pointer; color: var(--muted);
+      padding: 4px; border-radius: 4px;
+      transition: color .15s;
+      display: flex; align-items: center;
+    }
+    .logout-btn:hover { color: var(--deep-brown); }
+
+    /* ── MAIN ── */
+    .main {
+      margin-left: 240px;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    /* ── TOP BAR ── */
+    .topbar {
+      height: 60px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 40px;
+      background: rgba(245,240,232,.85);
+      backdrop-filter: blur(8px);
+      position: sticky; top: 0; z-index: 50;
+    }
+    .topbar-title {
+      font-family: var(--font-serif);
+      font-size: 22px;
+      font-weight: 600;
+      color: var(--deep-brown);
+      letter-spacing: .01em;
+    }
+    .topbar-right {
+      display: flex; align-items: center; gap: 12px;
+    }
+    .date-tag {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--muted);
+      letter-spacing: .1em;
+    }
+
+    /* ── PAGE CONTENT ── */
+    .page { padding: 40px; max-width: 1100px; }
+
+    /* ── GREETING ── */
+    .greeting {
+      margin-bottom: 40px;
+      opacity: 0;
+      animation: fadeUp .6s ease .1s forwards;
+    }
+    .greeting-sub {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 8px;
+    }
+    .greeting-main {
+      font-family: var(--font-serif);
+      font-size: 36px;
+      font-weight: 600;
+      color: var(--deep-brown);
+      line-height: 1.2;
+    }
+    .greeting-main em { font-style: italic; color: var(--warm-brown); }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(12px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ── DIVIDER ── */
+    .divider {
+      display: flex; align-items: center; gap: 16px;
+      margin-bottom: 28px;
+      opacity: 0; animation: fadeUp .6s ease .2s forwards;
+    }
+    .divider-line { flex: 1; height: 1px; background: var(--border); }
+    .divider-label {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      letter-spacing: .04em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    /* ── SERVICE CARD — HERO ── */
+    .service-hero {
+      background: var(--deep-brown);
+      border-radius: 16px;
+      padding: 40px 44px;
+      display: grid;
+      grid-template-columns: 1fr auto;
+      align-items: center;
+      gap: 32px;
+      margin-bottom: 24px;
+      position: relative;
+      overflow: hidden;
+      cursor: pointer;
+      text-decoration: none;
+      opacity: 0;
+      animation: fadeUp .6s ease .3s forwards;
+      transition: transform .2s, box-shadow .2s, border-color .2s;
+      border: 1px solid rgba(200,169,110,.26);
+    }
+    .service-hero:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 20px 60px rgba(44,31,14,.25);
+    }
+    .service-hero::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse at 80% 50%, rgba(200,169,110,.12) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .service-hero-tag {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 10px;
+    }
+    .service-hero-title {
+      font-family: var(--font-serif);
+      font-size: 28px;
+      font-weight: 600;
+      color: var(--cream);
+      line-height: 1.15;
+      margin-bottom: 10px;
+    }
+    .service-hero-desc {
+      font-size: 14px;
+      color: rgba(245,240,232,.6);
+      line-height: 1.7;
+      max-width: 420px;
+    }
+    .service-hero-cta {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--accent);
+      color: white;
+      border: none;
+      padding: 14px 28px;
+      border-radius: 10px;
+      font-family: var(--font-body);
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      white-space: nowrap;
+      text-decoration: none;
+      transition: background .15s, transform .15s;
+      flex-shrink: 0;
+    }
+    .service-hero-cta:hover { background: var(--warm-brown); transform: scale(1.02); }
+
+    /* ── GRID CARDS ── */
+    .cards-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      margin-bottom: 40px;
+      opacity: 0;
+      animation: fadeUp .6s ease .4s forwards;
+    }
+
+    .card {
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 24px;
+      transition: border-color .2s, box-shadow .2s, transform .2s;
+      cursor: pointer;
+      text-decoration: none;
+      color: inherit;
+      display: block;
+    }
+    .card:hover {
+      border-color: rgba(200,169,110,.42);
+      box-shadow: 0 14px 36px var(--shadow);
+      transform: translateY(-2px);
+    }
+    .card-icon {
+      width: 40px; height: 40px;
+      border-radius: 8px;
+      background: var(--accent-lt);
+      display: flex; align-items: center; justify-content: center;
+      margin-bottom: 16px;
+      font-size: 18px;
+    }
+    .card-label {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      letter-spacing: .04em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 6px;
+    }
+    .card-title {
+      font-family: var(--font-serif);
+      font-size: 19px;
+      font-weight: 600;
+      color: var(--deep-brown);
+      margin-bottom: 6px;
+      line-height: 1.25;
+    }
+    .card-desc {
+      font-size: 13px;
+      color: var(--muted);
+      line-height: 1.65;
+    }
+    .card-arrow {
+      margin-top: 16px;
+      display: flex; align-items: center; gap: 6px;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--accent);
+      letter-spacing: .06em;
+    }
+
+    /* ── STAT ROW ── */
+    .stats-row {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1px;
+      background: var(--border);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      overflow: hidden;
+      margin-bottom: 40px;
+      opacity: 0;
+      animation: fadeUp .6s ease .5s forwards;
+    }
+    .stat {
+      background: white;
+      padding: 24px 24px;
+      text-align: center;
+    }
+    .stat-value {
+      font-family: var(--font-serif);
+      font-size: 32px;
+      font-weight: 600;
+      color: var(--deep-brown);
+      line-height: 1;
+      margin-bottom: 6px;
+    }
+    .stat-label {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      letter-spacing: .04em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    /* ── RECENT / ACTIVITY ── */
+    .two-col {
+      display: grid;
+      grid-template-columns: 1fr 320px;
+      gap: 24px;
+      opacity: 0;
+      animation: fadeUp .6s ease .55s forwards;
+    }
+
+    .panel {
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      overflow: hidden;
+    }
+    .panel-header {
+      padding: 16px 24px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .panel-title {
+      font-family: var(--font-serif);
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--deep-brown);
+    }
+    .panel-action {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      letter-spacing: .04em;
+      color: var(--accent);
+      text-decoration: none;
+      text-transform: uppercase;
+      cursor: pointer;
+    }
+
+    .activity-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 14px 24px;
+      border-bottom: 1px solid var(--border);
+      transition: background .15s;
+    }
+    .activity-item:last-child { border-bottom: none; }
+    .activity-item:hover { background: var(--parchment); }
+    .activity-dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: var(--accent);
+      flex-shrink: 0;
+      margin-top: 6px;
+    }
+    .activity-dot.grey { background: var(--sand); }
+    .activity-text {
+      font-size: 13.5px;
+      color: var(--ink);
+      line-height: 1.5;
+    }
+    .activity-time {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      color: var(--muted);
+      margin-top: 3px;
+    }
+
+    /* plan badge */
+    .plan-card {
+      margin: 16px;
+      border: 1px dashed var(--border);
+      border-radius: 12px;
+      padding: 18px;
+      text-align: center;
+    }
+    .plan-name {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      letter-spacing: .04em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 8px;
+    }
+    .plan-tier {
+      font-family: var(--font-serif);
+      font-size: 26px;
+      font-weight: 600;
+      color: var(--deep-brown);
+      margin-bottom: 4px;
+    }
+    .plan-desc {
+      font-size: 12px;
+      color: var(--muted);
+      line-height: 1.6;
+      margin-bottom: 14px;
+    }
+    .upgrade-btn {
+      display: block;
+      width: 100%;
+      background: var(--deep-brown);
+      color: var(--cream);
+      border: none;
+      padding: 10px;
+      border-radius: 10px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background .15s;
+      font-family: var(--font-body);
+    }
+    .upgrade-btn:hover { background: var(--warm-brown); }
+
+    .profile-edit-card {
+      max-width: 900px;
+      margin: 18px auto;
+      padding: 18px;
+      border-radius: 14px;
+      border: 1px solid var(--border);
+      background: #fff;
+      box-shadow: 0 6px 22px var(--shadow);
+    }
+    .profile-edit-title {
+      margin: 0 0 12px;
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--deep-brown);
+    }
+    .profile-edit-grid {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    .profile-edit-field {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .profile-edit-field span {
+      font-size: 12px;
+      color: var(--muted);
+      font-weight: 600;
+    }
+    .profile-edit-input {
+      padding: 9px 11px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      min-width: 220px;
+      font-family: var(--font-body);
+      font-size: 14px;
+      color: var(--deep-brown);
+      background: #fff;
+      outline: none;
+    }
+    .profile-edit-input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 2px rgba(200,169,110,.15);
+    }
+    .profile-edit-actions {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+    .profile-btn-primary {
+      padding: 10px 14px;
+      border-radius: 10px;
+      background: var(--accent);
+      border: none;
+      color: white;
+      font-weight: 700;
+      cursor: pointer;
+      font-family: var(--font-body);
+    }
+    .profile-btn-ghost {
+      padding: 10px 12px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--deep-brown);
+      cursor: pointer;
+      font-family: var(--font-body);
+    }
+    .profile-msg {
+      margin-top: 10px;
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    /* ── MOBILE ── */
+    .hamburger {
+      display: none;
+      background: none; border: none;
+      cursor: pointer; color: var(--deep-brown);
+      padding: 4px;
+    }
+    .overlay {
+      display: none;
+      position: fixed; inset: 0;
+      background: rgba(44,31,14,.4);
+      z-index: 99;
+    }
+    .overlay.show { display: block; }
+
+    @media (max-width: 900px) {
+      .sidebar { transform: translateX(-100%); }
+      .sidebar.open { transform: translateX(0); }
+      .main { margin-left: 0; }
+      .hamburger { display: flex; }
+      .cards-grid { grid-template-columns: 1fr 1fr; }
+      .stats-row { grid-template-columns: 1fr 1fr; }
+      .two-col { grid-template-columns: 1fr; }
+      .service-hero { grid-template-columns: 1fr; }
+      .page { padding: 24px; }
+      .topbar { padding: 0 20px; }
+      .profile-edit-input { min-width: 180px; }
+    }
+    @media (max-width: 560px) {
+      .cards-grid { grid-template-columns: 1fr; }
+      .stats-row { grid-template-columns: 1fr 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- Auth loading -->
+<div id="auth-guard">
+  <div class="spinner"></div>
+  <p>인증 확인 중...</p>
+</div>
+
+<div id="overlay" class="overlay"></div>
+
+<div class="layout" id="app" style="display:none;">
+
+  <!-- ── SIDEBAR ── -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-logo">
+      <a href="index.html">
+        <div class="sidebar-logo-brand">
+          <span class="sidebar-logo-mark" aria-hidden="true">八</span>
+          <span class="ko">팔자연구소</span>
+        </div>
+        <span class="en">8code</span>
+      </a>
+    </div>
+
+    <nav class="nav-section">
+      <div class="nav-label">핵심 서비스</div>
+      <a class="nav-link" href="analysis.html">
+        <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.6" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v4l3 3"/></svg>
+        라이프코드
+      </a>
+      <a class="nav-link" href="compatibility.html">
+        <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.6" viewBox="0 0 24 24"><path d="M12 21s-6.5-4.4-9-8.2C.8 9.3 2.2 5 6 5c2.1 0 3.3 1.1 4 2.2C10.7 6.1 11.9 5 14 5c3.8 0 5.2 4.3 3 7.8-2.5 3.8-9 8.2-9 8.2z"/></svg>
+        소울하모니
+      </a>
+      <a class="nav-link" href="name.html">
+        <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.6" viewBox="0 0 24 24"><path d="M4 19h16"/><path d="M6 17V5h8l4 4v8"/><path d="M14 5v4h4"/></svg>
+        이름분석
+      </a>
+
+      <div class="nav-label" id="navCounselorLabel" style="display:none;">상담사</div>
+      <a class="nav-link" id="navCounselor" href="counselor.html" style="display:none;">
+        <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.6" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        상담사 허브
+      </a>
+
+      <div class="nav-label">현재 페이지</div>
+      <a class="nav-link" href="#myAnalysisSection">
+        <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.6" viewBox="0 0 24 24"><path d="M9 12l2 2 4-4"/><path d="M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0z"/></svg>
+        나의 분석
+      </a>
+      <a class="nav-link active" href="#profileEdit">
+        <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.6" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        프로필
+      </a>
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="user-chip">
+        <div class="user-avatar" id="user-avatar">?</div>
+        <div class="user-info">
+          <div class="user-name" id="user-name">로딩 중...</div>
+          <div class="user-plan" id="user-plan">Free</div>
+        </div>
+        <button class="logout-btn" id="logout-btn" title="로그아웃">
+          <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+            <polyline points="16 17 21 12 16 7"/>
+            <line x1="21" y1="12" x2="9" y2="12"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ── MAIN ── -->
+  <div class="main">
+    <header class="topbar">
+      <button class="hamburger" id="hamburger" aria-label="메뉴">
+        <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+          <line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>
+        </svg>
+      </button>
+      <span class="topbar-title">나의 공간</span>
+      <div class="topbar-right">
+        <span class="date-tag" id="today-date"></span>
+      </div>
+    </header>
+
+    <main class="page">
+
+      <!-- GREETING -->
+      <div class="greeting">
+        <div class="greeting-sub">Welcome back</div>
+        <h1 class="greeting-main">안녕하세요, <em id="greeting-name">게스트</em>님.<br>오늘도 당신의 코드를 탐색해보세요.</h1>
+      </div>
+
+      <!-- Profile edit (moved to top for visibility) -->
+      <div id="profileEdit" class="profile-edit-card">
+        <h3 class="profile-edit-title">프로필 정보 (메인 페이지에 반영)</h3>
+        <div class="profile-edit-grid">
+          <label class="profile-edit-field">
+            <span>이름</span>
+            <input id="profile_full_name" class="profile-edit-input" type="text" placeholder="홍길동"/>
+          </label>
+          <label class="profile-edit-field">
+            <span>생년월일</span>
+            <input id="profile_birth" class="profile-edit-input" type="date" style="min-width:160px;"/>
+          </label>
+          <div class="profile-edit-actions">
+            <button id="saveProfileBtn" class="profile-btn-primary">저장</button>
+            <button id="refreshHeroBtn" class="profile-btn-ghost">메인 반영 (새로고침)</button>
+          </div>
+        </div>
+        <div id="profileMsg" class="profile-msg"></div>
+      </div>
+
+      <!-- 핵심 서비스 -->
+      <div class="divider">
+        <div class="divider-line"></div>
+        <span class="divider-label">핵심 서비스</span>
+        <div class="divider-line"></div>
+      </div>
+
+      <a class="service-hero" href="analysis.html">
+        <div>
+          <div class="service-hero-tag">수비학 기반 자기이해 플랫폼</div>
+          <div class="service-hero-title">라이프코드<br><em style="font-size:20px; color:var(--accent);">Life Code</em></div>
+          <div class="service-hero-desc">당신의 생년월일로부터 생애 에너지 흐름, 핵심 역량, 성장 방향을 분석합니다. 심리학적 관점의 수비학 인사이트.</div>
+        </div>
+        <div>
+          <span class="service-hero-cta">
+            분석 시작하기
+            <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+          </span>
+        </div>
+      </a>
+
+      <!-- 서비스 카드 -->
+      <div class="divider" style="animation-delay:.35s">
+        <div class="divider-line"></div>
+        <span class="divider-label">나의 활동</span>
+        <div class="divider-line"></div>
+      </div>
+
+      <div class="cards-grid" id="myAnalysisSection">
+        <a class="card" href="analysis.html">
+          <div class="card-icon">🔢</div>
+          <div class="card-label">수비학 분석</div>
+          <div class="card-title">생애 수 분석</div>
+          <div class="card-desc">생명수, 표현수, 영혼수 등 핵심 수비학 지표를 계산하고 해석합니다.</div>
+          <div class="card-arrow">
+            분석하기
+            <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+          </div>
+        </a>
+
+        <a class="card js-quick-analysis" data-target="timelineSection" href="analysis.html#timelineSection">
+          <div class="card-icon">📅</div>
+          <div class="card-label">타임라인</div>
+          <div class="card-title">10년 생애 주기</div>
+          <div class="card-desc">인생의 에너지 흐름을 색상 코딩된 바 차트로 시각화하여 전환점을 파악합니다.</div>
+          <div class="card-arrow">
+            보러가기
+            <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+          </div>
+        </a>
+
+        <a class="card js-quick-analysis" data-target="growthSection" href="analysis.html#growthSection">
+          <div class="card-icon">🗺️</div>
+          <div class="card-label">성장 지도</div>
+          <div class="card-title">Growth Map</div>
+          <div class="card-desc">선천 미개발 역량과 성장 방향을 코칭 프롬프트와 함께 탐색합니다.</div>
+          <div class="card-arrow">
+            탐색하기
+            <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+          </div>
+        </a>
+      </div>
+
+      <!-- 통계 -->
+      <div class="stats-row" id="myReportSection">
+        <div class="stat">
+          <div class="stat-value" id="stat-analyses">0</div>
+          <div class="stat-label">총 분석 횟수</div>
+        </div>
+          <div class="stat">
+            <div class="stat-value" id="stat-reports">0</div>
+          <div class="stat-label">저장된 리포트</div>
+        </div>
+        <div class="stat">
+          <div class="stat-value" id="stat-plan-tier">—</div>
+          <div class="stat-label">구독 플랜</div>
+        </div>
+        <div class="stat">
+          <div class="stat-value" id="stat-days">1</div>
+          <div class="stat-label">가입 후 일수</div>
+        </div>
+      </div>
+
+      <!-- 2컬럼 -->
+      <div class="two-col">
+        <!-- 최근 활동 -->
+        <div class="panel">
+          <div class="panel-header">
+            <span class="panel-title">최근 활동</span>
+            <a class="panel-action" href="#">전체 보기</a>
+          </div>
+          <div class="activity-item">
+            <div class="activity-dot"></div>
+            <div>
+              <div class="activity-text">라이프코드 분석을 처음 실행했습니다.</div>
+              <div class="activity-time">방금 전</div>
+            </div>
+          </div>
+          <div class="activity-item">
+            <div class="activity-dot grey"></div>
+            <div>
+              <div class="activity-text">팔자연구소 계정이 생성되었습니다.</div>
+              <div class="activity-time" id="signup-time">—</div>
+            </div>
+          </div>
+          <div class="activity-item">
+            <div class="activity-dot grey"></div>
+            <div>
+              <div class="activity-text">생애 주기 타임라인 기능이 곧 출시될 예정입니다.</div>
+              <div class="activity-time">Coming soon</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 플랜 카드 -->
+        <div class="panel">
+          <div class="panel-header">
+            <span class="panel-title">나의 플랜</span>
+          </div>
+          <div class="plan-card">
+            <div class="plan-name">Current Plan</div>
+            <div class="plan-tier">Free</div>
+            <div class="plan-desc" id="plan-desc-block">기본 수비학 분석이 포함됩니다.<br>프리미엄으로 업그레이드하면 전체 리포트와 심층 Growth Map을 이용할 수 있습니다.</div>
+            <button class="upgrade-btn" id="upgradeBtn" onclick="onPlanActionClick()">
+              플랜 관리 →
+            </button>
+          </div>
+          <div style="padding: 12px 20px 20px; text-align:center;">
+            <div style="font-family:var(--font-mono); font-size:9px; letter-spacing:.12em; color:var(--muted); text-transform:uppercase; margin-bottom:8px;">토스페이먼츠 연동</div>
+            <img src="https://static.toss.im/logos/png/4x/logo-toss-payments-gray.png" alt="토스페이먼츠" style="height:16px; opacity:.4;" onerror="this.style.display='none'" />
+          </div>
+        </div>
+      </div>
+
+    </main>
+  </div>
+</div>
+
+<script>
+  async function getUsageStats(userId) {
+    const fallback = { analysisRuns: 0, savedReports: 0 };
+    if (!userId) return fallback;
+    let localStats = fallback;
+    try {
+      const raw = localStorage.getItem(`palja:usage:${userId}`);
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        localStats = {
+          analysisRuns: Number(parsed?.analysisRuns || 0),
+          savedReports: Number(parsed?.savedReports || 0),
+        };
+      }
+    } catch {
+      localStats = fallback;
+    }
+    try {
+      const { data: profileUsage } = await sb
+        .from('profiles')
+        .select('analysis_count,saved_report_count')
+        .eq('id', userId)
+        .maybeSingle();
+      const dbStats = {
+        analysisRuns: Number(profileUsage?.analysis_count || 0),
+        savedReports: Number(profileUsage?.saved_report_count || 0),
+      };
+      const merged = {
+        analysisRuns: Math.max(localStats.analysisRuns, dbStats.analysisRuns),
+        savedReports: Math.max(localStats.savedReports, dbStats.savedReports),
+      };
+      try {
+        localStorage.setItem(`palja:usage:${userId}`, JSON.stringify(merged));
+      } catch {}
+      if (merged.analysisRuns !== dbStats.analysisRuns || merged.savedReports !== dbStats.savedReports) {
+        await sb.from('profiles').upsert(
+          { id: userId, analysis_count: merged.analysisRuns, saved_report_count: merged.savedReports },
+          { onConflict: 'id', ignoreDuplicates: false }
+        );
+      }
+      return merged;
+    } catch {
+      return localStats;
+    }
+  }
+
+  function onPlanActionClick() {
+    const tier = (document.querySelector('.plan-tier')?.textContent || '').toLowerCase();
+    if (tier === 'professional') {
+      alert('이미 최고 플랜(Professional)을 이용 중입니다.');
+      return;
+    }
+    alert('요금제 관리 기능은 준비 중입니다. 곧 출시됩니다!');
+  }
+
+  // ── CONFIG ── (replace with your actual values)
+  const SUPABASE_URL = 'https://sghsryumnrnftyjoqmwf.supabase.co';
+  const SUPABASE_ANON_KEY = 'sb_publishable_6S3W_oWrzG-Nv8wLK98gmg_q_KcB2I1';
+
+  const { createClient } = supabase;
+  const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+  // ── DATE ──
+  const dateEl = document.getElementById('today-date');
+  const now = new Date();
+  dateEl.textContent = now.toLocaleDateString('ko-KR', { year:'numeric', month:'long', day:'numeric', weekday:'short' });
+
+  // ── AUTH CHECK ──
+  async function initDashboard() {
+    const { data: { session } } = await sb.auth.getSession();
+
+    if (!session) {
+      window.location.replace('login.html');
+      return;
+    }
+
+    const user = session.user;
+    const email = user.email || '';
+    const meta = user.user_metadata || {};
+    const displayName = meta.name || meta.full_name || email.split('@')[0] || '사용자';
+    const initial = displayName.charAt(0).toUpperCase();
+
+    // Populate UI
+    document.getElementById('greeting-name').textContent = displayName;
+    document.getElementById('user-name').textContent = displayName;
+    document.getElementById('user-avatar').textContent = initial;
+    const usage = await getUsageStats(user.id);
+    const statAnalyses = document.getElementById('stat-analyses');
+    const statReports = document.getElementById('stat-reports');
+    if (statAnalyses) statAnalyses.textContent = usage.analysisRuns;
+    if (statReports) statReports.textContent = usage.savedReports;
+
+    // Days since signup
+    const createdAt = new Date(user.created_at);
+    const diffDays = Math.max(1, Math.floor((Date.now() - createdAt) / 86400000));
+    document.getElementById('stat-days').textContent = diffDays;
+    document.getElementById('signup-time').textContent = createdAt.toLocaleDateString('ko-KR');
+
+    try {
+      const { data: profileRow } = await sb.from('profiles').select('plan, plan_active_until').eq('id', user.id).single();
+      const plan = profileRow?.plan || 'free';
+      const proActive =
+        plan === 'professional' &&
+        (!profileRow?.plan_active_until || new Date(profileRow.plan_active_until) > new Date());
+      const displayPlan =
+        plan === 'professional' && profileRow?.plan_active_until && !proActive ? 'pro' : plan;
+      const planLabel = displayPlan.charAt(0).toUpperCase() + displayPlan.slice(1);
+      document.getElementById('user-plan').textContent = planLabel;
+      const statPlan = document.getElementById('stat-plan-tier');
+      if (statPlan) statPlan.textContent = planLabel;
+      const tierEl = document.querySelector('.plan-tier');
+      const upgradeBtn = document.getElementById('upgradeBtn');
+      const descEl = document.getElementById('plan-desc-block');
+      if (descEl && !descEl.dataset.baseHtml) {
+        descEl.dataset.baseHtml = descEl.innerHTML;
+      }
+      if (tierEl) tierEl.textContent = planLabel;
+      if (upgradeBtn) {
+        if (displayPlan === 'professional') {
+          upgradeBtn.textContent = '현재 최고 플랜 사용 중';
+          upgradeBtn.disabled = true;
+          upgradeBtn.style.opacity = '.7';
+          upgradeBtn.style.cursor = 'default';
+        } else {
+          upgradeBtn.textContent = '플랜 관리 →';
+          upgradeBtn.disabled = false;
+          upgradeBtn.style.opacity = '';
+          upgradeBtn.style.cursor = '';
+        }
+      }
+      if (plan === 'professional' && profileRow?.plan_active_until) {
+        const until = new Date(profileRow.plan_active_until);
+        const expText = proActive
+          ? `Professional 이용 만료: ${until.toLocaleDateString('ko-KR')}`
+          : `Professional 기간이 지났습니다. 요금제에서 갱신할 수 있어요.`;
+        if (descEl) {
+          descEl.innerHTML = descEl.dataset.baseHtml + '<br><br><span style="font-size:12px;color:var(--accent)">' + expText + '</span>';
+        }
+      } else if (descEl && descEl.dataset.baseHtml) {
+        descEl.innerHTML = descEl.dataset.baseHtml;
+      }
+      if (proActive) {
+        const nl = document.getElementById('navCounselorLabel');
+        const nv = document.getElementById('navCounselor');
+        if (nl) nl.style.display = 'block';
+        if (nv) nv.style.display = 'flex';
+      }
+    } catch (e) { /* ignore */ }
+
+    // Show app
+    document.getElementById('auth-guard').style.display = 'none';
+    document.getElementById('app').style.display = 'flex';
+  }
+
+  function bindQuickAnalysisCards() {
+    const links = document.querySelectorAll('.js-quick-analysis');
+    if (!links.length) return;
+    links.forEach((link) => {
+      link.addEventListener('click', (ev) => {
+        const target = link.dataset.target || '';
+        const name = (document.getElementById('profile_full_name')?.value || '').trim();
+        const birth = (document.getElementById('profile_birth')?.value || '').trim();
+        try {
+          localStorage.setItem('palja:analysisQuickStart', JSON.stringify({
+            name,
+            birth,
+            target,
+            autoRun: true,
+            at: Date.now(),
+          }));
+        } catch {}
+        ev.preventDefault();
+        window.location.href = `analysis.html#${target}`;
+      });
+    });
+  }
+
+  // ── LOGOUT ──
+  document.getElementById('logout-btn').addEventListener('click', async () => {
+    await sb.auth.signOut();
+    window.location.replace('login.html');
+  });
+
+  // ── MOBILE SIDEBAR ──
+  const sidebar = document.getElementById('sidebar');
+  const overlay = document.getElementById('overlay');
+  const hamburger = document.getElementById('hamburger');
+
+  hamburger.addEventListener('click', () => {
+    sidebar.classList.toggle('open');
+    overlay.classList.toggle('show');
+  });
+  overlay.addEventListener('click', () => {
+    sidebar.classList.remove('open');
+    overlay.classList.remove('show');
+  });
+
+  // ── INIT ──
+  initDashboard();
+  bindQuickAnalysisCards();
+</script>
+
+<script>
+// Save profile to Supabase 'profiles' table so main hero can pick it up
+(function(){
+  const SUPABASE_URL = 'https://sghsryumnrnftyjoqmwf.supabase.co';
+  const SUPABASE_ANON_KEY = 'sb_publishable_6S3W_oWrzG-Nv8wLK98gmg_q_KcB2I1';
+  const { createClient } = supabase;
+  const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+  async function loadProfileForm() {
+    const { data: { session } } = await sb.auth.getSession();
+    if (!session) {
+      document.getElementById('profileEdit').style.display = 'none';
+      return;
+    }
+    const { data: profile } = await sb.from('profiles').select('full_name,birth').eq('id', session.user.id).single();
+    if (profile) {
+      document.getElementById('profile_full_name').value = profile.full_name || '';
+      document.getElementById('profile_birth').value = profile.birth || '';
+    }
+    document.getElementById('saveProfileBtn').addEventListener('click', async () => {
+      const full_name = document.getElementById('profile_full_name').value.trim();
+      const birth = document.getElementById('profile_birth').value;
+      const msgEl = document.getElementById('profileMsg');
+
+      // Simple validation
+      if (!full_name && !birth) {
+        msgEl.textContent = '이름 또는 생년월일 중 하나 이상 입력해 주세요.';
+        return;
+      }
+      if (birth && !/^\d{4}-\d{2}-\d{2}$/.test(birth)) {
+        msgEl.textContent = '생년월일 형식은 YYYY-MM-DD 입니다.';
+        return;
+      }
+
+      msgEl.textContent = '저장 중...';
+      try {
+        const { error: upsertErr } = await sb.from('profiles').upsert(
+          { id: session.user.id, full_name: full_name || null, birth: birth || null },
+          { returning: 'minimal' }
+        );
+        if (upsertErr) {
+          console.error('upsert error', upsertErr);
+          msgEl.innerHTML = `저장 중 오류가 발생했습니다: <pre style="white-space:pre-wrap; font-size:12px; color:#8b1e1e;">${String(upsertErr.message || JSON.stringify(upsertErr))}</pre><div style="font-size:12px;color:var(--muted);margin-top:6px;">문제가 계속되면 이 오류 메시지를 알려주세요.</div>`;
+          return;
+        }
+
+        // verify read-back
+        const { data: saved, error: readErr } = await sb.from('profiles').select('full_name,birth').eq('id', session.user.id).single();
+        if (readErr || !saved) {
+          console.error('readback error', readErr);
+          msgEl.innerHTML = `저장되었지만 확인에 실패했습니다: <pre style="white-space:pre-wrap; font-size:12px; color:#8b1e1e;">${String(readErr?.message || JSON.stringify(readErr))}</pre>`;
+          return;
+        }
+
+        msgEl.textContent = '저장되었습니다 — 메인 페이지로 이동합니다...';
+        setTimeout(() => { window.location.href = 'index.html'; }, 900);
+      } catch (e) {
+        console.error(e);
+        msgEl.textContent = '저장 중 오류가 발생했습니다.';
+      }
+    });
+    document.getElementById('refreshHeroBtn').addEventListener('click', () => {
+      // reload the page to ensure main hero picks up updated profile
+      location.reload();
+    });
+  }
+
+  loadProfileForm();
+})();
+</script>
+</body>
+</html>

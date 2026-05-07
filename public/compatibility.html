@@ -1,0 +1,2105 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>수비학 궁합 — 팔자연구소</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@200;300;400;600&family=Gowun+Batang:wght@400;700&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.2/dist/jspdf.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+<style>
+:root {
+  --void: #100c08;
+  --deep: #160f0a;
+  --surface: #1e1510;
+  --surface2: #261a12;
+  --surface3: #302018;
+  --ink: #f0ead8;
+  --ink-dim: #8a7d6a;
+  --ink-faint: #3e3028;
+  --gold: #c8a058;
+  --gold-bright: #e8cc88;
+  --gold-dim: #6e4e24;
+  --rose: #c46858;
+  --rose-dim: #5a2820;
+  --teal: #8aaa88;
+  --teal-dim: #2a3e28;
+  --amber: #c88840;
+  --border: rgba(200,160,88,0.14);
+  --border-active: rgba(200,160,88,0.38);
+}
+
+* { margin:0; padding:0; box-sizing:border-box; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--void);
+  color: var(--ink);
+  font-family: 'Noto Serif KR', serif;
+  min-height: 100vh;
+  overflow-x: hidden;
+  cursor: default;
+}
+
+/* ── Top bar (brand-consistent) ── */
+.sh-topbar {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 32px;
+  height: 58px;
+  background: rgba(16,12,8,0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(200,160,88,0.1);
+}
+.sh-topbar-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+}
+.sh-logo-mark {
+  width: 38px;
+  height: 38px;
+  border-radius: 11px;
+  background: linear-gradient(160deg, #5a402d 0%, #3d2b1f 65%, #2d1f16 100%);
+  border: 1px solid rgba(245,240,232,.22);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: rgba(240,234,216,0.95);
+  font-family: 'DM Serif Display', serif;
+  font-size: 21px;
+  font-weight: 700;
+  position: relative;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+.sh-logo-mark::before {
+  content:'';
+  position:absolute;
+  inset:0;
+  background: linear-gradient(145deg, rgba(255,255,255,.16), rgba(255,255,255,0) 46%);
+  pointer-events:none;
+}
+.sh-logo-mark::after {
+  content:'八';
+  position:absolute;
+  right:2px;
+  top:0;
+  font-size: 13px;
+  font-weight: 700;
+  color: rgba(255,255,255,.30);
+  line-height:1;
+  pointer-events:none;
+}
+.sh-brand-text {
+  font-family: 'Noto Serif KR', serif;
+  font-size: 16px;
+  font-weight: 600;
+  color: rgba(240,234,216,0.9);
+  letter-spacing: 0.5px;
+}
+.sh-topbar-center {
+  font-size: 12px;
+  letter-spacing: 2px;
+  color: rgba(240,234,216,0.46);
+  text-transform: uppercase;
+}
+.sh-topbar-right {
+  display:flex;
+  align-items:center;
+  gap:8px;
+  flex-wrap:wrap;
+  justify-content:flex-end;
+}
+.plan-badge {
+  font-family: 'Noto Serif KR', serif;
+  font-size: 10px;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  padding: 4px 10px;
+  border-radius: 20px;
+  border: 1px solid rgba(240,234,216,.3);
+  color: rgba(240,234,216,.86);
+  background: rgba(240,234,216,.08);
+  font-weight: 700;
+}
+.topbar-export-btns {
+  display:flex;
+  align-items:center;
+  gap:8px;
+  flex-wrap:wrap;
+}
+.counselor-bar-btn {
+  font-family: 'Noto Serif KR', serif;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: .01em;
+  color: rgba(240,234,216,.88);
+  background: rgba(240,234,216,.06);
+  border: 1px solid rgba(240,234,216,.2);
+  border-radius: 6px;
+  padding: 6px 12px;
+  cursor: pointer;
+  transition: border-color .15s, background .15s, color .15s;
+}
+.counselor-bar-btn:hover {
+  background: rgba(240,234,216,.12);
+  border-color: rgba(240,234,216,.35);
+  color: rgba(240,234,216,1);
+}
+.sh-topbar-back {
+  font-size: 13px;
+  font-weight: 600;
+  color: rgba(240,234,216,0.74);
+  text-decoration: none;
+  letter-spacing: .01em;
+  transition: color 0.2s;
+}
+.sh-topbar-back:hover { color: rgba(240,234,216,0.8); }
+
+/* ── Background atmosphere ── */
+.bg-canvas {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+.bg-orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(120px);
+  opacity: 0.10;
+}
+.bg-orb-1 { width:700px; height:700px; background:#7a4818; top:-200px; left:-200px; }
+.bg-orb-2 { width:500px; height:500px; background:#c09050; bottom:-100px; right:-100px; }
+.bg-orb-3 { width:400px; height:400px; background:#5a3820; top:50%; left:50%; transform:translate(-50%,-50%); }
+
+/* Grain overlay */
+.bg-canvas::after {
+  content:'';
+  position:absolute;
+  inset:0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.4'/%3E%3C/svg%3E");
+  opacity: 0.025;
+}
+
+/* ── Layout ── */
+.wrap {
+  position: relative;
+  z-index: 1;
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 78px 24px 120px;
+}
+
+/* ── Header ── */
+.brand {
+  text-align: center;
+  margin-bottom: 72px;
+}
+.brand-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 11px;
+  letter-spacing: 4px;
+  color: rgba(240,234,216,0.5);
+  text-transform: uppercase;
+  margin-bottom: 24px;
+}
+.brand-badge::before,
+.brand-badge::after {
+  content:'';
+  display: block;
+  width: 24px;
+  height: 1px;
+  background: rgba(240,234,216,0.25);
+}
+.brand-title {
+  font-family: 'DM Serif Display', serif;
+  font-style: italic;
+  font-size: clamp(40px, 8vw, 72px);
+  color: var(--gold-bright);
+  line-height: 1;
+  letter-spacing: -1px;
+  margin-bottom: 12px;
+  text-shadow: 0 0 80px rgba(200,169,107,0.2);
+}
+.brand-sub {
+  font-family: 'Noto Serif KR', serif;
+  font-weight: 300;
+  font-size: 14px;
+  letter-spacing: 2px;
+  color: rgba(240,234,216,0.6);
+}
+.brand-line {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  margin-top: 28px;
+}
+.brand-line span {
+  font-size: 11px;
+  letter-spacing: 3px;
+  color: rgba(240,234,216,0.45);
+  text-transform: uppercase;
+}
+.brand-line::before,
+.brand-line::after {
+  content:'';
+  flex: 1;
+  max-width: 100px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(240,234,216,0.2));
+}
+.brand-line::after { background: linear-gradient(90deg, rgba(240,234,216,0.2), transparent); }
+
+/* ── Input panel ── */
+.input-panel {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  gap: 0;
+  align-items: start;
+  margin-bottom: 36px;
+}
+
+.person-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 28px 24px 24px;
+  transition: border-color 0.4s, box-shadow 0.4s;
+  box-shadow: 0 8px 24px rgba(0,0,0,.12);
+}
+.person-card:focus-within {
+  border-color: var(--border-active);
+  box-shadow: 0 0 40px rgba(200,169,107,0.05);
+}
+.card-label {
+  font-size: 11px;
+  letter-spacing: 3px;
+  color: rgba(240,234,216,0.6);
+  text-transform: uppercase;
+  margin-bottom: 22px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.card-label::after { content:''; flex:1; height:1px; background: rgba(240,234,216,0.1); }
+
+.field { margin-bottom: 14px; }
+.field label {
+  display: block;
+  font-size: 11px;
+  letter-spacing: 1.5px;
+  color: rgba(240,234,216,0.55);
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+.field input {
+  width: 100%;
+  background: var(--surface2);
+  border: 1px solid rgba(200,160,88,0.15);
+  border-radius: 12px;
+  padding: 12px 14px;
+  color: var(--ink);
+  font-family: 'Noto Serif KR', serif;
+  font-size: 14px;
+  font-weight: 400;
+  outline: none;
+  transition: border-color 0.3s, background 0.3s;
+  -webkit-appearance: none;
+  color-scheme: dark;
+}
+.field input::placeholder { color: rgba(240,234,216,0.25); }
+.field input:focus {
+  border-color: rgba(200,160,88,0.45);
+  background: rgba(200,160,88,0.04);
+}
+.field-hint {
+  font-size: 11px;
+  color: rgba(240,234,216,0.46);
+  margin-top: 6px;
+  letter-spacing: 0.3px;
+  line-height: 1.5;
+}
+.opt-tag {
+  font-size: 9px;
+  letter-spacing: 1px;
+  color: rgba(240,234,216,0.4);
+  border: 1px solid rgba(240,234,216,0.15);
+  border-radius: 20px;
+  padding: 2px 7px;
+  margin-left: 6px;
+  vertical-align: middle;
+}
+
+.divider-col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 80px 16px 0;
+  gap: 6px;
+}
+.divider-col .hex {
+  font-family: 'DM Serif Display', serif;
+  font-size: 22px;
+  color: var(--rose);
+  opacity: 0.6;
+  animation: pulse-rose 3s ease-in-out infinite;
+}
+@keyframes pulse-rose {
+  0%,100% { opacity:0.4; transform:scale(1); }
+  50% { opacity:0.8; transform:scale(1.1); }
+}
+
+/* ── CTA ── */
+.cta-wrap { text-align:center; margin-bottom: 60px; }
+.error-text {
+  font-size: 12px;
+  color: var(--rose);
+  letter-spacing: 1px;
+  margin-bottom: 16px;
+  min-height: 18px;
+}
+.cta-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  background: linear-gradient(180deg, rgba(200,169,107,.14), rgba(200,169,107,.06));
+  border: 1px solid rgba(200,169,107,0.4);
+  border-radius: 14px;
+  padding: 14px 30px;
+  color: var(--gold-bright);
+  font-family: 'Noto Serif KR', serif;
+  font-style: normal;
+  font-size: 16px;
+  letter-spacing: 0.2px;
+  cursor: pointer;
+  transition: all 0.4s cubic-bezier(0.4,0,0.2,1);
+  position: relative;
+  overflow: hidden;
+}
+.cta-btn::before {
+  content:'';
+  position:absolute;
+  inset:0;
+  background: radial-gradient(ellipse at 50% 120%, rgba(200,169,107,0.15) 0%, transparent 70%);
+  opacity:0;
+  transition: opacity 0.4s;
+}
+.cta-btn:hover { border-color: var(--gold); box-shadow: 0 10px 28px rgba(200,169,107,0.12); transform: translateY(-2px); }
+.cta-btn:hover::before { opacity:1; }
+.cta-btn:active { transform: translateY(0); }
+.cta-btn:disabled { opacity:0.5; pointer-events:none; }
+.cta-icon { font-size:14px; opacity:0.7; }
+
+/* ── Result ── */
+#result { display:none; }
+.result-enter {
+  animation: fadeSlide 0.7s cubic-bezier(0.4,0,0.2,1) forwards;
+}
+@keyframes fadeSlide {
+  from { opacity:0; transform:translateY(28px); }
+  to { opacity:1; transform:translateY(0); }
+}
+
+/* Score section */
+.score-section {
+  text-align: center;
+  padding: 48px 0 40px;
+  position: relative;
+}
+.score-names {
+  font-family: 'DM Serif Display', serif;
+  font-size: clamp(20px, 4vw, 30px);
+  color: var(--gold-bright);
+  letter-spacing: 1px;
+  margin-bottom: 36px;
+}
+.score-names .amp {
+  font-style: italic;
+  color: var(--rose);
+  margin: 0 14px;
+  opacity: 0.7;
+}
+
+.score-ring-outer {
+  position: relative;
+  width: 180px;
+  height: 180px;
+  margin: 0 auto 24px;
+}
+.score-ring-outer svg { transform: rotate(-90deg); }
+.score-center {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+.score-num {
+  font-family: 'DM Serif Display', serif;
+  font-size: 54px;
+  color: var(--gold-bright);
+  line-height: 1;
+}
+.score-unit { font-size: 11px; letter-spacing: 3px; color: var(--gold-dim); }
+.score-title {
+  font-family: 'DM Serif Display', serif;
+  font-style: italic;
+  font-size: 24px;
+  color: var(--gold);
+  margin-bottom: 6px;
+}
+.score-caption { font-size: 13px; color: var(--ink-dim); letter-spacing: 1px; }
+.direction-scores {
+  margin-top: 16px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+.direction-card {
+  background: rgba(240,234,216,0.03);
+  border: 1px solid rgba(240,234,216,0.1);
+  border-radius: 12px;
+  padding: 10px 12px;
+}
+.direction-label {
+  font-size: 11px;
+  color: rgba(240,234,216,0.72);
+  letter-spacing: 0.2px;
+  margin-bottom: 4px;
+}
+.direction-val {
+  font-family: 'DM Serif Display', serif;
+  font-size: 24px;
+  color: var(--gold-bright);
+  line-height: 1;
+}
+.direction-why {
+  margin-top: 6px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.why-chip {
+  font-size: 11px;
+  line-height: 1;
+  border-radius: 999px;
+  padding: 5px 8px;
+  border: 1px solid transparent;
+}
+.why-chip.high {
+  background: rgba(200,169,107,0.14);
+  color: var(--gold-bright);
+  border-color: rgba(200,169,107,0.35);
+}
+.why-chip.mid {
+  background: rgba(90,176,168,0.12);
+  color: rgba(150,224,216,0.95);
+  border-color: rgba(90,176,168,0.28);
+}
+.why-chip.low {
+  background: rgba(196,112,112,0.14);
+  color: #e2a2a2;
+  border-color: rgba(196,112,112,0.28);
+}
+
+/* Sub-scores */
+.sub-scores {
+  display: flex;
+  justify-content: center;
+  gap: 32px;
+  margin-top: 36px;
+  flex-wrap: wrap;
+}
+.sub-score-item { text-align: center; }
+.sub-score-item .sub-label {
+  font-size: 11px;
+  letter-spacing: 1.5px;
+  color: rgba(240,234,216,0.64);
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+.sub-score-bar {
+  width: 80px;
+  height: 3px;
+  background: rgba(255,255,255,0.06);
+  border-radius: 2px;
+  overflow: hidden;
+  margin: 0 auto 6px;
+}
+.sub-score-fill {
+  height: 100%;
+  border-radius: 2px;
+  transition: width 1.4s cubic-bezier(0.4,0,0.2,1) 0.3s;
+}
+.sub-score-val {
+  font-family: 'DM Serif Display', serif;
+  font-size: 20px;
+  color: var(--ink);
+}
+
+/* ── Number cards grid ── */
+.section-heading {
+  font-size: 13px;
+  letter-spacing: 3px;
+  color: rgba(240,234,216,0.7);
+  text-transform: uppercase;
+  text-align: center;
+  margin: 52px 0 20px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  font-family: 'Noto Serif KR', serif;
+  font-weight: 400;
+}
+.section-heading::before,
+.section-heading::after {
+  content:'';
+  flex:1;
+  height:1px;
+  background: linear-gradient(90deg, transparent, rgba(200,160,88,0.3));
+}
+.section-heading::after {
+  background: linear-gradient(90deg, rgba(200,160,88,0.3), transparent);
+}
+
+.nums-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 12px;
+  margin-bottom: 40px;
+}
+.num-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 18px 16px;
+  transition: border-color 0.3s;
+}
+.num-card:hover { border-color: var(--border-active); }
+.num-card-label {
+  font-size: 11px;
+  letter-spacing: 1px;
+  color: rgba(240,234,216,0.72);
+  margin-bottom: 12px;
+}
+.num-card-sub {
+  color: rgba(240,234,216,0.64);
+  font-size: 11px;
+  margin-left: 6px;
+  letter-spacing: 0.2px;
+}
+.num-pair-row {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+.num-box { text-align:center; flex:1; }
+.num-name { font-size: 12px; color: rgba(240,234,216,0.76); margin-bottom: 3px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.num-val {
+  font-family: 'DM Serif Display', serif;
+  font-size: 38px;
+  line-height: 1;
+  color: var(--gold-bright);
+}
+.num-trait { font-size: 12px; color: #f1cd8e; margin-top:4px; letter-spacing:0.2px; opacity:1; font-weight:500; }
+.num-sep {
+  font-family: 'DM Serif Display', serif;
+  font-size: 20px;
+  color: var(--ink-faint);
+  padding-bottom: 8px;
+}
+.num-match-badge {
+  font-size: 10px;
+  text-align: center;
+  padding: 6px 10px;
+  border-radius: 20px;
+  letter-spacing: 1px;
+}
+.match-high { background: rgba(200,169,107,0.1); color: var(--gold); }
+.match-mid  { background: rgba(90,176,168,0.1); color: var(--teal); }
+.match-low  { background: rgba(196,112,112,0.12); color: var(--rose); }
+
+/* ── Tab analysis ── */
+.analysis-tabs {
+  margin-bottom: 12px;
+  display: flex;
+  gap: 4px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 5px;
+}
+.tab-btn {
+  flex: 1;
+  background: none;
+  border: none;
+  color: rgba(240,234,216,0.5);
+  font-family: 'Noto Serif KR', serif;
+  font-size: 13px;
+  letter-spacing: 0.5px;
+  padding: 10px 8px;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+.tab-btn.active {
+  background: var(--surface2);
+  color: var(--gold);
+  box-shadow: inset 0 0 0 1px var(--border-active);
+}
+.tab-btn:hover:not(.active) { color: var(--ink); }
+.tab-btn:hover:not(.active) {
+  background: rgba(200,160,88,0.08);
+  box-shadow: inset 0 0 0 1px rgba(200,160,88,0.2);
+}
+
+.tab-panel { display: none; }
+.tab-panel.active {
+  display: block;
+  animation: fadeIn 0.4s ease;
+}
+@keyframes fadeIn {
+  from { opacity:0; transform:translateY(8px); }
+  to { opacity:1; transform:translateY(0); }
+}
+
+/* ── Analysis card ── */
+.a-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 24px;
+  margin-bottom: 14px;
+}
+.a-card-title {
+  font-size: 12px;
+  letter-spacing: 2px;
+  margin-bottom: 14px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: rgba(240,234,216,0.6);
+}
+.a-card-title .dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  flex-shrink:0;
+}
+.dot-gold { background: var(--gold); }
+.dot-rose { background: var(--rose); }
+.dot-teal { background: var(--teal); }
+
+.a-card p {
+  font-size: 14px;
+  line-height: 1.9;
+  color: rgba(240,234,216,0.85);
+  font-weight: 300;
+}
+
+.tag-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 14px;
+}
+.tag {
+  font-size: 10px;
+  letter-spacing: 1.5px;
+  padding: 4px 11px;
+  border-radius: 20px;
+  text-transform: uppercase;
+}
+.tag-gold { background: rgba(200,169,107,0.1); border: 1px solid rgba(200,169,107,0.2); color: var(--gold); }
+.tag-rose { background: rgba(196,112,112,0.1); border: 1px solid rgba(196,112,112,0.2); color: var(--rose); }
+.tag-teal { background: rgba(90,176,168,0.1); border: 1px solid rgba(90,176,168,0.2); color: var(--teal); }
+
+/* ── Impression grid ── */
+.impression-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+.impression-col {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 20px;
+}
+.imp-col-title {
+  font-size: 11px;
+  color: var(--gold);
+  letter-spacing: 2px;
+  margin-bottom: 14px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--border);
+}
+.imp-row {
+  margin-bottom: 12px;
+}
+.imp-row-label {
+  font-size: 9px;
+  letter-spacing: 2px;
+  color: var(--ink-dim);
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+.imp-row-text {
+  font-size: 13px;
+  line-height: 1.7;
+  color: rgba(232,226,216,0.75);
+  font-weight: 300;
+}
+.imp-row-text.positive { color: var(--gold); }
+.imp-row-text.negative { color: var(--rose); opacity:0.9; }
+
+/* ── DOB extra ── */
+.dob-card {
+  background: linear-gradient(135deg, rgba(200,169,107,0.04), rgba(90,176,168,0.03));
+  border: 1px solid rgba(200,169,107,0.15);
+  border-radius: 14px;
+  padding: 20px 22px;
+  margin-bottom: 14px;
+}
+.dob-card-label {
+  font-size: 9px;
+  letter-spacing: 4px;
+  color: var(--teal);
+  text-transform: uppercase;
+  margin-bottom: 10px;
+}
+.dob-card p {
+  font-size: 13px;
+  line-height: 1.8;
+  color: rgba(232,226,216,0.7);
+  font-weight: 300;
+}
+
+/* ── Reset ── */
+.reset-btn {
+  display: block;
+  margin: 48px auto 0;
+  background: none;
+  border: none;
+  color: var(--gold-dim);
+  font-family: 'DM Serif Display', serif;
+  font-style: italic;
+  font-size: 15px;
+  letter-spacing: 2px;
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+  text-decoration-color: var(--ink-faint);
+  transition: color 0.3s;
+}
+.reset-btn:hover { color: var(--gold); }
+
+/* ── Rich content extras ── */
+.a-card + .a-card { margin-top: 0; }
+
+.a-section-title {
+  font-size: 11px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: rgba(240,234,216,0.5);
+  margin: 20px 0 10px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.a-section-title:first-of-type { border-top: none; padding-top: 0; margin-top: 0; }
+
+.a-block {
+  background: var(--surface2);
+  border-radius: 10px;
+  padding: 14px 16px;
+  margin-bottom: 10px;
+}
+.a-block-label {
+  font-size: 11px;
+  letter-spacing: 1px;
+  color: rgba(240,234,216,0.5);
+  margin-bottom: 6px;
+}
+.a-block-text {
+  font-size: 13.5px;
+  line-height: 1.85;
+  color: rgba(240,234,216,0.82);
+  font-weight: 300;
+}
+.a-block-text.accent-gold { color: var(--gold-bright); }
+.a-block-text.accent-rose { color: #d89090; }
+.a-block-text.accent-teal { color: var(--teal); }
+
+.a-two-col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.a-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.a-list li {
+  font-size: 13.5px;
+  line-height: 1.8;
+  color: rgba(240,234,216,0.85);
+  font-weight: 300;
+  padding: 5px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+}
+.a-list li:last-child { border-bottom: none; }
+.a-list li .li-icon { flex-shrink: 0; margin-top: 2px; opacity: 0.7; font-size: 11px; }
+
+.a-quote {
+  border-left: 2px solid var(--gold-dim);
+  padding: 10px 16px;
+  margin: 12px 0;
+  font-size: 13.5px;
+  line-height: 1.8;
+  color: rgba(232,226,216,0.7);
+  font-weight: 300;
+  font-style: italic;
+  background: rgba(200,169,107,0.03);
+  border-radius: 0 8px 8px 0;
+}
+
+.compat-meter {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 8px 0;
+}
+.compat-meter-label { font-size: 12px; color: rgba(240,234,216,0.68); width: 70px; flex-shrink:0; }
+.compat-meter-bar {
+  flex: 1;
+  height: 4px;
+  background: rgba(255,255,255,0.06);
+  border-radius: 2px;
+  overflow: hidden;
+}
+.compat-meter-fill {
+  height: 100%;
+  border-radius: 2px;
+  transition: width 1.2s cubic-bezier(0.4,0,0.2,1) 0.5s;
+}
+.compat-meter-val { font-size: 13px; color: rgba(240,234,216,0.74); width: 28px; text-align: right; }
+
+.alert-box {
+  background: rgba(196,112,112,0.07);
+  border: 1px solid rgba(196,112,112,0.18);
+  border-radius: 10px;
+  padding: 12px 16px;
+  margin-bottom: 10px;
+  font-size: 13.5px;
+  line-height: 1.8;
+  color: #e09090;
+  font-weight: 300;
+}
+.alert-box-label {
+  font-size: 11px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--rose);
+  margin-bottom: 6px;
+}
+
+.growth-box {
+  background: rgba(90,176,168,0.06);
+  border: 1px solid rgba(90,176,168,0.15);
+  border-radius: 10px;
+  padding: 14px 16px;
+  margin-bottom: 10px;
+  font-size: 13.5px;
+  line-height: 1.85;
+  color: rgba(160,220,215,0.92);
+  font-weight: 300;
+}
+.growth-box-label {
+  font-size: 11px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--teal);
+  margin-bottom: 6px;
+}
+
+/* Impression v2 */
+.imp-full-col {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 22px 20px;
+}
+.imp-full-title {
+  font-size: 13px;
+  letter-spacing: 1px;
+  color: var(--gold-bright);
+  margin-bottom: 18px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+}
+.imp-full-title-main {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.imp-from-name {
+  color: rgba(240,234,216,0.78);
+  font-size: 12px;
+}
+.imp-to-name {
+  font-size: 20px;
+  line-height: 1;
+  color: var(--gold-bright);
+  font-weight: 700;
+  letter-spacing: 0.2px;
+}
+.imp-title-arrow {
+  color: rgba(240,234,216,0.45);
+  font-size: 12px;
+}
+.imp-score {
+  font-size: 12px;
+  font-family: 'Noto Serif KR', serif;
+  font-weight: 600;
+}
+.imp-score-tag {
+  font-size: 10px;
+  color: rgba(240,234,216,0.62);
+  margin-left: 6px;
+  letter-spacing: 0.2px;
+}
+.imp-score-why {
+  margin-top: 4px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.imp-subject-note {
+  font-size: 12px;
+  color: rgba(240,234,216,0.72);
+  margin: 8px 0 14px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: rgba(240,234,216,0.04);
+  border: 1px solid rgba(240,234,216,0.08);
+  line-height: 1.55;
+  word-break: keep-all;
+}
+.imp-field {
+  margin-bottom: 14px;
+}
+.imp-field-label {
+  font-size: 11px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  margin-bottom: 5px;
+}
+.imp-field-label.lbl-gold { color: var(--gold); opacity: 0.9; }
+.imp-field-label.lbl-rose { color: var(--rose); opacity: 0.9; }
+.imp-field-label.lbl-teal { color: var(--teal); opacity: 0.9; }
+.imp-field-label.lbl-dim  { color: rgba(240,234,216,0.5); }
+.imp-field-text {
+  font-size: 13.5px;
+  line-height: 1.8;
+  font-weight: 300;
+}
+.imp-field-text.t-gold   { color: var(--gold-bright); }
+.imp-field-text.t-rose   { color: #d89090; }
+.imp-field-text.t-normal { color: rgba(240,234,216,0.82); }
+.imp-field-text.t-dim    { color: rgba(240,234,216,0.55); font-style:italic; }
+
+.imp-tags { display:flex; flex-wrap:wrap; gap:5px; margin-top:6px; }
+
+/* ── Mobile ── */
+@media (max-width: 600px) {
+  .sh-topbar { padding: 0 14px; height: 52px; }
+  .sh-topbar-center { display: none; }
+  .sh-brand-text { font-size: 15px; }
+  .sh-topbar-right { gap: 6px; }
+  .topbar-export-btns { gap: 6px; }
+  .counselor-bar-btn { font-size: 10px; padding: 5px 10px; }
+  .plan-badge { font-size: 9px; padding: 3px 8px; }
+  .sh-topbar-back { font-size: 12px; }
+  .sh-logo-mark { width: 34px; height: 34px; font-size: 18px; border-radius: 11px; }
+  .sh-logo-mark::after { font-size: 10px; right: 2px; top: 0; }
+  .wrap { padding-top: 86px; }
+  .input-panel { grid-template-columns: 1fr; gap: 12px; }
+  .divider-col { padding: 0; flex-direction: row; justify-content: center; }
+  .impression-grid { grid-template-columns: 1fr; }
+  .a-two-col { grid-template-columns: 1fr; }
+  .nums-grid { grid-template-columns: 1fr 1fr; }
+  .sub-scores { gap: 20px; }
+  .imp-to-name { font-size: 18px; }
+  .direction-scores { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 420px) {
+  .sh-topbar {
+    display:grid;
+    grid-template-columns:1fr;
+    align-items:center;
+    height:auto;
+    padding:8px 12px;
+    gap:6px;
+  }
+  .sh-topbar-brand { justify-self:start; }
+  .sh-topbar-right { justify-content:flex-start; width:100%; }
+  .topbar-export-btns { width:100%; }
+  .counselor-bar-btn { flex:1 1 auto; text-align:center; }
+  .analysis-tabs {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+    padding: 6px;
+  }
+  .tab-btn {
+    font-size: 12px;
+    padding: 9px 6px;
+  }
+  .nums-grid { grid-template-columns: 1fr; }
+  .score-caption {
+    font-size: 12px;
+    letter-spacing: 0.3px;
+  }
+}
+</style>
+</head>
+<body>
+
+<div class="bg-canvas">
+  <div class="bg-orb bg-orb-1"></div>
+  <div class="bg-orb bg-orb-2"></div>
+  <div class="bg-orb bg-orb-3"></div>
+</div>
+
+<!-- 상단 네비 -->
+<nav class="sh-topbar">
+  <a href="index.html" class="sh-topbar-brand">
+    <div class="sh-logo-mark">八</div>
+    <span class="sh-brand-text">팔자연구소</span>
+  </a>
+  <div class="sh-topbar-center">Soul Harmony</div>
+  <div class="sh-topbar-right">
+    <span class="plan-badge">Professional</span>
+    <div class="topbar-export-btns">
+      <button type="button" class="counselor-bar-btn" onclick="window.print()">🖨 인쇄</button>
+      <button type="button" class="counselor-bar-btn" id="pdfBtn" onclick="saveHarmonyPDF()">⬇ PDF 저장</button>
+    </div>
+    <a href="dashboard.html" class="sh-topbar-back">대시보드</a>
+  </div>
+</nav>
+
+<div class="wrap">
+
+  <!-- Header -->
+  <header class="brand">
+    <div class="brand-badge">팔자연구소</div>
+    <h1 class="brand-title">Soul Harmony</h1>
+    <p class="brand-sub">수의 언어로 읽는 두 사람의 인연</p>
+    <div class="brand-line"><span>수비학 궁합</span></div>
+  </header>
+
+  <!-- Input -->
+  <div class="input-panel">
+    <div class="person-card">
+      <div class="card-label">첫 번째 사람</div>
+      <div class="field">
+        <label>이름</label>
+        <input type="text" id="name1" placeholder="김은형 · Kim Eunhyoung" autocomplete="off">
+        <div class="field-hint">한글 또는 영문 모두 가능해요</div>
+      </div>
+      <div class="field">
+        <label>생년월일 <span class="opt-tag">선택</span></label>
+        <input type="date" id="dob1">
+        <div class="field-hint">✦ 입력 시 인생수가 추가돼 정확도가 높아져요</div>
+      </div>
+    </div>
+
+    <div class="divider-col">
+      <div class="hex">♡</div>
+    </div>
+
+    <div class="person-card">
+      <div class="card-label">두 번째 사람</div>
+      <div class="field">
+        <label>이름</label>
+        <input type="text" id="name2" placeholder="이민준 · Lee Minjun" autocomplete="off">
+        <div class="field-hint">한글 또는 영문 모두 가능해요</div>
+      </div>
+      <div class="field">
+        <label>생년월일 <span class="opt-tag">선택</span></label>
+        <input type="date" id="dob2">
+        <div class="field-hint">✦ 입력 시 인생수가 추가돼 정확도가 높아져요</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="cta-wrap">
+    <div class="error-text" id="errMsg"></div>
+    <button class="cta-btn" id="ctaBtn" onclick="runAnalysis()">
+      <span class="cta-icon">✦</span>
+      인연을 읽다
+      <span class="cta-icon">✦</span>
+    </button>
+  </div>
+
+  <!-- Result -->
+  <div id="result">
+
+    <!-- Score -->
+    <div class="score-section">
+      <div class="score-names" id="scoreNames"></div>
+      <div class="score-ring-outer">
+        <svg width="180" height="180" viewBox="0 0 180 180">
+          <circle cx="90" cy="90" r="76" fill="none" stroke="rgba(200,169,107,0.08)" stroke-width="8"/>
+          <circle id="scoreArc" cx="90" cy="90" r="76" fill="none"
+            stroke="url(#arcGrad)" stroke-width="8" stroke-linecap="round"
+            stroke-dasharray="478" stroke-dashoffset="478"
+            style="transition:stroke-dashoffset 1.6s cubic-bezier(0.4,0,0.2,1)"/>
+          <defs>
+            <linearGradient id="arcGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#c8a96b"/>
+              <stop offset="100%" stop-color="#e8d090"/>
+            </linearGradient>
+          </defs>
+        </svg>
+        <div class="score-center">
+          <div class="score-num" id="scoreNum">0</div>
+          <div class="score-unit">점</div>
+        </div>
+      </div>
+      <div class="score-title" id="scoreTitle"></div>
+      <div class="score-caption" id="scoreCaption"></div>
+      <div class="direction-scores" id="directionScores"></div>
+
+      <div class="sub-scores" id="subScores"></div>
+    </div>
+
+    <!-- Numbers -->
+    <div class="section-heading">수리 배치</div>
+    <div class="nums-grid" id="numsGrid"></div>
+
+    <!-- Analysis tabs -->
+    <div class="section-heading">심층 분석</div>
+    <div class="analysis-tabs">
+      <button class="tab-btn active" onclick="switchTab('harmony',this)">✦ 조화</button>
+      <button class="tab-btn" onclick="switchTab('tension',this)">◆ 주의</button>
+      <button class="tab-btn" onclick="switchTab('growth',this)">◈ 성장</button>
+      <button class="tab-btn" onclick="switchTab('impression',this)">☽ 첫인상</button>
+    </div>
+
+    <div id="tab-harmony" class="tab-panel active"></div>
+    <div id="tab-tension" class="tab-panel"></div>
+    <div id="tab-growth" class="tab-panel"></div>
+    <div id="tab-impression" class="tab-panel"></div>
+
+    <button class="reset-btn" onclick="doReset()">다시 분석하기</button>
+  </div>
+
+</div>
+
+<script>
+async function saveHarmonyPDF() {
+  const resultEl = document.getElementById('result');
+  if (!resultEl || resultEl.style.display === 'none') {
+    alert('먼저 궁합 분석을 실행해주세요.');
+    return;
+  }
+  const btn = document.getElementById('pdfBtn');
+  if (btn) { btn.disabled = true; btn.textContent = '⏳ 생성 중...'; }
+  try {
+    const target = document.querySelector('.wrap');
+    const canvas = await html2canvas(target, {
+      scale: 2,
+      useCORS: true,
+      backgroundColor: '#100c08',
+      logging: false,
+      windowWidth: Math.max(document.documentElement.scrollWidth, target.scrollWidth),
+      windowHeight: Math.max(document.documentElement.scrollHeight, target.scrollHeight)
+    });
+    const { jsPDF } = window.jspdf;
+    const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+    const pageW = 210, pageH = 297, margin = 10;
+    const imgW = pageW - margin * 2;
+    const imgH = canvas.height * imgW / canvas.width;
+    let y = 0;
+    const pageContentH = pageH - margin * 2;
+    while (y < imgH) {
+      const sY = (y * canvas.width) / imgW;
+      const sH = (pageContentH * canvas.width) / imgW;
+      const pageCanvas = document.createElement('canvas');
+      pageCanvas.width = canvas.width;
+      pageCanvas.height = Math.min(sH, canvas.height - sY);
+      pageCanvas.getContext('2d').drawImage(
+        canvas,
+        0, sY, canvas.width, pageCanvas.height,
+        0, 0, canvas.width, pageCanvas.height
+      );
+      if (y > 0) pdf.addPage();
+      const hMm = pageCanvas.height * imgW / pageCanvas.width;
+      pdf.addImage(pageCanvas.toDataURL('image/jpeg', 0.92), 'JPEG', margin, margin, imgW, hMm);
+      y += pageContentH;
+    }
+    pdf.save(`팔자연구소_소울하모니_${new Date().toISOString().slice(0,10)}.pdf`);
+  } catch (e) {
+    console.error('PDF 생성 오류:', e);
+    alert('PDF 생성 중 오류가 발생했습니다. 인쇄 기능을 이용해주세요.');
+  } finally {
+    if (btn) { btn.disabled = false; btn.textContent = '⬇ PDF 저장'; }
+  }
+}
+
+/* ══════════════════════════════════════════
+   수비학 엔진 (독립 실행, 의존성 없음)
+══════════════════════════════════════════ */
+
+const PY = {A:1,B:2,C:3,D:4,E:5,F:6,G:7,H:8,I:9,J:1,K:2,L:3,M:4,N:5,O:6,P:7,Q:8,R:9,S:1,T:2,U:3,V:4,W:5,X:6,Y:7,Z:8};
+const VOWELS = new Set('AEIOU');
+
+const HC = {'ㄱ':1,'ㄲ':1,'ㄴ':2,'ㄷ':3,'ㄸ':3,'ㄹ':4,'ㅁ':5,'ㅂ':6,'ㅃ':6,'ㅅ':7,'ㅆ':7,'ㅇ':8,'ㅈ':9,'ㅉ':9,'ㅊ':1,'ㅋ':2,'ㅌ':3,'ㅍ':4,'ㅎ':5};
+const HV = {'ㅏ':1,'ㅑ':2,'ㅓ':3,'ㅕ':4,'ㅗ':5,'ㅛ':6,'ㅜ':7,'ㅠ':8,'ㅡ':9,'ㅣ':1,'ㅐ':2,'ㅒ':3,'ㅔ':4,'ㅖ':5,'ㅘ':6,'ㅙ':7,'ㅚ':8,'ㅝ':9,'ㅞ':1,'ㅟ':2,'ㅢ':3};
+const CHOS = ['ㄱ','ㄲ','ㄴ','ㄷ','ㄸ','ㄹ','ㅁ','ㅂ','ㅃ','ㅅ','ㅆ','ㅇ','ㅈ','ㅉ','ㅊ','ㅋ','ㅌ','ㅍ','ㅎ'];
+const JUNGS = ['ㅏ','ㅐ','ㅑ','ㅒ','ㅓ','ㅔ','ㅕ','ㅖ','ㅗ','ㅘ','ㅙ','ㅚ','ㅛ','ㅜ','ㅝ','ㅞ','ㅟ','ㅠ','ㅡ','ㅢ','ㅣ'];
+const JONGS = ['','ㄱ','ㄲ','ㄳ','ㄴ','ㄵ','ㄶ','ㄷ','ㄹ','ㄺ','ㄻ','ㄼ','ㄽ','ㄾ','ㄿ','ㅀ','ㅁ','ㅂ','ㅄ','ㅅ','ㅆ','ㅇ','ㅈ','ㅊ','ㅋ','ㅌ','ㅍ','ㅎ'];
+
+function reduce(n, master=true) {
+  if (master && (n===11||n===22||n===33)) return n;
+  while (n > 9) {
+    n = String(n).split('').reduce((s,d)=>s+Number(d), 0);
+    if (master && (n===11||n===22||n===33)) return n;
+  }
+  return n;
+}
+
+function decomposeChar(ch) {
+  const c = ch.charCodeAt(0) - 0xAC00;
+  if (c < 0 || c > 11171) return null;
+  return {
+    cho: CHOS[Math.floor(c/(21*28))],
+    jung: JUNGS[Math.floor((c%(21*28))/28)],
+    jong: JONGS[c%28] || ''
+  };
+}
+
+function calcName(name) {
+  const s = (name||'').replace(/\s/g,'');
+  const hasHangul = /[가-힣ㄱ-ㅎㅏ-ㅣ]/.test(s);
+  let cv=0, vv=0;
+
+  // analysis.html과 동일: 한글이 하나라도 있으면 한글(및 자모)만 계산
+  if (hasHangul) {
+    for (const ch of s) {
+      const d = decomposeChar(ch);
+      if (d) {
+        cv += HC[d.cho]||0;
+        if (d.jong) for (const j of d.jong) cv += HC[j]||0;
+        vv += HV[d.jung]||0;
+        continue;
+      }
+      const cVal = HC[ch] || 0;
+      const vVal = HV[ch] || 0;
+      cv += cVal;
+      vv += vVal;
+    }
+  } else {
+    const clean = s.toUpperCase().replace(/[^A-Z]/g,'');
+    for (const ch of clean) {
+      const v = PY[ch]||0;
+      if (VOWELS.has(ch)) vv += v; else cv += v;
+    }
+  }
+  return {
+    expression: reduce(cv+vv),
+    soul: reduce(vv),
+    personality: reduce(cv)
+  };
+}
+
+function calcLifePath(dob) {
+  if (!dob) return null;
+  const [yy, mm, dd] = dob.split('-').map(Number);
+  if (!yy || !mm || !dd) return null;
+
+  // analysis.html과 동일한 규칙:
+  // (연도 자리수합 축약) + (월 축약) + (일 축약) -> 최종 축약
+  const yrSum = String(yy).split('').reduce((a, b) => a + Number(b), 0);
+  const yr = reduce(yrSum);
+  const mr = reduce(mm);
+  const dr = reduce(dd);
+  return reduce(yr + mr + dr);
+}
+
+function calcMaturity(expression, lp) {
+  return lp ? reduce(expression + lp) : null;
+}
+
+/* ── Numerology traits ── */
+const TRAITS = {
+  1: { name:'개척자', keys:['독립','리더십','추진력','창시'] },
+  2: { name:'조화자', keys:['협력','공감','섬세함','균형'] },
+  3: { name:'창조자', keys:['표현','창의','낙관','소통'] },
+  4: { name:'건설자', keys:['안정','성실','실용','체계'] },
+  5: { name:'탐험가', keys:['자유','변화','모험','유연'] },
+  6: { name:'양육자', keys:['책임','보살핌','헌신','가정'] },
+  7: { name:'탐구자', keys:['지혜','분석','내면','직관'] },
+  8: { name:'성취자', keys:['야망','실행력','물질','권력'] },
+  9: { name:'인도자', keys:['이타','포용','완성','봉사'] },
+  11:{ name:'영적 스승', keys:['직관','영성','영감','이상'] },
+  22:{ name:'마스터 빌더', keys:['비전','실현','대규모','마스터'] },
+  33:{ name:'마스터 티처', keys:['치유','가르침','사랑','완성'] }
+};
+const tr = n => TRAITS[n] || TRAITS[reduce(n,false)];
+
+/* ── Compatibility scoring (deterministic) ── */
+const HIGH_PAIRS = new Set(['1-9','2-8','3-7','4-6','1-5','2-6','3-6','5-9','6-9','3-9','2-4','1-3','4-8']);
+const LOW_PAIRS  = new Set(['1-4','1-8','4-5','5-8','4-7','7-8']);
+
+function compat(a, b) {
+  if (a === b) return 68;
+  const k = [Math.min(a,b), Math.max(a,b)].join('-');
+  if (HIGH_PAIRS.has(k)) return 82;
+  if (LOW_PAIRS.has(k))  return 50;
+  return 65;
+}
+
+function overallScore(A, B, lp1, lp2) {
+  const ex   = compat(A.expression, B.expression);
+  const soul = compat(A.soul, B.soul);
+  const pers = compat(A.personality, B.personality);
+  let sc = Math.round(ex*0.4 + soul*0.35 + pers*0.25);
+  if (lp1 && lp2) sc = Math.round(sc*0.7 + compat(lp1,lp2)*0.3);
+  return Math.min(99, Math.max(36, sc));
+}
+
+function directionalScore(from, to, fromLp, toLp) {
+  const ex = compat(from.expression, to.expression);
+  const emotionalPull = compat(from.soul, to.personality);
+  const styleFit = compat(from.personality, to.soul);
+  let sc = Math.round(ex*0.30 + emotionalPull*0.45 + styleFit*0.25);
+  if (fromLp && toLp) sc = Math.round(sc*0.85 + compat(fromLp, toLp)*0.15);
+  return Math.min(99, Math.max(36, sc));
+}
+
+function impressionViewScore(from, to, fromLp, toLp) {
+  const firstImpact = compat(from.personality, to.personality);
+  const attraction = compat(from.soul, to.expression);
+  const comfort = compat(from.expression, to.personality);
+  const sc = Math.round(firstImpact*0.35 + attraction*0.40 + comfort*0.25);
+  return Math.min(99, Math.max(36, sc));
+}
+
+function scoreLevelClass(sc) {
+  if (sc >= 80) return 'high';
+  if (sc >= 65) return 'mid';
+  return 'low';
+}
+
+function renderWhyChips(items) {
+  return items.map((it)=>{
+    const level = scoreLevelClass(it.score);
+    const levelLabel = level === 'high' ? '높음' : level === 'mid' ? '보통' : '낮음';
+    return `<span class="why-chip ${level}">${it.label} ${levelLabel}</span>`;
+  }).join('');
+}
+
+function directionalWhy(from, to, fromLp, toLp) {
+  const ex = compat(from.expression, to.expression);
+  const emotionalPull = compat(from.soul, to.personality);
+  const styleFit = compat(from.personality, to.soul);
+  const items = [
+    { label: '표현↔표현', score: ex },
+    { label: '영혼→성격', score: emotionalPull },
+    { label: '성격→영혼', score: styleFit }
+  ];
+  if (fromLp && toLp) items.push({ label: '인생수', score: compat(fromLp, toLp) });
+  return items;
+}
+
+function impressionWhy(from, to) {
+  const firstImpact = compat(from.personality, to.personality);
+  const attraction = compat(from.soul, to.expression);
+  const comfort = compat(from.expression, to.personality);
+  return [
+    { label: '성격↔성격', score: firstImpact },
+    { label: '영혼→표현', score: attraction },
+    { label: '표현→성격', score: comfort }
+  ];
+}
+
+function scoreLabel(s) {
+  if (s>=90) return {title:'천생연분',   cap:'운명이 엮어준 특별한 인연'};
+  if (s>=80) return {title:'깊은 공명',  cap:'영혼의 주파수가 서로 닿는 관계'};
+  if (s>=70) return {title:'자연스러운 조화', cap:'함께할수록 빛이 나는 사이'};
+  if (s>=60) return {title:'성장하는 인연', cap:'서로를 통해 배우고 변화하는 관계'};
+  if (s>=50) return {title:'도전적 인연', cap:'마찰 속에서 성숙을 찾는 관계'};
+  return {title:'독립적 에너지', cap:'각자의 길에서 더 빛나는 두 사람'};
+}
+
+/* ── Text generators (rich) ── */
+const HARMONY_PAIRS = {
+  '1-9': '독립적인 1번과 포용적인 9번은 서로의 가장 다른 면에서 오히려 완성을 찾습니다. 1번의 추진력이 9번의 큰 그림 안에서 방향을 얻고, 9번의 이타심이 1번의 실행력을 통해 현실이 됩니다.',
+  '2-8': '부드러운 2번과 강인한 8번은 음과 양처럼 서로를 채웁니다. 2번이 8번에게 감정적 안식처가 되고, 8번이 2번에게 세상과 맞서는 용기와 보호막이 됩니다.',
+  '3-7': '표현하는 3번과 탐구하는 7번은 겉과 속이 만나는 관계입니다. 3번의 밝은 표현이 7번의 내면세계를 바깥으로 꺼내주고, 7번의 깊이가 3번에게 진정한 의미를 부여합니다.',
+  '4-6': '안정을 쌓는 4번과 가정을 돌보는 6번은 함께할 때 가장 단단한 터전을 만들어냅니다. 두 사람 모두 지속성과 신뢰를 최우선으로 여겨 관계에 흔들림이 없습니다.',
+  '1-5': '두 에너지 모두 앞으로 나아가는 방향을 갖고 있습니다. 1번의 목적 의식이 5번의 자유로운 탐험에 방향을 주고, 5번의 유연함이 1번의 경직된 추진력을 부드럽게 만듭니다.',
+  '2-6': '두 사람 모두 관계와 배려를 삶의 중심에 두는 공통된 가치를 가집니다. 서로를 있는 그대로 받아들이고 깊은 정서적 유대를 자연스럽게 쌓아갑니다.',
+  '3-9': '창의적인 표현과 광대한 포용이 만나면 예술적이고 인간적인 관계가 됩니다. 3번의 개인적 표현이 9번의 보편적 공감과 결합해 서로에게 삶의 풍요로움을 선물합니다.',
+  '5-9': '자유를 사랑하는 두 에너지가 만나 넓고 따뜻한 공간을 만들어냅니다. 구속 없이 서로를 성장시키며 함께 세상을 향해 열려 있는 관계입니다.',
+  '1-3': '추진하는 힘과 표현하는 힘이 만납니다. 1번의 방향성에 3번의 창의성이 더해질 때 강력한 시너지가 생기고, 3번의 긍정 에너지가 1번의 길에 활력을 불어넣습니다.',
+};
+
+function harmonyData(n1, n2, name1, name2) {
+  const t1 = tr(n1), t2 = tr(n2);
+  const k = [Math.min(n1,n2),Math.max(n1,n2)].join('-');
+  const pairDesc = HARMONY_PAIRS[k] ||
+    `${name1}의 ${t1.name} 에너지와 ${name2}의 ${t2.name} 에너지는 서로를 자연스럽게 끌어당깁니다. ` +
+    `두 사람 모두 ${[...t1.keys,...t2.keys].slice(0,2).join('과 ')}를 중요하게 여기는 공통점이 있으며, ` +
+    `감정적 교류에서 서로의 결핍을 채워주는 상호보완적 관계가 될 가능성이 높습니다.`;
+
+  const scEx   = compat(n1, n2);
+  const scSoul = compat(tr(n1) ? n1 : 1, tr(n2) ? n2 : 1);
+
+  const strengths = [];
+  if (n1 === n2) strengths.push(`두 사람의 운명수가 동일(${n1})합니다 — 핵심 가치와 삶의 방향이 일치해 자연스럽게 깊은 신뢰가 쌓입니다`);
+  strengths.push(`${name1}의 ${t1.keys[0]}과 ${name2}의 ${t2.keys[0]}이 서로를 강화시켜줍니다`);
+  strengths.push(`감정 교류에서 상호보완적 균형이 자연스럽게 형성됩니다`);
+  if (scEx >= 80) strengths.push(`운명수 조합(${n1}·${n2})이 수비학적으로 강한 공명 관계에 속합니다`);
+
+  const tags = [...new Set([...t1.keys.slice(0,2),...t2.keys.slice(0,2)])];
+  return { pairDesc, strengths, tags };
+}
+
+const TENSION_DATA = {
+  '1-4':{ main:'자유를 중시하는 1번과 체계를 원하는 4번은 방식의 차이에서 갈등이 생길 수 있습니다. 1번은 빠른 결단을 원하고 4번은 충분한 검토를 원합니다.', triggers:['갑작스러운 계획 변경','검토 없는 즉흥 행동','딱딱한 규칙 강요'], solution:'서로의 스타일을 "틀린 것"이 아닌 "다른 것"으로 인식하는 것이 핵심입니다. 결정 전 합의된 시간을 두는 루틴을 만들어보세요.' },
+  '1-8':{ main:'두 사람 모두 주도권을 원하는 강한 에너지를 가졌습니다. 의사결정 과정에서 충돌이 일어나기 쉽고, 자존심 대결로 번지면 상처가 깊어집니다.', triggers:['공개적인 비판','결정권 박탈','상대의 능력 무시'], solution:'각자의 강점 영역을 명확히 분담하세요. 서로의 전문성을 존중하고 영역 내에서는 상대를 신뢰하는 것이 관계의 핵심입니다.' },
+  '4-5':{ main:'안정을 원하는 4번과 변화를 원하는 5번은 미래에 대한 그림 자체가 다릅니다. 계획과 즉흥, 정착과 탐험의 갈등이 반복될 수 있습니다.', triggers:['갑작스러운 계획 변경','지나친 통제','약속 파기'], solution:'변화의 범위와 안정의 기준을 명시적으로 대화하세요. 일정 범위 안의 자유를 함께 설계하면 두 사람 모두 숨통이 트입니다.' },
+  '5-8':{ main:'자유를 원하는 5번과 성취와 통제를 원하는 8번은 삶의 방향이 충돌할 수 있습니다. 8번의 목표 지향이 5번에겐 구속으로, 5번의 자유분방함이 8번에겐 불안으로 느껴질 수 있어요.', triggers:['자유 구속','목표 강요','즉흥적 방향 전환'], solution:'공동의 큰 목표를 합의하되 그 안에서 각자의 방식을 존중하는 구조를 만들어보세요.' },
+  '4-7':{ main:'두 사람 모두 신중하고 분석적입니다. 행동보다 논의가 길어지고 서로의 침묵이 오해로 이어질 수 있습니다.', triggers:['강요된 빠른 결정','감정 표현 요구','사생활 침범'], solution:'서로가 조용한 것이 거부가 아님을 이해하세요. 생각을 정리한 뒤 나누는 대화 방식에 대해 미리 합의해두면 좋습니다.' },
+  '7-8':{ main:'깊이 생각하는 7번과 빠르게 실행하는 8번은 속도와 우선순위에서 지속적인 차이가 생깁니다.', triggers:['성급한 결정 강요','내면 탐구 무시','과도한 현실 강조'], solution:'7번의 분석이 8번의 실행에 깊이를 더한다는 것을 서로 인식하면 시너지가 됩니다. 결정 전 짧은 검토 시간을 합의하세요.' }
+};
+
+function tensionData(n1, n2) {
+  const k = [Math.min(n1,n2),Math.max(n1,n2)].join('-');
+  return TENSION_DATA[k] || {
+    main: '두 에너지가 방향을 달리할 때 의사소통 방식의 차이가 오해로 이어질 수 있습니다.',
+    triggers: ['말투의 온도 차이','감정 표현 방식의 차이','기대치 불일치'],
+    solution: '갈등이 생겼을 때 빠르게 대화로 확인하는 습관을 만드세요. 작은 오해도 쌓이면 큰 거리가 됩니다.'
+  };
+}
+
+const GROWTH_THEMES = {
+  1:'혼자의 힘이 아닌 함께의 힘을 경험하게 됩니다. 상대를 통해 리더십이 독주가 아닌 협력임을 배웁니다.',
+  2:'용기 내어 자신의 욕구를 표현하는 연습을 함께 하게 됩니다. 관계 안에서 개인의 목소리를 찾아갑니다.',
+  3:'깊이 있는 표현과 지속성을 배웁니다. 즉흥적인 에너지가 진정한 창작물로 완성되는 과정을 경험합니다.',
+  4:'유연함과 변화를 받아들이는 능력이 성장합니다. 안정을 바탕으로 새로운 가능성에 도전하는 용기를 얻습니다.',
+  5:'자유와 책임이 함께 존재할 수 있음을 배웁니다. 진정한 자유는 방종이 아닌 의식적 선택에서 온다는 것을 깨달아갑니다.',
+  6:'자기 돌봄의 중요성을 배웁니다. 남을 돕는 것과 자신을 지키는 것이 함께 이루어질 수 있음을 알아갑니다.',
+  7:'직관과 현실 사이의 다리를 놓는 법을 배웁니다. 내면의 지혜를 외부 세상과 연결하는 능력이 성장합니다.',
+  8:'성취와 관계가 함께 성장할 수 있음을 배웁니다. 물질적 성공이 아닌 진정한 의미에서의 힘을 찾아갑니다.',
+  9:'이상과 현실 사이의 균형을 배웁니다. 세상을 바꾸려는 마음이 주변 한 사람에서 시작된다는 것을 실천합니다.',
+  11:'직관을 현실에 연결하는 능력이 성장합니다. 영적 감수성이 실제 삶을 아름답게 만드는 도구가 됩니다.',
+  22:'개인의 비전이 공동의 미래로 확장됩니다. 두 사람의 역량이 합쳐질 때 혼자서는 불가능한 것을 이루게 됩니다.',
+  33:'서로를 치유하고 가르치는 관계가 됩니다. 사랑이 무조건적 희생이 아닌 성숙한 경계 안에서 꽃핀다는 것을 배웁니다.'
+};
+
+function growthData(n1, n2) {
+  const sum = reduce(n1+n2);
+  const t = tr(sum);
+  const theme = GROWTH_THEMES[sum] || GROWTH_THEMES[reduce(sum,false)] || '';
+  const practices = [
+    `정기적으로 서로의 꿈과 가치관을 나누는 대화 시간을 만드세요`,
+    `${t.keys[0]}과 ${t.keys[1]}을 함께 실천할 수 있는 공동의 프로젝트나 활동을 찾아보세요`,
+    `서로 다른 강점이 충돌할 때 "틀림"이 아닌 "다름"으로 바라보는 연습을 하세요`,
+    `힘든 순간에 도망치지 않고 솔직하게 대화하는 것 — 이 관계의 가장 큰 성장 포인트입니다`
+  ];
+  return { sum, t, theme, practices };
+}
+
+/* ── First impression (full) ── */
+const IMP = {
+  1:{
+    vibe: '당당하고 자신감 넘치는',
+    attract: '강한 카리스마와 주도적 에너지가 인상적으로 다가옵니다. 명확한 의지와 방향성이 믿음직스럽게 느껴집니다.',
+    repel:   '처음 보기엔 다소 독선적이거나 고집스럽게 느껴질 수 있습니다. 상대의 말보다 자기 주장을 먼저 내세우는 경향이 거슬릴 수 있어요.',
+    traits:  '자기 주도적, 경쟁적, 독립심 강함. 목표가 명확하고 행동이 빠릅니다.',
+    strengths: ['결단력과 추진력이 탁월해 신뢰감을 줍니다', '어떤 상황에서도 방향을 잃지 않는 내면의 나침반을 갖고 있어요', '리더십이 강해 관계를 이끄는 역할을 자연스럽게 맡습니다'],
+    weaknesses: ['자신도 모르게 상대의 의견을 무시하거나 독주하는 경향이 있습니다', '감정 표현이 서툴러 차갑게 오해받기도 해요', '실패를 인정하는 데 시간이 걸립니다'],
+    taboos: ['의지를 꺾거나 망설이게 만드는 말', '"그거 될까?" 같은 회의적 반응', '공개적인 비판이나 망신'],
+    starter: '"하는 일에서 정말 주도적으로 보이세요. 어떤 계기로 시작하셨어요?"',
+    longterm: '자신의 성취를 진심으로 인정해주는 사람에게 오랫동안 깊이 의지합니다. 함께 목표를 세우고 성장하는 파트너십을 이상적으로 여깁니다.',
+    appeal: '자신감 있게 행동하고 핵심을 명확히 말하세요. 결정적인 순간에 주도권을 넘겨주는 제스처가 큰 호감을 삽니다.'
+  },
+  2:{
+    vibe: '부드럽고 온화한',
+    attract: '섬세한 배려와 따뜻한 말투가 처음부터 마음을 편하게 해줍니다. 잘 들어주는 태도가 신뢰감을 자연스럽게 만들어냅니다.',
+    repel:   '결단력이 부족해 보이거나 지나치게 눈치를 보는 인상을 줄 수 있습니다. 주관이 없어 보여 답답하게 느껴지기도 해요.',
+    traits:  '공감 능력이 뛰어남, 조화를 중시함, 분위기에 민감. 혼자보다 함께가 더 빛나는 타입.',
+    strengths: ['누구와도 쉽게 어울리고 분위기를 부드럽게 만들어줍니다', '상대의 감정을 섬세하게 읽고 먼저 배려하는 능력이 탁월해요', '갈등 상황에서 자연스럽게 중재자 역할을 합니다'],
+    weaknesses: ['자기 의견을 드러내는 데 소극적이어서 답답함을 줄 수 있어요', '결정을 미루거나 의존하는 경향이 있습니다', '상처를 쉽게 받지만 잘 표현하지 않아 쌓이기도 합니다'],
+    taboos: ['강압적인 결정 요구', '"왜 이렇게 우유부단해?" 같은 직접적 비판', '무시하거나 의견을 성급히 묵살하는 태도'],
+    starter: '"분위기가 따뜻해서 말 걸기 편했어요. 평소에 좋아하는 거 있으세요?"',
+    longterm: '진심 어린 공감과 안정감을 주는 사람에게 깊이 헌신합니다. 관계의 질을 중요하게 여기며 꾸준히 쌓인 신뢰에 강하게 의존합니다.',
+    appeal: '부드럽게 공감하며 먼저 배려하세요. 선택지를 제시하고 결정을 존중하는 태도가 효과적입니다.'
+  },
+  3:{
+    vibe: '밝고 활기찬',
+    attract: '유머와 풍부한 표현력으로 대화 자체를 즐겁게 만들어줍니다. 긍정적인 에너지가 옆에 있는 것만으로 기분을 좋게 해요.',
+    repel:   '너무 가볍거나 진지하지 않다는 인상을 줄 수 있습니다. 말이 많아 산만하게 느껴지기도 해요.',
+    traits:  '표현력이 뛰어남, 사교적, 낙관적. 감정을 솔직하게 드러내고 창의적인 발상이 많습니다.',
+    strengths: ['어떤 분위기도 금방 밝게 바꾸는 재능이 있습니다', '창의적이고 재미있는 아이디어가 넘쳐 함께 있으면 즐겁습니다', '감정을 솔직하게 표현해 관계를 투명하게 만듭니다'],
+    weaknesses: ['집중력이 흩어지고 시작은 많지만 마무리가 약할 수 있어요', '깊이 있는 대화를 피하는 경향이 있습니다', '감정 기복이 있고 기분에 따라 행동이 달라집니다'],
+    taboos: ['"너무 가볍게 굴지 마" 같은 억누르는 말', '창의적인 시도를 무시하거나 조롱하는 반응', '지나치게 진지하거나 경직된 분위기'],
+    starter: '"이야기하니까 진짜 재밌네요! 평소에도 이렇게 밝으세요?"',
+    longterm: '자신의 표현과 창의성을 진심으로 즐겨주는 사람에게 오래 마음을 엽니다. 함께 웃고 새로운 경험을 나누는 관계를 이상으로 생각해요.',
+    appeal: '유머와 밝은 에너지로 가볍게 시작하세요. 창의적인 주제나 흥미로운 경험을 이야기하면 금방 마음이 열립니다.'
+  },
+  4:{
+    vibe: '안정적이고 신중한',
+    attract: '믿음직하고 성실한 인상이 장기적인 신뢰감을 줍니다. 차분하고 꼼꼼한 태도가 의지할 수 있는 사람으로 보이게 해요.',
+    repel:   '딱딱하거나 재미없다는 첫인상을 줄 수 있습니다. 변화를 거부하는 보수적인 분위기가 부담스럽기도 해요.',
+    traits:  '체계적, 실용적, 성실함. 약속을 반드시 지키고 신뢰를 최우선으로 여깁니다.',
+    strengths: ['말한 것은 반드시 실천하는 신뢰성이 최고 강점입니다', '꼼꼼하고 체계적인 사고로 상대에게 안정감을 줍니다', '장기적으로 곁에 있을 사람으로 보이게 만드는 내공이 있어요'],
+    weaknesses: ['새로운 것에 적응하는 속도가 느리고 유연성이 부족할 수 있습니다', '감정보다 현실과 논리를 우선해서 냉정하게 보이기도 해요', '틀에 맞지 않는 상황에서 스트레스를 심하게 받습니다'],
+    taboos: ['갑작스러운 계획 변경', '"그냥 한번 해봐!" 식의 즉흥 요구', '약속을 가볍게 여기거나 어기는 행동'],
+    starter: '"뭔가 믿음직스럽게 보여요. 어떤 분야 일을 하시는지 여쭤봐도 될까요?"',
+    longterm: '시간을 두고 쌓인 신뢰에 매우 충실합니다. 함께 계획을 세우고 꾸준히 실행하는 파트너에게 깊이 헌신해요.',
+    appeal: '신뢰감 있는 태도와 책임감 있는 모습이 핵심입니다. 약속을 지키고 말과 행동을 일치시키세요.'
+  },
+  5:{
+    vibe: '자유롭고 활동적인',
+    attract: '새롭고 신선한 에너지로 만남 자체를 흥미롭게 만들어줍니다. 자유로운 분위기와 다양한 경험담이 호기심을 자극합니다.',
+    repel:   '정착하지 못할 것 같다는 불안감을 줄 수 있습니다. 집중력이 짧아 보이거나 가볍게 보이기도 해요.',
+    traits:  '모험을 즐김, 변화 선호, 다방면으로 호기심이 많음. 틀에 박힌 것을 싫어하고 자유를 갈망합니다.',
+    strengths: ['다양한 경험과 이야깃거리로 만남을 풍요롭게 만듭니다', '유연하고 적응력이 강해 어떤 상황에서도 잘 어울립니다', '상대에게 새로운 시각과 자극을 선물합니다'],
+    weaknesses: ['깊이 있는 관계 형성을 힘들어하거나 회피할 수 있습니다', '같은 주제에 오래 집중하기 어려워 피상적으로 보이기도 해요', '자유를 구속으로 느낄 경우 갑자기 멀어질 수 있습니다'],
+    taboos: ['지나친 통제나 간섭', '"왜 이렇게 자리를 못 잡니?" 같은 안정 강요', '계획에 묶어두려는 시도'],
+    starter: '"자유로운 분위기가 인상적이에요. 최근에 어디 다녀오셨어요?"',
+    longterm: '자신의 자유와 개성을 인정해주면서도 함께 새로운 것을 탐험할 파트너를 원합니다. 변화와 성장을 공유할 수 있는 관계에 강하게 끌려요.',
+    appeal: '자유로운 주제와 신선한 이야기로 시작하세요. 흥미로운 경험이나 계획을 공유하면 빠르게 마음이 열립니다.'
+  },
+  6:{
+    vibe: '따뜻하고 헌신적인',
+    attract: '포근하고 책임감 있는 모습이 처음부터 안정감을 줍니다. 사람을 자연스럽게 챙기는 태도가 금방 호감으로 이어집니다.',
+    repel:   '과도한 관심이나 챙김이 부담스럽게 느껴질 수 있습니다. 완벽주의적 기대가 압박감을 주기도 해요.',
+    traits:  '보살핌 중심, 책임감 강함, 완벽주의 성향. 가족·관계·공동체를 최우선으로 여깁니다.',
+    strengths: ['자연스럽게 분위기를 따뜻하게 만들고 상대를 편하게 해줍니다', '책임감이 강해 믿고 기댈 수 있는 사람이라는 인상을 줍니다', '세심하게 챙기는 능력이 진심 어린 관심으로 전달됩니다'],
+    weaknesses: ['과도한 희생으로 상대에게 부담감을 줄 수 있어요', '기대에 미치지 못하면 실망을 드러내는 경향이 있습니다', '관계에 지나치게 몰두해 개인 공간을 침범하기도 해요'],
+    taboos: ['배려를 당연시하거나 무시하는 태도', '"너무 오지랖이야" 같은 말', '약속·책임감을 가볍게 여기는 모습'],
+    starter: '"주위 분들을 많이 챙기시는 것 같아요. 주변 사람들이 많이 의지하겠어요."',
+    longterm: '진심 어린 감사와 인정을 받을 때 가장 깊이 헌신합니다. 가족 같은 따뜻한 유대를 만들어가는 관계를 꿈꿔요.',
+    appeal: '돌봄과 배려를 진심으로 고마워하는 표현을 자주 해주세요. 함께 무언가를 챙기거나 돌보는 행동에서 강하게 연결됩니다.'
+  },
+  7:{
+    vibe: '신비롭고 지적인',
+    attract: '조용하고 깊이 있는 분위기가 지적 매력을 풍깁니다. 섣불리 드러내지 않는 면이 궁금증과 끌림을 유발합니다.',
+    repel:   '차갑거나 거리감 있게 느껴질 수 있습니다. 말이 적고 속을 알 수 없어 첫 만남이 어색하기도 해요.',
+    traits:  '내향적, 분석적, 내면 탐구를 즐김. 지식과 지혜를 추구하며 혼자 있는 시간이 필수입니다.',
+    strengths: ['깊이 있는 대화를 나눌 때 독보적인 통찰을 보여줍니다', '신중하고 진지해서 진심으로 믿을 수 있는 사람이라는 인상을 줍니다', '자신만의 세계가 뚜렷해 독특한 매력을 풍깁니다'],
+    weaknesses: ['감정 표현이 서툴러 차갑게 오해받기 쉽습니다', '사람을 쉽게 믿지 않아 관계 형성에 시간이 오래 걸립니다', '혼자만의 공간이 필요해서 갑자기 연락이 줄기도 해요'],
+    taboos: ['개인 공간과 사생활 침범', '"왜 이렇게 말이 없어?" 식의 압박', '감정 표현을 강요하거나 빠른 친밀감을 요구하는 것'],
+    starter: '"어떤 생각을 하시는지 궁금해서요 — 요즘 관심 갖는 분야가 있으세요?"',
+    longterm: '자신의 세계를 존중하고 지적 자극을 주는 사람에게 서서히, 그러나 깊이 마음을 엽니다. 한번 열린 마음은 쉽게 닫히지 않아요.',
+    appeal: '깊이 있는 주제로 접근하면 눈을 빛냅니다. 가벼운 스몰토크보다 철학·관심사·세계관 이야기가 훨씬 효과적입니다.'
+  },
+  8:{
+    vibe: '강하고 능력 있는',
+    attract: '실행력과 능력이 느껴져 강한 인상을 남깁니다. 자신감 있는 태도와 뚜렷한 목표 의식이 매력적으로 다가옵니다.',
+    repel:   '권위적이거나 압도적으로 느껴질 수 있습니다. 물질·성취를 중시하는 분위기가 불편하게 느껴지기도 해요.',
+    traits:  '야망이 강함, 성취 지향적, 현실 감각이 뛰어남. 권위와 존중을 중요하게 여깁니다.',
+    strengths: ['목표를 향해 실행하는 능력이 강한 신뢰감과 안정감을 줍니다', '현실적이고 문제 해결 능력이 탁월해 의지할 수 있는 사람으로 보입니다', '존재감이 강해 함께 있는 것만으로도 든든함을 느끼게 해요'],
+    weaknesses: ['감정보다 결과를 우선해서 차갑게 보일 수 있습니다', '무의식적으로 상대를 통제하려 할 수 있어요', '실패를 인정하기 어려워하고 완벽주의적 면이 있습니다'],
+    taboos: ['능력이나 판단을 공개적으로 무시하거나 깎아내리는 것', '우유부단하거나 결단력 없는 모습', '물질적 가치를 비하하는 태도'],
+    starter: '"확실히 존재감이 남다르네요. 어떤 분야에서 일하세요?"',
+    longterm: '자신의 능력과 비전을 진심으로 인정해주는 파트너에게 강하게 끌립니다. 함께 더 큰 것을 이루어가는 관계를 이상으로 삼아요.',
+    appeal: '능력과 목표를 인정해주는 말이 결정적입니다. 경쟁하거나 도전하기보다 함께 성취하는 방향으로 대화를 이끌어가세요.'
+  },
+  9:{
+    vibe: '포용적이고 인간적인',
+    attract: '넓은 시야와 따뜻한 포용력이 처음부터 편안함을 줍니다. 이타적인 관심이 진심으로 느껴져 호감을 삽니다.',
+    repel:   '현실감이 없거나 이상주의적으로 보일 수 있습니다. 모두에게 친절해 특별함이 없다는 느낌을 주기도 해요.',
+    traits:  '이타적, 포용력 강함, 이상주의적. 인류와 공동체를 위한 큰 그림을 자연스럽게 생각합니다.',
+    strengths: ['어떤 사람도 있는 그대로 받아들이는 포용력이 탁월합니다', '깊이 있는 인생 이야기를 편하게 나눌 수 있는 분위기를 만들어요', '진심 어린 공감과 조언이 많은 사람에게 힘이 됩니다'],
+    weaknesses: ['경계선이 불분명해 상대에게 이용당하기 쉽습니다', '자신보다 남을 우선시하다 정작 본인이 지치기도 해요', '이상과 현실의 괴리에서 스트레스를 받을 수 있습니다'],
+    taboos: ['이기적이거나 냉소적인 태도', '"그게 현실적으로 가능해?" 식의 이상 무시', '진심을 가볍게 여기거나 조롱하는 반응'],
+    starter: '"이야기하면 진지한 주제도 편하게 나눌 수 있을 것 같아요."',
+    longterm: '세상과 사람을 향한 같은 시선을 가진 사람에게 깊이 연결됩니다. 함께 무언가에 기여하거나 의미 있는 일을 할 때 관계가 가장 풍요로워요.',
+    appeal: '세상과 사람에 대한 진심 어린 이야기를 꺼내세요. 큰 그림이나 삶의 의미에 관한 대화가 강하게 통합니다.'
+  },
+  11:{
+    vibe: '신비롭고 영적인',
+    attract: '특유의 직관적 분위기와 깊은 눈빛이 특별한 인상을 남깁니다. 남다른 감수성과 영적 에너지가 궁금증을 자극해요.',
+    repel:   '현실과 동떨어진 것 같다는 인상을 줄 수 있습니다. 감정 기복이나 예민함이 부담스럽게 느껴지기도 해요.',
+    traits:  '강한 직관력, 고감도 감수성, 영적 탐구 성향. 이상을 꿈꾸고 사람의 내면을 꿰뚫는 능력이 있습니다.',
+    strengths: ['사람의 감정과 에너지를 섬세하게 읽는 능력이 있습니다', '강렬하고 독특한 첫인상이 오래 기억됩니다', '영적이고 철학적인 대화에서 독보적인 깊이를 보여줍니다'],
+    weaknesses: ['예민하고 감정 기복이 있어 가까이하기 어려울 수 있습니다', '지나치게 이상적이어서 현실적인 문제에서 멀어지기도 해요', '스트레스 받으면 갑자기 연락을 끊거나 고립되기도 합니다'],
+    taboos: ['직관이나 감수성을 가볍게 여기거나 조롱하는 것', '"너무 예민한 거 아니야?" 식의 무시', '지나치게 현실적인 논리로 압박하는 것'],
+    starter: '"뭔가 특별한 느낌이 있어요. 어떤 분인지 더 알고 싶어요."',
+    longterm: '자신의 내면 세계를 이해하고 함께 탐구해줄 수 있는 사람에게 깊이 연결됩니다. 일반적인 관계가 아닌 영혼이 닿는 교류를 원해요.',
+    appeal: '직관·감성·영성 관련 주제가 통합니다. 표면적 대화보다 내면을 탐구하는 질문을 던지면 빠르게 마음이 열립니다.'
+  },
+  22:{
+    vibe: '카리스마 있고 실현력 강한',
+    attract: '비전이 느껴지고 큰 그림을 가진 인상이 강한 신뢰를 줍니다. 안정감과 실행력이 동시에 느껴져 의지하고 싶어집니다.',
+    repel:   '너무 완벽하거나 기준이 높아 가까이하기 어렵다는 느낌을 줄 수 있습니다. 압도적인 존재감이 부담스럽게 느껴지기도 해요.',
+    traits:  '비전 중심, 대형 실현 지향, 책임감이 극도로 강함. 세상을 변화시키려는 의지를 갖고 있습니다.',
+    strengths: ['현실적이면서도 큰 꿈을 가진 드문 에너지를 풍깁니다', '말한 것을 실현해내는 능력이 강한 신뢰를 만들어요', '함께하면 더 크고 의미 있는 일을 이룰 수 있다는 확신을 줍니다'],
+    weaknesses: ['완벽주의와 높은 기준이 상대를 지치게 만들 수 있습니다', '자신의 비전에 몰두해 개인적인 감정을 소홀히 하기도 해요', '기대치가 높아 주변 사람이 실망시킬까 두려워하기도 합니다'],
+    taboos: ['비전이나 계획을 허황되다고 무시하는 것', '"그게 될까?" 식의 지속적인 회의', '사소한 일에 대한 지나친 간섭'],
+    starter: '"큰 그림을 보는 분 같아요. 요즘 어떤 목표를 갖고 계세요?"',
+    longterm: '같은 방향을 바라보며 함께 무언가를 실현해나갈 파트너에게 강하게 끌립니다. 개인적인 관계보다 공동의 비전이 있을 때 더 강하게 연결돼요.',
+    appeal: '실현 가능한 비전과 구체적인 계획을 이야기하세요. 현실적인 해결책을 함께 모색하는 대화가 신뢰를 쌓습니다.'
+  },
+  33:{
+    vibe: '치유적이고 따뜻한',
+    attract: '깊은 따뜻함과 진정성이 바로 느껴져 마음을 열게 만듭니다. 치유적인 에너지가 처음부터 편안함과 안도감을 줍니다.',
+    repel:   '너무 희생적이거나 무거운 인상이 부담스러울 수 있습니다. 모든 것을 감당하려는 모습이 오히려 부담감을 주기도 해요.',
+    traits:  '치유자·스승 에너지, 깊은 공감, 무조건적 사랑. 모든 사람을 있는 그대로 받아들이는 능력이 있습니다.',
+    strengths: ['있는 그대로의 모습을 받아들이고 사랑하는 능력이 탁월합니다', '치유와 위로가 필요한 순간에 자연스럽게 곁에 있어줍니다', '진정성이 느껴지는 따뜻함이 즉각적인 신뢰를 만들어냅니다'],
+    weaknesses: ['자신의 필요보다 남의 필요를 우선시해 번아웃에 취약합니다', '기대에 못 미쳤을 때 깊이 상처받고 실망합니다', '관계에 지나치게 감정 투자를 해 경계선이 흐려지기도 해요'],
+    taboos: ['진심을 이용하거나 배신하는 행동', '"왜 이렇게 감상적이야?" 식의 감정 무시', '받은 배려를 당연시하는 태도'],
+    starter: '"있으면 마음이 편해져요. 오래 알고 지낸 것 같은 느낌이에요."',
+    longterm: '진심을 알아봐주고 그 따뜻함에 감사하는 사람에게 가장 깊이 헌신합니다. 서로 치유하고 성장하는 관계를 이상으로 생각해요.',
+    appeal: '따뜻하고 진솔하게 다가가면 됩니다. 솔직하고 인간적인 모습을 보여주는 것이 가장 강력한 접근법입니다.'
+  }
+};
+const imp = n => IMP[n] || IMP[9];
+
+/* ══════════════════════════════════════════
+   DOM 렌더링
+══════════════════════════════════════════ */
+
+function switchTab(id, btn) {
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+  btn.classList.add('active');
+  const panel = document.getElementById('tab-'+id);
+  panel.classList.add('active');
+}
+
+function animateNum(el, target, duration=1400) {
+  let start = null, current = 0;
+  function step(ts) {
+    if (!start) start = ts;
+    const progress = Math.min((ts - start) / duration, 1);
+    const ease = 1 - Math.pow(1 - progress, 3);
+    current = Math.round(ease * target);
+    el.textContent = current;
+    if (progress < 1) requestAnimationFrame(step);
+  }
+  requestAnimationFrame(step);
+}
+
+function matchBadge(score) {
+  if (score >= 80) return ['match-high', '✦ 높은 공명'];
+  if (score >= 65) return ['match-mid', '◈ 균형적 조화'];
+  return ['match-low', '◇ 보완 관계'];
+}
+
+function renderNums(A, B, lp1, lp2, name1, name2) {
+  const n1 = name1.length>5?name1.slice(0,5)+'…':name1;
+  const n2 = name2.length>5?name2.slice(0,5)+'…':name2;
+  const cards = [
+    { label:'운명·표현수', sub:'말·재능·외적 역할', v1:A.expression, v2:B.expression },
+    { label:'영혼수', sub:'내면의 욕구', v1:A.soul, v2:B.soul },
+    { label:'성격수', sub:'외적 첫인상', v1:A.personality, v2:B.personality },
+  ];
+  if (lp1&&lp2) cards.push({ label:'인생수', sub:'생년월일 기반', v1:lp1, v2:lp2 });
+  // 완성수는 운명·표현수 + 인생수이므로, 생년월일(인생수) 없이는 계산하지 않는다.
+  if (lp1 && lp2) {
+    const m1 = A.expression + lp1;
+    const m2 = B.expression + lp2;
+    cards.push({ label:'완성수', sub:'성숙기 잠재력', v1:reduce(m1), v2:reduce(m2) });
+  }
+
+  document.getElementById('numsGrid').innerHTML = cards.map(c=>{
+    const sc = compat(c.v1, c.v2);
+    const [cls, txt] = matchBadge(sc);
+    const t1 = tr(c.v1), t2 = tr(c.v2);
+    return `<div class="num-card">
+      <div class="num-card-label">${c.label} <span class="num-card-sub">${c.sub}</span></div>
+      <div class="num-pair-row">
+        <div class="num-box">
+          <div class="num-name">${n1}</div>
+          <div class="num-val">${c.v1}</div>
+          <div class="num-trait">${t1.name}</div>
+        </div>
+        <div class="num-sep">·</div>
+        <div class="num-box">
+          <div class="num-name">${n2}</div>
+          <div class="num-val">${c.v2}</div>
+          <div class="num-trait">${t2.name}</div>
+        </div>
+      </div>
+      <div class="num-match-badge ${cls}">${txt}</div>
+    </div>`;
+  }).join('');
+}
+
+function renderHarmony(A, B, name1, name2) {
+  const { pairDesc, strengths, tags } = harmonyData(A.expression, B.expression, name1, name2);
+  const exSc   = compat(A.expression, B.expression);
+  const soulSc = compat(A.soul, B.soul);
+  const persSc = compat(A.personality, B.personality);
+
+  const meters = [
+    { label:'운명 공명', sc:exSc,   color:'var(--gold)' },
+    { label:'감정 공명', sc:soulSc, color:'var(--amber)' },
+    { label:'성향 공명', sc:persSc, color:'var(--teal)' },
+  ];
+
+  document.getElementById('tab-harmony').innerHTML = `
+    <div class="a-card">
+      <div class="a-card-title"><span class="dot dot-gold"></span><span style="color:var(--gold)">두 에너지의 만남</span></div>
+      <p style="font-size:14px;line-height:1.95;color:rgba(232,226,216,0.82);font-weight:300;">${pairDesc}</p>
+
+      <div class="a-section-title">✦ 공명 측정</div>
+      ${meters.map(m=>`
+        <div class="compat-meter">
+          <span class="compat-meter-label">${m.label}</span>
+          <div class="compat-meter-bar">
+            <div class="compat-meter-fill" style="width:0%;background:${m.color};" data-w="${m.sc}%"></div>
+          </div>
+          <span class="compat-meter-val">${m.sc}</span>
+        </div>`).join('')}
+
+      <div class="a-section-title">✦ 잘 맞는 이유</div>
+      <ul class="a-list">
+        ${strengths.map(s=>`<li><span class="li-icon" style="color:var(--gold)">✦</span><span>${s}</span></li>`).join('')}
+      </ul>
+
+      <div class="tag-row" style="margin-top:16px;">
+        ${tags.map(k=>`<span class="tag tag-gold">${k}</span>`).join('')}
+      </div>
+    </div>`;
+
+  // Animate meters
+  setTimeout(()=>{
+    document.querySelectorAll('#tab-harmony .compat-meter-fill').forEach(el=>{
+      el.style.width = el.dataset.w;
+    });
+  }, 150);
+}
+
+function renderTension(A, B, name1, name2) {
+  const t1 = tr(A.expression), t2 = tr(B.expression);
+  const data = tensionData(A.expression, B.expression);
+  const diff = Math.abs(A.expression - B.expression);
+
+  document.getElementById('tab-tension').innerHTML = `
+    <div class="a-card">
+      <div class="a-card-title"><span class="dot dot-rose"></span><span style="color:var(--rose)">주의가 필요한 부분</span></div>
+      <p style="font-size:14px;line-height:1.95;color:rgba(232,226,216,0.82);font-weight:300;">${data.main}</p>
+
+      ${diff >= 4 ? `<div class="alert-box" style="margin-top:12px;">
+        <div class="alert-box-label">에너지 차이</div>
+        운명수 차이(${A.expression}·${B.expression})가 ${diff}로 큰 편입니다. 서로의 방식과 속도를 맞춰나가는 시간이 필요합니다.
+      </div>` : ''}
+
+      <div class="a-section-title">◆ 갈등을 유발할 수 있는 상황</div>
+      <ul class="a-list">
+        ${data.triggers.map(t=>`<li><span class="li-icon" style="color:var(--rose)">◆</span><span>${t}</span></li>`).join('')}
+      </ul>
+
+      <div class="a-section-title">◆ 해결의 실마리</div>
+      <div class="a-block">
+        <div class="a-block-text">${data.solution}</div>
+      </div>
+
+      <div class="a-section-title">◆ 각자의 성향 차이</div>
+      <div class="a-two-col">
+        <div class="a-block">
+          <div class="a-block-label">${name1} (${A.expression}번·${t1.name})</div>
+          <div class="a-block-text">${t1.keys.join(' · ')}</div>
+        </div>
+        <div class="a-block">
+          <div class="a-block-label">${name2} (${B.expression}번·${t2.name})</div>
+          <div class="a-block-text">${t2.keys.join(' · ')}</div>
+        </div>
+      </div>
+
+      <div class="tag-row">
+        <span class="tag tag-rose">${t1.name}의 성향</span>
+        <span class="tag tag-rose">${t2.name}의 성향</span>
+      </div>
+    </div>`;
+}
+
+function renderGrowth(A, B, name1, name2) {
+  const { sum, t, theme, practices } = growthData(A.expression, B.expression);
+  const soulSum = reduce(A.soul + B.soul);
+  const persSum = reduce(A.personality + B.personality);
+
+  document.getElementById('tab-growth').innerHTML = `
+    <div class="a-card">
+      <div class="a-card-title"><span class="dot dot-teal"></span><span style="color:var(--teal)">이 관계가 만들어내는 에너지</span></div>
+
+      <div class="growth-box">
+        <div class="growth-box-label">합산 에너지 ${sum}번 — ${t.name}</div>
+        두 사람의 운명수를 더하면 <strong>${sum}번(${t.name})</strong>의 에너지가 탄생합니다. ${t.keys.join(', ')}의 자질이 이 관계의 핵심 성장 테마입니다.
+      </div>
+
+      <div class="a-section-title">◈ 이 관계가 가르쳐주는 것</div>
+      <div class="a-block">
+        <div class="a-block-text">${theme}</div>
+      </div>
+
+      <div class="a-section-title">◈ 함께 성장하는 실천 방법</div>
+      <ul class="a-list">
+        ${practices.map(p=>`<li><span class="li-icon" style="color:var(--teal)">◈</span><span>${p}</span></li>`).join('')}
+      </ul>
+
+      <div class="a-section-title">◈ 영혼과 성격의 합산 에너지</div>
+      <div class="a-two-col">
+        <div class="a-block">
+          <div class="a-block-label">영혼 합산 → ${soulSum}번</div>
+          <div class="a-block-text">${tr(soulSum).name} — ${tr(soulSum).keys.slice(0,2).join(', ')}<br><span style="font-size:12px;color:var(--ink-dim)">두 사람의 내면 욕구가 만나는 방식</span></div>
+        </div>
+        <div class="a-block">
+          <div class="a-block-label">성격 합산 → ${persSum}번</div>
+          <div class="a-block-text">${tr(persSum).name} — ${tr(persSum).keys.slice(0,2).join(', ')}<br><span style="font-size:12px;color:var(--ink-dim)">두 사람이 세상에 보이는 모습</span></div>
+        </div>
+      </div>
+
+      <div class="tag-row">
+        ${t.keys.map(k=>`<span class="tag tag-teal">${k}</span>`).join('')}
+      </div>
+    </div>`;
+}
+
+function renderImpression(A, B, name1, name2, lp1, lp2) {
+  function buildCol(fromData, toData, fromName, toName, fromLp, toLp) {
+    const fromN = fromData.personality;
+    const toN = toData.personality;
+    const i = imp(toN);
+    const pc = impressionViewScore(fromData, toData, fromLp, toLp);
+    const why = impressionWhy(fromData, toData);
+    const pcColor = pc >= 80 ? 'var(--gold)' : pc >= 65 ? 'var(--teal)' : 'var(--rose)';
+    return `<div class="imp-full-col">
+      <div class="imp-full-title">
+        <div class="imp-full-title-main">
+          <span class="imp-from-name">${fromName}의 시선</span>
+          <span class="imp-title-arrow">→</span>
+          <span class="imp-to-name">${toName}</span>
+        </div>
+        <span class="imp-score" style="color:${pcColor};">${pc}점 <span class="imp-score-tag">첫인상 점수</span></span>
+      </div>
+      <div class="imp-score-why">${renderWhyChips(why)}</div>
+      <div class="imp-subject-note">이 카드의 설명 대상은 <strong>${toName}</strong>입니다. 아래 약점·주의·트리거는 모두 <strong>${toName}</strong> 기준으로 읽어주세요.</div>
+
+      <div class="imp-field">
+        <div class="imp-field-label lbl-dim">${toName}의 첫인상 분위기</div>
+        <div class="imp-field-text t-normal">${i.vibe} 분위기<span style="color:var(--gold-dim);font-size:11px;margin-left:6px;">${toN}번 · ${tr(toN).name}</span></div>
+      </div>
+
+      <div class="imp-field">
+        <div class="imp-field-label lbl-gold">✦ 끌리는 이유</div>
+        <div class="imp-field-text t-gold">${i.attract}</div>
+      </div>
+
+      <div class="imp-field">
+        <div class="imp-field-label lbl-rose">${toName}에게서 주의할 점 · 거부감 요소</div>
+        <div class="imp-field-text t-rose">${i.repel}</div>
+      </div>
+
+      <div class="imp-field">
+        <div class="imp-field-label lbl-dim">${toName} 성향 요약</div>
+        <div class="imp-field-text t-normal">${i.traits}</div>
+      </div>
+
+      <div class="imp-field">
+        <div class="imp-field-label lbl-gold">${toName}의 장점 · 호감 포인트</div>
+        <ul class="a-list" style="margin-top:4px;">
+          ${i.strengths.map(s=>`<li><span class="li-icon" style="color:var(--gold)">✦</span><span style="font-size:13px;">${s}</span></li>`).join('')}
+        </ul>
+      </div>
+
+      <div class="imp-field">
+        <div class="imp-field-label lbl-rose">${toName}의 약점 · 주의할 점</div>
+        <ul class="a-list" style="margin-top:4px;">
+          ${i.weaknesses.map(w=>`<li><span class="li-icon" style="color:var(--rose)">◆</span><span style="font-size:13px;color:#d48080;">${w}</span></li>`).join('')}
+        </ul>
+      </div>
+
+      <div class="imp-field">
+        <div class="imp-field-label lbl-rose">${fromName}이 피해야 할 말 · ${toName}의 감정 트리거</div>
+        <ul class="a-list" style="margin-top:4px;">
+          ${i.taboos.map(t=>`<li><span class="li-icon" style="color:var(--rose);opacity:0.6">✕</span><span style="font-size:13px;color:rgba(232,226,216,0.6);">${t}</span></li>`).join('')}
+        </ul>
+      </div>
+
+      <div class="imp-field">
+        <div class="imp-field-label lbl-teal">장기적으로 매력적인 점</div>
+        <div class="imp-field-text t-normal" style="color:rgba(90,176,168,0.85);">${i.longterm}</div>
+      </div>
+
+      <div class="imp-field" style="background:rgba(200,169,107,0.05);border-radius:10px;padding:12px 14px;margin-top:4px;">
+        <div class="imp-field-label lbl-gold">${fromName}이 ${toName}에게 건네기 좋은 대화 시작 예시</div>
+        <div class="imp-field-text t-dim">${i.starter}</div>
+        <div style="margin-top:10px;">
+          <div class="imp-field-label lbl-dim" style="margin-top:8px;">${fromName}이 ${toName}에게 잘 보이는 법</div>
+          <div class="imp-field-text t-normal">${i.appeal}</div>
+        </div>
+      </div>
+    </div>`;
+  }
+
+  document.getElementById('tab-impression').innerHTML = `
+    <div class="impression-grid">
+      ${buildCol(A, B, name1, name2, lp1, lp2)}
+      ${buildCol(B, A, name2, name1, lp2, lp1)}
+    </div>`;
+}
+
+function renderSubScores(A, B, lp1, lp2) {
+  const items = [
+    { label:'감정 궁합', sc: compat(A.soul, B.soul), color:'var(--gold)' },
+    { label:'성향 궁합', sc: compat(A.personality, B.personality), color:'var(--teal)' },
+    { label:'방향 궁합', sc: compat(A.expression, B.expression), color:'var(--rose)' },
+  ];
+  if (lp1&&lp2) items.push({ label:'인생수 궁합', sc: compat(lp1,lp2), color:'var(--amber)' });
+
+  document.getElementById('subScores').innerHTML = items.map(it=>`
+    <div class="sub-score-item">
+      <div class="sub-label">${it.label}</div>
+      <div class="sub-score-bar">
+        <div class="sub-score-fill" style="width:0%;background:${it.color};" data-w="${it.sc}%"></div>
+      </div>
+      <div class="sub-score-val">${it.sc}</div>
+    </div>`).join('');
+
+  setTimeout(()=>{
+    document.querySelectorAll('.sub-score-fill').forEach(el=>{
+      el.style.width = el.dataset.w;
+    });
+  }, 200);
+}
+
+function renderDirectionScores(name1, name2, score12, score21, why12, why21) {
+  document.getElementById('directionScores').innerHTML = `
+    <div class="direction-card">
+      <div class="direction-label">${name1} → ${name2} (내가 보는 상대) · 종합 점수</div>
+      <div class="direction-val">${score12}</div>
+      <div class="direction-why">${renderWhyChips(why12)}</div>
+    </div>
+    <div class="direction-card">
+      <div class="direction-label">${name2} → ${name1} (상대가 보는 나) · 종합 점수</div>
+      <div class="direction-val">${score21}</div>
+      <div class="direction-why">${renderWhyChips(why21)}</div>
+    </div>
+  `;
+}
+
+/* ── Main ── */
+function runAnalysis() {
+  const name1 = document.getElementById('name1').value.trim();
+  const name2 = document.getElementById('name2').value.trim();
+  const dob1  = document.getElementById('dob1').value;
+  const dob2  = document.getElementById('dob2').value;
+  const err   = document.getElementById('errMsg');
+
+  if (!name1||!name2) { err.textContent='두 사람의 이름을 모두 입력해주세요'; return; }
+  err.textContent='';
+
+  const btn = document.getElementById('ctaBtn');
+  btn.disabled = true;
+
+  try {
+    const A  = calcName(name1);
+    const B  = calcName(name2);
+    const lp1 = calcLifePath(dob1);
+    const lp2 = calcLifePath(dob2);
+
+    const score12 = directionalScore(A, B, lp1, lp2);
+    const score21 = directionalScore(B, A, lp2, lp1);
+    const why12 = directionalWhy(A, B, lp1, lp2);
+    const why21 = directionalWhy(B, A, lp2, lp1);
+    const score = Math.round((score12 + score21) / 2);
+    const { title, cap } = scoreLabel(score);
+
+    /* score ring */
+    const circ = 2*Math.PI*76;
+    const arc = document.getElementById('scoreArc');
+    arc.style.strokeDasharray  = circ;
+    arc.style.strokeDashoffset = circ;
+    setTimeout(()=>{ arc.style.strokeDashoffset = circ*(1-score/100); }, 80);
+
+    document.getElementById('scoreNames').innerHTML =
+      `${name1}<span class="amp">&</span>${name2}`;
+    animateNum(document.getElementById('scoreNum'), score);
+    document.getElementById('scoreTitle').textContent   = title;
+    document.getElementById('scoreCaption').textContent = cap;
+    renderDirectionScores(name1, name2, score12, score21, why12, why21);
+
+    renderSubScores(A, B, lp1, lp2);
+    renderNums(A, B, lp1, lp2, name1, name2);
+    renderHarmony(A, B, name1, name2);
+    renderTension(A, B, name1, name2);
+    renderGrowth(A, B, name1, name2);
+    renderImpression(A, B, name1, name2, lp1, lp2);
+
+    /* default to harmony tab */
+    document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+    document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+    document.querySelector('.tab-btn').classList.add('active');
+    document.getElementById('tab-harmony').classList.add('active');
+
+    const resultEl = document.getElementById('result');
+    resultEl.style.display = 'block';
+    resultEl.classList.remove('result-enter');
+    void resultEl.offsetWidth;
+    resultEl.classList.add('result-enter');
+
+    setTimeout(()=>{
+      resultEl.scrollIntoView({ behavior:'smooth', block:'start' });
+    }, 100);
+
+  } catch(e) {
+    err.textContent = '분석 오류: '+e.message;
+    console.error(e);
+  } finally {
+    btn.disabled = false;
+  }
+}
+
+function doReset() {
+  document.getElementById('result').style.display = 'none';
+  ['name1','name2'].forEach(id=>document.getElementById(id).value='');
+  ['dob1','dob2'].forEach(id=>document.getElementById(id).value='');
+  window.scrollTo({ top:0, behavior:'smooth' });
+}
+
+document.addEventListener('keydown', e=>{ if(e.key==='Enter') runAnalysis(); });
+</script>
+</body>
+</html>
