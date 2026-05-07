@@ -3982,7 +3982,7 @@ async function runAnalysis() {
         <div class="ai-loading"><div class="ai-spinner"></div>오늘의 맞춤 메시지를 생성하고 있습니다...</div>
       </div>`;
     callAIToday(lp, py, pm, pd, curY, curM, curD);
-  } else if(hasAccess('basic')) {
+  } else {
     document.getElementById('aiTodaySection').innerHTML = `
       <div class="section-header"><div class="section-line"></div><span class="section-label">AI 오늘의 메시지</span><div class="section-line"></div></div>
       ${gateHTML('pro','AI 오늘의 메시지','날짜 에너지를 기반으로 오늘 당신에게 필요한 맞춤 메시지를 AI가 생성합니다.')}`;
