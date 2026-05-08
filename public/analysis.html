@@ -64,7 +64,13 @@
       gap: 16px;
       box-shadow: 0 6px 18px rgba(45, 38, 28, 0.06);
     }
-    .topbar-left { display: flex; align-items: center; gap: 20px; }
+    .topbar-left {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      min-width: 0;
+      flex: 1 1 auto;
+    }
     .topbar-logo {
       font-family: var(--font-body);
       font-size: 16px;
@@ -75,6 +81,8 @@
       display: inline-flex;
       align-items: center;
       gap: 10px;
+      white-space: nowrap;
+      flex-shrink: 0;
     }
     .topbar-logo-mark {
       width: 30px;
@@ -129,8 +137,18 @@
       letter-spacing: 0;
       color: var(--deep-brown);
       line-height: 1.35;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
-    .topbar-right { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; justify-content: flex-end; }
+    .topbar-right {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+      flex-shrink: 0;
+    }
     .topbar-export-cluster {
       display: none;
       flex-direction: row;
@@ -174,6 +192,7 @@
       text-decoration: none;
       display: flex; align-items: center; gap: 6px;
       transition: color .15s;
+      white-space: nowrap;
     }
     .back-btn:hover { color: var(--ink); }
 
@@ -818,10 +837,17 @@
       border: 1px solid var(--border);
       border-radius: 14px;
       padding: 24px 24px 26px;
-      overflow-x: auto;
+      overflow: hidden;
       box-shadow: 0 12px 32px rgba(45, 38, 28, 0.08);
       position: relative;
       isolation: isolate;
+    }
+    .chart-scroll {
+      overflow-x: auto;
+      overflow-y: hidden;
+      -webkit-overflow-scrolling: touch;
+      padding-bottom: 4px;
+      margin-bottom: 4px;
     }
     .timeline-wrap::before {
       content: '';
@@ -1975,9 +2001,40 @@
       .input-row .analyze-btn { grid-column: 1/-1; }
       .content { padding: 24px 16px 60px; }
       .core-grid { grid-template-columns: 1fr 1fr; }
-      .flow-row { grid-template-columns: repeat(3, 1fr); }
+      .flow-row { grid-template-columns: 1fr; gap: 10px; }
+      .flow-card { padding: 14px 16px; }
+      .flow-card-label {
+        font-size: 14px;
+        line-height: 1.35;
+        word-break: keep-all;
+      }
+      .flow-card-hint { font-size: 12px; }
+      .timeline-wrap { padding: 18px 14px 20px; }
+      .chart-inner { min-width: 560px; }
       .monthly-grid { grid-template-columns: repeat(4, 1fr); }
-      .topbar { padding: 8px 16px; }
+      .stage-progress-bar {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 10px;
+        overflow: visible;
+        padding-bottom: 0;
+      }
+      .stage-step {
+        min-width: 0;
+        padding: 6px 2px;
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        background: rgba(255,255,255,.7);
+      }
+      .step-line-wrap { display: none; }
+      .topbar { padding: 8px 12px; gap: 8px; flex-wrap: wrap; }
+      .topbar-left { gap: 10px; width: 100%; }
+      .topbar-logo { gap: 8px; font-size: 15px; }
+      .topbar-right { width: 100%; justify-content: flex-end; }
+      .topbar-title { font-size: 13px; }
+      .plan-badge { font-size: 9px; padding: 3px 8px; }
+      .back-btn { font-size: 12px; }
+      .topbar-sep { height: 13px; }
       .loshu-board { padding: 18px 16px; }
       .loshu-top-row {
         flex-direction: column;
@@ -1988,6 +2045,12 @@
       .loshu-top-row .loshu-snapshot {
         width: 100%;
         min-width: 0;
+      }
+    }
+    @media (max-width: 560px) {
+      .topbar-sep,
+      .topbar-title {
+        display: none;
       }
     }
   </style>
@@ -4526,7 +4589,29 @@ function setAICache(key, value) {
   try { localStorage.setItem(`ai_cache:${key}`, value); } catch { /* ignore quota/private mode */ }
 }
 
+function isAIRequestDisabled() {
+  try {
+    const qs = new URLSearchParams(window.location.search);
+    const aiMode = (qs.get('ai') || '').toLowerCase();
+    if (aiMode === 'off') {
+      localStorage.setItem('ai_requests_disabled', '1');
+      return true;
+    }
+    if (aiMode === 'on') {
+      localStorage.removeItem('ai_requests_disabled');
+      return false;
+    }
+    return localStorage.getItem('ai_requests_disabled') === '1';
+  } catch {
+    return false;
+  }
+}
+
 async function callAISummary(lp, mn, py, name, destinyNum, soulNum, personalityNum, maturityNum, y, m, d) {
+  if (isAIRequestDisabled()) {
+    document.getElementById('aiSummaryContent').innerHTML = `<div class="ai-summary"><div class="ai-text" style="color:var(--muted)">AI 점검 모드로 요청이 비활성화되어 있습니다. URL에 <strong>?ai=on</strong>을 붙이면 다시 활성화됩니다.</div></div>`;
+    return;
+  }
   if (!isHttpOrigin()) {
     document.getElementById('aiSummaryContent').innerHTML = `<div class="ai-summary"><div class="ai-text" style="color:var(--muted)">AI 분석은 파일 열기(file://) 환경에서 동작하지 않습니다. http://localhost:3001 로 접속해 주세요.</div></div>`;
     return;
@@ -4590,6 +4675,10 @@ ${name ? `이름: ${name}` : ''}
 }
 
 async function callAIToday(lp, py, pm, pd, curY, curM, curD) {
+  if (isAIRequestDisabled()) {
+    document.getElementById('aiTodayContent').innerHTML=`<div class="ai-text" style="color:var(--muted)">AI 점검 모드로 요청이 비활성화되어 있습니다. URL에 <strong>?ai=on</strong>을 붙이면 다시 활성화됩니다.</div>`;
+    return;
+  }
   if (!isHttpOrigin()) {
     document.getElementById('aiTodayContent').innerHTML=`<div class="ai-text" style="color:var(--muted)">AI 메시지는 파일 열기(file://) 환경에서 동작하지 않습니다. http://localhost:3001 로 접속해 주세요.</div>`;
     return;
@@ -4699,12 +4788,6 @@ function renderPeriod48(m, d) {
   const trArr = Array.isArray(p.traits) ? p.traits : [];
   const kws = kwArr.map(k => `<span class="period48-kw-tag">${k}</span>`).join('');
   const traits = trArr.map(t => `<div class="period48-trait">${t}</div>`).join('');
-  const imgUrl = getTarotImgUrl(p.tarot);
-  const tarotImgHtml = imgUrl ? `
-        <div class="period48-tarot-wrap">
-          <img class="period48-tarot-img" src="${imgUrl}" alt="${p.tarot}" onerror="this.parentElement.style.display='none'" loading="lazy" />
-          <div class="period48-tarot-label">타로 카드</div>
-        </div>` : '';
   el.innerHTML = `
     <div class="period48-card">
       <div class="period48-header">
@@ -4716,7 +4799,7 @@ function renderPeriod48(m, d) {
           <div class="period48-title">${p.title}</div>
           <div class="period48-subtitle">${p.zodiac} · ${p.en}</div>
           <div class="period48-keywords">${kws}</div>
-        </div>${tarotImgHtml}
+        </div>
       </div>
       <div class="period48-meta">
         <div class="period48-meta-item">
