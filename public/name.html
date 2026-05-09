@@ -168,6 +168,10 @@ body{font-family:var(--font-body);background:var(--cream);color:var(--ink);min-h
 .energy-chip{padding:7px 14px;border:1px solid rgba(200,169,110,.25);border-radius:20px;background:transparent;color:rgba(245,240,232,.55);font-family:var(--font-body);font-size:12px;cursor:pointer;transition:all .2s;}
 .energy-chip:hover{border-color:rgba(200,169,110,.5);color:rgba(245,240,232,.85);}
 .energy-chip.selected{background:rgba(200,169,110,.2);border-color:var(--accent);color:var(--accent-lt);}
+.purpose-tier2-wrap{margin-top:12px;padding-top:14px;border-top:1px solid rgba(200,169,110,.18);display:none;}
+.purpose-tier2-wrap.open{display:block;}
+.purpose-sub-title{font-family:var(--font-mono);font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:rgba(200,169,110,.55);margin-bottom:8px;}
+.purpose-tier1-row,.purpose-sub-row{flex-wrap:wrap;}
 .gender-row{display:flex;gap:10px;margin-bottom:8px;}
 .gender-btn{padding:8px 20px;border:1px solid rgba(200,169,110,.25);border-radius:8px;background:transparent;color:rgba(245,240,232,.55);font-family:var(--font-body);font-size:13px;cursor:pointer;transition:all .2s;}
 .gender-btn.selected{background:rgba(200,169,110,.15);border-color:var(--accent);color:var(--accent-lt);}
@@ -473,12 +477,29 @@ body{font-family:var(--font-body);background:var(--cream);color:var(--ink);min-h
     <div class="tab-panel active" id="panel-analyze">
       <div class="input-wrap">
         <div class="input-section-title">이름 쓰임 (목적)</div>
-        <div class="energy-chips" style="margin-bottom:20px;" id="analyzePurposeChips">
-          <button type="button" class="energy-chip selected" data-purpose="일반 이름" onclick="selectPurpose(this,'analyze')">👤 일반 이름</button>
-          <button type="button" class="energy-chip" data-purpose="사업명·브랜드" onclick="selectPurpose(this,'analyze')">🏢 사업명·브랜드</button>
-          <button type="button" class="energy-chip" data-purpose="예술가 가명" onclick="selectPurpose(this,'analyze')">🎨 예술가 가명</button>
-          <button type="button" class="energy-chip" data-purpose="역술인·상담사 예명" onclick="selectPurpose(this,'analyze')">🔮 역술인·상담사 예명</button>
-          <button type="button" class="energy-chip" data-purpose="기타" onclick="selectPurpose(this,'analyze')">✏️ 기타</button>
+        <div class="energy-chips purpose-tier1-row" id="analyzePurposeTier1" style="margin-bottom:8px;">
+          <button type="button" class="energy-chip purpose-tier1-btn selected" data-tier1="general" onclick="selectPurposeTier1(this,'analyze')">👤 일반 이름</button>
+          <button type="button" class="energy-chip purpose-tier1-btn" data-tier1="biz" onclick="selectPurposeTier1(this,'analyze')">🏢 사업명·브랜드</button>
+          <button type="button" class="energy-chip purpose-tier1-btn" data-tier1="nick" onclick="selectPurposeTier1(this,'analyze')">💬 닉네임·온라인</button>
+          <button type="button" class="energy-chip purpose-tier1-btn" data-tier1="stage" onclick="selectPurposeTier1(this,'analyze')">🎭 활동명·예명</button>
+        </div>
+        <div id="analyzePurposeTier2Wrap" class="purpose-tier2-wrap">
+          <div class="purpose-sub-title">세부 유형 (선택)</div>
+          <div class="energy-chips purpose-sub-row" id="analyzePurposeTier2Nick" style="display:none;">
+            <button type="button" class="energy-chip purpose-sub-btn selected" data-bucket="nick_online" data-display="게이머" onclick="selectPurposeSub(this,'analyze','nick')">🎮 게이머</button>
+            <button type="button" class="energy-chip purpose-sub-btn" data-bucket="nick_online" data-display="인스타·SNS" onclick="selectPurposeSub(this,'analyze','nick')">📸 인스타·SNS</button>
+            <button type="button" class="energy-chip purpose-sub-btn" data-bucket="nick_online" data-display="전문가 프로필" onclick="selectPurposeSub(this,'analyze','nick')">💼 전문가 프로필</button>
+            <button type="button" class="energy-chip purpose-sub-btn" data-bucket="nick_online" data-display="쇼핑몰·셀러" onclick="selectPurposeSub(this,'analyze','nick')">🛒 쇼핑몰·셀러</button>
+            <button type="button" class="energy-chip purpose-sub-btn" data-bucket="nick_online" data-display="커뮤니티·익명" onclick="selectPurposeSub(this,'analyze','nick')">🌐 커뮤니티·익명</button>
+          </div>
+          <div class="energy-chips purpose-sub-row" id="analyzePurposeTier2Act" style="display:none;">
+            <button type="button" class="energy-chip purpose-sub-btn selected" data-bucket="creative" data-display="예술가" onclick="selectPurposeSub(this,'analyze','stage')">🎨 예술가</button>
+            <button type="button" class="energy-chip purpose-sub-btn" data-bucket="mystic" data-display="역술인·상담사" onclick="selectPurposeSub(this,'analyze','stage')">🔮 역술인·상담사</button>
+            <button type="button" class="energy-chip purpose-sub-btn" data-bucket="creative" data-display="작가·필명" onclick="selectPurposeSub(this,'analyze','stage')">✍️ 작가·필명</button>
+            <button type="button" class="energy-chip purpose-sub-btn" data-bucket="creative" data-display="유튜버·크리에이터" onclick="selectPurposeSub(this,'analyze','stage')">📹 유튜버·크리에이터</button>
+            <button type="button" class="energy-chip purpose-sub-btn" data-bucket="athlete" data-display="운동선수·코치" onclick="selectPurposeSub(this,'analyze','stage')">💪 운동선수·코치</button>
+            <button type="button" class="energy-chip purpose-sub-btn" data-bucket="educator" data-display="강사·교육자" onclick="selectPurposeSub(this,'analyze','stage')">📚 강사·교육자</button>
+          </div>
         </div>
         <div class="input-section-title">기본 정보</div>
         <div class="birth-row" style="margin-bottom:20px;">
@@ -508,12 +529,29 @@ body{font-family:var(--font-body);background:var(--cream);color:var(--ink);min-h
     <div class="tab-panel" id="panel-recommend">
       <div class="input-wrap">
         <div class="input-section-title">이름 쓰임 (목적)</div>
-        <div class="energy-chips" style="margin-bottom:20px;" id="recPurposeChips">
-          <button type="button" class="energy-chip selected" data-purpose="일반 이름" onclick="selectPurpose(this,'rec')">👤 일반 이름</button>
-          <button type="button" class="energy-chip" data-purpose="사업명·브랜드" onclick="selectPurpose(this,'rec')">🏢 사업명·브랜드</button>
-          <button type="button" class="energy-chip" data-purpose="예술가 가명" onclick="selectPurpose(this,'rec')">🎨 예술가 가명</button>
-          <button type="button" class="energy-chip" data-purpose="역술인·상담사 예명" onclick="selectPurpose(this,'rec')">🔮 역술인·상담사 예명</button>
-          <button type="button" class="energy-chip" data-purpose="기타" onclick="selectPurpose(this,'rec')">✏️ 기타</button>
+        <div class="energy-chips purpose-tier1-row" id="recPurposeTier1" style="margin-bottom:8px;">
+          <button type="button" class="energy-chip purpose-tier1-btn selected" data-tier1="general" onclick="selectPurposeTier1(this,'rec')">👤 일반 이름</button>
+          <button type="button" class="energy-chip purpose-tier1-btn" data-tier1="biz" onclick="selectPurposeTier1(this,'rec')">🏢 사업명·브랜드</button>
+          <button type="button" class="energy-chip purpose-tier1-btn" data-tier1="nick" onclick="selectPurposeTier1(this,'rec')">💬 닉네임·온라인</button>
+          <button type="button" class="energy-chip purpose-tier1-btn" data-tier1="stage" onclick="selectPurposeTier1(this,'rec')">🎭 활동명·예명</button>
+        </div>
+        <div id="recPurposeTier2Wrap" class="purpose-tier2-wrap">
+          <div class="purpose-sub-title">세부 유형 (선택)</div>
+          <div class="energy-chips purpose-sub-row" id="recPurposeTier2Nick" style="display:none;">
+            <button type="button" class="energy-chip purpose-sub-btn selected" data-bucket="nick_online" data-display="게이머" onclick="selectPurposeSub(this,'rec','nick')">🎮 게이머</button>
+            <button type="button" class="energy-chip purpose-sub-btn" data-bucket="nick_online" data-display="인스타·SNS" onclick="selectPurposeSub(this,'rec','nick')">📸 인스타·SNS</button>
+            <button type="button" class="energy-chip purpose-sub-btn" data-bucket="nick_online" data-display="전문가 프로필" onclick="selectPurposeSub(this,'rec','nick')">💼 전문가 프로필</button>
+            <button type="button" class="energy-chip purpose-sub-btn" data-bucket="nick_online" data-display="쇼핑몰·셀러" onclick="selectPurposeSub(this,'rec','nick')">🛒 쇼핑몰·셀러</button>
+            <button type="button" class="energy-chip purpose-sub-btn" data-bucket="nick_online" data-display="커뮤니티·익명" onclick="selectPurposeSub(this,'rec','nick')">🌐 커뮤니티·익명</button>
+          </div>
+          <div class="energy-chips purpose-sub-row" id="recPurposeTier2Act" style="display:none;">
+            <button type="button" class="energy-chip purpose-sub-btn selected" data-bucket="creative" data-display="예술가" onclick="selectPurposeSub(this,'rec','stage')">🎨 예술가</button>
+            <button type="button" class="energy-chip purpose-sub-btn" data-bucket="mystic" data-display="역술인·상담사" onclick="selectPurposeSub(this,'rec','stage')">🔮 역술인·상담사</button>
+            <button type="button" class="energy-chip purpose-sub-btn" data-bucket="creative" data-display="작가·필명" onclick="selectPurposeSub(this,'rec','stage')">✍️ 작가·필명</button>
+            <button type="button" class="energy-chip purpose-sub-btn" data-bucket="creative" data-display="유튜버·크리에이터" onclick="selectPurposeSub(this,'rec','stage')">📹 유튜버·크리에이터</button>
+            <button type="button" class="energy-chip purpose-sub-btn" data-bucket="athlete" data-display="운동선수·코치" onclick="selectPurposeSub(this,'rec','stage')">💪 운동선수·코치</button>
+            <button type="button" class="energy-chip purpose-sub-btn" data-bucket="educator" data-display="강사·교육자" onclick="selectPurposeSub(this,'rec','stage')">📚 강사·교육자</button>
+          </div>
         </div>
         <div class="input-section-title">기본 정보</div>
         <div class="birth-row" style="margin-bottom:4px;">
@@ -546,7 +584,7 @@ body{font-family:var(--font-body);background:var(--cream);color:var(--ink);min-h
           </div>
         </div>
         <div class="input-section-title">원하는 에너지 <span style="color:rgba(200,169,110,.4);font-size:9px;">(선택 · 복수 가능 · 미선택 시 생년월일 부족수 기반)</span></div>
-        <div class="energy-chips" style="margin-bottom:20px;">
+        <div class="energy-chips" id="recEnergyChips" style="margin-bottom:20px;">
           <button class="energy-chip" data-val="1" onclick="toggleChip(this)">1 · 독립·추진력</button>
           <button class="energy-chip" data-val="2" onclick="toggleChip(this)">2 · 조화·공감</button>
           <button class="energy-chip" data-val="3" onclick="toggleChip(this)">3 · 창의·표현</button>
@@ -949,37 +987,57 @@ function compatLabel(s){if(s>=88)return'탁월한 조화';if(s>=80)return'높은
 function compatClass(s){if(s>=80)return'score-high';if(s>=65)return'score-mid';return'score-low';}
 function fillClass(s){if(s>=80)return'fill-high';if(s>=65)return'fill-mid';return'fill-low';}
 
-// ── 이름 목적(용도) — 운명수 적합도 보정 ──
-const PURPOSE_IDEAL = {
-  '일반 이름':       { ideal:[1,2,3,6,9], avoid:[], desc:'균형 잡힌 에너지, 부르기 편한 인상' },
-  '사업명·브랜드':   { ideal:[1,4,8,22], avoid:[2,7], desc:'리더십·성취·안정·비전' },
-  '예술가 가명':     { ideal:[3,5,11,33], avoid:[4,8], desc:'창의·표현·자유·영감' },
-  '역술인·상담사 예명': { ideal:[7,9,11,22], avoid:[1,5], desc:'신뢰·통찰·포용·전문성' },
-  '기타':            { ideal:[], avoid:[], desc:'목적에 맞게 종합 판단' },
+// ── 이름 목적(용도) — 점수는 소수 “버킷”으로만 (세부는 AI·문구용) ──
+const PURPOSE_SCORING = {
+  general:   { ideal:[1,2,3,6,9],      avoid:[],            desc:'균형 잡힌 에너지, 부르기 편한 인상' },
+  biz:       { ideal:[1,4,8,22],       avoid:[2,7],         desc:'리더십·성취·안정·비전' },
+  nick_online:{ ideal:[3,5,1,8],      avoid:[],            desc:'기억·표현·개성·반복 호명에 유리한 인지도' },
+  creative:  { ideal:[3,5,11,33],      avoid:[4,8],         desc:'창의·표현·무대/콘텐츠와의 조화' },
+  mystic:    { ideal:[7,9,11,22],    avoid:[1,5],         desc:'신뢰·통찰·포용·전문성' },
+  athlete:   { ideal:[1,4,8,22],      avoid:[],            desc:'추진·체계·성취·리더십' },
+  educator:  { ideal:[6,9,11,33],     avoid:[],            desc:'전달·포용·가르침·완성' },
 };
 
-function calcPurposeFit(exprVal, purpose) {
-  const p = PURPOSE_IDEAL[purpose] || PURPOSE_IDEAL['일반 이름'];
+function normalizePurposeArg(p) {
+  if (p && typeof p === 'object' && p.scoringKey && p.label) return p;
+  if (typeof p === 'string') {
+    const legacy = {
+      '일반 이름':       { scoringKey:'general', label:p },
+      '사업명·브랜드':   { scoringKey:'biz', label:p },
+      '예술가 가명':     { scoringKey:'creative', label:p },
+      '역술인·상담사 예명': { scoringKey:'mystic', label:p },
+      '기타':            { scoringKey:'general', label:p },
+    };
+    return legacy[p] || { scoringKey:'general', label:p };
+  }
+  return { scoringKey:'general', label:'👤 일반 이름' };
+}
+
+function calcPurposeFit(exprVal, scoringKey) {
+  const p = PURPOSE_SCORING[scoringKey] || PURPOSE_SCORING.general;
   if (!p.ideal.length) return { score: 0 };
   if (p.ideal.includes(exprVal)) return { score: 15 };
   if (p.avoid.includes(exprVal)) return { score: -10 };
   return { score: 0 };
 }
 
-function getPurposePromptExtra(purpose) {
+function getPurposePromptExtra(scoringKey, displayLabel) {
+  const L = displayLabel || '';
   const map = {
-    '일반 이름': '일반적인 개인 이름으로서 평생 불릴 때의 에너지와 인상을 중심으로 설명해주세요.',
-    '사업명·브랜드': '사업명·브랜드로서 신뢰감·권위·기억에 남는 소리가 충분한지 평가해주세요.',
-    '예술가 가명': '예명으로서 창의성·개성·무대/작품과의 조화가 드러나는지 평가해주세요.',
-    '역술인·상담사 예명': '상담·역술 예명으로서 신뢰감과 전문성, 의뢰인에게 주는 거리감이 적절한지 평가해주세요.',
-    '기타': '선택된 이름들의 수비학적 에너지와 인상을 종합적으로 평가해주세요.',
+    general: '일반 개인 이름으로 평생 불릴 에너지와 인상을 중심으로 설명해주세요.',
+    biz: '사업명·브랜드로서 신뢰·권위·기억 잔상이 충분한지, 반복 노출에 견디는지 평가해주세요.',
+    nick_online: `온라인·닉네임 맥락(${L})에서 검색·태그·반복 호명, 짧고 기억에 남는지 평가해주세요.`,
+    creative: `창작·콘텐츠·예명 맥락(${L})에서 개성·무대/작품과의 조화를 평가해주세요.`,
+    mystic: `역술·상담 예명 맥락(${L})에서 신뢰·전문성·의뢰인과의 거리감이 적절한지 평가해주세요.`,
+    athlete: `운동·코칭 활동명(${L})에서 추진력·결단·동기 부여 이미지가 드는지 평가해주세요.`,
+    educator: `강사·교육자 이름(${L})에서 전달력·신뢰·포용이 균형 있는지 평가해주세요.`,
   };
-  return map[purpose] || map['일반 이름'];
+  return map[scoringKey] || map.general;
 }
 
 // ── 이름 종합 평가 ──
-function evaluateName(r, dist, purpose) {
-  purpose = purpose || '일반 이름';
+function evaluateName(r, dist, purposeInput) {
+  const pCtx = normalizePurposeArg(purposeInput);
   const expr = r.nums.expression.val;
   const soul = r.nums.soul.val;
   const pers = r.nums.personality.val;
@@ -1040,13 +1098,14 @@ function evaluateName(r, dist, purpose) {
     if([1,3,6,9].includes(expr)) numBonus += 3;
   }
 
-  // 6-1. 목적(용도) 적합도 — 운명수 기준
-  const fit = calcPurposeFit(expr, purpose);
+  // 6-1. 목적(용도) 적합도 — 운명수 기준 (버킷)
+  const fit = calcPurposeFit(expr, pCtx.scoringKey);
+  const bucketDesc = PURPOSE_SCORING[pCtx.scoringKey]?.desc || '';
   if (fit.score > 0) {
-    strengths.push(`${purpose}에 적합 — 운명수 ${expr}번(${tr(expr).name})은 ${PURPOSE_IDEAL[purpose]?.desc || '이 용도'}에 잘 맞습니다.`);
+    strengths.push(`「${pCtx.label}」에 적합 — 운명수 ${expr}번(${tr(expr).name})은 ${bucketDesc}에 잘 맞습니다.`);
     numBonus += fit.score;
   } else if (fit.score < 0) {
-    warnings.push(`${purpose} 용도로는 비추천 경향 — 운명수 ${expr}번(${tr(expr).name})은 목적상 덜 이상적인 에너지일 수 있어요.`);
+    warnings.push(`「${pCtx.label}」목적으로는 주의 — 운명수 ${expr}번(${tr(expr).name})은 이 용도의 이상형과 거리가 있을 수 있어요.`);
     numBonus += fit.score;
   }
 
@@ -1114,15 +1173,15 @@ function getVerdict(score, bonus, isBest) {
   return {key:'normal',label:'— 보통',cls:'verdict-normal',vbCls:'vb-normal',tCls:'t-normal'};
 }
 
-function verdictText(v, r, dist, purpose) {
-  purpose = purpose || '일반 이름';
+function verdictText(v, r, dist, purposeInput) {
+  const pCtx = normalizePurposeArg(purposeInput);
   const expr = r.nums.expression.val;
   const exprT = tr(expr);
   const name = r.name;
   if(v.key === 'best') {
     const reason = r.lp
       ? `인생여정수(${r.lp.val})와 강하게 공명하며${dist && dist.missing.includes(expr) ? ' 생년월일의 부족한 에너지까지 채워주는' : ''} 이 이름은 수비학적으로 가장 조화로운 선택입니다.`
-      : `${exprT.name}(${expr})의 에너지가 선택하신 목적(${purpose})에 맞는 방향을 제시하는 이름입니다.`;
+      : `${exprT.name}(${expr})의 에너지가 선택하신 목적(${pCtx.label})에 맞는 방향을 제시하는 이름입니다.`;
     return `<strong>${name}</strong>이 가장 좋은 이름입니다. ${reason}`;
   }
   if(v.key === 'good') return `좋은 선택입니다. ${exprT.name}(${expr})의 에너지가 삶을 안정적으로 지지해줍니다.`;
@@ -1142,20 +1201,61 @@ function toggleChip(el){el.classList.toggle('selected');}
 function selectGender(el){document.querySelectorAll('.gender-btn').forEach(b=>b.classList.remove('selected'));el.classList.add('selected');}
 function toggleNums(btn){btn.classList.toggle('open');const detail=btn.nextElementSibling;detail.classList.toggle('open');}
 
-function selectPurpose(el, group) {
-  const container = group === 'analyze'
-    ? document.getElementById('analyzePurposeChips')
-    : document.getElementById('recPurposeChips');
-  if (!container) return;
-  container.querySelectorAll('.energy-chip').forEach(b => b.classList.remove('selected'));
+function selectPurposeTier1(el, group) {
+  const pre = group === 'analyze' ? 'analyze' : 'rec';
+  document.querySelectorAll(`#${pre}PurposeTier1 .purpose-tier1-btn`).forEach(b => b.classList.remove('selected'));
+  el.classList.add('selected');
+  const tier1 = el.dataset.tier1;
+  const wrap = document.getElementById(pre + 'PurposeTier2Wrap');
+  const nick = document.getElementById(pre + 'PurposeTier2Nick');
+  const act = document.getElementById(pre + 'PurposeTier2Act');
+  if (!wrap || !nick || !act) return;
+  if (tier1 === 'nick') {
+    wrap.classList.add('open');
+    wrap.style.display = 'block';
+    nick.style.display = 'flex';
+    act.style.display = 'none';
+    if (!nick.querySelector('.purpose-sub-btn.selected')) nick.querySelector('.purpose-sub-btn')?.classList.add('selected');
+  } else if (tier1 === 'stage') {
+    wrap.classList.add('open');
+    wrap.style.display = 'block';
+    nick.style.display = 'none';
+    act.style.display = 'flex';
+    if (!act.querySelector('.purpose-sub-btn.selected')) act.querySelector('.purpose-sub-btn')?.classList.add('selected');
+  } else {
+    wrap.classList.remove('open');
+    wrap.style.display = 'none';
+    nick.style.display = 'none';
+    act.style.display = 'none';
+  }
+}
+
+function selectPurposeSub(el, group, kind) {
+  const pre = group === 'analyze' ? 'analyze' : 'rec';
+  const row = document.getElementById(pre + (kind === 'nick' ? 'PurposeTier2Nick' : 'PurposeTier2Act'));
+  if (!row) return;
+  row.querySelectorAll('.purpose-sub-btn').forEach(b => b.classList.remove('selected'));
   el.classList.add('selected');
 }
 
-function getSelectedPurpose(group) {
-  const container = group === 'analyze'
-    ? document.getElementById('analyzePurposeChips')
-    : document.getElementById('recPurposeChips');
-  return container?.querySelector('.energy-chip.selected')?.dataset.purpose || '일반 이름';
+/** @returns {{ scoringKey: string, label: string }} */
+function getPurposeSelection(group) {
+  const pre = group === 'analyze' ? 'analyze' : 'rec';
+  const t1 = document.querySelector(`#${pre}PurposeTier1 .purpose-tier1-btn.selected`)?.dataset.tier1 || 'general';
+  if (t1 === 'general') return { scoringKey: 'general', label: '👤 일반 이름' };
+  if (t1 === 'biz') return { scoringKey: 'biz', label: '🏢 사업명·브랜드' };
+  if (t1 === 'nick') {
+    const sub = document.querySelector(`#${pre}PurposeTier2Nick .purpose-sub-btn.selected`);
+    const display = sub?.dataset.display || '온라인';
+    return { scoringKey: 'nick_online', label: `💬 닉네임·온라인 · ${display}` };
+  }
+  if (t1 === 'stage') {
+    const sub = document.querySelector(`#${pre}PurposeTier2Act .purpose-sub-btn.selected`);
+    const bucket = sub?.dataset.bucket || 'creative';
+    const display = sub?.dataset.display || '';
+    return { scoringKey: bucket, label: `🎭 활동명·예명 · ${display}` };
+  }
+  return { scoringKey: 'general', label: '👤 일반 이름' };
 }
 
 // ── 생년월일 분포 패널 렌더 ──
@@ -1196,8 +1296,8 @@ function renderBirthPanel(dist, lp, dob) {
 }
 
 // ── 순위 요약 헤더 ──
-function renderRankHeader(results, bestIdx, dist, purpose) {
-  purpose = purpose || '일반 이름';
+function renderRankHeader(results, bestIdx, dist, purposeInput) {
+  const pCtx = normalizePurposeArg(purposeInput);
   const best = results[bestIdx];
   const hasBirth = !!results[0]?.lp;
   let text = '';
@@ -1216,15 +1316,15 @@ function renderRankHeader(results, bestIdx, dist, purpose) {
       <div class="rank-count">총 ${results.length}개 분석</div>
     </div>
     <div class="rank-summary">${text}</div>
-    <div style="margin-top:10px;font-size:12px;color:var(--warm-brown);">분석 목적: <strong>${purpose}</strong></div>
+    <div style="margin-top:10px;font-size:12px;color:var(--warm-brown);">분석 목적: <strong>${pCtx.label}</strong></div>
     <div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--border);font-size:11.5px;color:var(--muted);line-height:1.7;">
       ※ 이 결과는 <strong style="color:var(--deep-brown)">수비학 + 소리 에너지 + 선택 목적</strong> 기준의 참고 자료입니다. 수비학은 학파마다 계산 방식이 다를 수 있으며, 최종 이름 선택은 상담사와 함께 종합적으로 판단하시길 권합니다.
     </div>`;
 }
 
 // ── 개별 카드 렌더 ──
-function renderNameCards(results, sortedResults, dist, purpose) {
-  purpose = purpose || '일반 이름';
+function renderNameCards(results, sortedResults, dist, purposeInput) {
+  const pCtx = normalizePurposeArg(purposeInput);
   const container = document.getElementById('nameCards');
   container.innerHTML = sortedResults.map((r, rankIdx) => {
     const isBest = rankIdx === 0;
@@ -1233,9 +1333,9 @@ function renderNameCards(results, sortedResults, dist, purpose) {
     const pers = r.nums.personality.val;
     const mat  = r.mat;
     const isMaster = [11,22,33].includes(expr);
-    const evaluation = evaluateName(r, dist, purpose);
+    const evaluation = evaluateName(r, dist, pCtx);
     const verdict = getVerdict(r.totalCompat, evaluation.bonus, isBest);
-    const vtext = verdictText(verdict, r, dist, purpose);
+    const vtext = verdictText(verdict, r, dist, pCtx);
 
     // 점수 표시 — 수비학 / 소리균형 / 종합 분리
     const numScore = Math.min((r.totalCompat||70) + evaluation.numBonus, 99);
@@ -1377,13 +1477,13 @@ function renderNameCards(results, sortedResults, dist, purpose) {
 }
 
 // ── 비교 테이블 ──
-function renderCompareTable(sortedResults, dist, purpose) {
-  purpose = purpose || '일반 이름';
+function renderCompareTable(sortedResults, dist, purposeInput) {
+  const pCtx = normalizePurposeArg(purposeInput);
   const lp = sortedResults[0]?.lp;
 
   // 수비학 점수만으로 1위 찾기
   const numScores = sortedResults.map(r => {
-    const ev = evaluateName(r, dist, purpose);
+    const ev = evaluateName(r, dist, pCtx);
     return { r, numScore: Math.min((r.totalCompat||70) + ev.numBonus, 99), soundBonus: ev.soundBonus };
   });
   const numFirstIdx = numScores.reduce((best, cur, i) =>
@@ -1436,14 +1536,14 @@ function renderCompareTable(sortedResults, dist, purpose) {
       });
     } else if(row.numscore){
       sortedResults.forEach((r,i)=>{
-        const ev=evaluateName(r,dist,purpose);
+        const ev=evaluateName(r,dist,pCtx);
         const s=Math.min((r.totalCompat||70)+ev.numBonus,99);
         const nb=ev.numBonus>0?`+${ev.numBonus}보너스`:ev.numBonus<0?`${ev.numBonus}감점`:'기본';
         html+=`<td class="score-cell score-section"><span class="sc-num ${compatClass(s)}">${s}</span><div class="sc-bar"><div class="sc-fill ${fillClass(s)}" style="width:${s}%"></div></div><span class="sc-label">${nb}</span></td>`;
       });
     } else if(row.soundscore){
       sortedResults.forEach(r=>{
-        const ev=evaluateName(r,dist,purpose);
+        const ev=evaluateName(r,dist,pCtx);
         const sb=ev.soundBonus;
         const sbStr=sb>0?`+${sb}`:String(sb);
         const sbColor=sb>=0?'var(--teal)':'var(--red)';
@@ -1475,7 +1575,7 @@ function runAnalysis(){
 
   const lp=calcLifePath(birthDate);
   const dist=birthDate?calcBirthDist(birthDate):null;
-  const purpose=getSelectedPurpose('analyze');
+  const purposeCtx=getPurposeSelection('analyze');
 
   const results=names.map((name,i)=>{
     const nums=calcName(name);
@@ -1488,38 +1588,39 @@ function runAnalysis(){
   });
 
   // 점수 계산 후 정렬
-  const scored=results.map(r=>{const ev=evaluateName(r,dist,purpose);return{...r,bonus:ev.bonus,totalScore:(r.totalCompat||70)+ev.bonus};});
+  const scored=results.map(r=>{const ev=evaluateName(r,dist,purposeCtx);return{...r,bonus:ev.bonus,totalScore:(r.totalCompat||70)+ev.bonus};});
   const sorted=[...scored].sort((a,b)=>b.totalScore-a.totalScore);
 
   renderBirthPanel(dist,lp,birthDate);
-  renderRankHeader(sorted,0,dist,purpose);
-  renderNameCards(results,sorted,dist,purpose);
-  renderCompareTable(sorted,dist,purpose);
+  renderRankHeader(sorted,0,dist,purposeCtx);
+  renderNameCards(results,sorted,dist,purposeCtx);
+  renderCompareTable(sorted,dist,purposeCtx);
 
   document.getElementById('resultArea').style.display='block';
   document.getElementById('resultArea').scrollIntoView({behavior:'smooth'});
-  callAI(sorted,baseName,birthDate,lp,dist,purpose);
+  callAI(sorted,baseName,birthDate,lp,dist,purposeCtx);
   document.getElementById('analyzeBtn').disabled=false;
 }
 
 // ── AI 코멘트 ──
-async function callAI(results,baseName,birthDate,lp,dist,purpose){
-  purpose = purpose || '일반 이름';
+async function callAI(results,baseName,birthDate,lp,dist,purposeInput){
+  const pCtx = normalizePurposeArg(purposeInput);
   const namesStr=results.map(r=>`• ${r.name}: 운명수 ${r.nums.expression.val}(${tr(r.nums.expression.val).name}), 혼의수 ${r.nums.soul.val}(${tr(r.nums.soul.val).name}), 성격수 ${r.nums.personality.val}(${tr(r.nums.personality.val).name}), 종합점수 ${Math.min(r.totalScore,99)}점`).join('\n');
   const missingStr=dist?.missing.length?`생년월일 부족수: ${dist.missing.map(n=>`${n}번(${tr(n).name})`).join(', ')}`:'';
   const excessStr=dist?.excess.length?`과잉수: ${dist.excess.map(n=>`${n}번(${tr(n).name})`).join(', ')}`:'';
   const lpDesc=lp?`인생여정수 ${lp.val}번 · ${tr(lp.val).name} — ${tr(lp.val).desc}`:'';
+  const bucketHint = PURPOSE_SCORING[pCtx.scoringKey]?.desc || '';
   const openPara = lp
     ? `첫 문단: 이 사람의 인생여정수(${lp.val}번)가 삶에서 어떤 방향과 숙제를 갖는지 한 문장으로 짚고 시작하세요.`
-    : `첫 문단: 사용자가 선택한 이름 목적(${purpose})에 맞는 에너지 기준을 한 문장으로 짚고 시작하세요.`;
+    : `첫 문단: 사용자가 선택한 이름 목적(${pCtx.label})에 맞는 에너지 기준을 한 문장으로 짚고 시작하세요.`;
   const secondPara = lp
-    ? `둘째 문단: 1위 이름이 왜 이 인생여정수와 잘 맞는지, 그리고 "${purpose}" 목적에 어떻게 맞는지 에너지 조화를 스토리로 설명하세요. ${missingStr?`부족한 수를 이름이 어떻게 채워주는지도 언급하세요.`:''}`
-    : `둘째 문단: 1위 이름이 선택 목적 "${purpose}"에 왜 잘 맞는지 수비학·소리 관점에서 설명하세요.`;
+    ? `둘째 문단: 1위 이름이 왜 이 인생여정수와 잘 맞는지, 그리고 "${pCtx.label}" 맥락에 어떻게 맞는지 에너지 조화를 스토리로 설명하세요. ${missingStr?`부족한 수를 이름이 어떻게 채워주는지도 언급하세요.`:''}`
+    : `둘째 문단: 1위 이름이 선택 목적 "${pCtx.label}"에 왜 잘 맞는지 수비학·소리 관점에서 설명하세요.`;
 
   const prompt=`당신은 수비학 전문 상담사입니다. 아래 데이터를 바탕으로 깊이 있고 따뜻한 이름 분석 코멘트를 작성해주세요.
 
-이름 목적(사용자 선택): ${purpose}
-${PURPOSE_IDEAL[purpose]?`이 목적의 이상적 에너지: ${PURPOSE_IDEAL[purpose].desc}`:''}
+이름 목적(사용자 선택): ${pCtx.label}
+${bucketHint?`이 맥락에서 선호되는 에너지 방향(참고): ${bucketHint}`:''}
 ${baseName?`대상: ${baseName}\n`:''}${birthDate?`생년월일: ${birthDate}\n`:''}${lpDesc?`${lpDesc}\n`:''}${missingStr?`${missingStr}\n`:''}${excessStr?`${excessStr}\n`:''}
 분석된 이름 (종합점수 순):
 ${namesStr}
@@ -1530,8 +1631,8 @@ ${results.length>1?`주의 이름: ${results[results.length-1]?.name} (${Math.mi
 작성 지침 (반드시 따르세요):
 1. ${openPara}
 2. ${secondPara}
-3. 다음 관점도 반영하세요: ${getPurposePromptExtra(purpose)}
-4. 점수가 낮은 이름이 있다면 왜 "${purpose}" 목적이나 에너지와 맞지 않는지 구체적으로 설명하세요.
+3. 다음 관점도 반영하세요: ${getPurposePromptExtra(pCtx.scoringKey, pCtx.label)}
+4. 점수가 낮은 이름이 있다면 왜 "${pCtx.label}" 맥락이나 에너지와 맞지 않는지 구체적으로 설명하세요.
 5. 마지막 문장: "이름은 평생 불리는 에너지입니다. 수비학 점수와 함께 직접 소리 내어 불러보며 느낌도 꼭 확인해보세요." 로 마무리하세요.
 6. 번호·목록 없이 자연스러운 문단으로만, 3~4문단으로 작성하세요.`;
   try{
@@ -1549,8 +1650,8 @@ async function runRecommend(){
   const syllable = document.getElementById('recSyllable').value;
   const gender   = document.querySelector('.gender-btn.selected')?.dataset.gender || '무관';
   const extra    = document.getElementById('recExtra').value.trim();
-  const chips    = [...document.querySelectorAll('#panel-recommend .energy-chips:not(#recPurposeChips) .energy-chip.selected')].map(c => c.dataset.val).filter(Boolean);
-  const purpose  = getSelectedPurpose('rec');
+  const chips    = [...document.querySelectorAll('#recEnergyChips .energy-chip.selected')].map(c => c.dataset.val).filter(Boolean);
+  const purposeCtx  = getPurposeSelection('rec');
   const lp   = calcLifePath(birth);
   const dist = birth ? calcBirthDist(birth) : null;
 
@@ -1575,7 +1676,7 @@ async function runRecommend(){
   const prompt = `당신은 한국 이름 전문가입니다. 아래 조건에 맞는 한국 이름을 10개 추천해주세요. 이름 텍스트만 주세요. 숫자 계산은 하지 않아도 됩니다.
 
 조건:
-- 이름 목적: ${purpose} (${PURPOSE_IDEAL[purpose]?.desc || ''})
+- 이름 목적: ${purposeCtx.label} (${PURPOSE_SCORING[purposeCtx.scoringKey]?.desc || ''})
 - 성(姓): ${surname || '미정 (성 없이 이름만)'}
 - 성별: ${gender}
 - 음절 수: ${syllable === 'any' ? '무관' : syllable + '음절 (이름만, 성 제외)'}
@@ -1634,12 +1735,12 @@ ${extra ? `- 추가 요청: ${extra}` : ''}
 
     // 점수 계산 후 정렬 (상위 5개)
     const scored = results.map(r => {
-      const ev = evaluateName(r, dist, purpose);
+      const ev = evaluateName(r, dist, purposeCtx);
       return { ...r, bonus: ev.bonus, numBonus: ev.numBonus, soundBonus: ev.soundBonus, totalScore: (r.totalCompat||70) + ev.bonus };
     });
     const sorted = [...scored].sort((a,b) => b.totalScore - a.totalScore).slice(0, 5);
 
-    renderRecResultFull(sorted, dist, lp, birth, surname, purpose);
+    renderRecResultFull(sorted, dist, lp, birth, surname, purposeCtx);
 
   } catch(e) {
     document.getElementById('recResultWrap').innerHTML =
@@ -1649,8 +1750,8 @@ ${extra ? `- 추가 요청: ${extra}` : ''}
 }
 
 // ── 추천 결과 렌더링 (이름 분석과 동일한 구조) ──
-function renderRecResultFull(sorted, dist, lp, birth, surname, purpose) {
-  purpose = purpose || '일반 이름';
+function renderRecResultFull(sorted, dist, lp, birth, surname, purposeInput) {
+  const pCtx = normalizePurposeArg(purposeInput);
   const wrap = document.getElementById('recResultWrap');
 
   // 상단 요약
@@ -1707,7 +1808,7 @@ function renderRecResultFull(sorted, dist, lp, birth, surname, purpose) {
         <div class="rank-count">10개 후보 → 상위 ${sorted.length}개 선별</div>
       </div>
       <div class="rank-summary">${summaryText}</div>
-      <div style="margin-top:10px;font-size:12px;color:var(--warm-brown);">추천 목적: <strong>${purpose}</strong></div>
+      <div style="margin-top:10px;font-size:12px;color:var(--warm-brown);">추천 목적: <strong>${pCtx.label}</strong></div>
       <div style="margin-top:10px;padding-top:10px;border-top:1px solid var(--border);font-size:11.5px;color:var(--muted);line-height:1.7;">
         ※ AI가 제안한 이름을 팔자연구소 수비학 엔진으로 직접 계산한 결과입니다. 수비학은 참고 자료이며 최종 선택은 종합적으로 판단하세요.
       </div>
@@ -1715,7 +1816,7 @@ function renderRecResultFull(sorted, dist, lp, birth, surname, purpose) {
     <div class="name-cards" id="recNameCards"></div>`;
 
   // 이름 분석과 동일한 카드 렌더링
-  renderNameCards([], sorted, dist, purpose);
+  renderNameCards([], sorted, dist, pCtx);
 
   // recNameCards에 복사 (renderNameCards는 nameCards에 씀)
   const src = document.getElementById('nameCards');
