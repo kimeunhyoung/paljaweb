@@ -4115,60 +4115,60 @@ function lcReadingGuideCatalogRow(navHtml, descriptionHtml) {
 function buildReadingGuideHtml() {
   return `<div class="lc-reading-guide">
     <div class="lc-reading-guide-catalog" role="navigation" aria-label="이 페이지 섹션 안내">
-      <p class="lc-guide-catalog-kicker">순서는 아래와 같아요. 제목 누르면 그 섹션으로 내려가요.</p>
+      <p class="lc-guide-catalog-kicker">아래 순서. 제목 클릭 시 해당 섹션으로 스크롤.</p>
       ${lcReadingGuideCatalogRow(
         `<a href="#nav-core" class="lc-guide-link"><strong>핵심 수</strong></a>`,
-        `이름·생년월일로 뽑은 숫자 풀이예요. 이름 넣었으면 통합 스토리도 같이 보여요.`,
+        `이름·생년월일 규칙으로 계산한 숫자 해석. 이름 입력 시 같은 구역에 통합 스토리(겉·속·길) 포함.`,
       )}
       ${lcReadingGuideCatalogRow(
         `<a href="#zodiacInsightSection" class="lc-guide-link"><strong>별자리</strong></a>`,
-        `생일 기준으로 보는, 넓은 기질 맵이에요.`,
+        `생일 기준, 12분할에 가까운 넓은 기질 표기.`,
       )}
       ${lcReadingGuideCatalogRow(
         `<a href="#period48Section" class="lc-guide-link"><strong>48주기 성격학</strong></a>`,
-        `같은 생월·생일을 48칸으로 쪼개 본 패턴이에요.`,
+        `동일 생월·생일을 48구간으로 나눈 패턴.`,
       )}
       ${lcReadingGuideCatalogRow(
         `<a href="#aiSummarySection" class="lc-guide-link"><strong>AI 종합 요약</strong></a>`,
-        `위 내용을 AI가 한 덩어리로 짧게 정리한 거예요.`,
+        `위 항목을 AI가 한 단락으로 요약.`,
       )}
       ${lcReadingGuideCatalogRow(
         `<a href="#nav-major-cycle" class="lc-guide-link"><strong>대주기 분석</strong></a>`,
-        `숫자로 보는 인생 큰 호흡이에요.`,
+        `생일 숫자 기반 인생 장주기.`,
       )}
       ${lcReadingGuideCatalogRow(
         `<a href="#nav-life-four" class="lc-guide-link"><strong>인생 4단계</strong></a>`,
-        `네 구간으로 나눈 요약 흐름이에요.`,
+        `네 구간으로 나눈 요약 흐름.`,
       )}
       ${lcReadingGuideCatalogRow(
         `<a href="#timelineSection" class="lc-guide-link"><strong>10년 타임라인</strong></a>`,
-        `앞으로 열 해쯤의 줄기를 보는 코너예요.`,
+        `향후 약 10년 연도별 흐름.`,
       )}
       ${lcReadingGuideCatalogRow(
         `<a href="#monthlySection" class="lc-guide-link"><strong>월간 흐름</strong></a>`,
-        `한 해 안에서 달마다 리듬을 보는 거예요.`,
+        `해당 연도 월별 리듬.`,
       )}
       ${lcReadingGuideCatalogRow(
         `<a href="#nav-flow" class="lc-guide-link"><strong>현재 흐름</strong></a>`,
-        `올해·이번 달·오늘 수를 카드로 보는 곳이에요.`,
+        `해당 연·월·일 수 카드.`,
       )}
       ${lcReadingGuideCatalogRow(
         `<a href="#aiTodaySection" class="lc-guide-link"><strong>AI 오늘의 메시지</strong></a>`,
-        `Pro면 AI가 오늘 한 줄로 짚어 주는 메시지예요.`,
+        `Pro 전용. 당일 기준 한 줄 AI 메시지.`,
       )}
       ${lcReadingGuideCatalogRow(
         `<a href="#weeklyForecastSection" class="lc-guide-link"><strong>향후 7일간의 에너지 흐름</strong></a>`,
-        `Pro면 앞 일주일을 날짜별로 보는 표가 이어져요.`,
+        `Pro 전용. 7일간 일별 표.`,
       )}
       ${lcReadingGuideCatalogRow(
         `<a href="#growthSection" class="lc-guide-link"><strong>성장 지도</strong></a>`,
-        `빠진 숫자로 보는 성장 포인트예요.`,
+        `생일에 없는 숫자 기준 성장 포인트.`,
       )}
       ${lcReadingGuideCatalogRow(
         `<a href="#loshuSection" class="lc-guide-link"><strong>로슈 격자 분석</strong></a>`,
-        `격자 패턴으로 성향을 보는 거예요.`,
+        `3×3 격자 패턴 분석.`,
       )}
-      <p class="lc-guide-catalog-footnote">플랜·이름 입력에 따라 일부만 열려요. 오른쪽 목차에서도 같은 곳으로 갈 수 있어요.</p>
+      <p class="lc-guide-catalog-footnote">플랜·이름 입력 여부에 따라 일부 카드 미표시. 우측 목차에서 동일 앵커 이동.</p>
     </div>
   </div>`;
 }
