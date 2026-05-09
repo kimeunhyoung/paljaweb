@@ -1231,6 +1231,43 @@
       padding: 24px;
       position: relative;
     }
+    .zodiac-insight-panel {
+      background: white;
+      border: 1px solid var(--border);
+      border-left: 3px solid var(--teal);
+      border-radius: 0 10px 10px 0;
+      padding: 22px;
+    }
+    .zodiac-insight-head {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 10px;
+      color: var(--deep-brown);
+      font-weight: 700;
+      font-size: 15px;
+    }
+    .zodiac-insight-body {
+      font-size: 14px;
+      line-height: 1.85;
+      color: var(--ink);
+      margin-bottom: 12px;
+    }
+    .zodiac-insight-links {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+      margin-top: 10px;
+    }
+    .zodiac-insight-link {
+      background: rgba(245, 240, 232, .7);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 10px 12px;
+      font-size: 12.5px;
+      line-height: 1.6;
+      color: var(--ink);
+    }
 
     /* 통합 스토리 (핵심 수 요약 서사) */
     .integrated-story-wrap {
@@ -2138,8 +2175,18 @@
     </div>
   </div>
 
+  <!-- ② 별자리 심층 해석 -->
+  <div class="section" style="animation-delay:.13s" id="zodiacInsightSection">
+    <div class="section-header">
+      <div class="section-line"></div>
+      <span class="section-label">별자리 심층 해석</span>
+      <div class="section-line"></div>
+    </div>
+    <div id="zodiacInsightContent"></div>
+  </div>
+
   <!-- AI 종합 요약 (핵심 수 직후) -->
-  <div class="section" style="animation-delay:.12s" id="aiSummarySection">
+  <div class="section" style="animation-delay:.14s" id="aiSummarySection">
     <div class="section-header">
       <div class="section-line"></div>
       <span class="section-label">AI 종합 요약</span>
@@ -2148,8 +2195,8 @@
     <div id="aiSummaryContent"></div>
   </div>
 
-  <!-- ② 48주기 성격학 -->
-  <div class="section" style="animation-delay:.14s" id="period48Section">
+  <!-- ③ 48주기 성격학 -->
+  <div class="section" style="animation-delay:.16s" id="period48Section">
     <div class="section-header">
       <div class="section-line"></div>
       <span class="section-label">48주기 성격학</span>
@@ -2158,8 +2205,8 @@
     <div id="period48Content"></div>
   </div>
 
-  <!-- ③ 대주기 분석 -->
-  <div class="section" style="animation-delay:.16s" id="nav-major-cycle">
+  <!-- ④ 대주기 분석 -->
+  <div class="section" style="animation-delay:.18s" id="nav-major-cycle">
     <div class="section-header">
       <div class="section-line"></div>
       <span class="section-label">대주기 분석</span>
@@ -2275,6 +2322,7 @@
       <div class="analysis-jump-group-label">핵심 · 요약</div>
       <div class="analysis-jump-list">
         <a href="#nav-core">핵심 수</a>
+        <a href="#zodiacInsightSection">별자리 심층 해석</a>
         <a href="#aiSummarySection">AI 종합 요약</a>
         <a href="#period48Section">48주기 성격학</a>
       </div>
@@ -3728,6 +3776,54 @@ function coreInsightBody(html) {
     .trim();
 }
 
+function zodiacElement(signName) {
+  const E = {
+    '양자리':'불', '사자자리':'불', '사수자리':'불',
+    '황소자리':'흙', '처녀자리':'흙', '염소자리':'흙',
+    '쌍둥이자리':'바람', '천칭자리':'바람', '물병자리':'바람',
+    '게자리':'물', '전갈자리':'물', '물고기자리':'물'
+  };
+  return E[signName] || '중립';
+}
+
+function numberTone(n) {
+  if ([1,8,22].includes(n)) return '추진·실행';
+  if ([2,6,33].includes(n)) return '관계·돌봄';
+  if ([3,5].includes(n)) return '표현·변화';
+  if ([4].includes(n)) return '구조·안정';
+  if ([7,11].includes(n)) return '통찰·내면';
+  if ([9].includes(n)) return '포용·완성';
+  return '균형';
+}
+
+function buildZodiacInsightHTML(zodiac, nums) {
+  const signName = zodiac?.n || '미지';
+  const icon = zodiac?.i || '✨';
+  const base = coreInsightBody(ZODIAC_CORE_DESC[signName] || zodiac?.t || '');
+  const deep = ACCORDION_ZODIAC?.[signName] || '';
+  const elem = zodiacElement(signName);
+  const lpTone = numberTone(nums.lp);
+  const mnTone = numberTone(nums.mn);
+  const dsTone = numberTone(nums.destiny);
+  const bridgeText = `별자리는 타고난 기질(${elem})을, 핵심 수는 현재 삶의 선택 패턴을 보여줍니다. ${nums.lp}번 인생여정수의 ${lpTone} 흐름 위에, 문 넘버 ${nums.mn}번의 ${mnTone} 반응, 운명수 ${nums.destiny}번의 ${dsTone} 표현이 겹치며 당신의 현재 스타일이 만들어집니다.`;
+
+  return `
+    <div class="timeline-bridge">
+      <p><strong>핵심 수 6개</strong>가 삶의 구조를 보여준다면, 별자리는 그 구조가 <strong>어떤 분위기와 기질</strong>로 드러나는지 설명합니다.</p>
+      <p>아래 코너를 읽고 이어서 <strong>48주기 성격학</strong>을 보면, ‘기질(별자리)’과 ‘시간대별 리듬(48주기)’이 자연스럽게 연결됩니다.</p>
+    </div>
+    <div class="zodiac-insight-panel">
+      <div class="zodiac-insight-head">${icon} ${signName} · 별자리 에너지</div>
+      <div class="zodiac-insight-body">${base || '별자리 설명을 준비 중입니다.'}</div>
+      <div class="zodiac-insight-link"><strong>숫자와의 연결</strong><br>${bridgeText}</div>
+      <div class="zodiac-insight-links">
+        <div class="zodiac-insight-link"><strong>인생여정수(${nums.lp}번)</strong><br>삶의 큰 흐름은 <b>${lpTone}</b> 쪽으로 움직입니다.</div>
+        <div class="zodiac-insight-link"><strong>문 넘버(${nums.mn}번)</strong><br>감정의 첫 반응은 <b>${mnTone}</b> 결로 나타납니다.</div>
+      </div>
+      ${deep ? `<div style="margin-top:12px;">${accordion(`✦ ${icon} ${signName} 심층 해석`, deep, false)}</div>` : ''}
+    </div>`;
+}
+
 function buildIntegratedStoryHTML(nameStr, personalityNum, soulNum, destinyNum, lifePathNum, maturityNum, moonNum, zodiac) {
   const S = INTEGRATED_STORY || {};
   const line = (mapKey, n) => (S[mapKey] && S[mapKey][n]) || '이 번호에 맞는 문장을 다듬는 중이에요.';
@@ -3904,10 +4000,7 @@ async function runAnalysis() {
   }
 
   // ── 1. CORE NUMBERS (모든 플랜) ──
-  const zodiacShortDesc = `<b>${z.n}</b><br>${ZODIAC_CORE_DESC[z.n] || z.t}`;
   const coreItems = [
-    { label:'별자리', value:z.i, signName: z.n, desc: zodiacShortDesc, noNum:true, wide:true,
-      accBody: zodiacAccordionBody(zodiacShortDesc, z.n, ACCORDION_ZODIAC) },
     { label:'인생여정수', value:lp, pre:lpS, desc: CORE_LIFE_PATH_MAP[lp]||DEEP_MAP[lp]||'',
       accBody: coreAccordionBody(CORE_LIFE_PATH_MAP[lp]||DEEP_MAP[lp]||'', lp, ACCORDION_LIFE_PATH) },
     { label:'문 넘버', value:mn, pre:mnPre, desc: CORE_MOON_MAP[mn]||MOON_MAP[mn]||'',
@@ -3959,6 +4052,15 @@ async function runAnalysis() {
       storySection.style.display = 'none';
       storyBody.innerHTML = '';
     }
+  }
+
+  const zodiacHost = document.getElementById('zodiacInsightContent');
+  if (zodiacHost) {
+    zodiacHost.innerHTML = buildZodiacInsightHTML(z, {
+      lp,
+      mn,
+      destiny: destinyNum?.single || lp
+    });
   }
 
   // ── 2. AI 종합 요약 (Basic+) ──
