@@ -317,7 +317,7 @@
       right: 16px;
       bottom: 82px;
       width: min(320px, calc(100vw - 32px));
-      max-height: min(520px, 72vh);
+      max-height: min(420px, 62vh);
       overflow: auto;
       z-index: 165;
       background: var(--cream);
@@ -364,18 +364,6 @@
       border-radius: 6px;
     }
     .analysis-jump-close:hover { color: var(--deep-brown); }
-    .analysis-jump-intro {
-      font-size: 12.5px;
-      line-height: 1.72;
-      color: var(--ink);
-      margin: 0;
-      padding: 12px 16px 14px;
-      border-bottom: 1px solid var(--border);
-      background: rgba(248,245,238,.42);
-    }
-    .analysis-jump-intro p { margin: 0 0 8px; font-size: 12.5px; line-height: 1.72; }
-    .analysis-jump-intro p:last-child { margin-bottom: 0; }
-    .analysis-jump-intro strong { color: var(--deep-brown); font-weight: 600; }
     .analysis-jump-group-label {
       font-size: 11px;
       font-weight: 700;
@@ -924,6 +912,39 @@
     }
     .lc-reading-guide-text p { margin: 0 0 10px; }
     .lc-reading-guide-text p:last-child { margin-bottom: 0; }
+    .lc-reading-guide-preview-block {
+      margin: 14px 0 0;
+      padding-top: 14px;
+      border-top: 1px dashed rgba(139,111,71,.38);
+      font-size: 12.75px;
+      line-height: 1.72;
+      color: var(--muted);
+    }
+    .lc-reading-guide-preview-block strong {
+      color: var(--deep-brown);
+      font-weight: 600;
+    }
+    .lc-reading-guide-preview-kicker {
+      margin: 0 0 8px;
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--deep-brown);
+      letter-spacing: .02em;
+    }
+    .lc-reading-guide-outline {
+      margin: 0;
+      padding-left: 18px;
+      font-size: 12.75px;
+      line-height: 1.62;
+      color: var(--ink);
+    }
+    .lc-reading-guide-outline > li + li { margin-top: 5px; }
+    .lc-reading-guide-preview-note {
+      margin: 10px 0 0;
+      font-size: 12px;
+      line-height: 1.65;
+      color: var(--muted);
+    }
     .lc-core-lede {
       margin: 12px 0 18px;
       padding: 12px 14px;
@@ -2358,7 +2379,7 @@
 
 <!-- RESULT AREA -->
 <div class="content" id="resultArea" style="display:none;">
-  <div id="analysisReadingGuide" class="analysis-reading-guide-host" aria-label="결과 읽는 순서"></div>
+  <div id="analysisReadingGuide" class="analysis-reading-guide-host" aria-label="아래 결과 안내"></div>
 
   <!-- ① 핵심 수 -->
   <div class="section" style="animation-delay:.1s" id="nav-core">
@@ -2376,34 +2397,34 @@
     </div>
   </div>
 
-  <!-- ② 별자리 심층 해석 -->
+  <!-- ② 별자리 -->
   <div class="section" style="animation-delay:.13s" id="zodiacInsightSection">
     <div class="section-header">
       <div class="section-line"></div>
-      <span class="section-label">별자리 심층 해석</span>
+      <span class="section-label">별자리</span>
       <div class="section-line"></div>
     </div>
     <div id="zodiacInsightContent"></div>
   </div>
 
-  <!-- AI 종합 요약 (핵심 수 직후) -->
-  <div class="section" style="animation-delay:.14s" id="aiSummarySection">
-    <div class="section-header">
-      <div class="section-line"></div>
-      <span class="section-label">AI 종합 요약</span>
-      <div class="section-line"></div>
-    </div>
-    <div id="aiSummaryContent"></div>
-  </div>
-
   <!-- ③ 48주기 성격학 -->
-  <div class="section" style="animation-delay:.16s" id="period48Section">
+  <div class="section" style="animation-delay:.14s" id="period48Section">
     <div class="section-header">
       <div class="section-line"></div>
       <span class="section-label">48주기 성격학</span>
       <div class="section-line"></div>
     </div>
     <div id="period48Content"></div>
+  </div>
+
+  <!-- AI 종합 요약 (기질 레이어 다음) -->
+  <div class="section" style="animation-delay:.16s" id="aiSummarySection">
+    <div class="section-header">
+      <div class="section-line"></div>
+      <span class="section-label">AI 종합 요약</span>
+      <div class="section-line"></div>
+    </div>
+    <div id="aiSummaryContent"></div>
   </div>
 
   <!-- ④ 대주기 분석 -->
@@ -2520,13 +2541,12 @@
         <span id="analysisJumpTitle">바로 가기</span>
         <button type="button" class="analysis-jump-close" id="analysisJumpClose" aria-label="닫기">×</button>
       </div>
-      <div id="analysisJumpIntro" class="analysis-jump-intro" aria-label="섹션 안내"></div>
       <div class="analysis-jump-group-label">핵심 · 요약</div>
       <div class="analysis-jump-list">
         <a href="#nav-core">핵심 수</a>
-        <a href="#zodiacInsightSection">별자리 심층 해석</a>
-        <a href="#aiSummarySection">AI 종합 요약</a>
+        <a href="#zodiacInsightSection">별자리</a>
         <a href="#period48Section">48주기 성격학</a>
+        <a href="#aiSummarySection">AI 종합 요약</a>
       </div>
       <div class="analysis-jump-group-label">인생 주기</div>
       <div class="analysis-jump-list">
@@ -4052,7 +4072,7 @@ function lcPickLpOneAction(lp) {
   return LC_LP_ONE_ACTION[r] || LC_LP_ONE_ACTION[9];
 }
 
-/** 결과 상단·목차 패널에 동일하게 쓸 안내 세 문단 */
+/** 결과 상단 패널 — 의미 세 문단 */
 function buildAnalysisIntroParasHtml() {
   return `
     <p><strong>핵심 수</strong>는 이름과 생년월일을 규칙에 따라 계산해 낸 숫자 기반 해석입니다.</p>
@@ -4061,9 +4081,29 @@ function buildAnalysisIntroParasHtml() {
   `.trim();
 }
 
+/** 이 페이지에 아래로 이어지는 순서 미리 안내(불릿) */
+function buildAnalysisOutlinePreviewHtml() {
+  return `
+    <div class="lc-reading-guide-preview-block">
+      <p class="lc-reading-guide-preview-kicker">이 페이지를 아래로 내리면 이 순서로 보여요.</p>
+      <ul class="lc-reading-guide-outline">
+        <li><strong>핵심 수</strong> — 이름을 넣었다면 같은 블록 안에 <strong>통합 스토리</strong></li>
+        <li><strong>별자리</strong></li>
+        <li><strong>48주기 성격학</strong></li>
+        <li><strong>AI 종합 요약</strong></li>
+        <li><strong>대주기 분석 · 인생 4단계 · 10년 타임라인 · 월간 흐름</strong></li>
+        <li><strong>현재 흐름</strong>, <strong>AI 오늘의 메시지</strong>, <strong>향후 7일간의 에너지 흐름</strong></li>
+        <li><strong>성장 지도</strong>, <strong>로슈 격자 분석</strong></li>
+      </ul>
+      <p class="lc-reading-guide-preview-note">플랜·이름 입력에 따라 일부 카드만 열립니다. 오른쪽 <strong>목차</strong>에서 원하는 곳만 골라 갈 수 있어요.</p>
+    </div>
+  `.trim();
+}
+
 function buildReadingGuideHtml() {
   return `<div class="lc-reading-guide">
     <div class="lc-reading-guide-text">${buildAnalysisIntroParasHtml()}</div>
+    ${buildAnalysisOutlinePreviewHtml()}
   </div>`;
 }
 
@@ -4271,8 +4311,6 @@ async function runAnalysis() {
   const z = getZodiacInfo(m, d);
   const readingGuideHost = document.getElementById('analysisReadingGuide');
   if (readingGuideHost) readingGuideHost.innerHTML = buildReadingGuideHtml();
-  const jumpIntroEl = document.getElementById('analysisJumpIntro');
-  if (jumpIntroEl) jumpIntroEl.innerHTML = buildAnalysisIntroParasHtml();
   const coreLedeWrap = document.getElementById('coreReadingLede');
   if (coreLedeWrap) coreLedeWrap.innerHTML = '';
   const nameNums = nameRaw ? analyzeNameNumerology(nameRaw) : null;
@@ -4358,7 +4396,7 @@ async function runAnalysis() {
     });
   }
 
-  // ── 2. AI 종합 요약 (Basic+) ──
+  // ── 2. AI 종합 요약 (Basic+) — 레이아웃상 별자리·48주기 다음 블록
   if(hasAccess('basic')) {
     document.getElementById('aiSummaryContent').innerHTML = `<div class="ai-summary">
       <div class="ai-tag"><div class="ai-dot"></div>AI 분석 생성 중</div>
