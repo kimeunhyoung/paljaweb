@@ -3887,19 +3887,19 @@ function zodiacDateRange(signName) {
 
 function zodiacDeepProfile(signName) {
   const M = {
-    '양자리': { strong:'결단과 스타트가 빠른 추진형', caution:'성급함으로 관계 온도 놓치기 쉬움', style:'일: 먼저 시도하며 배우는 타입 · 관계: 솔직/직진형' },
-    '황소자리': { strong:'꾸준함과 감각으로 결과를 쌓는 안정형', caution:'변화 저항이 길어질 수 있음', style:'일: 루틴/완성도 강점 · 관계: 느리지만 깊은 신뢰형' },
-    '쌍둥이자리': { strong:'정보 연결·표현력이 뛰어난 소통형', caution:'흥미 분산으로 지속력이 흔들릴 수 있음', style:'일: 아이디어/기획 적합 · 관계: 대화가 통할수록 가까워짐' },
-    '게자리': { strong:'정서적 보호와 공감이 강한 케어형', caution:'감정 기복이 의사결정을 흔들 수 있음', style:'일: 팀 케어/운영 적합 · 관계: 안전감이 핵심' },
-    '사자자리': { strong:'존재감·리더십으로 분위기를 이끄는 표현형', caution:'인정 결핍이 오면 과장되기 쉬움', style:'일: 앞단/브랜딩 적합 · 관계: 따뜻하지만 자존중 필요' },
-    '처녀자리': { strong:'분석·정교함으로 품질을 높이는 개선형', caution:'완벽주의가 시작 속도를 늦출 수 있음', style:'일: 실무/디테일 강점 · 관계: 섬세하지만 기준이 높음' },
-    '천칭자리': { strong:'균형감각과 중재력의 조율형', caution:'결정 지연으로 타이밍 놓치기 쉬움', style:'일: 파트너링/협업 강점 · 관계: 공정·예의 중시' },
-    '전갈자리': { strong:'몰입·통찰로 본질을 파고드는 변혁형', caution:'의심/통제 욕구가 높아질 수 있음', style:'일: 리서치/전략 강점 · 관계: 깊고 진한 신뢰 지향' },
-    '사수자리': { strong:'확장성·낙관으로 길을 여는 탐험형', caution:'디테일 누락과 반복 회피 가능', style:'일: 기획/확장 강점 · 관계: 자유와 존중이 핵심' },
-    '염소자리': { strong:'책임감·장기전 설계의 건설형', caution:'유연성 부족으로 소통이 딱딱해질 수 있음', style:'일: 목표관리/운영 강점 · 관계: 느리지만 오래 가는 타입' },
-    '물병자리': { strong:'독창성·문제 재정의가 뛰어난 혁신형', caution:'정서적 거리감이 생기기 쉬움', style:'일: 신사업/전략 발상 강점 · 관계: 개별성 존중 필요' },
-    '물고기자리': { strong:'공감·상상력으로 의미를 확장하는 감수형', caution:'경계 약화로 소진될 수 있음', style:'일: 콘텐츠/상담 적합 · 관계: 따뜻하지만 에너지 관리 필수' },
-    '미지': { strong:'고유한 리듬을 읽는 자기탐색형', caution:'외부 기준에 과도하게 흔들릴 수 있음', style:'일/관계: 자기 기준을 먼저 세우면 안정됨' }
+    '양자리': { trait:'행동·개척', personality:'직설적이고 즉각 반응하는 스타일', strong:'결단과 스타트가 빠른 추진형', caution:'성급함으로 관계 온도 놓치기 쉬움', style:'일: 먼저 시도하며 배우는 타입 · 관계: 솔직/직진형', inner:'정체되면 답답함이 커지고 경쟁에서 동기 상승', health:'두통·염증·과로성 피로 관리, 과열 시 휴식 필요' },
+    '황소자리': { trait:'안정·축적', personality:'차분하고 현실적인 실행가', strong:'꾸준함과 감각으로 결과를 쌓는 안정형', caution:'변화 저항이 길어질 수 있음', style:'일: 루틴/완성도 강점 · 관계: 느리지만 깊은 신뢰형', inner:'안전감이 확보되면 잠재력이 크게 열림', health:'목·갑상선·순환 관리, 식습관/수면 리듬이 중요' },
+    '쌍둥이자리': { trait:'정보·소통', personality:'빠르고 영리한 멀티형', strong:'정보 연결·표현력이 뛰어난 소통형', caution:'흥미 분산으로 지속력이 흔들릴 수 있음', style:'일: 아이디어/기획 적합 · 관계: 대화가 통할수록 가까워짐', inner:'지루함이 쌓이면 동기 하락, 새로운 자극 필요', health:'호흡기·신경 피로 관리, 과한 멀티태스킹 주의' },
+    '게자리': { trait:'정서·보호', personality:'따뜻하고 섬세한 보호자', strong:'정서적 보호와 공감이 강한 케어형', caution:'감정 기복이 의사결정을 흔들 수 있음', style:'일: 팀 케어/운영 적합 · 관계: 안전감이 핵심', inner:'신뢰 관계에서 정서 안정, 상처 기억이 오래감', health:'위장·부종·감정성 식습관 관리 필요' },
+    '사자자리': { trait:'표현·존재감', personality:'당당하고 무대 체질', strong:'존재감·리더십으로 분위기를 이끄는 표현형', caution:'인정 결핍이 오면 과장되기 쉬움', style:'일: 앞단/브랜딩 적합 · 관계: 따뜻하지만 자존중 필요', inner:'인정받을 때 에너지 최대치, 무시당하면 급격히 위축', health:'심장·등·혈압 리듬 관리, 무리한 퍼포먼스 주의' },
+    '처녀자리': { trait:'정교·개선', personality:'정리정돈과 문제해결에 강함', strong:'분석·정교함으로 품질을 높이는 개선형', caution:'완벽주의가 시작 속도를 늦출 수 있음', style:'일: 실무/디테일 강점 · 관계: 섬세하지만 기준이 높음', inner:'통제 가능할 때 안정, 혼란 환경에서 불안 증폭', health:'소화·장 건강·긴장성 피로 관리' },
+    '천칭자리': { trait:'균형·조율', personality:'세련되고 관계 지향적', strong:'균형감각과 중재력의 조율형', caution:'결정 지연으로 타이밍 놓치기 쉬움', style:'일: 파트너링/협업 강점 · 관계: 공정·예의 중시', inner:'불균형 상황에서 스트레스 상승', health:'허리·신장·수분 균형 관리 필요' },
+    '전갈자리': { trait:'깊이·변혁', personality:'강렬하고 집중력 높은 타입', strong:'몰입·통찰로 본질을 파고드는 변혁형', caution:'의심/통제 욕구가 높아질 수 있음', style:'일: 리서치/전략 강점 · 관계: 깊고 진한 신뢰 지향', inner:'겉은 강하지만 배신에 민감, 신뢰 회복에 시간 필요', health:'호르몬·회복력·수면의 질 관리 중요' },
+    '사수자리': { trait:'확장·탐험', personality:'개방적이고 낙천적인 비전형', strong:'확장성·낙관으로 길을 여는 탐험형', caution:'디테일 누락과 반복 회피 가능', style:'일: 기획/확장 강점 · 관계: 자유와 존중이 핵심', inner:'의미 없는 반복에 약하고 자유도에 민감', health:'고관절·간·과활동성 피로 관리' },
+    '염소자리': { trait:'장기목표·책임', personality:'원칙적이고 실무 완결력이 높은 전략가', strong:'책임감·장기전 설계의 건설형', caution:'유연성 부족으로 소통이 딱딱해질 수 있음', style:'일: 목표관리/운영 강점 · 관계: 느리지만 오래 가는 타입', inner:'성과로 자존감을 확인하는 경향, 실패에 자기비판 강함', health:'무릎·관절·근골격 피로 누적 관리, 휴식 스케줄 필수' },
+    '물병자리': { trait:'혁신·독립', personality:'새 관점 제시가 빠른 실험가', strong:'독창성·문제 재정의가 뛰어난 혁신형', caution:'정서적 거리감이 생기기 쉬움', style:'일: 신사업/전략 발상 강점 · 관계: 개별성 존중 필요', inner:'규범 강요에 답답함, 자율성에서 창의력 상승', health:'순환·신경 긴장·수면 불균형 관리' },
+    '물고기자리': { trait:'감수·공감', personality:'부드럽고 직관적인 공감형', strong:'공감·상상력으로 의미를 확장하는 감수형', caution:'경계 약화로 소진될 수 있음', style:'일: 콘텐츠/상담 적합 · 관계: 따뜻하지만 에너지 관리 필수', inner:'타인 감정을 흡수해 피로해질 수 있어 경계 필요', health:'면역·수면·에너지 저하 관리, 회복 루틴 중요' },
+    '미지': { trait:'자기탐색', personality:'유동적이지만 적응력 높음', strong:'고유한 리듬을 읽는 자기탐색형', caution:'외부 기준에 과도하게 흔들릴 수 있음', style:'일/관계: 자기 기준을 먼저 세우면 안정됨', inner:'정체성 탐색이 핵심 과제', health:'기본 체력·수면·스트레스 루틴부터 안정화 필요' }
   };
   return M[signName] || M['미지'];
 }
@@ -3925,8 +3925,7 @@ function buildZodiacInsightHTML(zodiac, nums) {
   const lpTone = numberTone(nums.lp);
   const mnTone = numberTone(nums.mn);
   const dsTone = numberTone(nums.destiny);
-  const bridgeText = `별자리는 타고난 기질(${elem})을, 핵심 수는 현재 삶의 선택 패턴을 보여줍니다. ${nums.lp}번 인생여정수의 ${lpTone} 흐름 위에, 문 넘버 ${nums.mn}번의 ${mnTone} 반응, 운명수 ${nums.destiny}번의 ${dsTone} 표현이 겹치며 당신의 현재 스타일이 만들어집니다.`;
-  const numberSummary = `정리하면, ${signName}의 기본 기질 위에서 인생여정수는 방향(무엇을 향하는가), 문 넘버는 반응 습관(어떻게 결정하는가), 운명수는 표현 방식(밖으로 어떻게 보이는가)을 나눠 담당합니다.`;
+  const bridgeText = `${nums.lp}번 인생여정수의 ${lpTone} 흐름(인생 방향과 장기 목표) 위에, 문 넘버 ${nums.mn}번의 ${mnTone} 반응(감정 반응과 의사결정 습관), 운명수 ${nums.destiny}번의 ${dsTone} 표현(대외적 인상과 역할 수행), ${signName}의 ${profile.trait} 기질(타고난 성향)이 겹치며 현재 스타일이 만들어집니다.`;
 
   return `
     <div class="timeline-bridge">
@@ -3940,21 +3939,14 @@ function buildZodiacInsightHTML(zodiac, nums) {
       <div class="zodiac-insight-sub">분류: ${elem} 원소 · 타고난 반응 패턴 중심 해석</div>
       <div class="zodiac-insight-body">${base || '별자리 설명을 준비 중입니다.'}</div>
       <div class="zodiac-insight-keypoints">
+        <div class="zodiac-keypoint"><span class="k">성격</span>${profile.personality}</div>
         <div class="zodiac-keypoint"><span class="k">강점</span>${profile.strong}</div>
-        <div class="zodiac-keypoint"><span class="k">주의 포인트</span>${profile.caution}</div>
+        <div class="zodiac-keypoint"><span class="k">약점/주의</span>${profile.caution}</div>
+        <div class="zodiac-keypoint"><span class="k">내면세계</span>${profile.inner}</div>
       </div>
       <div class="zodiac-insight-link" style="margin-top:10px;"><strong>일·관계 스타일</strong><br>${profile.style}</div>
+      <div class="zodiac-insight-link"><strong>건강 포인트</strong><br>${profile.health}</div>
       <div class="zodiac-insight-link"><strong>숫자와의 연결</strong><br>${bridgeText}</div>
-      <div class="zodiac-insight-links">
-        <div class="zodiac-insight-link"><strong>인생여정수(${nums.lp}번)</strong><br>삶의 큰 흐름은 <b>${lpTone}</b> 쪽으로 움직입니다.</div>
-        <div class="zodiac-insight-link"><strong>문 넘버(${nums.mn}번)</strong><br>감정의 첫 반응은 <b>${mnTone}</b> 결로 나타납니다.</div>
-      </div>
-      <div class="zodiac-number-breakdown">
-        <div class="zodiac-number-item"><span class="k">인생여정수 ${nums.lp}번</span><b>${lpTone}</b> 중심으로 인생 방향과 장기 목표를 설정합니다.</div>
-        <div class="zodiac-number-item"><span class="k">문 넘버 ${nums.mn}번</span><b>${mnTone}</b> 결로 감정 반응과 의사결정 습관이 형성됩니다.</div>
-        <div class="zodiac-number-item"><span class="k">운명수 ${nums.destiny}번</span><b>${dsTone}</b> 방식으로 대외적 인상과 역할 수행이 드러납니다.</div>
-      </div>
-      <div class="zodiac-number-summary">${numberSummary}</div>
       ${deep ? `<div style="margin-top:12px;">${accordion(`✦ ${icon} ${signName} 심층 해석`, deep, false)}</div>` : ''}
     </div>`;
 }
