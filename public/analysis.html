@@ -1324,18 +1324,38 @@
       font-weight: 700;
       letter-spacing: .02em;
     }
-    .zodiac-pro-note {
+    .zodiac-number-breakdown {
       margin-top: 12px;
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+    }
+    .zodiac-number-item {
       background: rgba(46,139,122,.06);
-      border: 1px solid rgba(46,139,122,.2);
+      border: 1px solid rgba(46,139,122,.18);
       border-radius: 8px;
-      padding: 12px 14px;
+      padding: 10px 12px;
+      font-size: 12.5px;
+      line-height: 1.65;
+      color: var(--ink);
+    }
+    .zodiac-number-item .k {
+      display: block;
+      font-size: 11px;
+      color: var(--deep-brown);
+      font-weight: 700;
+      margin-bottom: 4px;
+      letter-spacing: .02em;
+    }
+    .zodiac-number-summary {
+      margin-top: 10px;
+      background: rgba(245,240,232,.85);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 11px 13px;
       font-size: 13px;
       line-height: 1.75;
       color: var(--ink);
-    }
-    .zodiac-pro-note strong {
-      color: var(--deep-brown);
     }
 
     /* 통합 스토리 (핵심 수 요약 서사) */
@@ -3884,16 +3904,6 @@ function zodiacDeepProfile(signName) {
   return M[signName] || M['미지'];
 }
 
-function zodiacProfessionalNote(signName, nums) {
-  const lpTone = numberTone(nums.lp);
-  const mnTone = numberTone(nums.mn);
-  const dsTone = numberTone(nums.destiny);
-  if (signName === '염소자리') {
-    return `염소자리는 <strong>장기 목표 설계·책임의 완주력</strong>이 핵심 자산입니다. 단기 성과보다 구조와 지속성을 우선할 때 강점이 극대화됩니다. 특히 인생여정수 ${nums.lp}번(${lpTone})과 결합하면 ‘방향 설정’, 문 넘버 ${nums.mn}번(${mnTone})은 ‘의사결정 습관’, 운명수 ${nums.destiny}번(${dsTone})은 ‘대외 표현 방식’으로 작동합니다. 실무에서는 목표를 분기 단위로 쪼개고, 관계에서는 감정 언어를 조금 더 전면에 두면 리더십이 더 신뢰형으로 보입니다.`;
-  }
-  return `이 별자리의 기질은 핵심 수와 결합될 때 실제 행동 패턴으로 드러납니다. 인생여정수(${nums.lp}번)는 큰 방향, 문 넘버(${nums.mn}번)는 감정 반응, 운명수(${nums.destiny}번)는 외부 표현을 맡아 서로 보완합니다.`;
-}
-
 function numberTone(n) {
   if ([1,8,22].includes(n)) return '추진·실행';
   if ([2,6,33].includes(n)) return '관계·돌봄';
@@ -3909,7 +3919,6 @@ function buildZodiacInsightHTML(zodiac, nums) {
   const icon = zodiac?.i || '✨';
   const range = zodiacDateRange(signName);
   const profile = zodiacDeepProfile(signName);
-  const proNote = zodiacProfessionalNote(signName, nums);
   const base = coreInsightBody(ZODIAC_CORE_DESC[signName] || zodiac?.t || '');
   const deep = ACCORDION_ZODIAC?.[signName] || '';
   const elem = zodiacElement(signName);
@@ -3917,6 +3926,7 @@ function buildZodiacInsightHTML(zodiac, nums) {
   const mnTone = numberTone(nums.mn);
   const dsTone = numberTone(nums.destiny);
   const bridgeText = `별자리는 타고난 기질(${elem})을, 핵심 수는 현재 삶의 선택 패턴을 보여줍니다. ${nums.lp}번 인생여정수의 ${lpTone} 흐름 위에, 문 넘버 ${nums.mn}번의 ${mnTone} 반응, 운명수 ${nums.destiny}번의 ${dsTone} 표현이 겹치며 당신의 현재 스타일이 만들어집니다.`;
+  const numberSummary = `정리하면, ${signName}의 기본 기질 위에서 인생여정수는 방향(무엇을 향하는가), 문 넘버는 반응 습관(어떻게 결정하는가), 운명수는 표현 방식(밖으로 어떻게 보이는가)을 나눠 담당합니다.`;
 
   return `
     <div class="timeline-bridge">
@@ -3939,7 +3949,12 @@ function buildZodiacInsightHTML(zodiac, nums) {
         <div class="zodiac-insight-link"><strong>인생여정수(${nums.lp}번)</strong><br>삶의 큰 흐름은 <b>${lpTone}</b> 쪽으로 움직입니다.</div>
         <div class="zodiac-insight-link"><strong>문 넘버(${nums.mn}번)</strong><br>감정의 첫 반응은 <b>${mnTone}</b> 결로 나타납니다.</div>
       </div>
-      <div class="zodiac-pro-note"><strong>전문 해설</strong><br>${proNote}</div>
+      <div class="zodiac-number-breakdown">
+        <div class="zodiac-number-item"><span class="k">인생여정수 ${nums.lp}번</span><b>${lpTone}</b> 중심으로 인생 방향과 장기 목표를 설정합니다.</div>
+        <div class="zodiac-number-item"><span class="k">문 넘버 ${nums.mn}번</span><b>${mnTone}</b> 결로 감정 반응과 의사결정 습관이 형성됩니다.</div>
+        <div class="zodiac-number-item"><span class="k">운명수 ${nums.destiny}번</span><b>${dsTone}</b> 방식으로 대외적 인상과 역할 수행이 드러납니다.</div>
+      </div>
+      <div class="zodiac-number-summary">${numberSummary}</div>
       ${deep ? `<div style="margin-top:12px;">${accordion(`✦ ${icon} ${signName} 심층 해석`, deep, false)}</div>` : ''}
     </div>`;
 }
