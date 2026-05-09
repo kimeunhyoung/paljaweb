@@ -904,46 +904,77 @@
       line-height: 1.72;
       color: var(--muted);
     }
-    .lc-reading-guide-text {
-      font-size: 13px;
-      line-height: 1.78;
-      color: var(--ink);
+    .lc-reading-guide-catalog {
       margin: 0;
     }
-    .lc-reading-guide-text p { margin: 0 0 10px; }
-    .lc-reading-guide-text p:last-child { margin-bottom: 0; }
-    .lc-reading-guide-preview-block {
-      margin: 14px 0 0;
-      padding-top: 14px;
-      border-top: 1px dashed rgba(139,111,71,.38);
-      font-size: 12.75px;
-      line-height: 1.72;
-      color: var(--muted);
-    }
-    .lc-reading-guide-preview-block strong {
-      color: var(--deep-brown);
-      font-weight: 600;
-    }
-    .lc-reading-guide-preview-kicker {
-      margin: 0 0 8px;
+    .lc-guide-catalog-kicker {
+      margin: 0 0 12px;
       font-size: 12px;
       font-weight: 700;
       color: var(--deep-brown);
       letter-spacing: .02em;
     }
-    .lc-reading-guide-outline {
+    .lc-guide-row {
+      display: grid;
+      grid-template-columns: minmax(0, 168px) 1fr;
+      gap: 8px 16px;
+      align-items: start;
+      padding: 11px 0;
+      border-bottom: 1px solid rgba(45,38,28,.085);
+    }
+    .lc-guide-row:last-child { border-bottom: none; }
+    .lc-guide-nav {
+      font-size: 13px;
+      line-height: 1.46;
+      color: var(--deep-brown);
+    }
+    .lc-guide-link {
+      display: inline;
+      font-weight: 700;
+      color: var(--deep-brown);
+      text-decoration: underline;
+      text-decoration-thickness: 1px;
+      text-underline-offset: 4px;
+      text-decoration-color: rgba(139,111,71,.42);
+      border-radius: 3px;
+    }
+    .lc-guide-link:visited { color: var(--deep-brown); }
+    .lc-guide-link:hover {
+      color: var(--teal);
+      text-decoration-color: rgba(46,139,122,.42);
+    }
+    .lc-guide-link:focus-visible {
+      outline: 2px solid var(--teal);
+      outline-offset: 2px;
+    }
+    .lc-guide-multi-sep {
+      color: var(--muted);
+      font-weight: 500;
+      text-decoration: none;
+    }
+    .lc-guide-multi .lc-guide-link {
+      white-space: nowrap;
+    }
+    .lc-guide-desc {
       margin: 0;
-      padding-left: 18px;
-      font-size: 12.75px;
-      line-height: 1.62;
+      font-size: 13px;
+      line-height: 1.73;
       color: var(--ink);
     }
-    .lc-reading-guide-outline > li + li { margin-top: 5px; }
-    .lc-reading-guide-preview-note {
-      margin: 10px 0 0;
+    .lc-guide-catalog-footnote {
+      margin: 14px 0 0;
+      padding-top: 12px;
+      border-top: 1px dashed rgba(139,111,71,.38);
       font-size: 12px;
       line-height: 1.65;
       color: var(--muted);
+    }
+    @media(max-width: 560px) {
+      .lc-guide-row {
+        grid-template-columns: 1fr;
+        gap: 4px;
+        padding: 13px 0;
+      }
     }
     .lc-core-lede {
       margin: 12px 0 18px;
@@ -4072,38 +4103,61 @@ function lcPickLpOneAction(lp) {
   return LC_LP_ONE_ACTION[r] || LC_LP_ONE_ACTION[9];
 }
 
-/** 결과 상단 패널 — 의미 세 문단 */
-function buildAnalysisIntroParasHtml() {
+function lcReadingGuideCatalogRow(navHtml, descriptionHtml) {
   return `
-    <p><strong>핵심 수</strong>는 이름과 생년월일을 규칙에 따라 계산해 낸 숫자 기반 해석입니다.</p>
-    <p><strong>별자리</strong>와 <strong>48주기 성격학</strong>은 같은 사람을 다른 언어로 풀어 주는 기질 해석이에요(별자리는 넓게, 48주기는 같은 생월·생일을 좁게).</p>
-    <p><strong>통합 스토리</strong>(이름 입력 시)와 AI 요약을 함께 보면 위 내용을 한 줄기로 묶어 읽어 보실 수 있습니다.</p>
-  `.trim();
+    <div class="lc-guide-row">
+      <div class="lc-guide-nav">${navHtml}</div>
+      <p class="lc-guide-desc">${descriptionHtml}</p>
+    </div>`;
 }
 
-/** 이 페이지에 아래로 이어지는 순서 미리 안내(불릿) */
-function buildAnalysisOutlinePreviewHtml() {
-  return `
-    <div class="lc-reading-guide-preview-block">
-      <p class="lc-reading-guide-preview-kicker">이 페이지를 아래로 내리면 이 순서로 보여요.</p>
-      <ul class="lc-reading-guide-outline">
-        <li><strong>핵심 수</strong> — 이름을 넣었다면 같은 블록 안에 <strong>통합 스토리</strong></li>
-        <li><strong>별자리</strong></li>
-        <li><strong>48주기 성격학</strong></li>
-        <li><strong>AI 종합 요약</strong></li>
-        <li><strong>대주기 분석 · 인생 4단계 · 10년 타임라인 · 월간 흐름</strong></li>
-        <li><strong>현재 흐름</strong>, <strong>AI 오늘의 메시지</strong>, <strong>향후 7일간의 에너지 흐름</strong></li>
-        <li><strong>성장 지도</strong>, <strong>로슈 격자 분석</strong></li>
-      </ul>
-      <p class="lc-reading-guide-preview-note">플랜·이름 입력에 따라 일부 카드만 열립니다. 오른쪽 <strong>목차</strong>에서 원하는 곳만 골라 갈 수 있어요.</p>
-    </div>
-  `.trim();
-}
-
+/** 결과 상단 패널: 클릭 시 해당 섹션으로 스크롤 + 옆 요약 설명 */
 function buildReadingGuideHtml() {
   return `<div class="lc-reading-guide">
-    <div class="lc-reading-guide-text">${buildAnalysisIntroParasHtml()}</div>
-    ${buildAnalysisOutlinePreviewHtml()}
+    <div class="lc-reading-guide-catalog" role="navigation" aria-label="이 페이지 섹션 안내">
+      <p class="lc-guide-catalog-kicker">아래 순서와 같습니다. 항목 이름을 누르면 해당 섹션으로 스크롤됩니다.</p>
+      ${lcReadingGuideCatalogRow(
+        `<a href="#nav-core" class="lc-guide-link"><strong>핵심 수</strong></a>`,
+        `핵심 수는 이름과 생년월일을 규칙에 따라 계산해 낸 숫자 기반 해석입니다. 이름을 입력했다면 같은 구역 안에서 <strong>통합 스토리</strong>(겉과 속·길)도 연결되어 보입니다.`,
+      )}
+      ${lcReadingGuideCatalogRow(
+        `<a href="#zodiacInsightSection" class="lc-guide-link"><strong>별자리</strong></a>`,
+        `별자리와 48주기 성격학은 같은 사람을 다른 언어로 풀어 주는 기질 해석이에요. 그중 별자리는 생일을 <strong>넓게</strong>(12등분 기준으로) 읽는 쪽입니다.`,
+      )}
+      ${lcReadingGuideCatalogRow(
+        `<a href="#period48Section" class="lc-guide-link"><strong>48주기 성격학</strong></a>`,
+        `위와 같은 기질 언어 흐름 안에서 같은 생월·생일을 <strong>더 좁게</strong>(48개 구간) 풀어 주는 패턴입니다.`,
+      )}
+      ${lcReadingGuideCatalogRow(
+        `<a href="#aiSummarySection" class="lc-guide-link"><strong>AI 종합 요약</strong></a>`,
+        `통합 스토리(이름 입력 시)와 AI 요약을 함께 보면 위 내용을 한 줄기로 묶어 읽어 보실 수 있습니다. 이 코너는 AI 한 단락 요약이에요.`,
+      )}
+      ${lcReadingGuideCatalogRow(
+        `<div class="lc-guide-multi">
+        <a href="#nav-major-cycle" class="lc-guide-link"><strong>대주기 분석</strong></a><span class="lc-guide-multi-sep"> · </span>
+        <a href="#nav-life-four" class="lc-guide-link"><strong>인생 4단계</strong></a><span class="lc-guide-multi-sep"> · </span>
+        <a href="#timelineSection" class="lc-guide-link"><strong>10년 타임라인</strong></a><span class="lc-guide-multi-sep"> · </span>
+        <a href="#monthlySection" class="lc-guide-link"><strong>월간 흐름</strong></a>
+      </div>`,
+        `생일 숫자를 바탕으로 인생의 큰 호흡, 네 단계 요약, 앞선 10개 연도 줄기, 한 해 월별 리듬을 차례로 봅니다.`,
+      )}
+      ${lcReadingGuideCatalogRow(
+        `<div class="lc-guide-multi">
+        <a href="#nav-flow" class="lc-guide-link"><strong>현재 흐름</strong></a><span class="lc-guide-multi-sep">, </span>
+        <a href="#aiTodaySection" class="lc-guide-link"><strong>AI 오늘의 메시지</strong></a><span class="lc-guide-multi-sep">, </span>
+        <a href="#weeklyForecastSection" class="lc-guide-link"><strong>향후 7일간의 에너지 흐름</strong></a>
+      </div>`,
+        `오늘이 놓인 올해·이번 달·오늘의 수를 카드로 보고, Pro 플랜에서는 AI 한 줄 오늘의 메시지와 앞선 7일의 일별 에너지 표까지 이어집니다.`,
+      )}
+      ${lcReadingGuideCatalogRow(
+        `<div class="lc-guide-multi">
+        <a href="#growthSection" class="lc-guide-link"><strong>성장 지도</strong></a><span class="lc-guide-multi-sep">, </span>
+        <a href="#loshuSection" class="lc-guide-link"><strong>로슈 격자 분석</strong></a>
+      </div>`,
+        `생일에 빠져 있는 숫자·격자 패턴으로 성장 포인트를 읽어볼 수 있습니다.`,
+      )}
+      <p class="lc-guide-catalog-footnote">플랜·이름 입력에 따라 카드 일부만 열릴 수 있어요. 오른쪽 <strong>목차</strong>(바로 가기)에서도 동일하게 이동할 수 있습니다.</p>
+    </div>
   </div>`;
 }
 
