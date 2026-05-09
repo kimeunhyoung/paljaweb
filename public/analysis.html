@@ -971,6 +971,11 @@
       line-height: 1.62;
       color: var(--ink);
     }
+    .lc-guide-tier-needed {
+      color: var(--warm-brown);
+      font-weight: 700;
+      letter-spacing: .02em;
+    }
     .lc-guide-catalog-footnote {
       margin: 11px 0 0;
       padding-top: 10px;
@@ -4130,6 +4135,13 @@ function lcReadingGuideCatalogRow(navHtml, descriptionHtml) {
     </div>`;
 }
 
+/** 목차 줄 앞머리: 현재 플랜으로 열 수 없으면 필요 티어 표시 (호출 시점에 USER_PLAN·hasAccess 반영) */
+function lcGuideTierPrefix(required) {
+  if (DEV_UNLOCK_PAID || hasAccess(required)) return '';
+  const label = required === 'pro' ? 'Pro' : 'Basic';
+  return `<strong class="lc-guide-tier-needed">${label} 필요</strong> · `;
+}
+
 /** 결과 상단 패널: 클릭 시 해당 섹션으로 스크롤 + 옆 요약 설명 */
 function buildReadingGuideHtml() {
   return `<div class="lc-reading-guide">
@@ -4149,7 +4161,7 @@ function buildReadingGuideHtml() {
       )}
       ${lcReadingGuideCatalogRow(
         `<a href="#aiSummarySection" class="lc-guide-link"><strong>AI 종합 요약</strong></a>`,
-        `상위 수비학·보조 레이어를 한 단락으로 재구성한 생성형 요약(참고용 서술 레이어).`,
+        `${lcGuideTierPrefix('basic')}상위 수비학·보조 레이어를 한 단락으로 재구성한 생성형 요약(참고용 서술 레이어).`,
       )}
       ${lcReadingGuideCatalogRow(
         `<a href="#nav-major-cycle" class="lc-guide-link"><strong>대주기 분석</strong></a>`,
@@ -4161,11 +4173,11 @@ function buildReadingGuideHtml() {
       )}
       ${lcReadingGuideCatalogRow(
         `<a href="#timelineSection" class="lc-guide-link"><strong>10년 타임라인</strong></a>`,
-        `개인년도(Personal Year) 시퀀스 기준 약 10년 연도별 에너지 카드.`,
+        `${lcGuideTierPrefix('basic')}개인년도(Personal Year) 시퀀스 기준 약 10년 연도별 에너지 카드.`,
       )}
       ${lcReadingGuideCatalogRow(
         `<a href="#monthlySection" class="lc-guide-link"><strong>월간 흐름</strong></a>`,
-        `선택 연도 안에서 월별 퍼스널 먼스(Personal Month) 리듬.`,
+        `${lcGuideTierPrefix('basic')}선택 연도 안에서 월별 퍼스널 먼스(Personal Month) 리듬.`,
       )}
       ${lcReadingGuideCatalogRow(
         `<a href="#nav-flow" class="lc-guide-link"><strong>현재 흐름</strong></a>`,
@@ -4173,21 +4185,21 @@ function buildReadingGuideHtml() {
       )}
       ${lcReadingGuideCatalogRow(
         `<a href="#aiTodaySection" class="lc-guide-link"><strong>AI 오늘의 메시지</strong></a>`,
-        `Pro 전용. 당일 맥락을 한 줄로 압축한 언어 모델 브리프.`,
+        `${lcGuideTierPrefix('pro')}당일 맥락을 한 줄로 압축한 언어 모델 브리프.`,
       )}
       ${lcReadingGuideCatalogRow(
         `<a href="#weeklyForecastSection" class="lc-guide-link"><strong>향후 7일간의 에너지 흐름</strong></a>`,
-        `Pro 전용. 단기 에너지를 일 단위 매트릭스로 표시.`,
+        `전 플랜. 일별 일간 수·가이드를 표 형태로 표시.`,
       )}
       ${lcReadingGuideCatalogRow(
         `<a href="#growthSection" class="lc-guide-link"><strong>성장 지도</strong></a>`,
-        `생년월일 자리 분포의 결손·과다 숫자로 보는 보완·성장 초점.`,
+        `${lcGuideTierPrefix('basic')}생년월일 자리 분포의 결손·과다 숫자로 보는 보완·성장 초점.`,
       )}
       ${lcReadingGuideCatalogRow(
         `<a href="#loshuSection" class="lc-guide-link"><strong>로슈 격자 분석</strong></a>`,
-        `로슈 매직 스퀘어(九宫) 패턴으로 보는 균형·강약 분포.`,
+        `${lcGuideTierPrefix('pro')}로슈 매직 스퀘어(九宫) 패턴으로 보는 균형·강약 분포.`,
       )}
-      <p class="lc-guide-catalog-footnote">플랜·이름 입력 여부에 따라 일부 카드 미표시. 우측 목차에서 동일 앵커 이동.</p>
+      <p class="lc-guide-catalog-footnote">현재 플랜으로 바로 보기 어려운 모듈은 설명 앞에 <strong class="lc-guide-tier-needed">Basic 필요</strong> 또는 <strong class="lc-guide-tier-needed">Pro 필요</strong>가 붙습니다. 이름 입력·플랜에 따라 아래 카드 일부 미표시. 우측 목차에서 동일 앵커 이동.</p>
     </div>
   </div>`;
 }
