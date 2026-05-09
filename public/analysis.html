@@ -4033,13 +4033,13 @@ function lcPickLpOneAction(lp) {
 
 function buildReadingGuideHtml() {
   return `<div class="lc-reading-guide">
-    <div class="lc-reading-guide-title">더 와 닿게 읽기</div>
+    <div class="lc-reading-guide-title">이 결과 읽기</div>
     <ol class="lc-reading-guide-steps">
-      <li><strong>아래쪽 별자리</strong>로 큰 성향 프레임을 잡습니다.</li>
-      <li>이어 <strong>48주기 성격학</strong>으로 생월·생일 속 더 세밀한 성향 패턴을 봅니다.</li>
-      <li><strong>핵심 수·통합 스토리</strong>로 위 감각이 숫자로 어떻게 이어지는지 맞춰 봅니다.</li>
+      <li><strong>핵심 수</strong>는 이름과 생년월일을 규칙에 따라 줄인 수치라 이 서비스의 <strong>계산 결과 중심</strong>입니다.</li>
+      <li><strong>별자리</strong>는 12등분 기질, <strong>48주기</strong>는 생월·생일을 더 촘촘히 적은 패턴이라 <strong>같은 사람을 다른 언어로 풀어 주는 참고</strong>에 가깝습니다.</li>
+      <li>원하실 때 <strong>통합 스토리</strong>(이름 입력 시)와 AI 요약으로 위 내용들을 하나의 줄기로 묶어 보실 수 있습니다.</li>
     </ol>
-    <p class="lc-reading-guide-note">별자리와 48주기는 시간이 바뀌는 해석이라기보다, <strong>같은 생일을 넓게·좁게</strong> 읽은 두 단계예요.</p>
+    <p class="lc-reading-guide-note">무엇이 다른 것보다 “더 우선해야” 하는 순위 구조가 아니라, <strong>겹치는 말과 다른 말 모두</strong>를 힌트로 삼는 방식이라고 보시면 됩니다.</p>
   </div>`;
 }
 
@@ -4086,8 +4086,8 @@ function buildZodiacInsightHTML(zodiac, nums) {
 
   return `
     <div class="timeline-bridge">
-      <p><strong>핵심 수</strong>가 구조 계산이라면, 별자리는 같은 사람을 <strong>어떤 분위기·기질</strong>로 받아들이기 쉬운지 이어 줍니다.</p>
-      <p>바로 다음 <strong>48주기 성격학</strong>은 생월·생일을 더 촘촘한 타입으로 읽어 주는 레이어라서, 둘이 겹치는지부터 보시면 되고 <strong>${escapeHtml(signName)}</strong> 안에서도 디테일이 달라질 수 있습니다.</p>
+      <p><strong>핵심 수</strong>와 <strong>별자리</strong> 중 하나가 무조건 “더 우선해야” 하는 구조가 아니에요.</p>
+      <p><strong>핵심 수</strong>는 이름과 생년월일을 규칙에 따라 숫자로 정리해 둔 축이고, <strong>별자리</strong>와 이어서 보게 될 <strong>48주기</strong>는 같은 사람을 <strong>기질 언어</strong>(넓게·좁게)로 읽는 참고예요.</p>
     </div>
     ${zodiacLede}
     <div class="zodiac-insight-panel">
@@ -4253,7 +4253,7 @@ async function runAnalysis() {
   if (readingGuideHost) readingGuideHost.innerHTML = buildReadingGuideHtml();
   const coreLedeWrap = document.getElementById('coreReadingLede');
   if (coreLedeWrap) {
-    coreLedeWrap.innerHTML = `<div class="lc-core-lede"><strong>읽기 팁:</strong> 감부터 잡고 싶다면 위 목차에서 <strong>별자리 심층 해석 · 48주기 성격학</strong>을 먼저 보고 오셔도 되고, 근거부터 보고 싶다면 이 카드 숫자부터 훑어도 됩니다.</div>`;
+    coreLedeWrap.innerHTML = `<div class="lc-core-lede"><strong>읽기 팁:</strong> 이 분석에서는 <strong>핵심 수</strong>가 계산의 중심이에요. <strong>별자리·48주기</strong>는 같은 사람을 기질·생일 디테일 언어로 덧설명합니다. 무엇이 위가 아니라, 읽기 쉬운 블록부터 순서만 정하시면 됩니다.</div>`;
   }
   const nameNums = nameRaw ? analyzeNameNumerology(nameRaw) : null;
   const destinyNum = nameNums?.expression || null; // 운명수(=표현수)
@@ -5171,7 +5171,7 @@ function renderPeriod48(m, d) {
   el.innerHTML = `
     <div class="period48-card">
       <div class="timeline-bridge">
-        <p><strong>${escapeHtml(zn)}</strong>는 넓은 분류이고, 같은 생월·생일을 <strong>${escapeHtml(String(p.name))}</strong>으로 한 번 더 촘촘히 읽은 값이에요. 둘이 다르더라도 한 사람의 <strong>두 층(넓음·좁음)</strong>으로 함께 보면 됩니다.</p>
+        <p><strong>${escapeHtml(zn)}</strong>(12등분)과 <strong>${escapeHtml(String(p.name))}</strong>(생일 디테일)은 순위 차이 없이 같은 사람을 서로 다른 기준으로 펼친 레이어예요. 위쪽 <strong>핵심 수</strong>와도 서로 교체하지 않고, 무엇이 더 맞는지만 골라 가져가시면 됩니다.</p>
       </div>
       <p class="lc-lede"><strong>한 줄 요약</strong>: <strong>${escapeHtml(String(p.title))}</strong>${kwJoin ? ` · ${kwJoin}` : ''}</p>
       <div class="period48-header">
