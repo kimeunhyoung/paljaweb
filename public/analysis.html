@@ -317,7 +317,7 @@
       right: 16px;
       bottom: 82px;
       width: min(320px, calc(100vw - 32px));
-      max-height: min(420px, 62vh);
+      max-height: min(520px, 72vh);
       overflow: auto;
       z-index: 165;
       background: var(--cream);
@@ -364,6 +364,18 @@
       border-radius: 6px;
     }
     .analysis-jump-close:hover { color: var(--deep-brown); }
+    .analysis-jump-intro {
+      font-size: 12.5px;
+      line-height: 1.72;
+      color: var(--ink);
+      margin: 0;
+      padding: 12px 16px 14px;
+      border-bottom: 1px solid var(--border);
+      background: rgba(248,245,238,.42);
+    }
+    .analysis-jump-intro p { margin: 0 0 8px; font-size: 12.5px; line-height: 1.72; }
+    .analysis-jump-intro p:last-child { margin-bottom: 0; }
+    .analysis-jump-intro strong { color: var(--deep-brown); font-weight: 600; }
     .analysis-jump-group-label {
       font-size: 11px;
       font-weight: 700;
@@ -2508,6 +2520,7 @@
         <span id="analysisJumpTitle">바로 가기</span>
         <button type="button" class="analysis-jump-close" id="analysisJumpClose" aria-label="닫기">×</button>
       </div>
+      <div id="analysisJumpIntro" class="analysis-jump-intro" aria-label="섹션 안내"></div>
       <div class="analysis-jump-group-label">핵심 · 요약</div>
       <div class="analysis-jump-list">
         <a href="#nav-core">핵심 수</a>
@@ -4039,13 +4052,18 @@ function lcPickLpOneAction(lp) {
   return LC_LP_ONE_ACTION[r] || LC_LP_ONE_ACTION[9];
 }
 
+/** 결과 상단·목차 패널에 동일하게 쓸 안내 세 문단 */
+function buildAnalysisIntroParasHtml() {
+  return `
+    <p><strong>핵심 수</strong>는 이름과 생년월일을 규칙에 따라 계산해 낸 숫자 기반 해석입니다.</p>
+    <p><strong>별자리</strong>와 <strong>48주기 성격학</strong>은 같은 사람을 다른 언어로 풀어 주는 기질 해석이에요(별자리는 넓게, 48주기는 같은 생월·생일을 좁게).</p>
+    <p><strong>통합 스토리</strong>(이름 입력 시)와 AI 요약을 함께 보면 위 내용을 한 줄기로 묶어 읽어 보실 수 있습니다.</p>
+  `.trim();
+}
+
 function buildReadingGuideHtml() {
   return `<div class="lc-reading-guide">
-    <div class="lc-reading-guide-text">
-      <p><strong>핵심 수</strong>는 이름과 생년월일을 규칙에 따라 계산해 낸 숫자 기반 해석입니다.</p>
-      <p><strong>별자리</strong>와 <strong>48주기 성격학</strong>은 같은 사람을 다른 언어로 풀어 주는 기질 해석이에요(별자리는 넓게, 48주기는 같은 생월·생일을 좁게).</p>
-      <p><strong>통합 스토리</strong>(이름 입력 시)와 AI 요약을 함께 보면 위 내용을 한 줄기로 묶어 읽어 보실 수 있습니다.</p>
-    </div>
+    <div class="lc-reading-guide-text">${buildAnalysisIntroParasHtml()}</div>
   </div>`;
 }
 
@@ -4253,6 +4271,8 @@ async function runAnalysis() {
   const z = getZodiacInfo(m, d);
   const readingGuideHost = document.getElementById('analysisReadingGuide');
   if (readingGuideHost) readingGuideHost.innerHTML = buildReadingGuideHtml();
+  const jumpIntroEl = document.getElementById('analysisJumpIntro');
+  if (jumpIntroEl) jumpIntroEl.innerHTML = buildAnalysisIntroParasHtml();
   const coreLedeWrap = document.getElementById('coreReadingLede');
   if (coreLedeWrap) coreLedeWrap.innerHTML = '';
   const nameNums = nameRaw ? analyzeNameNumerology(nameRaw) : null;
