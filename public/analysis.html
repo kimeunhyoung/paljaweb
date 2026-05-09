@@ -872,6 +872,87 @@
     .timeline-bridge p { margin: 0 0 10px 0; }
     .timeline-bridge p:last-child { margin-bottom: 0; }
     .timeline-bridge strong { color: var(--deep-brown); }
+
+    /* 읽기 흐름 · 한 줄 요약 · 실천 한 가지 */
+    .lc-reading-guide {
+      margin-bottom: 20px;
+      padding: 16px 18px;
+      background: rgba(255,251,243,.94);
+      border: 1px solid var(--border);
+      border-radius: 11px;
+      border-left: 3px solid var(--accent);
+    }
+    .lc-reading-guide-title {
+      font-family: var(--font-body);
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: .04em;
+      color: var(--deep-brown);
+      margin: 0 0 10px;
+    }
+    .lc-reading-guide-steps {
+      margin: 0 0 10px;
+      padding-left: 18px;
+      font-size: 13px;
+      line-height: 1.72;
+      color: var(--ink);
+    }
+    .lc-reading-guide-steps li + li { margin-top: 4px; }
+    .lc-reading-guide-note {
+      margin: 0;
+      font-size: 12.5px;
+      line-height: 1.72;
+      color: var(--muted);
+    }
+    .lc-core-lede {
+      margin: 12px 0 18px;
+      padding: 12px 14px;
+      background: rgba(46,139,122,.06);
+      border: 1px solid rgba(46,139,122,.22);
+      border-radius: 10px;
+      font-size: 13px;
+      line-height: 1.76;
+      color: var(--ink);
+    }
+    .lc-lede {
+      margin: 0 0 14px;
+      padding: 12px 14px;
+      background: rgba(200,169,110,.07);
+      border: 1px solid rgba(200,169,110,.26);
+      border-radius: 10px;
+      font-size: 14px;
+      line-height: 1.75;
+      color: var(--ink);
+    }
+    .lc-life-hint {
+      margin-top: 16px;
+      padding: 11px 14px;
+      background: rgba(245,240,232,.82);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      font-size: 13px;
+      line-height: 1.74;
+      color: var(--ink);
+    }
+    .lc-action-tip {
+      margin-top: 16px;
+      padding: 12px 15px;
+      background: rgba(46,139,122,.055);
+      border: 1px solid rgba(46,139,122,.22);
+      border-radius: 10px;
+      font-size: 13px;
+      line-height: 1.75;
+      color: var(--ink);
+    }
+    .lc-action-tip-label {
+      display: block;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: .05em;
+      color: var(--teal);
+      margin-bottom: 6px;
+    }
+    .period48-card > .timeline-bridge { margin-bottom: 14px; }
     .timeline-hint {
       font-size: 12px;
       line-height: 1.65;
@@ -2257,6 +2338,7 @@
 
 <!-- RESULT AREA -->
 <div class="content" id="resultArea" style="display:none;">
+  <div id="analysisReadingGuide" class="analysis-reading-guide-host" aria-label="결과 읽는 순서"></div>
 
   <!-- ① 핵심 수 -->
   <div class="section" style="animation-delay:.1s" id="nav-core">
@@ -2265,6 +2347,7 @@
       <span class="section-label">핵심 수</span>
       <div class="section-line"></div>
     </div>
+    <div id="coreReadingLede"></div>
     <div class="core-grid" id="coreGrid"></div>
     <div class="core-accordion-wrap" id="coreAccordion"></div>
     <div id="integratedStorySection" class="integrated-story-wrap" style="display:none;">
@@ -3923,6 +4006,56 @@ function numberTone(n) {
   return '균형';
 }
 
+/** 통합 스토리 마지막 · 인생여정수 기준 실천 한 줄 */
+const LC_LP_ONE_ACTION = {
+  1: '처음이라도 오늘은 한 가지 결정만 내리고, 그대로 진행 구간까지 밀어보세요.',
+  2: '한 사람에게 먼저 말부터 건네고, 혼자 끝까지 해결해야 한다는 압력은 잠깐 덜어보세요.',
+  3: '짧은 말 한 줄이나 초안 한 장으로 표현 하나를 만들고 오늘 안에 마침표를 찍어 보세요.',
+  4: '집중 블록 30분만 잡고, 가장 무거운 일 하나부터 두드려 보세요.',
+  5: '새로운 자극을 줄 때는 시간·예산 한도를 아주 작게 넣어 시험 규모로만 접해 보세요.',
+  6: '먼저 나를 한 줄 체크한 뒤, 오늘은 마음속 거절 문장 하나를 허용해 보세요.',
+  7: '스크린을 15~20분만 줄이고, 메모 한 장으로 머릿속을 솔직하게 정리해 보세요.',
+  8: '작은 과제 하나에 마감 시각까지 적어 두고, 오늘이 끝나기 전 끝내려 노력해 보세요.',
+  9: '일을 더하지 말고, 오늘의 우선순위 세 개 안으로 줄여 보세요.',
+  11: '근거가 불명확해도 몸 신호 하나를 믿되, 결과는 다음 날로 미룰 수 있다고 허용해 보세요.',
+  22: '큰 목표 하나를 두 단계로만 쪼개서, 오늘은 첫 번째 블록만 만지도록 하세요.',
+  33: '말의 속도를 반으로 줄이고, 같은 내용이라도 받는 사람에게 맞춘 표현 하나를 더해 보세요.',
+};
+
+function lcPickLpOneAction(lp) {
+  const n = Number(lp);
+  if (!Number.isFinite(n)) return LC_LP_ONE_ACTION[9];
+  const direct = LC_LP_ONE_ACTION[n];
+  if (direct) return direct;
+  const r = reduceToSingle(n);
+  return LC_LP_ONE_ACTION[r] || LC_LP_ONE_ACTION[9];
+}
+
+function buildReadingGuideHtml() {
+  return `<div class="lc-reading-guide">
+    <div class="lc-reading-guide-title">더 와 닿게 읽기</div>
+    <ol class="lc-reading-guide-steps">
+      <li><strong>아래쪽 별자리</strong>로 큰 성향 프레임을 잡습니다.</li>
+      <li>이어 <strong>48주기 성격학</strong>으로 생월·생일 속 더 세밀한 성향 패턴을 봅니다.</li>
+      <li><strong>핵심 수·통합 스토리</strong>로 위 감각이 숫자로 어떻게 이어지는지 맞춰 봅니다.</li>
+    </ol>
+    <p class="lc-reading-guide-note">별자리와 48주기는 시간이 바뀌는 해석이라기보다, <strong>같은 생일을 넓게·좁게</strong> 읽은 두 단계예요.</p>
+  </div>`;
+}
+
+function buildP48LifeHint(p) {
+  const kws = Array.isArray(p.keywords) ? p.keywords : [];
+  const k = kws[0] ? String(kws[0]) : '균형';
+  if (p.cusp) return `두 기운 사이에서는 <strong>${escapeHtml(k)}</strong> 쪽 선택이 들어왔을 때, 천천히 한 번 더 점검하는 습관이 부담을 줄입니다.`;
+  return `일상에서 감정이 격해지면 오늘은 <strong>${escapeHtml(k)}</strong>을 우선 순위 하나로 줄여 선택해 보는 연습을 해 보세요.`;
+}
+
+function buildP48MiniAction(p) {
+  const kws = Array.isArray(p.keywords) ? p.keywords : [];
+  const k = kws[0] ? String(kws[0]) : '균형';
+  return `'${escapeHtml(k)}'을(를) 하나만 골라, 오늘 한 번만 의식해서 살아가 보세요.`;
+}
+
 function buildZodiacInsightHTML(zodiac, nums) {
   const signName = zodiac?.n || '미지';
   const icon = zodiac?.i || '✨';
@@ -3949,11 +4082,14 @@ function buildZodiacInsightHTML(zodiac, nums) {
       ${deep ? `<div class="zodiac-insight-deep-block">${deep}</div>` : ''}
     `;
 
+  const zodiacLede = `<p class="lc-lede"><strong>${escapeHtml(signName)} 한 줄 요약</strong>: 타고난 에너지는 <strong>${escapeHtml(profile.trait)}</strong>, 사람들에게는 「${escapeHtml(profile.personality)}」처럼 읽히기 쉽습니다.</p>`;
+
   return `
     <div class="timeline-bridge">
-      <p><strong>핵심 수 6개</strong>가 삶의 구조를 보여준다면, 별자리는 그 구조가 <strong>어떤 분위기와 기질</strong>로 드러나는지 설명합니다.</p>
-      <p>아래 코너를 읽고 이어서 <strong>48주기 성격학</strong>을 보면, ‘기질(별자리)’과 ‘시간대별 리듬(48주기)’이 자연스럽게 연결됩니다.</p>
+      <p><strong>핵심 수</strong>가 구조 계산이라면, 별자리는 같은 사람을 <strong>어떤 분위기·기질</strong>로 받아들이기 쉬운지 이어 줍니다.</p>
+      <p>바로 다음 <strong>48주기 성격학</strong>은 생월·생일을 더 촘촘한 타입으로 읽어 주는 레이어라서, 둘이 겹치는지부터 보시면 되고 <strong>${escapeHtml(signName)}</strong> 안에서도 디테일이 달라질 수 있습니다.</p>
     </div>
+    ${zodiacLede}
     <div class="zodiac-insight-panel">
       <div class="zodiac-insight-head">별자리 에너지</div>
       <div class="zodiac-sign-name"><span class="icon">${icon}</span><span>${escapeHtml(signName)}</span><span class="zodiac-sign-range"> · ${escapeHtml(range)}</span></div>
@@ -3980,6 +4116,8 @@ function buildIntegratedStoryHTML(nameStr, personalityNum, soulNum, destinyNum, 
   const sameOuterInner = personalityNum === soulNum
     ? `<p class="integrated-story-note">성격수와 혼의수 번호가 같아요. 겉과 속이 한결같이 느껴지는 편일 수 있어요.</p>`
     : '';
+  const lpAction = lcPickLpOneAction(lifePathNum);
+
   return `
     ${sameOuterInner}
     <p>${who} 겉으로는 <strong>성격수(${personalityNum}번)</strong>${masterNumTag(personalityNum)}에 가까운 사람으로 보여요. ${line('personality', personalityNum)}</p>
@@ -3987,6 +4125,7 @@ function buildIntegratedStoryHTML(nameStr, personalityNum, soulNum, destinyNum, 
     <p>이번 생의 과업은 이름이 걸어 준 <strong>운명수(${destinyNum}번)</strong>${masterNumTag(destinyNum)}를 세상에 실현하는 쪽으로 펼쳐져요. ${line('destiny', destinyNum)} 그 길의 큰 방향과 리듬은 <strong>인생여정수(${lifePathNum}번)</strong>${masterNumTag(lifePathNum)}가 이끌어요. ${line('lifePath', lifePathNum)}</p>
     <p>시간이 흐를수록 당신은 <strong>완성수(${maturityNum}번)</strong>${masterNumTag(maturityNum)}의 얼굴로 더 단단히 익어갈 수 있어요. ${line('maturity', maturityNum)}</p>
     ${moonLine}
+    <div class="lc-action-tip"><span class="lc-action-tip-label">실천 한 가지 · 인생여정수 ${lifePathNum}번 기준</span>${lpAction}</div>
   `;
 }
 
@@ -4110,6 +4249,12 @@ async function runAnalysis() {
   const pm = reduceToSingle(py + curM);
   const pd = reduceToSingle(pm + curD);
   const z = getZodiacInfo(m, d);
+  const readingGuideHost = document.getElementById('analysisReadingGuide');
+  if (readingGuideHost) readingGuideHost.innerHTML = buildReadingGuideHtml();
+  const coreLedeWrap = document.getElementById('coreReadingLede');
+  if (coreLedeWrap) {
+    coreLedeWrap.innerHTML = `<div class="lc-core-lede"><strong>읽기 팁:</strong> 감부터 잡고 싶다면 위 목차에서 <strong>별자리 심층 해석 · 48주기 성격학</strong>을 먼저 보고 오셔도 되고, 근거부터 보고 싶다면 이 카드 숫자부터 훑어도 됩니다.</div>`;
+  }
   const nameNums = nameRaw ? analyzeNameNumerology(nameRaw) : null;
   const destinyNum = nameNums?.expression || null; // 운명수(=표현수)
   const soulNum = nameNums?.soul || null;          // 혼의수
@@ -5016,12 +5161,19 @@ function renderPeriod48(m, d) {
   if (!el) return;
   const p = getPeriod48(m, d);
   if (!p) { el.innerHTML = ''; return; }
+  const zo = typeof getZodiacInfo === 'function' ? getZodiacInfo(m, d) : null;
+  const zn = zo?.n ? String(zo.n) : '별자리';
   const kwArr = Array.isArray(p.keywords) ? p.keywords : [];
   const trArr = Array.isArray(p.traits) ? p.traits : [];
-  const kws = kwArr.map(k => `<span class="period48-kw-tag">${k}</span>`).join('');
+  const kwJoin = kwArr.slice(0, 4).map((k) => escapeHtml(String(k))).join(' · ');
+  const kws = kwArr.map((k) => `<span class="period48-kw-tag">${escapeHtml(String(k))}</span>`).join('');
   const traits = trArr.map(t => `<div class="period48-trait">${t}</div>`).join('');
   el.innerHTML = `
     <div class="period48-card">
+      <div class="timeline-bridge">
+        <p><strong>${escapeHtml(zn)}</strong>는 넓은 분류이고, 같은 생월·생일을 <strong>${escapeHtml(String(p.name))}</strong>으로 한 번 더 촘촘히 읽은 값이에요. 둘이 다르더라도 한 사람의 <strong>두 층(넓음·좁음)</strong>으로 함께 보면 됩니다.</p>
+      </div>
+      <p class="lc-lede"><strong>한 줄 요약</strong>: <strong>${escapeHtml(String(p.title))}</strong>${kwJoin ? ` · ${kwJoin}` : ''}</p>
       <div class="period48-header">
         <div class="period48-badge">
           <div class="period48-badge-period">${p.cusp ? '경계 주간' : '정규 주간'}</div>
@@ -5051,6 +5203,8 @@ function renderPeriod48(m, d) {
       <div class="period48-desc">${p.overview || ''}</div>
       <div class="period48-section-title">✦ 핵심 성향</div>
       <div class="period48-traits">${traits}</div>
+      <div class="lc-life-hint"><strong>예를 들면</strong> ${buildP48LifeHint(p)}</div>
+      <div class="lc-action-tip"><span class="lc-action-tip-label">오늘 한 가지</span>${buildP48MiniAction(p)}</div>
       <div class="period48-source">* Gary Goldschneider & Joost Elffers의 《The Secret Language of Birthdays》를 바탕으로 한 48주기 성격 분석 체계입니다.</div>
     </div>`;
 }
