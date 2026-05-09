@@ -1392,6 +1392,15 @@
       border-radius: 0 10px 10px 0;
       padding: 22px;
     }
+    .zodiac-insight-identity {
+      padding-bottom: 16px;
+      margin-bottom: 2px;
+      border-bottom: 1px solid rgba(139, 111, 71, .14);
+    }
+    .zodiac-insight-panel .lc-zodiac-lede {
+      margin-top: 14px;
+      margin-bottom: 16px;
+    }
     .zodiac-insight-head {
       display: block;
       margin-bottom: 8px;
@@ -4135,7 +4144,7 @@ function buildReadingGuideHtml() {
       )}
       ${lcReadingGuideCatalogRow(
         `<a href="#nav-major-cycle" class="lc-guide-link"><strong>대주기 분석</strong></a>`,
-        `월·일·연 축약 수로 세 구간(제1~3 주기)을 나눈 장주기 뷰. 표준 피나클·챌린지 4단계 표는 이 블록에 없음.`,
+        `월·일·연 축약 수로 세 구간(제1~3 주기)을 나눈 장주기 뷰.`,
       )}
       ${lcReadingGuideCatalogRow(
         `<a href="#nav-life-four" class="lc-guide-link"><strong>인생 4단계</strong></a>`,
@@ -4213,14 +4222,16 @@ function buildZodiacInsightHTML(zodiac, nums) {
       ${deep ? `<div class="zodiac-insight-deep-block">${deep}</div>` : ''}
     `;
 
-  const zodiacLede = `<p class="lc-lede"><strong>${escapeHtml(signName)} 한 줄 요약</strong>: 타고난 에너지는 <strong>${escapeHtml(profile.trait)}</strong>, 사람들에게는 「${escapeHtml(profile.personality)}」처럼 읽히기 쉽습니다.</p>`;
+  const zodiacLede = `<p class="lc-lede lc-zodiac-lede"><strong>한 줄 요약</strong>: 타고난 에너지는 <strong>${escapeHtml(profile.trait)}</strong>, 사람들에게는 「${escapeHtml(profile.personality)}」처럼 읽히기 쉽습니다.</p>`;
 
   return `
-    ${zodiacLede}
     <div class="zodiac-insight-panel">
-      <div class="zodiac-insight-head">별자리 에너지</div>
-      <div class="zodiac-sign-name"><span class="icon">${icon}</span><span>${escapeHtml(signName)}</span><span class="zodiac-sign-range"> · ${escapeHtml(range)}</span></div>
-      <div class="zodiac-insight-sub">분류: ${elem} 원소 · 타고난 반응 패턴 중심 해석</div>
+      <div class="zodiac-insight-identity">
+        <div class="zodiac-insight-head">별자리 에너지</div>
+        <div class="zodiac-sign-name"><span class="icon">${icon}</span><span>${escapeHtml(signName)}</span><span class="zodiac-sign-range"> · ${escapeHtml(range)}</span></div>
+        <div class="zodiac-insight-sub">분류: ${elem} 원소 · 타고난 반응 패턴 중심 해석</div>
+      </div>
+      ${zodiacLede}
       <div class="zodiac-insight-body">${base || '별자리 설명을 준비 중입니다.'}</div>
       <div class="zodiac-insight-more">${accordion('✦ 상세 해석', zodiacDetailBody, false)}</div>
     </div>`;
@@ -5288,12 +5299,10 @@ function renderPeriod48(m, d) {
   if (!p) { el.innerHTML = ''; return; }
   const kwArr = Array.isArray(p.keywords) ? p.keywords : [];
   const trArr = Array.isArray(p.traits) ? p.traits : [];
-  const kwJoin = kwArr.slice(0, 4).map((k) => escapeHtml(String(k))).join(' · ');
   const kws = kwArr.map((k) => `<span class="period48-kw-tag">${escapeHtml(String(k))}</span>`).join('');
   const traits = trArr.map(t => `<div class="period48-trait">${t}</div>`).join('');
   el.innerHTML = `
     <div class="period48-card">
-      <p class="lc-lede"><strong>한 줄 요약</strong>: <strong>${escapeHtml(String(p.title))}</strong>${kwJoin ? ` · ${kwJoin}` : ''}</p>
       <div class="period48-header">
         <div class="period48-badge">
           <div class="period48-badge-period">${p.cusp ? '경계 주간' : '정규 주간'}</div>
