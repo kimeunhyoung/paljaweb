@@ -14,6 +14,9 @@
 :root {
   --cream:      #f5f0e8;
   --parchment:  #ede5d4;
+  /* 비교표 왼쪽 라벨 열: 페이지/흰 배경과 구분되게 한 톤 어둡게 */
+  --compare-label-bg: #dfd2b8;
+  --compare-label-bg-strong: #d3c4a4;
   --sand:       #d4c4a8;
   --warm-brown: #8b6f47;
   --deep-brown: #4a3520;
@@ -288,31 +291,43 @@ body{font-family:var(--font-body);background:var(--cream);color:var(--ink);min-h
   -webkit-overflow-scrolling:touch;
   box-shadow:0 4px 24px var(--shadow);
 }
-.compare-table{width:100%;min-width:720px;border-collapse:collapse;}
+.compare-table{width:100%;min-width:720px;border-collapse:separate;border-spacing:0;}
 .compare-table th{background:var(--deep-brown);color:var(--cream);font-family:var(--font-body);font-size:12px;font-weight:500;padding:14px 16px;text-align:left;letter-spacing:.02em;white-space:nowrap;}
 .compare-table th.name-col{font-family:var(--font-serif);font-size:16px;text-align:center;min-width:110px;}
 .compare-table td{padding:11px 16px;border-bottom:1px solid var(--border);font-size:13px;color:var(--ink);vertical-align:middle;}
-.compare-table td.row-label{background:var(--parchment);font-weight:600;font-size:12px;color:var(--deep-brown);white-space:nowrap;width:130px;}
-.compare-table td.num-cell{text-align:center;}
+.compare-table td.row-label{
+  background:var(--compare-label-bg);
+  font-weight:600;
+  font-size:12px;
+  color:var(--deep-brown);
+  white-space:nowrap;
+  width:130px;
+  min-width:118px;
+  border-right:1px solid rgba(139,111,71,.18);
+  background-clip:padding-box;
+}
+.compare-table td.num-cell{text-align:center;background:#fff;}
 .compare-table tr:last-child td{border-bottom:none;}
 .compare-table th:first-child{
   position:sticky;
   left:0;
-  z-index:3;
+  z-index:4;
+  box-shadow:6px 0 10px -4px rgba(44,31,14,.14);
 }
 .compare-table td.row-label{
   position:sticky;
   left:0;
-  z-index:2;
+  z-index:3;
+  box-shadow:6px 0 12px -4px rgba(44,31,14,.12);
 }
 .num-badge{display:inline-flex;flex-direction:column;align-items:center;gap:1px;}
 .num-badge .n{font-family:var(--font-serif);font-size:26px;font-weight:300;color:var(--deep-brown);line-height:1;}
 .num-badge .n.master{color:var(--teal);}
 .num-badge .pre{font-family:var(--font-mono);font-size:9px;color:var(--muted);}
 .num-badge .title{font-size:10px;color:var(--warm-brown);font-weight:500;}
-.score-cell{text-align:center;}
-.sc-num{font-family:var(--font-serif);font-size:22px;font-weight:300;line-height:1;display:block;}
-.sc-bar{width:56px;height:4px;background:var(--parchment);border-radius:2px;overflow:hidden;margin:3px auto;}
+.score-cell{text-align:center;background:#fff;position:relative;z-index:1;}
+.sc-num{font-family:var(--font-serif);font-size:22px;font-weight:300;line-height:1.15;display:block;}
+.sc-bar{width:56px;height:4px;background:var(--parchment);border-radius:2px;overflow:hidden;margin:3px auto;max-width:100%;}
 .sc-fill{height:100%;border-radius:2px;}
 .sc-label{font-size:10px;color:var(--muted);display:block;}
 .score-high{color:var(--teal);}
@@ -375,7 +390,11 @@ body{font-family:var(--font-body);background:var(--cream);color:var(--ink);min-h
 .sd-item strong{color:var(--deep-brown);display:block;font-size:11px;margin-bottom:2px;}
 
 .compare-table tr.score-divider td{background:var(--parchment);padding:4px 16px;font-family:var(--font-mono);font-size:8px;letter-spacing:.15em;text-transform:uppercase;color:var(--muted);}
-.compare-table td.row-label.score-section{background:rgba(200,169,110,.08);border-top:2px solid var(--border);}
+/* 점수 구간 라벨: 투명 배경 제거 → 스크롤 시 숫자가 비치지 않음 */
+.compare-table td.row-label.score-section{
+  background:var(--compare-label-bg-strong);
+  border-top:2px solid rgba(139,111,71,.2);
+}
 .compare-table td.score-section{border-top:2px solid var(--border);}
 
 @media(max-width:700px){
@@ -395,6 +414,9 @@ body{font-family:var(--font-body);background:var(--cream);color:var(--ink);min-h
   .topbar-export-btns{gap:6px;}
   .counselor-bar-btn{font-size:10px;padding:5px 10px;}
   .plan-badge{font-size:9px;padding:3px 8px;}
+  .compare-table th,.compare-table td{padding:9px 12px;}
+  .compare-table th.name-col{min-width:96px;font-size:15px;}
+  .compare-table .score-cell .sc-num{font-size:18px;}
 }
 @media(max-width:560px){
   .topbar{
