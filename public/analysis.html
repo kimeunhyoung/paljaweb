@@ -37,14 +37,15 @@
     }
 
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    html { scroll-behavior: smooth; scroll-padding-top: 76px; }
+    html {
+      scroll-behavior: smooth;
+      scroll-padding-top: 76px;
+      background-color: var(--cream);
+    }
 
     body {
       font-family: var(--font-body);
-      background:
-        radial-gradient(circle at 12% 0%, rgba(200,169,110,.16) 0%, rgba(200,169,110,0) 28%),
-        radial-gradient(circle at 88% 12%, rgba(46,139,122,.08) 0%, rgba(46,139,122,0) 24%),
-        var(--cream);
+      background-color: var(--cream);
       color: var(--ink);
       min-height: 100vh;
       text-rendering: optimizeLegibility;
@@ -399,7 +400,7 @@
       .hero,
       .analysis-wait,
       .analysis-jump-nav-shim { display: none !important; }
-      body { background: #fff; }
+      html, body { background: #fff !important; }
       #resultArea { display: block !important; }
     }
 
@@ -531,7 +532,7 @@
     /* 분석 전 빈 화면 완화 */
     .analysis-wait {
       padding: 36px 24px 48px;
-      background: linear-gradient(180deg, rgba(74,53,32,.12) 0%, var(--cream) 42%);
+      background-color: var(--cream);
       border-top: 1px solid rgba(139,111,71,.12);
       text-align: center;
     }
