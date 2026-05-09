@@ -4115,48 +4115,60 @@ function lcReadingGuideCatalogRow(navHtml, descriptionHtml) {
 function buildReadingGuideHtml() {
   return `<div class="lc-reading-guide">
     <div class="lc-reading-guide-catalog" role="navigation" aria-label="이 페이지 섹션 안내">
-      <p class="lc-guide-catalog-kicker">아래 순서와 같습니다. 항목 이름을 누르면 해당 섹션으로 스크롤됩니다.</p>
+      <p class="lc-guide-catalog-kicker">순서는 아래와 같아요. 제목 누르면 그 섹션으로 내려가요.</p>
       ${lcReadingGuideCatalogRow(
         `<a href="#nav-core" class="lc-guide-link"><strong>핵심 수</strong></a>`,
-        `핵심 수는 이름과 생년월일을 규칙에 따라 계산해 낸 숫자 기반 해석입니다. 이름을 입력했다면 같은 구역 안에서 <strong>통합 스토리</strong>(겉과 속·길)도 연결되어 보입니다.`,
+        `이름·생년월일로 뽑은 숫자 풀이예요. 이름 넣었으면 통합 스토리도 같이 보여요.`,
       )}
       ${lcReadingGuideCatalogRow(
         `<a href="#zodiacInsightSection" class="lc-guide-link"><strong>별자리</strong></a>`,
-        `별자리와 48주기 성격학은 같은 사람을 다른 언어로 풀어 주는 기질 해석이에요. 그중 별자리는 생일을 <strong>넓게</strong>(12등분 기준으로) 읽는 쪽입니다.`,
+        `생일 기준으로 보는, 넓은 기질 맵이에요.`,
       )}
       ${lcReadingGuideCatalogRow(
         `<a href="#period48Section" class="lc-guide-link"><strong>48주기 성격학</strong></a>`,
-        `위와 같은 기질 언어 흐름 안에서 같은 생월·생일을 <strong>더 좁게</strong>(48개 구간) 풀어 주는 패턴입니다.`,
+        `같은 생월·생일을 48칸으로 쪼개 본 패턴이에요.`,
       )}
       ${lcReadingGuideCatalogRow(
         `<a href="#aiSummarySection" class="lc-guide-link"><strong>AI 종합 요약</strong></a>`,
-        `통합 스토리(이름 입력 시)와 AI 요약을 함께 보면 위 내용을 한 줄기로 묶어 읽어 보실 수 있습니다. 이 코너는 AI 한 단락 요약이에요.`,
+        `위 내용을 AI가 한 덩어리로 짧게 정리한 거예요.`,
       )}
       ${lcReadingGuideCatalogRow(
-        `<div class="lc-guide-multi">
-        <a href="#nav-major-cycle" class="lc-guide-link"><strong>대주기 분석</strong></a><span class="lc-guide-multi-sep"> · </span>
-        <a href="#nav-life-four" class="lc-guide-link"><strong>인생 4단계</strong></a><span class="lc-guide-multi-sep"> · </span>
-        <a href="#timelineSection" class="lc-guide-link"><strong>10년 타임라인</strong></a><span class="lc-guide-multi-sep"> · </span>
-        <a href="#monthlySection" class="lc-guide-link"><strong>월간 흐름</strong></a>
-      </div>`,
-        `생일 숫자를 바탕으로 인생의 큰 호흡, 네 단계 요약, 앞선 10개 연도 줄기, 한 해 월별 리듬을 차례로 봅니다.`,
+        `<a href="#nav-major-cycle" class="lc-guide-link"><strong>대주기 분석</strong></a>`,
+        `숫자로 보는 인생 큰 호흡이에요.`,
       )}
       ${lcReadingGuideCatalogRow(
-        `<div class="lc-guide-multi">
-        <a href="#nav-flow" class="lc-guide-link"><strong>현재 흐름</strong></a><span class="lc-guide-multi-sep">, </span>
-        <a href="#aiTodaySection" class="lc-guide-link"><strong>AI 오늘의 메시지</strong></a><span class="lc-guide-multi-sep">, </span>
-        <a href="#weeklyForecastSection" class="lc-guide-link"><strong>향후 7일간의 에너지 흐름</strong></a>
-      </div>`,
-        `오늘이 놓인 올해·이번 달·오늘의 수를 카드로 보고, Pro 플랜에서는 AI 한 줄 오늘의 메시지와 앞선 7일의 일별 에너지 표까지 이어집니다.`,
+        `<a href="#nav-life-four" class="lc-guide-link"><strong>인생 4단계</strong></a>`,
+        `네 구간으로 나눈 요약 흐름이에요.`,
       )}
       ${lcReadingGuideCatalogRow(
-        `<div class="lc-guide-multi">
-        <a href="#growthSection" class="lc-guide-link"><strong>성장 지도</strong></a><span class="lc-guide-multi-sep">, </span>
-        <a href="#loshuSection" class="lc-guide-link"><strong>로슈 격자 분석</strong></a>
-      </div>`,
-        `생일에 빠져 있는 숫자·격자 패턴으로 성장 포인트를 읽어볼 수 있습니다.`,
+        `<a href="#timelineSection" class="lc-guide-link"><strong>10년 타임라인</strong></a>`,
+        `앞으로 열 해쯤의 줄기를 보는 코너예요.`,
       )}
-      <p class="lc-guide-catalog-footnote">플랜·이름 입력에 따라 카드 일부만 열릴 수 있어요. 오른쪽 <strong>목차</strong>(바로 가기)에서도 동일하게 이동할 수 있습니다.</p>
+      ${lcReadingGuideCatalogRow(
+        `<a href="#monthlySection" class="lc-guide-link"><strong>월간 흐름</strong></a>`,
+        `한 해 안에서 달마다 리듬을 보는 거예요.`,
+      )}
+      ${lcReadingGuideCatalogRow(
+        `<a href="#nav-flow" class="lc-guide-link"><strong>현재 흐름</strong></a>`,
+        `올해·이번 달·오늘 수를 카드로 보는 곳이에요.`,
+      )}
+      ${lcReadingGuideCatalogRow(
+        `<a href="#aiTodaySection" class="lc-guide-link"><strong>AI 오늘의 메시지</strong></a>`,
+        `Pro면 AI가 오늘 한 줄로 짚어 주는 메시지예요.`,
+      )}
+      ${lcReadingGuideCatalogRow(
+        `<a href="#weeklyForecastSection" class="lc-guide-link"><strong>향후 7일간의 에너지 흐름</strong></a>`,
+        `Pro면 앞 일주일을 날짜별로 보는 표가 이어져요.`,
+      )}
+      ${lcReadingGuideCatalogRow(
+        `<a href="#growthSection" class="lc-guide-link"><strong>성장 지도</strong></a>`,
+        `빠진 숫자로 보는 성장 포인트예요.`,
+      )}
+      ${lcReadingGuideCatalogRow(
+        `<a href="#loshuSection" class="lc-guide-link"><strong>로슈 격자 분석</strong></a>`,
+        `격자 패턴으로 성향을 보는 거예요.`,
+      )}
+      <p class="lc-guide-catalog-footnote">플랜·이름 입력에 따라 일부만 열려요. 오른쪽 목차에서도 같은 곳으로 갈 수 있어요.</p>
     </div>
   </div>`;
 }
