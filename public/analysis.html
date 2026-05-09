@@ -606,13 +606,15 @@
         rgba(255, 253, 248, .96) 0%,
         rgba(241, 248, 245, .38) 42%,
         rgba(239, 232, 220, .88) 100%);
-      border: 1px solid var(--border);
+      border: none;
       border-radius: 12px;
       padding: 20px 21px;
-      transition: border-color .2s, box-shadow .2s, transform .2s;
+      transition: box-shadow .2s, transform .2s;
       position: relative;
       overflow: hidden;
-      box-shadow: 0 2px 10px rgba(45, 38, 28, 0.04);
+      box-shadow:
+        0 2px 8px rgba(45, 38, 28, 0.045),
+        0 12px 32px rgba(45, 38, 28, 0.05);
     }
     .num-card.wide {
       grid-column: 1 / -1;
@@ -623,7 +625,12 @@
       font-size: 28px;
       margin-bottom: 6px;
     }
-    .num-card:hover { border-color: var(--accent); box-shadow: 0 10px 26px rgba(45,38,28,.1); transform: translateY(-1px); }
+    .num-card:hover {
+      box-shadow:
+        0 6px 20px rgba(45,38,28,.085),
+        0 18px 40px rgba(45,38,28,.065);
+      transform: translateY(-1px);
+    }
     .num-card-label {
       font-family: var(--font-body);
       font-size: 13px;
@@ -657,13 +664,15 @@
     }
     .num-card-bg {
       position: absolute;
-      right: -8px; bottom: -12px;
+      right: 14px;
+      bottom: 4px;
       font-family: var(--font-serif);
       font-size: 72px;
-      color: rgba(139,111,71,.06);
+      color: rgba(74, 53, 32, .105);
       line-height: 1;
       pointer-events: none;
       font-weight: 600;
+      user-select: none;
     }
     .core-accordion-wrap { margin-top: 8px; }
 
