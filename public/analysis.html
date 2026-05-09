@@ -4115,58 +4115,58 @@ function lcReadingGuideCatalogRow(navHtml, descriptionHtml) {
 function buildReadingGuideHtml() {
   return `<div class="lc-reading-guide">
     <div class="lc-reading-guide-catalog" role="navigation" aria-label="이 페이지 섹션 안내">
-      <p class="lc-guide-catalog-kicker">아래 순서. 제목 클릭 시 해당 섹션으로 스크롤.</p>
+      <p class="lc-guide-catalog-kicker">통합 레포트 모듈 순서. 제목 클릭 시 해당 섹션으로 스크롤.</p>
       ${lcReadingGuideCatalogRow(
         `<a href="#nav-core" class="lc-guide-link"><strong>핵심 수</strong></a>`,
-        `이름·생년월일 규칙으로 계산한 숫자 해석. 이름 입력 시 같은 구역에 통합 스토리(겉·속·길) 포함.`,
+        `피타고라스계 수비학 프레임. 생년월일로 인생여정·생일 등 핵심 수 차트, 이름 입력 시 혼의·성격·운명·통합 스토리(겉·속·길).`,
       )}
       ${lcReadingGuideCatalogRow(
         `<a href="#zodiacInsightSection" class="lc-guide-link"><strong>별자리</strong></a>`,
-        `생일 기준, 12분할에 가까운 넓은 기질 표기.`,
+        `트로피컬 황도 12궁 기준 생일 매핑으로 보는 기질 레이어(수비 차트와 교차 참고).`,
       )}
       ${lcReadingGuideCatalogRow(
         `<a href="#period48Section" class="lc-guide-link"><strong>48주기 성격학</strong></a>`,
-        `동일 생월·생일을 48구간으로 나눈 패턴.`,
+        `생월·생일을 48세그먼트로 나눈 세부 기질·역할 패턴 분류.`,
       )}
       ${lcReadingGuideCatalogRow(
         `<a href="#aiSummarySection" class="lc-guide-link"><strong>AI 종합 요약</strong></a>`,
-        `위 항목을 AI가 한 단락으로 요약.`,
+        `상위 수비학·보조 레이어를 한 단락으로 재구성한 생성형 요약(참고용 서술 레이어).`,
       )}
       ${lcReadingGuideCatalogRow(
         `<a href="#nav-major-cycle" class="lc-guide-link"><strong>대주기 분석</strong></a>`,
-        `생일 숫자 기반 인생 장주기.`,
+        `장주기 숫자와 피나클·챌린지 흐름이 묶인 장기 라이프 사이클 뷰.`,
       )}
       ${lcReadingGuideCatalogRow(
         `<a href="#nav-life-four" class="lc-guide-link"><strong>인생 4단계</strong></a>`,
-        `네 구간으로 나눈 요약 흐름.`,
+        `네 구간을 피나클(환경)·챌린지(내적 과제) 축으로 정리한 중기 프레임.`,
       )}
       ${lcReadingGuideCatalogRow(
         `<a href="#timelineSection" class="lc-guide-link"><strong>10년 타임라인</strong></a>`,
-        `향후 약 10년 연도별 흐름.`,
+        `개인년도(Personal Year) 시퀀스 기준 약 10년 연도별 에너지 카드.`,
       )}
       ${lcReadingGuideCatalogRow(
         `<a href="#monthlySection" class="lc-guide-link"><strong>월간 흐름</strong></a>`,
-        `해당 연도 월별 리듬.`,
+        `선택 연도 안에서 월별 퍼스널 먼스(Personal Month) 리듬.`,
       )}
       ${lcReadingGuideCatalogRow(
         `<a href="#nav-flow" class="lc-guide-link"><strong>현재 흐름</strong></a>`,
-        `해당 연·월·일 수 카드.`,
+        `기준 시점 연·월·일의 개인년·먼스·데이 축약 수 카드.`,
       )}
       ${lcReadingGuideCatalogRow(
         `<a href="#aiTodaySection" class="lc-guide-link"><strong>AI 오늘의 메시지</strong></a>`,
-        `Pro 전용. 당일 기준 한 줄 AI 메시지.`,
+        `Pro 전용. 당일 맥락을 한 줄로 압축한 언어 모델 브리프.`,
       )}
       ${lcReadingGuideCatalogRow(
         `<a href="#weeklyForecastSection" class="lc-guide-link"><strong>향후 7일간의 에너지 흐름</strong></a>`,
-        `Pro 전용. 7일간 일별 표.`,
+        `Pro 전용. 단기 에너지를 일 단위 매트릭스로 표시.`,
       )}
       ${lcReadingGuideCatalogRow(
         `<a href="#growthSection" class="lc-guide-link"><strong>성장 지도</strong></a>`,
-        `생일에 없는 숫자 기준 성장 포인트.`,
+        `생년월일 자리 분포의 결손·과다 숫자로 보는 보완·성장 초점.`,
       )}
       ${lcReadingGuideCatalogRow(
         `<a href="#loshuSection" class="lc-guide-link"><strong>로슈 격자 분석</strong></a>`,
-        `3×3 격자 패턴 분석.`,
+        `로슈 매직 스퀘어(九宫) 패턴으로 보는 균형·강약 분포.`,
       )}
       <p class="lc-guide-catalog-footnote">플랜·이름 입력 여부에 따라 일부 카드 미표시. 우측 목차에서 동일 앵커 이동.</p>
     </div>
