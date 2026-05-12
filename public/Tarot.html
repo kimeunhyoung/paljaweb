@@ -7,6 +7,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,500&family=Noto+Serif+KR:wght@300;400;500;600&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
   <style>
     :root {
@@ -77,7 +78,57 @@
     .hero-tag { font-family: var(--font-mono); font-size: 9px; letter-spacing: .25em; text-transform: uppercase; color: var(--accent); margin-bottom: 16px; }
     .hero-title { font-family: var(--font-serif); font-size: 48px; font-weight: 300; color: var(--cream); line-height: 1.1; margin-bottom: 12px; }
     .hero-title em { font-style: italic; color: var(--accent); }
-    .hero-desc { font-size: 13px; color: rgba(245,240,232,.5); line-height: 1.8; max-width: 440px; margin: 0 auto; }
+    .hero-desc { font-size: 13px; color: rgba(245,240,232,.5); line-height: 1.8; max-width: 440px; margin: 0 auto 28px; }
+
+    .birth-wrap {
+      display: inline-flex; align-items: center; gap: 12px;
+      background: rgba(245,240,232,.08); border: 1px solid rgba(200,169,110,.25);
+      border-radius: 10px; padding: 14px 20px; flex-wrap: wrap; justify-content: center;
+    }
+    .birth-label { font-family: var(--font-mono); font-size: 10px; letter-spacing: .15em; text-transform: uppercase; color: var(--accent); }
+    .birth-field {
+      background: transparent; border: none; border-bottom: 1px solid rgba(200,169,110,.4);
+      color: var(--cream); font-family: var(--font-body); font-size: 15px; outline: none; padding: 4px 8px; width: 160px;
+    }
+    .birth-field::-webkit-calendar-picker-indicator { filter: invert(.6); cursor: pointer; }
+    .birth-btn {
+      background: var(--accent); color: var(--deep-brown); border: none; padding: 10px 22px; border-radius: 6px;
+      font-family: var(--font-body); font-size: 13px; font-weight: 600; cursor: pointer;
+      transition: background .15s, transform .15s; white-space: nowrap;
+    }
+    .birth-btn:hover { background: #d4b87a; transform: translateY(-1px); }
+
+    .energy-strip {
+      display: none; position: sticky; top: 56px; z-index: 99;
+      background: rgba(200,169,110,.06); border-bottom: 1px solid var(--border); padding: 14px 32px;
+    }
+    .energy-strip.visible { display: block; }
+    .energy-inner { max-width: 860px; margin: 0 auto; display: flex; align-items: center; gap: 18px; flex-wrap: wrap; }
+    .e-chip {
+      display: flex; flex-direction: column; align-items: center; background: white;
+      border: 1px solid var(--border); border-radius: 10px; padding: 8px 14px; min-width: 72px;
+    }
+    .e-chip-label { font-family: var(--font-mono); font-size: 8px; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); margin-bottom: 3px; }
+    .e-chip-num { font-family: var(--font-serif); font-size: 24px; font-weight: 300; color: var(--accent); line-height: 1; }
+    .e-chip-title { font-size: 9px; color: var(--warm-brown); margin-top: 2px; font-weight: 500; }
+    .e-msg { flex: 1; font-size: 12px; line-height: 1.65; color: var(--ink); min-width: 160px; }
+    .e-msg strong { color: var(--deep-brown); }
+
+    .num-ctx-banner {
+      background: linear-gradient(135deg, var(--parchment), var(--accent-lt));
+      border: 1px solid var(--accent); border-radius: 10px; padding: 14px 18px; margin-bottom: 20px;
+    }
+    .num-ctx-label { font-family: var(--font-mono); font-size: 8px; letter-spacing: .15em; text-transform: uppercase; color: var(--accent); margin-bottom: 6px; }
+    .num-ctx-tags { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 8px; }
+    .num-ctx-tag { background: white; border: 1px solid var(--border); border-radius: 6px; padding: 3px 10px; font-size: 11px; color: var(--deep-brown); font-weight: 500; }
+    .num-ctx-line { font-size: 12.5px; color: var(--ink); line-height: 1.65; }
+
+    .num-merge { border-left-color: var(--teal); margin-bottom: 20px; }
+    .num-merge-title { font-family: var(--font-serif); font-size: 17px; font-weight: 500; color: var(--deep-brown); margin-bottom: 12px; }
+    .num-merge-sub { font-family: var(--font-mono); font-size: 8px; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); margin: 16px 0 6px; }
+    .num-merge-p { font-size: 13px; line-height: 1.85; color: var(--ink); margin-bottom: 4px; }
+
+    .step-note { font-size: 12.5px; color: var(--muted); line-height: 1.65; margin-bottom: 16px; padding: 12px 14px; background: var(--parchment); border-radius: 8px; border: 1px solid var(--border); }
 
     /* ── MAIN WRAP ── */
     .main { max-width: 860px; margin: 0 auto; padding: 48px 32px 80px; }
@@ -454,6 +505,8 @@
       .drawn-cards { gap: 10px; }
       .tarot-card-wrap { width: 90px; }
       .topbar { padding: 0 16px; }
+      .energy-strip { padding: 12px 16px; top: 56px; }
+      .birth-wrap { padding: 12px 16px; }
     }
   </style>
 </head>
@@ -470,10 +523,24 @@
 
 <!-- HERO -->
 <section class="hero">
-  <div class="hero-tag">Tarot Reading · 타로 리딩</div>
-  <h1 class="hero-title">카드가 전하는<br><em>오늘의 메시지</em></h1>
-  <p class="hero-desc">78장의 타로 카드 속에서 지금 당신에게 필요한 이야기를 꺼냅니다.</p>
+  <div class="hero-tag">Tarot Reading · 수비학 맥락 타로</div>
+  <h1 class="hero-title">에너지 위에서<br><em>카드를 읽습니다</em></h1>
+  <p class="hero-desc">올해·이번 달·오늘의 수비학 리듬을 바탕으로, 같은 카드도 당신에게 맞는 초점으로 해석해 드려요.</p>
+  <div class="birth-wrap">
+    <span class="birth-label">생년월일</span>
+    <input class="birth-field" id="birthInput" type="date" />
+    <button type="button" class="birth-btn" onclick="confirmBirth()">에너지 확인 →</button>
+  </div>
 </section>
+
+<div class="energy-strip" id="energyStrip">
+  <div class="energy-inner">
+    <div class="e-chip"><div class="e-chip-label">올해</div><div class="e-chip-num" id="sYear">-</div><div class="e-chip-title" id="sYearT"></div></div>
+    <div class="e-chip"><div class="e-chip-label">이번달</div><div class="e-chip-num" id="sMonth">-</div><div class="e-chip-title" id="sMonthT"></div></div>
+    <div class="e-chip"><div class="e-chip-label">오늘</div><div class="e-chip-num" id="sDay">-</div><div class="e-chip-title" id="sDayT"></div></div>
+    <div class="e-msg" id="sMsg"></div>
+  </div>
+</div>
 
 <!-- MAIN -->
 <div class="main" id="mainArea">
@@ -483,6 +550,7 @@
     <div class="step-card">
       <div class="step-label">Step 01</div>
       <div class="step-title">마음속 질문을 적어주세요</div>
+      <p class="step-note">위에서 <strong>생년월일</strong>을 넣고 에너지를 확인하면, 올해·이달·오늘 숫자가 타로 해석의 <strong>맥락</strong>으로 붙습니다. (참고용 안내예요.)</p>
       <textarea class="question-input" id="questionInput" placeholder="예) 지금 이 관계를 계속해야 할까요? / 새로운 시작을 해도 될까요? / 올해 커리어의 방향은?&#10;&#10;질문이 없다면 비워두세요. 오늘의 흐름을 읽어드립니다."></textarea>
 
       <div style="margin-top:24px;">
@@ -507,7 +575,7 @@
         </div>
       </div>
 
-      <button class="shuffle-btn" id="shuffleBtn" onclick="startShuffle()">
+      <button type="button" class="shuffle-btn" id="shuffleBtn" onclick="startShuffle()" disabled>
         ✦ 카드 셔플하기
       </button>
     </div>
@@ -518,6 +586,11 @@
     <div class="step-card">
       <div class="step-label">Step 02</div>
       <div class="step-title">카드를 선택해주세요</div>
+      <div class="num-ctx-banner" id="numCtxBanner" style="display:none;">
+        <div class="num-ctx-label">지금 붙어 있는 수비학 맥락</div>
+        <div class="num-ctx-tags" id="numCtxTags"></div>
+        <div class="num-ctx-line" id="numCtxLine"></div>
+      </div>
       <div class="deck-instruction">
         <p>눈을 감고 질문을 마음속에 떠올리세요.<br>
         직관이 이끄는 카드를 <strong id="drawCountText">5장</strong> 골라주세요.</p>
@@ -543,10 +616,159 @@
 </div>
 
 <script>
+const SB_URL = 'https://sghsryumnrnftyjoqmwf.supabase.co';
+const SB_KEY = 'sb_publishable_6S3W_oWrzG-Nv8wLK98gmg_q_KcB2I1';
+let sb = null;
+try {
+  const g = window.supabase || globalThis.supabase;
+  if (g && typeof g.createClient === 'function') sb = g.createClient(SB_URL, SB_KEY);
+} catch (e) {}
+
+let USER_PLAN = 'free';
+const PLANS = { free: 0, basic: 1, pro: 2, professional: 3 };
+function hasAccess(required) { return PLANS[USER_PLAN] >= PLANS[required]; }
+
+async function initAuth() {
+  if (!sb) return;
+  try {
+    const { data: { session } } = await sb.auth.getSession();
+    if (!session) return;
+    const { data: p } = await sb.from('profiles').select('plan').eq('id', session.user.id).single();
+    if (p?.plan) USER_PLAN = p.plan;
+  } catch (e) {}
+}
+
 let selectedSpread = 5;
 let shuffledDeck = [];
 let drawnCards = [];
 let flippedCount = 0;
+
+let birthReady = false;
+let bY, bM, bD, calcPy, calcPm, calcPd;
+
+/** 개인년·월·일 수별 “생활 테마” 힌트 (참고용, 카드 해석의 맥락으로 사용) */
+const YEAR_HINT = {
+  1: '새 출발·독립의 기운이 강해요. 공부·자격·새 프로젝트 착수, 나만의 방향 정하기에 유리합니다.',
+  2: '협력·관계·조율이 중심이에요. 파트너·계약·상담을 활용하면 좋고, 이직·이사는 천천히 비교해 보는 편이 안전합니다.',
+  3: '표현·창작·소통이 빛나는 해예요. 글·발표·브랜딩·네트워킹에 힘을 실을 만합니다.',
+  4: '안정·기반·루틴을 다지기 좋아요. 건강·재정·주거 환경을 정돈하고 꾸준히 실행하는 해입니다.',
+  5: '변화·탐험의 에너지가 커요. 새 환경·이동·업무 전환을 고려할 수 있으나, 충동보다 리스크 점검이 필요합니다.',
+  6: '관계·가족·책임이 테마예요. 조화와 돌봄을 우선하면 마음의 질서도 따라옵니다.',
+  7: '성찰·내면·전문성이 강조돼요. 공부·연구·멘토링, 나만의 속도를 존중하는 시기입니다.',
+  8: '성취·재정·커리어에서 결과를 내기 좋아요. 목표를 수치화하고 관리하면 결실이 보입니다.',
+  9: '정리·마무리·내려놓기의 흐름이에요. 끝낼 것을 마무리하면 다음 국면이 열립니다.',
+  11: '직관·영감이 예민하게 열리는 해예요. 믿을 만한 정보만 골라 받아들이는 게 중요합니다.',
+  22: '큰 그림을 현실로 옮기기 좋아요. 비전은 크게, 실행은 단계적으로 나누면 좋습니다.',
+  33: '치유·봉사·포용의 에너지예요. 나와 타인을 돌볼 때 경계와 휴식도 함께 챙기세요.'
+};
+const MONTH_HINT = {
+  1: '이번 달은 작은 시작과 주도권을 잡기 좋아요. 일정·습관을 새로 잡아 보세요.',
+  2: '관계 맞추기·협상·듣기가 강조돼요. 이사·이직은 정보를 모은 뒤 결정하면 좋습니다.',
+  3: '소통·아이디어·콘텐츠가 통하는 달이에요. 미팅·글·발표에 기회가 있습니다.',
+  4: '집중·정리·업무 루틴이 빛나요. 체력 관리와 장기 계획을 다듬기 좋습니다.',
+  5: '변동·소식·일정이 바빠질 수 있어요. 유연하게 대응하되 약속은 명확히 하세요.',
+  6: '가족·연인·동료와의 조화가 핵심이에요. 중재와 돌봄이 복으로 돌아옵니다.',
+  7: '혼자만의 시간과 분석이 도움이 되는 달이에요. 배움·기록·전문 자료를 살펴보세요.',
+  8: '성과·인정·실무 성과가 드러나기 쉬워요. 우선순위를 정하고 밀어붙이면 좋습니다.',
+  9: '마무리·정리·감정 비우기가 테마예요. 미련을 내려놓으면 가벼워집니다.',
+  11: '직감이 올라오는 달이에요. 영감은 메모하되 중요한 결정은 한 밤 자고 내리세요.',
+  22: '큰 일을 조각내어 진행하기 좋아요. 주변의 도움·시스템을 활용해 보세요.',
+  33: '남을 돕거나 나를 돌보는 일이 겹칠 수 있어요. 과부하는 피하는 게 좋습니다.'
+};
+const DAY_HINT = {
+  1: '오늘은 스스로 첫걸음을 내딛기 좋은 날이에요.',
+  2: '오늘은 함께할 사람·조언을 구하기 좋은 날이에요.',
+  3: '오늘은 말·글·표현으로 풀어가면 통하는 날이에요.',
+  4: '오늘은 꾸준함·정리·한 가지에 집중하면 안정되는 날이에요.',
+  5: '오늘은 변화·외출·새 정보가 들어오기 쉬운 날이에요.',
+  6: '오늘은 관계·가정·조화를 챙기면 마음이 놓이는 날이에요.',
+  7: '오늘은 잠시 멈추고 생각을 정리하면 이득인 날이에요.',
+  8: '오늘은 일·책임·성과에 손대면 체감이 나는 날이에요.',
+  9: '오늘은 끝내기·비우기·정리에 맞는 날이에요.',
+  11: '오늘은 직관이 예민해요. 느낌을 기록해 두세요.',
+  22: '오늘은 큰 그림을 적되, 한 단계만 실행해 보세요.',
+  33: '오늘은 베풂과 쉼의 균형을 맞추면 좋은 날이에요.'
+};
+
+function reduce(n, allowM) {
+  if (allowM === undefined) allowM = true;
+  let r = n;
+  while (r > 9) {
+    if (allowM && (r === 11 || r === 22 || r === 33)) return r;
+    r = String(r).split('').reduce((a, b) => +a + +b, 0);
+  }
+  return r;
+}
+
+function hintPick(map, n) {
+  return map[n] || '이번 기운을 열린 마음으로 살펴보세요.';
+}
+
+function escapeHtml(s) {
+  return String(s)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+
+function confirmBirth() {
+  const v = document.getElementById('birthInput').value;
+  if (!v) { alert('생년월일을 입력해주세요.'); return; }
+  [bY, bM, bD] = v.split('-').map(Number);
+  const now = new Date(), cY = now.getFullYear(), cM = now.getMonth() + 1, cD = now.getDate();
+  const mr = reduce(bM), dr = reduce(bD);
+  const cYr = reduce(String(cY).split('').reduce((a, b) => +a + +b, 0));
+  calcPy = reduce(cYr + mr + dr);
+  calcPm = reduce(calcPy + cM);
+  calcPd = reduce(calcPm + cD);
+
+  const KW = { 1: '시작', 2: '협력', 3: '확장', 4: '안정', 5: '변화', 6: '조화', 7: '성찰', 8: '성취', 9: '정리', 11: '영감', 22: '건설', 33: '치유' };
+  function set(id, t) { document.getElementById(id).textContent = t; }
+  set('sYear', calcPy); set('sYearT', KW[calcPy] || '');
+  set('sMonth', calcPm); set('sMonthT', KW[calcPm] || '');
+  set('sDay', calcPd); set('sDayT', KW[calcPd] || '');
+  document.getElementById('sMsg').innerHTML =
+    `올해는 <strong>${calcPy}번</strong> 에너지, 이번 달은 <strong>${calcPm}번</strong>, 오늘은 <strong>${calcPd}번</strong>이에요. 아래 타로는 이 맥락 위에서 읽어 보시면 됩니다.`;
+  document.getElementById('energyStrip').classList.add('visible');
+  birthReady = true;
+  document.getElementById('shuffleBtn').disabled = false;
+  document.getElementById('mainArea').scrollIntoView({ behavior: 'smooth' });
+}
+
+function fillStep2NumBanner(questionTrim) {
+  const tags = document.getElementById('numCtxTags');
+  const line = document.getElementById('numCtxLine');
+  const ban = document.getElementById('numCtxBanner');
+  if (!birthReady) { ban.style.display = 'none'; return; }
+  ban.style.display = 'block';
+  const chips = [`올해 ${calcPy}번`, `이번달 ${calcPm}번`];
+  if (!questionTrim) chips.push(`오늘 ${calcPd}번`);
+  tags.innerHTML = chips.map(c => `<span class="num-ctx-tag">${c}</span>`).join('');
+  let t = hintPick(YEAR_HINT, calcPy) + ' ' + hintPick(MONTH_HINT, calcPm);
+  if (!questionTrim) t += ' ' + hintPick(DAY_HINT, calcPd);
+  else t += ' 질문 리딩에서는 올해·이번 달 흐름을 배경으로 카드를 읽어 보세요.';
+  line.textContent = t;
+}
+
+function buildNumMergeBlock(questionTrim) {
+  if (!birthReady) return '';
+  let html = '<div class="reading-section num-merge">';
+  html += '<div class="reading-tag">수비학 맥락 · 타로와 함께 읽기</div>';
+  html += '<div class="num-merge-title">지금 붙어 있는 에너지</div>';
+  html += '<p class="num-merge-p" style="color:var(--muted);font-size:12px;">아래는 참고용 생활 테마예요. 카드 메시지를 “이 시기의 나”에 맞게 초점 맞추는 데 쓰면 됩니다.</p>';
+  html += '<div class="num-merge-sub">올해 ' + calcPy + '번</div>';
+  html += '<p class="num-merge-p">' + escapeHtml(hintPick(YEAR_HINT, calcPy)) + '</p>';
+  html += '<div class="num-merge-sub">이번 달 ' + calcPm + '번</div>';
+  html += '<p class="num-merge-p">' + escapeHtml(hintPick(MONTH_HINT, calcPm)) + '</p>';
+  if (!questionTrim) {
+    html += '<div class="num-merge-sub">오늘 ' + calcPd + '번</div>';
+    html += '<p class="num-merge-p">' + escapeHtml(hintPick(DAY_HINT, calcPd)) + '</p>';
+  }
+  html += '<p class="num-merge-p" style="margin-top:12px;color:var(--warm-brown);">→ 아래 카드 문구를 읽을 때, 위 테마 중 <strong>지금 마음에 와닿는 한 가지</strong>만 골라 겹쳐 보세요.</p>';
+  html += '</div>';
+  return html;
+}
 
 // ── 78장 타로 데이터 ──
 const TAROT_DECK = [
@@ -684,16 +906,19 @@ function selectSpread(n, el) {
 }
 
 function startShuffle() {
+  if (!birthReady) {
+    alert('먼저 생년월일을 입력하고 「에너지 확인」을 눌러주세요.');
+    return;
+  }
   const question = document.getElementById('questionInput').value.trim();
   document.getElementById('step1').style.display = 'none';
   document.getElementById('step2').style.display = 'block';
   document.getElementById('drawCountText').textContent = selectedSpread + '장';
+  fillStep2NumBanner(question);
 
-  // 덱 셔플
   shuffledDeck = [...TAROT_DECK].sort(() => Math.random() - .5);
   drawnCards = [];
 
-  // 덱 렌더링
   const grid = document.getElementById('deckGrid');
   grid.innerHTML = '';
   shuffledDeck.forEach((card, i) => {
@@ -774,7 +999,6 @@ function startReading() {
   const question = document.getElementById('questionInput')?.value?.trim() || '';
   const positions = SPREAD_POSITIONS[selectedSpread];
 
-  // 카드 요약
   const summaries = document.getElementById('cardSummaries');
   summaries.innerHTML = '<div class="card-summaries">' +
     drawnCards.map((card, i) => `
@@ -789,17 +1013,32 @@ function startReading() {
     `[${positions[i]}] ${card.name}${card.reversed ? ' (역방향)' : ''}\n${card.reversed ? card.reversed : card.upright}`
   ).join('\n\n');
 
-  readingArea.innerHTML = `<div class="reading-section">
-      <div class="reading-tag">✦ 카드 리딩</div>
-      <div class="reading-title">${question ? `"${question}"` : '오늘의 흐름'}</div>
-      <div class="reading-text">${basicReading}</div>
-    </div>
-    <div class="feature-gate">
-      <div class="gate-icon">✨</div>
-      <div class="gate-title">AI 종합 타로 리딩</div>
-      <div class="gate-desc">지금은 카드에 담긴 문구로 리딩합니다. 카드 간 연결·질문 맞춤 종합 해석 AI는 서버 연동 후 제공할 예정이에요.<br><br><strong>Pro 플랜</strong> 안내는 <a href="pricing.html" style="color:var(--warm-brown);">요금 페이지</a>를 참고해 주세요.</div>
-      <button class="gate-btn" onclick="location.href='pricing.html'">플랜 안내 →</button>
+  const numBlock = buildNumMergeBlock(question);
+  const titleQ = question ? escapeHtml(question) : '오늘의 흐름';
+
+  let gateHtml = '';
+  if (hasAccess('pro')) {
+    gateHtml = `<div class="reading-section" style="border-left-color:var(--teal);margin-bottom:24px;">
+      <div class="reading-tag">Pro · AI 종합 해석</div>
+      <div class="reading-text" style="color:var(--muted);line-height:1.85;">종합 AI 해석은 API를 서버에 두고 안전하게 연동한 뒤 제공할 예정입니다. 지금은 수비학 맥락과 카드 문구를 함께 읽어 보세요.</div>
     </div>`;
+  } else {
+    gateHtml = `<div class="feature-gate">
+      <div class="gate-icon">✨</div>
+      <div class="gate-title">AI 수비학 연동 타로</div>
+      <div class="gate-desc">수비학 맥락과 카드를 함께 풀어 주는 <strong>종합 AI 해석</strong>은 <strong>Pro</strong> 이상에서 준비 중이에요. 지금 보시는 것은 무료 카드 기본 해석입니다.</div>
+      <button type="button" class="gate-btn" onclick="location.href='pricing.html'">플랜 안내 →</button>
+    </div>`;
+  }
+
+  readingArea.innerHTML =
+    numBlock +
+    `<div class="reading-section">
+      <div class="reading-tag">✦ 카드 리딩</div>
+      <div class="reading-title">${titleQ === '오늘의 흐름' ? '오늘의 흐름' : '"' + titleQ + '"'}</div>
+      <div class="reading-text">${escapeHtml(basicReading)}</div>
+    </div>` +
+    gateHtml;
 }
 
 function resetAll() {
@@ -812,9 +1051,10 @@ function resetAll() {
   document.getElementById('drawnCards').innerHTML = '';
   document.getElementById('readingArea').innerHTML = '';
   document.getElementById('cardSummaries').innerHTML = '';
+  document.getElementById('numCtxBanner').style.display = 'none';
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
-</script>
+initAuth();
 </body>
 </html>
