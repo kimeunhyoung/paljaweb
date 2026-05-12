@@ -1054,8 +1054,8 @@ function drawCard(index, el) {
   el.classList.add('drawn');
   const card = shuffledDeck[index];
   const faceRev = Math.random() < 0.3; // 30% 확률로 역방향
-  const { reversed: revText, ...rest } = card;
-  drawnCards.push({ ...rest, revText, faceRev });
+  const { upright: textUpright, reversed: textReversed, ...meta } = card;
+  drawnCards.push({ ...meta, textUpright, textReversed, faceRev });
 
   if (drawnCards.length === spreadCount) {
     setTimeout(showDrawnCards, 400);
@@ -1123,19 +1123,19 @@ function flipCard(i) {
   }
 }
 
-/** 데일리 5장 마지막 칸 「도움이 안 되는 것」: 카드가 가리키는 말의 반대편(그림자·피할 점)을 보려면 정↔역 문구를 바꿔 읽습니다. */
+/** 데일리 5장 마지막 칸: 뽑힌 방향의 반대 해석(textUpright ↔ textReversed). */
 function isDailyUnhelpfulSlot(i) {
   return curMode === 'energy' && curEopt === 'daily' && spreadCount === 5 && i === 4;
 }
 
 function cardReadingParagraph(card, i) {
-  if (isDailyUnhelpfulSlot(i)) return card.faceRev ? card.upright : card.revText;
-  return card.faceRev ? card.revText : card.upright;
+  if (isDailyUnhelpfulSlot(i)) return card.faceRev ? card.textUpright : card.textReversed;
+  return card.faceRev ? card.textReversed : card.textUpright;
 }
 
 function cardSummaryKeywords(card, i) {
-  if (isDailyUnhelpfulSlot(i)) return card.faceRev ? card.keywords : card.revText;
-  return card.faceRev ? card.revText : card.keywords;
+  if (isDailyUnhelpfulSlot(i)) return card.faceRev ? card.keywords : card.textReversed;
+  return card.faceRev ? card.textReversed : card.keywords;
 }
 
 function startReading() {
@@ -1155,10 +1155,6 @@ function startReading() {
   const basicReading = drawnCards.map((card, i) =>
     `[${positions[i]}] ${card.name}${card.faceRev ? ' (역방향)' : ''}\n${cardReadingParagraph(card, i)}`
   ).join('\n\n');
-  const dailyUnhelpfulNote =
-    curMode === 'energy' && curEopt === 'daily' && spreadCount === 5
-      ? '\n\n※ 「도움이 안 되는 것」은 카드가 눕힌 방향과 반대되는 쪽의 문구를 읽습니다. (덜 도움이 되는 태도·그림자에 가깝게 읽어 보세요.)'
-      : '';
 
   const numBlock = buildNumMergeBlock(qTrim);
   let titleQ;
@@ -1192,7 +1188,7 @@ function startReading() {
     `<div class="reading-section">
       <div class="reading-tag">✦ 카드 리딩</div>
       <div class="reading-title">${titleQ}</div>
-      <div class="reading-text">${escapeHtml(basicReading + dailyUnhelpfulNote)}</div>
+      <div class="reading-text">${escapeHtml(basicReading)}</div>
     </div>` +
     gateHtml;
 }
