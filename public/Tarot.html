@@ -103,15 +103,39 @@
       background: rgba(200,169,110,.06); border-bottom: 1px solid var(--border); padding: 14px 32px;
     }
     .energy-strip.visible { display: block; }
-    .energy-inner { max-width: 860px; margin: 0 auto; display: flex; align-items: center; gap: 18px; flex-wrap: wrap; }
-    .e-chip {
-      display: flex; flex-direction: column; align-items: center; background: white;
-      border: 1px solid var(--border); border-radius: 10px; padding: 8px 14px; min-width: 72px;
+    .energy-inner { max-width: 860px; margin: 0 auto; display: flex; flex-direction: column; gap: 14px; align-items: stretch; }
+    .energy-box-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
     }
-    .e-chip-label { font-family: var(--font-mono); font-size: 8px; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); margin-bottom: 3px; }
-    .e-chip-num { font-family: var(--font-serif); font-size: 24px; font-weight: 300; color: var(--accent); line-height: 1; }
-    .e-chip-title { font-size: 9px; color: var(--warm-brown); margin-top: 2px; font-weight: 500; }
-    .e-msg { flex: 1; font-size: 12px; line-height: 1.65; color: var(--ink); min-width: 160px; }
+    .e-chip {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px 12px;
+      min-height: 112px;
+      box-shadow: 0 1px 2px rgba(44,36,24,.06);
+    }
+    .e-chip-label { font-family: var(--font-body); font-size: 11px; font-weight: 600; letter-spacing: .06em; color: var(--deep-brown); opacity: 0.75; margin-bottom: 8px; }
+    .e-chip-num { font-family: var(--font-serif); font-size: 30px; font-weight: 400; color: var(--accent); line-height: 1; }
+    .e-chip-title { font-size: 12px; color: var(--warm-brown); margin-top: 8px; font-weight: 600; line-height: 1.3; }
+    .e-msg {
+      width: 100%;
+      font-size: 13px;
+      line-height: 1.65;
+      color: var(--ink);
+      text-align: center;
+      padding: 10px 12px;
+      background: rgba(255,255,255,.55);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+    }
     .e-msg strong { color: var(--deep-brown); }
 
     .num-ctx-banner {
@@ -125,8 +149,43 @@
 
     .num-merge { border-left-color: var(--teal); margin-bottom: 20px; }
     .num-merge-title { font-family: var(--font-serif); font-size: 17px; font-weight: 500; color: var(--deep-brown); margin-bottom: 12px; }
-    .num-merge-sub { font-family: var(--font-mono); font-size: 8px; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); margin: 16px 0 6px; }
     .num-merge-p { font-size: 13px; line-height: 1.85; color: var(--ink); margin-bottom: 4px; }
+    .num-energy-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px;
+      margin: 12px 0 8px;
+    }
+    .num-energy-grid--two { grid-template-columns: repeat(2, 1fr); }
+    .num-energy-box {
+      background: var(--parchment);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px 14px;
+      min-height: 148px;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 1px 2px rgba(44,36,24,.05);
+    }
+    .num-energy-box-h {
+      font-family: var(--font-body);
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: .08em;
+      color: var(--deep-brown);
+      opacity: 0.8;
+      margin-bottom: 6px;
+    }
+    .num-energy-box-num {
+      font-family: var(--font-serif);
+      font-size: 28px;
+      font-weight: 400;
+      color: var(--accent);
+      line-height: 1;
+      margin-bottom: 4px;
+    }
+    .num-energy-box-kw { font-size: 12px; font-weight: 600; color: var(--warm-brown); margin-bottom: 10px; }
+    .num-energy-box-body { font-size: 12.5px; line-height: 1.65; color: var(--ink); margin: 0; flex: 1; }
 
     .step-note { font-size: 12.5px; color: var(--muted); line-height: 1.65; margin-bottom: 16px; padding: 12px 14px; background: var(--parchment); border-radius: 8px; border: 1px solid var(--border); }
 
@@ -511,6 +570,13 @@
       .card-name-en { font-size: 8px; }
       .topbar { padding: 0 16px; }
       .energy-strip { padding: 12px 16px; top: 56px; }
+      .energy-box-row { gap: 8px; }
+      .e-chip { min-height: 100px; padding: 12px 8px; }
+      .e-chip-num { font-size: 24px; }
+      .e-chip-label { font-size: 10px; }
+      .num-energy-grid { grid-template-columns: 1fr; gap: 10px; }
+      .num-energy-grid--two { grid-template-columns: 1fr; }
+      .num-energy-box { min-height: 0; }
       .birth-wrap { padding: 12px 16px; }
     }
   </style>
@@ -540,9 +606,11 @@
 
 <div class="energy-strip" id="energyStrip">
   <div class="energy-inner">
-    <div class="e-chip"><div class="e-chip-label">올해</div><div class="e-chip-num" id="sYear">-</div><div class="e-chip-title" id="sYearT"></div></div>
-    <div class="e-chip"><div class="e-chip-label">이번달</div><div class="e-chip-num" id="sMonth">-</div><div class="e-chip-title" id="sMonthT"></div></div>
-    <div class="e-chip"><div class="e-chip-label">오늘</div><div class="e-chip-num" id="sDay">-</div><div class="e-chip-title" id="sDayT"></div></div>
+    <div class="energy-box-row">
+      <div class="e-chip"><div class="e-chip-label">올해</div><div class="e-chip-num" id="sYear">-</div><div class="e-chip-title" id="sYearT"></div></div>
+      <div class="e-chip"><div class="e-chip-label">이번 달</div><div class="e-chip-num" id="sMonth">-</div><div class="e-chip-title" id="sMonthT"></div></div>
+      <div class="e-chip"><div class="e-chip-label">오늘</div><div class="e-chip-num" id="sDay">-</div><div class="e-chip-title" id="sDayT"></div></div>
+    </div>
     <div class="e-msg" id="sMsg"></div>
   </div>
 </div>
@@ -802,6 +870,8 @@ const DAY_HINT = {
   33: '오늘은 베풂과 쉼의 균형을 맞추면 좋은 날이에요.'
 };
 
+const NUM_KW_SHORT = { 1: '시작', 2: '협력', 3: '확장', 4: '안정', 5: '변화', 6: '조화', 7: '성찰', 8: '성취', 9: '정리', 11: '영감', 22: '건설', 33: '치유' };
+
 function reduce(n, allowM) {
   if (allowM === undefined) allowM = true;
   let r = n;
@@ -835,11 +905,10 @@ function confirmBirth() {
   calcPm = reduce(calcPy + cM);
   calcPd = reduce(calcPm + cD);
 
-  const KW = { 1: '시작', 2: '협력', 3: '확장', 4: '안정', 5: '변화', 6: '조화', 7: '성찰', 8: '성취', 9: '정리', 11: '영감', 22: '건설', 33: '치유' };
   function set(id, t) { document.getElementById(id).textContent = t; }
-  set('sYear', calcPy); set('sYearT', KW[calcPy] || '');
-  set('sMonth', calcPm); set('sMonthT', KW[calcPm] || '');
-  set('sDay', calcPd); set('sDayT', KW[calcPd] || '');
+  set('sYear', calcPy); set('sYearT', NUM_KW_SHORT[calcPy] || '');
+  set('sMonth', calcPm); set('sMonthT', NUM_KW_SHORT[calcPm] || '');
+  set('sDay', calcPd); set('sDayT', NUM_KW_SHORT[calcPd] || '');
   document.getElementById('sMsg').innerHTML =
     `올해는 <strong>${calcPy}번</strong> 에너지, 이번 달은 <strong>${calcPm}번</strong>, 오늘은 <strong>${calcPd}번</strong>이에요. 아래 타로는 이 맥락 위에서 읽어 보시면 됩니다.`;
   document.getElementById('energyStrip').classList.add('visible');
@@ -869,20 +938,33 @@ function refreshDeckContextBanner(questionTrim) {
   line.textContent = t;
 }
 
+function numEnergyBoxHtml(period, n, shortKw, hint) {
+  const kw = shortKw
+    ? '<div class="num-energy-box-kw">' + escapeHtml(shortKw) + '</div>'
+    : '';
+  return (
+    '<div class="num-energy-box">' +
+    '<div class="num-energy-box-h">' + escapeHtml(period) + '</div>' +
+    '<div class="num-energy-box-num">' + n + '</div>' +
+    kw +
+    '<p class="num-energy-box-body">' + escapeHtml(hint) + '</p>' +
+    '</div>'
+  );
+}
+
 function buildNumMergeBlock(questionTrim) {
   if (!birthReady) return '';
   let html = '<div class="reading-section num-merge">';
   html += '<div class="reading-tag">수비학 맥락 · 타로와 함께 읽기</div>';
   html += '<div class="num-merge-title">지금 붙어 있는 에너지</div>';
   html += '<p class="num-merge-p" style="color:var(--muted);font-size:12px;">아래는 참고용 생활 테마예요. 카드 메시지를 “이 시기의 나”에 맞게 초점 맞추는 데 쓰면 됩니다.</p>';
-  html += '<div class="num-merge-sub">올해 ' + calcPy + '번</div>';
-  html += '<p class="num-merge-p">' + escapeHtml(hintPick(YEAR_HINT, calcPy)) + '</p>';
-  html += '<div class="num-merge-sub">이번 달 ' + calcPm + '번</div>';
-  html += '<p class="num-merge-p">' + escapeHtml(hintPick(MONTH_HINT, calcPm)) + '</p>';
+  html += '<div class="num-energy-grid' + (questionTrim ? ' num-energy-grid--two' : '') + '">';
+  html += numEnergyBoxHtml('올해', calcPy, NUM_KW_SHORT[calcPy] || '', hintPick(YEAR_HINT, calcPy));
+  html += numEnergyBoxHtml('이번 달', calcPm, NUM_KW_SHORT[calcPm] || '', hintPick(MONTH_HINT, calcPm));
   if (!questionTrim) {
-    html += '<div class="num-merge-sub">오늘 ' + calcPd + '번</div>';
-    html += '<p class="num-merge-p">' + escapeHtml(hintPick(DAY_HINT, calcPd)) + '</p>';
+    html += numEnergyBoxHtml('오늘', calcPd, NUM_KW_SHORT[calcPd] || '', hintPick(DAY_HINT, calcPd));
   }
+  html += '</div>';
   html += '<p class="num-merge-p" style="margin-top:12px;color:var(--warm-brown);">→ 아래 카드 문구를 읽을 때, 위 테마 중 <strong>지금 마음에 와닿는 한 가지</strong>만 골라 겹쳐 보세요.</p>';
   html += '</div>';
   return html;
