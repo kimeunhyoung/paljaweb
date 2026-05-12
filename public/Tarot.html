@@ -269,12 +269,15 @@
       width: 160px;
     }
     .tarot-card-pos {
-      font-family: var(--font-mono);
-      font-size: 8px;
-      letter-spacing: .14em;
-      text-transform: uppercase;
-      color: var(--muted);
+      font-family: var(--font-body);
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: .02em;
+      color: var(--deep-brown);
+      opacity: 0.88;
       text-align: center;
+      line-height: 1.35;
+      max-width: 100%;
     }
 
     .tarot-card {
@@ -325,8 +328,12 @@
       justify-content: flex-start;
       gap: 4px;
       padding: 6px;
+      position: relative;
     }
-    .tarot-card-front.reversed { transform: rotateY(180deg) rotate(180deg); }
+    /* 역방향: 이미지만 뒤집고 이름·영문은 읽기 쉽게 정방향 유지 */
+    .tarot-card-front.reversed .tarot-card-art img {
+      transform: rotate(180deg);
+    }
 
     .tarot-card-art {
       width: 100%;
@@ -355,45 +362,33 @@
     }
     .card-name-ko {
       font-family: var(--font-serif);
-      font-size: 10px;
-      font-weight: 500;
+      font-size: 13px;
+      font-weight: 600;
       color: var(--deep-brown);
       text-align: center;
-      line-height: 1.3;
-      margin-bottom: 3px;
+      line-height: 1.35;
+      margin-bottom: 4px;
     }
     .card-name-en {
       font-family: var(--font-mono);
-      font-size: 7px;
-      color: var(--muted);
+      font-size: 9px;
+      color: var(--ink);
+      opacity: 0.72;
       text-align: center;
-      letter-spacing: .06em;
+      letter-spacing: .04em;
     }
     .card-reversed-badge {
       position: absolute;
       top: 6px; right: 6px;
-      background: rgba(192,57,43,.1);
-      border: 1px solid rgba(192,57,43,.2);
-      border-radius: 4px;
-      font-family: var(--font-mono);
-      font-size: 6px;
-      color: #c0392b;
-      padding: 2px 4px;
-      letter-spacing: .06em;
-    }
-
-    .tarot-card-name {
-      font-family: var(--font-serif);
-      font-size: 11px;
-      font-weight: 500;
-      color: var(--deep-brown);
-      text-align: center;
-      line-height: 1.4;
-    }
-    .tarot-card-reversed {
-      font-family: var(--font-mono);
-      font-size: 8px;
-      color: #c0392b;
+      background: rgba(192,57,43,.12);
+      border: 1px solid rgba(192,57,43,.28);
+      border-radius: 5px;
+      font-family: var(--font-body);
+      font-size: 9px;
+      font-weight: 600;
+      color: #a93226;
+      padding: 3px 6px;
+      letter-spacing: .04em;
     }
 
     /* ── AI 리딩 ── */
@@ -464,9 +459,9 @@
       border-radius: 10px;
       padding: 16px;
     }
-    .cs-pos { font-family: var(--font-mono); font-size: 8px; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); margin-bottom: 6px; }
-    .cs-name { font-family: var(--font-serif); font-size: 14px; font-weight: 500; color: var(--deep-brown); margin-bottom: 6px; }
-    .cs-keywords { font-size: 11px; color: var(--teal); line-height: 1.6; }
+    .cs-pos { font-family: var(--font-body); font-size: 11px; font-weight: 600; letter-spacing: .02em; color: var(--deep-brown); opacity: 0.85; margin-bottom: 8px; line-height: 1.35; }
+    .cs-name { font-family: var(--font-serif); font-size: 15px; font-weight: 600; color: var(--deep-brown); margin-bottom: 8px; }
+    .cs-keywords { font-size: 13px; color: var(--ink); line-height: 1.65; }
 
     /* 다시하기 버튼 */
     .reset-btn {
@@ -511,6 +506,9 @@
       .deck-grid { grid-template-columns: repeat(auto-fill, minmax(42px, 1fr)); gap: 4px; }
       .drawn-row { gap: 10px; }
       .tarot-card-wrap { width: 110px; }
+      .tarot-card-pos { font-size: 10px; }
+      .card-name-ko { font-size: 12px; }
+      .card-name-en { font-size: 8px; }
       .topbar { padding: 0 16px; }
       .energy-strip { padding: 12px 16px; top: 56px; }
       .birth-wrap { padding: 12px 16px; }
@@ -578,8 +576,8 @@
         <div class="energy-opts-grid">
           <div class="eopt selected" data-eopt="daily" onclick="selectEopt('daily', this)">
             <div class="eopt-title">데일리 5장</div>
-            <div class="eopt-nums">올해 · 이번 달 · 오늘</div>
-            <div class="eopt-desc">하루를 여는 에너지. 연·월·일 맥락을 한 번에.</div>
+            <div class="eopt-nums">오늘의 흐름 3 + 보조 2</div>
+            <div class="eopt-desc">위 세 장은 오늘의 흐름, 아래 두 장은 도움이 되는 점과 피하면 좋은 점을 봅니다.</div>
           </div>
           <div class="eopt" data-eopt="month" onclick="selectEopt('month', this)">
             <div class="eopt-title">이번 달 3장</div>
@@ -681,7 +679,7 @@ let curMode = 'energy';
 let curEopt = 'daily';
 let curTopic = '';
 const TOPIC_LABELS = { love: '사랑', work: '일·커리어', money: '재정', relation: '관계', inner: '내면·성장' };
-const EOPT_READING_TITLE = { daily: '데일리 에너지', month: '이번 달 에너지', next_month: '다음 달 준비', year: '올해 에너지 흐름' };
+const EOPT_READING_TITLE = { daily: '데일리 · 오늘의 흐름', month: '이번 달 에너지', next_month: '다음 달 준비', year: '올해 에너지 흐름' };
 const FLOW_INTRO = {
   1: '올해 수에는 새 출발과 독립적 추진력이 잘 붙는 편이에요.',
   2: '올해 수에는 협력·조율·관계 맞추기가 강조돼 있어요.',
@@ -697,7 +695,7 @@ const FLOW_INTRO = {
   33: '올해 수에는 치유·포용·봉사의 테마가 강해요.'
 };
 const ENERGY_POSITIONS = {
-  daily: ['올해 큰 그림', '연간 보조 테마', '이번 달 포커스', '오늘의 한 걸음', '종합 메시지'],
+  daily: ['오늘의 흐름 · 시작', '오늘의 흐름 · 중심', '오늘의 흐름 · 이어짐', '도움되는 것', '도움이 안 되는 것'],
   month: ['이번 달 시작', '이번 달 핵심', '이번 달 정리'],
   next_month: ['다음 달 · 마음', '다음 달 · 실행', '다음 달 · 주변'],
   year: ['연간 뿌리', '성장·확장', '관계·조화', '도전·조정', '결실·마무리']
@@ -1094,13 +1092,12 @@ function showDrawnCards() {
             ${card.faceRev ? '<div class="card-reversed-badge">역방향</div>' : ''}
             <div class="tarot-card-art"><img src="${imgSrc}" alt="${escapeHtmlAttr(card.name)}" loading="lazy" /></div>
             <div class="tarot-card-front-meta">
-              <div class="card-name-ko">${card.name}</div>
+              <div class="card-name-ko">${card.name}${card.faceRev ? ' (역)' : ''}</div>
               <div class="card-name-en">${card.en}</div>
             </div>
           </div>
         </div>
       </div>
-      <div class="tarot-card-name" id="cardname-${i}" style="opacity:0">${card.name}${card.faceRev ? '<br><span class="tarot-card-reversed">역방향</span>' : ''}</div>
     `;
       row.appendChild(wrap);
     });
@@ -1119,7 +1116,6 @@ function flipCard(i) {
   const cardEl = document.getElementById('card-' + i);
   if (cardEl.classList.contains('flipped')) return;
   cardEl.classList.add('flipped');
-  document.getElementById('cardname-' + i).style.opacity = '1';
   flippedCount++;
 
   if (flippedCount === spreadCount) {
