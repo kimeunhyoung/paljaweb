@@ -1303,21 +1303,21 @@ function positiveSublimation(card) {
 
 function heroMonologue(card) {
   if (card.suit === 'major' && MAJOR_ENRICHED[card.id]) {
-    if (card.faceRev) return '역으로 눕혀졌을 때, 속마음은 이렇게 떨려 와요. ' + card.textReversed;
+    if (card.faceRev) return '(역) ' + card.textReversed;
     return MAJOR_ENRICHED[card.id].mono;
   }
-  if (card.faceRev) return '「' + card.name + '」가 거꾸로일 때 나는 이렇게 느끼기 쉬워요. ' + card.textReversed;
-  return '「' + card.name + '」 장면에 나를 겹쳐 보면, 나는 지금 이렇게 말해요. (' + card.keywords + ') ' + card.textUpright;
+  if (card.faceRev) return card.textReversed;
+  return (card.keywords ? '(' + card.keywords + ') ' : '') + card.textUpright;
 }
 
 function numerologyBridgeText(card) {
   if (!birthReady) {
-    return '「' + card.name + '」 ' + card.symbol + '의 상징은 생년월일·에너지 확인 뒤, 올해·이번 달·오늘 수와 겹쳐 읽을 때 가장 또렷해져요.';
+    return '생년월일을 입력하면 연·월·일 수가 여기 붙습니다.';
   }
   const yk = NUM_KW_SHORT[calcPy] || '';
   const mk = NUM_KW_SHORT[calcPm] || '';
   const dk = NUM_KW_SHORT[calcPd] || '';
-  return '지금 붙은 수비학 리듬은 올해 ' + calcPy + '번(' + yk + '), 이번 달 ' + calcPm + '번(' + mk + '), 오늘 ' + calcPd + '번(' + dk + ')이에요. 「' + card.name + '」' + card.symbol + '의 상징은 이 흐름 안에서 시작·조율·마무리·관계·실행 중 당신에게 닿는 쪽의 속도로 메시지가 기울어요.';
+  return '연 ' + calcPy + '(' + yk + ') · 월 ' + calcPm + '(' + mk + ') · 일 ' + calcPd + '(' + dk + ').';
 }
 
 function actionAdviceBlock(card) {
