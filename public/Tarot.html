@@ -144,45 +144,44 @@
     .step-label { font-family: var(--font-mono); font-size: 9px; letter-spacing: .2em; text-transform: uppercase; color: var(--accent); margin-bottom: 8px; }
     .step-title { font-family: var(--font-serif); font-size: 22px; font-weight: 400; color: var(--deep-brown); margin-bottom: 20px; }
 
-    .question-input {
-      width: 100%;
-      background: var(--parchment);
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 14px 18px;
-      font-family: var(--font-body);
-      font-size: 14px;
-      color: var(--ink);
-      outline: none;
-      resize: none;
-      line-height: 1.7;
-      transition: border-color .15s;
-      min-height: 80px;
+    .mode-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 24px; }
+    .mode-card {
+      background: white; border: 2px solid var(--border); border-radius: 14px; padding: 22px 18px;
+      cursor: pointer; transition: all .2s; text-align: center;
     }
-    .question-input:focus { border-color: var(--accent); }
-    .question-input::placeholder { color: var(--muted); }
+    .mode-card:hover, .mode-card.selected { border-color: var(--accent); background: var(--accent-lt); }
+    .mode-icon { font-size: 28px; margin-bottom: 8px; }
+    .mode-title { font-family: var(--font-serif); font-size: 17px; font-weight: 400; color: var(--deep-brown); margin-bottom: 6px; }
+    .mode-desc { font-size: 12px; color: var(--muted); line-height: 1.55; }
 
-    /* 배열 선택 */
-    .spread-options {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 10px;
-      margin-top: 20px;
+    .energy-opts { display: none; }
+    .energy-opts.on { display: block; }
+    .energy-opts-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+    .eopt {
+      background: var(--parchment); border: 1px solid var(--border); border-radius: 10px; padding: 14px;
+      cursor: pointer; transition: all .15s;
     }
-    .spread-opt {
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 14px 12px;
-      text-align: center;
-      cursor: pointer;
-      transition: all .15s;
-      background: var(--parchment);
+    .eopt:hover, .eopt.selected { border-color: var(--accent); background: var(--accent-lt); }
+    .eopt-title { font-family: var(--font-serif); font-size: 14px; color: var(--deep-brown); margin-bottom: 4px; }
+    .eopt-nums { font-family: var(--font-mono); font-size: 9px; color: var(--accent); letter-spacing: .08em; margin-bottom: 4px; }
+    .eopt-desc { font-size: 10.5px; color: var(--muted); line-height: 1.45; }
+
+    .question-opts { display: none; }
+    .question-opts.on { display: block; }
+    .topic-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 14px; }
+    .topic-btn {
+      background: var(--parchment); border: 1px solid var(--border); border-radius: 8px; padding: 11px 6px;
+      cursor: pointer; transition: all .15s; text-align: center; font-size: 12.5px; color: var(--ink); font-family: var(--font-body);
     }
-    .spread-opt:hover { border-color: var(--accent); background: var(--accent-lt); }
-    .spread-opt.selected { border-color: var(--accent); background: var(--accent-lt); }
-    .spread-opt-num { font-family: var(--font-serif); font-size: 28px; font-weight: 300; color: var(--accent); line-height: 1; margin-bottom: 4px; }
-    .spread-opt-name { font-family: var(--font-mono); font-size: 8px; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); margin-bottom: 4px; }
-    .spread-opt-desc { font-size: 11px; color: var(--muted); line-height: 1.5; }
+    .topic-btn:hover, .topic-btn.selected { border-color: var(--accent); background: var(--accent-lt); color: var(--deep-brown); font-weight: 500; }
+    .custom-input {
+      width: 100%; background: var(--parchment); border: 1px solid var(--border); border-radius: 8px; padding: 12px 16px;
+      font-family: var(--font-body); font-size: 14px; color: var(--ink); outline: none; resize: none; line-height: 1.65;
+      min-height: 68px; display: none;
+    }
+    .custom-input.on { display: block; }
+    .custom-input:focus { border-color: var(--accent); }
+    .custom-input::placeholder { color: var(--muted); }
 
     .shuffle-btn {
       width: 100%;
@@ -247,13 +246,19 @@
     }
     .deck-card.drawn::before { content: '✓'; color: var(--accent); font-size: 16px; }
 
-    /* ── STEP 3: 뽑은 카드 ── */
-    .drawn-cards {
+    /* ── STEP 3: 뽑은 카드 (5장 3+2) ── */
+    .drawn-cards-v2 {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      align-items: center;
+      margin-bottom: 32px;
+    }
+    .drawn-row {
       display: flex;
       gap: 16px;
-      flex-wrap: wrap;
       justify-content: center;
-      margin-bottom: 32px;
+      flex-wrap: wrap;
     }
 
     .tarot-card-wrap {
@@ -261,7 +266,7 @@
       flex-direction: column;
       align-items: center;
       gap: 8px;
-      width: 120px;
+      width: 160px;
     }
     .tarot-card-pos {
       font-family: var(--font-mono);
@@ -500,10 +505,12 @@
       .hero { padding: 40px 20px 36px; }
       .hero-title { font-size: 34px; }
       .main { padding: 28px 16px 60px; }
-      .spread-options { grid-template-columns: 1fr 1fr 1fr; }
+      .mode-grid { grid-template-columns: 1fr; }
+      .energy-opts-grid { grid-template-columns: 1fr; }
+      .topic-grid { grid-template-columns: repeat(2, 1fr); }
       .deck-grid { grid-template-columns: repeat(auto-fill, minmax(42px, 1fr)); gap: 4px; }
-      .drawn-cards { gap: 10px; }
-      .tarot-card-wrap { width: 90px; }
+      .drawn-row { gap: 10px; }
+      .tarot-card-wrap { width: 110px; }
       .topbar { padding: 0 16px; }
       .energy-strip { padding: 12px 16px; top: 56px; }
       .birth-wrap { padding: 12px 16px; }
@@ -549,34 +556,65 @@
   <div id="step1">
     <div class="step-card">
       <div class="step-label">Step 01</div>
-      <div class="step-title">마음속 질문을 적어주세요</div>
-      <p class="step-note">위에서 <strong>생년월일</strong>을 넣고 에너지를 확인하면, 올해·이달·오늘 숫자가 타로 해석의 <strong>맥락</strong>으로 붙습니다. (참고용 안내예요.)</p>
-      <textarea class="question-input" id="questionInput" placeholder="예) 지금 이 관계를 계속해야 할까요? / 새로운 시작을 해도 될까요? / 올해 커리어의 방향은?&#10;&#10;질문이 없다면 비워두세요. 오늘의 흐름을 읽어드립니다."></textarea>
+      <div class="step-title">리딩 모드 선택</div>
+      <p class="step-note">위에서 <strong>생년월일</strong>을 넣고 에너지를 확인하면, 올해·이달·오늘 숫자가 타로와 함께 <strong>맥락</strong>으로 붙습니다. 모드를 고른 뒤 카드를 뽑아 주세요.</p>
 
-      <div style="margin-top:24px;">
-        <div class="step-label">배열 선택</div>
-        <div class="step-title" style="font-size:16px;margin-bottom:16px;">몇 장으로 볼까요?</div>
-        <div class="spread-options">
-          <div class="spread-opt" onclick="selectSpread(3, this)">
-            <div class="spread-opt-num">3</div>
-            <div class="spread-opt-name">과거·현재·미래</div>
-            <div class="spread-opt-desc">상황의 흐름을 간결하게</div>
+      <div class="mode-grid">
+        <div class="mode-card selected" data-mode="energy" onclick="selectMode('energy', this)">
+          <div class="mode-icon">〰</div>
+          <div class="mode-title">에너지 흐름</div>
+          <div class="mode-desc">올해·이번 달·오늘 수를 배경으로 흐름을 봅니다. 5장 또는 3장 스프레드.</div>
+        </div>
+        <div class="mode-card" data-mode="question" onclick="selectMode('question', this)">
+          <div class="mode-icon">?</div>
+          <div class="mode-title">질문</div>
+          <div class="mode-desc">주제를 고르거나 직접 적고, 과거·현재·미래 3장으로 살펴봅니다.</div>
+        </div>
+      </div>
+
+      <div id="energyOpts" class="energy-opts on">
+        <div class="step-label" style="margin-top:8px;">에너지 스프레드</div>
+        <div class="step-title" style="font-size:16px;margin-bottom:14px;">무엇을 볼까요?</div>
+        <div class="energy-opts-grid">
+          <div class="eopt selected" data-eopt="daily" onclick="selectEopt('daily', this)">
+            <div class="eopt-title">데일리 5장</div>
+            <div class="eopt-nums">올해 · 이번 달 · 오늘</div>
+            <div class="eopt-desc">하루를 여는 에너지. 연·월·일 맥락을 한 번에.</div>
           </div>
-          <div class="spread-opt selected" onclick="selectSpread(5, this)">
-            <div class="spread-opt-num">5</div>
-            <div class="spread-opt-name">켈틱 크로스</div>
-            <div class="spread-opt-desc">현재 상황의 깊은 통찰</div>
+          <div class="eopt" data-eopt="month" onclick="selectEopt('month', this)">
+            <div class="eopt-title">이번 달 3장</div>
+            <div class="eopt-nums">3장</div>
+            <div class="eopt-desc">이번 달의 시작·핵심·정리 흐름.</div>
           </div>
-          <div class="spread-opt" onclick="selectSpread(7, this)">
-            <div class="spread-opt-num">7</div>
-            <div class="spread-opt-name">호스슈 배열</div>
-            <div class="spread-opt-desc">과거부터 결과까지 전체 흐름</div>
+          <div class="eopt" data-eopt="next_month" onclick="selectEopt('next_month', this)">
+            <div class="eopt-title">다음 달 준비 3장</div>
+            <div class="eopt-nums">3장</div>
+            <div class="eopt-desc">다가올 달을 위해 마음·실행·주변을 점검.</div>
+          </div>
+          <div class="eopt" data-eopt="year" onclick="selectEopt('year', this)">
+            <div class="eopt-title">올해 5장</div>
+            <div class="eopt-nums">5장</div>
+            <div class="eopt-desc">개인년 에너지를 넓게 훑는 연간 흐름.</div>
           </div>
         </div>
       </div>
 
-      <button type="button" class="shuffle-btn" id="shuffleBtn" onclick="startShuffle()" disabled>
-        ✦ 카드 셔플하기
+      <div id="questionOpts" class="question-opts">
+        <div class="step-label" style="margin-top:8px;">질문 주제</div>
+        <div class="step-title" style="font-size:16px;margin-bottom:14px;">무엇이 궁금하신가요?</div>
+        <div class="topic-grid">
+          <div class="topic-btn" data-topic="love" onclick="selectTopic('love', this)">사랑</div>
+          <div class="topic-btn" data-topic="work" onclick="selectTopic('work', this)">일·커리어</div>
+          <div class="topic-btn" data-topic="money" onclick="selectTopic('money', this)">재정</div>
+          <div class="topic-btn" data-topic="relation" onclick="selectTopic('relation', this)">관계</div>
+          <div class="topic-btn" data-topic="inner" onclick="selectTopic('inner', this)">내면·성장</div>
+          <div class="topic-btn" data-topic="custom" onclick="selectTopic('custom', this)">직접 입력</div>
+        </div>
+        <textarea id="customQuestionInput" class="custom-input" placeholder="마음속 질문을 적어주세요. (예: 지금 이 관계를 계속해도 될까요?)"></textarea>
+      </div>
+
+      <button type="button" class="shuffle-btn" id="shuffleBtn" onclick="startSpread()" disabled>
+        ✦ 카드 뽑기 시작
       </button>
     </div>
   </div>
@@ -587,12 +625,12 @@
       <div class="step-label">Step 02</div>
       <div class="step-title">카드를 선택해주세요</div>
       <div class="num-ctx-banner" id="numCtxBanner" style="display:none;">
-        <div class="num-ctx-label">지금 붙어 있는 수비학 맥락</div>
+        <div class="num-ctx-label">수비학 맥락</div>
         <div class="num-ctx-tags" id="numCtxTags"></div>
         <div class="num-ctx-line" id="numCtxLine"></div>
       </div>
       <div class="deck-instruction">
-        <p>눈을 감고 질문을 마음속에 떠올리세요.<br>
+        <p>눈을 감고 오늘의 에너지나 질문을 마음에 두세요.<br>
         직관이 이끄는 카드를 <strong id="drawCountText">5장</strong> 골라주세요.</p>
       </div>
       <div class="deck-grid" id="deckGrid"></div>
@@ -604,7 +642,7 @@
     <div class="step-card" style="margin-bottom:24px;">
       <div class="step-label">Step 03</div>
       <div class="step-title">카드를 클릭해서 펼쳐보세요</div>
-      <div class="drawn-cards" id="drawnCards"></div>
+      <div class="drawn-cards-v2" id="drawnCards"></div>
     </div>
 
     <div id="readingArea"></div>
@@ -638,10 +676,86 @@ async function initAuth() {
   } catch (e) {}
 }
 
-let selectedSpread = 5;
+let spreadCount = 5;
+let curMode = 'energy';
+let curEopt = 'daily';
+let curTopic = '';
+const TOPIC_LABELS = { love: '사랑', work: '일·커리어', money: '재정', relation: '관계', inner: '내면·성장' };
+const EOPT_READING_TITLE = { daily: '데일리 에너지', month: '이번 달 에너지', next_month: '다음 달 준비', year: '올해 에너지 흐름' };
+const FLOW_INTRO = {
+  1: '올해 수에는 새 출발과 독립적 추진력이 잘 붙는 편이에요.',
+  2: '올해 수에는 협력·조율·관계 맞추기가 강조돼 있어요.',
+  3: '올해 수에는 표현·창작·소통이 두드러지는 흐름이에요.',
+  4: '올해 수에는 안정·기반·루틴을 다지는 기운이 크게 붙어요.',
+  5: '올해 수에는 변화·탐험·선택지가 많아지는 에너지가 있어요.',
+  6: '올해 수에는 관계·가족·조화와 돌봄이 중심이에요.',
+  7: '올해 수에는 성찰·전문성·나만의 속도가 잘 맞는 편이에요.',
+  8: '올해 수에는 성취·결실·현실적인 결과를 내기 좋아요.',
+  9: '올해 수에는 정리·마무리·내려놓기의 흐름이 있어요.',
+  11: '올해 수에는 직관과 영감이 열리는 시기이에요.',
+  22: '올해 수에는 큰 그림을 현실로 옮기는 건설적 에너지가 붙어요.',
+  33: '올해 수에는 치유·포용·봉사의 테마가 강해요.'
+};
+const ENERGY_POSITIONS = {
+  daily: ['올해 큰 그림', '연간 보조 테마', '이번 달 포커스', '오늘의 한 걸음', '종합 메시지'],
+  month: ['이번 달 시작', '이번 달 핵심', '이번 달 정리'],
+  next_month: ['다음 달 · 마음', '다음 달 · 실행', '다음 달 · 주변'],
+  year: ['연간 뿌리', '성장·확장', '관계·조화', '도전·조정', '결실·마무리']
+};
 let shuffledDeck = [];
 let drawnCards = [];
 let flippedCount = 0;
+
+function getQuestionLabel() {
+  if (curMode !== 'question') return '';
+  if (curTopic === 'custom') return document.getElementById('customQuestionInput').value.trim();
+  if (!curTopic) return '';
+  return TOPIC_LABELS[curTopic] || '';
+}
+
+function getPositions() {
+  if (curMode === 'question') return ['과거', '현재', '미래'];
+  return ENERGY_POSITIONS[curEopt] || ENERGY_POSITIONS.daily;
+}
+
+function selectMode(m, el) {
+  curMode = m;
+  document.querySelectorAll('.mode-card').forEach(e => e.classList.remove('selected'));
+  el.classList.add('selected');
+  const eo = document.getElementById('energyOpts');
+  const qo = document.getElementById('questionOpts');
+  if (m === 'energy') {
+    eo.classList.add('on');
+    qo.classList.remove('on');
+    spreadCount = (curEopt === 'month' || curEopt === 'next_month') ? 3 : 5;
+  } else {
+    eo.classList.remove('on');
+    qo.classList.add('on');
+    spreadCount = 3;
+  }
+  document.getElementById('drawCountText').textContent = spreadCount + '장';
+}
+
+function selectEopt(o, el) {
+  curEopt = o;
+  document.querySelectorAll('.eopt').forEach(e => e.classList.remove('selected'));
+  el.classList.add('selected');
+  spreadCount = (o === 'month' || o === 'next_month') ? 3 : 5;
+  document.getElementById('drawCountText').textContent = spreadCount + '장';
+}
+
+function selectTopic(t, el) {
+  curTopic = t;
+  document.querySelectorAll('.topic-btn').forEach(e => e.classList.remove('selected'));
+  el.classList.add('selected');
+  const ci = document.getElementById('customQuestionInput');
+  if (t === 'custom') {
+    ci.classList.add('on');
+    ci.focus();
+  } else {
+    ci.classList.remove('on');
+  }
+}
 
 let birthReady = false;
 let bY, bM, bD, calcPy, calcPm, calcPd;
@@ -736,18 +850,24 @@ function confirmBirth() {
   document.getElementById('mainArea').scrollIntoView({ behavior: 'smooth' });
 }
 
-function fillStep2NumBanner(questionTrim) {
+function refreshDeckContextBanner(questionTrim) {
+  const labelEl = document.querySelector('#numCtxBanner .num-ctx-label');
   const tags = document.getElementById('numCtxTags');
   const line = document.getElementById('numCtxLine');
   const ban = document.getElementById('numCtxBanner');
   if (!birthReady) { ban.style.display = 'none'; return; }
   ban.style.display = 'block';
+  if (labelEl) labelEl.textContent = curMode === 'energy' ? '지금 당신의 에너지' : '질문과 맞닿은 수';
   const chips = [`올해 ${calcPy}번`, `이번달 ${calcPm}번`];
   if (!questionTrim) chips.push(`오늘 ${calcPd}번`);
   tags.innerHTML = chips.map(c => `<span class="num-ctx-tag">${c}</span>`).join('');
   let t = hintPick(YEAR_HINT, calcPy) + ' ' + hintPick(MONTH_HINT, calcPm);
   if (!questionTrim) t += ' ' + hintPick(DAY_HINT, calcPd);
   else t += ' 질문 리딩에서는 올해·이번 달 흐름을 배경으로 카드를 읽어 보세요.';
+  if (curMode === 'energy') {
+    const intro = FLOW_INTRO[calcPy] || '올해·이달·오늘의 수가 함께 어우러지는 시기예요.';
+    t = intro + ' ' + t;
+  }
   line.textContent = t;
 }
 
@@ -861,13 +981,6 @@ const TAROT_DECK = [
   { id:77, name:"펜타클 왕",    en:"King of Pentacles", symbol:"💎", suit:"pentacles",keywords:"풍요, 안정, 리더십, 성공, 재정 관리", upright:"현실적이고 성숙한 리더십으로 번영을 이루세요.", reversed:"물질주의, 고집, 재정 불안" }
 ];
 
-// 배열별 포지션 이름
-const SPREAD_POSITIONS = {
-  3: ["과거", "현재", "미래"],
-  5: ["현재 상황", "장애물", "과거의 영향", "미래의 흐름", "최종 결과"],
-  7: ["과거", "현재", "숨겨진 영향", "조언", "외부 영향", "희망/두려움", "최종 결과"]
-};
-
 // 배열별 배경색
 const CARD_COLORS = {
   major: '#f5f0e8',
@@ -898,23 +1011,29 @@ function getTarotCardImageSrc(card) {
   return 'tarot/' + encodeURIComponent(file);
 }
 
-function selectSpread(n, el) {
-  selectedSpread = n;
-  document.querySelectorAll('.spread-opt').forEach(e => e.classList.remove('selected'));
-  el.classList.add('selected');
-  document.getElementById('drawCountText').textContent = n + '장';
-}
-
-function startShuffle() {
+function startSpread() {
   if (!birthReady) {
     alert('먼저 생년월일을 입력하고 「에너지 확인」을 눌러주세요.');
     return;
   }
-  const question = document.getElementById('questionInput').value.trim();
+  if (curMode === 'question') {
+    if (!curTopic) {
+      alert('주제를 하나 선택해주세요.');
+      return;
+    }
+    if (curTopic === 'custom') {
+      const t = document.getElementById('customQuestionInput').value.trim();
+      if (!t) {
+        alert('질문을 입력해주세요.');
+        return;
+      }
+    }
+  }
+
   document.getElementById('step1').style.display = 'none';
   document.getElementById('step2').style.display = 'block';
-  document.getElementById('drawCountText').textContent = selectedSpread + '장';
-  fillStep2NumBanner(question);
+  document.getElementById('drawCountText').textContent = spreadCount + '장';
+  refreshDeckContextBanner(getQuestionLabel());
 
   shuffledDeck = [...TAROT_DECK].sort(() => Math.random() - .5);
   drawnCards = [];
@@ -932,14 +1051,14 @@ function startShuffle() {
 
 function drawCard(index, el) {
   if (el.classList.contains('drawn')) return;
-  if (drawnCards.length >= selectedSpread) return;
+  if (drawnCards.length >= spreadCount) return;
 
   el.classList.add('drawn');
   const card = shuffledDeck[index];
   const isReversed = Math.random() < 0.3; // 30% 확률로 역방향
   drawnCards.push({ ...card, reversed: isReversed });
 
-  if (drawnCards.length === selectedSpread) {
+  if (drawnCards.length === spreadCount) {
     setTimeout(showDrawnCards, 400);
   }
 }
@@ -948,19 +1067,22 @@ function showDrawnCards() {
   document.getElementById('step2').style.display = 'none';
   document.getElementById('step3').style.display = 'block';
 
-  const positions = SPREAD_POSITIONS[selectedSpread];
+  const positions = getPositions();
   const container = document.getElementById('drawnCards');
+  container.className = 'drawn-cards-v2';
   container.innerHTML = '';
   flippedCount = 0;
 
-  drawnCards.forEach((card, i) => {
-    const wrap = document.createElement('div');
-    wrap.className = 'tarot-card-wrap';
-
-    const bgColor = CARD_COLORS[card.suit] || '#f5f0e8';
-
-    const imgSrc = getTarotCardImageSrc(card);
-    wrap.innerHTML = `
+  function appendCardRow(indices) {
+    const row = document.createElement('div');
+    row.className = 'drawn-row';
+    indices.forEach(i => {
+      const card = drawnCards[i];
+      const wrap = document.createElement('div');
+      wrap.className = 'tarot-card-wrap';
+      const bgColor = CARD_COLORS[card.suit] || '#f5f0e8';
+      const imgSrc = getTarotCardImageSrc(card);
+      wrap.innerHTML = `
       <div class="tarot-card-pos">${positions[i]}</div>
       <div class="tarot-card" id="card-${i}" onclick="flipCard(${i})">
         <div class="tarot-card-inner">
@@ -979,8 +1101,17 @@ function showDrawnCards() {
       </div>
       <div class="tarot-card-name" id="cardname-${i}" style="opacity:0">${card.name}${card.reversed ? '<br><span class="tarot-card-reversed">역방향</span>' : ''}</div>
     `;
-    container.appendChild(wrap);
-  });
+      row.appendChild(wrap);
+    });
+    container.appendChild(row);
+  }
+
+  if (spreadCount === 5) {
+    appendCardRow([0, 1, 2]);
+    appendCardRow([3, 4]);
+  } else {
+    appendCardRow(drawnCards.map((_, i) => i));
+  }
 }
 
 function flipCard(i) {
@@ -990,14 +1121,14 @@ function flipCard(i) {
   document.getElementById('cardname-' + i).style.opacity = '1';
   flippedCount++;
 
-  if (flippedCount === selectedSpread) {
+  if (flippedCount === spreadCount) {
     setTimeout(startReading, 600);
   }
 }
 
 function startReading() {
-  const question = document.getElementById('questionInput')?.value?.trim() || '';
-  const positions = SPREAD_POSITIONS[selectedSpread];
+  const qTrim = getQuestionLabel();
+  const positions = getPositions();
 
   const summaries = document.getElementById('cardSummaries');
   summaries.innerHTML = '<div class="card-summaries">' +
@@ -1013,8 +1144,17 @@ function startReading() {
     `[${positions[i]}] ${card.name}${card.reversed ? ' (역방향)' : ''}\n${card.reversed ? card.reversed : card.upright}`
   ).join('\n\n');
 
-  const numBlock = buildNumMergeBlock(question);
-  const titleQ = question ? escapeHtml(question) : '오늘의 흐름';
+  const numBlock = buildNumMergeBlock(qTrim);
+  let titleQ;
+  if (curMode === 'energy') {
+    titleQ = EOPT_READING_TITLE[curEopt] || '에너지 흐름';
+  } else if (curTopic === 'custom' && qTrim) {
+    titleQ = '"' + escapeHtml(qTrim) + '"';
+  } else if (qTrim) {
+    titleQ = escapeHtml(qTrim) + ' · 흐름';
+  } else {
+    titleQ = '질문 리딩';
+  }
 
   let gateHtml = '';
   if (hasAccess('pro')) {
@@ -1035,7 +1175,7 @@ function startReading() {
     numBlock +
     `<div class="reading-section">
       <div class="reading-tag">✦ 카드 리딩</div>
-      <div class="reading-title">${titleQ === '오늘의 흐름' ? '오늘의 흐름' : '"' + titleQ + '"'}</div>
+      <div class="reading-title">${titleQ}</div>
       <div class="reading-text">${escapeHtml(basicReading)}</div>
     </div>` +
     gateHtml;
@@ -1045,6 +1185,29 @@ function resetAll() {
   drawnCards = [];
   shuffledDeck = [];
   flippedCount = 0;
+  curMode = 'energy';
+  curEopt = 'daily';
+  curTopic = '';
+  spreadCount = 5;
+
+  document.querySelectorAll('.mode-card').forEach(e => {
+    e.classList.toggle('selected', e.dataset.mode === 'energy');
+  });
+  document.getElementById('energyOpts').classList.add('on');
+  document.getElementById('questionOpts').classList.remove('on');
+  document.querySelectorAll('.eopt').forEach(e => {
+    e.classList.toggle('selected', e.dataset.eopt === 'daily');
+  });
+  document.querySelectorAll('.topic-btn').forEach(e => e.classList.remove('selected'));
+  const ci = document.getElementById('customQuestionInput');
+  if (ci) {
+    ci.value = '';
+    ci.classList.remove('on');
+  }
+
+  const dct = document.getElementById('drawCountText');
+  if (dct) dct.textContent = '5장';
+
   document.getElementById('step1').style.display = 'block';
   document.getElementById('step2').style.display = 'none';
   document.getElementById('step3').style.display = 'none';
@@ -1056,5 +1219,6 @@ function resetAll() {
 }
 
 initAuth();
+</script>
 </body>
 </html>
