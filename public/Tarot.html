@@ -1205,18 +1205,11 @@ function flipCard(i) {
   }
 }
 
-/** 데일리 5장 마지막 칸: 뽑힌 방향의 반대 해석(textUpright ↔ textReversed). */
-function isDailyUnhelpfulSlot(i) {
-  return curMode === 'energy' && curEopt === 'daily' && spreadCount === 5 && i === 4;
-}
-
-function cardReadingParagraph(card, i) {
-  if (isDailyUnhelpfulSlot(i)) return card.faceRev ? card.textUpright : card.textReversed;
+function cardReadingParagraph(card) {
   return card.faceRev ? card.textReversed : card.textUpright;
 }
 
-function cardSummaryKeywords(card, i) {
-  if (isDailyUnhelpfulSlot(i)) return card.faceRev ? card.keywords : card.textReversed;
+function cardSummaryKeywords(card) {
   return card.faceRev ? card.textReversed : card.keywords;
 }
 
@@ -1230,13 +1223,17 @@ function startReading() {
       <div class="card-summary">
         <div class="cs-pos">${positions[i]}</div>
         <div class="cs-name">${card.symbol} ${card.name}${card.faceRev ? ' (역)' : ''}</div>
-        <div class="cs-keywords">${cardSummaryKeywords(card, i)}</div>
+        <div class="cs-keywords">${cardSummaryKeywords(card)}</div>
       </div>`).join('') + '</div>';
 
   const readingArea = document.getElementById('readingArea');
   const basicReading = drawnCards.map((card, i) =>
-    `[${positions[i]}] ${card.name}${card.faceRev ? ' (역방향)' : ''}\n${cardReadingParagraph(card, i)}`
+    `[${positions[i]}] ${card.name}${card.faceRev ? ' (역방향)' : ''}\n${cardReadingParagraph(card)}`
   ).join('\n\n');
+  const dailyReadingHint =
+    curMode === 'energy' && curEopt === 'daily' && spreadCount === 5
+      ? '\n\n※ 「도움이 안 되는 것」도 카드 방향에 맞는 문구를 그대로 읽으시면 됩니다. 덜 도움이 되는 각도·그림자로 넓혀 보고 싶을 때만, 같은 카드의 정·역 해석을 곁들여 비교해 보셔도 좋아요.'
+      : '';
 
   const numBlock = buildNumMergeBlock(qTrim);
   let titleQ;
@@ -1270,7 +1267,7 @@ function startReading() {
     `<div class="reading-section">
       <div class="reading-tag">✦ 카드 리딩</div>
       <div class="reading-title">${titleQ}</div>
-      <div class="reading-text">${escapeHtml(basicReading)}</div>
+      <div class="reading-text">${escapeHtml(basicReading + dailyReadingHint)}</div>
     </div>` +
     gateHtml;
 }
