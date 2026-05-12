@@ -1055,8 +1055,9 @@ function drawCard(index, el) {
 
   el.classList.add('drawn');
   const card = shuffledDeck[index];
-  const isReversed = Math.random() < 0.3; // 30% 확률로 역방향
-  drawnCards.push({ ...card, reversed: isReversed });
+  const faceRev = Math.random() < 0.3; // 30% 확률로 역방향
+  const { reversed: revText, ...rest } = card;
+  drawnCards.push({ ...rest, revText, faceRev });
 
   if (drawnCards.length === spreadCount) {
     setTimeout(showDrawnCards, 400);
@@ -1089,8 +1090,8 @@ function showDrawnCards() {
           <div class="tarot-card-back">
             <div class="tarot-card-back-hint">클릭하여 공개</div>
           </div>
-          <div class="tarot-card-front${card.reversed ? ' reversed' : ''}" style="background:${bgColor};">
-            ${card.reversed ? '<div class="card-reversed-badge">역방향</div>' : ''}
+          <div class="tarot-card-front${card.faceRev ? ' reversed' : ''}" style="background:${bgColor};">
+            ${card.faceRev ? '<div class="card-reversed-badge">역방향</div>' : ''}
             <div class="tarot-card-art"><img src="${imgSrc}" alt="${escapeHtmlAttr(card.name)}" loading="lazy" /></div>
             <div class="tarot-card-front-meta">
               <div class="card-name-ko">${card.name}</div>
@@ -1099,7 +1100,7 @@ function showDrawnCards() {
           </div>
         </div>
       </div>
-      <div class="tarot-card-name" id="cardname-${i}" style="opacity:0">${card.name}${card.reversed ? '<br><span class="tarot-card-reversed">역방향</span>' : ''}</div>
+      <div class="tarot-card-name" id="cardname-${i}" style="opacity:0">${card.name}${card.faceRev ? '<br><span class="tarot-card-reversed">역방향</span>' : ''}</div>
     `;
       row.appendChild(wrap);
     });
@@ -1135,13 +1136,13 @@ function startReading() {
     drawnCards.map((card, i) => `
       <div class="card-summary">
         <div class="cs-pos">${positions[i]}</div>
-        <div class="cs-name">${card.symbol} ${card.name}${card.reversed ? ' (역)' : ''}</div>
-        <div class="cs-keywords">${card.reversed ? card.reversed : card.keywords}</div>
+        <div class="cs-name">${card.symbol} ${card.name}${card.faceRev ? ' (역)' : ''}</div>
+        <div class="cs-keywords">${card.faceRev ? card.revText : card.keywords}</div>
       </div>`).join('') + '</div>';
 
   const readingArea = document.getElementById('readingArea');
   const basicReading = drawnCards.map((card, i) =>
-    `[${positions[i]}] ${card.name}${card.reversed ? ' (역방향)' : ''}\n${card.reversed ? card.reversed : card.upright}`
+    `[${positions[i]}] ${card.name}${card.faceRev ? ' (역방향)' : ''}\n${card.faceRev ? card.revText : card.upright}`
   ).join('\n\n');
 
   const numBlock = buildNumMergeBlock(qTrim);
