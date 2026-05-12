@@ -267,8 +267,31 @@
     .tarot-card-front {
       transform: rotateY(180deg);
       border: 1px solid var(--border);
+      justify-content: flex-start;
+      gap: 4px;
+      padding: 6px;
     }
     .tarot-card-front.reversed { transform: rotateY(180deg) rotate(180deg); }
+
+    .tarot-card-art {
+      width: 100%;
+      flex: 1;
+      min-height: 0;
+      border-radius: 6px;
+      overflow: hidden;
+      background: rgba(0,0,0,.04);
+    }
+    .tarot-card-art img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+    .tarot-card-front-meta {
+      flex-shrink: 0;
+      width: 100%;
+      text-align: center;
+    }
 
     .card-symbol {
       font-size: 32px;
@@ -277,7 +300,7 @@
     }
     .card-name-ko {
       font-family: var(--font-serif);
-      font-size: 11px;
+      font-size: 10px;
       font-weight: 500;
       color: var(--deep-brown);
       text-align: center;
@@ -650,6 +673,27 @@ const CARD_COLORS = {
   pentacles: '#f5f5f0'
 };
 
+function escapeHtmlAttr(s) {
+  return String(s)
+    .replace(/&/g, '&amp;')
+    .replace(/"/g, '&quot;')
+    .replace(/</g, '&lt;');
+}
+
+/** 저장소 `public/tarot/` 파일명: major (0~21).jpg, {suit} (1~14).jpg */
+function getTarotCardImageSrc(card) {
+  let file;
+  if (card.suit === 'major') {
+    file = `major (${card.id}).jpg`;
+  } else {
+    const base = { wands: 21, cups: 35, swords: 49, pentacles: 63 }[card.suit];
+    if (base == null) return '';
+    const rank = card.id - base;
+    file = `${card.suit} (${rank}).jpg`;
+  }
+  return 'tarot/' + encodeURIComponent(file);
+}
+
 function selectSpread(n, el) {
   selectedSpread = n;
   document.querySelectorAll('.spread-opt').forEach(e => e.classList.remove('selected'));
@@ -708,6 +752,7 @@ function showDrawnCards() {
 
     const bgColor = CARD_COLORS[card.suit] || '#f5f0e8';
 
+    const imgSrc = getTarotCardImageSrc(card);
     wrap.innerHTML = `
       <div class="tarot-card-pos">${positions[i]}</div>
       <div class="tarot-card" id="card-${i}" onclick="flipCard(${i})">
@@ -715,11 +760,13 @@ function showDrawnCards() {
           <div class="tarot-card-back">
             <div class="tarot-card-back-hint">클릭하여 공개</div>
           </div>
-          <div class="tarot-card-front" style="background:${bgColor};">
+          <div class="tarot-card-front${card.reversed ? ' reversed' : ''}" style="background:${bgColor};">
             ${card.reversed ? '<div class="card-reversed-badge">역방향</div>' : ''}
-            <div class="card-symbol">${card.symbol}</div>
-            <div class="card-name-ko">${card.name}</div>
-            <div class="card-name-en">${card.en}</div>
+            <div class="tarot-card-art"><img src="${imgSrc}" alt="${escapeHtmlAttr(card.name)}" loading="lazy" /></div>
+            <div class="tarot-card-front-meta">
+              <div class="card-name-ko">${card.name}</div>
+              <div class="card-name-en">${card.en}</div>
+            </div>
           </div>
         </div>
       </div>
