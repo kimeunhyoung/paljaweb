@@ -1505,6 +1505,11 @@ function actionAdviceBlock(card) {
   return modern;
 }
 
+/** 독백 블록 제목: 역방향이면 전용 라벨 */
+function monologueSectionLabel(card) {
+  return card.faceRev ? '역방향 독백' : '주인공의 독백';
+}
+
 function buildEnrichedReadingHtml(cards, positions) {
   return cards.map((card, i) => {
     const pos = escapeHtml(positions[i]);
@@ -1513,13 +1518,14 @@ function buildEnrichedReadingHtml(cards, positions) {
     const mono = escapeHtml(heroMonologue(card));
     const bridge = escapeHtml(numerologyBridgeText(card));
     const adviceHtml = escapeHtml(actionAdviceBlock(card)).replace(/\n/g, '<br>');
+    const monoLabel = escapeHtml(monologueSectionLabel(card));
     const opp = isDailyUnhelpfulSlot(i)
       ? '<div class="ec-opposite"><div class="ec-opposite-label">→ [장애(Don\'t)]</div><span class="ec-opposite-t">' + escapeHtml(obstacleDontText(card)) + '</span></div>'
       : '';
     return (
       '<div class="ec-card">' +
       '<div class="ec-pos">' + pos + ' · ' + nm + rev + '</div>' +
-      '<div class="ec-block"><div class="ec-label">주인공의 독백</div><p class="ec-p">' + mono + '</p></div>' +
+      '<div class="ec-block"><div class="ec-label">' + monoLabel + '</div><p class="ec-p">' + mono + '</p></div>' +
       '<div class="ec-block"><div class="ec-label">수비학 맥락 결합</div><p class="ec-p">' + bridge + '</p></div>' +
       '<div class="ec-block"><div class="ec-label">현실적 조언</div><p class="ec-p ec-p-pre">' + adviceHtml + '</p></div>' +
       opp +
@@ -1540,7 +1546,7 @@ function buildSummaryCardHtml(card, i, positions) {
     '<div class="card-summary">' +
     '<div class="cs-pos">' + pos + '</div>' +
     '<div class="cs-name">' + sym + ' ' + nm + rev + '</div>' +
-    '<div class="cs-tier"><span class="cs-tier-l">독백</span> ' + escapeHtml(clampStr(heroMonologue(card), 140)) + '</div>' +
+    '<div class="cs-tier"><span class="cs-tier-l">' + (card.faceRev ? '역 독백' : '독백') + '</span> ' + escapeHtml(clampStr(heroMonologue(card), 140)) + '</div>' +
     '<div class="cs-tier"><span class="cs-tier-l">맥락</span> ' + escapeHtml(clampStr(numerologyBridgeText(card), 120)) + '</div>' +
     '<div class="cs-tier"><span class="cs-tier-l">조언</span> ' + escapeHtml(clampStr(actionAdviceBlock(card), 180)) + '</div>' +
     opp +
@@ -1560,8 +1566,9 @@ function oppositeMeaningParagraph(card) {
   return card.faceRev ? card.textUpright : card.textReversed;
 }
 
+/** drawnCards[4] = 데일리 5장 「도움이 안 되는 것」일 때만 [장애(Don't)] (연간 5장 마지막 칸과 구분) */
 function isDailyUnhelpfulSlot(i) {
-  return curMode === 'energy' && curEopt === 'daily' && spreadCount === 5 && i === 4;
+  return curMode === 'energy' && curEopt === 'daily' && drawnCards.length === 5 && i === 4;
 }
 
 function startReading() {
