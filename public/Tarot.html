@@ -1123,6 +1123,21 @@ function flipCard(i) {
   }
 }
 
+/** 데일리 5장 마지막 칸 「도움이 안 되는 것」: 카드가 가리키는 말의 반대편(그림자·피할 점)을 보려면 정↔역 문구를 바꿔 읽습니다. */
+function isDailyUnhelpfulSlot(i) {
+  return curMode === 'energy' && curEopt === 'daily' && spreadCount === 5 && i === 4;
+}
+
+function cardReadingParagraph(card, i) {
+  if (isDailyUnhelpfulSlot(i)) return card.faceRev ? card.upright : card.revText;
+  return card.faceRev ? card.revText : card.upright;
+}
+
+function cardSummaryKeywords(card, i) {
+  if (isDailyUnhelpfulSlot(i)) return card.faceRev ? card.keywords : card.revText;
+  return card.faceRev ? card.revText : card.keywords;
+}
+
 function startReading() {
   const qTrim = getQuestionLabel();
   const positions = getPositions();
@@ -1133,13 +1148,17 @@ function startReading() {
       <div class="card-summary">
         <div class="cs-pos">${positions[i]}</div>
         <div class="cs-name">${card.symbol} ${card.name}${card.faceRev ? ' (역)' : ''}</div>
-        <div class="cs-keywords">${card.faceRev ? card.revText : card.keywords}</div>
+        <div class="cs-keywords">${cardSummaryKeywords(card, i)}</div>
       </div>`).join('') + '</div>';
 
   const readingArea = document.getElementById('readingArea');
   const basicReading = drawnCards.map((card, i) =>
-    `[${positions[i]}] ${card.name}${card.faceRev ? ' (역방향)' : ''}\n${card.faceRev ? card.revText : card.upright}`
+    `[${positions[i]}] ${card.name}${card.faceRev ? ' (역방향)' : ''}\n${cardReadingParagraph(card, i)}`
   ).join('\n\n');
+  const dailyUnhelpfulNote =
+    curMode === 'energy' && curEopt === 'daily' && spreadCount === 5
+      ? '\n\n※ 「도움이 안 되는 것」은 카드가 눕힌 방향과 반대되는 쪽의 문구를 읽습니다. (덜 도움이 되는 태도·그림자에 가깝게 읽어 보세요.)'
+      : '';
 
   const numBlock = buildNumMergeBlock(qTrim);
   let titleQ;
@@ -1173,7 +1192,7 @@ function startReading() {
     `<div class="reading-section">
       <div class="reading-tag">✦ 카드 리딩</div>
       <div class="reading-title">${titleQ}</div>
-      <div class="reading-text">${escapeHtml(basicReading)}</div>
+      <div class="reading-text">${escapeHtml(basicReading + dailyUnhelpfulNote)}</div>
     </div>` +
     gateHtml;
 }
