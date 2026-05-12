@@ -7,7 +7,6 @@
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,500&family=Noto+Serif+KR:wght@300;400;500;600&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet"/>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
   <style>
     :root {
@@ -544,27 +543,10 @@
 </div>
 
 <script>
-// ── SUPABASE ──
-const SUPABASE_URL = 'https://sghsryumnrnftyjoqmwf.supabase.co';
-const SUPABASE_ANON_KEY = 'sb_publishable_6S3W_oWrzG-Nv8wLK98gmg_q_KcB2I1';
-const { createClient } = supabase;
-const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
-let USER_PLAN = 'free';
 let selectedSpread = 5;
 let shuffledDeck = [];
 let drawnCards = [];
 let flippedCount = 0;
-
-async function initAuth() {
-  const { data: { session } } = await sb.auth.getSession();
-  if (!session) return;
-  const { data: profile } = await sb.from('profiles').select('plan').eq('id', session.user.id).single();
-  if (profile?.plan) USER_PLAN = profile.plan;
-}
-
-const PLANS = { free: 0, basic: 1, pro: 2, professional: 3 };
-function hasAccess(required) { return PLANS[USER_PLAN] >= PLANS[required]; }
 
 // ── 78장 타로 데이터 ──
 const TAROT_DECK = [
@@ -802,22 +784,12 @@ function startReading() {
         <div class="cs-keywords">${card.reversed ? card.reversed : card.keywords}</div>
       </div>`).join('') + '</div>';
 
-  // AI 리딩 (Pro+) or 기본 리딩
   const readingArea = document.getElementById('readingArea');
+  const basicReading = drawnCards.map((card, i) =>
+    `[${positions[i]}] ${card.name}${card.reversed ? ' (역방향)' : ''}\n${card.reversed ? card.reversed : card.upright}`
+  ).join('\n\n');
 
-  if (hasAccess('pro')) {
-    readingArea.innerHTML = `<div class="reading-section">
-      <div class="reading-tag"><div class="reading-dot"></div>AI 타로 리딩 생성 중</div>
-      <div class="reading-loading"><div class="reading-spinner"></div>카드의 메시지를 읽고 있습니다...</div>
-    </div>`;
-    callAIReading(question, positions);
-  } else {
-    // 기본 리딩 (Free/Basic)
-    const basicReading = drawnCards.map((card, i) =>
-      `[${positions[i]}] ${card.name}${card.reversed ? ' (역방향)' : ''}\n${card.reversed ? card.reversed : card.upright}`
-    ).join('\n\n');
-
-    readingArea.innerHTML = `<div class="reading-section">
+  readingArea.innerHTML = `<div class="reading-section">
       <div class="reading-tag">✦ 카드 리딩</div>
       <div class="reading-title">${question ? `"${question}"` : '오늘의 흐름'}</div>
       <div class="reading-text">${basicReading}</div>
@@ -825,58 +797,9 @@ function startReading() {
     <div class="feature-gate">
       <div class="gate-icon">✨</div>
       <div class="gate-title">AI 종합 타로 리딩</div>
-      <div class="gate-desc">카드들의 상호작용을 분석해 질문에 맞는 깊이 있는 종합 해석을 AI가 생성합니다.<br><br><strong>Pro 플랜</strong> 이상에서 이용할 수 있어요.</div>
-      <button class="gate-btn" onclick="location.href='pricing.html'">플랜 업그레이드 →</button>
+      <div class="gate-desc">지금은 카드에 담긴 문구로 리딩합니다. 카드 간 연결·질문 맞춤 종합 해석 AI는 서버 연동 후 제공할 예정이에요.<br><br><strong>Pro 플랜</strong> 안내는 <a href="pricing.html" style="color:var(--warm-brown);">요금 페이지</a>를 참고해 주세요.</div>
+      <button class="gate-btn" onclick="location.href='pricing.html'">플랜 안내 →</button>
     </div>`;
-  }
-}
-
-async function callAIReading(question, positions) {
-  const cardList = drawnCards.map((card, i) =>
-    `${positions[i]}: ${card.name}${card.reversed ? '(역방향)' : ''} — ${card.reversed ? card.reversed : card.upright}`
-  ).join('\n');
-
-  const spreadName = { 3:'과거·현재·미래', 5:'켈틱 크로스', 7:'호스슈 배열' }[selectedSpread];
-
-  const prompt = `당신은 깊이 있고 따뜻한 타로 상담사입니다. 다음 타로 리딩을 한국어로 해석해주세요.
-
-배열: ${spreadName} (${selectedSpread}장)
-질문: ${question || '오늘의 전반적인 흐름'}
-
-뽑힌 카드:
-${cardList}
-
-다음 형식으로 작성해주세요:
-1. 전체적인 에너지 흐름 (2-3문장)
-2. 각 카드의 포지션별 의미 (각 1-2문장씩)
-3. 종합 메시지와 조언 (2-3문장)
-
-신비롭고 통찰력 있되 실용적인 조언을 담아주세요. 번호나 제목 없이 자연스러운 문단으로 작성하되, 단락 구분은 해주세요.`;
-
-  try {
-    const res = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
-        max_tokens: 1000,
-        messages: [{ role: 'user', content: prompt }]
-      })
-    });
-    const data = await res.json();
-    const text = data.content?.map(i => i.text || '').join('') || '리딩을 생성할 수 없습니다.';
-
-    document.getElementById('readingArea').innerHTML = `<div class="reading-section">
-      <div class="reading-tag"><div class="reading-dot"></div>AI 타로 리딩</div>
-      <div class="reading-title">${question ? `"${question}"` : '오늘의 흐름'}</div>
-      <div class="reading-text">${text}</div>
-    </div>`;
-  } catch(e) {
-    document.getElementById('readingArea').innerHTML = `<div class="reading-section">
-      <div class="reading-tag">✦ 카드 리딩</div>
-      <div class="reading-text" style="color:var(--muted)">AI 리딩을 일시적으로 사용할 수 없습니다. 잠시 후 다시 시도해주세요.</div>
-    </div>`;
-  }
 }
 
 function resetAll() {
@@ -892,7 +815,6 @@ function resetAll() {
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
-initAuth();
 </script>
 </body>
 </html>
