@@ -1550,7 +1550,7 @@ function buildEnrichedReadingHtml(cards, positions) {
     const nm = escapeHtml(card.name);
     const rev = card.faceRev ? ' (역방향)' : '';
     const mono = escapeHtml(readingPrimaryVoice(card, i));
-    const adviceRaw = isDailyUnhelpfulSlot(i) ? obstacleDontText(card) : actionAdviceBlock(card);
+    const adviceRaw = actionAdviceBlock(card);
     const adviceHtml = escapeHtml(adviceRaw).replace(/\n/g, '<br>');
     const monoLabel = escapeHtml(monologueSectionLabel(card, i));
     return (
@@ -1568,7 +1568,7 @@ function buildSummaryCardHtml(card, i, positions) {
   const sym = escapeHtml(card.symbol);
   const nm = escapeHtml(card.name);
   const rev = card.faceRev ? ' (역)' : '';
-  const adviceSummary = isDailyUnhelpfulSlot(i) ? obstacleDontText(card) : actionAdviceBlock(card);
+  const adviceSummary = actionAdviceBlock(card);
   return (
     '<div class="card-summary">' +
     '<div class="cs-pos">' + pos + '</div>' +
@@ -1579,24 +1579,12 @@ function buildSummaryCardHtml(card, i, positions) {
   );
 }
 
-/** 데일리 5장 마지막 칸(도움이 안 되는 것): 전용 Don't 경고, 없으면 정·역 반대편 키워드 */
-function obstacleDontText(card) {
-  const e = tarotEnriched(card);
-  if (e && e.dont) return e.dont;
-  return oppositeMeaningParagraph(card);
-}
-
-/** 카드 방향과 반대편 덱 문구 (Don't 미정의 시 폴백) */
-function oppositeMeaningParagraph(card) {
-  return card.faceRev ? card.textUpright : card.textReversed;
-}
-
-/** drawnCards[4] = 데일리 5장 「도움이 안 되는 것」일 때만 역독백+dont 분기 (연간 5장과 구분) */
+/** drawnCards[4] = 데일리 5장 「도움이 안 되는 것」(연간 5장 마지막 칸과 구분). 첫 문단만 역 독백(monoRev) 고정. */
 function isDailyUnhelpfulSlot(i) {
   return curMode === 'energy' && curEopt === 'daily' && drawnCards.length === 5 && i === 4;
 }
 
-/** 데일리 5번째 칸: 첫 문단은 역 독백(monoRev), 「현실적 조언」은 dont */
+/** 데일리 5번째 칸: 첫 문단만 역 독백(monoRev). 「현실적 조언」은 전 칸과 동일하게 actionAdviceBlock(팩트·조언). */
 function readingPrimaryVoice(card, slotIndex) {
   if (isDailyUnhelpfulSlot(slotIndex)) return unhelpfulSlotMonologue(card);
   return heroMonologue(card);
