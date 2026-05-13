@@ -1164,7 +1164,7 @@ const MAJOR_ENRICHED = {
   21: { mono: '드디어 마침표를 찍었네요. 당신이 원하던 그림이 완성됐어요. 이 충만함을 충분히 느껴보세요.', advice: '팩트: 완성과 통합, 최고의 성취. 조언: 하나의 주기가 끝났으니 성취를 누리고 다음 단계를 준비할 것.' }
 };
 
-/** 소마이너 정방향: 2인칭 독백 + 현실적 조언(장애·역방향 가이드) (id 22~77) */
+/** 소마이너: 정방향 독백(mono)은 사용자 톤. 「현실적 조언」 정방향은 advice 그대로. dont는 역·장애(Don't) 슬롯·역방향 폴백 병합. */
 const MINOR_ENRICHED = {
   22: { mono: '당신의 마음속에서 새로운 불꽃이 튀었네요! 이 열정을 따라 지금 바로 시작해 보세요.', advice: '성급한 시작은 주의하세요. 의욕만 앞서면 금방 지칠 수 있으니 속도를 조절할 것.' },
   23: { mono: '첫 번째 발걸음은 훌륭했어요. 이제 더 넓은 세상을 향해 당신만의 다음 계획을 세울 차례입니다.', advice: '너무 먼 미래만 보지 마세요. 지금 당장 해야 할 현실적인 일들을 놓칠 수 있습니다.' },
@@ -1176,10 +1176,10 @@ const MINOR_ENRICHED = {
   29: { mono: '일이 눈코 뜰 새 없이 빠르게 진행되고 있죠? 기회가 왔을 때 그 흐름에 몸을 맡겨보세요.', advice: '속도에 휘말리지 마세요. 너무 급하게 결론을 내리면 중요한 디테일을 놓치게 됩니다.' },
   30: { mono: '거의 다 왔지만 많이 지쳐 보이네요. 조금만 더 힘을 내세요. 당신은 마지막까지 버틸 저력이 있습니다.', advice: '과도한 경계심을 내려놓으세요. 지나친 방어는 당신을 고립시킬 뿐입니다.' },
   31: { mono: '혼자서 너무 많은 짐을 지고 있지는 않나요? 숨이 턱 끝까지 차올랐다면, 이제는 좀 나누어 들어도 괜찮아요.', advice: '혼자 다 하려 하지 마세요. 책임감이라는 이름으로 당신의 몸과 마음을 혹사하고 있습니다.' },
-  31: { mono: '새로운 즐거움이 당신을 설레게 하네요. 조금 서툴더라도 그 순수한 호기심을 따라 첫발을 내디뎌 보세요.', advice: '가벼운 마음을 경계하세요. 책임감 없는 태도는 주변의 신뢰를 잃게 할 수 있습니다.' },
-  32: { mono: '목표를 향해 힘차게 달려가는 당신의 모습이 멋져요! 그 추진력이라면 곧 원하는 지점에 닿을 수 있을 거예요.', advice: '무모한 속도를 늦추세요. 앞뒤 가리지 않고 달리는 것은 열정이 아니라 부주의일 수 있습니다.' },
-  33: { mono: '당신의 활기찬 매력이 주변을 밝게 비추고 있네요. 자신감을 가지고 당신만의 당당한 방식으로 상황을 이끌어 보세요.', advice: '자기중심적인 태도를 주의하세요. 당신의 영향력을 남을 통제하는 데 사용해서는 안 됩니다.' },
-  34: { mono: '당신은 이미 확고한 비전을 가진 리더의 자질을 갖추고 있어요. 흔들림 없는 확신으로 사람들에게 방향을 제시해 주세요.', advice: '독단과 고집을 내려놓으세요. 당신의 권위가 타인에게 위압감이 되지 않도록 조심해야 합니다.' },
+  32: { mono: '새로운 즐거움이 당신을 설레게 하네요. 조금 서툴더라도 그 순수한 호기심을 따라 첫발을 내디뎌 보세요.', advice: '가벼운 마음을 경계하세요. 책임감 없는 태도는 주변의 신뢰를 잃게 할 수 있습니다.' },
+  33: { mono: '목표를 향해 힘차게 달려가는 당신의 모습이 멋져요! 그 추진력이라면 곧 원하는 지점에 닿을 수 있을 거예요.', advice: '무모한 속도를 늦추세요. 앞뒤 가리지 않고 달리는 것은 열정이 아니라 부주의일 수 있습니다.' },
+  34: { mono: '당신의 활기찬 매력이 주변을 밝게 비추고 있네요. 자신감을 가지고 당신만의 당당한 방식으로 상황을 이끌어 보세요.', advice: '자기중심적인 태도를 주의하세요. 당신의 영향력을 남을 통제하는 데 사용해서는 안 됩니다.' },
+  35: { mono: '당신은 이미 확고한 비전을 가진 리더의 자질을 갖추고 있어요. 흔들림 없는 확신으로 사람들에게 방향을 제시해 주세요.', advice: '독단과 고집을 내려놓으세요. 당신의 권위가 타인에게 위압감이 되지 않도록 조심해야 합니다.' },
 
   36: { mono: '새로운 사랑이나 감정의 파도가 밀려오고 있네요. 당신의 마음을 열고 이 충만함을 받아들여 보세요.', advice: '감정에만 매몰되지 마세요. 지나친 낙관은 현실적인 판단을 흐리게 할 수 있습니다.' },
   37: { mono: '누군가와 깊이 교감하고 있다는 확신이 드시나요? 서로의 진심을 나누는 소중한 시간을 만끽하세요.', advice: '상대에게 너무 맞추지 마세요. 관계의 평화를 위해 당신의 주관을 희생하고 있진 않나요?' },
@@ -1523,8 +1523,9 @@ function actionAdviceBlock(card) {
   return modern;
 }
 
-/** 카드 본문 블록 제목 (소마이너는 2인칭·장애 문구와 톤 맞춤) */
-function monologueSectionLabel(card) {
+/** 카드 본문 블록 제목 (데일리 5번째 칸은 장애 톤 문단용 라벨) */
+function monologueSectionLabel(card, slotIndex) {
+  if (typeof slotIndex === 'number' && isDailyUnhelpfulSlot(slotIndex)) return '장애 쪽에서 건네는 말';
   if (card.faceRev) return '역방향 · 장애 가이드';
   return '카드가 건네는 말';
 }
@@ -1534,11 +1535,11 @@ function buildEnrichedReadingHtml(cards, positions) {
     const pos = escapeHtml(positions[i]);
     const nm = escapeHtml(card.name);
     const rev = card.faceRev ? ' (역방향)' : '';
-    const mono = escapeHtml(heroMonologue(card));
+    const mono = escapeHtml(readingPrimaryVoice(card, i));
     const adviceHtml = escapeHtml(actionAdviceBlock(card)).replace(/\n/g, '<br>');
-    const monoLabel = escapeHtml(monologueSectionLabel(card));
+    const monoLabel = escapeHtml(monologueSectionLabel(card, i));
     const opp = isDailyUnhelpfulSlot(i)
-      ? '<div class="ec-opposite"><div class="ec-opposite-label">→ [장애(Don\'t)]</div><span class="ec-opposite-t">' + escapeHtml(obstacleDontText(card)) + '</span></div>'
+      ? '<div class="ec-opposite ec-opposite--pivot"><div class="ec-opposite-label">→ 보완(긍정 승화)</div><span class="ec-opposite-t">' + escapeHtml(positiveSublimation(card)) + '</span></div>'
       : '';
     return (
       '<div class="ec-card">' +
@@ -1557,13 +1558,13 @@ function buildSummaryCardHtml(card, i, positions) {
   const nm = escapeHtml(card.name);
   const rev = card.faceRev ? ' (역)' : '';
   const opp = isDailyUnhelpfulSlot(i)
-    ? '<div class="cs-opposite"><div class="cs-opposite-label">→ [장애(Don\'t)]</div><div class="cs-opposite-body">' + escapeHtml(obstacleDontText(card)) + '</div></div>'
+    ? '<div class="cs-opposite cs-opposite--pivot"><div class="cs-opposite-label">→ 보완(긍정 승화)</div><div class="cs-opposite-body">' + escapeHtml(clampStr(positiveSublimation(card), 160)) + '</div></div>'
     : '';
   return (
     '<div class="card-summary">' +
     '<div class="cs-pos">' + pos + '</div>' +
     '<div class="cs-name">' + sym + ' ' + nm + rev + '</div>' +
-    '<div class="cs-tier"><span class="cs-tier-l">' + (card.faceRev ? '역·가이드' : '카드 말') + '</span> ' + escapeHtml(clampStr(heroMonologue(card), 140)) + '</div>' +
+    '<div class="cs-tier"><span class="cs-tier-l">' + (isDailyUnhelpfulSlot(i) ? '장애 말' : (card.faceRev ? '역·가이드' : '카드 말')) + '</span> ' + escapeHtml(clampStr(readingPrimaryVoice(card, i), 140)) + '</div>' +
     '<div class="cs-tier"><span class="cs-tier-l">조언</span> ' + escapeHtml(clampStr(actionAdviceBlock(card), 180)) + '</div>' +
     opp +
     '</div>'
@@ -1585,6 +1586,12 @@ function oppositeMeaningParagraph(card) {
 /** drawnCards[4] = 데일리 5장 「도움이 안 되는 것」일 때만 [장애(Don't)] (연간 5장 마지막 칸과 구분) */
 function isDailyUnhelpfulSlot(i) {
   return curMode === 'energy' && curEopt === 'daily' && drawnCards.length === 5 && i === 4;
+}
+
+/** 데일리 5번째 칸: 윗문단은 dont·장애 쪽 목소리가 포지션에 맞음 */
+function readingPrimaryVoice(card, slotIndex) {
+  if (isDailyUnhelpfulSlot(slotIndex)) return obstacleDontText(card);
+  return heroMonologue(card);
 }
 
 function startReading() {
