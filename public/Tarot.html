@@ -681,8 +681,8 @@
 <!-- HERO -->
 <section class="hero">
   <div class="hero-tag">Tarot Reading · 수비학 맥락 타로</div>
-  <h1 class="hero-title">에너지 위에서<br><em>카드를 읽습니다</em></h1>
-  <p class="hero-desc">올해·이번 달·오늘의 수비학 리듬을 바탕으로, 같은 카드도 당신에게 맞는 초점으로 해석해 드려요.</p>
+  <h1 class="hero-title">수비학이 배경을 깔고<br><em>타로가 말을 건넵니다</em></h1>
+  <p class="hero-desc">올해·이번 달·오늘의 수비학 리듬을 짚고, 그 위에서 타로가 건네는 말을 당신 상황에 맞게 엮어 드려요.</p>
   <div class="birth-wrap">
     <span class="birth-label">생년월일</span>
     <input class="birth-field" id="birthInput" type="date" />
@@ -731,7 +731,7 @@
           <div class="eopt selected" data-eopt="daily" onclick="selectEopt('daily', this)">
             <div class="eopt-title">데일리 5장</div>
             <div class="eopt-nums">오늘의 흐름 3 + 보조 2</div>
-            <div class="eopt-desc">위 세 장은 오늘의 흐름, 아래 두 장은 도움이 되는 점과 피하면 좋은 점을 봅니다.</div>
+            <div class="eopt-desc">위 세 장은 오늘의 흐름, 아래 두 장은 오늘 힘이 되는 에너지와 오늘의 주의를 봅니다.</div>
           </div>
           <div class="eopt" data-eopt="month" onclick="selectEopt('month', this)">
             <div class="eopt-title">이번 달 3장</div>
@@ -851,7 +851,7 @@ const FLOW_INTRO = {
   33: '올해 수에는 치유·포용·봉사의 테마가 강해요.'
 };
 const ENERGY_POSITIONS = {
-  daily: ['오늘의 흐름 · 시작', '오늘의 흐름 · 중심', '오늘의 흐름 · 이어짐', '도움되는 것', '도움이 안 되는 것'],
+  daily: ['오늘의 흐름 · 시작', '오늘의 흐름 · 중심', '오늘의 흐름 · 이어짐', '오늘 힘이 되는 에너지', '오늘의 주의'],
   month: ['이번 달 시작', '이번 달 핵심', '이번 달 정리'],
   next_month: ['다음 달 · 마음', '다음 달 · 실행', '다음 달 · 주변'],
   year: ['연간 뿌리', '성장·확장', '관계·조화', '도전·조정', '결실·마무리']
@@ -1053,7 +1053,7 @@ function buildNumMergeBlock(questionTrim) {
     html += numEnergyBoxHtml('오늘', calcPd, NUM_KW_SHORT[calcPd] || '', hintPick(DAY_HINT, calcPd));
   }
   html += '</div>';
-  html += '<p class="num-merge-p" style="margin-top:12px;color:var(--warm-brown);">→ 아래 카드 문구를 읽을 때, 위 테마 중 <strong>지금 마음에 와닿는 한 가지</strong>만 골라 겹쳐 보세요.</p>';
+  html += '<p class="num-merge-p" style="margin-top:12px;color:var(--warm-brown);">→ 카드 메시지를 읽을 때, 위 에너지 중 지금 내 상황과 가장 맞닿는 키워드 하나만 마음에 얹어 보세요. <strong>같은 카드도 이 맥락 안에서 다르게 들릴 거예요.</strong></p>';
   html += '</div>';
   return html;
 }
@@ -1175,7 +1175,7 @@ const MAJOR_ENRICHED = {
   21: { mono: '드디어 마침표를 찍었네요. 당신이 원하던 그림이 완성됐어요. 이 충만함을 충분히 느껴보세요.', advice: '팩트: 완성과 통합, 최고의 성취. 조언: 하나의 주기가 끝났으니 성취를 누리고 다음 단계를 준비할 것.' }
 };
 
-/** 데일리 보조 2장(도움됨·안 됨) — 메이저 전용. Do=적극 활용, Don't=이것만은 피하기 */
+/** 데일리 보조 2장(힘 되는 에너지·오늘의 주의) — 메이저 전용. do=활용, dont=피하기 */
 const MAJOR_DAILY_DO_DONT = {
   0: { do: '지금은 앞뒤 재지 말고 가볍게 시작해 보세요. 당신의 순수한 용기와 무모함이 오히려 정답이 될 수 있습니다.', dont: '준비 없는 시작은 멈추세요. 지금은 자유를 누릴 때가 아니라, 발밑의 낭떠러지를 확인하고 조심해야 할 때입니다.' },
   1: { do: '당신이 가진 재능과 도구를 적극적으로 사용하세요. 당신의 말 한마디, 행동 하나가 상황을 바꿀 강력한 힘이 됩니다.', dont: '잔꾀를 부리거나 겉모습만 꾸미지 마세요. 실천 없는 말잔치나 남을 속이려는 태도는 결국 당신의 발목을 잡습니다.' },
@@ -1203,10 +1203,10 @@ const MAJOR_DAILY_DO_DONT = {
 
 /** 데일리 보조 2장 — 소마이너. 슈트별 라벨 + TAROT_DECK id(22–77)별 본문 */
 const MINOR_DAILY_SUIT_META = {
-  wands: { doLabel: '도움되는 것 (Do): 적극 실행하세요', dontLabel: '도움 안 되는 것 (Don\'t): 멈추거나 주의하세요' },
-  cups: { doLabel: '도움되는 것 (Do): 마음을 여세요', dontLabel: '도움 안 되는 것 (Don\'t): 감정을 경계하세요' },
-  swords: { doLabel: '도움되는 것 (Do): 냉철하게 판단하세요', dontLabel: '도움 안 되는 것 (Don\'t): 칼날을 거두세요' },
-  pentacles: { doLabel: '도움되는 것 (Do): 실무에 집중하세요', dontLabel: '도움 안 되는 것 (Don\'t): 욕심을 경계하세요' }
+  wands: { doLabel: '적극 실행하세요', dontLabel: '멈추거나 주의하세요' },
+  cups: { doLabel: '마음을 여세요', dontLabel: '감정을 경계하세요' },
+  swords: { doLabel: '냉철하게 판단하세요', dontLabel: '칼날을 거두세요' },
+  pentacles: { doLabel: '실무에 집중하세요', dontLabel: '욕심을 경계하세요' }
 };
 
 const MINOR_DAILY_DO_DONT = {
@@ -1613,7 +1613,7 @@ function heroMonologue(card) {
   return (card.keywords ? '(' + card.keywords + ') ' : '') + card.textUpright;
 }
 
-/** 데일리 「도움이 안 되는 것」칸: 뽑힘 방향과 무관하게 역방향 독백(monoRev)으로 읽음 */
+/** 데일리 「오늘의 주의」칸: 뽑힘 방향과 무관하게 역방향 독백(monoRev)으로 읽음 */
 function unhelpfulSlotMonologue(card) {
   if (card.suit === 'major' && MAJOR_ENRICHED[card.id]) {
     const r = MAJOR_ENRICHED[card.id].monoRev;
@@ -1720,7 +1720,7 @@ function buildSummaryCardHtml(card, i, positions) {
   );
 }
 
-/** drawnCards[3]·[4] = 데일리 「도움되는 것」「도움이 안 되는 것」(연간 5장 마지막 칸과 구분) */
+/** drawnCards[3]·[4] = 데일리 「오늘 힘이 되는 에너지」「오늘의 주의」(연간 5장 마지막 칸과 구분) */
 function isDailyHelpfulSlot(i) {
   return curMode === 'energy' && curEopt === 'daily' && drawnCards.length === 5 && i === 3;
 }
@@ -1729,7 +1729,7 @@ function isDailyUnhelpfulSlot(i) {
   return curMode === 'energy' && curEopt === 'daily' && drawnCards.length === 5 && i === 4;
 }
 
-/** 데일리 3·4번 칸 — 메이저·소마이너 Do / Don't 전용 문단 */
+/** 데일리 3·4번 칸 — 메이저·소마이너: 오늘 힘이 되는 에너지(do) / 오늘의 주의(dont) 전용 문단 */
 function dailyDoDontInterpret(card, i) {
   if (!isDailyHelpfulSlot(i) && !isDailyUnhelpfulSlot(i)) return null;
   if (card.suit === 'major') {
@@ -1737,9 +1737,9 @@ function dailyDoDontInterpret(card, i) {
     const rowM = MAJOR_DAILY_DO_DONT[card.id];
     if (!rowM) return null;
     if (isDailyHelpfulSlot(i)) {
-      return { label: '도움되는 것 (Do): 적극 활용하세요', body: rowM.do, shortTag: 'Do' };
+      return { label: '오늘 힘이 되는 에너지', body: rowM.do, shortTag: '힘' };
     }
-    return { label: '도움 안 되는 것 (Don\'t): 이것만은 피하세요', body: rowM.dont, shortTag: 'Don\'t' };
+    return { label: '오늘의 주의', body: rowM.dont, shortTag: '주의' };
   }
   if (!MINOR_DAILY_DO_DONT || !MINOR_DAILY_SUIT_META) return null;
   const meta = MINOR_DAILY_SUIT_META[card.suit];
@@ -1747,9 +1747,9 @@ function dailyDoDontInterpret(card, i) {
   const row = MINOR_DAILY_DO_DONT[card.id];
   if (!row) return null;
   if (isDailyHelpfulSlot(i)) {
-    return { label: meta.doLabel, body: row.do, shortTag: 'Do' };
+    return { label: meta.doLabel, body: row.do, shortTag: '힘' };
   }
-  return { label: meta.dontLabel, body: row.dont, shortTag: 'Don\'t' };
+  return { label: meta.dontLabel, body: row.dont, shortTag: '주의' };
 }
 
 /** 데일리 5번째 칸: 첫 문단만 역 독백(monoRev). 「현실적 조언」은 전 칸과 동일하게 actionAdviceBlock(팩트·조언). */
