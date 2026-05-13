@@ -1629,18 +1629,13 @@ function numerologyBridgeText(card) {
   return '연 ' + calcPy + '(' + yk + ') · 월 ' + calcPm + '(' + mk + ') · 일 ' + calcPd + '(' + dk + ').';
 }
 
-/** 소마이너 정방향 — 메이저와 동일하게 「팩트: … 조언: …」 */
+/** 소마이너 정방향 — `MINOR_ENRICHED.advice`에 적어 둔 문구만 사용(사용자 CSV의 팩트·조언 열). 키워드로 팩트를 덧붙이지 않음. */
 function minorUprightAdviceFormatted(card, minorUp) {
-  const adv = minorUp.advice || '';
-  if (adv.indexOf('팩트:') === 0) return adv;
-  let fact = (card.keywords || '').trim().replace(/,\s*/g, '·');
-  if (!fact) {
-    fact = (card.textUpright || '').replace(/\s+/g, ' ').trim();
-    if (fact.length > 72) fact = fact.slice(0, 70) + '…';
-  } else if (fact.length > 85) {
-    fact = fact.slice(0, 82) + '…';
-  }
-  return '팩트: ' + fact + ' 조언: ' + adv;
+  const adv = (minorUp.advice || '').trim();
+  if (adv) return adv;
+  const fact = ((card.keywords || '').trim().replace(/,\s*/g, '·')) || '—';
+  const counsel = (card.textUpright || '').replace(/\s+/g, ' ').trim() || '카드 설명을 참고하세요.';
+  return '팩트: ' + fact + ' 조언: ' + counsel;
 }
 
 function actionAdviceBlock(card) {
