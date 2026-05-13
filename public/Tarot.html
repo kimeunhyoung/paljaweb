@@ -807,6 +807,8 @@ let spreadCount = 5;
 let curMode = 'energy';
 let curEopt = 'daily';
 let curTopic = '';
+const ENABLE_REVERSED_CARDS = false; // 기본은 정방향만 사용
+const REVERSED_CARD_RATE = 0.3;
 const TOPIC_LABELS = { love: '사랑', work: '일·커리어', money: '재정', relation: '관계', inner: '내면·성장' };
 const EOPT_READING_TITLE = { daily: '데일리 · 오늘의 흐름', month: '이번 달 에너지', next_month: '다음 달 준비', year: '올해 에너지 흐름' };
 const FLOW_INTRO = {
@@ -1378,7 +1380,7 @@ function drawCard(index, el) {
 
   el.classList.add('drawn');
   const card = shuffledDeck[index];
-  const faceRev = Math.random() < 0.3; // 30% 확률로 역방향
+  const faceRev = ENABLE_REVERSED_CARDS && Math.random() < REVERSED_CARD_RATE;
   const { upright: textUpright, reversed: textReversed, ...meta } = card;
   drawnCards.push({ ...meta, textUpright, textReversed, faceRev });
 
