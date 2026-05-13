@@ -100,14 +100,14 @@
 
     .energy-strip {
       display: none; position: sticky; top: 56px; z-index: 99;
-      background: rgba(200,169,110,.06); border-bottom: 1px solid var(--border); padding: 14px 32px;
+      background: var(--cream); border-bottom: 1px solid var(--border); padding: 8px 24px 10px;
     }
     .energy-strip.visible { display: block; }
-    .energy-inner { max-width: 860px; margin: 0 auto; display: flex; flex-direction: column; gap: 14px; align-items: stretch; }
+    .energy-inner { max-width: 860px; margin: 0 auto; display: flex; flex-direction: column; gap: 8px; align-items: stretch; }
     .energy-box-row {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
-      gap: 12px;
+      gap: 8px;
     }
     .e-chip {
       display: flex;
@@ -117,24 +117,25 @@
       text-align: center;
       background: white;
       border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 16px 12px;
-      min-height: 112px;
+      border-radius: 10px;
+      padding: 10px 8px;
+      min-height: 88px;
       box-shadow: 0 1px 2px rgba(44,36,24,.06);
     }
-    .e-chip-label { font-family: var(--font-body); font-size: 11px; font-weight: 600; letter-spacing: .06em; color: var(--deep-brown); opacity: 0.75; margin-bottom: 8px; }
-    .e-chip-num { font-family: var(--font-serif); font-size: 30px; font-weight: 400; color: var(--accent); line-height: 1; }
-    .e-chip-title { font-size: 12px; color: var(--warm-brown); margin-top: 8px; font-weight: 600; line-height: 1.3; }
+    .e-chip-label { font-family: var(--font-body); font-size: 10px; font-weight: 600; letter-spacing: .06em; color: var(--deep-brown); opacity: 0.75; margin-bottom: 4px; }
+    .e-chip-num { font-family: var(--font-serif); font-size: 26px; font-weight: 400; color: var(--accent); line-height: 1; }
+    .e-chip-title { font-size: 11px; color: var(--warm-brown); margin-top: 4px; font-weight: 600; line-height: 1.25; }
     .e-msg {
       width: 100%;
-      font-size: 13px;
-      line-height: 1.65;
+      font-size: 12.5px;
+      line-height: 1.55;
       color: var(--ink);
       text-align: center;
-      padding: 10px 12px;
-      background: rgba(255,255,255,.55);
+      padding: 7px 12px;
+      background: #fff;
       border: 1px solid var(--border);
-      border-radius: 10px;
+      border-radius: 8px;
+      box-shadow: 0 1px 0 rgba(44,36,24,.04);
     }
     .e-msg strong { color: var(--deep-brown); }
 
@@ -651,11 +652,14 @@
       .card-name-ko { font-size: 12px; }
       .card-name-en { font-size: 8px; }
       .topbar { padding: 0 16px; }
-      .energy-strip { padding: 12px 16px; top: 56px; }
-      .energy-box-row { gap: 8px; }
-      .e-chip { min-height: 100px; padding: 12px 8px; }
-      .e-chip-num { font-size: 24px; }
-      .e-chip-label { font-size: 10px; }
+      .energy-strip { padding: 6px 14px 8px; top: 56px; }
+      .energy-inner { gap: 6px; }
+      .energy-box-row { gap: 6px; }
+      .e-chip { min-height: 82px; padding: 8px 6px; border-radius: 9px; }
+      .e-chip-num { font-size: 22px; }
+      .e-chip-label { font-size: 9px; margin-bottom: 3px; }
+      .e-chip-title { font-size: 10px; margin-top: 3px; }
+      .e-msg { font-size: 12px; padding: 6px 10px; line-height: 1.5; }
       .num-energy-grid { grid-template-columns: 1fr; gap: 10px; }
       .num-energy-grid--two { grid-template-columns: 1fr; }
       .num-energy-box { min-height: 0; }
@@ -1625,13 +1629,27 @@ function numerologyBridgeText(card) {
   return '연 ' + calcPy + '(' + yk + ') · 월 ' + calcPm + '(' + mk + ') · 일 ' + calcPd + '(' + dk + ').';
 }
 
+/** 소마이너 정방향 — 메이저와 동일하게 「팩트: … 조언: …」 */
+function minorUprightAdviceFormatted(card, minorUp) {
+  const adv = minorUp.advice || '';
+  if (adv.indexOf('팩트:') === 0) return adv;
+  let fact = (card.keywords || '').trim().replace(/,\s*/g, '·');
+  if (!fact) {
+    fact = (card.textUpright || '').replace(/\s+/g, ' ').trim();
+    if (fact.length > 72) fact = fact.slice(0, 70) + '…';
+  } else if (fact.length > 85) {
+    fact = fact.slice(0, 82) + '…';
+  }
+  return '팩트: ' + fact + ' 조언: ' + adv;
+}
+
 function actionAdviceBlock(card) {
   if (card.suit === 'major' && MAJOR_ENRICHED[card.id]) {
     if (card.faceRev) return '팩트·역방향: ' + card.textReversed + '\n\n' + positiveSublimation(card);
     return MAJOR_ENRICHED[card.id].advice;
   }
   const minorUp = MINOR_ENRICHED[card.id];
-  if (minorUp && !card.faceRev) return minorUp.advice;
+  if (minorUp && !card.faceRev) return minorUprightAdviceFormatted(card, minorUp);
   const modern = '현대적 해석: 「' + card.name + '」를 낙인이 아니라, 지금 문장이 알려 주는 실제로 움직이는 힘으로 읽어 주세요. ' + card.textUpright;
   if (card.faceRev) return '팩트·역방향: ' + card.textReversed + '\n\n' + positiveSublimation(card);
   return modern;
