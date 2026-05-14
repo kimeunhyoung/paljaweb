@@ -8,7 +8,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,500&family=Noto+Serif+KR:wght@300;400;500;600&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet"/>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="js/topbar-session.js?v=3" defer></script>
+  <script src="js/topbar-session.js?v=4" defer></script>
 
   <style>
     :root {
@@ -48,16 +48,18 @@
       top: 0;
       z-index: 100;
       background: rgba(245, 240, 232, 0.98);
-      box-shadow: 0 4px 14px rgba(45, 38, 28, 0.06);
+      box-shadow: 0 6px 18px rgba(45, 38, 28, 0.06);
     }
     .topbar {
-      height: 56px;
+      min-height: 52px;
       background: rgba(245,240,232,.92);
       backdrop-filter: blur(8px);
       border-bottom: 1px solid var(--border);
-      display: flex; align-items: center;
-      padding: 0 32px;
+      display: flex;
+      align-items: center;
+      padding: 10px 32px;
       justify-content: space-between;
+      gap: 16px;
     }
     .program-nav {
       border-bottom: 1px solid var(--border);
@@ -65,7 +67,7 @@
       padding: 0 32px;
     }
     .program-nav-inner {
-      max-width: 900px;
+      max-width: 1100px;
       margin: 0 auto;
       display: flex;
       flex-wrap: wrap;
@@ -89,22 +91,159 @@
       font-weight: 700;
       white-space: nowrap;
     }
-    .topbar-logo { font-family: var(--font-serif); font-size: 17px; font-weight: 500; color: var(--deep-brown); text-decoration: none; }
-    .topbar-right { display: flex; align-items: center; gap: 16px; }
-    .topbar-link { font-family: var(--font-mono); font-size: 10px; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); text-decoration: none; transition: color .15s; }
-    .topbar-link:hover { color: var(--deep-brown); }
-    button.topbar-link { font-family: var(--font-mono); }
-    .topbar-auth-slot { display: inline-flex; align-items: center; gap: 14px; flex-wrap: wrap; }
-    .topbar-auth-guest-row { gap: 14px; }
-    .topbar-auth-user-row { gap: 8px; }
-    .topbar-right > .topbar-link,
-    .topbar-auth-slot .topbar-link,
-    .topbar-auth-slot button.topbar-link {
+    .topbar-left {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      min-width: 0;
+      flex: 1 1 auto;
+    }
+    .topbar-logo {
+      font-family: var(--font-body);
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--deep-brown);
+      text-decoration: none;
+      letter-spacing: .01em;
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+    .topbar-logo-mark {
+      width: 30px;
+      height: 30px;
+      border-radius: 9px;
+      background: linear-gradient(160deg, #5a402d 0%, #3d2b1f 65%, #2d1f16 100%);
+      color: var(--cream);
+      font-family: var(--font-serif);
+      font-size: 17px;
+      font-weight: 700;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid rgba(245,240,232,.22);
+      position: relative;
+      overflow: hidden;
+    }
+    .topbar-logo-mark::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(145deg, rgba(255,255,255,.16), rgba(255,255,255,0) 46%);
+      pointer-events: none;
+    }
+    .topbar-logo-mark::after {
+      content: '八';
+      position: absolute;
+      right: 2px;
+      top: 0;
+      font-size: 11px;
+      font-weight: 700;
+      color: rgba(255,255,255,.30);
+      line-height: 1;
+      pointer-events: none;
+    }
+    .logo-style-modern .topbar-logo-mark {
+      font-family: var(--font-body);
+      font-size: 16px;
+      font-weight: 700;
+    }
+    .logo-style-classic .topbar-logo-mark {
+      font-family: var(--font-serif);
+      font-size: 17px;
+      font-weight: 700;
+    }
+    .topbar-sep { width: 1px; height: 16px; background: var(--border); }
+    .topbar-title {
+      font-family: var(--font-body);
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--deep-brown);
+      line-height: 1.35;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .topbar-right {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+      flex-shrink: 0;
+    }
+    .topbar-auth {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+    .topbar-auth-link {
       font-family: var(--font-body);
       font-size: 12px;
       font-weight: 600;
+      color: var(--muted);
+      text-decoration: none;
+      white-space: nowrap;
+      transition: color .15s;
+    }
+    .topbar-auth-link:hover { color: var(--deep-brown); }
+    .topbar-auth-dot { color: var(--border); font-weight: 400; user-select: none; font-size: 12px; }
+    .topbar-auth-row { display: inline-flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+    .topbar-auth-btn {
+      background: none;
+      border: none;
+      cursor: pointer;
+      font: inherit;
+      padding: 0;
+      margin: 0;
+    }
+    .back-btn {
+      font-family: var(--font-body);
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.02em;
+      color: var(--deep-brown);
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: color .15s;
+      white-space: nowrap;
+    }
+    .back-btn:hover { color: var(--ink); }
+    .topbar .plan-badge {
+      font-family: var(--font-body);
+      font-size: 10px;
       letter-spacing: 0.04em;
-      text-transform: none;
+      text-transform: uppercase;
+      padding: 4px 10px;
+      border-radius: 20px;
+      border: 1px solid var(--border);
+      color: var(--muted);
+      font-weight: 700;
+    }
+    .topbar .plan-badge.free {
+      border-color: rgba(139, 111, 71, 0.35);
+      color: var(--warm-brown);
+      background: rgba(232, 213, 176, 0.35);
+    }
+    .topbar .plan-badge.basic {
+      border-color: var(--accent);
+      color: var(--warm-brown);
+      background: var(--accent-lt);
+    }
+    .topbar .plan-badge.pro {
+      border-color: var(--teal);
+      color: var(--teal);
+      background: rgba(46, 139, 122, 0.1);
+    }
+    .topbar .plan-badge.professional {
+      border-color: var(--deep-brown);
+      color: var(--deep-brown);
+      background: var(--parchment);
     }
 
   /* ── HERO ── */
@@ -706,7 +845,9 @@
       .tarot-card-pos { font-size: 10px; }
       .card-name-ko { font-size: 12px; }
       .card-name-en { font-size: 8px; }
-      .topbar { padding: 0 16px; }
+      .topbar { padding: 8px 16px; }
+      .topbar-sep,
+      .topbar-title { display: none; }
       .energy-strip { padding: 6px 14px 8px; top: 92px; }
       .energy-inner { gap: 6px; }
       .energy-box-row { gap: 6px; }
@@ -724,23 +865,29 @@
     }
   </style>
 </head>
-<body>
+<body class="logo-style-classic">
 
 <!-- TOPBAR -->
 <div class="site-top">
 <header class="topbar">
-  <a class="topbar-logo" href="index.html">팔자연구소</a>
+  <div class="topbar-left">
+    <a class="topbar-logo" href="index.html"><span class="topbar-logo-mark" aria-hidden="true">八</span>팔자연구소</a>
+    <div class="topbar-sep"></div>
+    <span class="topbar-title">타로</span>
+  </div>
   <div class="topbar-right">
-    <a class="topbar-link" href="dashboard.html">대시보드</a>
-    <span data-topbar-auth class="topbar-auth-slot">
-      <span data-topbar-auth-guest class="topbar-auth-guest-row">
-        <a class="topbar-link" href="login.html?next=Tarot.html">로그인</a>
-        <a class="topbar-link" href="signup.html?next=Tarot.html">회원가입</a>
+    <span class="plan-badge free" id="plan-badge">Free</span>
+    <div class="topbar-auth" aria-label="계정" data-topbar-auth>
+      <span class="topbar-auth-row" data-topbar-auth-guest>
+        <a class="topbar-auth-link" href="login.html?next=Tarot.html">로그인</a>
+        <span class="topbar-auth-dot" aria-hidden="true">·</span>
+        <a class="topbar-auth-link" href="signup.html?next=Tarot.html">회원가입</a>
       </span>
-      <span data-topbar-auth-user class="topbar-auth-user-row" hidden>
-        <button type="button" class="topbar-link" data-topbar-auth-signout style="background:none;border:none;cursor:pointer;">로그아웃</button>
+      <span class="topbar-auth-row" data-topbar-auth-user hidden>
+        <button type="button" class="topbar-auth-link topbar-auth-btn" data-topbar-auth-signout>로그아웃</button>
       </span>
-    </span>
+    </div>
+    <a class="back-btn" href="dashboard.html">대시보드</a>
   </div>
 </header>
 <nav class="program-nav" aria-label="팔자연구소 프로그램 이동">

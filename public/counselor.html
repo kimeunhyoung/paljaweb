@@ -8,7 +8,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@400;500;600;700&display=swap" rel="stylesheet"/>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="js/topbar-session.js?v=3" defer></script>
+  <script src="js/topbar-session.js?v=4" defer></script>
   <style>
     :root {
       --cream: #f5f0e8;
@@ -19,6 +19,8 @@
       --accent: #c8a96e;
       --border: rgba(139,111,71,.18);
       --teal: #2e8b7a;
+      --accent-lt: #e8d5b0;
+      --warm-brown: #8b6f47;
       --font-serif: 'Noto Serif KR', serif;
       --font-body: 'Noto Serif KR', serif;
       --font-mono: 'Noto Serif KR', serif;
@@ -28,97 +30,216 @@
     #guard { position: fixed; inset: 0; background: var(--cream); display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 12px; z-index: 99; }
     #guard .spinner { width: 32px; height: 32px; border: 2px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin .85s linear infinite; }
     @keyframes spin { to { transform: rotate(360deg); } }
-    #app { display: none; max-width: 980px; margin: 0 auto; padding: 30px 24px 80px; }
-    .top {
-      display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; flex-wrap: wrap; margin-bottom: 24px;
-      background: #fff; border: 1px solid var(--border); border-radius: 14px; padding: 18px 20px;
-      box-shadow: 0 10px 30px rgba(44,31,14,.06);
+    #app { display: none; max-width: 980px; margin: 0 auto; padding: 24px 24px 80px; }
+    .site-top {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(245, 240, 232, 0.98);
+      box-shadow: 0 6px 18px rgba(45, 38, 28, 0.06);
     }
-    .top-title-wrap { display: flex; align-items: flex-start; gap: 12px; }
-    .top-home-link {
-      display: inline-flex;
+    .topbar {
+      min-height: 52px;
+      background: rgba(245,240,232,.92);
+      backdrop-filter: blur(8px);
+      border-bottom: 1px solid var(--border);
+      display: flex;
       align-items: center;
-      gap: 8px;
-      text-decoration: none;
-      color: inherit;
+      padding: 10px 32px;
+      justify-content: space-between;
+      gap: 16px;
     }
-    .top-home-brand {
+    .topbar-left {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      min-width: 0;
+      flex: 1 1 auto;
+    }
+    .topbar-logo {
+      font-family: var(--font-body);
       font-size: 16px;
       font-weight: 700;
       color: var(--deep);
-      letter-spacing: -.01em;
-      line-height: 1;
-    }
-    .top-home-link-text { display: block; }
-    .top-logo-mark {
-      width: 34px; height: 34px; border-radius: 10px;
-      background: linear-gradient(160deg, #5a402d 0%, #3d2b1f 65%, #2d1f16 100%);
-      color: var(--cream); font-size: 18px; font-weight: 700;
-      display: inline-flex; align-items: center; justify-content: center;
-      border: 1px solid rgba(245,240,232,.24);
-      position: relative; overflow: hidden; line-height: 1;
+      text-decoration: none;
+      letter-spacing: .01em;
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      white-space: nowrap;
       flex-shrink: 0;
     }
-    .top-logo-mark::after {
-      content: '八'; position: absolute; right: 2px; top: 0;
-      font-size: 11px; font-weight: 700; color: rgba(255,255,255,.30);
-      line-height: 1; pointer-events: none;
+    .topbar-logo-mark {
+      width: 30px;
+      height: 30px;
+      border-radius: 9px;
+      background: linear-gradient(160deg, #5a402d 0%, #3d2b1f 65%, #2d1f16 100%);
+      color: var(--cream);
+      font-family: var(--font-serif);
+      font-size: 17px;
+      font-weight: 700;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid rgba(245,240,232,.22);
+      position: relative;
+      overflow: hidden;
+      line-height: 1;
+      flex-shrink: 0;
     }
-    .top h1 { font-family: var(--font-serif); font-size: 26px; font-weight: 700; color: var(--deep); line-height: 1.2; letter-spacing: -.01em; }
-    .top p { font-size: 13px; color: var(--muted); margin-top: 8px; max-width: 540px; line-height: 1.72; }
-    .top a {
-      font-family: var(--font-body); font-size: 12px; font-weight: 600;
-      color: var(--deep); text-decoration: none; border: 1px solid var(--border); padding: 10px 14px; border-radius: 10px;
-      background: #fff;
+    .topbar-logo-mark::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(145deg, rgba(255,255,255,.16), rgba(255,255,255,0) 46%);
+      pointer-events: none;
     }
-    .top a:hover { color: var(--deep); border-color: var(--accent); background: var(--parchment); }
-    .top-actions-inner { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 10px; }
-    .top-actions .topbar-auth-btn {
+    .topbar-logo-mark::after {
+      content: '八';
+      position: absolute;
+      right: 2px;
+      top: 0;
+      font-size: 11px;
+      font-weight: 700;
+      color: rgba(255,255,255,.30);
+      line-height: 1;
+      pointer-events: none;
+    }
+    .topbar-sep { width: 1px; height: 16px; background: var(--border); }
+    .topbar-title {
+      font-family: var(--font-body);
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--deep);
+      line-height: 1.35;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .topbar-right {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+      flex-shrink: 0;
+    }
+    .topbar .plan-badge {
+      font-family: var(--font-body);
+      font-size: 10px;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      padding: 4px 10px;
+      border-radius: 20px;
+      border: 1px solid var(--border);
+      color: var(--muted);
+      font-weight: 700;
+    }
+    .topbar .plan-badge.free {
+      border-color: rgba(139, 111, 71, 0.35);
+      color: var(--deep);
+      background: rgba(232, 213, 176, 0.45);
+    }
+    .topbar .plan-badge.basic {
+      border-color: var(--accent);
+      color: var(--deep);
+      background: var(--parchment);
+    }
+    .topbar .plan-badge.pro {
+      border-color: var(--teal);
+      color: var(--teal);
+      background: rgba(46, 139, 122, 0.12);
+    }
+    .topbar .plan-badge.professional {
+      border-color: var(--deep);
+      color: var(--cream);
+      background: var(--deep);
+    }
+    .topbar-auth {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+    .topbar-auth-link {
       font-family: var(--font-body);
       font-size: 12px;
       font-weight: 600;
+      color: var(--muted);
+      text-decoration: none;
+      white-space: nowrap;
+      transition: color .15s;
+    }
+    .topbar-auth-link:hover { color: var(--deep); }
+    .topbar-auth-dot { color: var(--border); font-weight: 400; user-select: none; font-size: 12px; }
+    .topbar-auth-row { display: inline-flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+    .topbar-auth-btn { background: none; border: none; cursor: pointer; font: inherit; padding: 0; margin: 0; }
+    .back-btn {
+      font-family: var(--font-body);
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: .02em;
       color: var(--deep);
       text-decoration: none;
-      border: 1px solid var(--border);
-      padding: 10px 14px;
-      border-radius: 10px;
-      background: #fff;
-      cursor: pointer;
+      white-space: nowrap;
+      transition: color .15s;
     }
-    .top-actions .topbar-auth-btn:hover { color: var(--deep); border-color: var(--accent); background: var(--parchment); }
-    .counselor-program-nav {
-      border: 1px solid var(--border);
-      border-top: none;
-      background: rgba(255, 255, 255, 0.92);
-      border-radius: 0 0 14px 14px;
-      padding: 0 18px;
-      margin: 0 0 20px;
+    .back-btn:hover { color: var(--ink); }
+    .program-nav {
+      border-bottom: 1px solid var(--border);
+      background: rgba(255, 255, 255, 0.55);
+      padding: 0 32px;
     }
-    .counselor-program-nav-inner {
+    .program-nav-inner {
+      max-width: 1100px;
+      margin: 0 auto;
       display: flex;
       flex-wrap: wrap;
       align-items: center;
-      gap: 6px 14px;
-      padding: 10px 4px 12px;
+      gap: 6px 16px;
+      padding: 7px 0 9px;
+      font-family: var(--font-body);
       font-size: 12px;
     }
-    .counselor-program-nav-inner a {
+    .program-nav-inner a {
       color: var(--muted);
       text-decoration: none;
       font-weight: 600;
+      letter-spacing: 0.02em;
       white-space: nowrap;
     }
-    .counselor-program-nav-inner a:hover { color: var(--deep); }
-    .counselor-program-nav-current {
+    .program-nav-inner a:hover { color: var(--deep); }
+    .program-nav-current {
       color: var(--deep);
       font-weight: 700;
       white-space: nowrap;
     }
-    .top-actions {
-      display: flex;
-      flex-wrap: wrap;
-      align-items: center;
-      gap: 10px;
+    .hub-intro {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 18px 20px;
+      margin-bottom: 24px;
+      box-shadow: 0 10px 30px rgba(44,31,14,.06);
+    }
+    .hub-intro h1 {
+      font-family: var(--font-serif);
+      font-size: 26px;
+      font-weight: 700;
+      color: var(--deep);
+      line-height: 1.2;
+      letter-spacing: -.01em;
+    }
+    .hub-intro p {
+      font-size: 13px;
+      color: var(--muted);
+      margin-top: 8px;
+      max-width: 640px;
+      line-height: 1.72;
+    }
+    @media (max-width: 560px) {
+      .topbar-sep,
+      .topbar-title { display: none; }
     }
     #gate { display: none; text-align: center; padding: 48px 24px; background: var(--parchment); border-radius: 12px; border: 1px solid var(--border); }
     #gate h2 { font-family: var(--font-serif); font-size: 22px; color: var(--deep); margin-bottom: 12px; }
@@ -216,53 +337,54 @@
     .list-loading, .list-empty { font-size: 12px; color: var(--muted); }
     @media (max-width: 640px) {
       #app { padding: 20px 16px 56px; }
-      .top { padding: 14px; border-radius: 12px; }
-      .top-logo-mark { width: 30px; height: 30px; font-size: 16px; }
-      .top h1 { font-size: 22px; }
-      .top p { font-size: 12px; }
+      .hub-intro { padding: 14px; border-radius: 12px; }
+      .hub-intro h1 { font-size: 22px; }
+      .hub-intro p { font-size: 12px; }
     }
   </style>
 </head>
 <body>
 <div id="guard"><div class="spinner"></div><p class="guard-text">확인 중…</p></div>
 
-<div id="app">
-  <div class="top">
-    <div class="top-title-wrap">
-      <a class="top-home-link" href="index.html" aria-label="메인으로 이동">
-        <span class="top-logo-mark" aria-hidden="true">八</span>
-        <span class="top-home-brand">팔자연구소</span>
-      </a>
-      <div class="top-home-link-text">
-        <h1>상담사 허브</h1>
-        <p>고객 정보 입력 → 라이프코드·궁합 도구로 분석 → 인쇄 또는 메모로 세션을 정리하세요. 이 화면은 <strong>Professional 상담사 전용 흐름</strong>으로, 상담 진행에 필요한 기능을 한곳에 모아 둔 허브입니다.</p>
-      </div>
-    </div>
-    <div class="top-actions">
-      <span data-topbar-auth class="top-actions-inner">
-        <span data-topbar-auth-guest style="display:inline-flex;gap:10px;flex-wrap:wrap;align-items:center;">
-          <a href="login.html?next=counselor.html">로그인</a>
-          <a href="signup.html?next=counselor.html">회원가입</a>
-        </span>
-        <span data-topbar-auth-user hidden style="display:inline-flex;align-items:center;">
-          <button type="button" class="topbar-auth-btn" data-topbar-auth-signout>로그아웃</button>
-        </span>
-      </span>
-      <a href="dashboard.html">대시보드</a>
-    </div>
+<div class="site-top">
+<header class="topbar">
+  <div class="topbar-left">
+    <a class="topbar-logo" href="index.html"><span class="topbar-logo-mark" aria-hidden="true">八</span>팔자연구소</a>
+    <div class="topbar-sep"></div>
+    <span class="topbar-title">상담사 허브</span>
   </div>
-
-  <nav class="counselor-program-nav" aria-label="팔자연구소 프로그램 이동">
-    <div class="counselor-program-nav-inner">
-      <a href="analysis.html">라이프코드</a>
-      <a href="Tarot.html">타로</a>
-      <a href="name.html">네임코드</a>
-      <a href="compatibility.html">소울하모니</a>
-      <span class="counselor-program-nav-current" aria-current="page">상담사 허브</span>
-      <a href="pricing.html">요금제</a>
+  <div class="topbar-right">
+    <span class="plan-badge free" id="plan-badge">Free</span>
+    <div class="topbar-auth" aria-label="계정" data-topbar-auth>
+      <span class="topbar-auth-row" data-topbar-auth-guest>
+        <a class="topbar-auth-link" href="login.html?next=counselor.html">로그인</a>
+        <span class="topbar-auth-dot" aria-hidden="true">·</span>
+        <a class="topbar-auth-link" href="signup.html?next=counselor.html">회원가입</a>
+      </span>
+      <span class="topbar-auth-row" data-topbar-auth-user hidden>
+        <button type="button" class="topbar-auth-link topbar-auth-btn" data-topbar-auth-signout>로그아웃</button>
+      </span>
     </div>
-  </nav>
+    <a class="back-btn" href="dashboard.html">대시보드</a>
+  </div>
+</header>
+<nav class="program-nav" aria-label="팔자연구소 프로그램 이동">
+  <div class="program-nav-inner">
+    <a href="analysis.html">라이프코드</a>
+    <a href="Tarot.html">타로</a>
+    <a href="name.html">네임코드</a>
+    <a href="compatibility.html">소울하모니</a>
+    <span class="program-nav-current" aria-current="page">상담사 허브</span>
+    <a href="pricing.html">요금제</a>
+  </div>
+</nav>
+</div>
 
+<div id="app">
+  <div class="hub-intro">
+    <h1>상담사 허브</h1>
+    <p>고객 정보 입력 → 라이프코드·궁합 도구로 분석 → 인쇄 또는 메모로 세션을 정리하세요. 이 화면은 <strong>Professional 상담사 전용 흐름</strong>으로, 상담 진행에 필요한 기능을 한곳에 모아 둔 허브입니다.</p>
+  </div>
   <div id="gate">
     <h2>Professional 플랜 전용</h2>
     <p>상담사 허브는 <strong>Professional</strong> 요금제에서 이용할 수 있어요.<br>고객 표시 이름 필드와 같은 상담용 기능은 플랜 연동 후 라이프코드 분석 화면에서 함께 켜집니다.</p>
