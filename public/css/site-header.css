@@ -24,6 +24,19 @@
   font-family: var(--font-ui);
 }
 
+/* 로그아웃: button.topbar-auth-btn의 font:inherit가 .topbar-auth-link 타이포를 덮어씀 → 대시보드(.back-btn)와 동일 */
+.site-top .topbar-auth-btn.topbar-auth-link {
+  font-family: var(--font-ui);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  line-height: 1.2;
+  color: var(--deep-brown, #4a3520);
+}
+.site-top .topbar-auth-btn.topbar-auth-link:hover {
+  color: var(--ink, #2c1f0e);
+}
+
 /* 히어로 안 폼/버튼은 본문 명조와 섞이지 않게 UI 폰트로 통일 */
 .hero .hero-tag,
 .hero .hero-desc,
@@ -97,21 +110,45 @@
   line-height: 1.2;
 }
 
+/* ── 프로그램 메뉴 줄·탑바 좌우: 페이지별(12·14·16·20px) 차이 제거 ── */
+@media (max-width: 900px) {
+  .site-top .topbar {
+    padding: 8px 16px;
+  }
+
+  .site-top .program-nav {
+    padding: 0 16px;
+  }
+
+  .site-top .program-nav-inner {
+    gap: 6px 12px;
+    font-size: 11px;
+    padding: 6px 0 8px;
+  }
+}
+
+@media (max-width: 560px) {
+  .site-top .topbar-sep,
+  .site-top .topbar-title {
+    display: none;
+  }
+}
+
 /* ── 모바일: 상단 액션 한 블록으로 정돈 ── */
 @media (max-width: 700px) {
-  .topbar {
+  .site-top .topbar {
     flex-direction: column;
     align-items: stretch;
     gap: 10px;
   }
 
-  .topbar-left {
+  .site-top .topbar-left {
     width: 100%;
     min-width: 0;
     flex: 0 0 auto;
   }
 
-  .topbar-right {
+  .site-top .topbar-right {
     display: flex;
     flex-wrap: wrap;
     align-items: center;
@@ -121,36 +158,37 @@
     width: 100%;
   }
 
-  .topbar-right .plan-badge {
+  .site-top .topbar-right .plan-badge {
     order: 1;
   }
 
-  .topbar-right .topbar-auth {
+  .site-top .topbar-right .topbar-auth,
+  .site-top .topbar-right .pricing-auth-slot {
     order: 2;
     margin-left: auto;
   }
 
-  .topbar-right > .topbar-export-cluster,
-  .topbar-right > .topbar-export-btns {
+  .site-top .topbar-right > .topbar-export-cluster,
+  .site-top .topbar-right > .topbar-export-btns {
     order: 5;
     flex: 1 1 100%;
     width: 100%;
     justify-content: stretch;
   }
 
-  .topbar-export-cluster .topbar-export-btns {
+  .site-top .topbar-export-cluster .topbar-export-btns {
     width: 100%;
     display: flex;
     gap: 8px;
   }
 
-  .topbar-export-btns .counselor-bar-btn {
+  .site-top .topbar-export-btns .counselor-bar-btn {
     flex: 1 1 0;
     min-width: 0;
     min-height: 40px;
   }
 
-  .topbar-right .back-btn {
+  .site-top .topbar-right .back-btn {
     order: 6;
     flex: 1 1 100%;
     justify-content: flex-end;
