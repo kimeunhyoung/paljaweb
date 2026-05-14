@@ -212,15 +212,15 @@ html {
 
   .site-top .topbar-right > .back-btn {
     order: 4;
-    flex: 1 1 100%;
+    flex: 0 0 auto;
     justify-content: flex-end;
-    min-height: 40px;
+    min-height: 0;
   }
 
   .site-top .topbar-right > [data-topbar-auth-user] {
     order: 5;
-    flex: 1 1 100%;
-    display: flex;
+    flex: 0 0 auto;
+    display: inline-flex;
     justify-content: flex-end;
     flex-wrap: wrap;
     gap: 8px 12px;

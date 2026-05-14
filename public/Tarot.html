@@ -865,7 +865,7 @@
     }
   </style>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css" crossorigin />
-  <link rel="stylesheet" href="css/site-header.css?v=5" />
+  <link rel="stylesheet" href="css/site-header.css?v=6" />
 </head>
 <body class="logo-style-classic">
 
@@ -1791,6 +1791,10 @@ function showDrawnCards() {
   } else {
     appendCardRow(drawnCards.map((_, i) => i));
   }
+
+  requestAnimationFrame(() => {
+    window.scrollTo({ top: 0, behavior: 'auto' });
+  });
 }
 
 function flipCard(i) {
@@ -2005,6 +2009,10 @@ function startReading() {
       <div class="reading-enriched ec-wrap">${enrichedBirthNote}${enrichedHtml}</div>
     </div>` +
     gateHtml;
+
+  requestAnimationFrame(() => {
+    window.scrollTo({ top: 0, behavior: 'auto' });
+  });
 }
 
 function resetAll() {
