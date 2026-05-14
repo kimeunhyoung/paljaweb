@@ -88,6 +88,9 @@
   }
 
   function init() {
+    if (document.documentElement && document.documentElement.classList.contains('tarot-standalone')) {
+      return;
+    }
     injectCss();
     var sb = getClient();
     if (!sb) return;

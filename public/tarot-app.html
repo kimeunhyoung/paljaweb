@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="color-scheme" content="light"/>
+  <title>타로코드</title>
+  <script>
+    (function () {
+      try {
+        var params = new URLSearchParams(window.location.search);
+        if (params.get('standalone') !== '1' && params.get('app') !== '1') {
+          params.set('standalone', '1');
+        }
+        var q = params.toString();
+        window.location.replace('Tarot.html' + (q ? '?' + q : ''));
+      } catch (e) {
+        window.location.replace('Tarot.html?standalone=1');
+      }
+    })();
+  </script>
+</head>
+<body>
+  <p style="font-family:system-ui,sans-serif;padding:24px;text-align:center;">
+    <a href="Tarot.html?standalone=1">타로코드로 이동</a>
+  </p>
+</body>
+</html>

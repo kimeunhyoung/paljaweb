@@ -1,0 +1,19 @@
+타로코드 단독 출시 (구글 플레이 TWA · 토스 미니앱 웹뷰)
+================================================
+
+1) 스토어·미니앱에 넣을 시작 URL (권장)
+   https://(배포도메인)/tarot-app.html
+   → 자동으로 Tarot.html?standalone=1 로 열립니다.
+
+2) Android TWA (Bubblewrap 등)로 AAB 만들 때
+   - 시작 URL: 위 tarot-app.html 또는 Tarot.html?standalone=1
+   - 패키지명·서명 키를 정한 뒤, SHA-256 인증서 지문을 구합니다.
+
+3) Digital Asset Links
+   - 이 저장소: public/.well-known/assetlinks.json
+   - 운영 서버에 배포되면 https://(도메인)/.well-known/assetlinks.json 으로 제공됩니다.
+   - Bubblewrap이 안내하는 JSON 배열을 넣어 빈 배열 [] 을 교체하세요.
+   - 미교체 시 TWA "링크된 도메인" 검증은 통과하지 않을 수 있습니다.
+
+4) 토스 미니앱
+   - 앱인토스 개발자센터 가이드에 맞게 웹뷰/번들 URL을 위와 동일하게 설정하면 됩니다.

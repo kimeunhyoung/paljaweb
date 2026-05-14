@@ -3,12 +3,29 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <script>
+    (function () {
+      try {
+        var p = new URLSearchParams(window.location.search);
+        if (p.get('standalone') === '1' || p.get('app') === '1') {
+          document.documentElement.classList.add('tarot-standalone');
+        }
+      } catch (e) {}
+    })();
+  </script>
   <title>타로코드 — 팔자연구소 8CODE</title>
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,500&family=Noto+Serif+KR:wght@300;400;500;600&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet"/>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="js/topbar-session.js?v=4" defer></script>
+  <script>
+    (function () {
+      if (document.documentElement.classList.contains('tarot-standalone')) return;
+      document.write(
+        '\x3cscript src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2">\x3c/script>',
+      );
+    })();
+  </script>
+  <script src="js/topbar-session.js?v=5" defer></script>
 
   <style>
     :root {
@@ -244,6 +261,40 @@
       border-color: var(--deep-brown);
       color: var(--deep-brown);
       background: var(--parchment);
+    }
+
+    /* 구글 플레이 TWA · 토스 미니앱: ?standalone=1 | ?app=1 */
+    html.tarot-standalone .topbar-right {
+      display: none !important;
+    }
+    html.tarot-standalone .program-nav {
+      display: none !important;
+    }
+    html.tarot-standalone .site-top .topbar {
+      justify-content: flex-start;
+    }
+    html.tarot-standalone .topbar-sep,
+    html.tarot-standalone .topbar-title {
+      display: none !important;
+    }
+    .tarot-ad-slot {
+      display: none;
+      box-sizing: border-box;
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 10px 32px 6px;
+      min-height: 0;
+    }
+    html.tarot-standalone .tarot-ad-slot {
+      display: block;
+      min-height: 50px;
+      border-bottom: 1px dashed var(--border);
+    }
+    @media (max-width: 600px) {
+      html.tarot-standalone .tarot-ad-slot {
+        padding-left: 16px;
+        padding-right: 16px;
+      }
     }
 
   /* ── HERO ── */
@@ -902,6 +953,8 @@
 </nav>
 </div>
 
+<aside class="tarot-ad-slot" id="tarotAdSlotTop" aria-label="광고"></aside>
+
 <!-- HERO -->
 <section class="hero">
   <div class="hero-tag">Tarot Code · 수비학 맥락 카드</div>
@@ -1033,12 +1086,13 @@
 </div>
 
 <script>
+const TAROT_STANDALONE = document.documentElement.classList.contains('tarot-standalone');
 const SB_URL = 'https://sghsryumnrnftyjoqmwf.supabase.co';
 const SB_KEY = 'sb_publishable_6S3W_oWrzG-Nv8wLK98gmg_q_KcB2I1';
 let sb = null;
 try {
   const g = window.supabase || globalThis.supabase;
-  if (g && typeof g.createClient === 'function') sb = g.createClient(SB_URL, SB_KEY);
+  if (!TAROT_STANDALONE && g && typeof g.createClient === 'function') sb = g.createClient(SB_URL, SB_KEY);
 } catch (e) {}
 
 let USER_PLAN = 'free';
@@ -1046,6 +1100,7 @@ const PLANS = { free: 0, basic: 1, pro: 2, professional: 3 };
 function hasAccess(required) { return PLANS[USER_PLAN] >= PLANS[required]; }
 
 async function initAuth() {
+  if (TAROT_STANDALONE) return;
   if (!sb) return;
   try {
     const { data: { session } } = await sb.auth.getSession();
@@ -1987,18 +2042,20 @@ function startReading() {
   }
 
   let gateHtml = '';
-  if (hasAccess('pro')) {
-    gateHtml = `<div class="reading-section" style="border-left-color:var(--teal);margin-bottom:24px;">
+  if (!TAROT_STANDALONE) {
+    if (hasAccess('pro')) {
+      gateHtml = `<div class="reading-section" style="border-left-color:var(--teal);margin-bottom:24px;">
       <div class="reading-tag">Pro · AI 종합 해석</div>
       <div class="reading-text" style="color:var(--muted);line-height:1.85;">종합 AI 해석은 API를 서버에 두고 안전하게 연동한 뒤 제공할 예정입니다. 지금은 수비학 맥락과 카드 문구를 함께 읽어 보세요.</div>
     </div>`;
-  } else {
-    gateHtml = `<div class="feature-gate">
+    } else {
+      gateHtml = `<div class="feature-gate">
       <div class="gate-icon">✨</div>
       <div class="gate-title">AI 수비학 연동 타로코드</div>
       <div class="gate-desc">수비학 맥락과 카드를 함께 풀어 주는 <strong>종합 AI 해석</strong>은 <strong>Pro</strong> 이상에서 준비 중이에요. 지금 보시는 것은 무료 카드 기본 해석입니다.</div>
       <button type="button" class="gate-btn" onclick="location.href='pricing.html'">플랜 안내 →</button>
     </div>`;
+    }
   }
 
   readingArea.innerHTML =
@@ -2052,6 +2109,16 @@ function resetAll() {
   cs.style.display = '';
   document.getElementById('numCtxBanner').style.display = 'none';
   window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+if (TAROT_STANDALONE) {
+  document.title = '타로코드';
+  var __logo = document.querySelector('.topbar-logo');
+  if (__logo) {
+    __logo.setAttribute('href', 'Tarot.html?standalone=1');
+    __logo.setAttribute('aria-label', '타로코드 처음으로');
+    __logo.innerHTML = '<span class="topbar-logo-mark" aria-hidden="true">八</span>타로코드';
+  }
 }
 
 initAuth();
