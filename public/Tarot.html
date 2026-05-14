@@ -1947,11 +1947,6 @@ function buildSummaryCardHtml(card, i, positions) {
   );
 }
 
-/** 데일리 5장 스프레드 — 하단 요약 그리드는 상단 본문과 겹쳐 숨김 */
-function isDailyFiveCardSpread() {
-  return curMode === 'energy' && curEopt === 'daily' && drawnCards.length === 5;
-}
-
 /** drawnCards[3]·[4] = 데일리 「오늘 힘이 되는 에너지」「오늘의 주의」(연간 5장 마지막 칸과 구분) */
 function isDailyHelpfulSlot(i) {
   return curMode === 'energy' && curEopt === 'daily' && drawnCards.length === 5 && i === 3;
@@ -1996,7 +1991,8 @@ function startReading() {
   const positions = getPositions();
 
   const summaries = document.getElementById('cardSummaries');
-  if (isDailyFiveCardSpread()) {
+  /* 에너지 흐름(데일리·월간·연간 등)은 상단 본문과 겹쳐 하단 요약 생략 */
+  if (curMode === 'energy') {
     summaries.innerHTML = '';
     summaries.style.display = 'none';
   } else {
