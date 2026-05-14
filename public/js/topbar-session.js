@@ -33,6 +33,42 @@
     }
   }
 
+  function applyPlanToBadge(badge, profile) {
+    var plan = (profile && profile.plan) || 'free';
+    if (
+      plan === 'professional' &&
+      profile &&
+      profile.plan_active_until &&
+      new Date(profile.plan_active_until) <= new Date()
+    ) {
+      plan = 'pro';
+    }
+    badge.textContent = plan.charAt(0).toUpperCase() + plan.slice(1);
+    badge.className = 'plan-badge ' + plan;
+  }
+
+  function syncPlanBadge(sb) {
+    var badge = document.getElementById('plan-badge');
+    if (!badge) return;
+    sb.auth.getSession().then(function (res) {
+      var session = res.data && res.data.session;
+      if (!session) {
+        badge.textContent = 'Free';
+        badge.className = 'plan-badge free';
+        return Promise.resolve(null);
+      }
+      return sb.from('profiles').select('plan, plan_active_until').eq('id', session.user.id).maybeSingle();
+    }).then(function (pres) {
+      if (!badge) return;
+      if (!pres || pres.error || !pres.data) {
+        badge.textContent = 'Free';
+        badge.className = 'plan-badge free';
+        return;
+      }
+      applyPlanToBadge(badge, pres.data);
+    });
+  }
+
   function syncSlots(sb) {
     sb.auth.getSession().then(function (res) {
       var session = res.data && res.data.session;
@@ -55,11 +91,14 @@
     injectCss();
     var sb = getClient();
     if (!sb) return;
+    syncPlanBadge(sb);
     syncSlots(sb);
     requestAnimationFrame(function () {
+      syncPlanBadge(sb);
       syncSlots(sb);
     });
     sb.auth.onAuthStateChange(function () {
+      syncPlanBadge(sb);
       syncSlots(sb);
     });
     document.addEventListener('click', function (e) {

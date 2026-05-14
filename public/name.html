@@ -10,7 +10,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="js/topbar-session.js?v=3" defer></script>
+<script src="js/topbar-session.js?v=4" defer></script>
 <style>
 :root {
   --cream:      #f5f0e8;
@@ -109,6 +109,11 @@ body{font-family:var(--font-body);background:var(--cream);color:var(--ink);min-h
   border:1px solid var(--border);
   color:var(--muted);
   font-weight:700;
+}
+.plan-badge.free{
+  border-color:rgba(139,111,71,.35);
+  color:var(--warm-brown);
+  background:rgba(232,213,176,.35);
 }
 .plan-badge.basic{border-color:var(--accent);color:var(--warm-brown);background:var(--accent-lt);}
 .plan-badge.pro{border-color:var(--teal);color:var(--teal);background:var(--teal-lt);}
@@ -473,7 +478,7 @@ body{font-family:var(--font-body);background:var(--cream);color:var(--ink);min-h
     <span class="topbar-title">네임코드</span>
   </div>
   <div class="topbar-right">
-    <span class="plan-badge" id="plan-badge">Free</span>
+    <span class="plan-badge free" id="plan-badge">Free</span>
     <div class="topbar-auth" aria-label="계정" data-topbar-auth>
       <span class="topbar-auth-row" data-topbar-auth-guest>
         <a class="topbar-auth-link" href="login.html?next=name.html">로그인</a>
