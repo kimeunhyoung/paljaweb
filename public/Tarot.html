@@ -1928,11 +1928,12 @@ function buildSummaryCardHtml(card, i, positions) {
   const rev = card.faceRev ? ' (역)' : '';
   const mdd = dailyDoDontInterpret(card, i);
   if (mdd) {
+    /* 상단「카드 리딩」ec-card에 동일 본문이 있어 하단에서 문장을 다시 붙이지 않음 */
     return (
       '<div class="card-summary">' +
       '<div class="cs-pos">' + pos + '</div>' +
       '<div class="cs-name">' + sym + ' ' + nm + rev + '</div>' +
-      '<div class="cs-tier"><span class="cs-tier-l">' + escapeHtml(mdd.shortTag) + '</span> ' + escapeHtml(clampStr(mdd.body, 200)) + '</div>' +
+      '<div class="cs-tier"><span class="cs-tier-l">' + escapeHtml(mdd.label) + '</span> · 위 카드 리딩 본문과 같습니다.</div>' +
       '</div>'
     );
   }
