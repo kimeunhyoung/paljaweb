@@ -865,7 +865,7 @@
     }
   </style>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css" crossorigin />
-  <link rel="stylesheet" href="css/site-header.css?v=4" />
+  <link rel="stylesheet" href="css/site-header.css?v=5" />
 </head>
 <body class="logo-style-classic">
 
@@ -877,19 +877,17 @@
     <div class="topbar-sep"></div>
     <span class="topbar-title">타로</span>
   </div>
-  <div class="topbar-right">
+  <div class="topbar-right" data-topbar-auth aria-label="계정">
     <span class="plan-badge free" id="plan-badge">Free</span>
-    <div class="topbar-auth" aria-label="계정" data-topbar-auth>
-      <span class="topbar-auth-row" data-topbar-auth-guest>
-        <a class="topbar-auth-link" href="login.html?next=Tarot.html">로그인</a>
-        <span class="topbar-auth-dot" aria-hidden="true">·</span>
-        <a class="topbar-auth-link" href="signup.html?next=Tarot.html">회원가입</a>
-      </span>
-      <span class="topbar-auth-row" data-topbar-auth-user hidden>
-        <button type="button" class="topbar-auth-link topbar-auth-btn" data-topbar-auth-signout>로그아웃</button>
-      </span>
-    </div>
+    <span class="topbar-auth-row" data-topbar-auth-guest>
+      <a class="topbar-auth-link" href="login.html?next=Tarot.html">로그인</a>
+      <span class="topbar-auth-dot" aria-hidden="true">·</span>
+      <a class="topbar-auth-link" href="signup.html?next=Tarot.html">회원가입</a>
+    </span>
     <a class="back-btn" href="dashboard.html">대시보드</a>
+    <span class="topbar-auth-row" data-topbar-auth-user hidden>
+      <button type="button" class="topbar-auth-link topbar-auth-btn" data-topbar-auth-signout>로그아웃</button>
+    </span>
   </div>
 </header>
 <nav class="program-nav" aria-label="팔자연구소 프로그램 이동">
