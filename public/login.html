@@ -17,7 +17,7 @@
         <span class="logo-text">팔자연구소</span>
       </a>
       <div class="nav-actions">
-        <a href="signup.html" class="btn-nav-fill">회원가입</a>
+        <a id="nav-signup-link" href="signup.html" class="btn-nav-fill">회원가입</a>
       </div>
     </div>
   </nav>
@@ -48,8 +48,20 @@
       <button id="naver-login" data-provider="naver" class="btn-cta" style="width:100%;">네이버로 로그인</button>
     </div>
 
-    <p style="margin-top:18px; color:var(--text2);">계정이 없으신가요? <a href="signup.html">회원가입</a></p>
+    <p style="margin-top:18px; color:var(--text2);">계정이 없으신가요? <a id="inline-signup-link" href="signup.html">회원가입</a></p>
   </main>
+
+  <script>
+    (function () {
+      var n = new URLSearchParams(location.search).get('next');
+      if (!n) return;
+      var q = 'next=' + encodeURIComponent(n);
+      var s = document.getElementById('nav-signup-link');
+      var i = document.getElementById('inline-signup-link');
+      if (s) s.href = 'signup.html?' + q;
+      if (i) i.href = 'signup.html?' + q;
+    })();
+  </script>
 
   <script type="module" src="js/supabase-auth.js"></script>
   <script type="module" src="js/main.js"></script>

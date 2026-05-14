@@ -40,6 +40,13 @@
     }
 
     /* ── TOPBAR ── */
+    .site-top {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(245, 240, 232, 0.98);
+      box-shadow: 0 4px 14px rgba(45, 38, 28, 0.06);
+    }
     .topbar {
       height: 56px;
       background: rgba(245,240,232,.92);
@@ -47,8 +54,37 @@
       border-bottom: 1px solid var(--border);
       display: flex; align-items: center;
       padding: 0 40px;
-      position: sticky; top: 0; z-index: 100;
       justify-content: space-between;
+    }
+    .program-nav {
+      border-bottom: 1px solid var(--border);
+      background: rgba(255, 255, 255, 0.55);
+      padding: 0 40px;
+    }
+    .program-nav-inner {
+      max-width: 1100px;
+      margin: 0 auto;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 6px 16px;
+      padding: 7px 0 9px;
+      font-family: var(--font-body);
+      font-size: 12px;
+    }
+    .program-nav-inner a {
+      color: var(--muted);
+      text-decoration: none;
+      font-weight: 600;
+      letter-spacing: 0.02em;
+      transition: color .15s;
+      white-space: nowrap;
+    }
+    .program-nav-inner a:hover { color: var(--deep-brown); }
+    .program-nav-current {
+      color: var(--deep-brown);
+      font-weight: 700;
+      white-space: nowrap;
     }
     .topbar-logo {
       font-family: var(--font-serif);
@@ -524,6 +560,8 @@
       .hero-title { font-size: 36px; }
       .pricing-wrap, .compare-section, .faq-section { padding-left: 20px; padding-right: 20px; }
       .topbar { padding: 0 20px; }
+      .program-nav { padding: 0 20px; }
+      .program-nav-inner { gap: 6px 12px; font-size: 11px; padding: 6px 0 8px; }
     }
     @media (max-width: 560px) {
       .pricing-grid { grid-template-columns: 1fr; }
@@ -534,14 +572,25 @@
 <body>
 
 <!-- TOPBAR -->
+<div class="site-top">
 <header class="topbar">
   <a class="topbar-logo" href="index.html">팔자연구소</a>
   <div class="topbar-right">
-    <a class="topbar-link" href="analysis.html">분석하기</a>
-    <a class="topbar-link" href="login.html">로그인</a>
-    <a class="topbar-link" href="signup.html">회원가입</a>
+    <a class="topbar-link" href="login.html?next=pricing.html">로그인</a>
+    <a class="topbar-link" href="signup.html?next=pricing.html">회원가입</a>
   </div>
 </header>
+<nav class="program-nav" aria-label="팔자연구소 프로그램 이동">
+  <div class="program-nav-inner">
+    <a href="analysis.html">라이프코드</a>
+    <a href="Tarot.html">타로</a>
+    <a href="name.html">네임코드</a>
+    <a href="compatibility.html">소울하모니</a>
+    <a href="counselor.html">상담사 허브</a>
+    <span class="program-nav-current" aria-current="page">요금제</span>
+  </div>
+</nav>
+</div>
 
 <!-- HERO -->
 <section class="hero">

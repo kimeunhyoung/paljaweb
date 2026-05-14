@@ -53,6 +53,13 @@
     }
 
     /* ── TOPBAR ── */
+    .site-top {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(245, 240, 232, 0.98);
+      box-shadow: 0 6px 18px rgba(45, 38, 28, 0.06);
+    }
     .topbar {
       min-height: 52px;
       background: rgba(245,240,232,.92);
@@ -60,10 +67,38 @@
       border-bottom: 1px solid var(--border);
       display: flex; align-items: center;
       padding: 10px 32px;
-      position: sticky; top: 0; z-index: 100;
       justify-content: space-between;
       gap: 16px;
-      box-shadow: 0 6px 18px rgba(45, 38, 28, 0.06);
+    }
+    .program-nav {
+      border-bottom: 1px solid var(--border);
+      background: rgba(255, 255, 255, 0.55);
+      padding: 0 32px;
+    }
+    .program-nav-inner {
+      max-width: 1100px;
+      margin: 0 auto;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 6px 16px;
+      padding: 7px 0 9px;
+      font-family: var(--font-body);
+      font-size: 12px;
+    }
+    .program-nav-inner a {
+      color: var(--muted);
+      text-decoration: none;
+      font-weight: 600;
+      letter-spacing: 0.02em;
+      transition: color .15s;
+      white-space: nowrap;
+    }
+    .program-nav-inner a:hover { color: var(--deep-brown); }
+    .program-nav-current {
+      color: var(--deep-brown);
+      font-weight: 700;
+      white-space: nowrap;
     }
     .topbar-left {
       display: flex;
@@ -196,6 +231,24 @@
       white-space: nowrap;
     }
     .back-btn:hover { color: var(--ink); }
+
+    .topbar-auth {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+    .topbar-auth-link {
+      font-family: var(--font-body);
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--muted);
+      text-decoration: none;
+      white-space: nowrap;
+      transition: color .15s;
+    }
+    .topbar-auth-link:hover { color: var(--deep-brown); }
+    .topbar-auth-dot { color: var(--border); font-weight: 400; user-select: none; font-size: 12px; }
 
     /* 상담사 Professional 바 */
     .counselor-bar {
@@ -2352,6 +2405,8 @@
       }
       .step-line-wrap { display: none; }
       .topbar { padding: 8px 12px; gap: 8px; flex-wrap: wrap; }
+      .program-nav { padding: 0 12px; }
+      .program-nav-inner { gap: 6px 12px; font-size: 11px; padding: 6px 0 8px; }
       .topbar-left { gap: 10px; width: 100%; }
       .topbar-logo { gap: 8px; font-size: 15px; }
       .topbar-right { width: 100%; justify-content: flex-end; }
@@ -2382,6 +2437,7 @@
 <body class="logo-style-classic">
 
 <!-- TOP BAR -->
+<div class="site-top">
 <header class="topbar">
   <div class="topbar-left">
     <a class="topbar-logo" href="index.html"><span class="topbar-logo-mark" aria-hidden="true">八</span>팔자연구소</a>
@@ -2390,6 +2446,11 @@
   </div>
  <div class="topbar-right">
   <span class="plan-badge" id="plan-badge">Free</span>
+  <div class="topbar-auth" aria-label="계정">
+    <a class="topbar-auth-link" href="login.html?next=analysis.html">로그인</a>
+    <span class="topbar-auth-dot" aria-hidden="true">·</span>
+    <a class="topbar-auth-link" href="signup.html?next=analysis.html">회원가입</a>
+  </div>
 
   <div class="topbar-export-cluster" id="topbarExportCluster" aria-live="polite">
     <div class="topbar-export-btns">
@@ -2401,6 +2462,17 @@
   <a class="back-btn" href="dashboard.html">대시보드</a>
   </div>
 </header>
+<nav class="program-nav" aria-label="팔자연구소 프로그램 이동">
+  <div class="program-nav-inner">
+    <span class="program-nav-current" aria-current="page">라이프코드</span>
+    <a href="Tarot.html">타로</a>
+    <a href="name.html">네임코드</a>
+    <a href="compatibility.html">소울하모니</a>
+    <a href="counselor.html">상담사 허브</a>
+    <a href="pricing.html">요금제</a>
+  </div>
+</nav>
+</div>
 
 <div id="counselorBar" class="counselor-bar" style="display:none;" aria-label="상담사 안내">
   <div class="counselor-bar-inner">

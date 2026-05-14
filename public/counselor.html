@@ -71,6 +71,40 @@
       background: #fff;
     }
     .top a:hover { color: var(--deep); border-color: var(--accent); background: var(--parchment); }
+    .counselor-program-nav {
+      border: 1px solid var(--border);
+      border-top: none;
+      background: rgba(255, 255, 255, 0.92);
+      border-radius: 0 0 14px 14px;
+      padding: 0 18px;
+      margin: 0 0 20px;
+    }
+    .counselor-program-nav-inner {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 6px 14px;
+      padding: 10px 4px 12px;
+      font-size: 12px;
+    }
+    .counselor-program-nav-inner a {
+      color: var(--muted);
+      text-decoration: none;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+    .counselor-program-nav-inner a:hover { color: var(--deep); }
+    .counselor-program-nav-current {
+      color: var(--deep);
+      font-weight: 700;
+      white-space: nowrap;
+    }
+    .top-actions {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 10px;
+    }
     #gate { display: none; text-align: center; padding: 48px 24px; background: var(--parchment); border-radius: 12px; border: 1px solid var(--border); }
     #gate h2 { font-family: var(--font-serif); font-size: 22px; color: var(--deep); margin-bottom: 12px; }
     #gate p { font-size: 14px; color: var(--muted); line-height: 1.75; margin-bottom: 20px; }
@@ -189,8 +223,23 @@
         <p>고객 정보 입력 → 라이프코드·궁합 도구로 분석 → 인쇄 또는 메모로 세션을 정리하세요. 이 화면은 <strong>Professional 상담사 전용 흐름</strong>으로, 상담 진행에 필요한 기능을 한곳에 모아 둔 허브입니다.</p>
       </div>
     </div>
-    <a href="dashboard.html">대시보드</a>
+    <div class="top-actions">
+      <a href="login.html?next=counselor.html">로그인</a>
+      <a href="signup.html?next=counselor.html">회원가입</a>
+      <a href="dashboard.html">대시보드</a>
+    </div>
   </div>
+
+  <nav class="counselor-program-nav" aria-label="팔자연구소 프로그램 이동">
+    <div class="counselor-program-nav-inner">
+      <a href="analysis.html">라이프코드</a>
+      <a href="Tarot.html">타로</a>
+      <a href="name.html">네임코드</a>
+      <a href="compatibility.html">소울하모니</a>
+      <span class="counselor-program-nav-current" aria-current="page">상담사 허브</span>
+      <a href="pricing.html">요금제</a>
+    </div>
+  </nav>
 
   <div id="gate">
     <h2>Professional 플랜 전용</h2>

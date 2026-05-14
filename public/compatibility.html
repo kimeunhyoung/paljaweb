@@ -164,6 +164,52 @@ body {
   transition: color 0.2s;
 }
 .sh-topbar-back:hover { color: rgba(240,234,216,0.8); }
+.sh-program-nav {
+  position: fixed;
+  top: 58px;
+  left: 0;
+  right: 0;
+  z-index: 99;
+  padding: 6px 32px 8px;
+  background: rgba(16, 12, 8, 0.88);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-bottom: 1px solid rgba(200,160,88,0.12);
+}
+.sh-program-nav-inner {
+  max-width: 1100px;
+  margin: 0 auto;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 14px;
+  font-family: 'Noto Serif KR', serif;
+  font-size: 12px;
+}
+.sh-program-nav-inner a {
+  color: rgba(240,234,216,0.62);
+  text-decoration: none;
+  font-weight: 600;
+  white-space: nowrap;
+  transition: color 0.2s;
+}
+.sh-program-nav-inner a:hover { color: rgba(240,234,216,0.95); }
+.sh-program-nav-current {
+  color: rgba(240,234,216,0.95);
+  font-weight: 700;
+  white-space: nowrap;
+}
+.sh-topbar-auth-link {
+  font-size: 12px;
+  font-weight: 600;
+  color: rgba(240,234,216,0.62);
+  text-decoration: none;
+  letter-spacing: .01em;
+  transition: color 0.2s;
+  white-space: nowrap;
+}
+.sh-topbar-auth-link:hover { color: rgba(240,234,216,0.95); }
+.sh-topbar-auth-dot { color: rgba(240,234,216,0.35); font-size: 12px; user-select: none; }
 
 /* ── Background atmosphere ── */
 .bg-canvas {
@@ -198,7 +244,7 @@ body {
   z-index: 1;
   max-width: 900px;
   margin: 0 auto;
-  padding: 78px 24px 120px;
+  padding: 114px 24px 120px;
 }
 
 /* ── Header ── */
@@ -1055,6 +1101,8 @@ body {
 /* ── Mobile ── */
 @media (max-width: 600px) {
   .sh-topbar { padding: 0 14px; height: 52px; }
+  .sh-program-nav { top: 52px; padding: 5px 14px 7px; }
+  .sh-program-nav-inner { font-size: 11px; gap: 5px 10px; }
   .sh-topbar-center { display: none; }
   .sh-brand-text { font-size: 15px; }
   .sh-topbar-right { gap: 6px; }
@@ -1064,7 +1112,7 @@ body {
   .sh-topbar-back { font-size: 12px; }
   .sh-logo-mark { width: 34px; height: 34px; font-size: 18px; border-radius: 11px; }
   .sh-logo-mark::after { font-size: 10px; right: 2px; top: 0; }
-  .wrap { padding-top: 86px; }
+  .wrap { padding-top: 116px; }
   .input-panel { grid-template-columns: 1fr; gap: 12px; }
   .divider-col { padding: 0; flex-direction: row; justify-content: center; }
   .impression-grid { grid-template-columns: 1fr; }
@@ -1127,7 +1175,20 @@ body {
       <button type="button" class="counselor-bar-btn" onclick="window.print()">🖨 인쇄</button>
       <button type="button" class="counselor-bar-btn" id="pdfBtn" onclick="saveHarmonyPDF()">⬇ PDF 저장</button>
     </div>
+    <a href="login.html?next=compatibility.html" class="sh-topbar-auth-link">로그인</a>
+    <span class="sh-topbar-auth-dot" aria-hidden="true">·</span>
+    <a href="signup.html?next=compatibility.html" class="sh-topbar-auth-link">회원가입</a>
     <a href="dashboard.html" class="sh-topbar-back">대시보드</a>
+  </div>
+</nav>
+<nav class="sh-program-nav" aria-label="팔자연구소 프로그램 이동">
+  <div class="sh-program-nav-inner">
+    <a href="analysis.html">라이프코드</a>
+    <a href="Tarot.html">타로</a>
+    <a href="name.html">네임코드</a>
+    <span class="sh-program-nav-current" aria-current="page">소울하모니</span>
+    <a href="counselor.html">상담사 허브</a>
+    <a href="pricing.html">요금제</a>
   </div>
 </nav>
 

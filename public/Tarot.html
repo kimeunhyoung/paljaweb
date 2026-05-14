@@ -42,6 +42,13 @@
     }
 
     /* ── TOPBAR ── */
+    .site-top {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(245, 240, 232, 0.98);
+      box-shadow: 0 4px 14px rgba(45, 38, 28, 0.06);
+    }
     .topbar {
       height: 56px;
       background: rgba(245,240,232,.92);
@@ -49,8 +56,37 @@
       border-bottom: 1px solid var(--border);
       display: flex; align-items: center;
       padding: 0 32px;
-      position: sticky; top: 0; z-index: 100;
       justify-content: space-between;
+    }
+    .program-nav {
+      border-bottom: 1px solid var(--border);
+      background: rgba(255, 255, 255, 0.55);
+      padding: 0 32px;
+    }
+    .program-nav-inner {
+      max-width: 900px;
+      margin: 0 auto;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 6px 16px;
+      padding: 7px 0 9px;
+      font-family: var(--font-body);
+      font-size: 12px;
+    }
+    .program-nav-inner a {
+      color: var(--muted);
+      text-decoration: none;
+      font-weight: 600;
+      letter-spacing: 0.02em;
+      transition: color .15s;
+      white-space: nowrap;
+    }
+    .program-nav-inner a:hover { color: var(--deep-brown); }
+    .program-nav-current {
+      color: var(--deep-brown);
+      font-weight: 700;
+      white-space: nowrap;
     }
     .topbar-logo { font-family: var(--font-serif); font-size: 17px; font-weight: 500; color: var(--deep-brown); text-decoration: none; }
     .topbar-right { display: flex; align-items: center; gap: 16px; }
@@ -85,7 +121,12 @@
       background: rgba(245,240,232,.08); border: 1px solid rgba(200,169,110,.25);
       border-radius: 10px; padding: 14px 20px; flex-wrap: wrap; justify-content: center;
     }
+    .birth-left { display: flex; flex-direction: column; align-items: flex-start; gap: 4px; }
     .birth-label { font-family: var(--font-mono); font-size: 10px; letter-spacing: .15em; text-transform: uppercase; color: var(--accent); }
+    .birth-solar-note {
+      font-family: var(--font-body); font-size: 11px; font-weight: 500; color: rgba(245,240,232,.62);
+      letter-spacing: .02em; line-height: 1.35; max-width: min(280px, 78vw);
+    }
     .birth-field {
       background: transparent; border: none; border-bottom: 1px solid rgba(200,169,110,.4);
       color: var(--cream); font-family: var(--font-body); font-size: 15px; outline: none; padding: 4px 8px; width: 160px;
@@ -99,7 +140,7 @@
     .birth-btn:hover { background: #d4b87a; transform: translateY(-1px); }
 
     .energy-strip {
-      display: none; position: sticky; top: 56px; z-index: 99;
+      display: none; position: sticky; top: 92px; z-index: 99;
       background: var(--cream); border-bottom: 1px solid var(--border); padding: 8px 24px 10px;
     }
     .energy-strip.visible { display: block; }
@@ -652,7 +693,7 @@
       .card-name-ko { font-size: 12px; }
       .card-name-en { font-size: 8px; }
       .topbar { padding: 0 16px; }
-      .energy-strip { padding: 6px 14px 8px; top: 56px; }
+      .energy-strip { padding: 6px 14px 8px; top: 92px; }
       .energy-inner { gap: 6px; }
       .energy-box-row { gap: 6px; }
       .e-chip { min-height: 82px; padding: 8px 6px; border-radius: 9px; }
@@ -664,19 +705,34 @@
       .num-energy-grid--two { grid-template-columns: 1fr; }
       .num-energy-box { min-height: 0; }
       .birth-wrap { padding: 12px 16px; }
+      .program-nav { padding: 0 16px; }
+      .program-nav-inner { gap: 6px 12px; font-size: 11px; padding: 6px 0 8px; }
     }
   </style>
 </head>
 <body>
 
 <!-- TOPBAR -->
+<div class="site-top">
 <header class="topbar">
   <a class="topbar-logo" href="index.html">팔자연구소</a>
   <div class="topbar-right">
-    <a class="topbar-link" href="analysis.html">라이프코드</a>
     <a class="topbar-link" href="dashboard.html">대시보드</a>
+    <a class="topbar-link" href="login.html?next=Tarot.html">로그인</a>
+    <a class="topbar-link" href="signup.html?next=Tarot.html">회원가입</a>
   </div>
 </header>
+<nav class="program-nav" aria-label="팔자연구소 프로그램 이동">
+  <div class="program-nav-inner">
+    <a href="analysis.html">라이프코드</a>
+    <span class="program-nav-current" aria-current="page">타로</span>
+    <a href="name.html">네임코드</a>
+    <a href="compatibility.html">소울하모니</a>
+    <a href="counselor.html">상담사 허브</a>
+    <a href="pricing.html">요금제</a>
+  </div>
+</nav>
+</div>
 
 <!-- HERO -->
 <section class="hero">
@@ -684,7 +740,10 @@
   <h1 class="hero-title">수비학이 배경을 깔고<br><em>타로가 말을 건넵니다</em></h1>
   <p class="hero-desc">올해·이번 달·오늘의 수비학 리듬을 짚고, 그 위에서 타로가 건네는 말을 당신 상황에 맞게 엮어 드려요.</p>
   <div class="birth-wrap">
-    <span class="birth-label">생년월일</span>
+    <div class="birth-left">
+      <span class="birth-label">생년월일</span>
+      <span class="birth-solar-note">양력 기준 · 음력 생일은 양력으로 환산 후 입력</span>
+    </div>
     <input class="birth-field" id="birthInput" type="date" />
     <button type="button" class="birth-btn" onclick="confirmBirth()">에너지 확인 →</button>
   </div>
@@ -709,7 +768,7 @@
     <div class="step-card">
       <div class="step-label">Step 01</div>
       <div class="step-title">리딩 모드 선택</div>
-      <p class="step-note">위에서 <strong>생년월일</strong>을 넣고 에너지를 확인하면, 올해·이달·오늘 숫자가 타로와 함께 <strong>맥락</strong>으로 붙습니다. 모드를 고른 뒤 카드를 뽑아 주세요.</p>
+      <p class="step-note">위에서 <strong>생년월일(양력)</strong>을 넣고 에너지를 확인하면, 올해·이달·오늘 숫자가 타로와 함께 <strong>맥락</strong>으로 붙습니다. 모드를 고른 뒤 카드를 뽑아 주세요.</p>
 
       <div class="mode-grid">
         <div class="mode-card selected" data-mode="energy" onclick="selectMode('energy', this)">
