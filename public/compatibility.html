@@ -8,6 +8,7 @@
 <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.2/dist/jspdf.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="js/topbar-session.js" defer></script>
 <style>
 :root {
   --void: #100c08;
@@ -209,6 +210,12 @@ body {
   white-space: nowrap;
 }
 .sh-topbar-auth-link:hover { color: rgba(240,234,216,0.95); }
+button.sh-topbar-auth-link {
+  font-family: inherit;
+  font-size: inherit;
+  font-weight: inherit;
+  letter-spacing: inherit;
+}
 .sh-topbar-auth-dot { color: rgba(240,234,216,0.35); font-size: 12px; user-select: none; }
 
 /* ── Background atmosphere ── */
@@ -1175,9 +1182,16 @@ body {
       <button type="button" class="counselor-bar-btn" onclick="window.print()">🖨 인쇄</button>
       <button type="button" class="counselor-bar-btn" id="pdfBtn" onclick="saveHarmonyPDF()">⬇ PDF 저장</button>
     </div>
-    <a href="login.html?next=compatibility.html" class="sh-topbar-auth-link">로그인</a>
-    <span class="sh-topbar-auth-dot" aria-hidden="true">·</span>
-    <a href="signup.html?next=compatibility.html" class="sh-topbar-auth-link">회원가입</a>
+    <span data-topbar-auth style="display:inline-flex;align-items:center;gap:8px;flex-wrap:wrap;">
+      <span data-topbar-auth-guest style="display:inline-flex;align-items:center;gap:8px;flex-wrap:wrap;">
+        <a href="login.html?next=compatibility.html" class="sh-topbar-auth-link">로그인</a>
+        <span class="sh-topbar-auth-dot" aria-hidden="true">·</span>
+        <a href="signup.html?next=compatibility.html" class="sh-topbar-auth-link">회원가입</a>
+      </span>
+      <span data-topbar-auth-user hidden style="display:inline-flex;align-items:center;gap:8px;">
+        <button type="button" class="sh-topbar-auth-link" data-topbar-auth-signout style="background:none;border:none;cursor:pointer;padding:0;">로그아웃</button>
+      </span>
+    </span>
     <a href="dashboard.html" class="sh-topbar-back">대시보드</a>
   </div>
 </nav>

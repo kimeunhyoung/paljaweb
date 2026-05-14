@@ -8,6 +8,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Noto+Serif+KR:wght@300;400;500;600&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet"/>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/topbar-session.js" defer></script>
 
   <style>
     :root {
@@ -104,6 +105,7 @@
       transition: color .15s;
     }
     .topbar-link:hover { color: var(--deep-brown); }
+    button.topbar-link { font-family: var(--font-mono); }
 
     /* ── HERO ── */
     .hero {
@@ -576,8 +578,16 @@
 <header class="topbar">
   <a class="topbar-logo" href="index.html">팔자연구소</a>
   <div class="topbar-right">
-    <a class="topbar-link" href="login.html?next=pricing.html">로그인</a>
-    <a class="topbar-link" href="signup.html?next=pricing.html">회원가입</a>
+    <span data-topbar-auth style="display:inline-flex;align-items:center;gap:16px;flex-wrap:wrap;">
+      <span data-topbar-auth-guest style="display:inline-flex;align-items:center;gap:16px;">
+        <a class="topbar-link" href="login.html?next=pricing.html">로그인</a>
+        <a class="topbar-link" href="signup.html?next=pricing.html">회원가입</a>
+      </span>
+      <span data-topbar-auth-user hidden style="display:inline-flex;align-items:center;gap:12px;">
+        <a class="topbar-link" href="dashboard.html">나의 공간</a>
+        <button type="button" class="topbar-link" data-topbar-auth-signout style="background:none;border:none;cursor:pointer;">로그아웃</button>
+      </span>
+    </span>
   </div>
 </header>
 <nav class="program-nav" aria-label="팔자연구소 프로그램 이동">

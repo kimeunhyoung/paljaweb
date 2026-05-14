@@ -10,6 +10,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="js/topbar-session.js" defer></script>
 <style>
 :root {
   --cream:      #f5f0e8;
@@ -135,6 +136,8 @@ body{font-family:var(--font-body);background:var(--cream);color:var(--ink);min-h
 .topbar-auth-link{font-family:var(--font-body);font-size:12px;font-weight:600;color:var(--muted);text-decoration:none;white-space:nowrap;transition:color .15s;}
 .topbar-auth-link:hover{color:var(--deep-brown);}
 .topbar-auth-dot{color:var(--border);font-weight:400;user-select:none;font-size:12px;}
+.topbar-auth-row{display:inline-flex;align-items:center;gap:6px;flex-wrap:wrap;}
+.topbar-auth-btn{background:none;border:none;cursor:pointer;font:inherit;padding:0;margin:0;}
 
 /* HERO */
 .hero{background:var(--deep-brown);padding:52px 40px 44px;position:relative;overflow:hidden;}
@@ -469,10 +472,15 @@ body{font-family:var(--font-body);background:var(--cream);color:var(--ink);min-h
   </div>
   <div class="topbar-right">
     <span class="plan-badge">Professional</span>
-    <div class="topbar-auth" aria-label="계정">
-      <a class="topbar-auth-link" href="login.html?next=name.html">로그인</a>
-      <span class="topbar-auth-dot" aria-hidden="true">·</span>
-      <a class="topbar-auth-link" href="signup.html?next=name.html">회원가입</a>
+    <div class="topbar-auth" aria-label="계정" data-topbar-auth>
+      <span class="topbar-auth-row" data-topbar-auth-guest>
+        <a class="topbar-auth-link" href="login.html?next=name.html">로그인</a>
+        <span class="topbar-auth-dot" aria-hidden="true">·</span>
+        <a class="topbar-auth-link" href="signup.html?next=name.html">회원가입</a>
+      </span>
+      <span class="topbar-auth-row" data-topbar-auth-user hidden>
+        <button type="button" class="topbar-auth-link topbar-auth-btn" data-topbar-auth-signout>로그아웃</button>
+      </span>
     </div>
     <div class="topbar-export-btns">
       <button type="button" class="counselor-bar-btn" onclick="window.print()">🖨 인쇄</button>
