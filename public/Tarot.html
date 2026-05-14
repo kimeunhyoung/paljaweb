@@ -1937,6 +1937,15 @@ function buildSummaryCardHtml(card, i, positions) {
       '</div>'
     );
   }
+  if (isDailyFiveFlowSlot(i)) {
+    return (
+      '<div class="card-summary">' +
+      '<div class="cs-pos">' + pos + '</div>' +
+      '<div class="cs-name">' + sym + ' ' + nm + rev + '</div>' +
+      '<div class="cs-tier"><span class="cs-tier-l">오늘의 흐름</span> · 위 카드 리딩 본문과 같습니다.</div>' +
+      '</div>'
+    );
+  }
   const adviceSummary = actionAdviceBlock(card);
   return (
     '<div class="card-summary">' +
@@ -1946,6 +1955,11 @@ function buildSummaryCardHtml(card, i, positions) {
     '<div class="cs-tier"><span class="cs-tier-l">조언</span> ' + escapeHtml(clampStr(adviceSummary, 180)) + '</div>' +
     '</div>'
   );
+}
+
+/** 데일리 5장: 0·1·2 = 오늘의 흐름(시작·중심·이어짐) — 상단 ec-card와 동일 소스라 하단 요약에서 문장 반복 생략 */
+function isDailyFiveFlowSlot(i) {
+  return curMode === 'energy' && curEopt === 'daily' && drawnCards.length === 5 && i >= 0 && i <= 2;
 }
 
 /** drawnCards[3]·[4] = 데일리 「오늘 힘이 되는 에너지」「오늘의 주의」(연간 5장 마지막 칸과 구분) */
