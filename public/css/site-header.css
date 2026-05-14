@@ -1,0 +1,159 @@
+/**
+ * 팔자연구소 — 공통 헤더/내비 타이포·모바일 정렬
+ * 각 HTML의 <head> 끝에서 이 파일을 마지막으로 로드하세요.
+ */
+:root {
+  --font-ui: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont,
+    system-ui, "Segoe UI", Roboto, "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+}
+
+/* ── UI 크롬: 산세리프 한 가족 (로고 텍스트·뱃지·링크·메뉴) ── */
+.site-top,
+.site-top button,
+.site-top a,
+.site-top .plan-badge,
+.program-nav,
+.program-nav-inner,
+.program-nav a,
+.program-nav span.program-nav-current {
+  font-family: var(--font-ui);
+}
+
+.topbar-logo,
+.topbar-title {
+  font-family: var(--font-ui);
+}
+
+/* 히어로 안 폼/버튼은 본문 명조와 섞이지 않게 UI 폰트로 통일 */
+.hero .hero-tag,
+.hero .hero-desc,
+.hero .input-label,
+.hero .input-field,
+.hero .input-field::placeholder,
+.hero .analyze-btn,
+.hero .hero-tab,
+.hero .hero-tabs,
+.hero .input-wrap .input-label,
+.hero .input-wrap .input-field,
+.hero .input-wrap .analyze-btn,
+.hero .input-section-title,
+.hero .name-field,
+.hero .name-field::placeholder,
+.hero .energy-chip,
+.hero .gender-btn,
+.hero .birth-label,
+.hero .birth-solar-note,
+.hero .birth-field,
+.hero .birth-field::placeholder,
+.hero .birth-btn {
+  font-family: var(--font-ui);
+}
+
+/* 소울하모니: 상단 입력 패널(히어로 역할) */
+.brand .brand-badge,
+.brand .brand-sub,
+.brand .brand-line,
+.brand .brand-line span,
+.input-panel .card-label,
+.input-panel .field label,
+.input-panel .field input,
+.input-panel .field input::placeholder,
+.input-panel .field-hint,
+.cta-wrap .cta-btn,
+.cta-wrap .error-text {
+  font-family: var(--font-ui);
+}
+
+/* 요금제 히어로 토글 */
+.hero .billing-toggle,
+.hero .toggle-btn,
+.hero .save-badge {
+  font-family: var(--font-ui);
+}
+
+/* 상담사 허브: 폼·본문 라벨은 UI 폰트 */
+.hub-intro p,
+.client-form label,
+.client-form input,
+.client-form textarea,
+.client-search-input,
+.client-search-input::placeholder {
+  font-family: var(--font-ui);
+}
+
+
+/* 터치 영역·버튼 높이 정렬 */
+.site-top .counselor-bar-btn {
+  min-height: 36px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1.2;
+}
+
+.site-top .plan-badge,
+.site-top .topbar-auth-link,
+.site-top .topbar-auth-btn {
+  line-height: 1.2;
+}
+
+/* ── 모바일: 상단 액션 한 블록으로 정돈 ── */
+@media (max-width: 700px) {
+  .topbar {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+  }
+
+  .topbar-left {
+    width: 100%;
+    min-width: 0;
+    flex: 0 0 auto;
+  }
+
+  .topbar-right {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 8px 12px;
+    row-gap: 10px;
+    width: 100%;
+  }
+
+  .topbar-right .plan-badge {
+    order: 1;
+  }
+
+  .topbar-right .topbar-auth {
+    order: 2;
+    margin-left: auto;
+  }
+
+  .topbar-right > .topbar-export-cluster,
+  .topbar-right > .topbar-export-btns {
+    order: 5;
+    flex: 1 1 100%;
+    width: 100%;
+    justify-content: stretch;
+  }
+
+  .topbar-export-cluster .topbar-export-btns {
+    width: 100%;
+    display: flex;
+    gap: 8px;
+  }
+
+  .topbar-export-btns .counselor-bar-btn {
+    flex: 1 1 0;
+    min-width: 0;
+    min-height: 40px;
+  }
+
+  .topbar-right .back-btn {
+    order: 6;
+    flex: 1 1 100%;
+    justify-content: flex-end;
+    min-height: 40px;
+  }
+}
