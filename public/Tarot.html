@@ -1804,11 +1804,6 @@ function flipCard(i) {
   }
 }
 
-function clampStr(s, max) {
-  if (!s) return '';
-  return s.length <= max ? s : s.slice(0, max) + '…';
-}
-
 function positiveSublimation(card) {
   const k = card.keywords || '';
   return '긍정 승화(피할수록 이득): 「' + card.name + '」가 장애처럼 느껴질 때는 ' + k + ' 쪽의 과잉만 줄여도 비용이 줄고 수가 가벼워져요. 한 박자 쉼·경계·정리 중 하나를 골라 실천해 보세요.';
@@ -1921,32 +1916,6 @@ function buildEnrichedReadingHtml(cards, positions) {
   }).join('');
 }
 
-function buildSummaryCardHtml(card, i, positions) {
-  const pos = escapeHtml(positions[i]);
-  const sym = escapeHtml(card.symbol);
-  const nm = escapeHtml(card.name);
-  const rev = card.faceRev ? ' (역)' : '';
-  const mdd = dailyDoDontInterpret(card, i);
-  if (mdd) {
-    return (
-      '<div class="card-summary">' +
-      '<div class="cs-pos">' + pos + '</div>' +
-      '<div class="cs-name">' + sym + ' ' + nm + rev + '</div>' +
-      '<div class="cs-tier"><span class="cs-tier-l">' + escapeHtml(mdd.shortTag) + '</span> ' + escapeHtml(clampStr(mdd.body, 200)) + '</div>' +
-      '</div>'
-    );
-  }
-  const adviceSummary = actionAdviceBlock(card);
-  return (
-    '<div class="card-summary">' +
-    '<div class="cs-pos">' + pos + '</div>' +
-    '<div class="cs-name">' + sym + ' ' + nm + rev + '</div>' +
-    '<div class="cs-tier"><span class="cs-tier-l">' + (card.faceRev ? '역·가이드' : '카드 말') + '</span> ' + escapeHtml(clampStr(readingPrimaryVoice(card, i), 140)) + '</div>' +
-    '<div class="cs-tier"><span class="cs-tier-l">조언</span> ' + escapeHtml(clampStr(adviceSummary, 180)) + '</div>' +
-    '</div>'
-  );
-}
-
 /** drawnCards[3]·[4] = 데일리 「오늘 힘이 되는 에너지」「오늘의 주의」(연간 5장 마지막 칸과 구분) */
 function isDailyHelpfulSlot(i) {
   return curMode === 'energy' && curEopt === 'daily' && drawnCards.length === 5 && i === 3;
@@ -1991,18 +1960,9 @@ function startReading() {
   const positions = getPositions();
 
   const summaries = document.getElementById('cardSummaries');
-  /* 에너지 흐름(데일리·월간·연간 등)은 상단 본문과 겹쳐 하단 요약 생략 */
-  if (curMode === 'energy') {
-    summaries.innerHTML = '';
-    summaries.style.display = 'none';
-  } else {
-    summaries.style.display = '';
-    const summariesBirthNote = !birthReady
-      ? '<p class="card-summaries-note">' + escapeHtml(numerologyBridgeText(null)) + '</p>'
-      : '';
-    summaries.innerHTML = '<div class="card-summaries">' + summariesBirthNote +
-      drawnCards.map((card, i) => buildSummaryCardHtml(card, i, positions)).join('') + '</div>';
-  }
+  /* 하단 요약 그리드는 본문(ec-card)과 겹쳐 보여 번잡함 — 에너지·질문 리딩 모두 생략 */
+  summaries.innerHTML = '';
+  summaries.style.display = 'none';
 
   const readingArea = document.getElementById('readingArea');
   const enrichedHtml = buildEnrichedReadingHtml(drawnCards, positions);
