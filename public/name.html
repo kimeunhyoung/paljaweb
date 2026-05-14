@@ -10,7 +10,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="js/topbar-session.js" defer></script>
+<script src="js/topbar-session.js?v=3" defer></script>
 <style>
 :root {
   --cream:      #f5f0e8;
@@ -106,11 +106,13 @@ body{font-family:var(--font-body);background:var(--cream);color:var(--ink);min-h
   text-transform:uppercase;
   padding:4px 10px;
   border-radius:20px;
-  border:1px solid var(--deep-brown);
-  color:var(--deep-brown);
-  background:var(--parchment);
+  border:1px solid var(--border);
+  color:var(--muted);
   font-weight:700;
 }
+.plan-badge.basic{border-color:var(--accent);color:var(--warm-brown);background:var(--accent-lt);}
+.plan-badge.pro{border-color:var(--teal);color:var(--teal);background:var(--teal-lt);}
+.plan-badge.professional{border-color:var(--deep-brown);color:var(--deep-brown);background:var(--parchment);}
 .topbar-export-btns{display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:flex-end;}
 .counselor-bar-btn{
   font-family:var(--font-body);
@@ -130,7 +132,7 @@ body{font-family:var(--font-body);background:var(--cream);color:var(--ink);min-h
   border-color:var(--warm-brown);
   color:var(--ink);
 }
-.back-btn{font-family:var(--font-body);font-size:13px;font-weight:600;letter-spacing:.02em;color:var(--deep-brown);text-decoration:none;display:flex;align-items:center;gap:6px;transition:color .15s;}
+.back-btn{font-family:var(--font-body);font-size:12px;font-weight:600;letter-spacing:.02em;color:var(--deep-brown);text-decoration:none;display:flex;align-items:center;gap:6px;transition:color .15s;}
 .back-btn:hover{color:var(--ink);}
 .topbar-auth{display:flex;align-items:center;gap:6px;flex-wrap:wrap;}
 .topbar-auth-link{font-family:var(--font-body);font-size:12px;font-weight:600;color:var(--muted);text-decoration:none;white-space:nowrap;transition:color .15s;}
@@ -471,7 +473,7 @@ body{font-family:var(--font-body);background:var(--cream);color:var(--ink);min-h
     <span class="topbar-title">네임코드</span>
   </div>
   <div class="topbar-right">
-    <span class="plan-badge">Professional</span>
+    <span class="plan-badge" id="plan-badge">Free</span>
     <div class="topbar-auth" aria-label="계정" data-topbar-auth>
       <span class="topbar-auth-row" data-topbar-auth-guest>
         <a class="topbar-auth-link" href="login.html?next=name.html">로그인</a>
@@ -1888,7 +1890,19 @@ document.addEventListener('keydown',e=>{
     if (!g || typeof g.createClient !== 'function') return;
     const sb = g.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
     const { data: { session } } = await sb.auth.getSession();
-    if (session) return;
+    const badge = document.getElementById('plan-badge');
+    if (session) {
+      if (badge) {
+        const { data: profile } = await sb.from('profiles').select('plan, plan_active_until').eq('id', session.user.id).single();
+        let plan = (profile && profile.plan) || 'free';
+        if (plan === 'professional' && profile && profile.plan_active_until && new Date(profile.plan_active_until) <= new Date()) {
+          plan = 'pro';
+        }
+        badge.textContent = plan.charAt(0).toUpperCase() + plan.slice(1);
+        badge.className = 'plan-badge ' + plan;
+      }
+      return;
+    }
     const next = encodeURIComponent(
       `${window.location.pathname.split('/').pop() || 'name.html'}${window.location.search || ''}${window.location.hash || ''}`
     );

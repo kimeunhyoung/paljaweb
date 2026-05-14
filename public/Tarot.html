@@ -8,7 +8,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,500&family=Noto+Serif+KR:wght@300;400;500;600&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet"/>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="js/topbar-session.js" defer></script>
+  <script src="js/topbar-session.js?v=3" defer></script>
 
   <style>
     :root {
@@ -94,6 +94,18 @@
     .topbar-link { font-family: var(--font-mono); font-size: 10px; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); text-decoration: none; transition: color .15s; }
     .topbar-link:hover { color: var(--deep-brown); }
     button.topbar-link { font-family: var(--font-mono); }
+    .topbar-auth-slot { display: inline-flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+    .topbar-auth-guest-row { gap: 14px; }
+    .topbar-auth-user-row { gap: 8px; }
+    .topbar-right > .topbar-link,
+    .topbar-auth-slot .topbar-link,
+    .topbar-auth-slot button.topbar-link {
+      font-family: var(--font-body);
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      text-transform: none;
+    }
 
   /* ── HERO ── */
     .hero {
@@ -720,12 +732,12 @@
   <a class="topbar-logo" href="index.html">팔자연구소</a>
   <div class="topbar-right">
     <a class="topbar-link" href="dashboard.html">대시보드</a>
-    <span data-topbar-auth style="display:inline-flex;align-items:center;gap:14px;flex-wrap:wrap;">
-      <span data-topbar-auth-guest style="display:inline-flex;align-items:center;gap:14px;">
+    <span data-topbar-auth class="topbar-auth-slot">
+      <span data-topbar-auth-guest class="topbar-auth-guest-row">
         <a class="topbar-link" href="login.html?next=Tarot.html">로그인</a>
         <a class="topbar-link" href="signup.html?next=Tarot.html">회원가입</a>
       </span>
-      <span data-topbar-auth-user hidden style="display:inline-flex;align-items:center;">
+      <span data-topbar-auth-user class="topbar-auth-user-row" hidden>
         <button type="button" class="topbar-link" data-topbar-auth-signout style="background:none;border:none;cursor:pointer;">로그아웃</button>
       </span>
     </span>

@@ -8,7 +8,7 @@
 <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.2/dist/jspdf.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="js/topbar-session.js" defer></script>
+<script src="js/topbar-session.js?v=3" defer></script>
 <style>
 :root {
   --void: #100c08;
@@ -127,10 +127,25 @@ body {
   text-transform: uppercase;
   padding: 4px 10px;
   border-radius: 20px;
-  border: 1px solid rgba(240,234,216,.3);
-  color: rgba(240,234,216,.86);
-  background: rgba(240,234,216,.08);
+  border: 1px solid rgba(240,234,216,.22);
+  color: rgba(240,234,216,.55);
+  background: rgba(240,234,216,.04);
   font-weight: 700;
+}
+.plan-badge.basic {
+  border-color: rgba(200,169,110,.55);
+  color: rgba(240,234,216,.92);
+  background: rgba(200,169,110,.12);
+}
+.plan-badge.pro {
+  border-color: rgba(46,139,122,.55);
+  color: rgba(180,230,215,.95);
+  background: rgba(46,139,122,.12);
+}
+.plan-badge.professional {
+  border-color: rgba(240,234,216,.45);
+  color: rgba(240,234,216,.95);
+  background: rgba(240,234,216,.1);
 }
 .topbar-export-btns {
   display:flex;
@@ -156,15 +171,6 @@ body {
   border-color: rgba(240,234,216,.35);
   color: rgba(240,234,216,1);
 }
-.sh-topbar-back {
-  font-size: 13px;
-  font-weight: 600;
-  color: rgba(240,234,216,0.74);
-  text-decoration: none;
-  letter-spacing: .01em;
-  transition: color 0.2s;
-}
-.sh-topbar-back:hover { color: rgba(240,234,216,0.8); }
 .sh-program-nav {
   position: fixed;
   top: 58px;
@@ -200,21 +206,31 @@ body {
   font-weight: 700;
   white-space: nowrap;
 }
-.sh-topbar-auth-link {
+.sh-topbar-auth-link,
+.sh-topbar-back {
+  font-family: 'Noto Serif KR', serif;
   font-size: 12px;
   font-weight: 600;
+  letter-spacing: .04em;
+}
+.sh-topbar-back {
+  color: rgba(240,234,216,0.74);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+.sh-topbar-back:hover { color: rgba(240,234,216,0.8); }
+.sh-topbar-auth-link {
   color: rgba(240,234,216,0.62);
   text-decoration: none;
-  letter-spacing: .01em;
   transition: color 0.2s;
   white-space: nowrap;
 }
 .sh-topbar-auth-link:hover { color: rgba(240,234,216,0.95); }
 button.sh-topbar-auth-link {
-  font-family: inherit;
-  font-size: inherit;
-  font-weight: inherit;
-  letter-spacing: inherit;
+  font-family: 'Noto Serif KR', serif;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: .04em;
 }
 .sh-topbar-auth-dot { color: rgba(240,234,216,0.35); font-size: 12px; user-select: none; }
 
@@ -1177,7 +1193,7 @@ button.sh-topbar-auth-link {
   </a>
   <div class="sh-topbar-center">Soul Harmony</div>
   <div class="sh-topbar-right">
-    <span class="plan-badge">Professional</span>
+    <span class="plan-badge" id="plan-badge">Free</span>
     <div class="topbar-export-btns">
       <button type="button" class="counselor-bar-btn" onclick="window.print()">🖨 인쇄</button>
       <button type="button" class="counselor-bar-btn" id="pdfBtn" onclick="saveHarmonyPDF()">⬇ PDF 저장</button>
@@ -2196,7 +2212,19 @@ document.addEventListener('keydown', e=>{ if(e.key==='Enter') runAnalysis(); });
     if (!g || typeof g.createClient !== 'function') return;
     const sb = g.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
     const { data: { session } } = await sb.auth.getSession();
-    if (session) return;
+    const badge = document.getElementById('plan-badge');
+    if (session) {
+      if (badge) {
+        const { data: profile } = await sb.from('profiles').select('plan, plan_active_until').eq('id', session.user.id).single();
+        let plan = (profile && profile.plan) || 'free';
+        if (plan === 'professional' && profile && profile.plan_active_until && new Date(profile.plan_active_until) <= new Date()) {
+          plan = 'pro';
+        }
+        badge.textContent = plan.charAt(0).toUpperCase() + plan.slice(1);
+        badge.className = 'plan-badge ' + plan;
+      }
+      return;
+    }
     const next = encodeURIComponent(
       `${window.location.pathname.split('/').pop() || 'compatibility.html'}${window.location.search || ''}${window.location.hash || ''}`
     );
