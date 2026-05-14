@@ -2,6 +2,11 @@
  * 팔자연구소 — 공통 헤더/내비 타이포·모바일 정렬
  * 각 HTML의 <head> 끝에서 이 파일을 마지막으로 로드하세요.
  */
+html {
+  /* 스크롤바 유무에 따른 가로 밀림 완화 (지원 브라우저) */
+  scrollbar-gutter: stable;
+}
+
 :root {
   --font-ui: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont,
     system-ui, "Segoe UI", Roboto, "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
@@ -24,15 +29,33 @@
   font-family: var(--font-ui);
 }
 
-/* 로그아웃: button.topbar-auth-btn의 font:inherit가 .topbar-auth-link 타이포를 덮어씀 → 대시보드(.back-btn)와 동일 */
+/* 탑바 오른쪽: 한 줄 안에서 수직 가운데 정렬 */
+.site-top .topbar-right {
+  align-items: center;
+}
+
+.site-top .topbar-auth {
+  align-items: center;
+}
+
+/* 로그아웃·대시보드: 버튼/링크 박스·베이스라인 통일 (font:inherit 제거 효과) */
+.site-top .back-btn {
+  display: inline-flex;
+  align-items: center;
+  line-height: 1.25;
+}
+
 .site-top .topbar-auth-btn.topbar-auth-link {
   font-family: var(--font-ui);
   font-size: 12px;
   font-weight: 600;
   letter-spacing: 0.02em;
-  line-height: 1.2;
+  line-height: 1.25;
   color: var(--deep-brown, #4a3520);
+  display: inline-flex;
+  align-items: center;
 }
+
 .site-top .topbar-auth-btn.topbar-auth-link:hover {
   color: var(--ink, #2c1f0e);
 }
@@ -95,13 +118,16 @@
 }
 
 
-/* 터치 영역·버튼 높이 정렬 */
+/* 상단 인쇄/PDF: 타로 등 버튼 없는 페이지와 탑바 높이 차 완화 */
 .site-top .counselor-bar-btn {
-  min-height: 36px;
+  min-height: 28px;
+  padding: 4px 10px;
+  font-size: 11px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   line-height: 1.2;
+  box-sizing: border-box;
 }
 
 .site-top .plan-badge,
@@ -185,7 +211,7 @@
   .site-top .topbar-export-btns .counselor-bar-btn {
     flex: 1 1 0;
     min-width: 0;
-    min-height: 40px;
+    min-height: 36px;
   }
 
   .site-top .topbar-right .back-btn {
