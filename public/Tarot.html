@@ -1928,21 +1928,11 @@ function buildSummaryCardHtml(card, i, positions) {
   const rev = card.faceRev ? ' (역)' : '';
   const mdd = dailyDoDontInterpret(card, i);
   if (mdd) {
-    /* 상단「카드 리딩」ec-card에 동일 본문이 있어 하단에서 문장을 다시 붙이지 않음 */
     return (
       '<div class="card-summary">' +
       '<div class="cs-pos">' + pos + '</div>' +
       '<div class="cs-name">' + sym + ' ' + nm + rev + '</div>' +
-      '<div class="cs-tier"><span class="cs-tier-l">' + escapeHtml(mdd.label) + '</span> · 위 카드 리딩 본문과 같습니다.</div>' +
-      '</div>'
-    );
-  }
-  if (isDailyFiveFlowSlot(i)) {
-    return (
-      '<div class="card-summary">' +
-      '<div class="cs-pos">' + pos + '</div>' +
-      '<div class="cs-name">' + sym + ' ' + nm + rev + '</div>' +
-      '<div class="cs-tier"><span class="cs-tier-l">오늘의 흐름</span> · 위 카드 리딩 본문과 같습니다.</div>' +
+      '<div class="cs-tier"><span class="cs-tier-l">' + escapeHtml(mdd.shortTag) + '</span> ' + escapeHtml(clampStr(mdd.body, 200)) + '</div>' +
       '</div>'
     );
   }
@@ -1957,9 +1947,9 @@ function buildSummaryCardHtml(card, i, positions) {
   );
 }
 
-/** 데일리 5장: 0·1·2 = 오늘의 흐름(시작·중심·이어짐) — 상단 ec-card와 동일 소스라 하단 요약에서 문장 반복 생략 */
-function isDailyFiveFlowSlot(i) {
-  return curMode === 'energy' && curEopt === 'daily' && drawnCards.length === 5 && i >= 0 && i <= 2;
+/** 데일리 5장 스프레드 — 하단 요약 그리드는 상단 본문과 겹쳐 숨김 */
+function isDailyFiveCardSpread() {
+  return curMode === 'energy' && curEopt === 'daily' && drawnCards.length === 5;
 }
 
 /** drawnCards[3]·[4] = 데일리 「오늘 힘이 되는 에너지」「오늘의 주의」(연간 5장 마지막 칸과 구분) */
@@ -2006,11 +1996,17 @@ function startReading() {
   const positions = getPositions();
 
   const summaries = document.getElementById('cardSummaries');
-  const summariesBirthNote = !birthReady
-    ? '<p class="card-summaries-note">' + escapeHtml(numerologyBridgeText(null)) + '</p>'
-    : '';
-  summaries.innerHTML = '<div class="card-summaries">' + summariesBirthNote +
-    drawnCards.map((card, i) => buildSummaryCardHtml(card, i, positions)).join('') + '</div>';
+  if (isDailyFiveCardSpread()) {
+    summaries.innerHTML = '';
+    summaries.style.display = 'none';
+  } else {
+    summaries.style.display = '';
+    const summariesBirthNote = !birthReady
+      ? '<p class="card-summaries-note">' + escapeHtml(numerologyBridgeText(null)) + '</p>'
+      : '';
+    summaries.innerHTML = '<div class="card-summaries">' + summariesBirthNote +
+      drawnCards.map((card, i) => buildSummaryCardHtml(card, i, positions)).join('') + '</div>';
+  }
 
   const readingArea = document.getElementById('readingArea');
   const enrichedHtml = buildEnrichedReadingHtml(drawnCards, positions);
@@ -2087,7 +2083,9 @@ function resetAll() {
   document.getElementById('step3').style.display = 'none';
   document.getElementById('drawnCards').innerHTML = '';
   document.getElementById('readingArea').innerHTML = '';
-  document.getElementById('cardSummaries').innerHTML = '';
+  const cs = document.getElementById('cardSummaries');
+  cs.innerHTML = '';
+  cs.style.display = '';
   document.getElementById('numCtxBanner').style.display = 'none';
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
