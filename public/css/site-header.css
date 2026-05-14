@@ -38,6 +38,34 @@ html {
   align-items: center;
 }
 
+/* 탑바 오른쪽 순서: 플랜 → 로그인/가입 → 인쇄·PDF → 대시보드 → 로그아웃(맨 끝) */
+.site-top .topbar-auth[data-topbar-auth],
+.site-top span[data-topbar-auth].pricing-auth-slot {
+  display: contents;
+}
+
+.site-top .topbar-right > .plan-badge,
+.site-top .topbar-right > #plan-badge {
+  order: 1;
+}
+
+.site-top .topbar-right > [data-topbar-auth-guest] {
+  order: 2;
+}
+
+.site-top .topbar-right > .topbar-export-cluster,
+.site-top .topbar-right > .topbar-export-btns {
+  order: 3;
+}
+
+.site-top .topbar-right > .back-btn {
+  order: 4;
+}
+
+.site-top .topbar-right > [data-topbar-auth-user] {
+  order: 5;
+}
+
 /* 로그아웃·대시보드: 버튼/링크 박스·베이스라인 통일 (font:inherit 제거 효과) */
 .site-top .back-btn {
   display: inline-flex;
@@ -184,19 +212,19 @@ html {
     width: 100%;
   }
 
-  .site-top .topbar-right .plan-badge {
+  .site-top .topbar-right > .plan-badge,
+  .site-top .topbar-right > #plan-badge {
     order: 1;
   }
 
-  .site-top .topbar-right .topbar-auth,
-  .site-top .topbar-right .pricing-auth-slot {
+  .site-top .topbar-right > [data-topbar-auth-guest] {
     order: 2;
     margin-left: auto;
   }
 
   .site-top .topbar-right > .topbar-export-cluster,
   .site-top .topbar-right > .topbar-export-btns {
-    order: 5;
+    order: 3;
     flex: 1 1 100%;
     width: 100%;
     justify-content: stretch;
@@ -214,10 +242,19 @@ html {
     min-height: 36px;
   }
 
-  .site-top .topbar-right .back-btn {
-    order: 6;
+  .site-top .topbar-right > .back-btn {
+    order: 4;
     flex: 1 1 100%;
     justify-content: flex-end;
     min-height: 40px;
+  }
+
+  .site-top .topbar-right > [data-topbar-auth-user] {
+    order: 5;
+    flex: 1 1 100%;
+    display: flex;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+    gap: 8px 12px;
   }
 }
