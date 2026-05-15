@@ -850,6 +850,11 @@
       margin-right: 6px;
     }
 
+    /* 카드 전부 공개 후 scrollIntoView 시 sticky 상단바에 가리지 않도록 */
+    #readingArea {
+      scroll-margin-top: 100px;
+    }
+
     /* 다시하기 버튼 */
     .reset-btn {
       display: block;
@@ -2068,7 +2073,7 @@ function startReading() {
     gateHtml;
 
   requestAnimationFrame(() => {
-    window.scrollTo({ top: 0, behavior: 'auto' });
+    readingArea.scrollIntoView({ behavior: 'smooth', block: 'start' });
   });
 }
 
