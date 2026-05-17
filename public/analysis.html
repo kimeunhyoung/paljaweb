@@ -3960,6 +3960,7 @@ window.NUMEROLOGY_DATA = (() => {
 <script src="js/numerologyAccordionDetail.js?v=20260506v"></script>
 <script src="js/growthChallengeData.js?v=20260507"></script>
 <script src="js/period48Data.js?v=20260517p48all"></script>
+<script src="js/period48Profiles.js?v=20260517p48full"></script>
 
 <script>
 const _ND = window.NUMEROLOGY_DATA;
@@ -5753,16 +5754,19 @@ function getTarotImgUrl(tarotStr) {
 function getPeriod48(m, d) {
   const data = window.PERIOD_48_DATA;
   if (!data || !data.length) return null;
+  const profiles = window.PERIOD_48_PROFILES || {};
   for (const p of data) {
     const [sm, sd, em, ed] = p.r;
     const dateVal = m * 100 + d;
     const startVal = sm * 100 + sd;
     const endVal = em * 100 + ed;
-    if (startVal <= endVal) {
-      if (dateVal >= startVal && dateVal <= endVal) return p;
-    } else {
-      if (dateVal >= startVal || dateVal <= endVal) return p;
-    }
+    const inRange = startVal <= endVal
+      ? (dateVal >= startVal && dateVal <= endVal)
+      : (dateVal >= startVal || dateVal <= endVal);
+    if (!inRange) continue;
+    const prof = profiles[p.name];
+    if (prof) return { ...p, ...prof, traits: [] };
+    return p;
   }
   return null;
 }
