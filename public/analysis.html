@@ -3959,7 +3959,7 @@ window.NUMEROLOGY_DATA = (() => {
 <script src="js/majorCycleMap.js?v=20260508mc"></script>
 <script src="js/numerologyAccordionDetail.js?v=20260506v"></script>
 <script src="js/growthChallengeData.js?v=20260507"></script>
-<script src="js/period48Data.js?v=20260517p48c"></script>
+<script src="js/period48Data.js?v=20260517p48all"></script>
 
 <script>
 const _ND = window.NUMEROLOGY_DATA;
@@ -4607,16 +4607,21 @@ function renderPeriod48SwSection(sectionLabel, classSuffix, items) {
     </div>`;
 }
 
+function period48EnergySectionTitle(blend) {
+  if (!blend?.sides?.length) return '';
+  const label = blend.sides.length > 1 ? '✦ 두 별자리 에너지' : '✦ 핵심 에너지';
+  return `<div class="period48-section-title">${label}</div>`;
+}
+
 function buildPeriod48ProfileHtml(p) {
-  if (p.energyBlend || (Array.isArray(p.strengthItems) && p.strengthItems.length)) {
-    const energyTitle = p.energyBlend
-      ? '<div class="period48-section-title">✦ 두 별자리 에너지</div>'
-      : '';
+  const strengths = p.strengthItems || [];
+  const weaknesses = p.weaknessItems || [];
+  if (strengths.length || weaknesses.length) {
     return `
-      ${energyTitle}
+      ${period48EnergySectionTitle(p.energyBlend)}
       ${renderPeriod48EnergyBlend(p.energyBlend)}
-      ${renderPeriod48SwSection('강점', 'strength', p.strengthItems || [])}
-      ${renderPeriod48SwSection('약점', 'weakness', p.weaknessItems || [])}`;
+      ${renderPeriod48SwSection('강점', 'strength', strengths)}
+      ${renderPeriod48SwSection('약점', 'weakness', weaknesses)}`;
   }
   const split = splitPeriod48Traits(Array.isArray(p.traits) ? p.traits : []);
   return `
