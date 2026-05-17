@@ -485,7 +485,14 @@ PATCHES["물고기자리 III"] = w(
 
 
 def main():
+    from p48_user_batch1 import apply_user_batch1
+    from p48_user_batch2 import apply_user_batch2
+    from p48_user_batch3 import apply_user_batch3
+
     mod.PROFILES.update(PATCHES)
+    mod.PROFILES.update(apply_user_batch1(mod))
+    mod.PROFILES.update(apply_user_batch2(mod))
+    mod.PROFILES.update(apply_user_batch3(mod))
     lines = [
         "/** 48주기 성격학 — 전 구간 새 해석 (energy / 강점 / 약점, 항목 수 가변) */",
         "(function () {",
