@@ -6,7 +6,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / "public" / "js" / "period48Profiles.js"
 
-# Each profile: overview, energyBlend, strengthItems[4], weaknessItems[3]
+# Each profile: overview, energyBlend, strengthItems / weaknessItems (가변 개수, 풀 문장)
 PROFILES = {}
 
 def cusp(s1, t1, s2, t2, overview, strengths, weaknesses):
