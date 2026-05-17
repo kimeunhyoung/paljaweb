@@ -265,6 +265,22 @@
       margin: 0;
     }
 
+    .site-legal-footer {
+      text-align: center;
+      padding: 28px 16px 48px;
+      font-size: 12px;
+      color: var(--muted);
+      border-top: 1px solid var(--border);
+      margin-top: 8px;
+    }
+    .site-legal-footer a {
+      color: var(--warm-brown);
+      text-decoration: none;
+      font-weight: 600;
+    }
+    .site-legal-footer a:hover { color: var(--ink); text-decoration: underline; }
+    .site-legal-footer span { margin: 0 8px; opacity: 0.5; }
+
     /* 상담사 Professional 바 */
     .counselor-bar {
       background: linear-gradient(90deg, var(--parchment), rgba(237,229,212,.95));
@@ -2799,6 +2815,12 @@
       <span class="analysis-jump-fab-text">목차</span>
     </button>
   </div>
+
+  <footer class="site-legal-footer">
+    <a href="privacy.html">개인정보처리방침</a>
+    <span aria-hidden="true">·</span>
+    <a href="mailto:ohayou989@gmail.com">문의</a>
+  </footer>
 
 <!-- DATA + LOGIC -->
 <script>
