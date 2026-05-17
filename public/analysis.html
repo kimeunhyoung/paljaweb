@@ -2389,10 +2389,14 @@
       list-style: none;
     }
     .period48-sw-item {
+      display: flex;
+      flex-direction: row;
+      align-items: flex-start;
+      gap: 10px 16px;
       border-radius: 8px;
       padding: 11px 14px;
       font-size: 13px;
-      line-height: 1.75;
+      line-height: 1.65;
     }
     .period48-sw-item--strength {
       background: rgba(46, 139, 122, 0.08);
@@ -2403,13 +2407,30 @@
       border-left: 3px solid rgba(192, 90, 40, 0.45);
     }
     .period48-sw-item-title {
-      display: block;
+      flex: 0 0 5.8em;
+      max-width: 7.2em;
       font-weight: 700;
+      font-size: 13px;
       color: var(--deep-brown);
-      margin-bottom: 4px;
+      letter-spacing: -0.02em;
     }
     .period48-sw-item-desc {
-      color: var(--ink);
+      flex: 1;
+      min-width: 0;
+      font-weight: 400;
+      font-size: 12.5px;
+      color: var(--muted);
+      line-height: 1.7;
+    }
+    @media (max-width: 520px) {
+      .period48-sw-item {
+        flex-direction: column;
+        gap: 4px;
+      }
+      .period48-sw-item-title {
+        flex: none;
+        max-width: none;
+      }
     }
     .period48-source {
       margin-top: 16px;
@@ -3959,8 +3980,8 @@ window.NUMEROLOGY_DATA = (() => {
 <script src="js/majorCycleMap.js?v=20260508mc"></script>
 <script src="js/numerologyAccordionDetail.js?v=20260506v"></script>
 <script src="js/growthChallengeData.js?v=20260507"></script>
-<script src="js/period48Data.js?v=20260517p48exact"></script>
-<script src="js/period48Profiles.js?v=20260517p48exact"></script>
+<script src="js/period48Data.js?v=20260517p48kw"></script>
+<script src="js/period48Profiles.js?v=20260517p48kw"></script>
 
 <script>
 const _ND = window.NUMEROLOGY_DATA;
@@ -4597,10 +4618,15 @@ function renderPeriod48SwSection(sectionLabel, classSuffix, items) {
   const list = normalizePeriod48Items(items);
   if (!list.length) return '';
   const li = list.map((it) => {
-    const text = (it.desc && String(it.desc).trim()) ? it.desc : it.title;
+    const desc = (it.desc && String(it.desc).trim()) ? it.desc : '';
+    const title = (it.title && String(it.title).trim()) ? it.title : desc;
+    const descHtml = desc && desc !== title
+      ? `<span class="period48-sw-item-desc">${escapeHtml(desc)}</span>`
+      : '';
     return `
     <li class="period48-sw-item period48-sw-item--${classSuffix}">
-      <span class="period48-sw-item-desc">${escapeHtml(text)}</span>
+      <span class="period48-sw-item-title">${escapeHtml(title)}</span>
+      ${descHtml}
     </li>`;
   }).join('');
   return `
@@ -4623,8 +4649,8 @@ function buildPeriod48ProfileHtml(p) {
     return `
       ${period48EnergySectionTitle(p.energyBlend)}
       ${renderPeriod48EnergyBlend(p.energyBlend)}
-      ${renderPeriod48SwSection('강점', 'strength', strengths)}
-      ${renderPeriod48SwSection('약점', 'weakness', weaknesses)}`;
+      ${renderPeriod48SwSection('✦ 강점', 'strength', strengths)}
+      ${renderPeriod48SwSection('◆ 약점', 'weakness', weaknesses)}`;
   }
   const split = splitPeriod48Traits(Array.isArray(p.traits) ? p.traits : []);
   return `

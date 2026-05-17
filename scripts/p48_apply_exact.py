@@ -60,23 +60,52 @@ def parse_user_text(text):
     return weeks
 
 
-def derive_title(line):
-    line = line.strip()
-    for pat in (
-        r"(?:하는|되는|있는|준|인)\s+(\S+)$",
-        r"(\S+(?:력|성|함|감|본|도|심|형|증|향|험|욕|안|점|재|력))$",
-    ):
-        m = re.search(pat, line)
+def derive_title(desc):
+    """Short keyword label for UI (bold left column)."""
+    s = desc.strip()
+    if not s:
+        return ""
+
+    # 약점: …하기 쉬움 / …할 수 있음 / …경우도 있음
+    if re.search(r"하기\s+쉬움$", s):
+        m = re.search(r"(\S+)\s+(\S+)(?:을|를)\s*무시", s)
         if m:
-            t = m.group(1)
-            if len(t) >= 2:
+            return f"{m.group(2)} 무시"
+        m = re.search(r"(\S+)(?:을|를)\s*무시", s)
+        if m:
+            return f"{m.group(1)} 무시"
+    if "몰아붙임" in s and "완벽" in s:
+        return "자기 완벽주의"
+    if "고립" in s:
+        return "고립 위험"
+
+    # 강점: 자주 쓰는 축약
+    if "두 에너지" in s and "동시 작동" in s:
+        return "이중 에너지"
+    if "독립적 상태를 유지" in s:
+        return "독립 유지"
+
+    # …보는/하는/되는 + 핵심구
+    for pat in (
+        r"보는\s+(.+)$",
+        r"하는\s+(.+)$",
+        r"되는\s+(.+)$",
+        r"있는\s+(.+)$",
+        r"공존하는\s+(.+)$",
+        r"(\S+과\s+\S+)$",
+        r"(\S+\s+\S+)$",
+    ):
+        m = re.search(pat, s)
+        if m:
+            t = m.group(1).strip()
+            if 2 <= len(t) <= 14 and t != s:
                 return t
-    parts = line.split()
-    if len(parts) >= 2 and len(parts[-1]) <= 12:
-        return parts[-1]
-    if len(parts) >= 3:
-        return " ".join(parts[-2:])
-    return line[:18] + ("…" if len(line) > 18 else "")
+
+    parts = s.split()
+    if len(parts) >= 2:
+        tail = " ".join(parts[-2:])
+        return tail[:14]
+    return (parts[0][:12] + "…") if len(parts[0]) > 12 else parts[0]
 
 
 def to_items(lines):
@@ -159,8 +188,8 @@ def sync_data_js(profiles):
         s_block = "\n".join("    " + ln if ln else ln for ln in s_json.split("\n"))
         w_block = "\n".join("    " + ln if ln else ln for ln in w_json.split("\n"))
         pat = (
-            rf'("name": "{re.escape(name)}"[\s\S]*?"strengthItems": )\[[\s\S]*?\]'
-            rf'(\s*,\s*"weaknessItems": )\[[\s\S]*?\](\s*)'
+            rf'("name": "{re.escape(name)}"[\s\S]*?"strengthItems":\s*)\[[\s\S]*?\]'
+            rf'(\s*,\s*"weaknessItems":\s*)\[[\s\S]*?\](\s*)'
         )
         repl = rf"\1{s_block}\2{w_block}\3"
         new_text, n = re.subn(pat, repl, text, count=1)
