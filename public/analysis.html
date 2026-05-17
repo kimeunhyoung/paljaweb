@@ -3959,8 +3959,8 @@ window.NUMEROLOGY_DATA = (() => {
 <script src="js/majorCycleMap.js?v=20260508mc"></script>
 <script src="js/numerologyAccordionDetail.js?v=20260506v"></script>
 <script src="js/growthChallengeData.js?v=20260507"></script>
-<script src="js/period48Data.js?v=20260517p48all"></script>
-<script src="js/period48Profiles.js?v=20260517p48fix1"></script>
+<script src="js/period48Data.js?v=20260517p48exact"></script>
+<script src="js/period48Profiles.js?v=20260517p48exact"></script>
 
 <script>
 const _ND = window.NUMEROLOGY_DATA;
@@ -4596,11 +4596,13 @@ function renderPeriod48EnergyBlend(blend) {
 function renderPeriod48SwSection(sectionLabel, classSuffix, items) {
   const list = normalizePeriod48Items(items);
   if (!list.length) return '';
-  const li = list.map((it) => `
+  const li = list.map((it) => {
+    const text = (it.desc && String(it.desc).trim()) ? it.desc : it.title;
+    return `
     <li class="period48-sw-item period48-sw-item--${classSuffix}">
-      <span class="period48-sw-item-title">${escapeHtml(it.title)}</span>
-      <span class="period48-sw-item-desc">${it.desc}</span>
-    </li>`).join('');
+      <span class="period48-sw-item-desc">${escapeHtml(text)}</span>
+    </li>`;
+  }).join('');
   return `
     <div class="period48-trait-group period48-trait-group--${classSuffix}">
       <div class="period48-trait-group-label period48-trait-group-label--${classSuffix === 'strength' ? 'strength' : 'growth'}">${sectionLabel}</div>
