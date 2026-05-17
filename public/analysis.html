@@ -2297,6 +2297,27 @@
       line-height: 1.85;
       color: var(--ink);
     }
+    .period48-trait-groups {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+    .period48-trait-group-label {
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      margin-bottom: 6px;
+      padding-bottom: 4px;
+      border-bottom: 1px solid var(--border);
+    }
+    .period48-trait-group-label--strength {
+      color: #1a5c52;
+      border-bottom-color: rgba(46, 139, 122, 0.35);
+    }
+    .period48-trait-group-label--growth {
+      color: #8b4a20;
+      border-bottom-color: rgba(192, 90, 40, 0.35);
+    }
     .period48-traits {
       display: flex;
       flex-direction: column;
@@ -2309,6 +2330,13 @@
       font-size: 13px;
       line-height: 1.7;
       color: var(--ink);
+    }
+    .period48-trait-group--growth .period48-trait {
+      background: rgba(237, 229, 212, 0.65);
+      border-left: 3px solid rgba(192, 90, 40, 0.45);
+    }
+    .period48-trait-group--strength .period48-trait {
+      border-left: 3px solid rgba(46, 139, 122, 0.35);
     }
     .period48-trait strong {
       color: var(--deep-brown);
@@ -3861,7 +3889,7 @@ window.NUMEROLOGY_DATA = (() => {
 <script src="js/majorCycleMap.js?v=20260508mc"></script>
 <script src="js/numerologyAccordionDetail.js?v=20260506v"></script>
 <script src="js/growthChallengeData.js?v=20260507"></script>
-<script src="js/period48Data.js?v=20260507p48"></script>
+<script src="js/period48Data.js?v=20260517p48"></script>
 
 <script>
 const _ND = window.NUMEROLOGY_DATA;
@@ -4465,6 +4493,36 @@ function buildP48MiniAction(p) {
   const kws = Array.isArray(p.keywords) ? p.keywords : [];
   const k = kws[0] ? String(kws[0]) : '균형';
   return `'${escapeHtml(k)}'을(를) 하나만 골라, 오늘 한 번만 의식해서 살아가 보세요.`;
+}
+
+/** 48주기 traits → 강점 / 보완·주의 (별자리 강점·약점과 같은 읽기 흐름) */
+function splitPeriod48Traits(traits) {
+  const list = Array.isArray(traits) ? traits : [];
+  const growthLabelRe = /숙제|보완|방지|조절|완화|위임|마무리|결정|경계|케어|접지|연민|돌봄|소진|관리|명료|허용|동조|표명|검증|비판|거리|수용|회복|전달|실행|채널|책임|온기|학습|연결|번역|선택|보호|구조와|집중|우선순위|협업|자기 /;
+  const growthBodyRe = /필요합니다|필요하다|필요가 있습니다|훈련이 필요|연습이 필요|지칠|소진|미루기|줄이|없으면|쉬우니|주의할|보완할|균형.*필요|택할 때|배울 때/;
+  const strengths = [];
+  const growth = [];
+  for (const t of list) {
+    const s = String(t);
+    const labelMatch = s.match(/<strong>([^<]+):<\/strong>/);
+    const label = labelMatch ? labelMatch[1] : '';
+    const isGrowth = growthLabelRe.test(label) || growthBodyRe.test(s);
+    (isGrowth ? growth : strengths).push(s);
+  }
+  if (!growth.length && strengths.length > 1) {
+    growth.push(strengths.pop());
+  }
+  return { strengths, growth };
+}
+
+function renderPeriod48TraitGroup(label, classSuffix, items) {
+  if (!items.length) return '';
+  const body = items.map((t) => `<div class="period48-trait">${t}</div>`).join('');
+  return `
+    <div class="period48-trait-group period48-trait-group--${classSuffix}">
+      <div class="period48-trait-group-label period48-trait-group-label--${classSuffix}">${label}</div>
+      <div class="period48-traits">${body}</div>
+    </div>`;
 }
 
 function buildZodiacInsightHTML(zodiac, nums) {
@@ -5592,9 +5650,15 @@ function renderPeriod48(m, d) {
   const p = getPeriod48(m, d);
   if (!p) { el.innerHTML = ''; return; }
   const kwArr = Array.isArray(p.keywords) ? p.keywords : [];
-  const trArr = Array.isArray(p.traits) ? p.traits : [];
   const kws = kwArr.map((k) => `<span class="period48-kw-tag">${escapeHtml(String(k))}</span>`).join('');
-  const traits = trArr.map(t => `<div class="period48-trait">${t}</div>`).join('');
+  const split = (Array.isArray(p.strengths) && p.strengths.length)
+    ? { strengths: p.strengths, growth: Array.isArray(p.weaknesses) ? p.weaknesses : [] }
+    : splitPeriod48Traits(Array.isArray(p.traits) ? p.traits : []);
+  const traitGroupsHtml = `
+    <div class="period48-trait-groups">
+      ${renderPeriod48TraitGroup('강점', 'strength', split.strengths)}
+      ${renderPeriod48TraitGroup('약점 · 성장 포인트', 'growth', split.growth)}
+    </div>`;
   el.innerHTML = `
     <div class="period48-card">
       <div class="period48-header">
@@ -5624,8 +5688,7 @@ function renderPeriod48(m, d) {
       </div>
       <div class="period48-section-title">✦ 개요</div>
       <div class="period48-desc">${p.overview || ''}</div>
-      <div class="period48-section-title">✦ 핵심 성향</div>
-      <div class="period48-traits">${traits}</div>
+      ${traitGroupsHtml}
       <div class="lc-life-hint"><strong>예를 들면</strong> ${buildP48LifeHint(p)}</div>
       <div class="lc-action-tip"><span class="lc-action-tip-label">오늘 한 가지</span>${buildP48MiniAction(p)}</div>
       <div class="period48-source">* Gary Goldschneider & Joost Elffers의 《The Secret Language of Birthdays》를 바탕으로 한 48주기 성격 분석 체계입니다.</div>
