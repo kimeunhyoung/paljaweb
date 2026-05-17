@@ -2341,6 +2341,76 @@
     .period48-trait strong {
       color: var(--deep-brown);
     }
+    .period48-energy-blend {
+      background: linear-gradient(135deg, rgba(232, 213, 176, 0.35), rgba(245, 240, 232, 0.9));
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 14px 16px;
+      margin: 12px 0 16px;
+      font-size: 13px;
+      line-height: 1.65;
+      color: var(--ink);
+    }
+    .period48-energy-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 6px 10px;
+      margin-bottom: 6px;
+    }
+    .period48-energy-row:last-of-type { margin-bottom: 0; }
+    .period48-energy-sign {
+      font-weight: 700;
+      color: var(--deep-brown);
+    }
+    .period48-energy-tags {
+      color: var(--muted);
+      font-size: 12px;
+    }
+    .period48-energy-op {
+      font-weight: 700;
+      color: var(--warm-brown);
+      font-size: 14px;
+      line-height: 1;
+    }
+    .period48-energy-summary {
+      margin-top: 10px;
+      padding-top: 10px;
+      border-top: 1px dashed var(--border);
+      font-weight: 600;
+      color: var(--deep-brown);
+    }
+    .period48-sw-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+    .period48-sw-item {
+      border-radius: 8px;
+      padding: 11px 14px;
+      font-size: 13px;
+      line-height: 1.75;
+    }
+    .period48-sw-item--strength {
+      background: rgba(46, 139, 122, 0.08);
+      border-left: 3px solid rgba(46, 139, 122, 0.45);
+    }
+    .period48-sw-item--weakness {
+      background: rgba(192, 90, 40, 0.08);
+      border-left: 3px solid rgba(192, 90, 40, 0.45);
+    }
+    .period48-sw-item-title {
+      display: block;
+      font-weight: 700;
+      color: var(--deep-brown);
+      margin-bottom: 4px;
+    }
+    .period48-sw-item-desc {
+      color: var(--ink);
+    }
     .period48-source {
       margin-top: 16px;
       padding-top: 12px;
@@ -3889,7 +3959,7 @@ window.NUMEROLOGY_DATA = (() => {
 <script src="js/majorCycleMap.js?v=20260508mc"></script>
 <script src="js/numerologyAccordionDetail.js?v=20260506v"></script>
 <script src="js/growthChallengeData.js?v=20260507"></script>
-<script src="js/period48Data.js?v=20260517p48b"></script>
+<script src="js/period48Data.js?v=20260517p48c"></script>
 
 <script>
 const _ND = window.NUMEROLOGY_DATA;
@@ -4495,7 +4565,68 @@ function buildP48MiniAction(p) {
   return `'${escapeHtml(k)}'을(를) 하나만 골라, 오늘 한 번만 의식해서 살아가 보세요.`;
 }
 
-/** 48주기 traits → 강점 / 보완·주의 (별자리 강점·약점과 같은 읽기 흐름) */
+/** traits HTML 또는 { title, desc } → 통일 */
+function normalizePeriod48Items(items) {
+  if (!Array.isArray(items)) return [];
+  return items.map((raw) => {
+    if (raw && typeof raw === 'object' && raw.title) {
+      return { title: String(raw.title), desc: String(raw.desc || '') };
+    }
+    const s = String(raw);
+    const m = s.match(/<strong>([^<]+):<\/strong>\s*(.*)/s);
+    if (m) return { title: m[1].trim(), desc: m[2].trim() };
+    return { title: s.replace(/<[^>]+>/g, '').slice(0, 40), desc: s };
+  }).filter((x) => x.title);
+}
+
+function renderPeriod48EnergyBlend(blend) {
+  if (!blend || !Array.isArray(blend.sides) || !blend.sides.length) return '';
+  const rows = blend.sides.map((side, i) => {
+    const tags = Array.isArray(side.tags) ? side.tags.join(' · ') : (side.label || '');
+    const op = i === 0 ? '' : '<span class="period48-energy-op" aria-hidden="true">+</span>';
+    return `${op}<div class="period48-energy-row"><span class="period48-energy-sign">${escapeHtml(side.sign || '')} 에너지</span><span class="period48-energy-tags">(${escapeHtml(tags)})</span></div>`;
+  }).join('');
+  const summary = blend.summary
+    ? `<div class="period48-energy-summary"><span class="period48-energy-op" aria-hidden="true">=</span> ${escapeHtml(blend.summary)}</div>`
+    : '';
+  return `<div class="period48-energy-blend">${rows}${summary}</div>`;
+}
+
+function renderPeriod48SwSection(sectionLabel, classSuffix, items) {
+  const list = normalizePeriod48Items(items);
+  if (!list.length) return '';
+  const li = list.map((it) => `
+    <li class="period48-sw-item period48-sw-item--${classSuffix}">
+      <span class="period48-sw-item-title">${escapeHtml(it.title)}</span>
+      <span class="period48-sw-item-desc">${it.desc}</span>
+    </li>`).join('');
+  return `
+    <div class="period48-trait-group period48-trait-group--${classSuffix}">
+      <div class="period48-trait-group-label period48-trait-group-label--${classSuffix === 'strength' ? 'strength' : 'growth'}">${sectionLabel}</div>
+      <ul class="period48-sw-list">${li}</ul>
+    </div>`;
+}
+
+function buildPeriod48ProfileHtml(p) {
+  if (p.energyBlend || (Array.isArray(p.strengthItems) && p.strengthItems.length)) {
+    const energyTitle = p.energyBlend
+      ? '<div class="period48-section-title">✦ 두 별자리 에너지</div>'
+      : '';
+    return `
+      ${energyTitle}
+      ${renderPeriod48EnergyBlend(p.energyBlend)}
+      ${renderPeriod48SwSection('강점', 'strength', p.strengthItems || [])}
+      ${renderPeriod48SwSection('약점', 'weakness', p.weaknessItems || [])}`;
+  }
+  const split = splitPeriod48Traits(Array.isArray(p.traits) ? p.traits : []);
+  return `
+    <div class="period48-trait-groups">
+      ${renderPeriod48SwSection('강점', 'strength', split.strengths)}
+      ${renderPeriod48SwSection('약점 · 성장 포인트', 'weakness', split.growth)}
+    </div>`;
+}
+
+/** 48주기 traits → 강점 / 보완·주의 (레거시 traits 배열용) */
 function splitPeriod48Traits(traits) {
   const list = Array.isArray(traits) ? traits : [];
   const growthLabelRe = /숙제|보완|방지|조절|완화|위임|마무리|결정|경계|케어|접지|연민|돌봄|소진|관리|명료|허용|동조|표명|검증|비판|거리|수용|회복|전달|실행|채널|책임|온기|학습|연결|번역|선택|보호|구조와|집중|우선순위|협업|자기 /;
@@ -4510,16 +4641,6 @@ function splitPeriod48Traits(traits) {
     (isGrowth ? growth : strengths).push(s);
   }
   return { strengths, growth };
-}
-
-function renderPeriod48TraitGroup(label, classSuffix, items) {
-  if (!items.length) return '';
-  const body = items.map((t) => `<div class="period48-trait">${t}</div>`).join('');
-  return `
-    <div class="period48-trait-group period48-trait-group--${classSuffix}">
-      <div class="period48-trait-group-label period48-trait-group-label--${classSuffix}">${label}</div>
-      <div class="period48-traits">${body}</div>
-    </div>`;
 }
 
 function buildZodiacInsightHTML(zodiac, nums) {
@@ -5648,14 +5769,7 @@ function renderPeriod48(m, d) {
   if (!p) { el.innerHTML = ''; return; }
   const kwArr = Array.isArray(p.keywords) ? p.keywords : [];
   const kws = kwArr.map((k) => `<span class="period48-kw-tag">${escapeHtml(String(k))}</span>`).join('');
-  const split = (Array.isArray(p.strengths) && p.strengths.length)
-    ? { strengths: p.strengths, growth: Array.isArray(p.weaknesses) ? p.weaknesses : [] }
-    : splitPeriod48Traits(Array.isArray(p.traits) ? p.traits : []);
-  const traitGroupsHtml = `
-    <div class="period48-trait-groups">
-      ${renderPeriod48TraitGroup('강점', 'strength', split.strengths)}
-      ${renderPeriod48TraitGroup('약점 · 성장 포인트', 'growth', split.growth)}
-    </div>`;
+  const traitGroupsHtml = buildPeriod48ProfileHtml(p);
   el.innerHTML = `
     <div class="period48-card">
       <div class="period48-header">
