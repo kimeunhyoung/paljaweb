@@ -10,6 +10,7 @@ PROFILES_OUT = ROOT / "public" / "js" / "period48Profiles.js"
 DATA_OUT = ROOT / "public" / "js" / "period48Data.js"
 EXTRACTED = Path(__file__).parent / "p48_user_extracted.json"
 BATCH2_SRC = Path(__file__).parent / "p48_user_source_batch2.txt"
+OVERRIDES_PATH = Path(__file__).parent / "p48_keyword_overrides.json"
 
 WEEK_ORDER = [
     "물고기-양자리 경계", "양자리 I", "양자리 II", "양자리 III", "양자리-황소자리 경계",
@@ -149,6 +150,57 @@ def load_profiles_base():
     return profiles
 
 
+def load_keyword_overrides():
+    if not OVERRIDES_PATH.exists():
+        return {}
+    data = json.loads(OVERRIDES_PATH.read_text(encoding="utf-8"))
+    return {k: v for k, v in data.items() if not str(k).startswith("_")}
+
+
+def apply_keyword_overrides(profiles):
+    """Merge scripts/p48_keyword_overrides.json — only listed weeks/keys change."""
+    overrides = load_keyword_overrides()
+    applied = 0
+    section_map = {
+        "강점": "strengthItems",
+        "약점": "weaknessItems",
+        "s": "strengthItems",
+        "w": "weaknessItems",
+        "strengths": "strengthItems",
+        "weaknesses": "weaknessItems",
+    }
+    for week, sections in overrides.items():
+        if week not in profiles:
+            print(f"WARN override: unknown week «{week}»")
+            continue
+        applied += 1
+        p = profiles[week]
+        for key, labels in sections.items():
+            field = section_map.get(key)
+            if not field:
+                print(f"WARN {week}: use 강점 or 약점 (got {key!r})")
+                continue
+            items = p.get(field, [])
+            if isinstance(labels, list):
+                if len(labels) != len(items):
+                    print(
+                        f"WARN {week} {key}: need {len(items)} keywords, got {len(labels)}"
+                    )
+                    continue
+                for i, title in enumerate(labels):
+                    items[i]["title"] = str(title).strip()
+            elif isinstance(labels, dict):
+                for idx, title in labels.items():
+                    i = int(idx)
+                    if 0 <= i < len(items):
+                        items[i]["title"] = str(title).strip()
+                    else:
+                        print(f"WARN {week} {key}[{idx}]: out of range")
+            else:
+                print(f"WARN {week} {key}: expected list or dict")
+    return applied
+
+
 def apply_exact(profiles, user_exact):
     for name, data in user_exact.items():
         if name not in profiles:
@@ -205,6 +257,14 @@ def main():
     assert len(user_exact) == 48, len(user_exact)
     profiles = load_profiles_base()
     profiles = apply_exact(profiles, user_exact)
+    from p48_keyword_replacements import apply_replacements as apply_title_fixes
+
+    profiles, n_fix, _ = apply_title_fixes(profiles)
+    if n_fix:
+        print(f"Title fixes from p48_keyword_replacements: {n_fix}")
+    n_kw = apply_keyword_overrides(profiles)
+    if n_kw:
+        print(f"Keyword overrides applied for {n_kw} week(s).")
     write_profiles(profiles)
     sync_data_js(profiles)
   # verify counts
