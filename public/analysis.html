@@ -3889,7 +3889,7 @@ window.NUMEROLOGY_DATA = (() => {
 <script src="js/majorCycleMap.js?v=20260508mc"></script>
 <script src="js/numerologyAccordionDetail.js?v=20260506v"></script>
 <script src="js/growthChallengeData.js?v=20260507"></script>
-<script src="js/period48Data.js?v=20260517p48"></script>
+<script src="js/period48Data.js?v=20260517p48b"></script>
 
 <script>
 const _ND = window.NUMEROLOGY_DATA;
@@ -4508,9 +4508,6 @@ function splitPeriod48Traits(traits) {
     const label = labelMatch ? labelMatch[1] : '';
     const isGrowth = growthLabelRe.test(label) || growthBodyRe.test(s);
     (isGrowth ? growth : strengths).push(s);
-  }
-  if (!growth.length && strengths.length > 1) {
-    growth.push(strengths.pop());
   }
   return { strengths, growth };
 }
