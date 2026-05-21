@@ -1096,9 +1096,6 @@
     .lc-all-nums-grid--strip {
       grid-template-columns: repeat(3, minmax(0, 1fr));
     }
-    .lc-glance-cell--cycle .lc-glance-value {
-      color: var(--teal);
-    }
     .lc-glance-cell {
       display: flex;
       flex-direction: column;
@@ -3155,9 +3152,13 @@
         <span id="analysisJumpTitle">바로 가기</span>
         <button type="button" class="analysis-jump-close" id="analysisJumpClose" aria-label="닫기">×</button>
       </div>
-      <div class="analysis-jump-group-label">핵심 · 요약</div>
+      <div class="analysis-jump-group-label">숫자 종합</div>
       <div class="analysis-jump-list">
+        <a href="#nav-at-a-glance">먼저 보는 수</a>
         <a href="#nav-core">핵심 수</a>
+      </div>
+      <div class="analysis-jump-group-label">기질 · 요약</div>
+      <div class="analysis-jump-list">
         <a href="#zodiacInsightSection">별자리</a>
         <a href="#period48Section">48주기 성격학</a>
         <a href="#aiSummarySection">AI 종합 요약</a>
@@ -4728,6 +4729,10 @@ function buildReadingGuideCatalogInnerHtml() {
   return `
       <p class="lc-guide-catalog-kicker">통합 레포트 모듈 순서. 제목 클릭 시 해당 섹션으로 스크롤.</p>
       ${lcReadingGuideCatalogRow(
+        `<a href="#nav-at-a-glance" class="lc-guide-link"><strong>먼저 보는 수</strong></a>`,
+        `별자리·핵심 수·이름 수·올해·이번 달·대주기·절정수·도전수를 한눈에 보는 요약 그리드.`,
+      )}
+      ${lcReadingGuideCatalogRow(
         `<a href="#nav-core" class="lc-guide-link"><strong>핵심 수</strong></a>`,
         `피타고라스계 수비학 프레임, 이름과 생년월일을 규칙에 따라 계산해 낸 숫자 기반 해석 차트.`,
       )}
@@ -4849,7 +4854,7 @@ function renderAnalysisReadingGuide(ctx) {
   if (!host) return;
   const grid = buildLcPriorityAtGlanceHtml(ctx);
   host.innerHTML = `<div class="lc-reading-guide">
-    <div class="lc-at-a-glance" aria-label="먼저 보는 수 · 별자리 · 현재 주기">
+    <div id="nav-at-a-glance" class="lc-at-a-glance" aria-label="먼저 보는 수 · 별자리 · 현재 주기">
       <div class="lc-at-a-glance-kicker">먼저 보는 수 · 별자리 · 지금 주기</div>
       <div class="lc-all-nums-grid lc-all-nums-grid--strip">${grid}</div>
     </div>

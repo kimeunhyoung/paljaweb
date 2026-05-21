@@ -24,6 +24,11 @@ export const LIFECODE_PRODUCT = {
 
   /** 단품 목차에 노출할 앵커 (hidden 제외) */
   guideModules: [
+    {
+      href: '#nav-at-a-glance',
+      title: '먼저 보는 수',
+      desc: '별자리·핵심 수·올해·이번 달·대주기·절정수·도전수 요약 그리드.',
+    },
     { href: '#nav-core', title: '핵심 수', desc: '생년월일·이름에서 뽑은 대표 수비학 숫자와 해석.' },
     { href: '#zodiacInsightSection', title: '별자리', desc: '생일 기준 별자리 레이어(수비 숫자와 함께 읽기).' },
     { href: '#period48Section', title: '48주기 성격', desc: '생일 구간별 성격·역할 패턴(48 세그먼트).' },
