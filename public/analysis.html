@@ -4450,7 +4450,7 @@ function renderMonthlyDetailPanel(mo, py) {
 const PINNACLE_STAGE_INTRO_HTML = [
   `<p><strong>1단계 — 봄 · 씨앗기.</strong> 태어난 달(월)과 날(일)의 숫자가 만나 <em>감정 반응과 일상 리듬의 뿌리</em>가 만들어집니다. “어떤 토양에서 자랐는가”가 이후 모든 절정수의 밑바닥이 돼요.</p><p>여기서 <strong>절정수</strong>은 삶이 밀어 주는 <strong>기회의 방향</strong>, <strong>도전수</strong>는 그 안에서 몸으로 익혀야 할 <strong>내면 숙제</strong>로 읽어 보시면 됩니다.</p>`,
   `<p><strong>2단계 — 여름 · 성장기.</strong> 날(일)과 연(년)이 만나 <em>밖으로 나가 경험을 넓히는 시기</em>로 들어갑니다. 관계·일·사회 속에서 나의 스타일과 선택이 두드러지기 시작해요.</p><p>환경(절정수)은 무대를 넓혀 주고, 도전수는 속도·균형·경계를 가르칩니다. 성장은 “설렘과 부담”이 자주 한 쌍으로 옵니다.</p>`,
-  `<p><strong>3단계 — 가을 · 결실기.</strong> 앞선 두 단계의 패턴이 합쳐져 <em>결과와 선택이 선명해지는</em> 흐름입니다. 무엇을 키울지·무엇을 수확할지가 가시화되는 때예요.</p><p>절정수은 “지금 맞이할 수 있는 것”, 도전수는 “그 결실을 허용하려면 내려놓거나 다시 짜야 할 것”으로 풀어 볼 수 있어요.</p>`,
+  `<p><strong>3단계 — 가을 · 결실기.</strong> 앞선 두 단계의 패턴이 합쳐져 <em>결과와 선택이 선명해지는</em> 흐름입니다. 무엇을 키울지·무엇을 수확할지가 가시화되는 때예요.</p><p>절정수는 “지금 맞이할 수 있는 것”, 도전수는 “그 결실을 허용하려면 내려놓거나 다시 짜야 할 것”으로 풀어 볼 수 있어요.</p>`,
   `<p><strong>4단계 — 겨울 · 완성기.</strong> 달(월)과 연(년)이 다시 맞물리며 <em>큰 줄기를 정리·통합</em>하는 기운이 강해집니다. 개인적 성취를 넘어 유지·전승·의미로 이어지는 시기입니다.</p><p>환경은 더 넓은 시야와 책임을 부르고, 도전수는 유연함과 마무리의 지혜를 요구합니다. 끝은 또 다른 씨앗을 위한 정돈이기도 해요.</p>`,
 ];
 
@@ -4494,7 +4494,7 @@ function buildPinnacleStageLead(stageIdx) {
 function buildPeakChallengeBridge(p, c, tm) {
   const titleP = tm[p] || '';
   const titleC = tm[c] || '';
-  const peak = PEAK_ENV_LINE[p] || `${p}번 절정수은 「${titleP}」의 기회 축으로 무대를 열어 줍니다.`;
+  const peak = PEAK_ENV_LINE[p] || `${p}번 절정수는 「${titleP}」의 기회 축으로 무대를 열어 줍니다.`;
   const chal = CHALLENGE_TASK_LINE[c] || `${c}번 도전수는 「${titleC}」를 통해 내면 숙제를 걸어 둡니다.`;
   const sameNote =
     p === c
