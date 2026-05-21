@@ -15,35 +15,24 @@ html.lifecode-product .analysis-wait-inner {
   padding-left: 14px;
 }
 
-/* 단품 상단 로고 — 모바일에서도 아이콘은 유지 */
-.lc-product-bar .topbar-logo-img {
-  width: 32px;
-  height: 32px;
-  border-radius: 9px;
-  object-fit: cover;
-  flex-shrink: 0;
-  border: 1px solid rgba(74, 53, 32, 0.12);
-  box-shadow: 0 2px 8px rgba(44, 31, 14, 0.08);
+/* 단품 상단 — 라이프코드 워드마크 (아이콘 없이 텍스트만) */
+.lc-product-bar .topbar-logo--wordmark {
+  gap: 0;
+  padding: 4px 0;
 }
 
-.lc-product-bar .topbar-logo-stack {
-  display: flex;
-  flex-direction: column;
-  gap: 1px;
-  min-width: 0;
-}
-
-.lc-product-bar .topbar-logo-sub {
-  font-family: var(--font-body, 'Noto Serif KR', serif);
-  font-size: 10px;
-  font-weight: 500;
-  color: var(--muted, #9a8570);
-  letter-spacing: 0.02em;
+.lc-product-bar .topbar-logo-wordmark {
+  font-family: 'Noto Serif KR', var(--font-serif, Georgia, serif);
+  font-size: 1.125rem;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  color: var(--deep-brown, #4a3520);
   line-height: 1.2;
+  white-space: nowrap;
 }
 
 @media (max-width: 560px) {
-  .lc-product-bar .topbar-logo-stack {
-    display: none;
+  .lc-product-bar .topbar-logo-wordmark {
+    font-size: 1.05rem;
   }
 }
