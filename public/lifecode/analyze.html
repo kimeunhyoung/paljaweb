@@ -1112,7 +1112,7 @@
       display: grid;
       gap: 10px;
     }
-    /* 먼저 보는 수: 3열 · 대주기·피나클·챌린지 포함 */
+    /* 먼저 보는 수: 3열 · 대주기·절정수·도전수 포함 */
     .lc-all-nums-grid--strip {
       grid-template-columns: repeat(3, minmax(0, 1fr));
     }
@@ -1328,7 +1328,7 @@
       line-height: 1.55;
       margin-bottom: 10px;
     }
-    /* 긴 호흡(대주기·피나클·챌린지) — 항상 표시 */
+    /* 긴 호흡(대주기·절정수·도전수) — 항상 표시 */
     .tdc-cycle-strip {
       margin: 0 0 12px 0;
       border: 1px solid var(--border);
@@ -3068,7 +3068,7 @@
       <div class="section-line"></div>
     </div>
     <div class="timeline-bridge">
-      <p>막대·연도 카드를 누르면 그 해 <strong>개인년도</strong>와 <strong>타로</strong>가 펼쳐집니다. 같은 연도 카드 아래에는 <strong>긴 호흡 숫자</strong>(대주기·피나클·챌린지)가 함께 표시됩니다.</p>
+      <p>막대·연도 카드를 누르면 그 해 <strong>개인년도</strong>와 <strong>타로</strong>가 펼쳐집니다. 같은 연도 카드 아래에는 <strong>긴 호흡 숫자</strong>(대주기·절정수·도전수)가 함께 표시됩니다.</p>
     </div>
     <div id="timelineContent"></div>
   </div>
@@ -4130,37 +4130,37 @@ window.NUMEROLOGY_DATA = (() => {
     }
   };
 
-  /** 인생 4단계: 같은 숫자라도 피나클(환경·타이밍) vs 챌린지(내면 마찰) 해석을 분리 */
+  /** 인생 4단계: 같은 숫자라도 절정수(환경·타이밍) vs 도전수(내면 마찰) 해석을 분리 */
   N.PINNACLE_DEEP_MAP = {
-    1: "<b>[피나클 · 환경과 타이밍]</b><br><span class='kw'>밖에서 열리는 무대: 개척·선두·독립</span><br>이 시기 환경은 <b>새 출발·리더 자리·스스로 책임지는 기회</b>를 밖에서 밀어 넣습니다. 결정과 실행이 인정받고, 처음부터 세우는 일이 현실로 열리기 쉽습니다. 반대로 <b>무게를 혼자만 짊어지거나</b> 손을 안 내밀면 같은 바람이 <b>답답함·충돌</b>로 느껴질 수 있습니다.",
-    2: "<b>[피나클 · 환경과 타이밍]</b><br><span class='kw'>밖에서 열리는 무대: 협력·중재·동반</span><br>환경은 <b>둘이서 할 때 커지는 성과</b>를 강조합니다. 파트너·팀·계약·조율이 테마가 되고, 경청과 세심함이 밖에서 자산으로 읽히기 쉽습니다. 반대로 <b>혼자만 밀고 나가거나</b> 지나치게 맞추기만 하면 기회가 <b>얇거나 피곤하게</b> 느껴질 수 있습니다.",
-    3: "<b>[피나클 · 환경과 타이밍]</b><br><span class='kw'>밖에서 열리는 무대: 표현·소통·창작</span><br>무대가 밝아지고 <b>말·글·콘텐츠·예술</b>로 드러낼 때 시야와 인지도가 넓어지기 쉽습니다. 브랜딩·수업 같은 <b>내보내기</b>가 기회와 연결됩니다. 반대로 <b>알맹이 없이 보여주기만</b> 하거나, 드러내는 것을 전부 막아 두면 <b>허전함</b>이 커질 수 있습니다.",
-    4: "<b>[피나클 · 환경과 타이밍]</b><br><span class='kw'>밖에서 열리는 무대: 구조·안정·내실</span><br>현실이 <b>기반·약속·시스템</b>을 요구하는 때입니다. 정리·정착·운영·자격 같은 <b>단단함</b>이 보상받고, 꾸준한 루틴이 외부 신뢰로 바뀌기 쉽습니다. 반대로 <b>구조를 전부 거부하거나</b> 너무 굳어 변화를 못 받아들이면 길이 <b>답답하게</b> 느껴질 수 있습니다.",
-    5: "<b>[피나클 · 환경과 타이밍]</b><br><span class='kw'>밖에서 열리는 무대: 변화·이동·확장</span><br><b>경계를 넘는 선택지</b>—새 자극·이동·네트워크—가 밖에서 풀립니다. 적응과 탐험이 주제가 되기 쉽습니다. 반대로 <b>안전만 붙잡고</b> 움직이지 않으면 시기가 좁아지는 느낌이 들 수 있고, <b>자극만 쫓으면</b> 뿌리 없이 흩어질 수 있습니다.",
-    6: "<b>[피나클 · 환경과 타이밍]</b><br><span class='kw'>밖에서 열리는 무대: 돌봄·가정·공동체</span><br><b>가족·팀·봉사·조화로운 환경 가꾸기</b>가 삶의 중심 과제처럼 자리합니다. 책임 있는 사랑이 역할과 의미로 이어지기 쉽습니다. 반대로 <b>마땅한 돌봄을 전부 피하면</b> 공허나 미안함이 남을 수 있고, <b>남을 다 맞추려 들면</b> 소진이 올 수 있습니다.",
-    7: "<b>[피나클 · 환경과 타이밍]</b><br><span class='kw'>밖에서 열리는 무대: 성찰·전문성·깊이</span><br><b>연구·자격·멘토링·깊은 몰입</b>이 환경에서 지지받습니다. 본질을 파고드는 일이 통하고, 가르침·분석이 빛을 보기 쉽습니다. 반대로 <b>겉만 돌아다니면</b> 공허함이 남을 수 있고, <b>안으로만 들어가 연결을 끊으면</b> 기회를 혼자 놓칠 수 있습니다.",
-    8: "<b>[피나클 · 환경과 타이밍]</b><br><span class='kw'>밖에서 열리는 무대: 성취·권한·자원</span><br>현실이 <b>결과·경영·목표·자원</b>을 요청하는 때입니다. 책임 있는 역할과 실행이 보상으로 돌아오기 쉽습니다. 반대로 <b>권한을 전부 피하면</b> 압박만 남는 느낌이 들 수 있고, <b>숫자와 지위만</b> 쫓으면 관계와 마음이 비어 보일 수 있습니다.",
-    9: "<b>[피나클 · 환경과 타이밍]</b><br><span class='kw'>밖에서 열리는 무대: 정리·통합·나눔</span><br><b>마무리·전환·봉사·큰 그림</b>이 무대 중심이 됩니다. 집착을 낮출 때 다음 길이 보이고, 경험을 엮어 넘기는 일이 의미 있게 읽힙니다. 반대로 <b>미련만 붙잡으면</b> 다음 문이 잘 안 보이고, <b>다 품어야 한다</b>며 경계를 잃으면 지칠 수 있습니다.",
-    11: "<b>[피나클 · 환경과 타이밍]</b><br><span class='kw'>밖에서 열리는 무대: 영감·직관·메시지</span><br><b>비범한 통찰·채널·치유적 말</b>이 환경에서 필요해지는 때입니다. 영감을 형태로 옮기는 역할이 빛을 받기 쉽습니다. 반대로 <b>현실과 끊기면</b> 불안만 커질 수 있고, <b>예민함만</b> 키우면 몸과 일상이 버거울 수 있습니다.",
-    22: "<b>[피나클 · 환경과 타이밍]</b><br><span class='kw'>밖에서 열리는 무대: 큰 설계·공익 구조</span><br>개인 일을 넘어 <b>다수가 쓰는 틀·조직·인프라</b>를 세울 기회가 땅에 닿기 쉽습니다. 이상을 현실 구조로 옮기는 무대입니다. 반대로 <b>꿈만 키우고 실행이 없으면</b> 무게만 쌓이고, <b>완벽만</b> 고집하면 시점을 놓칠 수 있습니다.",
-    33: "<b>[피나클 · 환경과 타이밍]</b><br><span class='kw'>밖에서 열리는 무대: 치유·가르침·봉사</span><br><b>교육·케어·멘토링·나눔</b>이 삶의 중심 무대로 밀려옵니다. 사랑과 가르침이 역할로 인정받기 쉽습니다. 반대로 <b>마음을 닫으면</b> 허전함이 남을 수 있고, <b>구원자에 올인</b>하면 자기가 먼저 무너질 수 있습니다."
+    1: "<b>[절정수 · 환경과 타이밍]</b><br><span class='kw'>밖에서 열리는 무대: 개척·선두·독립</span><br>이 시기 환경은 <b>새 출발·리더 자리·스스로 책임지는 기회</b>를 밖에서 밀어 넣습니다. 결정과 실행이 인정받고, 처음부터 세우는 일이 현실로 열리기 쉽습니다. 반대로 <b>무게를 혼자만 짊어지거나</b> 손을 안 내밀면 같은 바람이 <b>답답함·충돌</b>로 느껴질 수 있습니다.",
+    2: "<b>[절정수 · 환경과 타이밍]</b><br><span class='kw'>밖에서 열리는 무대: 협력·중재·동반</span><br>환경은 <b>둘이서 할 때 커지는 성과</b>를 강조합니다. 파트너·팀·계약·조율이 테마가 되고, 경청과 세심함이 밖에서 자산으로 읽히기 쉽습니다. 반대로 <b>혼자만 밀고 나가거나</b> 지나치게 맞추기만 하면 기회가 <b>얇거나 피곤하게</b> 느껴질 수 있습니다.",
+    3: "<b>[절정수 · 환경과 타이밍]</b><br><span class='kw'>밖에서 열리는 무대: 표현·소통·창작</span><br>무대가 밝아지고 <b>말·글·콘텐츠·예술</b>로 드러낼 때 시야와 인지도가 넓어지기 쉽습니다. 브랜딩·수업 같은 <b>내보내기</b>가 기회와 연결됩니다. 반대로 <b>알맹이 없이 보여주기만</b> 하거나, 드러내는 것을 전부 막아 두면 <b>허전함</b>이 커질 수 있습니다.",
+    4: "<b>[절정수 · 환경과 타이밍]</b><br><span class='kw'>밖에서 열리는 무대: 구조·안정·내실</span><br>현실이 <b>기반·약속·시스템</b>을 요구하는 때입니다. 정리·정착·운영·자격 같은 <b>단단함</b>이 보상받고, 꾸준한 루틴이 외부 신뢰로 바뀌기 쉽습니다. 반대로 <b>구조를 전부 거부하거나</b> 너무 굳어 변화를 못 받아들이면 길이 <b>답답하게</b> 느껴질 수 있습니다.",
+    5: "<b>[절정수 · 환경과 타이밍]</b><br><span class='kw'>밖에서 열리는 무대: 변화·이동·확장</span><br><b>경계를 넘는 선택지</b>—새 자극·이동·네트워크—가 밖에서 풀립니다. 적응과 탐험이 주제가 되기 쉽습니다. 반대로 <b>안전만 붙잡고</b> 움직이지 않으면 시기가 좁아지는 느낌이 들 수 있고, <b>자극만 쫓으면</b> 뿌리 없이 흩어질 수 있습니다.",
+    6: "<b>[절정수 · 환경과 타이밍]</b><br><span class='kw'>밖에서 열리는 무대: 돌봄·가정·공동체</span><br><b>가족·팀·봉사·조화로운 환경 가꾸기</b>가 삶의 중심 과제처럼 자리합니다. 책임 있는 사랑이 역할과 의미로 이어지기 쉽습니다. 반대로 <b>마땅한 돌봄을 전부 피하면</b> 공허나 미안함이 남을 수 있고, <b>남을 다 맞추려 들면</b> 소진이 올 수 있습니다.",
+    7: "<b>[절정수 · 환경과 타이밍]</b><br><span class='kw'>밖에서 열리는 무대: 성찰·전문성·깊이</span><br><b>연구·자격·멘토링·깊은 몰입</b>이 환경에서 지지받습니다. 본질을 파고드는 일이 통하고, 가르침·분석이 빛을 보기 쉽습니다. 반대로 <b>겉만 돌아다니면</b> 공허함이 남을 수 있고, <b>안으로만 들어가 연결을 끊으면</b> 기회를 혼자 놓칠 수 있습니다.",
+    8: "<b>[절정수 · 환경과 타이밍]</b><br><span class='kw'>밖에서 열리는 무대: 성취·권한·자원</span><br>현실이 <b>결과·경영·목표·자원</b>을 요청하는 때입니다. 책임 있는 역할과 실행이 보상으로 돌아오기 쉽습니다. 반대로 <b>권한을 전부 피하면</b> 압박만 남는 느낌이 들 수 있고, <b>숫자와 지위만</b> 쫓으면 관계와 마음이 비어 보일 수 있습니다.",
+    9: "<b>[절정수 · 환경과 타이밍]</b><br><span class='kw'>밖에서 열리는 무대: 정리·통합·나눔</span><br><b>마무리·전환·봉사·큰 그림</b>이 무대 중심이 됩니다. 집착을 낮출 때 다음 길이 보이고, 경험을 엮어 넘기는 일이 의미 있게 읽힙니다. 반대로 <b>미련만 붙잡으면</b> 다음 문이 잘 안 보이고, <b>다 품어야 한다</b>며 경계를 잃으면 지칠 수 있습니다.",
+    11: "<b>[절정수 · 환경과 타이밍]</b><br><span class='kw'>밖에서 열리는 무대: 영감·직관·메시지</span><br><b>비범한 통찰·채널·치유적 말</b>이 환경에서 필요해지는 때입니다. 영감을 형태로 옮기는 역할이 빛을 받기 쉽습니다. 반대로 <b>현실과 끊기면</b> 불안만 커질 수 있고, <b>예민함만</b> 키우면 몸과 일상이 버거울 수 있습니다.",
+    22: "<b>[절정수 · 환경과 타이밍]</b><br><span class='kw'>밖에서 열리는 무대: 큰 설계·공익 구조</span><br>개인 일을 넘어 <b>다수가 쓰는 틀·조직·인프라</b>를 세울 기회가 땅에 닿기 쉽습니다. 이상을 현실 구조로 옮기는 무대입니다. 반대로 <b>꿈만 키우고 실행이 없으면</b> 무게만 쌓이고, <b>완벽만</b> 고집하면 시점을 놓칠 수 있습니다.",
+    33: "<b>[절정수 · 환경과 타이밍]</b><br><span class='kw'>밖에서 열리는 무대: 치유·가르침·봉사</span><br><b>교육·케어·멘토링·나눔</b>이 삶의 중심 무대로 밀려옵니다. 사랑과 가르침이 역할로 인정받기 쉽습니다. 반대로 <b>마음을 닫으면</b> 허전함이 남을 수 있고, <b>구원자에 올인</b>하면 자기가 먼저 무너질 수 있습니다."
   };
   N.CHALLENGE_DEEP_MAP = {
-    1: "<b>[챌린지 · 내면 과제]</b><br><span class='kw'>통합이 필요한 마찰: 독선·부담</span><br>주도·자립의 기운이 <b>숙제</b>로 올 때는 <b>리더십과 고집</b> 사이가 시험대에 올라갑니다. 책임지되 <b>위임과 협력</b>으로 무게를 나누는 법이 필요합니다. 반대로 <b>혼자만 짊어지거나</b> 책임을 전부 피하면 같은 패턴이 반복되기 쉽습니다.",
-    2: "<b>[챌린지 · 내면 과제]</b><br><span class='kw'>통합이 필요한 마찰: 경계·자기 목소리</span><br>관계·조율의 기운이 <b>숙제</b>로 올 때는 <b>경계와 맞춤</b> 사이가 시험대에 올라갑니다. 솔직함과 균형을 지키며 협력하는 연습이 필요합니다. 반대로 <b>끝까지 맞추기만</b> 하면 지치고, <b>마음을 완전히 닫으면</b> 오해가 굳을 수 있습니다.",
-    3: "<b>[챌린지 · 내면 과제]</b><br><span class='kw'>통합이 필요한 마찰: 산만·피상</span><br>표현·소통의 기운이 <b>숙제</b>로 올 때는 말과 행동의 <b>양보다 알맹이</b>가 시험대에 올라갑니다. <b>스스로 납득한 내용</b>을 말·글·행동으로 옮기고, <b>끝맺음·마무리</b>까지 짓는 법이 필요합니다. 반대로 <b>깊이 없는 말·과시·집중력 부족</b>으로 흩뿌리면 신뢰가 약해지고, 표현을 지나치게 억제하면 속이 막힌 듯한 답답함이 길어지기도 합니다.",
-    4: "<b>[챌린지 · 내면 과제]</b><br><span class='kw'>통합이 필요한 마찰: 경직·두려움</span><br>안정·구조의 기운이 <b>숙제</b>로 올 때는 <b>믿음과 경직</b> 사이가 시험대에 올라갑니다. 약속과 루틴을 지키되 <b>작은 유연</b>을 허용하는 법이 필요합니다. 반대로 <b>변화를 전부 거부하면</b> 정체가 길어지고, <b>완벽과 통제만</b> 키우면 숨이 턱 막힐 수 있습니다.",
-    5: "<b>[챌린지 · 내면 과제]</b><br><span class='kw'>통합이 필요한 마찰: 도피·불안정</span><br>자유·변화의 기운이 <b>숙제</b>로 올 때는 <b>탐험과 불안정</b> 사이가 시험대에 올라갑니다. 선택에 책임을 붙여 움직이는 연습이 필요합니다. 반대로 <b>도피와 자극만</b> 쫓으면 뿌리가 흔들리고, <b>움직임을 전부 두려워하면</b> 생기가 막힌 느낌이 듭니다.",
-    6: "<b>[챌린지 · 내면 과제]</b><br><span class='kw'>통합이 필요한 마찰: 과몰입·통제</span><br>돌봄·책임의 기운이 <b>숙제</b>로 올 때는 <b>헌신과 통제</b> 사이가 시험대에 올라갑니다. 내 몫과 타인 몫을 구분하고 지속 가능한 사랑을 짓는 법이 필요합니다. 반대로 <b>돌봄을 전부 내려놓기만</b> 하면 공백과 미안함이 남을 수 있고, <b>다 맞추려 들면</b> 소진이 옵니다.",
-    7: "<b>[챌린지 · 내면 과제]</b><br><span class='kw'>통합이 필요한 마찰: 고립·의심</span><br>깊이·성찰의 기운이 <b>숙제</b>로 올 때는 <b>통찰과 고립</b> 사이가 시험대에 올라갑니다. 배운 것을 세상과 이어 말하는 연습이 필요합니다. 반대로 <b>분석만 하고 행동이 없으면</b> 고립이 깊어지고, <b>의심만 키우면</b> 따뜻함과 기회를 놓치기 쉽습니다.",
-    8: "<b>[챌린지 · 내면 과제]</b><br><span class='kw'>통합이 필요한 마찰: 권력·공허</span><br>성취·권위의 기운이 <b>숙제</b>로 올 때는 <b>결과와 인간성</b> 사이가 시험대에 올라갑니다. 영향력과 윤리·관계의 온도를 함께 키우는 법이 필요합니다. 반대로 <b>힘을 전부 부정하면</b> 무력감이 남을 수 있고, <b>지배와 성과만</b> 앞세우면 공허가 따라옵니다.",
-    9: "<b>[챌린지 · 내면 과제]</b><br><span class='kw'>통합이 필요한 마찰: 미련·구원자 역할</span><br>정리·나눔의 기운이 <b>숙제</b>로 올 때는 <b>내려놓음과 집착</b> 사이가 시험대에 올라갑니다. 마무리와 경계를 세우며 비우는 연습이 필요합니다. 반대로 <b>미련을 붙잡으면</b> 같은 자리를 맴돌고, <b>모든 것을 다 품으려</b> 하면 소진됩니다.",
-    11: "<b>[챌린지 · 내면 과제]</b><br><span class='kw'>통합이 필요한 마찰: 예민·현실 이탈</span><br>직관·예민함이 <b>숙제</b>로 올 때는 <b>영감과 현실</b> 사이가 시험대에 올라갑니다. 통찰을 작은 실천과 휴식에 붙이는 법이 필요합니다. 반대로 <b>직관을 무시하면</b> 불안이 커질 수 있고, <b>예민함만</b> 키우면 몸과 일상이 버거울 수 있습니다.",
-    22: "<b>[챌린지 · 내면 과제]</b><br><span class='kw'>통합이 필요한 마찰: 부담·완벽주의</span><br>큰 그림의 기운이 <b>숙제</b>로 올 때는 <b>비전과 실행</b> 사이가 시험대에 올라갑니다. 단계를 나누고 책임을 나누는 법이 필요합니다. 반대로 <b>실행 없이 무게만</b> 느끼면 스트레스만 쌓이고, <b>완벽한 설계만</b> 고집하면 시기를 놓칩니다.",
-    33: "<b>[챌린지 · 내면 과제]</b><br><span class='kw'>통합이 필요한 마찰: 희생·경계</span><br>사랑·치유의 기운이 <b>숙제</b>로 올 때는 <b>나눔과 경계</b> 사이가 시험대에 올라갑니다. 주되 자기 돌봄과 한계를 인정하는 법이 필요합니다. 반대로 <b>주는 것을 완전히 막으면</b> 마음이 메마를 수 있고, <b>구원 역할에 몰입</b>하면 자신이 먼저 지칩니다."
+    1: "<b>[도전수 · 내면 과제]</b><br><span class='kw'>통합이 필요한 마찰: 독선·부담</span><br>주도·자립의 기운이 <b>숙제</b>로 올 때는 <b>리더십과 고집</b> 사이가 시험대에 올라갑니다. 책임지되 <b>위임과 협력</b>으로 무게를 나누는 법이 필요합니다. 반대로 <b>혼자만 짊어지거나</b> 책임을 전부 피하면 같은 패턴이 반복되기 쉽습니다.",
+    2: "<b>[도전수 · 내면 과제]</b><br><span class='kw'>통합이 필요한 마찰: 경계·자기 목소리</span><br>관계·조율의 기운이 <b>숙제</b>로 올 때는 <b>경계와 맞춤</b> 사이가 시험대에 올라갑니다. 솔직함과 균형을 지키며 협력하는 연습이 필요합니다. 반대로 <b>끝까지 맞추기만</b> 하면 지치고, <b>마음을 완전히 닫으면</b> 오해가 굳을 수 있습니다.",
+    3: "<b>[도전수 · 내면 과제]</b><br><span class='kw'>통합이 필요한 마찰: 산만·피상</span><br>표현·소통의 기운이 <b>숙제</b>로 올 때는 말과 행동의 <b>양보다 알맹이</b>가 시험대에 올라갑니다. <b>스스로 납득한 내용</b>을 말·글·행동으로 옮기고, <b>끝맺음·마무리</b>까지 짓는 법이 필요합니다. 반대로 <b>깊이 없는 말·과시·집중력 부족</b>으로 흩뿌리면 신뢰가 약해지고, 표현을 지나치게 억제하면 속이 막힌 듯한 답답함이 길어지기도 합니다.",
+    4: "<b>[도전수 · 내면 과제]</b><br><span class='kw'>통합이 필요한 마찰: 경직·두려움</span><br>안정·구조의 기운이 <b>숙제</b>로 올 때는 <b>믿음과 경직</b> 사이가 시험대에 올라갑니다. 약속과 루틴을 지키되 <b>작은 유연</b>을 허용하는 법이 필요합니다. 반대로 <b>변화를 전부 거부하면</b> 정체가 길어지고, <b>완벽과 통제만</b> 키우면 숨이 턱 막힐 수 있습니다.",
+    5: "<b>[도전수 · 내면 과제]</b><br><span class='kw'>통합이 필요한 마찰: 도피·불안정</span><br>자유·변화의 기운이 <b>숙제</b>로 올 때는 <b>탐험과 불안정</b> 사이가 시험대에 올라갑니다. 선택에 책임을 붙여 움직이는 연습이 필요합니다. 반대로 <b>도피와 자극만</b> 쫓으면 뿌리가 흔들리고, <b>움직임을 전부 두려워하면</b> 생기가 막힌 느낌이 듭니다.",
+    6: "<b>[도전수 · 내면 과제]</b><br><span class='kw'>통합이 필요한 마찰: 과몰입·통제</span><br>돌봄·책임의 기운이 <b>숙제</b>로 올 때는 <b>헌신과 통제</b> 사이가 시험대에 올라갑니다. 내 몫과 타인 몫을 구분하고 지속 가능한 사랑을 짓는 법이 필요합니다. 반대로 <b>돌봄을 전부 내려놓기만</b> 하면 공백과 미안함이 남을 수 있고, <b>다 맞추려 들면</b> 소진이 옵니다.",
+    7: "<b>[도전수 · 내면 과제]</b><br><span class='kw'>통합이 필요한 마찰: 고립·의심</span><br>깊이·성찰의 기운이 <b>숙제</b>로 올 때는 <b>통찰과 고립</b> 사이가 시험대에 올라갑니다. 배운 것을 세상과 이어 말하는 연습이 필요합니다. 반대로 <b>분석만 하고 행동이 없으면</b> 고립이 깊어지고, <b>의심만 키우면</b> 따뜻함과 기회를 놓치기 쉽습니다.",
+    8: "<b>[도전수 · 내면 과제]</b><br><span class='kw'>통합이 필요한 마찰: 권력·공허</span><br>성취·권위의 기운이 <b>숙제</b>로 올 때는 <b>결과와 인간성</b> 사이가 시험대에 올라갑니다. 영향력과 윤리·관계의 온도를 함께 키우는 법이 필요합니다. 반대로 <b>힘을 전부 부정하면</b> 무력감이 남을 수 있고, <b>지배와 성과만</b> 앞세우면 공허가 따라옵니다.",
+    9: "<b>[도전수 · 내면 과제]</b><br><span class='kw'>통합이 필요한 마찰: 미련·구원자 역할</span><br>정리·나눔의 기운이 <b>숙제</b>로 올 때는 <b>내려놓음과 집착</b> 사이가 시험대에 올라갑니다. 마무리와 경계를 세우며 비우는 연습이 필요합니다. 반대로 <b>미련을 붙잡으면</b> 같은 자리를 맴돌고, <b>모든 것을 다 품으려</b> 하면 소진됩니다.",
+    11: "<b>[도전수 · 내면 과제]</b><br><span class='kw'>통합이 필요한 마찰: 예민·현실 이탈</span><br>직관·예민함이 <b>숙제</b>로 올 때는 <b>영감과 현실</b> 사이가 시험대에 올라갑니다. 통찰을 작은 실천과 휴식에 붙이는 법이 필요합니다. 반대로 <b>직관을 무시하면</b> 불안이 커질 수 있고, <b>예민함만</b> 키우면 몸과 일상이 버거울 수 있습니다.",
+    22: "<b>[도전수 · 내면 과제]</b><br><span class='kw'>통합이 필요한 마찰: 부담·완벽주의</span><br>큰 그림의 기운이 <b>숙제</b>로 올 때는 <b>비전과 실행</b> 사이가 시험대에 올라갑니다. 단계를 나누고 책임을 나누는 법이 필요합니다. 반대로 <b>실행 없이 무게만</b> 느끼면 스트레스만 쌓이고, <b>완벽한 설계만</b> 고집하면 시기를 놓칩니다.",
+    33: "<b>[도전수 · 내면 과제]</b><br><span class='kw'>통합이 필요한 마찰: 희생·경계</span><br>사랑·치유의 기운이 <b>숙제</b>로 올 때는 <b>나눔과 경계</b> 사이가 시험대에 올라갑니다. 주되 자기 돌봄과 한계를 인정하는 법이 필요합니다. 반대로 <b>주는 것을 완전히 막으면</b> 마음이 메마를 수 있고, <b>구원 역할에 몰입</b>하면 자신이 먼저 지칩니다."
   };
 
-  /** 10년 타임라인 — 연도별 숫자(개인 해 에너지) 전용 해석. 인생 4단계 피나클/챌린지와 톤을 맞춤 */
+  /** 10년 타임라인 — 연도별 숫자(개인 해 에너지) 전용 해석. 인생 4단계 절정수/도전수와 톤을 맞춤 */
   N.TIMELINE_YEAR_DEEP_MAP = {
     1: "<b>[이 해의 에너지 · 연도 흐름]</b><br><span class='kw'>중심 테마: 새 출발 · 주도 · 자립</span><br>이번 해 숫자는 <b>시작과 방향</b>을 한 해의 중심축으로 올립니다. “지금 내가 길을 잡는다”는 마음이 살아나고, 결단·독립·선뜻 나서기가 에너지를 먹고 자랍니다. 반대로 <b>무조건만 밀어붙이면</b> 고립감이 커질 수 있고, <b>모든 걸 미루기만 하면</b> 한 해가 허공으로 흐르기 쉽습니다.",
     2: "<b>[이 해의 에너지 · 연도 흐름]</b><br><span class='kw'>중심 테마: 협력 · 기다림 · 관계</span><br>이번 해는 <b>관계·연대·감정의 교류</b>가 테마로 뜹니다. 혼자 완성하려 하기보다 맞춤·경청·신뢰를 쌓는 쪽이 길이 열립니다. 반대로 <b>끝없이 맞추기만</b> 하면 속이 비고, <b>연결을 전부 끊으면</b> 외로움이 길어질 수 있습니다.",
@@ -4428,13 +4428,13 @@ function renderMonthlyDetailPanel(mo, py) {
 
 /** 인생 4단계 — 단계별 리드(봄~겨울 은유) */
 const PINNACLE_STAGE_INTRO_HTML = [
-  `<p><strong>1단계 — 봄 · 씨앗기.</strong> 태어난 달(월)과 날(일)의 숫자가 만나 <em>감정 반응과 일상 리듬의 뿌리</em>가 만들어집니다. “어떤 토양에서 자랐는가”가 이후 모든 피나클의 밑바닥이 돼요.</p><p>여기서 <strong>피나클</strong>은 삶이 밀어 주는 <strong>기회의 방향</strong>, <strong>챌린지</strong>는 그 안에서 몸으로 익혀야 할 <strong>내면 숙제</strong>로 읽어 보시면 됩니다.</p>`,
-  `<p><strong>2단계 — 여름 · 성장기.</strong> 날(일)과 연(년)이 만나 <em>밖으로 나가 경험을 넓히는 시기</em>로 들어갑니다. 관계·일·사회 속에서 나의 스타일과 선택이 두드러지기 시작해요.</p><p>환경(피나클)은 무대를 넓혀 주고, 챌린지는 속도·균형·경계를 가르칩니다. 성장은 “설렘과 부담”이 자주 한 쌍으로 옵니다.</p>`,
-  `<p><strong>3단계 — 가을 · 결실기.</strong> 앞선 두 단계의 패턴이 합쳐져 <em>결과와 선택이 선명해지는</em> 흐름입니다. 무엇을 키울지·무엇을 수확할지가 가시화되는 때예요.</p><p>피나클은 “지금 맞이할 수 있는 것”, 챌린지는 “그 결실을 허용하려면 내려놓거나 다시 짜야 할 것”으로 풀어 볼 수 있어요.</p>`,
-  `<p><strong>4단계 — 겨울 · 완성기.</strong> 달(월)과 연(년)이 다시 맞물리며 <em>큰 줄기를 정리·통합</em>하는 기운이 강해집니다. 개인적 성취를 넘어 유지·전승·의미로 이어지는 시기입니다.</p><p>환경은 더 넓은 시야와 책임을 부르고, 챌린지는 유연함과 마무리의 지혜를 요구합니다. 끝은 또 다른 씨앗을 위한 정돈이기도 해요.</p>`,
+  `<p><strong>1단계 — 봄 · 씨앗기.</strong> 태어난 달(월)과 날(일)의 숫자가 만나 <em>감정 반응과 일상 리듬의 뿌리</em>가 만들어집니다. “어떤 토양에서 자랐는가”가 이후 모든 절정수의 밑바닥이 돼요.</p><p>여기서 <strong>절정수</strong>은 삶이 밀어 주는 <strong>기회의 방향</strong>, <strong>도전수</strong>는 그 안에서 몸으로 익혀야 할 <strong>내면 숙제</strong>로 읽어 보시면 됩니다.</p>`,
+  `<p><strong>2단계 — 여름 · 성장기.</strong> 날(일)과 연(년)이 만나 <em>밖으로 나가 경험을 넓히는 시기</em>로 들어갑니다. 관계·일·사회 속에서 나의 스타일과 선택이 두드러지기 시작해요.</p><p>환경(절정수)은 무대를 넓혀 주고, 도전수는 속도·균형·경계를 가르칩니다. 성장은 “설렘과 부담”이 자주 한 쌍으로 옵니다.</p>`,
+  `<p><strong>3단계 — 가을 · 결실기.</strong> 앞선 두 단계의 패턴이 합쳐져 <em>결과와 선택이 선명해지는</em> 흐름입니다. 무엇을 키울지·무엇을 수확할지가 가시화되는 때예요.</p><p>절정수은 “지금 맞이할 수 있는 것”, 도전수는 “그 결실을 허용하려면 내려놓거나 다시 짜야 할 것”으로 풀어 볼 수 있어요.</p>`,
+  `<p><strong>4단계 — 겨울 · 완성기.</strong> 달(월)과 연(년)이 다시 맞물리며 <em>큰 줄기를 정리·통합</em>하는 기운이 강해집니다. 개인적 성취를 넘어 유지·전승·의미로 이어지는 시기입니다.</p><p>환경은 더 넓은 시야와 책임을 부르고, 도전수는 유연함과 마무리의 지혜를 요구합니다. 끝은 또 다른 씨앗을 위한 정돈이기도 해요.</p>`,
 ];
 
-/** 피나클 번호별 “환경이 열어 주는 기회” 한 줄 (4단계 브릿지) */
+/** 절정수 번호별 “환경이 열어 주는 기회” 한 줄 (4단계 브릿지) */
 const PEAK_ENV_LINE = {
   1: '주도권·자립·새 출발이 열리는 바람이 무대를 밝혀 줍니다.',
   2: '신뢰·협력·감정의 교류 속에서 문이 열리는 흐름입니다.',
@@ -4450,7 +4450,7 @@ const PEAK_ENV_LINE = {
   33: '치유·교육·조건 없는 사랑이 공적으로 드러나기 쉽습니다.',
 };
 
-/** 챌린지 번호별 “내면 과제” 한 줄 */
+/** 도전수 번호별 “내면 과제” 한 줄 */
 const CHALLENGE_TASK_LINE = {
   1: '“나서야 할 때”와 “혼자만의 고집” 사이에서 균형을 배웁니다.',
   2: '경계 없이 맞추려다 지치지 않도록 우선순위와 솔직함을 익힙니다.',
@@ -4474,15 +4474,15 @@ function buildPinnacleStageLead(stageIdx) {
 function buildPeakChallengeBridge(p, c, tm) {
   const titleP = tm[p] || '';
   const titleC = tm[c] || '';
-  const peak = PEAK_ENV_LINE[p] || `${p}번 피나클은 「${titleP}」의 기회 축으로 무대를 열어 줍니다.`;
-  const chal = CHALLENGE_TASK_LINE[c] || `${c}번 챌린지는 「${titleC}」를 통해 내면 숙제를 걸어 둡니다.`;
+  const peak = PEAK_ENV_LINE[p] || `${p}번 절정수은 「${titleP}」의 기회 축으로 무대를 열어 줍니다.`;
+  const chal = CHALLENGE_TASK_LINE[c] || `${c}번 도전수는 「${titleC}」를 통해 내면 숙제를 걸어 둡니다.`;
   const sameNote =
     p === c
-      ? '<p class="cycle-pc-same"><strong>피나클·챌린지 동일 번호</strong> — 기회와 과제가 한 줄기에 몰려 에너지가 강하게 느껴질 수 있어요. 쉼과 점검을 번갈아 가세요.</p>'
+      ? '<p class="cycle-pc-same"><strong>절정수·도전수 동일 번호</strong> — 기회와 과제가 한 줄기에 몰려 에너지가 강하게 느껴질 수 있어요. 쉼과 점검을 번갈아 가세요.</p>'
       : '';
   return `<div class="cycle-pc-bridge">
-    <p><strong>환경(피나클)</strong> — ${peak}</p>
-    <p><strong>과제(챌린지)</strong> — ${chal}</p>
+    <p><strong>환경(절정수)</strong> — ${peak}</p>
+    <p><strong>과제(도전수)</strong> — ${chal}</p>
     ${sameNote}
   </div>`;
 }
@@ -4492,8 +4492,8 @@ function buildMajorCycleFourStageIntro(userAge, curMajorIdx, curStageIdx, majorD
   const stLab = stageSeasons[curStageIdx] || stageSeasons[0] || '';
   const stName = `${curStageIdx + 1}단계 — ${stLab}`;
   return `<div class="timeline-bridge">
-    <p><strong>인생 4단계</strong>는 생년월일로 나눈 <strong>피나클(환경)</strong>과 <strong>챌린지(과제)</strong> 네 구간입니다. 바로 위 <strong>대주기</strong>보다 잘게 쪼개어, 지금 어느 막에 있는지 숫자로 짚어 줍니다.</p>
-    <p>지금 <strong>${userAge}세</strong>는 <strong>대주기</strong> 기준 <strong>${mj.title}</strong> <span class="cycle-major-age">(${mj.age})</span>입니다. <strong>피나클·챌린지 4단계</strong> 중에서는 <strong>${stName}</strong>에 머무르고 있어요.</p>
+    <p><strong>인생 4단계</strong>는 생년월일로 나눈 <strong>절정수(환경)</strong>과 <strong>도전수(과제)</strong> 네 구간입니다. 바로 위 <strong>대주기</strong>보다 잘게 쪼개어, 지금 어느 막에 있는지 숫자로 짚어 줍니다.</p>
+    <p>지금 <strong>${userAge}세</strong>는 <strong>대주기</strong> 기준 <strong>${mj.title}</strong> <span class="cycle-major-age">(${mj.age})</span>입니다. <strong>절정수·도전수 4단계</strong> 중에서는 <strong>${stName}</strong>에 머무르고 있어요.</p>
     <p class="cycle-major-sub">대주기가 말하는 <em>큰 장면</em>과, 4단계가 말하는 <em>지금 막</em>을 함께 보면 방향 잡기가 쉬워집니다.</p>
   </div>`;
 }
@@ -4732,7 +4732,7 @@ function buildReadingGuideCatalogInnerHtml() {
       )}
       ${lcReadingGuideCatalogRow(
         `<a href="#nav-life-four" class="lc-guide-link"><strong>인생 4단계</strong></a>`,
-        `네 구간별 피나클(환경)·챌린지(내적 과제) 번호 산출·표·심층 해석.`,
+        `네 구간별 절정수(환경)·도전수(내적 과제) 번호 산출·표·심층 해석.`,
       )}
       ${lcReadingGuideCatalogRow(
         `<a href="#timelineSection" class="lc-guide-link"><strong>10년 타임라인</strong></a>`,
@@ -4773,7 +4773,7 @@ function lcNumCell(label, value, sub, cellClass) {
   return `<div class="lc-glance-cell${cls}"><div class="lc-glance-label">${escapeHtml(label)}</div><div class="lc-glance-value">${escapeHtml(v)}</div>${subHtml}</div>`;
 }
 
-/** 현재 나이 기준 대주기·피나클·챌린지 (인생 4단계와 동일 산식) */
+/** 현재 나이 기준 대주기·절정수·도전수 (인생 4단계와 동일 산식) */
 function computeCurrentCycleGlance(lp, birthY, curY, mr_r, dr_r, yr_r) {
   const lpV = lp === 11 ? 2 : lp === 22 ? 4 : lp === 33 ? 6 : lp;
   const age1 = 36 - lpV;
@@ -4821,8 +4821,8 @@ function buildLcPriorityAtGlanceHtml(ctx) {
   h += lcNumCell('이번 달의 수', ctx.pm, ctx.pmPre != null ? `전합 ${ctx.pmPre}` : '');
   if (ctx.majorNum != null && ctx.pinnacle != null && ctx.challenge != null) {
     h += lcNumCell('대주기', ctx.majorNum, ctx.majorSub || '', 'lc-glance-cell--cycle');
-    h += lcNumCell('피나클', ctx.pinnacle, ctx.stageSub || '', 'lc-glance-cell--cycle');
-    h += lcNumCell('챌린지', ctx.challenge, '현재 구간', 'lc-glance-cell--cycle');
+    h += lcNumCell('절정수', ctx.pinnacle, ctx.stageSub || '', 'lc-glance-cell--cycle');
+    h += lcNumCell('도전수', ctx.challenge, '현재 구간', 'lc-glance-cell--cycle');
   }
   return h;
 }
@@ -5534,7 +5534,7 @@ async function runAnalysis() {
   const flowBridgeEl = document.getElementById('flowBridge');
   if (flowBridgeEl) {
     flowBridgeEl.innerHTML = `<div class="timeline-bridge">
-      <p><strong>올해의 수</strong>는 <strong>${curY}년</strong>의 연도 숫자(자릿수 합을 줄인 값)에 <strong>생일의 월·일</strong>(각각 줄인 값)을 더해 다시 줄인 수입니다. 10년 타임라인의 「이번 해」와 같은 숫자이니, 위 타임라인과 함께 읽어도 됩니다. <strong>이번 달의 수</strong>는 올해의 수에 <strong>지금 달(${curM}월)</strong>을 더해 줄인 값이고, <strong>오늘의 수</strong>는 그 위에 <strong>오늘 날짜(${curD}일)</strong>를 더해 줄인 값입니다. 인생 4단계(피나클·챌린지)는 긴 주기의 과제이고, 여기는 <strong>달력과 만나는 짧은 리듬</strong>에 가깝습니다.</p>
+      <p><strong>올해의 수</strong>는 <strong>${curY}년</strong>의 연도 숫자(자릿수 합을 줄인 값)에 <strong>생일의 월·일</strong>(각각 줄인 값)을 더해 다시 줄인 수입니다. 10년 타임라인의 「이번 해」와 같은 숫자이니, 위 타임라인과 함께 읽어도 됩니다. <strong>이번 달의 수</strong>는 올해의 수에 <strong>지금 달(${curM}월)</strong>을 더해 줄인 값이고, <strong>오늘의 수</strong>는 그 위에 <strong>오늘 날짜(${curD}일)</strong>를 더해 줄인 값입니다. 인생 4단계(절정수·도전수)는 긴 주기의 과제이고, 여기는 <strong>달력과 만나는 짧은 리듬</strong>에 가깝습니다.</p>
     </div>`;
   }
 
@@ -5794,12 +5794,12 @@ async function runAnalysis() {
               ${majStageLabel}<br><span style="color:${majColor}">${TIMELINE_NUM_SHORT[majNum]||''}</span>
             </div>
             <div class="tdc-cmini" style="border-top:2px solid ${pinColor}">
-              <b>피나클<span style="font-weight:500;opacity:.9">(환경)</span></b>
+              <b>절정수<span style="font-weight:500;opacity:.9">(환경)</span></b>
               <div class="tdc-cmini-n" style="color:${pinColor}">${curPin}</div>
               <span style="color:${pinColor}">${TIMELINE_NUM_SHORT[curPin]||''}</span>
             </div>
             <div class="tdc-cmini" style="border-top:2px solid ${chalColor}">
-              <b>챌린지<span style="font-weight:500;opacity:.9">(과제)</span></b>
+              <b>도전수<span style="font-weight:500;opacity:.9">(과제)</span></b>
               <div class="tdc-cmini-n" style="color:${chalColor}">${curChal}</div>
               <span style="color:${chalColor}">${TIMELINE_NUM_SHORT[curChal]||''}</span>
             </div>
@@ -5909,7 +5909,7 @@ async function runAnalysis() {
   // ── 8. 인생 4단계 요약 (모든 플랜, 기본) ──
   const stageSeasons = ['봄 · 씨앗기', '여름 · 성장기', '가을 · 결실기', '겨울 · 완성기'];
   const curStageIdx=userAge<=age1?0:(userAge<=age1+9?1:(userAge<=age1+18?2:3));
-  // 피나클: 1=M+D, 2=D+Y, 3=P1+P2, 4=M+Y / 챌린지: 1=|M-D|, 2=|D-Y|, 3=|C1-C2|, 4=|M-Y| (월·일·년은 각각 환산한 뒤 연산)
+  // 절정수: 1=M+D, 2=D+Y, 3=P1+P2, 4=M+Y / 도전수: 1=|M-D|, 2=|D-Y|, 3=|C1-C2|, 4=|M-Y| (월·일·년은 각각 환산한 뒤 연산)
   const pin1 = reduceToSingle(mr_r + dr_r);
   const pin2 = reduceToSingle(dr_r + yr_r);
   const pin4 = reduceToSingle(mr_r + yr_r);
@@ -5932,17 +5932,17 @@ async function runAnalysis() {
     ${buildMajorCycleFourStageIntro(userAge, curMajorIdx, curStageIdx, majorDetail, stageSeasons)}
     <div style="background:white;border:1px solid var(--border);border-radius:10px;overflow:hidden;margin-bottom:16px;">
       <table class="cycle-table">
-        <thead><tr><th>단계</th><th>나이</th><th>피나클(환경)</th><th>챌린지(과제)</th></tr></thead>
+        <thead><tr><th>단계</th><th>나이</th><th>절정수(환경)</th><th>도전수(과제)</th></tr></thead>
         <tbody>${tableRows}</tbody>
       </table>
     </div>
     <div id="stageProgressBarInline"></div>
-    ${cyData.map((c,i)=>accordion(`✦ ${c.s} · 피나클 ${c.p}번${masterNumTag(c.p)} × 챌린지 ${c.c}번${masterNumTag(c.c)} ${i===curStageIdx?'<span style="font-size:10px;background:var(--accent);color:white;padding:2px 8px;border-radius:20px;margin-left:8px;">현재</span>':''}`,
+    ${cyData.map((c,i)=>accordion(`✦ ${c.s} · 절정수 ${c.p}번${masterNumTag(c.p)} × 도전수 ${c.c}번${masterNumTag(c.c)} ${i===curStageIdx?'<span style="font-size:10px;background:var(--accent);color:white;padding:2px 8px;border-radius:20px;margin-left:8px;">현재</span>':''}`,
       `${buildPinnacleStageLead(i)}
        ${buildPeakChallengeBridge(c.p, c.c, TITLE_MAP)}
        <div class="cycle-deep-block">
-         <div style="margin-bottom:12px"><strong style="color:var(--teal)">환경(피나클 ${c.p}번) · 자세히</strong> ${(PINNACLE_DEEP_MAP&&PINNACLE_DEEP_MAP[c.p])||DEEP_MAP[c.p]||''}</div>
-         <div style="margin-bottom:12px"><strong style="color:var(--warm-brown)">과제(챌린지 ${c.c}번) · 자세히</strong> ${(CHALLENGE_DEEP_MAP&&CHALLENGE_DEEP_MAP[c.c])||DEEP_MAP[c.c]||''}</div>
+         <div style="margin-bottom:12px"><strong style="color:var(--teal)">환경(절정수 ${c.p}번) · 자세히</strong> ${(PINNACLE_DEEP_MAP&&PINNACLE_DEEP_MAP[c.p])||DEEP_MAP[c.p]||''}</div>
+         <div style="margin-bottom:12px"><strong style="color:var(--warm-brown)">과제(도전수 ${c.c}번) · 자세히</strong> ${(CHALLENGE_DEEP_MAP&&CHALLENGE_DEEP_MAP[c.c])||DEEP_MAP[c.c]||''}</div>
        </div>`, i===curStageIdx)).join('')}`;
 
   document.getElementById('stageProgressBarInline').innerHTML = `

@@ -530,7 +530,7 @@
       line-height: 1.9;
     }
 
-    /* ── 피나클 ── */
+    /* ── 절정수 ── */
     .pinnacle-section { margin-bottom: 60px; }
     .pinnacle-bars {
       display: flex; gap: 4px; height: 72px;
@@ -703,12 +703,12 @@
   <!-- 연도 상세 패널 -->
   <div class="detail-panel" id="detailPanel"></div>
 
-  <!-- 피나클 -->
+  <!-- 절정수 -->
   <div class="pinnacle-section">
     <div class="section-eyebrow">Pinnacle Cycles</div>
     <div class="section-title">인생 4대 전환기</div>
     <div style="font-size:13px;color:var(--text-muted);margin-bottom:20px;line-height:1.7">
-      수십 년 단위의 큰 에너지 흐름입니다. 개인년도가 그 해의 날씨라면, 피나클은 계절입니다.
+      수십 년 단위의 큰 에너지 흐름입니다. 개인년도가 그 해의 날씨라면, 절정수은 계절입니다.
     </div>
     <div class="pinnacle-bars" id="pinnacleBars"></div>
     <div class="pinnacle-labels" id="pinnacleLabels"></div>
@@ -780,7 +780,7 @@ function calcPersonalYear(m, d, targetYear) {
   return reduce(total, true); // 22이상이면 마스터수 체크 후 환원
 }
 
-// 챌린지 수
+// 도전수 수
 function calcChallenge(m, d, y) {
   const c1 = Math.abs(reduce(m) - reduce(d));
   const c2 = Math.abs(reduce(d) - reduce(y));
@@ -789,7 +789,7 @@ function calcChallenge(m, d, y) {
   return [c1, c2, c3, c4];
 }
 
-// 피나클
+// 절정수
 function calcPinnacles(m, d, y, lifePath) {
   const p1 = reduce(reduce(m) + reduce(d), true);
   const p2 = reduce(reduce(d) + reduce(y), true);
@@ -1007,7 +1007,7 @@ function renderYearCards(d) {
   const { thisYearPY, thisYearTarot, challenges, pinnacleData, year } = d;
   document.getElementById('currentYearLabel').textContent = CURRENT_YEAR + '년';
 
-  // 현재 피나클 찾기
+  // 현재 절정수 찾기
   const currentAge = CURRENT_YEAR - year;
   const lifePath = d.lifePath;
   const age1end = 36 - reduce(lifePath);
@@ -1018,7 +1018,7 @@ function renderYearCards(d) {
   const currentPinnacle = pinnacleData.pinnacles[currentPinnacleIdx];
   const currentPinnacleTarot = numToTarot(currentPinnacle);
 
-  // 현재 챌린지
+  // 현재 도전수
   const challengeIdx = currentPinnacleIdx < 2 ? currentPinnacleIdx : 2;
   const currentChallenge = challenges[challengeIdx];
 
@@ -1035,14 +1035,14 @@ function renderYearCards(d) {
       ${masterBadge}${warningBadge}${peakBadge}
     </div>
     <div class="year-card">
-      <div class="year-card-type">현재 피나클 (대운)</div>
+      <div class="year-card-type">현재 절정수 (대운)</div>
       <div class="year-card-tarot-num">${currentPinnacle}</div>
       <div class="year-card-tarot-name">${currentPinnacleTarot.emoji} ${currentPinnacleTarot.kr}</div>
       <div class="year-card-meaning">${currentPinnacleTarot.energy}</div>
       ${isMaster(currentPinnacle) ? '<div class="master-badge">MASTER</div>' : ''}
     </div>
     <div class="year-card">
-      <div class="year-card-type">챌린지 수 (극복 과제)</div>
+      <div class="year-card-type">도전수 수 (극복 과제)</div>
       <div class="year-card-tarot-num">${currentChallenge}</div>
       <div class="year-card-tarot-name">${(TAROT[currentChallenge]||TAROT[0]).emoji} ${(TAROT[currentChallenge]||TAROT[0]).kr}</div>
       <div class="year-card-meaning">지금 당신이 극복해야 할 과제입니다.</div>
@@ -1164,8 +1164,8 @@ async function streamAIReading(d) {
 - 인생여정수: ${lifePath} (타로: ${lifePathTarot.name} / ${lifePathTarot.kr})
 - 월+일 고정합: ${monthDayFixed} → 이 사람은 매년 ${monthDayFixed}번대 타로 카드의 에너지를 삽니다
 - 올해(2026년) 개인년도: ${thisYearPY} (타로: ${thisYearTarot.name} / ${thisYearTarot.kr})
-- 현재 피나클: ${pinnacleData.pinnacles[0]}, ${pinnacleData.pinnacles[1]}, ${pinnacleData.pinnacles[2]}, ${pinnacleData.pinnacles[3]}
-- 챌린지 수: ${challenges.join(', ')}
+- 현재 절정수: ${pinnacleData.pinnacles[0]}, ${pinnacleData.pinnacles[1]}, ${pinnacleData.pinnacles[2]}, ${pinnacleData.pinnacles[3]}
+- 도전수 수: ${challenges.join(', ')}
 
 [해석 요청]
 1. 이 사람의 고유한 인생 패턴 (인생여정수 기반, 2~3문장)

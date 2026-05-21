@@ -28,7 +28,7 @@ export const LIFECODE_PRODUCT = {
     { href: '#zodiacInsightSection', title: '별자리', desc: '생일 기준 별자리 레이어(수비 숫자와 함께 읽기).' },
     { href: '#period48Section', title: '48주기 성격', desc: '생일 구간별 성격·역할 패턴(48 세그먼트).' },
     { href: '#nav-major-cycle', title: '대주기', desc: '인생을 세 구간으로 나눈 장기 흐름.' },
-    { href: '#nav-life-four', title: '인생 4단계', desc: '피나클·챌린지 네 구간.' },
+    { href: '#nav-life-four', title: '인생 4단계', desc: '절정수·도전수 네 구간.' },
     { href: '#timelineSection', title: '10년 타임라인', desc: '앞으로 10년 개인년도 흐름.' },
     { href: '#monthlySection', title: '월간 흐름', desc: '선택 연도의 월별 리듬.' },
     { href: '#nav-flow', title: '지금의 흐름', desc: '올해·이번 달·오늘의 수.' },
