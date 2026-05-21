@@ -310,14 +310,6 @@
       max-width: 1100px;
       margin: 0 auto;
       padding: 14px 32px;
-      display: grid;
-      grid-template-columns: 1fr auto;
-      gap: 16px;
-      align-items: center;
-    }
-    @media (max-width: 768px) {
-      .counselor-bar-inner { grid-template-columns: 1fr; }
-      .counselor-bar-actions { justify-content: flex-start !important; }
     }
     .counselor-bar-text {
       font-size: 13px;
@@ -325,7 +317,6 @@
       color: var(--ink);
       margin: 0;
     }
-    .counselor-bar-actions { display: flex; gap: 10px; flex-wrap: wrap; justify-content: flex-end; align-items: center; }
     .counselor-bar-link {
       font-family: var(--font-body);
       font-size: 13px;
@@ -2936,7 +2927,7 @@
       <button type="button" class="counselor-bar-btn" id="topbarPrintBtn" onclick="window.print()">🖨 인쇄</button>
       <button type="button" class="counselor-bar-btn" id="topbarPdfBtn" onclick="topbarPdfClick()">⬇ PDF</button>
     </div>
-    <a class="lc-product-link" id="topbarCounselorHubLink" href="counselor.html" hidden>상담사 허브</a>
+    <a class="counselor-bar-link" id="topbarCounselorHubLink" href="counselor.html">상담사 허브</a>
     <span class="plan-badge free" id="plan-badge" hidden aria-hidden="true">Pro</span>
   </div>
 </header>
@@ -2944,10 +2935,7 @@
 
 <div id="counselorBar" class="counselor-bar" style="display:none;" aria-label="상담사 안내">
   <div class="counselor-bar-inner">
-    <p class="counselor-bar-text">고객 생년월일·이름으로 분석하세요. <strong>고객 표시 이름</strong> 칸에 상담용 표기를 적어 두면 구분에 도움이 됩니다. 결과 화면은 인쇄해 고객 자료로 쓸 수 있어요.</p>
-    <div class="counselor-bar-actions">
-      <a href="counselor.html" class="counselor-bar-link lc-product-link">상담사 허브</a>
-    </div>
+    <p class="counselor-bar-text">고객 생년월일·이름으로 분석하세요. <strong>고객 표시 이름</strong> 칸에 상담용 표기를 적어 두면 구분에 도움이 됩니다. 결과 화면은 인쇄해 고객 자료로 쓸 수 있어요. 상담사 허브는 우측 상단 버튼에서 열 수 있어요.</p>
   </div>
 </div>
 
@@ -3322,10 +3310,8 @@ function lcSection(id) {
 function setLifecodeCounselorUi(enabled) {
   const bar = document.getElementById('counselorBar');
   const clientGroup = document.getElementById('clientGroup');
-  const hubLink = document.getElementById('topbarCounselorHubLink');
   if (bar) bar.style.display = enabled ? 'block' : 'none';
   if (clientGroup) clientGroup.style.display = enabled ? 'flex' : 'none';
-  if (hubLink) hubLink.hidden = !enabled;
 }
 
 async function initAuth() {
