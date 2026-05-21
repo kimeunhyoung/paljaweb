@@ -16,7 +16,6 @@
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@400;500;600;700&display=swap" rel="stylesheet"/>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     :root {
       --cream: #f5f0e8;
@@ -371,28 +370,21 @@
 <div id="app">
   <div class="hub-intro">
     <h1>상담사 허브</h1>
-    <p>고객 정보 입력 → 라이프코드·궁합 도구로 분석 → 인쇄 또는 메모로 세션을 정리하세요. 이 화면은 <strong>Professional 상담사 전용 흐름</strong>으로, 상담 진행에 필요한 기능을 한곳에 모아 둔 허브입니다.</p>
-  </div>
-  <div id="gate">
-    <h2>Professional 플랜 전용</h2>
-    <p>상담사 허브는 <strong>Professional</strong> 요금제에서 이용할 수 있어요.<br>고객 표시 이름 필드와 같은 상담용 기능은 플랜 연동 후 라이프코드 분석 화면에서 함께 켜집니다.</p>
-    <a class="cta" href="pricing.html">요금제 보기</a>
+    <p>고객 카드 저장 → 라이프코드 분석으로 바로 열기 → 인쇄·메모로 세션을 정리하세요. <strong>상담사 등급</strong> 접속 코드에서 이용할 수 있습니다.</p>
   </div>
 
-  <div id="lifecodeBridge" hidden>
-    <h2>상담사 허브 (라이프코드 단품)</h2>
-    <p>접속 코드로 <strong>라이프코드 분석</strong>은 바로 이용할 수 있습니다.<br>
-      고객 카드 저장·목록 연동은 <strong>팔자연구소 Professional 계정 로그인</strong>이 추가로 필요합니다.</p>
+  <div id="hubLocked" hidden>
+    <h2>상담사 허브 미포함</h2>
+    <p>이 접속 코드는 <strong>기본(분석만)</strong> 등급입니다.<br>상담사 허브·고객 카드는 <strong>상담사 등급</strong> 코드에서만 열립니다. 판매처에 업그레이드 문의하세요.</p>
     <div style="display:flex;flex-wrap:wrap;gap:10px;margin-top:16px;">
       <a class="cta" href="analyze.html">라이프코드 분석 열기</a>
-      <a class="cta" href="../login.html?next=lifecode%2Fcounselor.html" style="background:var(--deep);">Professional 로그인</a>
     </div>
   </div>
 
   <div id="workspace">
     <div class="section-title">고객 카드</div>
     <div class="client-panel">
-      <p class="client-intro">상담 대상별로 생일·이름을 저장해 두었다가 <strong>라이프코드 분석</strong>으로 바로 불러올 수 있어요. (Supabase에 <code class="inline-code">counselor_clients</code> 테이블이 있어야 합니다.)</p>
+      <p class="client-intro">상담 대상별로 생일·이름을 저장해 두었다가 <strong>라이프코드 분석</strong>으로 바로 불러올 수 있어요. 이 접속 코드에만 저장됩니다.</p>
       <form id="clientForm" class="client-form" autocomplete="off">
         <input type="hidden" id="editClientId" value=""/>
         <div>
@@ -458,40 +450,22 @@
 </div>
 
 <script type="module">
-import { hasValidLifecodeSession } from '/js/lifecode-standalone-chrome.js';
+import { fetchLifecodeSession, lifecodeApi } from '/js/lifecode-session.js';
 
-const SUPABASE_URL = 'https://sghsryumnrnftyjoqmwf.supabase.co';
-const SUPABASE_ANON_KEY = 'sb_publishable_6S3W_oWrzG-Nv8wLK98gmg_q_KcB2I1';
-const { createClient } = supabase;
-const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
-const LS_KEY = 'palja_counselor_session_notes_v1';
+const LS_KEY = 'lifecode_counselor_session_notes_v1';
 
 async function main() {
-  if (!(await hasValidLifecodeSession())) {
+  const session = await fetchLifecodeSession();
+  if (!session.ok) {
     window.location.replace('/lifecode/');
     return;
   }
 
-  const { data: { session } } = await sb.auth.getSession();
   document.getElementById('guard').style.display = 'none';
   document.getElementById('app').style.display = 'block';
 
-  if (!session) {
-    document.getElementById('lifecodeBridge').hidden = false;
-    return;
-  }
-
-  const { data: profile } = await sb.from('profiles').select('plan, plan_active_until').eq('id', session.user.id).single();
-  const plan = profile?.plan || 'free';
-  const proOk =
-    plan === 'professional' &&
-    (!profile?.plan_active_until || new Date(profile.plan_active_until) > new Date());
-
-  if (!proOk) {
-    document.getElementById('lifecodeBridge').hidden = false;
-    document.querySelector('#lifecodeBridge p').innerHTML =
-      '로그인되었지만 <strong>Professional</strong> 플랜이 아닙니다.<br>고객 카드 저장은 Professional에서 이용할 수 있어요. 라이프코드 분석은 접속 코드로 계속 쓸 수 있습니다.';
+  if (!session.counselorHub) {
+    document.getElementById('hubLocked').hidden = false;
     return;
   }
 
@@ -536,9 +510,9 @@ async function main() {
       for (const row of rows) {
         const div = document.createElement('div');
         div.className = 'client-row';
-        const dn = escapeHtml(row.display_name || '');
-        const birth = row.birth_date || '—';
-        const ln = (row.legal_name || '').trim();
+        const dn = escapeHtml(row.displayName || '');
+        const birth = row.birthDate || '—';
+        const ln = (row.legalName || '').trim();
         div.innerHTML =
           '<div class="meta"><strong>' + dn + '</strong><span>생일 ' + escapeHtml(birth) +
           (ln ? ' · 본명 ' + escapeHtml(ln) : '') + '</span></div>' +
@@ -561,9 +535,9 @@ async function main() {
         return;
       }
       const filtered = clientRows.filter((row) => {
-        const displayName = String(row.display_name || '').toLowerCase();
-        const legalName = String(row.legal_name || '').toLowerCase();
-        const birth = String(row.birth_date || '').toLowerCase();
+        const displayName = String(row.displayName || '').toLowerCase();
+        const legalName = String(row.legalName || '').toLowerCase();
+        const birth = String(row.birthDate || '').toLowerCase();
         return displayName.includes(q) || legalName.includes(q) || birth.includes(q);
       });
       renderClients(filtered);
@@ -571,22 +545,28 @@ async function main() {
 
     async function loadClients() {
       listEl.innerHTML = '<p class="list-loading">불러오는 중…</p>';
-      const { data, error } = await sb
-        .from('counselor_clients')
-        .select('id,display_name,legal_name,birth_date,updated_at')
-        .order('updated_at', { ascending: false });
-      if (error) {
+      const { ok, data } = await lifecodeApi('/api/lifecode/clients');
+      if (!ok) {
         listEl.innerHTML = '';
         clientRows = [];
-        setMsg('고객 목록을 불러오지 못했습니다. Supabase SQL로 counselor_clients를 만든 뒤 다시 시도해주세요. (' + error.message + ')', true);
+        if (data.error === 'counselor_hub_not_included') {
+          setMsg('이 이용권에는 상담사 허브가 포함되지 않습니다.', true);
+          return;
+        }
+        if (data.error === 'db_migration_required') {
+          setMsg('서버 DB 설정이 필요합니다. lifecode_clients.sql 을 실행해 주세요.', true);
+          return;
+        }
+        setMsg('고객 목록을 불러오지 못했습니다.', true);
         return;
       }
-      if (!data.length) {
+      const items = data.items || [];
+      if (!items.length) {
         clientRows = [];
         listEl.innerHTML = '<p class="list-empty">저장된 고객이 없습니다. 위 폼에서 추가해 보세요.</p>';
         return;
       }
-      clientRows = data;
+      clientRows = items;
       applyClientFilter();
     }
 
@@ -600,9 +580,9 @@ async function main() {
       }
       if (act === 'del') {
         if (!confirm('이 고객 카드를 삭제할까요?')) return;
-        const { error } = await sb.from('counselor_clients').delete().eq('id', id);
-        if (error) {
-          setMsg(error.message, true);
+        const { ok, data } = await lifecodeApi(`/api/lifecode/clients/${id}`, { method: 'DELETE' });
+        if (!ok) {
+          setMsg(data.error || '삭제 실패', true);
           return;
         }
         resetForm();
@@ -610,16 +590,17 @@ async function main() {
         return;
       }
       if (act === 'edit') {
-        const { data, error } = await sb.from('counselor_clients').select('*').eq('id', id).single();
-        if (error || !data) {
+        const { ok, data } = await lifecodeApi(`/api/lifecode/clients/${id}`);
+        if (!ok || !data.client) {
           setMsg('불러오기 실패', true);
           return;
         }
-        editId.value = data.id;
-        document.getElementById('cDisplay').value = data.display_name || '';
-        document.getElementById('cLegal').value = data.legal_name || '';
-        document.getElementById('cBirth').value = data.birth_date || '';
-        document.getElementById('cNotes').value = data.notes || '';
+        const c = data.client;
+        editId.value = c.id;
+        document.getElementById('cDisplay').value = c.displayName || '';
+        document.getElementById('cLegal').value = c.legalName || '';
+        document.getElementById('cBirth').value = c.birthDate || '';
+        document.getElementById('cNotes').value = c.notes || '';
         document.getElementById('clientSaveBtn').textContent = '변경 저장';
         setMsg('수정 중입니다. 저장하면 반영됩니다.');
       }
@@ -628,43 +609,25 @@ async function main() {
     form.addEventListener('submit', async (ev) => {
       ev.preventDefault();
       setMsg('');
-      const display_name = document.getElementById('cDisplay').value.trim();
-      const legal_name = document.getElementById('cLegal').value.trim() || null;
-      const birth_date = document.getElementById('cBirth').value;
-      const notes = document.getElementById('cNotes').value.trim() || null;
-      if (!display_name || !birth_date) return;
+      const body = {
+        displayName: document.getElementById('cDisplay').value.trim(),
+        legalName: document.getElementById('cLegal').value.trim() || null,
+        birthDate: document.getElementById('cBirth').value,
+        notes: document.getElementById('cNotes').value.trim() || null,
+      };
+      if (!body.displayName || !body.birthDate) return;
 
-      const uid = session.user.id;
       const cid = editId.value.trim();
+      const { ok, data } = cid
+        ? await lifecodeApi(`/api/lifecode/clients/${cid}`, { method: 'PATCH', body })
+        : await lifecodeApi('/api/lifecode/clients', { method: 'POST', body });
 
-      if (cid) {
-        const { error } = await sb.from('counselor_clients').update({
-          display_name,
-          legal_name,
-          birth_date,
-          notes,
-          updated_at: new Date().toISOString(),
-        }).eq('id', cid).eq('counselor_id', uid);
-        if (error) {
-          setMsg(error.message, true);
-          return;
-        }
-        setMsg('저장했습니다.');
-      } else {
-        const { error } = await sb.from('counselor_clients').insert({
-          counselor_id: uid,
-          display_name,
-          legal_name,
-          birth_date,
-          notes,
-        });
-        if (error) {
-          setMsg(error.message, true);
-          return;
-        }
-        setMsg('새 고객 카드를 추가했습니다.');
-        resetForm();
+      if (!ok) {
+        setMsg(data.error || '저장 실패', true);
+        return;
       }
+      setMsg(cid ? '저장했습니다.' : '새 고객 카드를 추가했습니다.');
+      if (!cid) resetForm();
       loadClients();
     });
 

@@ -3320,6 +3320,31 @@ async function initAuth() {
   USER_PLAN = 'pro';
   CURRENT_USER_ID = 'lifecode';
 
+  try {
+    const { fetchLifecodeSession, lifecodeApi } = await import('/js/lifecode-session.js');
+    const lc = await fetchLifecodeSession();
+    if (lc.ok && lc.counselorHub) {
+      USER_PLAN = 'professional';
+      document.getElementById('clientGroup').style.display = 'flex';
+      const bar = document.getElementById('counselorBar');
+      if (bar) bar.style.display = 'block';
+      const clientId = new URLSearchParams(location.search).get('client');
+      if (clientId) {
+        const { ok, data } = await lifecodeApi(`/api/lifecode/clients/${clientId}`);
+        if (ok && data.client) {
+          const c = data.client;
+          const birthEl = document.getElementById('inputBirth');
+          const nameEl = document.getElementById('inputName');
+          const clientEl = document.getElementById('inputClient');
+          if (birthEl && c.birthDate) birthEl.value = c.birthDate;
+          if (nameEl) nameEl.value = (c.legalName || '').trim();
+          if (clientEl) clientEl.value = (c.displayName || '').trim();
+        }
+      }
+      return;
+    }
+  } catch (_) { /* ignore */ }
+
   if (!sb) return;
   const { data: { session } } = await sb.auth.getSession();
   if (!session) return;

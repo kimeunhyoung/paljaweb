@@ -28,6 +28,8 @@
     .badge { display: inline-block; padding: 2px 8px; border-radius: 999px; font-size: 11px; }
     .badge.active { background: #d4edda; color: #155724; }
     .badge.revoked { background: #f8d7da; color: #721c24; }
+    .badge.tier-basic { background: #e9ecef; color: #495057; }
+    .badge.tier-counselor { background: #cce5ff; color: #004085; }
     .row-actions button { font-size: 12px; padding: 4px 8px; }
     #authPanel input { max-width: 360px; }
     .flash { background: #fff3cd; padding: 10px; border-radius: 8px; margin-bottom: 12px; font-size: 13px; }
@@ -52,6 +54,11 @@
       <input id="newNote" placeholder="홍길동 / 5/21 결제"/>
       <label for="newExpires">만료일 (비우면 무기한)</label>
       <input id="newExpires" type="datetime-local"/>
+      <label for="newTier">상품 등급 (등록 가격)</label>
+      <select id="newTier">
+        <option value="basic">기본 — 라이프코드 분석만</option>
+        <option value="counselor">상담사 — 분석 + 상담사 허브·고객 카드</option>
+      </select>
       <label for="newCode">코드 (비우면 자동 생성)</label>
       <input id="newCode" placeholder="LC-ABCD-EF12"/>
       <button type="button" id="createBtn">발급</button>
@@ -80,6 +87,7 @@
         <thead>
           <tr>
             <th>힌트</th>
+            <th>등급</th>
             <th>상태</th>
             <th>만료</th>
             <th>기기</th>
@@ -127,6 +135,10 @@
       return new Date(iso).toLocaleString('ko-KR');
     }
 
+    function tierLabel(tier) {
+      return tier === 'counselor' ? '상담사' : '기본';
+    }
+
     async function loadList() {
       const status = document.getElementById('filterStatus').value;
       const q = document.getElementById('searchQ').value.trim();
@@ -140,8 +152,10 @@
         const exp = row.expiresAt && new Date(row.expiresAt) < new Date()
           ? `<span style="color:#c0392b">${fmtDate(row.expiresAt)}</span>`
           : fmtDate(row.expiresAt);
+        const tier = row.productTier || 'basic';
         tr.innerHTML = `
           <td><code>${row.codeHint || '—'}</code></td>
+          <td><span class="badge tier-${tier}">${tierLabel(tier)}</span></td>
           <td><span class="badge ${row.status}">${row.status}</span></td>
           <td>${exp}</td>
           <td>${row.deviceBound ? '등록됨' : '—'}</td>
@@ -163,6 +177,7 @@
           addBtn('해제', 'secondary', () => unrevoke(row.id));
         }
         addBtn('코드재설정', 'secondary', () => regenerateCode(row.id));
+        addBtn(tier === 'counselor' ? '허브끄기' : '허브켜기', 'secondary', () => toggleTier(row.id, tier));
         addBtn('기기초기화', 'secondary', () => resetDevice(row.id));
         addBtn('삭제', 'danger', () => removeLicense(row.id));
         tbody.appendChild(tr);
@@ -177,6 +192,20 @@
 
     async function unrevoke(id) {
       await api(`/api/lifecode/admin/licenses/${id}/unrevoke`, { method: 'POST' });
+      loadList();
+    }
+
+    async function toggleTier(id, current) {
+      const next = current === 'counselor' ? 'basic' : 'counselor';
+      const msg =
+        next === 'counselor'
+          ? '이 코드에 상담사 허브·고객 카드를 켤까요?'
+          : '상담사 허브를 끄면 고객 카드 API만 막히고, 분석은 계속됩니다.';
+      if (!confirm(msg)) return;
+      await api(`/api/lifecode/admin/licenses/${id}`, {
+        method: 'PATCH',
+        body: JSON.stringify({ productTier: next }),
+      });
       loadList();
     }
 
@@ -227,7 +256,10 @@
       const note = document.getElementById('newNote').value.trim();
       const code = document.getElementById('newCode').value.trim();
       const expRaw = document.getElementById('newExpires').value;
-      const body = { note: note || null };
+      const body = {
+        note: note || null,
+        productTier: document.getElementById('newTier').value,
+      };
       if (code) body.code = code;
       if (expRaw) body.expiresAt = new Date(expRaw).toISOString();
       try {
