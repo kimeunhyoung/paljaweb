@@ -2885,9 +2885,7 @@
       .topbar { padding: 8px 12px; gap: 8px; flex-wrap: wrap; }
       .program-nav { padding: 0 12px; }
       .program-nav-inner { gap: 6px 12px; font-size: 11px; padding: 6px 0 8px; }
-      .topbar-left { gap: 10px; width: 100%; }
       .topbar-logo { gap: 8px; font-size: 15px; }
-      .topbar-right { width: 100%; justify-content: flex-end; }
       .topbar-title { font-size: 13px; }
       .plan-badge { font-size: 9px; padding: 3px 8px; }
       .back-btn { font-size: 12px; }
@@ -2924,11 +2922,11 @@
     </a>
   </div>
   <div class="topbar-right" aria-label="라이프코드 메뉴">
+    <a class="counselor-bar-link" id="topbarCounselorHubLink" href="counselor.html">상담사 허브</a>
     <div class="topbar-export-btns">
       <button type="button" class="counselor-bar-btn" id="topbarPrintBtn" onclick="window.print()">🖨 인쇄</button>
       <button type="button" class="counselor-bar-btn" id="topbarPdfBtn" onclick="topbarPdfClick()">⬇ PDF</button>
     </div>
-    <a class="counselor-bar-link" id="topbarCounselorHubLink" href="counselor.html">상담사 허브</a>
     <span class="plan-badge free" id="plan-badge" hidden aria-hidden="true">Pro</span>
   </div>
 </header>
