@@ -1,5 +1,5 @@
 /* 라이프코드 PWA — Android 「앱 설치」·전용 아이콘용 최소 서비스 워커 */
-const CACHE = 'lifecode-pwa-v1';
+const CACHE = 'lifecode-pwa-v2';
 
 self.addEventListener('install', (event) => {
   event.waitUntil(
