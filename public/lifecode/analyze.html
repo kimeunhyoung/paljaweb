@@ -1112,10 +1112,12 @@
       display: grid;
       gap: 10px;
     }
-    /* 먼저 보는 수: 3×3 고정 (가독성·밸런스) */
+    /* 먼저 보는 수: 3열 · 대주기·피나클·챌린지 포함 */
     .lc-all-nums-grid--strip {
       grid-template-columns: repeat(3, minmax(0, 1fr));
-      grid-template-rows: repeat(3, auto);
+    }
+    .lc-glance-cell--cycle .lc-glance-value {
+      color: var(--teal);
     }
     .lc-glance-cell {
       display: flex;
@@ -4771,7 +4773,34 @@ function lcNumCell(label, value, sub, cellClass) {
   return `<div class="lc-glance-cell${cls}"><div class="lc-glance-label">${escapeHtml(label)}</div><div class="lc-glance-value">${escapeHtml(v)}</div>${subHtml}</div>`;
 }
 
-/** 별자리 → 핵심 수·이름 수 → 올해·이번 달 (플랜 공통, 아래 통합 목록) */
+/** 현재 나이 기준 대주기·피나클·챌린지 (인생 4단계와 동일 산식) */
+function computeCurrentCycleGlance(lp, birthY, curY, mr_r, dr_r, yr_r) {
+  const lpV = lp === 11 ? 2 : lp === 22 ? 4 : lp === 33 ? 6 : lp;
+  const age1 = 36 - lpV;
+  const userAge = curY - birthY;
+  const curMajorIdx = userAge <= age1 ? 0 : userAge <= age1 + 27 ? 1 : 2;
+  const curStageIdx = userAge <= age1 ? 0 : userAge <= age1 + 9 ? 1 : userAge <= age1 + 18 ? 2 : 3;
+  const majorLabels = ['제1주기', '제2주기', '제3주기'];
+  const majorRanges = [`0~${age1}세`, `${age1 + 1}~${age1 + 27}세`, `${age1 + 28}세~`];
+  const majorNums = [mr_r, dr_r, yr_r];
+  const pin1 = reduceToSingle(mr_r + dr_r);
+  const pin2 = reduceToSingle(dr_r + yr_r);
+  const pin4 = reduceToSingle(mr_r + yr_r);
+  const ch1 = reduceToSingle(Math.abs(mr_r - dr_r));
+  const ch2 = reduceToSingle(Math.abs(dr_r - yr_r));
+  const ch3 = reduceToSingle(Math.abs(ch1 - ch2));
+  const ch4 = reduceToSingle(Math.abs(mr_r - yr_r));
+  const stageSeasons = ['봄', '여름', '가을', '겨울'];
+  return {
+    majorNum: majorNums[curMajorIdx],
+    majorSub: `${majorLabels[curMajorIdx]} · ${majorRanges[curMajorIdx]}`,
+    pinnacle: [pin1, pin2, reduceToSingle(pin1 + pin2), pin4][curStageIdx],
+    challenge: [ch1, ch2, ch3, ch4][curStageIdx],
+    stageSub: `${curStageIdx + 1}단계 · ${stageSeasons[curStageIdx]}`,
+  };
+}
+
+/** 별자리 → 핵심 수·이름 수 → 올해·이번 달 → 현재 주기 */
 function buildLcPriorityAtGlanceHtml(ctx) {
   let h = '';
   h += lcNumCell('별자리', ctx.zodiacSign || '—', '', 'lc-glance-cell--zodiac');
@@ -4790,6 +4819,11 @@ function buildLcPriorityAtGlanceHtml(ctx) {
   }
   h += lcNumCell('올해의 수', ctx.py, ctx.pyS != null ? `전합 ${ctx.pyS}` : '');
   h += lcNumCell('이번 달의 수', ctx.pm, ctx.pmPre != null ? `전합 ${ctx.pmPre}` : '');
+  if (ctx.majorNum != null && ctx.pinnacle != null && ctx.challenge != null) {
+    h += lcNumCell('대주기', ctx.majorNum, ctx.majorSub || '', 'lc-glance-cell--cycle');
+    h += lcNumCell('피나클', ctx.pinnacle, ctx.stageSub || '', 'lc-glance-cell--cycle');
+    h += lcNumCell('챌린지', ctx.challenge, '현재 구간', 'lc-glance-cell--cycle');
+  }
   return h;
 }
 
@@ -4798,8 +4832,8 @@ function renderAnalysisReadingGuide(ctx) {
   if (!host) return;
   const grid = buildLcPriorityAtGlanceHtml(ctx);
   host.innerHTML = `<div class="lc-reading-guide">
-    <div class="lc-at-a-glance" aria-label="먼저 보는 수 · 별자리">
-      <div class="lc-at-a-glance-kicker">먼저 보는 수 · 별자리</div>
+    <div class="lc-at-a-glance" aria-label="먼저 보는 수 · 별자리 · 현재 주기">
+      <div class="lc-at-a-glance-kicker">먼저 보는 수 · 별자리 · 지금 주기</div>
       <div class="lc-all-nums-grid lc-all-nums-grid--strip">${grid}</div>
     </div>
     <div class="lc-reading-guide-catalog" role="navigation" aria-label="이 페이지 섹션 안내">
@@ -6074,6 +6108,7 @@ async function runAnalysis() {
   }
 
   const pmPre = py + curM;
+  const cycleGlance = computeCurrentCycleGlance(lp, y, curY, mr_r, dr_r, yr_r);
   renderAnalysisReadingGuide({
     lp,
     lpS,
@@ -6092,6 +6127,11 @@ async function runAnalysis() {
     personalityPre: personalityNum ? personalityNum.pre : null,
     maturitySingle: maturityNum ? maturityNum.single : null,
     maturityPre: maturityNum ? maturityNum.pre : null,
+    majorNum: cycleGlance.majorNum,
+    majorSub: cycleGlance.majorSub,
+    pinnacle: cycleGlance.pinnacle,
+    challenge: cycleGlance.challenge,
+    stageSub: cycleGlance.stageSub,
   });
 
   // ── 11. PDF (Pro+) ──
