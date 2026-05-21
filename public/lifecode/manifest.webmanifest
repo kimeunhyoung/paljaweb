@@ -1,0 +1,20 @@
+{
+  "name": "라이프코드",
+  "short_name": "라이프코드",
+  "description": "수비학 기반 라이프코드 분석",
+  "start_url": "/lifecode/",
+  "scope": "/lifecode/",
+  "id": "/lifecode/",
+  "display": "standalone",
+  "background_color": "#f5f0e8",
+  "theme_color": "#4a3520",
+  "lang": "ko",
+  "icons": [
+    {
+      "src": "/lifecode/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

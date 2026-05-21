@@ -1,7 +1,10 @@
+require('dotenv').config();
+
 const express = require('express');
 const path = require('path');
+const fs = require('fs');
 const jwt = require('jsonwebtoken');
-require('dotenv').config();
+const { registerLifecodeRoutes } = require('./lib/lifecode-api');
 
 const app = express();
 
@@ -410,6 +413,8 @@ app.post('/api/toss/confirm', async (req, res) => {
   }
 });
 
+registerLifecodeRoutes(app);
+
 app.post('/api/ai/messages', async (req, res) => {
   const apiKey = process.env.ANTHROPIC_API_KEY;
   if (!apiKey) {
@@ -473,10 +478,23 @@ app.use((req, res) => {
     res.setHeader('Pragma', 'no-cache');
     res.setHeader('Expires', '0');
   }
+  if (req.path === '/lifecode' || req.path === '/lifecode/') {
+    res.sendFile(path.join(pathPublic, 'lifecode', 'index.html'));
+    return;
+  }
+  if (req.path.startsWith('/lifecode/')) {
+    const rel = req.path.slice('/lifecode/'.length) || 'index.html';
+    const candidate = path.join(pathPublic, 'lifecode', rel);
+    if (fs.existsSync(candidate) && fs.statSync(candidate).isFile()) {
+      res.sendFile(candidate);
+      return;
+    }
+  }
   res.sendFile(path.join(pathPublic, 'index.html'));
 });
 
 app.listen(PORT, () => {
   console.log(`paljaweb static server — http://localhost:${PORT}`);
   console.log('[palja] Webhook URL (register in Toss): .../api/toss/webhook');
+  console.log('[lifecode] Entry: /lifecode/  Admin: /lifecode/admin.html');
 });

@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
+  <meta name="theme-color" content="#4a3520"/>
+  <meta name="apple-mobile-web-app-capable" content="yes"/>
+  <meta name="apple-mobile-web-app-status-bar-style" content="default"/>
+  <meta name="apple-mobile-web-app-title" content="라이프코드"/>
+  <title>라이프코드 — 접속</title>
+  <link rel="manifest" href="/lifecode/manifest.webmanifest"/>
+  <link rel="icon" href="/lifecode/icon.svg" type="image/svg+xml"/>
+  <link rel="apple-touch-icon" href="/lifecode/icon.svg"/>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@400;600&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --cream: #f5f0e8;
+      --deep: #4a3520;
+      --accent: #c8a96e;
+      --muted: #9a8570;
+      --err: #c0392b;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Noto Serif KR', serif;
+      background: var(--cream);
+      color: var(--deep);
+      min-height: 100dvh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+    .card {
+      width: 100%;
+      max-width: 400px;
+      background: #fff;
+      border: 1px solid rgba(74,53,32,.12);
+      border-radius: 20px;
+      padding: 36px 28px;
+      box-shadow: 0 12px 40px rgba(44,31,14,.08);
+    }
+    h1 { font-size: 1.5rem; font-weight: 600; margin-bottom: 6px; }
+    .sub { font-size: 0.85rem; color: var(--muted); margin-bottom: 28px; line-height: 1.5; }
+    label { display: block; font-size: 0.75rem; color: var(--muted); margin-bottom: 8px; }
+    input {
+      width: 100%;
+      padding: 14px 16px;
+      font-size: 1.1rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      border: 1px solid rgba(74,53,32,.2);
+      border-radius: 12px;
+      margin-bottom: 16px;
+      font-family: inherit;
+    }
+    input:focus { outline: 2px solid var(--accent); border-color: var(--accent); }
+    button {
+      width: 100%;
+      padding: 14px;
+      font-size: 1rem;
+      font-family: inherit;
+      font-weight: 600;
+      background: var(--deep);
+      color: var(--cream);
+      border: none;
+      border-radius: 12px;
+      cursor: pointer;
+    }
+    button:disabled { opacity: 0.5; cursor: wait; }
+    .msg { margin-top: 14px; font-size: 0.85rem; color: var(--err); min-height: 1.2em; }
+    .hint {
+      margin-top: 24px;
+      font-size: 0.75rem;
+      color: var(--muted);
+      line-height: 1.6;
+      text-align: center;
+    }
+    .loading { text-align: center; color: var(--muted); }
+  </style>
+</head>
+<body>
+  <div class="card" id="card">
+    <h1>라이프코드</h1>
+    <p class="sub">구매 시 안내받은 접속 코드를 입력하세요.<br>코드는 등록된 <strong>한 대의 기기</strong>에서만 사용됩니다.</p>
+    <form id="form">
+      <label for="code">접속 코드</label>
+      <input id="code" name="code" autocomplete="off" autocapitalize="characters" placeholder="LC-XXXX-XXXX" required/>
+      <button type="submit" id="submitBtn">접속하기</button>
+      <p class="msg" id="msg" role="alert"></p>
+    </form>
+    <p class="hint">iPhone·Android: 브라우저 메뉴 → <strong>홈 화면에 추가</strong> 후 앱처럼 사용할 수 있습니다.</p>
+  </div>
+  <div class="card loading" id="checking" hidden>접속 확인 중…</div>
+
+  <script type="module">
+    import { getLifecodeDeviceId } from '/js/lifecode-device.js';
+
+    const ERRORS = {
+      invalid_request: '입력값을 확인해 주세요.',
+      invalid_code: '접속 코드가 올바르지 않습니다.',
+      revoked: '사용이 중지된 코드입니다. 판매처에 문의하세요.',
+      expired: '만료된 코드입니다.',
+      device_mismatch: '이 코드는 이미 다른 기기에서 사용 중입니다.',
+      too_many_attempts: '잠시 후 다시 시도해 주세요.',
+      server_not_configured: '서버 설정이 완료되지 않았습니다.',
+      server_error: '일시적인 오류입니다. 잠시 후 다시 시도해 주세요.',
+    };
+
+    const card = document.getElementById('card');
+    const checking = document.getElementById('checking');
+    const form = document.getElementById('form');
+    const msg = document.getElementById('msg');
+    const submitBtn = document.getElementById('submitBtn');
+
+    async function tryExistingSession() {
+      card.hidden = true;
+      checking.hidden = false;
+      try {
+        const r = await fetch(
+          `/api/lifecode/session?deviceId=${encodeURIComponent(getLifecodeDeviceId())}`,
+          { credentials: 'include' },
+        );
+        const data = await r.json();
+        if (data.ok) {
+          window.location.href = 'analyze.html';
+          return;
+        }
+      } catch (_) { /* ignore */ }
+      card.hidden = false;
+      checking.hidden = true;
+    }
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      msg.textContent = '';
+      submitBtn.disabled = true;
+      try {
+        const r = await fetch('/api/lifecode/activate', {
+          method: 'POST',
+          credentials: 'include',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            code: document.getElementById('code').value,
+            deviceId: getLifecodeDeviceId(),
+          }),
+        });
+        const data = await r.json();
+        if (r.ok && data.ok) {
+          window.location.href = 'analyze.html';
+          return;
+        }
+        msg.textContent = ERRORS[data.error] || '접속에 실패했습니다.';
+      } catch (_) {
+        msg.textContent = ERRORS.server_error;
+      } finally {
+        submitBtn.disabled = false;
+      }
+    });
+
+    tryExistingSession();
+  </script>
+</body>
+</html>

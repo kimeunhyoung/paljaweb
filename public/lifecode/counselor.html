@@ -1,0 +1,681 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>상담사 허브 — 라이프코드</title>
+  <script src="/js/lifecode-product-guard.js"></script>
+  <link rel="stylesheet" href="/css/lifecode-product.css"/>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    :root {
+      --cream: #f5f0e8;
+      --parchment: #ede5d4;
+      --deep: #4a3520;
+      --ink: #2c1f0e;
+      --muted: #9a8570;
+      --accent: #c8a96e;
+      --border: rgba(139,111,71,.18);
+      --teal: #2e8b7a;
+      --accent-lt: #e8d5b0;
+      --warm-brown: #8b6f47;
+      --font-serif: 'Noto Serif KR', serif;
+      --font-body: 'Noto Serif KR', serif;
+      --font-mono: 'Noto Serif KR', serif;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: var(--font-body); background: var(--cream); color: var(--ink); min-height: 100vh; }
+    #guard { position: fixed; inset: 0; background: var(--cream); display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 12px; z-index: 99; }
+    #guard .spinner { width: 32px; height: 32px; border: 2px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin .85s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    #app { display: none; max-width: 980px; margin: 0 auto; padding: 24px 24px 80px; }
+    .site-top {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(245, 240, 232, 0.98);
+      box-shadow: 0 6px 18px rgba(45, 38, 28, 0.06);
+    }
+    .topbar {
+      min-height: 52px;
+      background: rgba(245,240,232,.92);
+      backdrop-filter: blur(8px);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      padding: 10px 32px;
+      justify-content: space-between;
+      gap: 16px;
+    }
+    .topbar-left {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      min-width: 0;
+      flex: 1 1 auto;
+    }
+    .topbar-logo {
+      font-family: var(--font-body);
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--deep);
+      text-decoration: none;
+      letter-spacing: .01em;
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+    .topbar-logo-mark {
+      width: 30px;
+      height: 30px;
+      border-radius: 9px;
+      background: linear-gradient(160deg, #5a402d 0%, #3d2b1f 65%, #2d1f16 100%);
+      color: var(--cream);
+      font-family: var(--font-serif);
+      font-size: 17px;
+      font-weight: 700;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid rgba(245,240,232,.22);
+      position: relative;
+      overflow: hidden;
+      line-height: 1;
+      flex-shrink: 0;
+    }
+    .topbar-logo-mark::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(145deg, rgba(255,255,255,.16), rgba(255,255,255,0) 46%);
+      pointer-events: none;
+    }
+    .topbar-logo-mark::after {
+      content: '八';
+      position: absolute;
+      right: 2px;
+      top: 0;
+      font-size: 11px;
+      font-weight: 700;
+      color: rgba(255,255,255,.30);
+      line-height: 1;
+      pointer-events: none;
+    }
+    .topbar-sep { width: 1px; height: 16px; background: var(--border); }
+    .topbar-title {
+      font-family: var(--font-body);
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--deep);
+      line-height: 1.35;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .topbar-right {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+      flex-shrink: 0;
+    }
+    .topbar .plan-badge {
+      font-family: var(--font-body);
+      font-size: 10px;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      padding: 4px 10px;
+      border-radius: 20px;
+      border: 1px solid var(--border);
+      color: var(--muted);
+      font-weight: 700;
+    }
+    .topbar .plan-badge.free {
+      border-color: rgba(139, 111, 71, 0.35);
+      color: var(--deep);
+      background: rgba(232, 213, 176, 0.45);
+    }
+    .topbar .plan-badge.basic {
+      border-color: var(--accent);
+      color: var(--deep);
+      background: var(--parchment);
+    }
+    .topbar .plan-badge.pro {
+      border-color: var(--teal);
+      color: var(--teal);
+      background: rgba(46, 139, 122, 0.12);
+    }
+    .topbar .plan-badge.professional {
+      border-color: var(--deep);
+      color: var(--cream);
+      background: var(--deep);
+    }
+    .topbar-auth {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+    .topbar-auth-link {
+      font-family: var(--font-body);
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--muted);
+      text-decoration: none;
+      white-space: nowrap;
+      transition: color .15s;
+    }
+    .topbar-auth-link:hover { color: var(--deep); }
+    .topbar-auth-dot { color: var(--border); font-weight: 400; user-select: none; font-size: 12px; }
+    .topbar-auth-row { display: inline-flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+    .topbar-auth-btn { background: none; border: none; cursor: pointer; font: inherit; padding: 0; margin: 0; }
+    .back-btn {
+      font-family: var(--font-body);
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: .02em;
+      color: var(--deep);
+      text-decoration: none;
+      white-space: nowrap;
+      transition: color .15s;
+    }
+    .back-btn:hover { color: var(--ink); }
+    .program-nav {
+      border-bottom: 1px solid var(--border);
+      background: rgba(255, 255, 255, 0.55);
+      padding: 0 32px;
+    }
+    .program-nav-inner {
+      max-width: 1100px;
+      margin: 0 auto;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 6px 16px;
+      padding: 7px 0 9px;
+      font-family: var(--font-body);
+      font-size: 12px;
+    }
+    .program-nav-inner a {
+      color: var(--muted);
+      text-decoration: none;
+      font-weight: 600;
+      letter-spacing: 0.02em;
+      white-space: nowrap;
+    }
+    .program-nav-inner a:hover { color: var(--deep); }
+    .program-nav-current {
+      color: var(--deep);
+      font-weight: 700;
+      white-space: nowrap;
+    }
+    .hub-intro {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 18px 20px;
+      margin-bottom: 24px;
+      box-shadow: 0 10px 30px rgba(44,31,14,.06);
+    }
+    .hub-intro h1 {
+      font-family: var(--font-serif);
+      font-size: 26px;
+      font-weight: 700;
+      color: var(--deep);
+      line-height: 1.2;
+      letter-spacing: -.01em;
+    }
+    .hub-intro p {
+      font-size: 13px;
+      color: var(--muted);
+      margin-top: 8px;
+      max-width: 640px;
+      line-height: 1.72;
+    }
+    @media (max-width: 560px) {
+      .topbar-sep,
+      .topbar-title { display: none; }
+    }
+    #gate { display: none; text-align: center; padding: 48px 24px; background: var(--parchment); border-radius: 12px; border: 1px solid var(--border); }
+    #gate h2 { font-family: var(--font-serif); font-size: 22px; color: var(--deep); margin-bottom: 12px; }
+    #gate p { font-size: 14px; color: var(--muted); line-height: 1.75; margin-bottom: 20px; }
+    #gate .cta { display: inline-block; background: var(--deep); color: var(--cream); padding: 12px 24px; border-radius: 6px; text-decoration: none; font-size: 13px; }
+    #workspace { display: none; }
+    .section-title {
+      font-family: var(--font-body); font-size: 11px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); margin: 28px 0 12px;
+    }
+    .flow {
+      display: grid; gap: 12px; margin-bottom: 24px;
+    }
+    .flow-step {
+      display: flex; gap: 14px; align-items: flex-start; background: white; border: 1px solid var(--border); border-radius: 10px; padding: 16px 18px;
+    }
+    .flow-num {
+      flex-shrink: 0; width: 28px; height: 28px; border-radius: 50%; background: var(--parchment); border: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: center; font-family: var(--font-mono); font-size: 12px; color: var(--deep);
+    }
+    .flow-step strong { display: block; font-size: 14px; color: var(--deep); margin-bottom: 4px; }
+    .flow-step span { font-size: 13px; color: var(--muted); line-height: 1.65; }
+    .links { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; }
+    .link-card {
+      display: block; background: var(--deep); color: var(--cream); padding: 22px; border-radius: 10px; text-decoration: none;
+      transition: transform .15s, box-shadow .15s;
+    }
+    .link-card:hover { transform: translateY(-2px); box-shadow: 0 12px 32px rgba(44,31,14,.18); }
+    .link-card .tag { font-family: var(--font-mono); font-size: 8px; letter-spacing: .15em; opacity: .75; margin-bottom: 8px; }
+    .link-card .t { font-family: var(--font-serif); font-size: 18px; margin-bottom: 6px; }
+    .link-card .d { font-size: 12px; opacity: .78; line-height: 1.55; }
+    .link-card.alt { background: white; color: var(--ink); border: 1px solid var(--border); }
+    .link-card.alt .t { color: var(--deep); }
+    .notes-wrap { background: white; border: 1px solid var(--border); border-radius: 10px; padding: 18px; margin-top: 8px; }
+    .notes-wrap label { font-size: 12px; color: var(--muted); display: block; margin-bottom: 8px; }
+    .notes-wrap textarea {
+      width: 100%; min-height: 140px; padding: 12px; border: 1px solid var(--border); border-radius: 8px;
+      font-family: var(--font-body); font-size: 13px; line-height: 1.6; resize: vertical;
+    }
+    .notes-hint { font-size: 11px; color: var(--muted); margin-top: 8px; line-height: 1.5; }
+    .client-panel { background: white; border: 1px solid var(--border); border-radius: 12px; padding: 20px; margin-bottom: 8px; box-shadow: 0 8px 24px rgba(44,31,14,.05); }
+    .client-intro { font-size: 13px; color: var(--muted); line-height: 1.65; margin-bottom: 16px; }
+    .client-form { display: grid; gap: 12px; margin-bottom: 20px; }
+    @media (min-width: 540px) {
+      .client-form { grid-template-columns: 1fr 1fr; }
+      .client-form .full { grid-column: 1 / -1; }
+    }
+    .client-form label { font-size: 11px; color: var(--muted); letter-spacing: .04em; display: block; margin-bottom: 6px; }
+    .client-form input, .client-form textarea {
+      width: 100%; padding: 10px 12px; border: 1px solid var(--border); border-radius: 8px;
+      font-family: var(--font-body); font-size: 13px;
+    }
+    .client-form textarea { min-height: 68px; resize: vertical; }
+    .client-actions { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+    .btn-sm {
+      font-family: var(--font-body); font-size: 12px; padding: 10px 18px; border-radius: 8px; border: none; cursor: pointer;
+      background: var(--deep); color: var(--cream);
+    }
+    .btn-sm.outline { background: white; color: var(--deep); border: 1px solid var(--border); }
+    .btn-sm.danger { background: #8b3a3a; color: white; }
+    .client-search-wrap { margin: 0 0 12px; }
+    .client-search-input {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      font-family: var(--font-body);
+      font-size: 13px;
+      background: #fff;
+      color: var(--ink);
+    }
+    .client-search-input:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 2px rgba(200,169,110,.14);
+    }
+    .client-list { display: flex; flex-direction: column; gap: 10px; }
+    .client-row {
+      display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px;
+      padding: 14px 16px; border: 1px solid var(--border); border-radius: 10px; background: var(--parchment);
+    }
+    .client-row .meta { font-size: 13px; color: var(--deep); }
+    .client-row .meta span { font-size: 11px; color: var(--muted); display: block; margin-top: 4px; }
+    .client-row .row-btns { display: flex; flex-wrap: wrap; gap: 8px; }
+    .client-row .row-btns button {
+      font-size: 11px; padding: 8px 12px; border-radius: 8px; border: 1px solid var(--border);
+      background: white; color: var(--deep); cursor: pointer; font-family: var(--font-body);
+    }
+    .client-row .row-btns button.primary { background: var(--deep); color: var(--cream); border-color: var(--deep); }
+    .form-msg { font-size: 12px; margin-top: 12px; min-height: 1.2em; color: var(--muted); }
+    .form-msg.err { color: #8b3a3a; }
+    .guard-text { font-size: 13px; color: var(--muted); }
+    .inline-code { font-size: 11px; }
+    .pair-tag { color: var(--teal); }
+    .muted-text { color: var(--muted); }
+    .list-loading, .list-empty { font-size: 12px; color: var(--muted); }
+    @media (max-width: 640px) {
+      #app { padding: 20px 16px 56px; }
+      .hub-intro { padding: 14px; border-radius: 12px; }
+      .hub-intro h1 { font-size: 22px; }
+      .hub-intro p { font-size: 12px; }
+    }
+  </style>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css" crossorigin />
+  <link rel="stylesheet" href="../css/site-header.css?v=6" />
+</head>
+<body>
+<div id="guard"><div class="spinner"></div><p class="guard-text">확인 중…</p></div>
+
+<div class="site-top lc-product-top">
+<header class="topbar lc-product-bar">
+  <div class="topbar-left">
+    <a class="topbar-logo" href="/lifecode/"><span class="topbar-title">라이프코드</span></a>
+  </div>
+  <div class="topbar-right" aria-label="라이프코드 메뉴">
+    <a class="lc-product-link" href="analyze.html">라이프코드 분석</a>
+    <span class="lc-product-link" style="color:var(--deep);font-weight:600">상담사 허브</span>
+    <button type="button" class="lc-product-btn" id="lifecodeExitBtn">접속 종료</button>
+  </div>
+</header>
+</div>
+
+<div id="app">
+  <div class="hub-intro">
+    <h1>상담사 허브</h1>
+    <p>고객 정보 입력 → 라이프코드·궁합 도구로 분석 → 인쇄 또는 메모로 세션을 정리하세요. 이 화면은 <strong>Professional 상담사 전용 흐름</strong>으로, 상담 진행에 필요한 기능을 한곳에 모아 둔 허브입니다.</p>
+  </div>
+  <div id="gate">
+    <h2>Professional 플랜 전용</h2>
+    <p>상담사 허브는 <strong>Professional</strong> 요금제에서 이용할 수 있어요.<br>고객 표시 이름 필드와 같은 상담용 기능은 플랜 연동 후 라이프코드 분석 화면에서 함께 켜집니다.</p>
+    <a class="cta" href="pricing.html">요금제 보기</a>
+  </div>
+
+  <div id="lifecodeBridge" hidden>
+    <h2>상담사 허브 (라이프코드 단품)</h2>
+    <p>접속 코드로 <strong>라이프코드 분석</strong>은 바로 이용할 수 있습니다.<br>
+      고객 카드 저장·목록 연동은 <strong>팔자연구소 Professional 계정 로그인</strong>이 추가로 필요합니다.</p>
+    <div style="display:flex;flex-wrap:wrap;gap:10px;margin-top:16px;">
+      <a class="cta" href="analyze.html">라이프코드 분석 열기</a>
+      <a class="cta" href="../login.html?next=lifecode%2Fcounselor.html" style="background:var(--deep);">Professional 로그인</a>
+    </div>
+  </div>
+
+  <div id="workspace">
+    <div class="section-title">고객 카드</div>
+    <div class="client-panel">
+      <p class="client-intro">상담 대상별로 생일·이름을 저장해 두었다가 <strong>라이프코드 분석</strong>으로 바로 불러올 수 있어요. (Supabase에 <code class="inline-code">counselor_clients</code> 테이블이 있어야 합니다.)</p>
+      <form id="clientForm" class="client-form" autocomplete="off">
+        <input type="hidden" id="editClientId" value=""/>
+        <div>
+          <label for="cDisplay">표시 이름 · 별칭 *</label>
+          <input id="cDisplay" type="text" required placeholder="예: 김OO 님"/>
+        </div>
+        <div>
+          <label for="cLegal">본명 (분석용, 선택)</label>
+          <input id="cLegal" type="text" placeholder="운·성·혼 해석에 사용"/>
+        </div>
+        <div>
+          <label for="cBirth">생년월일 *</label>
+          <input id="cBirth" type="date" required/>
+        </div>
+        <div class="full">
+          <label for="cNotes">메모 (선택)</label>
+          <textarea id="cNotes" placeholder="상담 포인트, 다음 일정 등"></textarea>
+        </div>
+        <div class="full client-actions">
+          <button type="submit" class="btn-sm" id="clientSaveBtn">저장</button>
+          <button type="button" class="btn-sm outline" id="clientResetBtn">새로 입력</button>
+        </div>
+      </form>
+      <div class="client-search-wrap">
+        <input id="clientSearch" class="client-search-input" type="search" placeholder="고객 검색 (표시 이름/본명/생년월일)" autocomplete="off"/>
+      </div>
+      <div id="clientList" class="client-list"></div>
+      <p id="clientFormMsg" class="form-msg"></p>
+    </div>
+
+    <div class="section-title">권장 진행 순서</div>
+    <div class="flow">
+      <div class="flow-step">
+        <div class="flow-num">1</div>
+        <div><strong>고객 생일·이름</strong><span>라이프코드 분석에서 생년월일은 필수, 이름은 있으면 운명·혼·성격·완성 해석이 함께 열립니다. Professional은 <strong>고객 이름(상담사용)</strong> 칸에 표시용 이름을 적어 두면 화면·인쇄 시 구분에 도움이 됩니다.</span></div>
+      </div>
+      <div class="flow-step">
+        <div class="flow-num">2</div>
+        <div><strong>분석</strong><span>저장한 고객 카드에서 라이프코드 분석으로 바로 이어갈 수 있어요.</span></div>
+      </div>
+      <div class="flow-step">
+        <div class="flow-num">3</div>
+        <div><strong>기록</strong><span>아래 메모는 이 브라우저에만 저장됩니다. 장기 보관이 필요하면 복사해 두세요.</span></div>
+      </div>
+    </div>
+
+    <div class="section-title">바로 가기</div>
+    <div class="links" id="hubLinks">
+      <a class="link-card" href="analyze.html" id="hubLinkAnalysis">
+        <div class="tag">CORE</div>
+        <div class="t">라이프코드 분석</div>
+        <div class="d">핵심 수, 대주기, 48주기, Growth Map, AI 요약까지 한 페이지에서.</div>
+      </a>
+    </div>
+
+    <div class="section-title">오늘 세션 메모</div>
+    <div class="notes-wrap">
+      <label for="sessionNotes">상담 중 메모 (이 기기 브라우저에만 저장)</label>
+      <textarea id="sessionNotes" placeholder="고객 반응, 다시 볼 포인트, 과제 등"></textarea>
+      <p class="notes-hint">저장은 자동입니다. 다른 PC나 시크릿 창과는 공유되지 않습니다.</p>
+    </div>
+  </div>
+</div>
+
+<script type="module">
+import { hasValidLifecodeSession, lifecodeLogout } from '/js/lifecode-standalone-chrome.js';
+
+const SUPABASE_URL = 'https://sghsryumnrnftyjoqmwf.supabase.co';
+const SUPABASE_ANON_KEY = 'sb_publishable_6S3W_oWrzG-Nv8wLK98gmg_q_KcB2I1';
+const { createClient } = supabase;
+const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+const LS_KEY = 'palja_counselor_session_notes_v1';
+
+document.getElementById('lifecodeExitBtn')?.addEventListener('click', () => lifecodeLogout());
+
+async function main() {
+  if (!(await hasValidLifecodeSession())) {
+    window.location.replace('/lifecode/');
+    return;
+  }
+
+  const { data: { session } } = await sb.auth.getSession();
+  document.getElementById('guard').style.display = 'none';
+  document.getElementById('app').style.display = 'block';
+
+  if (!session) {
+    document.getElementById('lifecodeBridge').hidden = false;
+    return;
+  }
+
+  const { data: profile } = await sb.from('profiles').select('plan, plan_active_until').eq('id', session.user.id).single();
+  const plan = profile?.plan || 'free';
+  const proOk =
+    plan === 'professional' &&
+    (!profile?.plan_active_until || new Date(profile.plan_active_until) > new Date());
+
+  if (!proOk) {
+    document.getElementById('lifecodeBridge').hidden = false;
+    document.querySelector('#lifecodeBridge p').innerHTML =
+      '로그인되었지만 <strong>Professional</strong> 플랜이 아닙니다.<br>고객 카드 저장은 Professional에서 이용할 수 있어요. 라이프코드 분석은 접속 코드로 계속 쓸 수 있습니다.';
+    return;
+  }
+
+  document.getElementById('workspace').style.display = 'block';
+
+    const msgEl = document.getElementById('clientFormMsg');
+    const form = document.getElementById('clientForm');
+    const editId = document.getElementById('editClientId');
+    const listEl = document.getElementById('clientList');
+    const searchEl = document.getElementById('clientSearch');
+    let clientRows = [];
+
+    function setMsg(text, isErr) {
+      msgEl.textContent = text || '';
+      msgEl.classList.toggle('err', !!isErr);
+    }
+
+    function resetForm() {
+      editId.value = '';
+      form.reset();
+      document.getElementById('clientSaveBtn').textContent = '저장';
+      setMsg('');
+    }
+
+    document.getElementById('clientResetBtn').addEventListener('click', resetForm);
+    if (searchEl) searchEl.addEventListener('input', applyClientFilter);
+
+    function escapeHtml(s) {
+      return String(s)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+    }
+
+    function renderClients(rows) {
+      if (!rows.length) {
+        listEl.innerHTML = '<p class="list-empty">조건에 맞는 고객이 없습니다.</p>';
+        return;
+      }
+      listEl.innerHTML = '';
+      for (const row of rows) {
+        const div = document.createElement('div');
+        div.className = 'client-row';
+        const dn = escapeHtml(row.display_name || '');
+        const birth = row.birth_date || '—';
+        const ln = (row.legal_name || '').trim();
+        div.innerHTML =
+          '<div class="meta"><strong>' + dn + '</strong><span>생일 ' + escapeHtml(birth) +
+          (ln ? ' · 본명 ' + escapeHtml(ln) : '') + '</span></div>' +
+          '<div class="row-btns">' +
+          '<button type="button" class="primary" data-act="analyze" data-id="' + row.id + '">분석 열기</button>' +
+          '<button type="button" data-act="edit" data-id="' + row.id + '">수정</button>' +
+          '<button type="button" data-act="del" data-id="' + row.id + '">삭제</button>' +
+          '</div>';
+        listEl.appendChild(div);
+      }
+      listEl.querySelectorAll('button[data-act]').forEach((btn) => {
+        btn.addEventListener('click', onRowAction);
+      });
+    }
+
+    function applyClientFilter() {
+      const q = (searchEl?.value || '').trim().toLowerCase();
+      if (!q) {
+        renderClients(clientRows);
+        return;
+      }
+      const filtered = clientRows.filter((row) => {
+        const displayName = String(row.display_name || '').toLowerCase();
+        const legalName = String(row.legal_name || '').toLowerCase();
+        const birth = String(row.birth_date || '').toLowerCase();
+        return displayName.includes(q) || legalName.includes(q) || birth.includes(q);
+      });
+      renderClients(filtered);
+    }
+
+    async function loadClients() {
+      listEl.innerHTML = '<p class="list-loading">불러오는 중…</p>';
+      const { data, error } = await sb
+        .from('counselor_clients')
+        .select('id,display_name,legal_name,birth_date,updated_at')
+        .order('updated_at', { ascending: false });
+      if (error) {
+        listEl.innerHTML = '';
+        clientRows = [];
+        setMsg('고객 목록을 불러오지 못했습니다. Supabase SQL로 counselor_clients를 만든 뒤 다시 시도해주세요. (' + error.message + ')', true);
+        return;
+      }
+      if (!data.length) {
+        clientRows = [];
+        listEl.innerHTML = '<p class="list-empty">저장된 고객이 없습니다. 위 폼에서 추가해 보세요.</p>';
+        return;
+      }
+      clientRows = data;
+      applyClientFilter();
+    }
+
+    async function onRowAction(e) {
+      const btn = e.currentTarget;
+      const id = btn.getAttribute('data-id');
+      const act = btn.getAttribute('data-act');
+      if (act === 'analyze') {
+        window.location.href = 'analyze.html?client=' + encodeURIComponent(id);
+        return;
+      }
+      if (act === 'del') {
+        if (!confirm('이 고객 카드를 삭제할까요?')) return;
+        const { error } = await sb.from('counselor_clients').delete().eq('id', id);
+        if (error) {
+          setMsg(error.message, true);
+          return;
+        }
+        resetForm();
+        loadClients();
+        return;
+      }
+      if (act === 'edit') {
+        const { data, error } = await sb.from('counselor_clients').select('*').eq('id', id).single();
+        if (error || !data) {
+          setMsg('불러오기 실패', true);
+          return;
+        }
+        editId.value = data.id;
+        document.getElementById('cDisplay').value = data.display_name || '';
+        document.getElementById('cLegal').value = data.legal_name || '';
+        document.getElementById('cBirth').value = data.birth_date || '';
+        document.getElementById('cNotes').value = data.notes || '';
+        document.getElementById('clientSaveBtn').textContent = '변경 저장';
+        setMsg('수정 중입니다. 저장하면 반영됩니다.');
+      }
+    }
+
+    form.addEventListener('submit', async (ev) => {
+      ev.preventDefault();
+      setMsg('');
+      const display_name = document.getElementById('cDisplay').value.trim();
+      const legal_name = document.getElementById('cLegal').value.trim() || null;
+      const birth_date = document.getElementById('cBirth').value;
+      const notes = document.getElementById('cNotes').value.trim() || null;
+      if (!display_name || !birth_date) return;
+
+      const uid = session.user.id;
+      const cid = editId.value.trim();
+
+      if (cid) {
+        const { error } = await sb.from('counselor_clients').update({
+          display_name,
+          legal_name,
+          birth_date,
+          notes,
+          updated_at: new Date().toISOString(),
+        }).eq('id', cid).eq('counselor_id', uid);
+        if (error) {
+          setMsg(error.message, true);
+          return;
+        }
+        setMsg('저장했습니다.');
+      } else {
+        const { error } = await sb.from('counselor_clients').insert({
+          counselor_id: uid,
+          display_name,
+          legal_name,
+          birth_date,
+          notes,
+        });
+        if (error) {
+          setMsg(error.message, true);
+          return;
+        }
+        setMsg('새 고객 카드를 추가했습니다.');
+        resetForm();
+      }
+      loadClients();
+    });
+
+    await loadClients();
+
+    const ta = document.getElementById('sessionNotes');
+    ta.value = localStorage.getItem(LS_KEY) || '';
+    let t;
+    ta.addEventListener('input', () => {
+      clearTimeout(t);
+      t = setTimeout(() => localStorage.setItem(LS_KEY, ta.value), 400);
+    });
+  }
+
+main();
+</script>
+</body>
+</html>

@@ -1,0 +1,43 @@
+/* ?lifecode=1 단품 — 팔자 메뉴·로그인 숨김, 라이프코드 전용 상단 */
+html.lifecode-standalone .program-nav {
+  display: none !important;
+}
+
+html.lifecode-standalone .topbar-right > :not(.lifecode-topbar-tools) {
+  display: none !important;
+}
+
+html.lifecode-standalone .lifecode-topbar-tools {
+  display: inline-flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px 14px;
+}
+
+html.lifecode-standalone .lifecode-topbar-link {
+  font-size: 12px;
+  color: var(--muted, #9a8570);
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+html.lifecode-standalone .lifecode-topbar-link:hover {
+  color: var(--deep-brown, #4a3520);
+}
+
+html.lifecode-standalone .lifecode-topbar-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+  padding: 0;
+}
+
+html.lifecode-standalone .topbar-logo-mark,
+html.lifecode-standalone .topbar-sep {
+  display: none !important;
+}
+
+html.lifecode-standalone .lifecode-only-hide {
+  display: none !important;
+}

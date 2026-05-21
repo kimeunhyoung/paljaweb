@@ -1,0 +1,16 @@
+/* 라이프코드 단품 전용 (/lifecode/) — lifecode-product.css 상단바 + 콘텐츠 숨김 */
+@import url('/css/lifecode-standalone.css');
+
+html.lifecode-product .lc-product-off,
+.lc-product-off {
+  display: none !important;
+}
+
+html.lifecode-product .hero-tag {
+  letter-spacing: 0.12em;
+}
+
+html.lifecode-product .analysis-wait-inner {
+  border-left: 3px solid var(--accent, #c8a96e);
+  padding-left: 14px;
+}

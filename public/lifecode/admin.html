@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>라이프코드 — 관리</title>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@400;600&display=swap" rel="stylesheet"/>
+  <style>
+    :root { --bg: #f5f0e8; --card: #fff; --ink: #2c1f0e; --muted: #9a8570; --accent: #4a3520; }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Noto Serif KR', serif; background: var(--bg); color: var(--ink); padding: 20px; max-width: 960px; margin: 0 auto; }
+    h1 { font-size: 1.35rem; margin-bottom: 16px; }
+    .panel { background: var(--card); border-radius: 12px; padding: 16px; margin-bottom: 16px; border: 1px solid rgba(0,0,0,.08); }
+    label { font-size: 12px; color: var(--muted); display: block; margin-bottom: 4px; }
+    input, textarea, select, button { font-family: inherit; font-size: 14px; }
+    input, textarea, select {
+      width: 100%; padding: 8px 10px; border: 1px solid #ccc; border-radius: 8px; margin-bottom: 10px;
+    }
+    button {
+      padding: 8px 14px; border-radius: 8px; border: none; background: var(--accent); color: #fff;
+      cursor: pointer; margin-right: 6px; margin-bottom: 6px;
+    }
+    button.secondary { background: #9a8570; }
+    button.danger { background: #c0392b; }
+    table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    th, td { text-align: left; padding: 8px 6px; border-bottom: 1px solid #eee; vertical-align: top; }
+    th { color: var(--muted); font-weight: 600; }
+    .badge { display: inline-block; padding: 2px 8px; border-radius: 999px; font-size: 11px; }
+    .badge.active { background: #d4edda; color: #155724; }
+    .badge.revoked { background: #f8d7da; color: #721c24; }
+    .row-actions button { font-size: 12px; padding: 4px 8px; }
+    #authPanel input { max-width: 360px; }
+    .flash { background: #fff3cd; padding: 10px; border-radius: 8px; margin-bottom: 12px; font-size: 13px; }
+    .new-code { font-family: monospace; font-size: 1.1rem; color: #155724; word-break: break-all; }
+    .toolbar { display: flex; flex-wrap: wrap; gap: 8px; align-items: flex-end; margin-bottom: 12px; }
+    .toolbar > * { flex: 1; min-width: 120px; }
+  </style>
+</head>
+<body>
+  <h1>라이프코드 라이선스 관리</h1>
+
+  <div class="panel" id="authPanel">
+    <label for="adminSecret">관리자 키 (LIFECODE_ADMIN_SECRET)</label>
+    <input id="adminSecret" type="password" autocomplete="current-password" placeholder="Bearer 토큰"/>
+    <button type="button" id="saveAuth">저장 후 목록 불러오기</button>
+  </div>
+
+  <div id="mainUI" hidden>
+    <div class="panel">
+      <h2 style="font-size:1rem;margin-bottom:12px;">코드 발급</h2>
+      <label for="newNote">메모 (구매자)</label>
+      <input id="newNote" placeholder="홍길동 / 5/21 결제"/>
+      <label for="newExpires">만료일 (비우면 무기한)</label>
+      <input id="newExpires" type="datetime-local"/>
+      <label for="newCode">코드 (비우면 자동 생성)</label>
+      <input id="newCode" placeholder="LC-ABCD-EF12"/>
+      <button type="button" id="createBtn">발급</button>
+      <div id="createFlash" class="flash" hidden></div>
+    </div>
+
+    <div class="panel">
+      <div class="toolbar">
+        <div>
+          <label for="filterStatus">상태</label>
+          <select id="filterStatus">
+            <option value="all">전체</option>
+            <option value="active">active</option>
+            <option value="revoked">revoked</option>
+          </select>
+        </div>
+        <div>
+          <label for="searchQ">검색 (메모·힌트)</label>
+          <input id="searchQ" placeholder="검색"/>
+        </div>
+        <div>
+          <button type="button" id="reloadBtn">새로고침</button>
+        </div>
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>힌트</th>
+            <th>상태</th>
+            <th>만료</th>
+            <th>기기</th>
+            <th>메모</th>
+            <th>마지막 접속</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody id="listBody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <script>
+    const AUTH_KEY = 'lifecode_admin_token';
+
+    function token() {
+      return sessionStorage.getItem(AUTH_KEY) || '';
+    }
+
+    function authHeaders() {
+      return {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token()}`,
+      };
+    }
+
+    async function api(path, opts = {}) {
+      const r = await fetch(path, {
+        ...opts,
+        headers: { ...authHeaders(), ...opts.headers },
+      });
+      const data = await r.json().catch(() => ({}));
+      if (r.status === 401) {
+        alert('관리자 키가 올바르지 않습니다.');
+        document.getElementById('mainUI').hidden = true;
+        throw new Error('unauthorized');
+      }
+      if (!r.ok) throw new Error(data.error || r.status);
+      return data;
+    }
+
+    function fmtDate(iso) {
+      if (!iso) return '—';
+      return new Date(iso).toLocaleString('ko-KR');
+    }
+
+    async function loadList() {
+      const status = document.getElementById('filterStatus').value;
+      const q = document.getElementById('searchQ').value.trim();
+      let url = `/api/lifecode/admin/licenses?status=${status}&limit=100`;
+      if (q) url += `&q=${encodeURIComponent(q)}`;
+      const data = await api(url);
+      const tbody = document.getElementById('listBody');
+      tbody.innerHTML = '';
+      for (const row of data.items || []) {
+        const tr = document.createElement('tr');
+        const exp = row.expiresAt && new Date(row.expiresAt) < new Date()
+          ? `<span style="color:#c0392b">${fmtDate(row.expiresAt)}</span>`
+          : fmtDate(row.expiresAt);
+        tr.innerHTML = `
+          <td><code>${row.codeHint || '—'}</code></td>
+          <td><span class="badge ${row.status}">${row.status}</span></td>
+          <td>${exp}</td>
+          <td>${row.deviceBound ? '등록됨' : '—'}</td>
+          <td>${row.note || ''}</td>
+          <td>${fmtDate(row.lastSeenAt)}</td>
+          <td class="row-actions"></td>
+        `;
+        const actions = tr.querySelector('.row-actions');
+        const addBtn = (label, cls, fn) => {
+          const b = document.createElement('button');
+          b.textContent = label;
+          if (cls) b.className = cls;
+          b.addEventListener('click', fn);
+          actions.appendChild(b);
+        };
+        if (row.status === 'active') {
+          addBtn('차단', 'danger', () => revoke(row.id));
+        } else {
+          addBtn('해제', 'secondary', () => unrevoke(row.id));
+        }
+        addBtn('코드재설정', 'secondary', () => regenerateCode(row.id));
+        addBtn('기기초기화', 'secondary', () => resetDevice(row.id));
+        addBtn('삭제', 'danger', () => removeLicense(row.id));
+        tbody.appendChild(tr);
+      }
+    }
+
+    async function revoke(id) {
+      if (!confirm('이 코드를 차단할까요?')) return;
+      await api(`/api/lifecode/admin/licenses/${id}/revoke`, { method: 'POST' });
+      loadList();
+    }
+
+    async function unrevoke(id) {
+      await api(`/api/lifecode/admin/licenses/${id}/unrevoke`, { method: 'POST' });
+      loadList();
+    }
+
+    async function resetDevice(id) {
+      if (!confirm('기기 등록을 초기화할까요? 다른 폰에서 다시 등록할 수 있습니다.')) return;
+      await api(`/api/lifecode/admin/licenses/${id}/reset-device`, { method: 'POST' });
+      loadList();
+    }
+
+    async function regenerateCode(id) {
+      if (!confirm('새 접속 코드를 만듭니다.\n\n· 예전 코드는 바로 무효\n· 등록된 기기도 초기화\n· 새 코드는 한 번만 표시\n\n계속할까요?')) return;
+      try {
+        const data = await api(`/api/lifecode/admin/licenses/${id}/regenerate-code`, {
+          method: 'POST',
+        });
+        const flash = document.getElementById('createFlash');
+        flash.hidden = false;
+        flash.innerHTML =
+          `코드 재설정 완료 — 구매자에게 새 코드를 전달하세요 (다시 표시되지 않음):<br>` +
+          `<span class="new-code">${data.code}</span><br>` +
+          `<span style="font-size:12px;color:#856404;">${data.message || ''}</span>`;
+        flash.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        loadList();
+      } catch (e) {
+        if (e.message === 'db_migration_required') {
+          alert('Supabase SQL Editor에서 database/lifecode_code_rotated_at.sql 을 실행한 뒤 다시 시도해 주세요.');
+          return;
+        }
+        alert(e.message || '코드 재설정 실패');
+      }
+    }
+
+    async function removeLicense(id) {
+      if (!confirm('라이선스를 삭제할까요? 되돌릴 수 없습니다.')) return;
+      await api(`/api/lifecode/admin/licenses/${id}`, { method: 'DELETE' });
+      loadList();
+    }
+
+    document.getElementById('saveAuth').addEventListener('click', () => {
+      const v = document.getElementById('adminSecret').value.trim();
+      if (!v) return;
+      sessionStorage.setItem(AUTH_KEY, v);
+      document.getElementById('mainUI').hidden = false;
+      loadList().catch(() => {});
+    });
+
+    document.getElementById('createBtn').addEventListener('click', async () => {
+      const note = document.getElementById('newNote').value.trim();
+      const code = document.getElementById('newCode').value.trim();
+      const expRaw = document.getElementById('newExpires').value;
+      const body = { note: note || null };
+      if (code) body.code = code;
+      if (expRaw) body.expiresAt = new Date(expRaw).toISOString();
+      try {
+        const data = await api('/api/lifecode/admin/licenses', {
+          method: 'POST',
+          body: JSON.stringify(body),
+        });
+        const flash = document.getElementById('createFlash');
+        flash.hidden = false;
+        flash.innerHTML = `발급 완료 — 이 코드를 구매자에게 전달하세요 (다시 표시되지 않음):<br><span class="new-code">${data.code}</span>`;
+        document.getElementById('newCode').value = '';
+        loadList();
+      } catch (e) {
+        alert(e.message || '발급 실패');
+      }
+    });
+
+    document.getElementById('reloadBtn').addEventListener('click', () => loadList());
+    document.getElementById('filterStatus').addEventListener('change', () => loadList());
+    document.getElementById('searchQ').addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') loadList();
+    });
+
+    if (token()) {
+      document.getElementById('adminSecret').value = token();
+      document.getElementById('mainUI').hidden = false;
+      loadList().catch(() => {});
+    }
+  </script>
+</body>
+</html>
