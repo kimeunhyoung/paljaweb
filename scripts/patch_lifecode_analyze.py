@@ -77,7 +77,6 @@ new_top = """<!-- 라이프코드 단품 상단 -->
       <button type="button" class="counselor-bar-btn" id="topbarPdfBtn" onclick="topbarPdfClick()">⬇ PDF</button>
     </div>
     <a class="lc-product-link" href="counselor.html">상담사 허브</a>
-    <button type="button" class="lc-product-btn" id="lifecodeExitBtn">접속 종료</button>
     <span class="plan-badge free" id="plan-badge" hidden aria-hidden="true">Pro</span>
   </div>
 </header>
@@ -172,11 +171,6 @@ new_auth = """function isLifecodeStandalone() {
 async function initAuth() {
   USER_PLAN = 'pro';
   CURRENT_USER_ID = 'lifecode';
-
-  document.getElementById('lifecodeExitBtn')?.addEventListener('click', async () => {
-    await fetch('/api/lifecode/logout', { method: 'POST', credentials: 'include' });
-    window.location.href = '/lifecode/';
-  });
 
   if (!sb) return;
   const { data: { session } } = await sb.auth.getSession();

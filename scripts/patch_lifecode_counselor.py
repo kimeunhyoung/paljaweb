@@ -56,7 +56,6 @@ new_top = """<div class="site-top lc-product-top">
   <div class="topbar-right" aria-label="라이프코드 메뉴">
     <a class="lc-product-link" href="analyze.html">라이프코드 분석</a>
     <span class="lc-product-link" style="color:var(--deep);font-weight:600">상담사 허브</span>
-    <button type="button" class="lc-product-btn" id="lifecodeExitBtn">접속 종료</button>
     <span class="plan-badge free" id="plan-badge" hidden></span>
   </div>
 </header>
@@ -83,15 +82,13 @@ if old_script_start in text:
   text = re.sub(
     r'<script type="module">.*?</script>\s*</body>',
     '''<script type="module">
-import { hasValidLifecodeSession, lifecodeLogout } from '/js/lifecode-standalone-chrome.js';
+import { hasValidLifecodeSession } from '/js/lifecode-standalone-chrome.js';
 
 const SUPABASE_URL = 'https://sghsryumnrnftyjoqmwf.supabase.co';
 const SUPABASE_ANON_KEY = 'sb_publishable_6S3W_oWrzG-Nv8wLK98gmg_q_KcB2I1';
 const { createClient } = supabase;
 const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 const LS_KEY = 'palja_counselor_session_notes_v1';
-
-document.getElementById('lifecodeExitBtn')?.addEventListener('click', () => lifecodeLogout());
 
 async function main() {
   if (!(await hasValidLifecodeSession())) {

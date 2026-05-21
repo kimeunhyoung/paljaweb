@@ -9,8 +9,9 @@
   <meta name="apple-mobile-web-app-title" content="라이프코드"/>
   <title>라이프코드 — 접속</title>
   <link rel="manifest" href="/lifecode/manifest.webmanifest"/>
-  <link rel="icon" href="/lifecode/icon.svg" type="image/svg+xml"/>
-  <link rel="apple-touch-icon" href="/lifecode/icon.svg"/>
+  <link rel="icon" href="/lifecode/icon-192.png" type="image/png"/>
+  <link rel="apple-touch-icon" href="/lifecode/apple-touch-icon.png"/>
+  <script src="/js/lifecode-pwa.js" defer></script>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@400;600&display=swap" rel="stylesheet"/>
   <style>
     :root {
@@ -89,7 +90,9 @@
       <button type="submit" id="submitBtn">접속하기</button>
       <p class="msg" id="msg" role="alert"></p>
     </form>
-    <p class="hint">iPhone·Android: 브라우저 메뉴 → <strong>홈 화면에 추가</strong> 후 앱처럼 사용할 수 있습니다.</p>
+    <p class="hint">iPhone: Safari → <strong>공유 → 홈 화면에 추가</strong><br>
+      Android: Chrome에서 <strong>이 주소(/lifecode/)</strong> 연 뒤 메뉴(⋮) → <strong>앱 설치</strong> 또는 <strong>홈 화면에 추가</strong><br>
+      <span style="font-size:0.7rem;">예전에 만든 회색 Chrome 아이콘은 삭제 후 다시 추가하세요.</span></p>
   </div>
   <div class="card loading" id="checking" hidden>접속 확인 중…</div>
 

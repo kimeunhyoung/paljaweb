@@ -2,7 +2,14 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
+  <meta name="theme-color" content="#4a3520"/>
+  <meta name="apple-mobile-web-app-capable" content="yes"/>
+  <meta name="apple-mobile-web-app-title" content="라이프코드"/>
+  <link rel="manifest" href="/lifecode/manifest.webmanifest"/>
+  <link rel="icon" href="/lifecode/icon-192.png" type="image/png"/>
+  <link rel="apple-touch-icon" href="/lifecode/apple-touch-icon.png"/>
+  <script src="/js/lifecode-pwa.js" defer></script>
   <title>상담사 허브 — 라이프코드</title>
   <script src="/js/lifecode-product-guard.js"></script>
   <link rel="stylesheet" href="/css/lifecode-product.css"/>
@@ -357,7 +364,6 @@
   <div class="topbar-right" aria-label="라이프코드 메뉴">
     <a class="lc-product-link" href="analyze.html">라이프코드 분석</a>
     <span class="lc-product-link" style="color:var(--deep);font-weight:600">상담사 허브</span>
-    <button type="button" class="lc-product-btn" id="lifecodeExitBtn">접속 종료</button>
   </div>
 </header>
 </div>
@@ -452,7 +458,7 @@
 </div>
 
 <script type="module">
-import { hasValidLifecodeSession, lifecodeLogout } from '/js/lifecode-standalone-chrome.js';
+import { hasValidLifecodeSession } from '/js/lifecode-standalone-chrome.js';
 
 const SUPABASE_URL = 'https://sghsryumnrnftyjoqmwf.supabase.co';
 const SUPABASE_ANON_KEY = 'sb_publishable_6S3W_oWrzG-Nv8wLK98gmg_q_KcB2I1';
@@ -460,8 +466,6 @@ const { createClient } = supabase;
 const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 const LS_KEY = 'palja_counselor_session_notes_v1';
-
-document.getElementById('lifecodeExitBtn')?.addEventListener('click', () => lifecodeLogout());
 
 async function main() {
   if (!(await hasValidLifecodeSession())) {

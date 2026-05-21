@@ -47,13 +47,9 @@ export function lifecodeTopbarToolsHtml(active = 'analysis') {
     active === 'counselor'
       ? '<span class="lifecode-topbar-link" style="color:var(--deep-brown,#4a3520);font-weight:600">상담사 허브</span>'
       : '<a class="lifecode-topbar-link" href="counselor.html?lifecode=1">상담사 허브</a>';
-  return `<div class="lifecode-topbar-tools">${analysis}${counselor}<button type="button" class="lifecode-topbar-link lifecode-topbar-btn" data-lifecode-exit>접속 종료</button></div>`;
+  return `<div class="lifecode-topbar-tools">${analysis}${counselor}</div>`;
 }
 
-export function bindLifecodeTopbarTools(root = document) {
-  root.querySelectorAll('[data-lifecode-exit]').forEach((btn) => {
-    btn.addEventListener('click', () => {
-      lifecodeLogout();
-    });
-  });
+export function bindLifecodeTopbarTools() {
+  /* 단품: 접속 종료 UI 없음 — 1기기 라이선스, 실수 로그아웃 방지 */
 }

@@ -19,6 +19,11 @@
   </script>
   <link rel="manifest" href="/lifecode/manifest.webmanifest"/>
   <meta name="theme-color" content="#4a3520"/>
+  <meta name="apple-mobile-web-app-capable" content="yes"/>
+  <meta name="apple-mobile-web-app-title" content="라이프코드"/>
+  <link rel="icon" href="/lifecode/icon-192.png" type="image/png"/>
+  <link rel="apple-touch-icon" href="/lifecode/apple-touch-icon.png"/>
+  <script src="/js/lifecode-pwa.js" defer></script>
   <title>라이프코드 분석</title>
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
@@ -2933,7 +2938,6 @@
       <button type="button" class="counselor-bar-btn" id="topbarPdfBtn" onclick="topbarPdfClick()">⬇ PDF</button>
     </div>
     <a class="lc-product-link" href="counselor.html">상담사 허브</a>
-    <button type="button" class="lc-product-btn" id="lifecodeExitBtn">접속 종료</button>
     <span class="plan-badge free" id="plan-badge" hidden aria-hidden="true">Pro</span>
   </div>
 </header>
@@ -3315,11 +3319,6 @@ function lcSection(id) {
 async function initAuth() {
   USER_PLAN = 'pro';
   CURRENT_USER_ID = 'lifecode';
-
-  document.getElementById('lifecodeExitBtn')?.addEventListener('click', async () => {
-    await fetch('/api/lifecode/logout', { method: 'POST', credentials: 'include' });
-    window.location.href = '/lifecode/';
-  });
 
   if (!sb) return;
   const { data: { session } } = await sb.auth.getSession();
