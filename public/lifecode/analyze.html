@@ -2937,7 +2937,7 @@
       <button type="button" class="counselor-bar-btn" id="topbarPrintBtn" onclick="window.print()">🖨 인쇄</button>
       <button type="button" class="counselor-bar-btn" id="topbarPdfBtn" onclick="topbarPdfClick()">⬇ PDF</button>
     </div>
-    <a class="lc-product-link" href="counselor.html">상담사 허브</a>
+    <a class="lc-product-link" id="topbarCounselorHubLink" href="counselor.html" hidden>상담사 허브</a>
     <span class="plan-badge free" id="plan-badge" hidden aria-hidden="true">Pro</span>
   </div>
 </header>
@@ -3316,80 +3316,43 @@ function lcSection(id) {
   return typeof window.lcSectionEnabled === 'function' ? window.lcSectionEnabled(id) : true;
 }
 
+function setLifecodeCounselorUi(enabled) {
+  const bar = document.getElementById('counselorBar');
+  const clientGroup = document.getElementById('clientGroup');
+  const hubLink = document.getElementById('topbarCounselorHubLink');
+  if (bar) bar.style.display = enabled ? 'block' : 'none';
+  if (clientGroup) clientGroup.style.display = enabled ? 'flex' : 'none';
+  if (hubLink) hubLink.hidden = !enabled;
+}
+
 async function initAuth() {
   USER_PLAN = 'pro';
   CURRENT_USER_ID = 'lifecode';
+  setLifecodeCounselorUi(false);
 
   try {
     const { fetchLifecodeSession, lifecodeApi } = await import('/js/lifecode-session.js');
     const lc = await fetchLifecodeSession();
-    if (lc.ok && lc.counselorHub) {
-      USER_PLAN = 'professional';
-      document.getElementById('clientGroup').style.display = 'flex';
-      const bar = document.getElementById('counselorBar');
-      if (bar) bar.style.display = 'block';
-      const clientId = new URLSearchParams(location.search).get('client');
-      if (clientId) {
-        const { ok, data } = await lifecodeApi(`/api/lifecode/clients/${clientId}`);
-        if (ok && data.client) {
-          const c = data.client;
-          const birthEl = document.getElementById('inputBirth');
-          const nameEl = document.getElementById('inputName');
-          const clientEl = document.getElementById('inputClient');
-          if (birthEl && c.birthDate) birthEl.value = c.birthDate;
-          if (nameEl) nameEl.value = (c.legalName || '').trim();
-          if (clientEl) clientEl.value = (c.displayName || '').trim();
-        }
-      }
+    if (!lc.ok) return;
+
+    if (!lc.counselorHub) {
       return;
     }
-  } catch (_) { /* ignore */ }
 
-  if (!sb) return;
-  const { data: { session } } = await sb.auth.getSession();
-  if (!session) return;
-
-  CURRENT_USER_ID = session.user.id;
-  const { data: profile } = await sb
-    .from('profiles')
-    .select('plan, plan_active_until')
-    .eq('id', session.user.id)
-    .single();
-
-  const dbPlan = profile?.plan || 'free';
-  const proExpired =
-    dbPlan === 'professional' &&
-    profile?.plan_active_until &&
-    new Date(profile.plan_active_until) <= new Date();
-
-  if (dbPlan === 'professional' && !proExpired) {
     USER_PLAN = 'professional';
-    document.getElementById('clientGroup').style.display = 'flex';
-    const bar = document.getElementById('counselorBar');
-    if (bar) bar.style.display = 'block';
-    await loadPrefilledCounselorClient(session);
-  } else {
-    const bar = document.getElementById('counselorBar');
-    if (bar) bar.style.display = 'none';
-  }
-}
-
-async function loadPrefilledCounselorClient(session) {
-  const clientId = new URLSearchParams(location.search).get('client');
-  if (!clientId) return;
-  const { data, error } = await sb
-    .from('counselor_clients')
-    .select('display_name,legal_name,birth_date')
-    .eq('id', clientId)
-    .eq('counselor_id', session.user.id)
-    .maybeSingle();
-  if (error || !data) return;
-  const birthEl = document.getElementById('inputBirth');
-  const nameEl = document.getElementById('inputName');
-  const clientEl = document.getElementById('inputClient');
-  if (birthEl && data.birth_date) birthEl.value = data.birth_date;
-  if (nameEl) nameEl.value = (data.legal_name || '').trim();
-  if (clientEl) clientEl.value = (data.display_name || '').trim();
+    setLifecodeCounselorUi(true);
+    const clientId = new URLSearchParams(location.search).get('client');
+    if (!clientId) return;
+    const { ok, data } = await lifecodeApi(`/api/lifecode/clients/${clientId}`);
+    if (!ok || !data.client) return;
+    const c = data.client;
+    const birthEl = document.getElementById('inputBirth');
+    const nameEl = document.getElementById('inputName');
+    const clientEl = document.getElementById('inputClient');
+    if (birthEl && c.birthDate) birthEl.value = c.birthDate;
+    if (nameEl) nameEl.value = (c.legalName || '').trim();
+    if (clientEl) clientEl.value = (c.displayName || '').trim();
+  } catch (_) { /* ignore */ }
 }
 
 const PLANS = { free: 0, basic: 1, pro: 2, professional: 3 };
@@ -5519,16 +5482,18 @@ async function runAnalysis() {
     });
   }
 
-  // ── 2. AI 종합 요약 (Basic+) — 레이아웃상 별자리·48주기 다음 블록
-  if(hasAccess('basic')) {
-    const aiLoadingTag = window.LIFECODE_PRODUCT?.aiSummaryTag || 'AI 분석 생성 중';
-    document.getElementById('aiSummaryContent').innerHTML = `<div class="ai-summary">
-      <div class="ai-tag"><div class="ai-dot"></div>${aiLoadingTag}</div>
-      <div class="ai-loading"><div class="ai-spinner"></div>종합 분석을 생성하고 있습니다...</div>
-    </div>`;
-    callAISummary(lp, mn, py, nameRaw, destinyNum, soulNum, personalityNum, maturityNum, y, m, d);
-  } else {
-    document.getElementById('aiSummaryContent').innerHTML = gateHTML('basic','AI 종합 요약','핵심 수들을 종합한 당신만의 성격·잠재력 분석 한 단락을 AI가 생성합니다.');
+  // ── 2. AI 종합 요약 — 라이프코드 단품 제외
+  if (lcSection('aiSummarySection')) {
+    if (hasAccess('basic')) {
+      const aiLoadingTag = window.LIFECODE_PRODUCT?.aiSummaryTag || 'AI 분석 생성 중';
+      document.getElementById('aiSummaryContent').innerHTML = `<div class="ai-summary">
+        <div class="ai-tag"><div class="ai-dot"></div>${aiLoadingTag}</div>
+        <div class="ai-loading"><div class="ai-spinner"></div>종합 분석을 생성하고 있습니다...</div>
+      </div>`;
+      callAISummary(lp, mn, py, nameRaw, destinyNum, soulNum, personalityNum, maturityNum, y, m, d);
+    } else {
+      document.getElementById('aiSummaryContent').innerHTML = gateHTML('basic','AI 종합 요약','핵심 수들을 종합한 당신만의 성격·잠재력 분석 한 단락을 AI가 생성합니다.');
+    }
   }
 
   // ── 3. 현재 흐름 (모든 플랜) ──

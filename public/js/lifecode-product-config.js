@@ -16,20 +16,14 @@ export const LIFECODE_PRODUCT = {
   /** DOM id — 단품에서 제외(팔자 풀버전에만 있음) */
   hiddenSections: [
     'weeklyForecastSection',
+    'aiSummarySection',
     'aiTodaySection',
     'loshuSection',
   ],
 
-  sectionLabels: {
-    aiSummarySection: '종합 해석 노트',
-  },
-
-  aiSummaryTag: '맞춤 해석 생성 중',
-  aiSummaryDoneTag: '종합 해석',
-
   readingGuideKicker: '라이프코드 단품에 포함된 모듈입니다.',
   readingGuideFootnote:
-    '단품에는 7일 예보·오늘 AI 메시지·로슈 격자는 포함하지 않습니다. 우측 목차에서 이동할 수 있습니다.',
+    '단품에는 AI 요약·7일 예보·로슈 격자는 포함하지 않습니다. 우측 목차에서 이동할 수 있습니다.',
 
   pdfFilenamePrefix: '라이프코드',
 
@@ -38,7 +32,6 @@ export const LIFECODE_PRODUCT = {
     { href: '#nav-core', title: '핵심 수', desc: '생년월일·이름에서 뽑은 대표 수비학 숫자와 해석.' },
     { href: '#zodiacInsightSection', title: '별자리', desc: '생일 기준 별자리 레이어(수비 숫자와 함께 읽기).' },
     { href: '#period48Section', title: '48주기 성격', desc: '생일 구간별 성격·역할 패턴(48 세그먼트).' },
-    { href: '#aiSummarySection', title: '종합 해석 노트', desc: '핵심 수를 한 단락으로 엮은 맞춤 요약.' },
     { href: '#nav-major-cycle', title: '대주기', desc: '인생을 세 구간으로 나눈 장기 흐름.' },
     { href: '#nav-life-four', title: '인생 4단계', desc: '피나클·챌린지 네 구간.' },
     { href: '#timelineSection', title: '10년 타임라인', desc: '앞으로 10년 개인년도 흐름.' },
