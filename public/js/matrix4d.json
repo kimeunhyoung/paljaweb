@@ -1,0 +1,90 @@
+{
+  "Fire": {
+    "Fire": {
+      "Cardinal": { "Cardinal": 3, "Fixed": 2, "Mutable": 9 },
+      "Fixed": { "Cardinal": 2, "Fixed": 20, "Mutable": 6 },
+      "Mutable": { "Cardinal": 9, "Fixed": 6, "Mutable": 8 }
+    },
+    "Earth": {
+      "Cardinal": { "Cardinal": 4, "Fixed": 2, "Mutable": 14 },
+      "Fixed": { "Cardinal": 2, "Fixed": 18, "Mutable": 13 },
+      "Mutable": { "Cardinal": 14, "Fixed": 13, "Mutable": 16 }
+    },
+    "Air": {
+      "Cardinal": { "Cardinal": 5, "Fixed": 3, "Mutable": 17 },
+      "Fixed": { "Cardinal": 3, "Fixed": 12, "Mutable": 9 },
+      "Mutable": { "Cardinal": 17, "Fixed": 9, "Mutable": 8 }
+    },
+    "Water": {
+      "Cardinal": { "Cardinal": 6, "Fixed": 7, "Mutable": 19 },
+      "Fixed": { "Cardinal": 7, "Fixed": 11, "Mutable": 6 },
+      "Mutable": { "Cardinal": 19, "Fixed": 6, "Mutable": 10 }
+    }
+  },
+  "Earth": {
+    "Fire": {
+      "Cardinal": { "Cardinal": 4, "Fixed": 2, "Mutable": 14 },
+      "Fixed": { "Cardinal": 2, "Fixed": 18, "Mutable": 13 },
+      "Mutable": { "Cardinal": 14, "Fixed": 13, "Mutable": 16 }
+    },
+    "Earth": {
+      "Cardinal": { "Cardinal": 4, "Fixed": 18, "Mutable": 14 },
+      "Fixed": { "Cardinal": 18, "Fixed": 20, "Mutable": 13 },
+      "Mutable": { "Cardinal": 14, "Fixed": 13, "Mutable": 8 }
+    },
+    "Air": {
+      "Cardinal": { "Cardinal": 13, "Fixed": 2, "Mutable": 18 },
+      "Fixed": { "Cardinal": 2, "Fixed": 14, "Mutable": 16 },
+      "Mutable": { "Cardinal": 18, "Fixed": 16, "Mutable": 5 }
+    },
+    "Water": {
+      "Cardinal": { "Cardinal": 1, "Fixed": 7, "Mutable": 12 },
+      "Fixed": { "Cardinal": 7, "Fixed": 14, "Mutable": 19 },
+      "Mutable": { "Cardinal": 12, "Fixed": 19, "Mutable": 8 }
+    }
+  },
+  "Air": {
+    "Fire": {
+      "Cardinal": { "Cardinal": 5, "Fixed": 3, "Mutable": 17 },
+      "Fixed": { "Cardinal": 3, "Fixed": 12, "Mutable": 9 },
+      "Mutable": { "Cardinal": 17, "Fixed": 9, "Mutable": 8 }
+    },
+    "Earth": {
+      "Cardinal": { "Cardinal": 13, "Fixed": 2, "Mutable": 18 },
+      "Fixed": { "Cardinal": 2, "Fixed": 14, "Mutable": 16 },
+      "Mutable": { "Cardinal": 18, "Fixed": 16, "Mutable": 5 }
+    },
+    "Air": {
+      "Cardinal": { "Cardinal": 5, "Fixed": 17, "Mutable": 13 },
+      "Fixed": { "Cardinal": 17, "Fixed": 20, "Mutable": 16 },
+      "Mutable": { "Cardinal": 13, "Fixed": 16, "Mutable": 8 }
+    },
+    "Water": {
+      "Cardinal": { "Cardinal": 6, "Fixed": 7, "Mutable": 10 },
+      "Fixed": { "Cardinal": 7, "Fixed": 11, "Mutable": 15 },
+      "Mutable": { "Cardinal": 10, "Fixed": 15, "Mutable": 5 }
+    }
+  },
+  "Water": {
+    "Fire": {
+      "Cardinal": { "Cardinal": 6, "Fixed": 7, "Mutable": 19 },
+      "Fixed": { "Cardinal": 7, "Fixed": 11, "Mutable": 6 },
+      "Mutable": { "Cardinal": 19, "Fixed": 6, "Mutable": 10 }
+    },
+    "Earth": {
+      "Cardinal": { "Cardinal": 1, "Fixed": 7, "Mutable": 12 },
+      "Fixed": { "Cardinal": 7, "Fixed": 14, "Mutable": 19 },
+      "Mutable": { "Cardinal": 12, "Fixed": 19, "Mutable": 8 }
+    },
+    "Air": {
+      "Cardinal": { "Cardinal": 6, "Fixed": 7, "Mutable": 10 },
+      "Fixed": { "Cardinal": 7, "Fixed": 11, "Mutable": 15 },
+      "Mutable": { "Cardinal": 10, "Fixed": 15, "Mutable": 5 }
+    },
+    "Water": {
+      "Cardinal": { "Cardinal": 1, "Fixed": 7, "Mutable": 6 },
+      "Fixed": { "Cardinal": 7, "Fixed": 11, "Mutable": 19 },
+      "Mutable": { "Cardinal": 6, "Fixed": 19, "Mutable": 10 }
+    }
+  }
+}

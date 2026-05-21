@@ -2191,6 +2191,19 @@
     }
 
     /* ── 48주기 성격학 ── */
+    .period48-section-lede {
+      text-align: center;
+      font-size: 12px;
+      color: var(--muted);
+      margin: -8px 0 16px;
+      line-height: 1.55;
+    }
+    .period48-engine-note {
+      font-size: 11px;
+      color: var(--muted);
+      margin-top: 10px;
+      letter-spacing: 0.02em;
+    }
     .period48-card {
       background: white;
       border: 1px solid var(--border);
@@ -3008,6 +3021,7 @@
       <span class="section-label">48주기 성격학</span>
       <div class="section-line"></div>
     </div>
+    <p class="period48-section-lede">생년월일은 <strong>태양 황도 경도</strong>로 48주간(No.01~48)을 판정합니다.</p>
     <div id="period48Content"></div>
   </div>
 
@@ -4201,6 +4215,9 @@ window.NUMEROLOGY_DATA = (() => {
 <script src="../js/period48LifeZones.js?v=20260517p48v6"></script>
 <script src="../js/period48Data.js?v=20260517p48v6"></script>
 <script src="../js/period48Profiles.js?v=20260517p48v6"></script>
+<script src="../js/period48-compat-matrix.js?v=20260521p48"></script>
+<script src="../js/period48-engine.js?v=20260521p48"></script>
+<script src="../js/period48-core.js?v=20260521p48"></script>
 
 <script>
 const _ND = window.NUMEROLOGY_DATA;
@@ -4900,13 +4917,6 @@ function period48UsesExtendedProfile(p) {
   return !!(p && String(p.temperament || '').trim());
 }
 
-function resolvePeriod48LifeZone(p) {
-  const id = p?.lifeZoneId;
-  const zones = window.PERIOD_48_LIFE_ZONES;
-  if (!id || !zones || !zones[id]) return null;
-  return zones[id];
-}
-
 function escapeHtmlRich(text) {
   if (!text) return '';
   return escapeHtml(String(text)).replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
@@ -4962,7 +4972,7 @@ function period48CycleIntroHtml(p) {
 
 function buildPeriod48FinalLayout(p) {
   const showProfileMeta = !!(p && (p.displayName || p.showPeriod48MetaPanel));
-  const zone = p.lifeZone || resolvePeriod48LifeZone(p);
+  const zone = p.lifeZone || window.resolvePeriod48LifeZone(p);
   const zoneLine = zone
     ? `${zone.symbol || ''} ${(zone.zoneTitle || zone.signName || '').trim()} [${zone.stageLabel || ''} : ${zone.ageRange || ''}]`.trim()
     : '';
@@ -5038,13 +5048,14 @@ function buildPeriod48FinalLayout(p) {
     </section>`;
 
   return `${block1}${block2}${block3}${block4}${block5}
-    <div class="period48-source">* Gary Goldschneider & Joost Elffers의 《The Secret Language of Birthdays》를 바탕으로 한 48주기 성격 분석 체계입니다.</div>`;
+    ${period48EngineNoteHtml(p)}
+    <div class="period48-source">* Gary Goldschneider & Joost Elffers의 《The Secret Language of Birthdays》를 바탕으로 한 48주기 성격 분석 체계입니다. 주간 판정은 태양 황도 경도 기준입니다.</div>`;
 }
 
 
 
 function buildPeriod48LifeZoneHtml(p) {
-  const zone = p.lifeZone || resolvePeriod48LifeZone(p);
+  const zone = p.lifeZone || window.resolvePeriod48LifeZone(p);
   if (!zone) return '';
   const sync = zone.syncKeywords
     ? `<div class="period48-life-zone-sync"><strong>시스템 동기화 키워드:</strong> ${escapeHtml(zone.syncKeywords)}</div>`
@@ -5091,10 +5102,28 @@ function renderPeriod48KeywordTags(p) {
   return `<div class="period48-keywords">${posHtml}</div>`;
 }
 
-function renderPeriod48(m, d) {
+function period48DisplayElement(p) {
+  const elKo = window.PERIOD48_ELEMENT_KO || {};
+  const modKo = window.PERIOD48_MODALITY_KO || {};
+  if (p.engineElement && p.engineModality) {
+    const ek = elKo[p.engineElement] || p.engineElement;
+    const mk = modKo[p.engineModality] || p.engineModality;
+    return `${ek} · ${mk}`;
+  }
+  return p.element || '';
+}
+
+function period48EngineNoteHtml(p) {
+  if (p.sunLongitude == null) return '';
+  return `<div class="period48-engine-note">태양 황도 ${escapeHtml(String(p.sunLongitude))}° · Period No.${String(p.no || '').padStart(2, '0')} (황도 기준)</div>`;
+}
+
+function renderPeriod48(y, m, d) {
   const el = document.getElementById('period48Content');
   if (!el) return;
-  const p = getPeriod48(m, d);
+  const p = typeof window.getPeriod48FromBirthdate === 'function'
+    ? window.getPeriod48FromBirthdate(y, m, d)
+    : window.getPeriod48(m, d);
   if (!p) { el.innerHTML = ''; return; }
   if (period48UsesExtendedProfile(p)) {
     el.innerHTML = `<div class="period48-card period48-card--extended period48-card--final">${buildPeriod48FinalLayout(p)}</div>`;
@@ -5113,7 +5142,7 @@ function renderPeriod48(m, d) {
         </div>
         <div class="period48-meta-item">
           <div class="period48-meta-label">원소</div>
-          <div class="period48-meta-val">${escapeHtml(p.element || '')}</div>
+          <div class="period48-meta-val">${escapeHtml(period48DisplayElement(p))}</div>
         </div>
         <div class="period48-meta-item">
           <div class="period48-meta-label">지배 행성</div>
@@ -5149,7 +5178,8 @@ function renderPeriod48(m, d) {
       ${overviewBlock}
       ${traitGroupsHtml}
       ${footerHints}
-      <div class="period48-source">* Gary Goldschneider & Joost Elffers의 《The Secret Language of Birthdays》를 바탕으로 한 48주기 성격 분석 체계입니다.</div>
+      ${period48EngineNoteHtml(p)}
+      <div class="period48-source">* Gary Goldschneider & Joost Elffers의 《The Secret Language of Birthdays》를 바탕으로 한 48주기 성격 분석 체계입니다. 주간 판정은 태양 황도 경도 기준입니다.</div>
     </div>`;
 }
 
@@ -5160,7 +5190,8 @@ function buildPeriod48ExtendedMeta(p) {
   if (p.dateLabel) items.push({ label: '표준 날짜', val: p.dateLabel });
   if (p.developmentStage) items.push({ label: '인간 발달 단계', val: p.developmentStage });
   if (p.tarot) items.push({ label: '타로 카드', val: p.tarot });
-  if (p.element) items.push({ label: '원소', val: p.element });
+  const elVal = period48DisplayElement(p);
+  if (elVal) items.push({ label: '원소', val: elVal });
   if (p.planet) items.push({ label: '지배 행성', val: p.planet });
   if (!items.length) return '';
   const cells = items.map((it) => `
@@ -6126,7 +6157,7 @@ async function runAnalysis() {
       <button type="button" class="gate-btn" style="background:var(--warm-brown)" onclick="downloadAnalysisPdf()">PDF로 저장하기</button>`;
   }
 
-  renderPeriod48(m, d);
+  renderPeriod48(y, m, d);
 
   const waitEl = document.getElementById('analysisWait');
   if (waitEl) waitEl.style.display = 'none';
@@ -6305,8 +6336,7 @@ async function callAIToday(lp, py, pm, pd, curY, curM, curD) {
   }
 }
 
-// 48주기 성격학 데이터는 js/period48Data.js에서 로드됩니다 (window.PERIOD_48_DATA).
-
+// 48주기: period48Data.js + period48-engine.js (황도) + period48-core.js
 
 const TAROT_IMG = {
   '세계':   'RWS_Tarot_21_World.jpg',
@@ -6338,29 +6368,6 @@ function getTarotImgUrl(tarotStr) {
   }
   return null;
 }
-
-function getPeriod48(m, d) {
-  const data = window.PERIOD_48_DATA;
-  if (!data || !data.length) return null;
-  const profiles = window.PERIOD_48_PROFILES || {};
-  for (const p of data) {
-    const [sm, sd, em, ed] = p.r;
-    const dateVal = m * 100 + d;
-    const startVal = sm * 100 + sd;
-    const endVal = em * 100 + ed;
-    const inRange = startVal <= endVal
-      ? (dateVal >= startVal && dateVal <= endVal)
-      : (dateVal >= startVal || dateVal <= endVal);
-    if (!inRange) continue;
-    const prof = profiles[p.name];
-    const merged = prof ? { ...p, ...prof, traits: [] } : { ...p };
-    const zone = resolvePeriod48LifeZone(merged);
-    if (zone) merged.lifeZone = zone;
-    return merged;
-  }
-  return null;
-}
-
 
 // ── INIT ──
 (async () => {
