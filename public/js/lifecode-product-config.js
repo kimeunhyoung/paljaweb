@@ -13,17 +13,12 @@ export const LIFECODE_PRODUCT = {
 
   waitNote: '접속 코드로 열린 <strong>라이프코드 단품</strong> 리포트입니다. 분석하기를 누르면 아래에 결과가 펼쳐집니다.',
 
-  /** DOM id — 단품에서 제외(팔자 풀버전에만 있음) */
-  hiddenSections: [
-    'weeklyForecastSection',
-    'aiSummarySection',
-    'aiTodaySection',
-    'loshuSection',
-  ],
+  /** DOM id — 단품에서 제외 */
+  hiddenSections: ['aiSummarySection', 'aiTodaySection'],
 
   readingGuideKicker: '라이프코드 단품에 포함된 모듈입니다.',
   readingGuideFootnote:
-    '단품에는 AI 요약·7일 예보·로슈 격자는 포함하지 않습니다. 우측 목차에서 이동할 수 있습니다.',
+    '단품에는 AI 요약·오늘 메시지는 포함하지 않습니다. 우측 목차에서 이동할 수 있습니다.',
 
   pdfFilenamePrefix: '라이프코드',
 
@@ -37,7 +32,17 @@ export const LIFECODE_PRODUCT = {
     { href: '#timelineSection', title: '10년 타임라인', desc: '앞으로 10년 개인년도 흐름.' },
     { href: '#monthlySection', title: '월간 흐름', desc: '선택 연도의 월별 리듬.' },
     { href: '#nav-flow', title: '지금의 흐름', desc: '올해·이번 달·오늘의 수.' },
+    {
+      href: '#weeklyForecastSection',
+      title: '향후 7일',
+      desc: '오늘부터 7일간 일간 수·에너지 가이드 표.',
+    },
     { href: '#growthSection', title: '성장 지도', desc: '비어 있는 숫자·보완 포인트.' },
+    {
+      href: '#loshuSection',
+      title: '로슈 격자',
+      desc: '생일 숫자를 마방진에 올려 화살·결손·반복 패턴을 읽습니다.',
+    },
   ],
 };
 
