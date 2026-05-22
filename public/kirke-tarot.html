@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <script>
+    (function () {
+      try {
+        var p = new URLSearchParams(window.location.search);
+        if (p.get('standalone') === '1' || p.get('app') === 'kirke') {
+          document.documentElement.classList.add('kirke-standalone');
+        }
+      } catch (e) {}
+    })();
+  </script>
+  <title>키르케타로코드 — Circe Tarot · 팔자연구소</title>
+  <meta name="description" content="키르케와 율리시스 신화의 Circe Tarot 78장. 팔자연구소 키르케타로코드."/>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400&family=Noto+Serif+KR:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/topbar-session.js?v=5" defer></script>
+  <script src="js/kirke-tarot-deck.js?v=20260522k" defer></script>
+  <script src="js/kirke-tarot.js?v=20260522k" defer></script>
+  <style>
+    :root {
+      --cream: #f0ebe3;
+      --mist: #e8e4f0;
+      --sea: #2d4a5e;
+      --deep: #1a1628;
+      --ink: #2c1f0e;
+      --gold: #c9a227;
+      --gold-lt: #e8d5a8;
+      --muted: #7a6f8a;
+      --border: rgba(42, 36, 56, 0.12);
+      --font-serif: 'Cormorant Garamond', 'Noto Serif KR', serif;
+      --font-body: 'Noto Serif KR', serif;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; background: var(--cream); }
+    body {
+      font-family: var(--font-body);
+      background: linear-gradient(165deg, var(--mist) 0%, var(--cream) 45%, #ddd6c8 100%);
+      color: var(--ink);
+      min-height: 100vh;
+    }
+    .site-top {
+      position: sticky; top: 0; z-index: 100;
+      background: rgba(240, 235, 227, 0.97);
+      box-shadow: 0 6px 18px rgba(26, 22, 40, 0.06);
+    }
+    .topbar {
+      min-height: 52px;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 10px 32px; gap: 16px;
+      border-bottom: 1px solid var(--border);
+    }
+    .topbar-logo {
+      display: inline-flex; align-items: center; gap: 10px;
+      text-decoration: none; color: var(--deep);
+      font-weight: 700; font-size: 16px;
+    }
+    .topbar-logo-mark {
+      width: 30px; height: 30px; border-radius: 9px;
+      background: linear-gradient(160deg, var(--sea), var(--deep));
+      color: var(--gold-lt);
+      display: inline-flex; align-items: center; justify-content: center;
+      font-family: var(--font-serif); font-size: 17px;
+    }
+    .topbar-sep { width: 1px; height: 16px; background: var(--border); }
+    .topbar-title { font-size: 14px; font-weight: 600; color: var(--deep); }
+    .back-btn {
+      font-size: 12px; color: var(--sea); text-decoration: none;
+      border: 1px solid var(--border); padding: 6px 12px; border-radius: 6px;
+      background: #fff;
+    }
+    .program-nav {
+      border-bottom: 1px solid var(--border);
+      background: rgba(255, 255, 255, 0.5);
+      padding: 0 32px;
+    }
+    .program-nav-inner {
+      max-width: 1100px; margin: 0 auto;
+      display: flex; flex-wrap: wrap; gap: 6px 16px;
+      padding: 7px 0 9px; font-size: 12px;
+    }
+    .program-nav-inner a { color: var(--muted); text-decoration: none; font-weight: 600; }
+    .program-nav-inner a:hover { color: var(--deep); }
+    .program-nav-current { color: var(--deep); font-weight: 700; }
+
+    html.kirke-standalone .program-nav { display: none !important; }
+    html.kirke-standalone .topbar-sep,
+    html.kirke-standalone .topbar-title { display: none; }
+
+    .wrap { max-width: 920px; margin: 0 auto; padding: 36px 24px 80px; }
+    .brand { text-align: center; margin-bottom: 32px; }
+    .brand-badge {
+      display: inline-block; font-size: 11px; letter-spacing: 0.14em;
+      color: var(--sea); margin-bottom: 12px;
+    }
+    .brand-title {
+      font-family: var(--font-serif);
+      font-size: clamp(30px, 6vw, 44px);
+      font-weight: 500; color: var(--deep);
+      margin-bottom: 10px;
+    }
+    .brand-sub { font-size: 14px; color: var(--muted); line-height: 1.65; max-width: 32rem; margin: 0 auto; }
+    .brand-line {
+      margin-top: 14px; font-size: 12px; color: var(--sea);
+      letter-spacing: 0.06em;
+    }
+    .prep-banner {
+      text-align: center;
+      font-size: 13px;
+      color: var(--sea);
+      background: rgba(45, 74, 94, 0.08);
+      border: 1px dashed rgba(45, 74, 94, 0.25);
+      border-radius: 10px;
+      padding: 12px 16px;
+      margin-bottom: 24px;
+      line-height: 1.55;
+    }
+    .step-card {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 24px 22px;
+      margin-bottom: 20px;
+      box-shadow: 0 8px 24px rgba(26, 22, 40, 0.04);
+    }
+    .step-label { font-size: 11px; letter-spacing: 0.1em; color: var(--sea); font-weight: 700; margin-bottom: 8px; }
+    .step-title { font-size: 18px; font-weight: 600; color: var(--deep); margin-bottom: 12px; }
+    .step-note { font-size: 13px; color: var(--muted); line-height: 1.65; margin-bottom: 16px; }
+    .field { margin-bottom: 14px; }
+    .field label { display: block; font-size: 12px; font-weight: 600; color: var(--muted); margin-bottom: 6px; }
+    .field select, .field textarea {
+      width: 100%; font-family: inherit; font-size: 14px;
+      padding: 10px 12px; border: 1px solid var(--border);
+      border-radius: 8px; background: var(--cream);
+    }
+    .field textarea { min-height: 72px; resize: vertical; }
+    .cta-btn {
+      font-family: inherit; font-size: 15px; font-weight: 600;
+      padding: 14px 32px; border: none; border-radius: 999px;
+      background: linear-gradient(135deg, var(--deep), var(--sea));
+      color: var(--gold-lt); cursor: pointer; letter-spacing: 0.04em;
+      width: 100%; max-width: 320px;
+      display: block; margin: 8px auto 0;
+    }
+    .cta-btn:hover { filter: brightness(1.08); }
+    .deck-instruction { text-align: center; margin-bottom: 16px; font-size: 14px; color: var(--muted); line-height: 1.6; }
+    .deck-instruction strong { color: var(--deep); }
+    .kirke-deck-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(44px, 1fr));
+      gap: 6px;
+    }
+    .kirke-deck-card {
+      aspect-ratio: 2/3;
+      border: 1px solid rgba(26, 22, 40, 0.2);
+      border-radius: 6px;
+      background: linear-gradient(145deg, var(--deep), var(--sea));
+      cursor: pointer;
+      transition: transform 0.12s, box-shadow 0.12s;
+    }
+    .kirke-deck-card:hover:not(.drawn) {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(26, 22, 40, 0.2);
+    }
+    .kirke-deck-card.drawn { opacity: 0.25; pointer-events: none; }
+    .kirke-drawn-row {
+      display: flex; flex-wrap: wrap; justify-content: center;
+      gap: 20px; margin-bottom: 24px;
+    }
+    .kirke-card-wrap { width: 140px; text-align: center; }
+    .kirke-card-pos {
+      font-size: 11px; font-weight: 700; color: var(--sea);
+      margin-bottom: 8px; letter-spacing: 0.04em;
+    }
+    .kirke-tarot-card {
+      width: 140px; height: 210px;
+      perspective: 900px; cursor: pointer;
+    }
+    .kirke-tarot-inner {
+      width: 100%; height: 100%;
+      position: relative;
+      transform-style: preserve-3d;
+      transition: transform 0.55s ease;
+    }
+    .kirke-tarot-card.flipped .kirke-tarot-inner { transform: rotateY(180deg); }
+    .kirke-tarot-back, .kirke-tarot-front {
+      position: absolute; inset: 0;
+      backface-visibility: hidden;
+      border-radius: 10px;
+      border: 1px solid rgba(201, 162, 39, 0.35);
+    }
+    .kirke-tarot-back {
+      background: linear-gradient(160deg, #1a1628, #3d2f5c);
+      display: flex; align-items: center; justify-content: center;
+      color: var(--gold-lt);
+      font-family: var(--font-serif);
+      font-size: 18px;
+      letter-spacing: 0.2em;
+    }
+    .kirke-tarot-front {
+      transform: rotateY(180deg);
+      background: var(--card-bg, #2a2438);
+      display: flex; flex-direction: column;
+      overflow: hidden;
+    }
+    .kirke-tarot-front.reversed .kirke-card-art img { transform: rotate(180deg); }
+    .kirke-rev-badge {
+      position: absolute; top: 6px; right: 6px;
+      font-size: 9px; padding: 2px 6px;
+      background: rgba(0,0,0,0.5); color: #fff;
+      border-radius: 4px; z-index: 2;
+    }
+    .kirke-card-art {
+      flex: 1; min-height: 0;
+      display: flex; align-items: center; justify-content: center;
+      position: relative;
+    }
+    .kirke-card-art img {
+      width: 100%; height: 100%;
+      object-fit: cover;
+    }
+    .kirke-card-placeholder {
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      gap: 6px; color: var(--gold-lt);
+      padding: 12px;
+    }
+    .kirke-card-placeholder[hidden] { display: none !important; }
+    .kirke-ph-no { font-family: var(--font-serif); font-size: 28px; }
+    .kirke-ph-label { font-size: 10px; opacity: 0.85; }
+    .kirke-card-meta {
+      padding: 8px;
+      background: rgba(0,0,0,0.35);
+      color: #fff;
+    }
+    .kirke-card-name { font-size: 11px; font-weight: 600; line-height: 1.3; }
+    .kirke-card-en { font-size: 9px; opacity: 0.75; margin-top: 2px; }
+    .kirke-reading {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 20px 18px;
+    }
+    .kirke-reading-title {
+      font-size: 12px; font-weight: 700; letter-spacing: 0.12em;
+      color: var(--sea); margin-bottom: 14px;
+    }
+    .kirke-reading-block {
+      margin-bottom: 18px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--border);
+    }
+    .kirke-reading-block:last-of-type { border-bottom: none; margin-bottom: 0; }
+    .kirke-reading-block h3 {
+      font-size: 15px; color: var(--deep);
+      margin-bottom: 6px; line-height: 1.45;
+    }
+    .kirke-reading-kw { font-size: 12px; color: var(--muted); margin-bottom: 8px; }
+    .kirke-reading-body { font-size: 14px; line-height: 1.75; color: var(--ink); }
+    .kirke-reading-note {
+      margin-top: 14px; font-size: 12px; color: var(--muted);
+      line-height: 1.55;
+    }
+    .reset-btn {
+      display: block; width: 100%; max-width: 280px;
+      margin: 24px auto 0; padding: 12px;
+      font-family: inherit; font-size: 13px;
+      background: transparent; border: 1px solid var(--border);
+      border-radius: 8px; color: var(--muted); cursor: pointer;
+    }
+    .reset-btn:hover { border-color: var(--sea); color: var(--deep); }
+    [hidden] { display: none !important; }
+
+    @media (max-width: 720px) {
+      .topbar, .program-nav { padding-left: 16px; padding-right: 16px; }
+      .kirke-card-wrap, .kirke-tarot-card { width: 120px; }
+      .kirke-tarot-card { height: 180px; }
+    }
+  </style>
+  <link rel="stylesheet" href="css/site-header.css?v=6"/>
+</head>
+<body>
+
+<div class="site-top">
+  <header class="topbar">
+    <div class="topbar-left">
+      <a class="topbar-logo" href="index.html"><span class="topbar-logo-mark" aria-hidden="true">⌁</span>팔자연구소</a>
+      <div class="topbar-sep"></div>
+      <span class="topbar-title">키르케타로코드</span>
+    </div>
+    <div class="topbar-right" data-topbar-auth aria-label="계정">
+      <a href="dashboard.html" class="back-btn">대시보드</a>
+    </div>
+  </header>
+  <nav class="program-nav" aria-label="팔자연구소 프로그램 이동">
+    <div class="program-nav-inner">
+      <a href="analysis.html">라이프코드</a>
+      <a href="Tarot.html">타로코드</a>
+      <a href="name.html">네임코드</a>
+      <a href="compatibility.html">소울하모니</a>
+      <a href="period48-compat.html">48궁합</a>
+      <span class="program-nav-current" aria-current="page">키르케타로</span>
+      <a href="counselor.html">상담사 허브</a>
+      <a href="pricing.html">요금제</a>
+    </div>
+  </nav>
+</div>
+
+<div class="wrap">
+  <header class="brand">
+    <div class="brand-badge">Circe Tarot · 키르케타로코드</div>
+    <h1 class="brand-title">키르케의 섬에서 펼치는 78장</h1>
+    <p class="brand-sub">마녀이자 여신 키르케와 율리시스의 항해를 담은 Circe Tarot. 유니버설 78장 구조로, 신화의 언어로 관계와 선택을 읽습니다.</p>
+    <div class="brand-line">78 cards · 3-card spread (뼈대)</div>
+  </header>
+
+  <p class="prep-banner">이미지·카드별 해설은 제작 중입니다. 지금은 3장 스프레드와 덱 구조만 이용할 수 있어요.</p>
+
+  <section id="kirkeStep1">
+    <div class="step-card">
+      <div class="step-label">Step 01</div>
+      <div class="step-title">마음에 두고 카드를 고르세요</div>
+      <p class="step-note">주제를 고른 뒤 78장 덱에서 직관으로 3장을 선택합니다. 과거 · 현재 · 항로 순으로 해석합니다.</p>
+      <div class="field">
+        <label for="kirkeTopic">주제</label>
+        <select id="kirkeTopic">
+          <option value="general">전반적인 흐름</option>
+          <option value="love">사랑·관계</option>
+          <option value="path">선택·길</option>
+          <option value="transform">변신·치유</option>
+          <option value="custom">직접 질문</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="kirkeQuestion">질문 (직접 입력 시)</label>
+        <textarea id="kirkeQuestion" placeholder="예: 지금 이 관계에서 나는 어떤 변신을 거치고 있을까요?"></textarea>
+      </div>
+      <button type="button" class="cta-btn" onclick="startKirkeSpread()">✦ 카드 펼치기</button>
+    </div>
+  </section>
+
+  <section id="kirkeStep2" hidden>
+    <div class="step-card">
+      <div class="step-label">Step 02</div>
+      <div class="step-title">카드 <strong id="kirkeDrawCount">3</strong>장을 골라주세요</div>
+      <p class="deck-instruction">눈을 감고 호흡을 고른 뒤, 끌리는 카드를 <strong id="kirkeDrawCount2">3</strong>번 눌러주세요.</p>
+      <div class="kirke-deck-grid" id="kirkeDeckGrid"></div>
+    </div>
+  </section>
+
+  <section id="kirkeStep3" hidden>
+    <div class="step-card">
+      <div class="step-label">Step 03</div>
+      <div class="step-title">카드를 눌러 공개하세요</div>
+      <div class="kirke-drawn-row" id="kirkeDrawnRow"></div>
+      <div class="kirke-reading" id="kirkeReading"></div>
+      <button type="button" class="reset-btn" onclick="resetKirkeTarot()">↺ 새 리딩</button>
+    </div>
+  </section>
+</div>
+
+<script>
+  document.getElementById('kirkeDrawCount2').textContent =
+    document.getElementById('kirkeDrawCount').textContent;
+</script>
+</body>
+</html>

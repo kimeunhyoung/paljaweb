@@ -18,7 +18,7 @@
   <script src="js/period48-compat-engine.js?v=20260521p48c" defer></script>
   <script src="js/period48-relationship-types.js?v=20260522p48d" defer></script>
   <script src="js/period48-core.js?v=20260522p48" defer></script>
-  <script src="js/period48-compat.js?v=20260522p48r" defer></script>
+  <script src="js/period48-compat.js?v=20260522p48read" defer></script>
   <style>
     :root {
       --cream: #f5f0e8;
@@ -192,8 +192,12 @@
       color: var(--deep-brown); margin-bottom: 8px;
     }
     .score-caption {
-      font-size: 14px; color: var(--muted);
-      line-height: 1.65; max-width: 480px; margin: 0 auto;
+      font-size: 15px;
+      color: var(--deep-brown);
+      line-height: 1.7;
+      max-width: 36rem;
+      margin: 0 auto;
+      font-weight: 500;
     }
     .p48-person-grid {
       display: grid;
@@ -229,72 +233,126 @@
       line-height: 1.55; margin-top: 8px;
     }
     .p48-detail {
-      background: rgba(255,255,255,.7);
+      background: #fff;
       border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 16px 18px;
-      font-size: 13px; color: var(--muted);
+      border-radius: 14px;
+      padding: 22px 24px 20px;
+      font-size: 14px;
+      color: var(--ink);
+      line-height: 1.65;
+    }
+    .p48-detail-headline {
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--deep-brown);
+      margin-bottom: 18px;
+      padding-bottom: 14px;
+      border-bottom: 1px solid var(--border);
+      line-height: 1.5;
+    }
+    .p48-detail-headline strong {
+      font-family: var(--font-serif);
+      font-size: 1.15em;
+      font-weight: 500;
+      letter-spacing: 0.02em;
+    }
+    .p48-detail-line { margin-bottom: 8px; }
+    .p48-detail-foot {
+      margin-top: 18px;
+      padding-top: 16px;
+      border-top: 1px solid var(--border);
+      font-size: 13px;
+      color: var(--muted);
       line-height: 1.6;
     }
-    .p48-detail-line { margin-bottom: 6px; }
+    .p48-detail-foot .p48-detail-line:last-child { margin-bottom: 0; }
     .p48-detail-meta {
       font-size: 12px;
       color: var(--muted);
-      margin: 10px 0 8px;
-      opacity: 0.9;
+      margin: 0 0 10px;
+      line-height: 1.55;
     }
     .p48-rel-desc {
-      margin: 14px 0 12px;
-      padding: 14px 16px;
-      background: #fff;
-      border-radius: 8px;
-      border: 1px solid var(--border);
+      margin: 0 0 4px;
+      padding: 0;
+      background: transparent;
+      border: none;
       color: var(--ink);
     }
     .p48-rel-desc-title {
-      font-size: 12px;
-      font-weight: 700;
-      letter-spacing: 0.06em;
-      color: var(--warm-brown);
-      margin-bottom: 10px;
-    }
-    .p48-rel-catchphrase {
-      font-size: 15px;
-      font-weight: 600;
-      line-height: 1.55;
-      color: var(--deep-brown);
-      margin-bottom: 14px;
-      padding-bottom: 12px;
-      border-bottom: 1px solid var(--border);
-    }
-    .p48-rel-field {
-      margin-bottom: 12px;
-    }
-    .p48-rel-field:last-child { margin-bottom: 0; }
-    .p48-rel-field-label {
       font-size: 11px;
       font-weight: 700;
-      letter-spacing: 0.05em;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
       color: var(--warm-brown);
-      margin-bottom: 4px;
+      margin-bottom: 14px;
+    }
+    .p48-rel-catchphrase {
+      font-size: 17px;
+      font-weight: 600;
+      line-height: 1.6;
+      color: var(--deep-brown);
+      margin: 0 0 20px;
+      padding: 14px 16px 14px 18px;
+      background: var(--parchment);
+      border-radius: 10px;
+      border-left: 4px solid var(--accent);
+      max-width: 40rem;
+    }
+    .p48-rel-fields {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      max-width: 40rem;
+    }
+    .p48-rel-field {
+      margin: 0;
+      padding: 14px 16px;
+      border-radius: 10px;
+      background: rgba(245, 240, 232, 0.45);
+      border: 1px solid rgba(139, 111, 71, 0.12);
+    }
+    .p48-rel-field-label {
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      color: var(--warm-brown);
+      margin-bottom: 8px;
     }
     .p48-rel-field-text {
-      font-size: 13px;
-      line-height: 1.65;
+      font-size: 15px;
+      line-height: 1.75;
       color: var(--ink);
+      margin: 0;
     }
-    .p48-rel-field--virtue .p48-rel-field-label { color: #5a7040; }
-    .p48-rel-field--shadow .p48-rel-field-label { color: #8b5a48; }
+    .p48-rel-field--identity {
+      background: #fff;
+      border-color: var(--border);
+    }
+    .p48-rel-field--virtue {
+      border-left: 3px solid #6d8f52;
+    }
+    .p48-rel-field--virtue .p48-rel-field-label { color: #4a6238; }
+    .p48-rel-field--shadow {
+      border-left: 3px solid #a67c5b;
+    }
+    .p48-rel-field--shadow .p48-rel-field-label { color: #7a4f38; }
     .p48-rel-field--action {
-      margin-top: 4px;
-      padding-top: 12px;
-      border-top: 1px dashed var(--border);
+      background: rgba(200, 169, 110, 0.14);
+      border: 1px solid rgba(200, 169, 110, 0.35);
+      border-left: 3px solid var(--accent);
     }
+    .p48-rel-field--action .p48-rel-field-label { color: var(--deep-brown); }
     .p48-rel-field--action .p48-rel-field-text {
       font-weight: 500;
       color: var(--deep-brown);
     }
-    .p48-detail-hint { margin-top: 12px; }
+    .p48-detail-hint {
+      margin-top: 14px;
+      font-size: 12px;
+      line-height: 1.6;
+      color: var(--muted);
+    }
     .p48-detail a { color: var(--warm-brown); font-weight: 600; }
     .reset-btn {
       display: block; width: 100%; max-width: 280px;
@@ -310,6 +368,10 @@
       .input-panel { grid-template-columns: 1fr; }
       .divider-col .hex { margin: 4px auto; }
       .p48-person-grid { grid-template-columns: 1fr; }
+      .p48-detail { padding: 18px 16px; }
+      .p48-rel-catchphrase,
+      .p48-rel-fields { max-width: none; }
+      .p48-rel-field-text { font-size: 14px; }
     }
   </style>
   <link rel="stylesheet" href="css/site-header.css?v=6"/>
@@ -334,6 +396,7 @@
       <a href="name.html">네임코드</a>
       <a href="compatibility.html">소울하모니</a>
       <span class="program-nav-current" aria-current="page">48궁합</span>
+      <a href="kirke-tarot.html">키르케타로</a>
       <a href="counselor.html">상담사 허브</a>
       <a href="pricing.html">요금제</a>
     </div>

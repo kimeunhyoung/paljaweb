@@ -91,21 +91,25 @@
           ? `<div class="p48-rel-desc">
             <h3 class="p48-rel-desc-title">관계 유형 해설</h3>
             ${score.relationship_catchphrase ? `<p class="p48-rel-catchphrase">${escapeHtml(score.relationship_catchphrase)}</p>` : ''}
-            ${relRows}
+            ${relRows ? `<div class="p48-rel-fields">${relRows}</div>` : ''}
           </div>`
           : '';
       const determinationLine = score.determinationNote
         ? `<p class="p48-detail-meta">${escapeHtml(score.determinationNote)}</p>`
         : '';
+      const techBlock = `
+        <div class="p48-detail-foot">
+          ${layer2Line}
+          ${aspectNote}
+          ${determinationLine}
+          <p class="p48-detail-line">첫 번째: ${escapeHtml(score.traitsA.elementLabel)} · ${escapeHtml(score.traitsA.modalityLabel)}${escapeHtml(lon1)}</p>
+          <p class="p48-detail-line">두 번째: ${escapeHtml(score.traitsB.elementLabel)} · ${escapeHtml(score.traitsB.modalityLabel)}${escapeHtml(lon2)}</p>
+          <p class="p48-detail-hint">Period·관계 유형은 태양 황도와 matrix4d 기준입니다. 수비학 궁합은 <a href="compatibility.html">소울하모니</a>에서 별도로 볼 수 있어요.</p>
+        </div>`;
       detail.innerHTML = `
-        <p class="p48-detail-line">관계 유형 <strong>No.${escapeHtml(score.typeIdDisplay)}</strong> — ${escapeHtml(score.relationship_title || '')}</p>
+        <p class="p48-detail-headline">관계 유형 <strong>No.${escapeHtml(score.typeIdDisplay)}</strong> — ${escapeHtml(score.relationship_title || '')}</p>
         ${descBlock}
-        ${layer2Line}
-        ${aspectNote}
-        ${determinationLine}
-        <p class="p48-detail-line">첫 번째: ${escapeHtml(score.traitsA.elementLabel)} · ${escapeHtml(score.traitsA.modalityLabel)}${escapeHtml(lon1)}</p>
-        <p class="p48-detail-line">두 번째: ${escapeHtml(score.traitsB.elementLabel)} · ${escapeHtml(score.traitsB.modalityLabel)}${escapeHtml(lon2)}</p>
-        <p class="p48-detail-hint">Period·관계 유형은 태양 황도와 matrix4d 기준입니다. 수비학 궁합은 <a href="compatibility.html">소울하모니</a>에서 별도로 볼 수 있어요.</p>`;
+        ${techBlock}`;
     }
     result.hidden = false;
     result.scrollIntoView({ behavior: 'smooth', block: 'start' });
