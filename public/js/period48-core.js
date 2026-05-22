@@ -117,20 +117,29 @@
     const traitsA = period48CompatTraits(pA);
     const traitsB = period48CompatTraits(pB);
 
-    let caption = `판정: ${r.determined_by_ko || r.determined_by || ''}`;
+    const relDetail = window.PERIOD48_RELATIONSHIP_DETAILS?.[typeId] || null;
+
+    let determinationNote = `판정: ${r.determined_by_ko || r.determined_by || ''}`;
     if (r.layer2_type_id != null && r.determined_by === 'Layer3:AspectOverride') {
       const t2 = window.PERIOD48_RELATIONSHIP_TYPES?.[r.layer2_type_id] || '';
-      caption += ` (매트릭스 ${String(r.layer2_type_id).padStart(2, '0')} ${t2} → 각도 보정)`;
+      determinationNote += ` (매트릭스 ${String(r.layer2_type_id).padStart(2, '0')} ${t2} → 각도 보정)`;
     }
-    if (r.aspectKo) caption += ` · 주간 각도 ${r.aspectKo}`;
+    if (r.aspectKo) determinationNote += ` · 주간 각도 ${r.aspectKo}`;
 
     return {
       relationship_type_id: typeId,
       relationship_title: r.relationship_title,
+      relationship_detail: relDetail,
+      relationship_catchphrase: relDetail?.catchphrase || '',
+      relationship_identity: relDetail?.identity || '',
+      relationship_virtue: relDetail?.virtue || '',
+      relationship_shadow: relDetail?.shadow || '',
+      relationship_action: relDetail?.action || '',
       typeIdDisplay: String(typeId).padStart(2, '0'),
       ringPercent: Math.round((typeId / 20) * 100),
       title: r.relationship_title,
-      caption,
+      caption: relDetail?.catchphrase || determinationNote,
+      determinationNote,
       sameWeek: !!r.sameWeek,
       aspect: r.aspect,
       aspectKo: r.aspectKo,

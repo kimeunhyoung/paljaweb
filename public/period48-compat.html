@@ -16,8 +16,9 @@
   <script src="js/period48-compat-matrix.js?v=20260521p48c" defer></script>
   <script src="js/period48-engine.js?v=20260521p48" defer></script>
   <script src="js/period48-compat-engine.js?v=20260521p48c" defer></script>
-  <script src="js/period48-core.js?v=20260521p48" defer></script>
-  <script src="js/period48-compat.js" defer></script>
+  <script src="js/period48-relationship-types.js?v=20260522p48d" defer></script>
+  <script src="js/period48-core.js?v=20260522p48" defer></script>
+  <script src="js/period48-compat.js?v=20260522p48r" defer></script>
   <style>
     :root {
       --cream: #f5f0e8;
@@ -236,6 +237,63 @@
       line-height: 1.6;
     }
     .p48-detail-line { margin-bottom: 6px; }
+    .p48-detail-meta {
+      font-size: 12px;
+      color: var(--muted);
+      margin: 10px 0 8px;
+      opacity: 0.9;
+    }
+    .p48-rel-desc {
+      margin: 14px 0 12px;
+      padding: 14px 16px;
+      background: #fff;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      color: var(--ink);
+    }
+    .p48-rel-desc-title {
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      color: var(--warm-brown);
+      margin-bottom: 10px;
+    }
+    .p48-rel-catchphrase {
+      font-size: 15px;
+      font-weight: 600;
+      line-height: 1.55;
+      color: var(--deep-brown);
+      margin-bottom: 14px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--border);
+    }
+    .p48-rel-field {
+      margin-bottom: 12px;
+    }
+    .p48-rel-field:last-child { margin-bottom: 0; }
+    .p48-rel-field-label {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      color: var(--warm-brown);
+      margin-bottom: 4px;
+    }
+    .p48-rel-field-text {
+      font-size: 13px;
+      line-height: 1.65;
+      color: var(--ink);
+    }
+    .p48-rel-field--virtue .p48-rel-field-label { color: #5a7040; }
+    .p48-rel-field--shadow .p48-rel-field-label { color: #8b5a48; }
+    .p48-rel-field--action {
+      margin-top: 4px;
+      padding-top: 12px;
+      border-top: 1px dashed var(--border);
+    }
+    .p48-rel-field--action .p48-rel-field-text {
+      font-weight: 500;
+      color: var(--deep-brown);
+    }
     .p48-detail-hint { margin-top: 12px; }
     .p48-detail a { color: var(--warm-brown); font-weight: 600; }
     .reset-btn {

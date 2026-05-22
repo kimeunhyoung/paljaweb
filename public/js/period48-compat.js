@@ -70,10 +70,39 @@
       const aspectNote = score.aspectKo
         ? `<p class="p48-detail-line">주간 각도: <strong>${escapeHtml(score.aspectKo)}</strong></p>`
         : '';
+      const relFields = [
+        { key: 'identity', label: '관계의 본질', text: score.relationship_identity },
+        { key: 'virtue', label: '빛의 상호작용', text: score.relationship_virtue, mod: 'virtue' },
+        { key: 'shadow', label: '그림자의 상호작용', text: score.relationship_shadow, mod: 'shadow' },
+        { key: 'action', label: '실천 솔루션', text: score.relationship_action, mod: 'action' },
+      ];
+      const relRows = relFields
+        .filter((f) => f.text)
+        .map(
+          (f) =>
+            `<div class="p48-rel-field p48-rel-field--${f.mod || f.key}">
+              <div class="p48-rel-field-label">${escapeHtml(f.label)}</div>
+              <p class="p48-rel-field-text">${escapeHtml(f.text)}</p>
+            </div>`
+        )
+        .join('');
+      const descBlock =
+        score.relationship_catchphrase || relRows
+          ? `<div class="p48-rel-desc">
+            <h3 class="p48-rel-desc-title">관계 유형 해설</h3>
+            ${score.relationship_catchphrase ? `<p class="p48-rel-catchphrase">${escapeHtml(score.relationship_catchphrase)}</p>` : ''}
+            ${relRows}
+          </div>`
+          : '';
+      const determinationLine = score.determinationNote
+        ? `<p class="p48-detail-meta">${escapeHtml(score.determinationNote)}</p>`
+        : '';
       detail.innerHTML = `
         <p class="p48-detail-line">관계 유형 <strong>No.${escapeHtml(score.typeIdDisplay)}</strong> — ${escapeHtml(score.relationship_title || '')}</p>
+        ${descBlock}
         ${layer2Line}
         ${aspectNote}
+        ${determinationLine}
         <p class="p48-detail-line">첫 번째: ${escapeHtml(score.traitsA.elementLabel)} · ${escapeHtml(score.traitsA.modalityLabel)}${escapeHtml(lon1)}</p>
         <p class="p48-detail-line">두 번째: ${escapeHtml(score.traitsB.elementLabel)} · ${escapeHtml(score.traitsB.modalityLabel)}${escapeHtml(lon2)}</p>
         <p class="p48-detail-hint">Period·관계 유형은 태양 황도와 matrix4d 기준입니다. 수비학 궁합은 <a href="compatibility.html">소울하모니</a>에서 별도로 볼 수 있어요.</p>`;
