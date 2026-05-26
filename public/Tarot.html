@@ -334,16 +334,58 @@
     .birth-pick {
       display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 8px;
     }
-    .birth-select {
+    .birth-pick-btn {
       appearance: none; -webkit-appearance: none;
       background: rgba(0,0,0,.22) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%23c8a96e' d='M1 1l5 5 5-5'/%3E%3C/svg%3E") no-repeat right 10px center;
       border: 1px solid rgba(200,169,110,.4); border-radius: 8px;
       color: var(--cream); font-family: var(--font-body); font-size: 16px;
       outline: none; padding: 10px 28px 10px 12px; min-height: 44px;
-      flex: 1 1 96px; max-width: 118px; cursor: pointer;
+      flex: 1 1 96px; max-width: 118px; cursor: pointer; text-align: left;
     }
-    .birth-select:focus { border-color: var(--accent); box-shadow: 0 0 0 2px rgba(200,169,110,.2); }
-    .birth-select option { color: #2a2018; background: #f5f0e8; }
+    .birth-pick-btn:focus { border-color: var(--accent); box-shadow: 0 0 0 2px rgba(200,169,110,.2); }
+    .birth-pick-btn.is-placeholder { color: rgba(245,240,232,.45); }
+    .birth-picker-backdrop {
+      position: fixed; inset: 0; z-index: 10000;
+      background: rgba(0,0,0,.45);
+      display: none; align-items: flex-end; justify-content: center;
+    }
+    .birth-picker-backdrop.is-open { display: flex; }
+    .birth-picker-sheet {
+      width: 100%; max-width: 420px; max-height: min(72vh, 540px);
+      background: #faf8f4; border-radius: 16px 16px 0 0;
+      display: flex; flex-direction: column;
+      padding-bottom: env(safe-area-inset-bottom, 0);
+      box-shadow: 0 -8px 32px rgba(0,0,0,.18);
+    }
+    .birth-picker-head {
+      padding: 14px 18px 10px; border-bottom: 1px solid rgba(42,32,24,.1);
+      font-size: 15px; font-weight: 600; color: #2a2018; text-align: center;
+    }
+    .birth-picker-list {
+      list-style: none; margin: 0; padding: 6px 0;
+      overflow-y: auto; flex: 1; -webkit-overflow-scrolling: touch;
+    }
+    .birth-picker-item {
+      display: flex; align-items: center; gap: 12px; width: 100%;
+      padding: 12px 20px; border: none; background: transparent;
+      font-family: var(--font-body); font-size: 17px; color: #2a2018;
+      cursor: pointer; text-align: left;
+    }
+    .birth-picker-item:hover { background: rgba(200,169,110,.12); }
+    .birth-picker-item.is-selected { font-weight: 600; background: rgba(200,169,110,.18); }
+    .birth-picker-radio {
+      width: 18px; height: 18px; border-radius: 50%;
+      border: 2px solid rgba(42,32,24,.35); flex-shrink: 0;
+    }
+    .birth-picker-item.is-selected .birth-picker-radio {
+      border-color: #3b6fd9; background: radial-gradient(circle at center, #3b6fd9 0 5px, transparent 6px);
+    }
+    .birth-picker-done {
+      width: 100%; padding: 16px; border: none; border-top: 1px solid rgba(42,32,24,.1);
+      background: transparent; font-family: var(--font-body);
+      font-size: 16px; font-weight: 600; color: #2a2018; cursor: pointer;
+    }
+    .birth-picker-done:disabled { color: rgba(42,32,24,.35); cursor: default; }
     .birth-btn {
       background: var(--accent); color: var(--deep-brown); border: none; padding: 10px 22px; border-radius: 6px;
       font-family: var(--font-body); font-size: 13px; font-weight: 600; cursor: pointer;
@@ -999,7 +1041,7 @@
       .num-energy-box { min-height: 0; }
       .birth-wrap { padding: 12px 16px; flex-direction: column; width: 100%; max-width: 360px; margin: 0 auto; }
       .birth-pick { width: 100%; }
-      .birth-select { flex: 1 1 calc(33.33% - 6px); max-width: none; min-width: 0; }
+      .birth-pick-btn { flex: 1 1 calc(33.33% - 6px); max-width: none; min-width: 0; }
       .program-nav { padding: 0 16px; }
       .program-nav-inner { gap: 6px 12px; font-size: 11px; padding: 6px 0 8px; }
     }
@@ -1058,13 +1100,21 @@
       <span class="birth-solar-note">양력 기준 · 음력 생일은 양력으로 환산 후 입력</span>
     </div>
     <div class="birth-pick" role="group" aria-label="생년월일">
-      <select class="birth-select" id="birthYear" aria-label="출생 연도"></select>
-      <select class="birth-select" id="birthMonth" aria-label="출생 월"></select>
-      <select class="birth-select" id="birthDay" aria-label="출생 일"></select>
+      <button type="button" class="birth-pick-btn is-placeholder" id="birthYearBtn" aria-label="출생 연도">연도</button>
+      <button type="button" class="birth-pick-btn is-placeholder" id="birthMonthBtn" aria-label="출생 월">월</button>
+      <button type="button" class="birth-pick-btn is-placeholder" id="birthDayBtn" aria-label="출생 일">일</button>
     </div>
     <button type="button" class="birth-btn" onclick="confirmBirth()">에너지 확인 →</button>
   </div>
 </section>
+
+<div class="birth-picker-backdrop" id="birthPickerBackdrop" hidden aria-hidden="true">
+  <div class="birth-picker-sheet" role="dialog" aria-modal="true" aria-labelledby="birthPickerTitle">
+    <div class="birth-picker-head" id="birthPickerTitle">연도 선택</div>
+    <ul class="birth-picker-list" id="birthPickerList"></ul>
+    <button type="button" class="birth-picker-done" id="birthPickerDone" disabled>완료</button>
+  </div>
+</div>
 
 <div class="energy-strip" id="energyStrip">
   <div class="energy-inner">
@@ -1398,45 +1448,133 @@ function escapeHtml(s) {
 }
 
 const BIRTH_YEAR_MIN = 1920;
+const birthPick = { y: '', m: '', d: '' };
+let birthPickerField = null;
+let birthPickerDraft = '';
+
+function birthMaxDay() {
+  const y = parseInt(birthPick.y, 10);
+  const m = parseInt(birthPick.m, 10);
+  if (!y || !m) return 31;
+  return new Date(y, m, 0).getDate();
+}
+
+function syncBirthPickButtons() {
+  const yBtn = document.getElementById('birthYearBtn');
+  const mBtn = document.getElementById('birthMonthBtn');
+  const dBtn = document.getElementById('birthDayBtn');
+  if (!yBtn || !mBtn || !dBtn) return;
+  const setBtn = (btn, val, suffix, placeholder) => {
+    if (val) {
+      btn.textContent = val + suffix;
+      btn.classList.remove('is-placeholder');
+    } else {
+      btn.textContent = placeholder;
+      btn.classList.add('is-placeholder');
+    }
+  };
+  setBtn(yBtn, birthPick.y, '년', '연도');
+  setBtn(mBtn, birthPick.m, '월', '월');
+  setBtn(dBtn, birthPick.d, '일', '일');
+}
+
+function clampBirthDay() {
+  const maxD = birthMaxDay();
+  const d = parseInt(birthPick.d, 10);
+  if (d && d > maxD) birthPick.d = '';
+}
+
+function buildBirthPickerOptions(field) {
+  const items = [];
+  if (field === 'y') {
+    const maxY = new Date().getFullYear();
+    for (let y = maxY; y >= BIRTH_YEAR_MIN; y--) items.push({ value: String(y), label: y + '년' });
+  } else if (field === 'm') {
+    for (let m = 1; m <= 12; m++) items.push({ value: String(m), label: m + '월' });
+  } else {
+    const maxD = birthMaxDay();
+    for (let d = 1; d <= maxD; d++) items.push({ value: String(d), label: d + '일' });
+  }
+  return items;
+}
+
+function renderBirthPickerList() {
+  const list = document.getElementById('birthPickerList');
+  const doneBtn = document.getElementById('birthPickerDone');
+  if (!list || !birthPickerField) return;
+  const items = buildBirthPickerOptions(birthPickerField);
+  const current = birthPickerDraft || birthPick[birthPickerField] || '';
+  list.innerHTML = items.map((it) => {
+    const sel = it.value === current ? ' is-selected' : '';
+    return '<li><button type="button" class="birth-picker-item' + sel + '" data-value="' + it.value + '">' +
+      '<span class="birth-picker-radio" aria-hidden="true"></span><span>' + it.label + '</span></button></li>';
+  }).join('');
+  if (doneBtn) doneBtn.disabled = !birthPickerDraft;
+  list.querySelectorAll('.birth-picker-item').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      birthPickerDraft = btn.getAttribute('data-value') || '';
+      list.querySelectorAll('.birth-picker-item').forEach((b) => b.classList.remove('is-selected'));
+      btn.classList.add('is-selected');
+      if (doneBtn) doneBtn.disabled = false;
+    });
+  });
+  const selected = list.querySelector('.birth-picker-item.is-selected');
+  if (selected) selected.scrollIntoView({ block: 'nearest' });
+}
+
+function openBirthPicker(field) {
+  const backdrop = document.getElementById('birthPickerBackdrop');
+  const title = document.getElementById('birthPickerTitle');
+  if (!backdrop || !title) return;
+  birthPickerField = field;
+  birthPickerDraft = birthPick[field] || '';
+  const labels = { y: '연도 선택', m: '월 선택', d: '일 선택' };
+  title.textContent = labels[field] || '선택';
+  renderBirthPickerList();
+  backdrop.hidden = false;
+  backdrop.classList.add('is-open');
+  backdrop.setAttribute('aria-hidden', 'false');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeBirthPicker(apply) {
+  const backdrop = document.getElementById('birthPickerBackdrop');
+  if (!backdrop) return;
+  if (apply && birthPickerField && birthPickerDraft) {
+    birthPick[birthPickerField] = birthPickerDraft;
+    if (birthPickerField === 'y' || birthPickerField === 'm') clampBirthDay();
+    syncBirthPickButtons();
+  }
+  birthPickerField = null;
+  birthPickerDraft = '';
+  backdrop.classList.remove('is-open');
+  backdrop.hidden = true;
+  backdrop.setAttribute('aria-hidden', 'true');
+  document.body.style.overflow = '';
+}
 
 function initBirthDatePickers() {
-  const ySel = document.getElementById('birthYear');
-  const mSel = document.getElementById('birthMonth');
-  const dSel = document.getElementById('birthDay');
-  if (!ySel || !mSel || !dSel) return;
+  const yBtn = document.getElementById('birthYearBtn');
+  const mBtn = document.getElementById('birthMonthBtn');
+  const dBtn = document.getElementById('birthDayBtn');
+  const backdrop = document.getElementById('birthPickerBackdrop');
+  const doneBtn = document.getElementById('birthPickerDone');
+  if (!yBtn || !mBtn || !dBtn || !backdrop || !doneBtn) return;
 
-  const maxY = new Date().getFullYear();
-  ySel.innerHTML = '<option value="">연도</option>';
-  for (let y = maxY; y >= BIRTH_YEAR_MIN; y--) {
-    ySel.innerHTML += '<option value="' + y + '">' + y + '년</option>';
-  }
-  mSel.innerHTML = '<option value="">월</option>';
-  for (let m = 1; m <= 12; m++) {
-    mSel.innerHTML += '<option value="' + m + '">' + m + '월</option>';
-  }
-
-  function refreshDays() {
-    const y = parseInt(ySel.value, 10);
-    const m = parseInt(mSel.value, 10);
-    const prev = dSel.value;
-    let maxD = 31;
-    if (y && m) maxD = new Date(y, m, 0).getDate();
-    dSel.innerHTML = '<option value="">일</option>';
-    for (let d = 1; d <= maxD; d++) {
-      dSel.innerHTML += '<option value="' + d + '">' + d + '일</option>';
-    }
-    if (prev && parseInt(prev, 10) <= maxD) dSel.value = prev;
-  }
-
-  ySel.addEventListener('change', refreshDays);
-  mSel.addEventListener('change', refreshDays);
-  refreshDays();
+  yBtn.addEventListener('click', () => openBirthPicker('y'));
+  mBtn.addEventListener('click', () => openBirthPicker('m'));
+  dBtn.addEventListener('click', () => openBirthPicker('d'));
+  doneBtn.addEventListener('click', () => closeBirthPicker(true));
+  backdrop.addEventListener('click', (e) => {
+    if (e.target === backdrop) closeBirthPicker(false);
+  });
+  syncBirthPickButtons();
 }
 
 function readBirthFromPickers() {
-  const y = parseInt(document.getElementById('birthYear').value, 10);
-  const m = parseInt(document.getElementById('birthMonth').value, 10);
-  const d = parseInt(document.getElementById('birthDay').value, 10);
+  const y = parseInt(birthPick.y, 10);
+  const m = parseInt(birthPick.m, 10);
+  const d = parseInt(birthPick.d, 10);
   if (!y || !m || !d) return null;
   return { y: y, m: m, d: d };
 }
