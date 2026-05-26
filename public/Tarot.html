@@ -1926,6 +1926,17 @@ function numerologyBridgeText(card) {
   return '연 ' + calcPy + '(' + yk + ') · 월 ' + calcPm + '(' + mk + ') · 일 ' + calcPd + '(' + dk + ').';
 }
 
+/** 「팩트: … 조언: …」 한 줄 → 팩트 / 조언 두 줄로 표시 */
+function formatFactAdviceText(text) {
+  const raw = (text || '').trim();
+  if (!raw) return raw;
+  const m = raw.match(/^팩트\s*:\s*([\s\S]*?)\s*조언\s*:\s*([\s\S]*)$/);
+  if (!m) return raw;
+  const fact = m[1].trim();
+  const counsel = m[2].trim();
+  return '팩트 : ' + fact + '\n\n조언 : ' + counsel;
+}
+
 /** 소마이너 정방향 — `MINOR_ENRICHED.advice`에 적어 둔 문구만 사용(사용자 CSV의 팩트·조언 열). 키워드로 팩트를 덧붙이지 않음. */
 function minorUprightAdviceFormatted(card, minorUp) {
   const adv = (minorUp.advice || '').trim();
@@ -1970,7 +1981,7 @@ function buildEnrichedReadingHtml(cards, positions) {
       );
     }
     const mono = escapeHtml(readingPrimaryVoice(card, i));
-    const adviceRaw = actionAdviceBlock(card);
+    const adviceRaw = formatFactAdviceText(actionAdviceBlock(card));
     const adviceHtml = escapeHtml(adviceRaw).replace(/\n/g, '<br>');
     const monoLabel = escapeHtml(monologueSectionLabel(card, i));
     return (
