@@ -368,7 +368,7 @@
   }
 
   function formatAdvice(fact, counsel) {
-    return '팩트: ' + fact + ' 조언: ' + counsel;
+    return '한줄 요약: ' + fact + ' 조언: ' + counsel;
   }
 
   window.applyTarotTopicMono = function (card, baseMono, ctx) {

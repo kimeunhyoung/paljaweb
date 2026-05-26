@@ -2733,7 +2733,7 @@
     if (!sec) return '';
     const fact = (sec.summary || '').trim();
     const counsel = (sec.advice || '').trim();
-    if (fact && counsel) return '팩트: ' + fact + ' 조언: ' + counsel;
+    if (fact && counsel) return '한줄 요약: ' + fact + ' 조언: ' + counsel;
     return counsel || fact || '';
   }
 
