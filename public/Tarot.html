@@ -858,9 +858,11 @@
       margin-right: 6px;
     }
 
-    /* 카드 전부 공개 후 scrollIntoView 시 sticky 상단바에 가리지 않도록 */
+    /* sticky 상단바·에너지 스트립 아래로 스크롤 포커스 */
+    #step3 .step-card,
+    #drawnCards,
     #readingArea {
-      scroll-margin-top: 100px;
+      scroll-margin-top: 108px;
     }
 
     /* 다시하기 버튼 */
@@ -1831,6 +1833,11 @@ function getTarotCardImageSrc(card) {
   return 'tarot/' + encodeURIComponent(file);
 }
 
+function scrollTarotFocus(el, smooth) {
+  if (!el) return;
+  el.scrollIntoView({ behavior: smooth ? 'smooth' : 'auto', block: 'start' });
+}
+
 function startSpread() {
   if (!birthReady) {
     alert('먼저 생년월일을 입력하고 「에너지 확인」을 눌러주세요.');
@@ -1866,6 +1873,10 @@ function startSpread() {
     el.dataset.index = i;
     el.onclick = () => drawCard(i, el);
     grid.appendChild(el);
+  });
+
+  requestAnimationFrame(() => {
+    scrollTarotFocus(document.getElementById('step2'), true);
   });
 }
 
@@ -1934,7 +1945,8 @@ function showDrawnCards() {
   }
 
   requestAnimationFrame(() => {
-    window.scrollTo({ top: 0, behavior: 'auto' });
+    const focus = document.getElementById('drawnCards') || document.getElementById('step3');
+    scrollTarotFocus(focus, true);
   });
 }
 
@@ -2165,7 +2177,9 @@ function startReading() {
     gateHtml;
 
   requestAnimationFrame(() => {
-    readingArea.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    const cardsEl = document.getElementById('drawnCards');
+    if (cardsEl) scrollTarotFocus(cardsEl, true);
+    else readingArea.scrollIntoView({ behavior: 'smooth', block: 'start' });
   });
 }
 
