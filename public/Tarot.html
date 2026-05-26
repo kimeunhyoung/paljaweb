@@ -813,6 +813,10 @@
       border: 1px solid var(--border);
       border-radius: 10px;
     }
+    .ec-accordion + .ec-summary,
+    .ec-summary + .ec-summary {
+      margin-top: 10px;
+    }
     .ec-summary-label {
       display: block;
       font-size: 12px;
@@ -826,15 +830,6 @@
       line-height: 1.65;
       color: var(--ink);
       font-weight: 500;
-    }
-    .ec-counsel-only {
-      margin: 10px 0 0;
-      padding: 10px 12px;
-      font-size: 13px;
-      line-height: 1.7;
-      color: var(--warm-brown);
-      background: rgba(200, 169, 110, 0.1);
-      border-radius: 8px;
     }
     .ec-accordion {
       margin: 10px 0 0;
@@ -2198,7 +2193,11 @@ function buildCardReadingBodyHtml(card, slotIndex) {
       '</details>';
   }
   if (counsel) {
-    html += '<p class="ec-p ec-counsel-only">' + escapeHtml(counsel) + '</p>';
+    html +=
+      '<div class="ec-summary">' +
+      '<span class="ec-summary-label">현실조언</span>' +
+      '<p class="ec-summary-text">' + escapeHtml(counsel) + '</p>' +
+      '</div>';
   }
   return html;
 }
