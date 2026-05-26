@@ -296,14 +296,31 @@
       min-height: 0;
     }
     html.tarot-standalone .tarot-ad-slot {
+      display: none;
+      min-height: 0;
+      padding: 0;
+      margin: 0;
+      border: none;
+    }
+    html.tarot-standalone .tarot-ad-slot:has(ins, iframe, .adsbygoogle) {
       display: block;
       min-height: 50px;
+      padding: 10px 32px 6px;
       border-bottom: 1px dashed var(--border);
     }
+    html.tarot-standalone .site-top {
+      box-shadow: none;
+    }
+    html.tarot-standalone .site-top + .hero {
+      margin-top: 0;
+    }
     @media (max-width: 600px) {
-      html.tarot-standalone .tarot-ad-slot {
+      html.tarot-standalone .tarot-ad-slot:has(ins, iframe, .adsbygoogle) {
         padding-left: 16px;
         padding-right: 16px;
+      }
+      html.tarot-standalone .hero {
+        padding-top: 28px;
       }
     }
 
