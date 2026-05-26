@@ -2664,9 +2664,13 @@ function startReading() {
     gateHtml;
 
   requestAnimationFrame(() => {
-    const cardsEl = document.getElementById('drawnCards');
-    if (cardsEl) scrollTarotFocus(cardsEl, true);
-    else readingArea.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    requestAnimationFrame(() => {
+      const focus =
+        document.querySelector('#readingArea .num-merge') ||
+        document.querySelector('#readingArea .reading-section') ||
+        readingArea;
+      scrollTarotFocus(focus, true);
+    });
   });
 }
 
