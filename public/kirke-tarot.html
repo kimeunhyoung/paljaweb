@@ -20,8 +20,9 @@
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400&family=Noto+Serif+KR:wght@400;500;600;700&display=swap" rel="stylesheet"/>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="js/topbar-session.js?v=5" defer></script>
-  <script src="js/kirke-tarot-deck.js?v=20260522k" defer></script>
-  <script src="js/kirke-tarot.js?v=20260522k" defer></script>
+  <script src="js/kirke-tarot-meanings.js?v=20260525" defer></script>
+  <script src="js/kirke-tarot-deck.js?v=20260525b" defer></script>
+  <script src="js/kirke-tarot.js?v=20260525e" defer></script>
   <style>
     :root {
       --cream: #f0ebe3;
@@ -109,17 +110,6 @@
       margin-top: 14px; font-size: 12px; color: var(--sea);
       letter-spacing: 0.06em;
     }
-    .prep-banner {
-      text-align: center;
-      font-size: 13px;
-      color: var(--sea);
-      background: rgba(45, 74, 94, 0.08);
-      border: 1px dashed rgba(45, 74, 94, 0.25);
-      border-radius: 10px;
-      padding: 12px 16px;
-      margin-bottom: 24px;
-      line-height: 1.55;
-    }
     .step-card {
       background: #fff;
       border: 1px solid var(--border);
@@ -172,14 +162,15 @@
       display: flex; flex-wrap: wrap; justify-content: center;
       gap: 20px; margin-bottom: 24px;
     }
-    .kirke-card-wrap { width: 140px; text-align: center; }
+    .kirke-card-wrap { width: 200px; text-align: center; }
     .kirke-card-pos {
       font-size: 11px; font-weight: 700; color: var(--sea);
       margin-bottom: 8px; letter-spacing: 0.04em;
     }
     .kirke-tarot-card {
-      width: 140px; height: 210px;
-      perspective: 900px; cursor: pointer;
+      width: 200px; height: 300px;
+      perspective: 1200px; cursor: pointer;
+      margin: 0 auto;
     }
     .kirke-tarot-inner {
       width: 100%; height: 100%;
@@ -191,9 +182,11 @@
     .kirke-tarot-back, .kirke-tarot-front {
       position: absolute; inset: 0;
       backface-visibility: hidden;
+      -webkit-backface-visibility: hidden;
       border-radius: 10px;
       border: 1px solid rgba(201, 162, 39, 0.35);
     }
+    .kirke-tarot-back { transform: translateZ(1px); }
     .kirke-tarot-back {
       background: linear-gradient(160deg, #1a1628, #3d2f5c);
       display: flex; align-items: center; justify-content: center;
@@ -203,26 +196,22 @@
       letter-spacing: 0.2em;
     }
     .kirke-tarot-front {
-      transform: rotateY(180deg);
-      background: var(--card-bg, #2a2438);
-      display: flex; flex-direction: column;
+      transform: rotateY(180deg) translateZ(1px);
+      background: var(--card-bg, #1a1628);
       overflow: hidden;
     }
-    .kirke-tarot-front.reversed .kirke-card-art img { transform: rotate(180deg); }
-    .kirke-rev-badge {
-      position: absolute; top: 6px; right: 6px;
-      font-size: 9px; padding: 2px 6px;
-      background: rgba(0,0,0,0.5); color: #fff;
-      border-radius: 4px; z-index: 2;
-    }
     .kirke-card-art {
-      flex: 1; min-height: 0;
+      position: absolute; inset: 0;
       display: flex; align-items: center; justify-content: center;
-      position: relative;
+      background: #0f0d14;
     }
     .kirke-card-art img {
       width: 100%; height: 100%;
-      object-fit: cover;
+      max-width: 100%; max-height: 100%;
+      object-fit: contain;
+      object-position: center;
+      image-rendering: auto;
+      -ms-interpolation-mode: bicubic;
     }
     .kirke-card-placeholder {
       display: flex; flex-direction: column;
@@ -233,13 +222,13 @@
     .kirke-card-placeholder[hidden] { display: none !important; }
     .kirke-ph-no { font-family: var(--font-serif); font-size: 28px; }
     .kirke-ph-label { font-size: 10px; opacity: 0.85; }
-    .kirke-card-meta {
-      padding: 8px;
-      background: rgba(0,0,0,0.35);
-      color: #fff;
+    .kirke-card-meta-below {
+      margin-top: 10px;
+      padding: 8px 6px 0;
+      color: var(--deep);
     }
-    .kirke-card-name { font-size: 11px; font-weight: 600; line-height: 1.3; }
-    .kirke-card-en { font-size: 9px; opacity: 0.75; margin-top: 2px; }
+    .kirke-card-name { font-size: 13px; font-weight: 600; line-height: 1.35; }
+    .kirke-card-en { font-size: 10px; color: var(--muted); margin-top: 3px; }
     .kirke-reading {
       background: #fff;
       border: 1px solid var(--border);
@@ -260,8 +249,16 @@
       font-size: 15px; color: var(--deep);
       margin-bottom: 6px; line-height: 1.45;
     }
-    .kirke-reading-kw { font-size: 12px; color: var(--muted); margin-bottom: 8px; }
-    .kirke-reading-body { font-size: 14px; line-height: 1.75; color: var(--ink); }
+    .kirke-reading-en { font-size: 11px; color: var(--muted); margin-bottom: 4px; font-style: italic; }
+    .kirke-reading-myth { font-size: 13px; color: var(--sea); margin-bottom: 8px; font-weight: 500; }
+    .kirke-reading-kw { font-size: 12px; color: var(--muted); margin-bottom: 12px; }
+    .kirke-reading-text { margin-bottom: 4px; }
+    .kirke-reading-section-title {
+      font-size: 13px; font-weight: 600; color: var(--deep);
+      margin: 14px 0 6px;
+    }
+    .kirke-reading-text .kirke-reading-section-title:first-child { margin-top: 0; }
+    .kirke-reading-body { font-size: 14px; line-height: 1.8; color: var(--ink); margin-bottom: 10px; }
     .kirke-reading-note {
       margin-top: 14px; font-size: 12px; color: var(--muted);
       line-height: 1.55;
@@ -278,8 +275,12 @@
 
     @media (max-width: 720px) {
       .topbar, .program-nav { padding-left: 16px; padding-right: 16px; }
-      .kirke-card-wrap, .kirke-tarot-card { width: 120px; }
-      .kirke-tarot-card { height: 180px; }
+      .kirke-card-wrap { width: min(168px, 30vw); }
+      .kirke-tarot-card { width: 100%; height: auto; aspect-ratio: 2 / 3; }
+    }
+    @media (min-width: 900px) {
+      .kirke-card-wrap { width: 220px; }
+      .kirke-tarot-card { width: 220px; height: 330px; }
     }
   </style>
   <link rel="stylesheet" href="css/site-header.css?v=6"/>
@@ -315,11 +316,9 @@
   <header class="brand">
     <div class="brand-badge">Circe Tarot · 키르케타로코드</div>
     <h1 class="brand-title">키르케의 섬에서 펼치는 78장</h1>
-    <p class="brand-sub">마녀이자 여신 키르케와 율리시스의 항해를 담은 Circe Tarot. 유니버설 78장 구조로, 신화의 언어로 관계와 선택을 읽습니다.</p>
-    <div class="brand-line">78 cards · 3-card spread (뼈대)</div>
+    <p class="brand-sub">마녀이자 여신 키르케와 율리시스의 항해를 담은 Circe Tarot. 공식 가이드북의 신화 해설로, 정방향 3장을 읽습니다.</p>
+    <div class="brand-line">78 cards · 3-card spread · 정방향</div>
   </header>
-
-  <p class="prep-banner">이미지·카드별 해설은 제작 중입니다. 지금은 3장 스프레드와 덱 구조만 이용할 수 있어요.</p>
 
   <section id="kirkeStep1">
     <div class="step-card">

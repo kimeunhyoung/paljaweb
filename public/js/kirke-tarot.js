@@ -5,9 +5,6 @@
   const DECK = window.KIRKE_TAROT_DECK || [];
   const SPREAD_COUNT = 3;
   const POSITIONS = ['과거 · 뿌리', '현재 · 섬', '미래 · 항로'];
-  const ENABLE_REVERSED = true;
-  const REVERSED_RATE = 0.35;
-
   let shuffledDeck = [];
   let drawnCards = [];
   let flippedCount = 0;
@@ -23,6 +20,16 @@
 
   function escapeAttr(s) {
     return escapeHtml(s).replace(/'/g, '&#39;');
+  }
+
+  function preloadKirkeImages(cards) {
+    cards.forEach((card) => {
+      const src = window.getKirkeCardImageSrc?.(card);
+      if (!src) return;
+      const img = new Image();
+      img.decoding = 'async';
+      img.src = src;
+    });
   }
 
   function startSpread() {
@@ -59,9 +66,9 @@
     if (el.classList.contains('drawn') || drawnCards.length >= SPREAD_COUNT) return;
     el.classList.add('drawn');
     const card = shuffledDeck[index];
-    const faceRev = ENABLE_REVERSED && Math.random() < REVERSED_RATE;
-    drawnCards.push({ ...card, faceRev });
+    drawnCards.push({ ...card });
     if (drawnCards.length >= SPREAD_COUNT) {
+      preloadKirkeImages(drawnCards);
       setTimeout(showResults, 400);
     }
   }
@@ -87,22 +94,22 @@
         <div class="kirke-tarot-card" id="kirke-card-${i}" role="button" tabindex="0">
           <div class="kirke-tarot-inner">
             <div class="kirke-tarot-back"><span>키르케</span></div>
-            <div class="kirke-tarot-front${card.faceRev ? ' reversed' : ''}" style="--card-bg:${bg}">
-              ${card.faceRev ? '<span class="kirke-rev-badge">역방향</span>' : ''}
+            <div class="kirke-tarot-front" style="--card-bg:${bg}">
               <div class="kirke-card-art">
-                <img src="${escapeAttr(imgSrc)}" alt="" loading="lazy"
+                <img src="${escapeAttr(imgSrc)}" alt="${escapeAttr(card.name)}"
+                  width="400" height="600" decoding="async" fetchpriority="high" loading="eager"
                   onerror="this.style.display='none';var p=this.nextElementSibling;if(p)p.removeAttribute('hidden')" />
                 <div class="kirke-card-placeholder" hidden>
                   <span class="kirke-ph-no">${String(card.id).padStart(2, '0')}</span>
                   <span class="kirke-ph-label">이미지 준비 중</span>
                 </div>
               </div>
-              <div class="kirke-card-meta">
-                <div class="kirke-card-name">${escapeHtml(card.name)}</div>
-                <div class="kirke-card-en">${escapeHtml(card.en)}</div>
-              </div>
             </div>
           </div>
+        </div>
+        <div class="kirke-card-meta-below">
+          <div class="kirke-card-name">${escapeHtml(card.name)}</div>
+          <div class="kirke-card-en">${escapeHtml(card.en)}</div>
         </div>`;
       const cardEl = wrap.querySelector('.kirke-tarot-card');
       cardEl.addEventListener('click', () => flipCard(i));
@@ -130,21 +137,43 @@
     }
   }
 
+  function formatReadingParagraphs(text) {
+    if (!text) return '';
+    return String(text)
+      .split(/\n\n+/)
+      .map((block) => {
+        const lines = block.split('\n').filter(Boolean);
+        if (!lines.length) return '';
+        const isHeading = /^【.+】$/.test(lines[0]);
+        if (isHeading) {
+          const title = escapeHtml(lines[0]);
+          const body = escapeHtml(lines.slice(1).join('\n')).replace(/\n/g, '<br/>');
+          return `<p class="kirke-reading-section-title">${title}</p>${body ? `<p class="kirke-reading-body">${body}</p>` : ''}`;
+        }
+        return `<p class="kirke-reading-body">${escapeHtml(lines.join('\n')).replace(/\n/g, '<br/>')}</p>`;
+      })
+      .join('');
+  }
+
   function renderReading() {
     const reading = document.getElementById('kirkeReading');
     if (!reading) return;
     let html = '<div class="kirke-reading-title">리딩</div>';
     drawnCards.forEach((card, i) => {
-      const text = card.faceRev ? card.reversed : card.upright;
+      const mythLine = card.myth
+        ? `<p class="kirke-reading-myth">신화: ${escapeHtml(card.myth)}</p>`
+        : '';
       html += `
         <article class="kirke-reading-block">
-          <h3>${escapeHtml(POSITIONS[i])} — ${escapeHtml(card.name)}${card.faceRev ? ' (역)' : ''}</h3>
-          <p class="kirke-reading-kw">${escapeHtml(card.keywords)}</p>
-          <p class="kirke-reading-body">${escapeHtml(text)}</p>
+          <h3>${escapeHtml(POSITIONS[i])} — ${escapeHtml(card.name)}</h3>
+          <p class="kirke-reading-en">${escapeHtml(card.en || '')}</p>
+          ${mythLine}
+          <p class="kirke-reading-kw">키워드 · ${escapeHtml(card.keywords)}</p>
+          <div class="kirke-reading-text">${formatReadingParagraphs(card.upright)}</div>
         </article>`;
     });
     html +=
-      '<p class="kirke-reading-note">Circe Tarot · 팔자연구소. 카드별 신화 해설은 이미지 시리즈 완료 후 순차 반영됩니다.</p>';
+      '<p class="kirke-reading-note">키르케신화타로 · Circe Tarot · 8CODE. 공식 가이드북 정방향 해설입니다.</p>';
     reading.innerHTML = html;
   }
 

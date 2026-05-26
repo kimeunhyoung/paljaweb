@@ -352,7 +352,7 @@
     .birth-btn:hover { background: #d4b87a; transform: translateY(-1px); }
 
     .energy-strip {
-      display: none; position: sticky; top: 92px; z-index: 99;
+      display: none;
       background: var(--cream); border-bottom: 1px solid var(--border); padding: 8px 24px 10px;
     }
     .energy-strip.visible { display: block; }
@@ -774,6 +774,16 @@
       font-family: var(--font-serif);
       line-height: 1.35;
     }
+    .ec-main-title {
+      margin: -6px 0 12px;
+      padding: 10px 12px;
+      border-left: 3px solid var(--accent);
+      font-size: 13px;
+      line-height: 1.55;
+      color: var(--warm-brown);
+      background: rgba(200, 169, 110, 0.12);
+      border-radius: 0 8px 8px 0;
+    }
     .ec-block { margin-bottom: 12px; }
     .ec-label {
       font-family: var(--font-mono);
@@ -858,11 +868,11 @@
       margin-right: 6px;
     }
 
-    /* sticky 상단바·에너지 스트립 아래로 스크롤 포커스 */
+    /* sticky 상단바 아래로 스크롤 포커스 */
     #step3 .step-card,
     #drawnCards,
     #readingArea {
-      scroll-margin-top: 108px;
+      scroll-margin-top: 72px;
     }
 
     /* 다시하기 버튼 */
@@ -914,7 +924,7 @@
       .topbar { padding: 8px 16px; }
       .topbar-sep,
       .topbar-title { display: none; }
-      .energy-strip { padding: 6px 14px 8px; top: 92px; }
+      .energy-strip { padding: 6px 14px 8px; }
       .energy-inner { gap: 6px; }
       .energy-box-row { gap: 6px; }
       .e-chip { min-height: 82px; padding: 8px 6px; border-radius: 9px; }
@@ -1109,6 +1119,9 @@
 
 </div>
 
+<script src="js/tarot-topic-lens.js?v=1"></script>
+<script src="js/tarot-major-scripted.js?v=5"></script>
+<script src="js/tarot-minor-scripted.js?v=17"></script>
 <script>
 const TAROT_STANDALONE = document.documentElement.classList.contains('tarot-standalone');
 const SB_URL = 'https://sghsryumnrnftyjoqmwf.supabase.co';
@@ -1171,6 +1184,40 @@ function getQuestionLabel() {
   if (curTopic === 'custom') return document.getElementById('customQuestionInput').value.trim();
   if (!curTopic) return '';
   return TOPIC_LABELS[curTopic] || '';
+}
+
+function tarotReadingContext() {
+  return {
+    curMode: curMode,
+    curTopic: curTopic,
+    questionText: getQuestionLabel(),
+  };
+}
+
+function scriptedCtxForSlot(slotIndex) {
+  let role = 'normal';
+  if (typeof slotIndex === 'number') {
+    if (isDailyHelpfulSlot(slotIndex)) role = 'do';
+    else if (isDailyUnhelpfulSlot(slotIndex)) role = 'dont';
+  }
+  return Object.assign({ role: role }, tarotReadingContext());
+}
+
+function getScriptedMajor(card, slotIndex) {
+  if (!card || card.suit !== 'major' || typeof getTarotMajorScripted !== 'function') return null;
+  return getTarotMajorScripted(card.id, scriptedCtxForSlot(slotIndex));
+}
+
+function getScriptedMinor(card, slotIndex) {
+  if (!card || card.suit === 'major' || typeof getTarotMinorScripted !== 'function') return null;
+  return getTarotMinorScripted(card.id, scriptedCtxForSlot(slotIndex));
+}
+
+/** 메이저·소마이너 공통 — 풀 해설이 있으면 topic-lens 대신 사용 */
+function getScriptedCard(card, slotIndex) {
+  if (!card) return null;
+  if (card.suit === 'major') return getScriptedMajor(card, slotIndex);
+  return getScriptedMinor(card, slotIndex);
 }
 
 function getPositions() {
@@ -1388,7 +1435,10 @@ function refreshDeckContextBanner(questionTrim) {
   tags.innerHTML = chips.map(c => `<span class="num-ctx-tag">${c}</span>`).join('');
   let t = hintPick(YEAR_HINT, calcPy) + ' ' + hintPick(MONTH_HINT, calcPm);
   if (!questionTrim) t += ' ' + hintPick(DAY_HINT, calcPd);
-  else t += ' 질문 리딩에서는 올해·이번 달 흐름을 배경으로 카드를 읽어 보세요.';
+  else {
+    const qLabel = questionTrim || '선택한 주제';
+    t += ' 「' + qLabel + '」 질문에 맞춰, 올해·이번 달 흐름을 배경으로 카드를 읽어 보세요.';
+  }
   if (curMode === 'energy') {
     const intro = FLOW_INTRO[calcPy] || '올해·이달·오늘의 수가 함께 어우러지는 시기예요.';
     t = intro + ' ' + t;
@@ -2037,15 +2087,31 @@ function minorUprightAdviceFormatted(card, minorUp) {
 }
 
 function actionAdviceBlock(card) {
+  const scripted = getScriptedCard(card);
+  if (scripted && scripted.advice && !card.faceRev) return scripted.advice;
+
+  let base;
   if (card.suit === 'major' && MAJOR_ENRICHED[card.id]) {
-    if (card.faceRev) return '팩트·역방향: ' + card.textReversed + '\n\n' + positiveSublimation(card);
-    return MAJOR_ENRICHED[card.id].advice;
+    if (card.faceRev) base = '팩트·역방향: ' + card.textReversed + '\n\n' + positiveSublimation(card);
+    else base = MAJOR_ENRICHED[card.id].advice;
+  } else {
+    const minorUp = MINOR_ENRICHED[card.id];
+    if (minorUp && !card.faceRev) base = minorUprightAdviceFormatted(card, minorUp);
+    else {
+      const modern = '현대적 해석: 「' + card.name + '」를 낙인이 아니라, 지금 문장이 알려 주는 실제로 움직이는 힘으로 읽어 주세요. ' + card.textUpright;
+      if (card.faceRev) base = '팩트·역방향: ' + card.textReversed + '\n\n' + positiveSublimation(card);
+      else base = modern;
+    }
   }
-  const minorUp = MINOR_ENRICHED[card.id];
-  if (minorUp && !card.faceRev) return minorUprightAdviceFormatted(card, minorUp);
-  const modern = '현대적 해석: 「' + card.name + '」를 낙인이 아니라, 지금 문장이 알려 주는 실제로 움직이는 힘으로 읽어 주세요. ' + card.textUpright;
-  if (card.faceRev) return '팩트·역방향: ' + card.textReversed + '\n\n' + positiveSublimation(card);
-  return modern;
+  if (typeof applyTarotTopicAdvice === 'function') {
+    return applyTarotTopicAdvice(card, base, tarotReadingContext());
+  }
+  return base;
+}
+
+function hasScriptedCard(card, slotIndex) {
+  const sc = getScriptedCard(card, slotIndex);
+  return !!(sc && sc.mono);
 }
 
 /** 카드 본문 블록 제목 (데일리 5번째 칸도 첫 문단은 동일 라벨·내용만 역 독백) */
@@ -2070,6 +2136,11 @@ function buildEnrichedReadingHtml(cards, positions) {
         '</div>'
       );
     }
+    const sc = getScriptedCard(card, i);
+    const mainTitleHtml =
+      sc && sc.mainTitle
+        ? '<p class="ec-main-title">' + escapeHtml(sc.mainTitle) + '</p>'
+        : '';
     const mono = escapeHtml(readingPrimaryVoice(card, i));
     const adviceRaw = formatFactAdviceText(actionAdviceBlock(card));
     const adviceHtml = escapeHtml(adviceRaw).replace(/\n/g, '<br>');
@@ -2077,6 +2148,7 @@ function buildEnrichedReadingHtml(cards, positions) {
     return (
       '<div class="ec-card">' +
       '<div class="ec-pos">' + pos + ' · ' + nm + rev + '</div>' +
+      mainTitleHtml +
       '<div class="ec-block"><div class="ec-label">' + monoLabel + '</div><p class="ec-p">' + mono + '</p></div>' +
       '<div class="ec-block"><div class="ec-label">현실적 조언</div><p class="ec-p ec-p-pre">' + adviceHtml + '</p></div>' +
       '</div>'
@@ -2096,6 +2168,13 @@ function isDailyUnhelpfulSlot(i) {
 /** 데일리 3·4번 칸 — 메이저·소마이너: 오늘 힘이 되는 에너지(do) / 오늘의 주의(dont) 전용 문단 */
 function dailyDoDontInterpret(card, i) {
   if (!isDailyHelpfulSlot(i) && !isDailyUnhelpfulSlot(i)) return null;
+  const scDaily = getScriptedCard(card, i);
+  if (scDaily && scDaily.doDontBody) {
+    if (isDailyHelpfulSlot(i)) {
+      return { label: '오늘 힘이 되는 에너지', body: scDaily.doDontBody, shortTag: '힘' };
+    }
+    return { label: '오늘의 주의', body: scDaily.doDontBody, shortTag: '주의' };
+  }
   if (card.suit === 'major') {
     if (!MAJOR_DAILY_DO_DONT) return null;
     const rowM = MAJOR_DAILY_DO_DONT[card.id];
@@ -2119,8 +2198,17 @@ function dailyDoDontInterpret(card, i) {
 /** 데일리 5번째 칸: 첫 문단만 역 독백(monoRev). 「현실적 조언」은 전 칸과 동일하게 actionAdviceBlock(팩트·조언). */
 function readingPrimaryVoice(card, slotIndex) {
   if (dailyDoDontInterpret(card, slotIndex)) return '';
-  if (isDailyUnhelpfulSlot(slotIndex)) return unhelpfulSlotMonologue(card);
-  return heroMonologue(card);
+  const scripted = getScriptedCard(card, slotIndex);
+  if (scripted && scripted.mono && scriptedCtxForSlot(slotIndex).role === 'normal') {
+    return scripted.mono;
+  }
+  let voice;
+  if (isDailyUnhelpfulSlot(slotIndex)) voice = unhelpfulSlotMonologue(card);
+  else voice = heroMonologue(card);
+  if (typeof applyTarotTopicMono === 'function' && !hasScriptedCard(card, slotIndex)) {
+    return applyTarotTopicMono(card, voice, tarotReadingContext());
+  }
+  return voice;
 }
 
 function startReading() {

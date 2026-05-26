@@ -1,20 +1,21 @@
 /**
- * Circe Tarot (키르케타로) — 78장 덱 데이터
- * 이미지: public/images/kirke/major-00.jpg … (제작 중)
- * 해설: 이미지 완성 후 카드별 upright/reversed 교체
+ * Circe Tarot (키르케신화타로) — 78장 덱 데이터
+ * 이미지: public/circetarot/{메이저|완즈|컵|소드|펜타클}/N.jpg
+ * 해설: kirke-tarot-meanings.js (공식 해설서 기반)
  */
 (function () {
-  const PLACEHOLDER_UPRIGHT = '카드 이미지·해설이 준비 중입니다. 곧 키르케의 이야기로 채워집니다.';
-  const PLACEHOLDER_REVERSED = '역방향 해설도 함께 업데이트될 예정입니다.';
+  const MEANINGS = window.KIRKE_CARD_MEANINGS || {};
+  const PLACEHOLDER_UPRIGHT = '카드 해설을 불러오지 못했습니다. 페이지를 새로고침해 주세요.';
+  const PLACEHOLDER_REVERSED = '역방향 해설을 불러오지 못했습니다.';
   const PLACEHOLDER_KEYWORDS = '준비 중';
 
-  const MAJOR_EN = [
-    'The Fool', 'The Magician', 'The High Priestess', 'The Empress', 'The Emperor',
-    'The Hierophant', 'The Lovers', 'The Chariot', 'Strength', 'The Hermit',
-    'Wheel of Fortune', 'Justice', 'The Hanged Man', 'Death', 'Temperance',
-    'The Devil', 'The Tower', 'The Star', 'The Moon', 'The Sun',
-    'Judgement', 'The World',
-  ];
+  const SUIT_FOLDER = {
+    major: '메이저',
+    wands: '완즈',
+    cups: '컵',
+    swords: '소드',
+    pentacles: '펜타클',
+  };
 
   const SUIT_META = [
     { suit: 'wands', label: '완드', base: 22 },
@@ -41,49 +42,65 @@
   ];
 
   function cardImagePath(card) {
-    if (card.arcana === 'major') {
-      return `images/kirke/major-${String(card.id).padStart(2, '0')}.jpg`;
-    }
-    const suit = card.suit;
-    const local = card.id - (SUIT_META.find((s) => s.suit === suit)?.base || 0);
-    return `images/kirke/${suit}-${String(local).padStart(2, '0')}.jpg`;
+    const folder = SUIT_FOLDER[card.arcana === 'major' ? 'major' : card.suit];
+    // 메이저: 0.jpg~21.jpg / 마이너: 1.jpg~14.jpg (에이스=1, 왕=14)
+    const num = card.arcana === 'major' ? card.id : card.rank;
+    return `circetarot/${encodeURIComponent(folder)}/${num}.jpg`;
+  }
+
+  function applyMeaning(card, id) {
+    const m = MEANINGS[id];
+    if (!m) return card;
+    return {
+      ...card,
+      name: m.nameKr || card.name,
+      en: m.en || card.en,
+      myth: m.myth || '',
+      keywords: m.keywords || PLACEHOLDER_KEYWORDS,
+      upright: m.upright || PLACEHOLDER_UPRIGHT,
+      reversed: m.reversed || PLACEHOLDER_REVERSED,
+    };
   }
 
   function buildDeck() {
     const deck = [];
 
     for (let i = 0; i < 22; i++) {
-      deck.push({
+      const card = {
         id: i,
         arcana: 'major',
         suit: 'major',
         rank: i,
-        name: `키르케 메이저 ${String(i).padStart(2, '0')}`,
-        en: MAJOR_EN[i],
+        name: `메이저 ${i}`,
+        en: '',
+        myth: '',
         keywords: PLACEHOLDER_KEYWORDS,
         upright: PLACEHOLDER_UPRIGHT,
         reversed: PLACEHOLDER_REVERSED,
         image: cardImagePath({ arcana: 'major', id: i, suit: 'major' }),
-      });
+      };
+      deck.push(applyMeaning(card, i));
     }
 
     for (const sm of SUIT_META) {
       for (let r = 0; r < MINOR_RANKS.length; r++) {
         const id = sm.base + r;
         const mr = MINOR_RANKS[r];
-        deck.push({
+        const card = {
           id,
           arcana: 'minor',
           suit: sm.suit,
           rank: mr.rank,
           court: mr.court || null,
           name: `${sm.label} ${mr.label}`,
-          en: `${mr.label} of ${sm.suit}`,
+          en: '',
+          myth: '',
           keywords: PLACEHOLDER_KEYWORDS,
           upright: PLACEHOLDER_UPRIGHT,
           reversed: PLACEHOLDER_REVERSED,
-          image: cardImagePath({ arcana: 'minor', id, suit: sm.suit }),
-        });
+          image: cardImagePath({ arcana: 'minor', id, suit: sm.suit, rank: mr.rank }),
+        };
+        deck.push(applyMeaning(card, id));
       }
     }
 
