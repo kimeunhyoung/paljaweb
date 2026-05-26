@@ -1674,6 +1674,10 @@ function confirmBirth() {
   document.getElementById('mainArea').scrollIntoView({ behavior: 'smooth' });
 }
 
+function spreadSkipsTodayEnergy() {
+  return curMode === 'energy' && curEopt !== 'daily';
+}
+
 function refreshDeckContextBanner(questionTrim) {
   const labelEl = document.querySelector('#numCtxBanner .num-ctx-label');
   const tags = document.getElementById('numCtxTags');
@@ -1682,17 +1686,28 @@ function refreshDeckContextBanner(questionTrim) {
   if (!birthReady) { ban.style.display = 'none'; return; }
   ban.style.display = 'block';
   if (labelEl) labelEl.textContent = curMode === 'energy' ? '지금 당신의 에너지' : '질문과 맞닿은 수';
+  const hideToday = spreadSkipsTodayEnergy();
   const chips = [`올해 ${calcPy}번`, `이번달 ${calcPm}번`];
-  if (!questionTrim) chips.push(`오늘 ${calcPd}번`);
+  if (!questionTrim && !hideToday) chips.push(`오늘 ${calcPd}번`);
   tags.innerHTML = chips.map(c => `<span class="num-ctx-tag">${c}</span>`).join('');
   let t = hintPick(YEAR_HINT, calcPy) + ' ' + hintPick(MONTH_HINT, calcPm);
-  if (!questionTrim) t += ' ' + hintPick(DAY_HINT, calcPd);
-  else {
+  if (!questionTrim && !hideToday) t += ' ' + hintPick(DAY_HINT, calcPd);
+  if (hideToday && curEopt === 'next_month') {
+    t =
+      '다음 달을 준비하는 지금, 이번 달 ' + calcPm + '번 에너지를 바탕으로 카드를 읽어 보세요. ' + t;
+  } else if (hideToday && curEopt === 'year') {
+    t = '올해 ' + calcPy + '번 에너지를 중심으로, 이번 달 흐름을 함께 짚어 보세요. ' + t;
+  } else if (hideToday && curEopt === 'month') {
+    t = '이번 달 ' + calcPm + '번 에너지를 바탕으로 카드를 읽어 보세요. ' + t;
+  } else if (questionTrim) {
     const qLabel = questionTrim || '선택한 주제';
     t += ' 「' + qLabel + '」 질문에 맞춰, 올해·이번 달 흐름을 배경으로 카드를 읽어 보세요.';
   }
   if (curMode === 'energy') {
-    const intro = FLOW_INTRO[calcPy] || '올해·이달·오늘의 수가 함께 어우러지는 시기예요.';
+    const intro =
+      curEopt === 'daily'
+        ? FLOW_INTRO[calcPy] || '올해·이달·오늘의 수가 함께 어우러지는 시기예요.'
+        : FLOW_INTRO[calcPy] || '올해 수비학 흐름이 배경이 됩니다.';
     t = intro + ' ' + t;
   }
   line.textContent = t;
@@ -1714,17 +1729,33 @@ function numEnergyBoxHtml(period, n, shortKw, hint) {
 
 function buildNumMergeBlock(questionTrim) {
   if (!birthReady) return '';
+  const hideToday = spreadSkipsTodayEnergy();
+  const showToday = !questionTrim && !hideToday;
+  const twoCol = questionTrim || hideToday;
   let html = '<div class="reading-section num-merge">';
   html += '<div class="num-merge-title">수비학으로 보는 현재 에너지</div>';
-  html += '<p class="num-merge-p" style="color:var(--muted);font-size:12px;">아래는 참고용 생활 테마예요. 카드 메시지를 “이 시기의 나”에 맞게 초점 맞추는 데 쓰면 됩니다.</p>';
-  html += '<div class="num-energy-grid' + (questionTrim ? ' num-energy-grid--two' : '') + '">';
+  if (!questionTrim && curEopt === 'next_month') {
+    html +=
+      '<p class="num-merge-p" style="color:var(--muted);font-size:12px;">다음 달을 준비하는 <strong>지금</strong>의 시점에서, <strong>이번 달</strong> 에너지를 배경으로 읽어 보세요. 타로 카드는 다가올 달의 흐름을, 수비학은 지금 서 있는 달의 기운을 짚어 줍니다.</p>';
+  } else if (!questionTrim && curEopt === 'year') {
+    html +=
+      '<p class="num-merge-p" style="color:var(--muted);font-size:12px;"><strong>올해</strong> 개인년 에너지를 중심으로, <strong>이번 달</strong> 흐름을 함께 배경으로 읽어 보세요. 타로 카드는 한 해의 큰 흐름을, 수비학은 올해·지금 달의 기운을 짚어 줍니다.</p>';
+  } else if (!questionTrim && curEopt === 'month') {
+    html +=
+      '<p class="num-merge-p" style="color:var(--muted);font-size:12px;"><strong>이번 달</strong> 에너지를 배경으로 읽어 보세요. 타로 카드는 이달의 흐름을, 수비학은 올해·이번 달의 기운을 짚어 줍니다.</p>';
+  } else {
+    html +=
+      '<p class="num-merge-p" style="color:var(--muted);font-size:12px;">아래는 참고용 생활 테마예요. 카드 메시지를 “이 시기의 나”에 맞게 초점 맞추는 데 쓰면 됩니다.</p>';
+  }
+  html += '<div class="num-energy-grid' + (twoCol ? ' num-energy-grid--two' : '') + '">';
   html += numEnergyBoxHtml('올해', calcPy, NUM_KW_SHORT[calcPy] || '', hintPick(YEAR_HINT, calcPy));
   html += numEnergyBoxHtml('이번 달', calcPm, NUM_KW_SHORT[calcPm] || '', hintPick(MONTH_HINT, calcPm));
-  if (!questionTrim) {
+  if (showToday) {
     html += numEnergyBoxHtml('오늘', calcPd, NUM_KW_SHORT[calcPd] || '', hintPick(DAY_HINT, calcPd));
   }
   html += '</div>';
-  html += '<p class="num-merge-p" style="margin-top:12px;color:var(--warm-brown);">→ 카드 메시지를 읽을 때, 위 에너지 중 지금 내 상황과 가장 맞닿는 키워드 하나만 마음에 얹어 보세요. <strong>같은 카드도 이 맥락 안에서 다르게 들릴 거예요.</strong></p>';
+  html +=
+    '<p class="num-merge-p" style="margin-top:12px;color:var(--warm-brown);">→ 카드 메시지를 읽을 때, 위 에너지 중 지금 내 상황과 가장 맞닿는 키워드 하나만 마음에 얹어 보세요. <strong>같은 카드도 이 맥락 안에서 다르게 들릴 거예요.</strong></p>';
   html += '</div>';
   return html;
 }
