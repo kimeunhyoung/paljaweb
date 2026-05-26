@@ -13,7 +13,7 @@
       } catch (e) {}
     })();
   </script>
-  <title>타로코드 — 팔자연구소 8CODE</title>
+  <title>팔자연구소 · 타로코드 — 수비학 맥락 타로</title>
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,500&family=Noto+Serif+KR:wght@300;400;500;600&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet"/>
@@ -172,16 +172,30 @@
       font-size: 17px;
       font-weight: 700;
     }
-    .topbar-sep { width: 1px; height: 16px; background: var(--border); }
-    .topbar-title {
-      font-family: var(--font-body);
-      font-size: 14px;
+    .topbar-logo-text {
+      display: inline-flex;
+      align-items: baseline;
+      flex-wrap: wrap;
+      gap: 0;
+      line-height: 1.25;
+    }
+    .topbar-logo-parent {
+      font-size: 12px;
       font-weight: 600;
+      color: rgba(42, 32, 24, 0.55);
+      letter-spacing: 0.01em;
+    }
+    .topbar-logo-sep {
+      font-size: 12px;
+      font-weight: 400;
+      color: rgba(42, 32, 24, 0.35);
+      margin: 0 2px;
+    }
+    .topbar-logo-product {
+      font-size: 15px;
+      font-weight: 700;
       color: var(--deep-brown);
-      line-height: 1.35;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
+      letter-spacing: 0.01em;
     }
     .topbar-right {
       display: flex;
@@ -272,10 +286,6 @@
     }
     html.tarot-standalone .site-top .topbar {
       justify-content: flex-start;
-    }
-    html.tarot-standalone .topbar-sep,
-    html.tarot-standalone .topbar-title {
-      display: none !important;
     }
     .tarot-ad-slot {
       display: none;
@@ -1056,9 +1066,12 @@
 <div class="site-top">
 <header class="topbar">
   <div class="topbar-left">
-    <a class="topbar-logo" href="index.html"><span class="topbar-logo-mark" aria-hidden="true">八</span>팔자연구소</a>
-    <div class="topbar-sep"></div>
-    <span class="topbar-title">타로코드</span>
+    <a class="topbar-logo" href="index.html" aria-label="팔자연구소 타로코드">
+      <span class="topbar-logo-mark" aria-hidden="true">八</span>
+      <span class="topbar-logo-text">
+        <span class="topbar-logo-parent">팔자연구소</span><span class="topbar-logo-sep" aria-hidden="true">·</span><span class="topbar-logo-product">타로코드</span>
+      </span>
+    </a>
   </div>
   <div class="topbar-right" data-topbar-auth aria-label="계정">
     <span class="plan-badge free" id="plan-badge">Free</span>
@@ -1091,7 +1104,7 @@
 
 <!-- HERO -->
 <section class="hero">
-  <div class="hero-tag">Tarot Code · 수비학 맥락 카드</div>
+  <div class="hero-tag">팔자연구소 · 타로코드 · 수비학 맥락 카드</div>
   <h1 class="hero-title">수비학이 배경을 깔고<br><em>타로가 말을 건넵니다</em></h1>
   <p class="hero-desc">올해·이번 달·오늘의 수비학 리듬을 짚고, 그 위에서 타로가 건네는 말을 당신 상황에 맞게 엮어 드려요.</p>
   <div class="birth-wrap">
@@ -2535,12 +2548,11 @@ function resetAll() {
 }
 
 if (TAROT_STANDALONE) {
-  document.title = '타로코드';
+  document.title = '팔자연구소 · 타로코드';
   var __logo = document.querySelector('.topbar-logo');
   if (__logo) {
     __logo.setAttribute('href', 'Tarot.html?standalone=1');
-    __logo.setAttribute('aria-label', '타로코드 처음으로');
-    __logo.innerHTML = '<span class="topbar-logo-mark" aria-hidden="true">八</span>타로코드';
+    __logo.setAttribute('aria-label', '팔자연구소 타로코드 처음으로');
   }
 }
 

@@ -13,7 +13,7 @@
       } catch (e) {}
     })();
   </script>
-  <title>키르케타로코드 — Circe Tarot · 팔자연구소</title>
+  <title>팔자연구소 · 키르케타로코드 — Circe Tarot</title>
   <meta name="description" content="키르케와 율리시스 신화의 Circe Tarot 78장. 팔자연구소 키르케타로코드."/>
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
@@ -68,8 +68,28 @@
       display: inline-flex; align-items: center; justify-content: center;
       font-family: var(--font-serif); font-size: 17px;
     }
-    .topbar-sep { width: 1px; height: 16px; background: var(--border); }
-    .topbar-title { font-size: 14px; font-weight: 600; color: var(--deep); }
+    .topbar-logo-text {
+      display: inline-flex;
+      align-items: baseline;
+      flex-wrap: wrap;
+      gap: 0;
+      line-height: 1.25;
+    }
+    .topbar-logo-parent {
+      font-size: 12px;
+      font-weight: 600;
+      color: rgba(26, 22, 40, 0.55);
+    }
+    .topbar-logo-sep {
+      font-size: 12px;
+      color: rgba(26, 22, 40, 0.35);
+      margin: 0 2px;
+    }
+    .topbar-logo-product {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--deep);
+    }
     .back-btn {
       font-size: 12px; color: var(--sea); text-decoration: none;
       border: 1px solid var(--border); padding: 6px 12px; border-radius: 6px;
@@ -90,8 +110,6 @@
     .program-nav-current { color: var(--deep); font-weight: 700; }
 
     html.kirke-standalone .program-nav { display: none !important; }
-    html.kirke-standalone .topbar-sep,
-    html.kirke-standalone .topbar-title { display: none; }
 
     .wrap { max-width: 920px; margin: 0 auto; padding: 36px 24px 80px; }
     .brand { text-align: center; margin-bottom: 32px; }
@@ -290,9 +308,12 @@
 <div class="site-top">
   <header class="topbar">
     <div class="topbar-left">
-      <a class="topbar-logo" href="index.html"><span class="topbar-logo-mark" aria-hidden="true">⌁</span>팔자연구소</a>
-      <div class="topbar-sep"></div>
-      <span class="topbar-title">키르케타로코드</span>
+      <a class="topbar-logo" href="index.html" aria-label="팔자연구소 키르케타로코드" id="kirkeTopbarLogo">
+        <span class="topbar-logo-mark" aria-hidden="true">⌁</span>
+        <span class="topbar-logo-text">
+          <span class="topbar-logo-parent">팔자연구소</span><span class="topbar-logo-sep" aria-hidden="true">·</span><span class="topbar-logo-product">키르케타로코드</span>
+        </span>
+      </a>
     </div>
     <div class="topbar-right" data-topbar-auth aria-label="계정">
       <a href="dashboard.html" class="back-btn">대시보드</a>
@@ -314,7 +335,7 @@
 
 <div class="wrap">
   <header class="brand">
-    <div class="brand-badge">Circe Tarot · 키르케타로코드</div>
+    <div class="brand-badge">팔자연구소 · 키르케타로코드 · Circe Tarot</div>
     <h1 class="brand-title">키르케의 섬에서 펼치는 78장</h1>
     <p class="brand-sub">마녀이자 여신 키르케와 율리시스의 항해를 담은 Circe Tarot. 공식 가이드북의 신화 해설로, 정방향 3장을 읽습니다.</p>
     <div class="brand-line">78 cards · 3-card spread · 정방향</div>
@@ -366,6 +387,14 @@
 <script>
   document.getElementById('kirkeDrawCount2').textContent =
     document.getElementById('kirkeDrawCount').textContent;
+  if (document.documentElement.classList.contains('kirke-standalone')) {
+    document.title = '팔자연구소 · 키르케타로코드';
+    var kirkeLogo = document.getElementById('kirkeTopbarLogo');
+    if (kirkeLogo) {
+      kirkeLogo.setAttribute('href', 'kirke-tarot.html?standalone=1');
+      kirkeLogo.setAttribute('aria-label', '팔자연구소 키르케타로코드 처음으로');
+    }
+  }
 </script>
 </body>
 </html>
