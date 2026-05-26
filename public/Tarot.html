@@ -1150,7 +1150,6 @@
   <div class="birth-picker-sheet" role="dialog" aria-modal="true" aria-labelledby="birthPickerTitle">
     <div class="birth-picker-head" id="birthPickerTitle">연도 선택</div>
     <ul class="birth-picker-list" id="birthPickerList"></ul>
-    <button type="button" class="birth-picker-done" id="birthPickerDone" disabled>완료</button>
   </div>
 </div>
 
@@ -1555,7 +1554,6 @@ function buildBirthPickerOptions(field) {
 
 function renderBirthPickerList() {
   const list = document.getElementById('birthPickerList');
-  const doneBtn = document.getElementById('birthPickerDone');
   if (!list || !birthPickerField) return;
   const items = buildBirthPickerOptions(birthPickerField);
   const current = birthPickerDraft || birthPick[birthPickerField] || '';
@@ -1564,13 +1562,12 @@ function renderBirthPickerList() {
     return '<li><button type="button" class="birth-picker-item' + sel + '" data-value="' + it.value + '">' +
       '<span class="birth-picker-radio" aria-hidden="true"></span><span>' + it.label + '</span></button></li>';
   }).join('');
-  if (doneBtn) doneBtn.disabled = !birthPickerDraft;
   list.querySelectorAll('.birth-picker-item').forEach((btn) => {
     btn.addEventListener('click', () => {
-      birthPickerDraft = btn.getAttribute('data-value') || '';
-      list.querySelectorAll('.birth-picker-item').forEach((b) => b.classList.remove('is-selected'));
-      btn.classList.add('is-selected');
-      if (doneBtn) doneBtn.disabled = false;
+      const val = btn.getAttribute('data-value') || '';
+      if (!val) return;
+      birthPickerDraft = val;
+      closeBirthPicker(true);
     });
   });
   const selected = list.querySelector('.birth-picker-item.is-selected');
@@ -1613,16 +1610,16 @@ function initBirthDatePickers() {
   const mBtn = document.getElementById('birthMonthBtn');
   const dBtn = document.getElementById('birthDayBtn');
   const backdrop = document.getElementById('birthPickerBackdrop');
-  const doneBtn = document.getElementById('birthPickerDone');
-  if (!yBtn || !mBtn || !dBtn || !backdrop || !doneBtn) return;
+  if (!yBtn || !mBtn || !dBtn || !backdrop) return;
 
   yBtn.addEventListener('click', () => openBirthPicker('y'));
   mBtn.addEventListener('click', () => openBirthPicker('m'));
   dBtn.addEventListener('click', () => openBirthPicker('d'));
-  doneBtn.addEventListener('click', () => closeBirthPicker(true));
   backdrop.addEventListener('click', (e) => {
     if (e.target === backdrop) closeBirthPicker(false);
   });
+  const sheet = backdrop.querySelector('.birth-picker-sheet');
+  if (sheet) sheet.addEventListener('click', (e) => e.stopPropagation());
   syncBirthPickButtons();
 }
 
