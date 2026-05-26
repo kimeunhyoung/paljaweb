@@ -2349,10 +2349,18 @@ function buildEnrichedReadingHtml(cards, positions) {
     const mdd = dailyDoDontInterpret(card, i);
     if (mdd) {
       const bodyHtml = escapeHtml(mdd.body).replace(/\n/g, '<br>');
+      const posTitle = positions[i];
+      const labelHtml =
+        mdd.label && mdd.label !== posTitle
+          ? '<span class="ec-summary-label">' + escapeHtml(mdd.label) + '</span>'
+          : '';
       return (
         '<div class="ec-card">' +
         '<div class="ec-pos">' + pos + ' · ' + nm + rev + '</div>' +
-        '<div class="ec-block ec-block--do-dont"><div class="ec-label">' + escapeHtml(mdd.label) + '</div><p class="ec-p ec-p-pre">' + bodyHtml + '</p></div>' +
+        '<div class="ec-summary">' +
+        labelHtml +
+        '<p class="ec-summary-text">' + bodyHtml + '</p>' +
+        '</div>' +
         '</div>'
       );
     }
