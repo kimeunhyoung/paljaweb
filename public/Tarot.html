@@ -558,9 +558,8 @@
       cursor: pointer; transition: all .15s;
     }
     .eopt:hover, .eopt.selected { border-color: var(--accent); background: var(--accent-lt); }
-    .eopt-title { font-family: var(--font-serif); font-size: 14px; color: var(--deep-brown); margin-bottom: 4px; }
-    .eopt-nums { font-family: var(--font-mono); font-size: 9px; color: var(--accent); letter-spacing: .08em; margin-bottom: 4px; }
-    .eopt-desc { font-size: 10.5px; color: var(--muted); line-height: 1.45; }
+    .eopt-title { font-family: var(--font-serif); font-size: 14px; color: var(--deep-brown); margin-bottom: 6px; }
+    .eopt-desc { font-size: 11.5px; color: var(--muted); line-height: 1.5; }
 
     .question-opts { display: none; }
     .question-opts.on { display: block; }
@@ -896,18 +895,39 @@
       margin-top: 10px;
     }
     .ec-summary-label {
-      display: block;
-      font-size: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 11px;
       font-weight: 700;
-      color: var(--deep-brown);
-      margin-bottom: 6px;
+      letter-spacing: 0.05em;
+      margin-bottom: 8px;
+    }
+    .ec-summary-label::before {
+      content: '';
+      width: 3px;
+      height: 14px;
+      border-radius: 2px;
+      flex-shrink: 0;
+    }
+    .ec-summary--fact .ec-summary-label {
+      color: var(--warm-brown);
+    }
+    .ec-summary--fact .ec-summary-label::before {
+      background: var(--accent);
+    }
+    .ec-summary--counsel .ec-summary-label {
+      color: var(--teal);
+    }
+    .ec-summary--counsel .ec-summary-label::before {
+      background: var(--teal);
     }
     .ec-summary-text {
       margin: 0;
       font-size: 14px;
       line-height: 1.65;
       color: var(--ink);
-      font-weight: 500;
+      font-weight: 400;
     }
     .ec-accordion {
       margin: 10px 0 0;
@@ -917,7 +937,11 @@
       overflow: hidden;
     }
     .ec-accordion-summary {
-      padding: 11px 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 12px 14px;
       font-size: 13px;
       font-weight: 600;
       color: var(--warm-brown);
@@ -927,11 +951,19 @@
     }
     .ec-accordion-summary::-webkit-details-marker { display: none; }
     .ec-accordion-summary::after {
-      content: ' ▾';
-      font-size: 11px;
-      color: var(--muted);
+      content: '';
+      flex-shrink: 0;
+      width: 0;
+      height: 0;
+      border-left: 7px solid transparent;
+      border-right: 7px solid transparent;
+      border-top: 8px solid var(--accent);
+      opacity: 0.85;
+      transition: transform 0.2s ease;
     }
-    .ec-accordion[open] .ec-accordion-summary::after { content: ' ▴'; }
+    .ec-accordion[open] .ec-accordion-summary::after {
+      transform: rotate(180deg);
+    }
     .ec-accordion-body {
       padding: 0 14px 14px;
       border-top: 1px dashed var(--border);
@@ -1191,22 +1223,18 @@
         <div class="energy-opts-grid">
           <div class="eopt selected" data-eopt="daily" onclick="selectEopt('daily', this)">
             <div class="eopt-title">데일리 5장</div>
-            <div class="eopt-nums">오늘의 흐름 3 + 보조 2</div>
             <div class="eopt-desc">위 세 장은 오늘의 흐름, 아래 두 장은 오늘 힘이 되는 에너지와 오늘의 주의를 봅니다.</div>
           </div>
           <div class="eopt" data-eopt="month" onclick="selectEopt('month', this)">
             <div class="eopt-title">이번 달 3장</div>
-            <div class="eopt-nums">3장</div>
             <div class="eopt-desc">이번 달의 시작·핵심·정리 흐름.</div>
           </div>
           <div class="eopt" data-eopt="next_month" onclick="selectEopt('next_month', this)">
             <div class="eopt-title">다음 달 준비 3장</div>
-            <div class="eopt-nums">3장</div>
             <div class="eopt-desc">다가올 달을 위해 마음·실행·주변을 점검.</div>
           </div>
           <div class="eopt" data-eopt="year" onclick="selectEopt('year', this)">
             <div class="eopt-title">올해 5장</div>
-            <div class="eopt-nums">5장</div>
             <div class="eopt-desc">개인년 에너지를 넓게 훑는 연간 흐름.</div>
           </div>
         </div>
@@ -2406,7 +2434,7 @@ function buildCardReadingBodyHtml(card, slotIndex) {
   let html = '';
   if (summary) {
     html +=
-      '<div class="ec-summary">' +
+      '<div class="ec-summary ec-summary--fact">' +
       '<span class="ec-summary-label">한줄 요약</span>' +
       '<p class="ec-summary-text">' + escapeHtml(summary) + '</p>' +
       '</div>';
@@ -2420,7 +2448,7 @@ function buildCardReadingBodyHtml(card, slotIndex) {
   }
   if (counsel) {
     html +=
-      '<div class="ec-summary">' +
+      '<div class="ec-summary ec-summary--counsel">' +
       '<span class="ec-summary-label">현실조언</span>' +
       '<p class="ec-summary-text">' + escapeHtml(counsel) + '</p>' +
       '</div>';
@@ -2444,7 +2472,7 @@ function buildEnrichedReadingHtml(cards, positions) {
       return (
         '<div class="ec-card">' +
         '<div class="ec-pos">' + pos + ' · ' + nm + rev + '</div>' +
-        '<div class="ec-summary">' +
+        '<div class="ec-summary' + (labelHtml ? ' ec-summary--fact' : '') + '">' +
         labelHtml +
         '<p class="ec-summary-text">' + bodyHtml + '</p>' +
         '</div>' +
