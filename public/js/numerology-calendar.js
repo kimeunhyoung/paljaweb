@@ -226,8 +226,9 @@ function renderCalendar() {
     );
     button.innerHTML = `
       <div class="day-num">${date.getDate()}</div>
+      <div class="day-sub">일반 ${universalDay}</div>
       <div class="day-value">${personalDay}</div>
-      <div class="day-keyword">${guide.key} · 일반 ${universalDay}</div>
+      <div class="day-keyword">${guide.key}</div>
     `;
     button.addEventListener("click", () => {
       if (!isCurrentMonth) return;
