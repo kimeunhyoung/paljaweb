@@ -109,6 +109,13 @@ function getPersonalDay(personalMonth, day) {
   return reduceNumber(personalMonth + day, true);
 }
 
+function getUniversalDay(date) {
+  const y = date.getFullYear();
+  const m = date.getMonth() + 1;
+  const d = date.getDate();
+  return reduceNumber(sumDigits(`${y}${m}${d}`), false);
+}
+
 function formatYearMonthTitle(date) {
   const y = date.getFullYear();
   const m = date.getMonth() + 1;
@@ -133,7 +140,7 @@ function getMonthCellDates(viewDate) {
   });
 }
 
-function renderDetail(date, personalMonth, personalDay) {
+function renderDetail(date, personalMonth, personalDay, universalDay) {
   const guide = DAILY_GUIDE[personalDay] || DAILY_GUIDE[reduceNumber(personalDay, false)] || DAILY_GUIDE[1];
   const monthMessage = MONTHLY_MESSAGE[personalMonth] || MONTHLY_MESSAGE[reduceNumber(personalMonth, false)] || "";
   detailPanel.innerHTML = `
@@ -147,6 +154,10 @@ function renderDetail(date, personalMonth, personalDay) {
       <div class="metric-item">
         <div class="metric-label">개인일수</div>
         <div class="metric-value">${personalDay}</div>
+      </div>
+      <div class="metric-item">
+        <div class="metric-label">일반일수</div>
+        <div class="metric-value">${universalDay}</div>
       </div>
     </div>
     <div class="card-title">이번 달 흐름</div>
@@ -201,6 +212,7 @@ function renderCalendar() {
       date.getMonth() === state.selectedDate.getMonth() &&
       date.getDate() === state.selectedDate.getDate();
     const personalDay = getPersonalDay(personalMonth, date.getDate());
+    const universalDay = getUniversalDay(date);
     const guide = DAILY_GUIDE[personalDay] || DAILY_GUIDE[reduceNumber(personalDay, false)] || DAILY_GUIDE[1];
 
     const button = document.createElement("button");
@@ -210,18 +222,18 @@ function renderCalendar() {
     button.setAttribute("aria-selected", isSelected ? "true" : "false");
     button.setAttribute(
       "aria-label",
-      `${date.getMonth() + 1}월 ${date.getDate()}일 개인일수 ${personalDay}`,
+      `${date.getMonth() + 1}월 ${date.getDate()}일 개인일수 ${personalDay}, 일반일수 ${universalDay}`,
     );
     button.innerHTML = `
       <div class="day-num">${date.getDate()}</div>
       <div class="day-value">${personalDay}</div>
-      <div class="day-keyword">${guide.key}</div>
+      <div class="day-keyword">${guide.key} · 일반 ${universalDay}</div>
     `;
     button.addEventListener("click", () => {
       if (!isCurrentMonth) return;
       state.selectedDate = new Date(date);
       renderCalendar();
-      renderDetail(date, personalMonth, personalDay);
+      renderDetail(date, personalMonth, personalDay, universalDay);
     });
     calendarDays.appendChild(button);
   });
@@ -230,7 +242,8 @@ function renderCalendar() {
     state.selectedDate = new Date(year, month - 1, 1);
   }
   const firstPersonalDay = getPersonalDay(personalMonth, state.selectedDate.getDate());
-  renderDetail(state.selectedDate, personalMonth, firstPersonalDay);
+  const firstUniversalDay = getUniversalDay(state.selectedDate);
+  renderDetail(state.selectedDate, personalMonth, firstPersonalDay, firstUniversalDay);
 }
 
 async function loadBirthFromProfile() {
