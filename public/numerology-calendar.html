@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>팔자연구소 · 수비학 달력</title>
+  <meta
+    name="description"
+    content="로그인한 사용자 생년월일을 자동 불러와 개인월수와 개인일수를 한눈에 확인하는 수비학 달력"
+  />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&family=Noto+Sans+KR:wght@400;500;700&display=swap"
+    rel="stylesheet"
+  />
+  <style>
+    :root {
+      --bg: #f7f3ea;
+      --card: #ffffff;
+      --ink: #2c1f0e;
+      --muted: #7b6a54;
+      --line: #e9decb;
+      --brand: #8b6f47;
+      --brand-soft: #f2e8d6;
+      --accent: #6f47b8;
+      --good: #2e8b7a;
+      --warn: #b85c47;
+      --today: #fdf5e8;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Noto Sans KR", sans-serif;
+      color: var(--ink);
+      background: radial-gradient(1200px 600px at 50% -300px, #fff6df, var(--bg));
+    }
+    .top {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      border-bottom: 1px solid var(--line);
+      background: rgba(247, 243, 234, 0.92);
+      backdrop-filter: blur(8px);
+    }
+    .top-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 14px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+    .brand {
+      color: var(--ink);
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-weight: 700;
+    }
+    .brand-mark {
+      width: 28px;
+      height: 28px;
+      border-radius: 8px;
+      background: linear-gradient(135deg, var(--brand), #b4976f);
+      color: #fff;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+    }
+    .top-links {
+      display: inline-flex;
+      align-items: center;
+      gap: 14px;
+      flex-wrap: wrap;
+    }
+    .top-links a {
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 600;
+    }
+    .top-links a:hover { color: var(--ink); }
+
+    .page {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 28px 20px 40px;
+    }
+    .hero {
+      margin-bottom: 20px;
+    }
+    .eyebrow {
+      display: inline-block;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: var(--brand-soft);
+      color: var(--brand);
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      margin-bottom: 10px;
+    }
+    h1 {
+      margin: 0;
+      font-family: "Cormorant Garamond", serif;
+      font-size: clamp(34px, 5vw, 52px);
+      font-weight: 600;
+      line-height: 1.05;
+      letter-spacing: -0.01em;
+    }
+    .hero p {
+      margin: 10px 0 0;
+      color: var(--muted);
+      font-size: 15px;
+      line-height: 1.6;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: minmax(0, 2fr) minmax(280px, 1fr);
+      gap: 16px;
+    }
+    .panel {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      box-shadow: 0 10px 35px rgba(44, 31, 14, 0.06);
+    }
+    .controls {
+      padding: 16px;
+      margin-bottom: 12px;
+    }
+    .control-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 10px;
+      align-items: end;
+    }
+    .field label {
+      font-size: 12px;
+      color: var(--muted);
+      font-weight: 700;
+      display: inline-block;
+      margin-bottom: 6px;
+    }
+    input[type="date"] {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 12px 14px;
+      font-size: 15px;
+      color: var(--ink);
+      background: #fff;
+    }
+    .btn-row {
+      display: inline-flex;
+      gap: 8px;
+    }
+    button {
+      border: 1px solid var(--line);
+      background: #fff;
+      color: var(--ink);
+      border-radius: 12px;
+      padding: 11px 12px;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    button.primary {
+      background: linear-gradient(135deg, var(--brand), #a68658);
+      color: #fff;
+      border-color: transparent;
+    }
+    .hint {
+      margin-top: 10px;
+      font-size: 13px;
+      color: var(--muted);
+      min-height: 18px;
+    }
+    .hint.ok { color: var(--good); }
+    .hint.warn { color: var(--warn); }
+
+    .calendar {
+      padding: 16px;
+    }
+    .calendar-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+    .calendar-title {
+      font-size: clamp(22px, 3vw, 30px);
+      font-family: "Cormorant Garamond", serif;
+      margin: 0;
+    }
+    .calendar-meta {
+      display: inline-flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+    .chip {
+      font-size: 12px;
+      color: var(--brand);
+      background: var(--brand-soft);
+      border-radius: 999px;
+      padding: 5px 10px;
+      font-weight: 700;
+    }
+    .weekday,
+    .days {
+      display: grid;
+      grid-template-columns: repeat(7, minmax(0, 1fr));
+      gap: 8px;
+    }
+    .weekday div {
+      text-align: center;
+      font-size: 12px;
+      color: var(--muted);
+      font-weight: 700;
+      padding-bottom: 6px;
+    }
+    .day {
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: #fff;
+      min-height: 96px;
+      padding: 8px;
+      text-align: left;
+      display: grid;
+      grid-template-rows: auto auto 1fr;
+      gap: 6px;
+    }
+    .day.is-today { background: var(--today); }
+    .day.is-selected {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 2px rgba(111, 71, 184, 0.12);
+    }
+    .day.is-out {
+      opacity: 0.44;
+      pointer-events: none;
+    }
+    .day-num {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--muted);
+    }
+    .day-value {
+      font-size: 20px;
+      font-weight: 800;
+      color: var(--ink);
+      line-height: 1;
+    }
+    .day-keyword {
+      font-size: 11px;
+      color: var(--muted);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .detail {
+      padding: 16px;
+    }
+    .detail h2 {
+      margin: 0;
+      font-size: 21px;
+      font-family: "Cormorant Garamond", serif;
+    }
+    .detail-date {
+      margin-top: 6px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+    .metric {
+      margin-top: 12px;
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px;
+    }
+    .metric-item {
+      background: #f9f5ee;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 10px;
+    }
+    .metric-label {
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+    }
+    .metric-value {
+      margin-top: 4px;
+      font-size: 22px;
+      font-weight: 800;
+      color: var(--brand);
+      line-height: 1;
+    }
+    .card-title {
+      margin: 14px 0 6px;
+      font-size: 13px;
+      color: var(--muted);
+      font-weight: 700;
+    }
+    .text-card {
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: #fff;
+      padding: 12px;
+      font-size: 14px;
+      line-height: 1.65;
+    }
+    .guide {
+      margin-top: 12px;
+      display: grid;
+      gap: 8px;
+    }
+    .guide-item {
+      border-radius: 12px;
+      padding: 10px 12px;
+      font-size: 13px;
+      line-height: 1.6;
+    }
+    .guide-item strong { display: block; margin-bottom: 4px; }
+    .guide-item.do { background: #ecf8f5; color: #1b6155; }
+    .guide-item.dont { background: #fff1ed; color: #7c3c2f; }
+
+    @media (max-width: 980px) {
+      .layout { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 680px) {
+      .top-inner { padding: 12px 14px; }
+      .page { padding: 18px 12px 28px; }
+      .controls, .calendar, .detail { padding: 12px; }
+      .control-grid { grid-template-columns: 1fr; }
+      .btn-row { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); }
+      .days { gap: 6px; }
+      .day { min-height: 86px; padding: 7px; }
+      .day-value { font-size: 18px; }
+    }
+  </style>
+</head>
+<body>
+  <header class="top">
+    <div class="top-inner">
+      <a href="index.html" class="brand"><span class="brand-mark">八</span>팔자연구소</a>
+      <nav class="top-links">
+        <a href="analysis.html">라이프코드</a>
+        <a href="Tarot.html">타로코드</a>
+        <a href="numerology-calendar.html">수비학 달력</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="page">
+    <section class="hero">
+      <span class="eyebrow">PROGRAM 07</span>
+      <h1>수비학 달력</h1>
+      <p>로그인한 생년월일을 자동으로 불러와, 월간 흐름과 날짜별 개인 에너지를 캘린더로 보여드립니다.</p>
+    </section>
+
+    <section class="layout">
+      <div>
+        <article class="panel controls">
+          <div class="control-grid">
+            <div class="field">
+              <label for="birthDateInput">생년월일</label>
+              <input type="date" id="birthDateInput" />
+            </div>
+            <div class="btn-row">
+              <button type="button" id="prevMonthBtn" aria-label="이전 달">이전</button>
+              <button type="button" id="todayBtn" aria-label="이번 달">오늘</button>
+              <button type="button" id="nextMonthBtn" aria-label="다음 달">다음</button>
+            </div>
+          </div>
+          <div class="hint" id="authHint"></div>
+        </article>
+
+        <article class="panel calendar">
+          <div class="calendar-head">
+            <h2 class="calendar-title" id="calendarTitle"></h2>
+            <div class="calendar-meta">
+              <span class="chip" id="personalYearChip"></span>
+              <span class="chip" id="personalMonthChip"></span>
+            </div>
+          </div>
+          <div class="weekday" aria-hidden="true">
+            <div>일</div><div>월</div><div>화</div><div>수</div><div>목</div><div>금</div><div>토</div>
+          </div>
+          <div class="days" id="calendarDays" role="grid" aria-label="수비학 달력"></div>
+        </article>
+      </div>
+
+      <aside class="panel detail" id="detailPanel">
+        <h2>날짜를 선택해 주세요</h2>
+        <p class="detail-date">개인일수와 가이드를 확인할 수 있습니다.</p>
+      </aside>
+    </section>
+  </main>
+
+  <script type="module" src="js/numerology-calendar.js"></script>
+</body>
+</html>
