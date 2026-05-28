@@ -1,0 +1,10 @@
+User-agent: *
+Allow: /
+
+# AdSense 크롤러가 ads.txt를 확인할 수 있어야 합니다.
+User-agent: Mediapartners-Google
+Allow: /
+
+AdsBot-Google: /
+
+Sitemap: https://paljaweb.onrender.com/sitemap.xml

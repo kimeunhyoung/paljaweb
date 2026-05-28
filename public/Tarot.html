@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"/>
   <script>
     (function () {
       try {
@@ -10,10 +10,19 @@
         if (p.get('standalone') === '1' || p.get('app') === '1') {
           document.documentElement.classList.add('tarot-standalone');
         }
+        if (p.get('app') === '1') {
+          document.documentElement.classList.add('tarot-toss-app');
+        }
+        if (p.get('embedded') === '1') {
+          document.documentElement.classList.add('tarot-embedded');
+        }
       } catch (e) {}
     })();
   </script>
   <title>팔자연구소 · 타로코드 — 수비학 맥락 타로</title>
+  <!-- 광고 ID: 콘솔·AdSense 발급 후 content에 입력 (비우면 슬롯 숨김) -->
+  <meta name="tarot-toss-ad-group" content="ait.v2.live.a0b05a8e5a6c4135" />
+  <meta name="tarot-adsense-slot" content="8282097114" />
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,500&family=Noto+Serif+KR:wght@300;400;500;600&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet"/>
@@ -295,6 +304,71 @@
       padding: 10px 32px 6px;
       min-height: 0;
     }
+    /* 토스 미니앱: 토스 내비 + 로고만 — 프로그램 메뉴·로그인·광고 슬롯 숨김 */
+    html.tarot-toss-app .program-nav,
+    html.tarot-toss-app .topbar-right,
+    html.tarot-toss-app .tarot-ad-slot {
+      display: none !important;
+    }
+    html.tarot-toss-app .site-top {
+      position: relative;
+      top: auto;
+      box-shadow: none;
+    }
+    html.tarot-toss-app .site-top .topbar {
+      justify-content: flex-start;
+    }
+    html.tarot-toss-app .site-top + .hero {
+      margin-top: 0;
+    }
+    html.tarot-toss-app .hero {
+      padding-top: 20px;
+    }
+    html.tarot-toss-app .hero-tag {
+      display: none;
+    }
+    .tarot-app-modal {
+      position: fixed;
+      inset: 0;
+      z-index: 9999;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      background: rgba(0, 0, 0, 0.45);
+      box-sizing: border-box;
+    }
+    .tarot-app-modal[hidden] {
+      display: none !important;
+    }
+    .tarot-app-modal__panel {
+      width: 100%;
+      max-width: 320px;
+      background: #fff;
+      border-radius: 16px;
+      padding: 24px 20px 16px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+      text-align: center;
+    }
+    .tarot-app-modal__panel p {
+      margin: 0 0 20px;
+      font-size: 15px;
+      line-height: 1.55;
+      color: #191f28;
+      font-family: "Pretendard Variable", "Noto Sans KR", sans-serif;
+    }
+    .tarot-app-modal__ok {
+      width: 100%;
+      border: none;
+      border-radius: 12px;
+      padding: 14px 16px;
+      font-size: 16px;
+      font-weight: 600;
+      color: #fff;
+      background: #3182f6;
+      font-family: "Pretendard Variable", "Noto Sans KR", sans-serif;
+      cursor: pointer;
+    }
     html.tarot-standalone .tarot-ad-slot {
       display: none;
       min-height: 0;
@@ -302,11 +376,17 @@
       margin: 0;
       border: none;
     }
-    html.tarot-standalone .tarot-ad-slot:has(ins, iframe, .adsbygoogle) {
+    html.tarot-standalone .tarot-ad-slot.tarot-ad-slot--active,
+    html.tarot-standalone .tarot-ad-slot:has(ins, iframe, .adsbygoogle, [data-toss-ad]) {
       display: block;
       min-height: 50px;
       padding: 10px 32px 6px;
       border-bottom: 1px dashed var(--border);
+    }
+    html.tarot-standalone .tarot-ad-banner-host {
+      width: 100%;
+      min-height: 96px;
+      box-sizing: border-box;
     }
     html.tarot-standalone .site-top {
       box-shadow: none;
@@ -315,7 +395,8 @@
       margin-top: 0;
     }
     @media (max-width: 600px) {
-      html.tarot-standalone .tarot-ad-slot:has(ins, iframe, .adsbygoogle) {
+      html.tarot-standalone .tarot-ad-slot.tarot-ad-slot--active,
+      html.tarot-standalone .tarot-ad-slot:has(ins, iframe, .adsbygoogle, [data-toss-ad]) {
         padding-left: 16px;
         padding-right: 16px;
       }
@@ -1184,7 +1265,9 @@
 </nav>
 </div>
 
-<aside class="tarot-ad-slot" id="tarotAdSlotTop" aria-label="광고"></aside>
+<aside class="tarot-ad-slot" id="tarotAdSlotTop" aria-label="광고">
+  <div class="tarot-ad-banner-host" id="tarotAdBannerHost"></div>
+</aside>
 
 <!-- HERO -->
 <section class="hero">
@@ -1318,16 +1401,45 @@
     <div id="readingArea"></div>
     <div id="cardSummaries"></div>
 
-    <button class="reset-btn" onclick="resetAll()">↺ 새로운 리딩 시작하기</button>
+    <button class="reset-btn" type="button" onclick="requestNewReading()">↺ 새로운 리딩 시작하기</button>
   </div>
 
 </div>
 
+<div id="tarotAppModal" class="tarot-app-modal" hidden role="alertdialog" aria-modal="true" aria-labelledby="tarotAppModalMsg">
+  <div class="tarot-app-modal__panel">
+    <p id="tarotAppModalMsg"></p>
+    <button type="button" id="tarotAppModalOk" class="tarot-app-modal__ok">확인</button>
+  </div>
+</div>
+
+<script type="module" src="js/tarot-ads.js?v=2"></script>
 <script src="js/tarot-topic-lens.js?v=2"></script>
 <script src="js/tarot-major-scripted.js?v=6"></script>
 <script src="js/tarot-minor-scripted.js?v=18"></script>
 <script>
 const TAROT_STANDALONE = document.documentElement.classList.contains('tarot-standalone');
+const TAROT_TOSS_APP = document.documentElement.classList.contains('tarot-toss-app');
+
+function tarotAppAlert(message) {
+  if (!TAROT_TOSS_APP) {
+    alert(message);
+    return;
+  }
+  var host = document.getElementById('tarotAppModal');
+  var msgEl = document.getElementById('tarotAppModalMsg');
+  var okBtn = document.getElementById('tarotAppModalOk');
+  if (!host || !msgEl || !okBtn) {
+    alert(message);
+    return;
+  }
+  msgEl.textContent = message;
+  host.hidden = false;
+  okBtn.onclick = function () {
+    host.hidden = true;
+    okBtn.onclick = null;
+  };
+}
 const SB_URL = 'https://sghsryumnrnftyjoqmwf.supabase.co';
 const SB_KEY = 'sb_publishable_6S3W_oWrzG-Nv8wLK98gmg_q_KcB2I1';
 let sb = null;
@@ -1722,7 +1834,7 @@ function readBirthFromPickers() {
 function confirmBirth() {
   const picked = readBirthFromPickers();
   if (!picked) {
-    alert('연도·월·일을 모두 선택해 주세요.');
+    tarotAppAlert('연도·월·일을 모두 선택해 주세요.');
     return;
   }
   bY = picked.y;
@@ -1730,17 +1842,17 @@ function confirmBirth() {
   bD = picked.d;
   const test = new Date(bY, bM - 1, bD);
   if (test.getFullYear() !== bY || test.getMonth() !== bM - 1 || test.getDate() !== bD) {
-    alert('존재하지 않는 날짜입니다. 생년월일을 다시 확인해 주세요.');
+    tarotAppAlert('존재하지 않는 날짜입니다. 생년월일을 다시 확인해 주세요.');
     return;
   }
   if (bY < BIRTH_YEAR_MIN || bY > new Date().getFullYear()) {
-    alert('출생 연도를 ' + BIRTH_YEAR_MIN + '년~올해 사이로 선택해 주세요.');
+    tarotAppAlert('출생 연도를 ' + BIRTH_YEAR_MIN + '년~올해 사이로 선택해 주세요.');
     return;
   }
   const today = new Date();
   today.setHours(0, 0, 0, 0);
   if (test > today) {
-    alert('오늘 이후 날짜는 선택할 수 없습니다.');
+    tarotAppAlert('오늘 이후 날짜는 선택할 수 없습니다.');
     return;
   }
   const now = new Date(), cY = now.getFullYear(), cM = now.getMonth() + 1, cD = now.getDate();
@@ -2260,22 +2372,22 @@ function scrollTarotFocus(el, smooth) {
 
 function startSpread() {
   if (!birthReady) {
-    alert('먼저 생년월일을 입력하고 「에너지 확인」을 눌러주세요.');
+    tarotAppAlert('먼저 생년월일을 입력하고 「에너지 확인」을 눌러주세요.');
     return;
   }
   if (!curMode) {
-    alert('에너지 흐름 또는 질문 중 하나를 선택해 주세요.');
+    tarotAppAlert('에너지 흐름 또는 질문 중 하나를 선택해 주세요.');
     return;
   }
   if (curMode === 'question') {
     if (!curTopic) {
-      alert('주제를 하나 선택해주세요.');
+      tarotAppAlert('주제를 하나 선택해주세요.');
       return;
     }
     if (curTopic === 'custom') {
       const t = document.getElementById('customQuestionInput').value.trim();
       if (!t) {
-        alert('질문을 입력해주세요.');
+        tarotAppAlert('질문을 입력해주세요.');
         return;
       }
     }
@@ -2674,6 +2786,21 @@ function startReading() {
   });
 }
 
+function requestNewReading() {
+  if (TAROT_TOSS_APP && window.parent !== window) {
+    window.parent.postMessage({ source: 'paljaweb-tarot', type: 'new-reading-ad' }, '*');
+    return;
+  }
+  resetAll();
+}
+
+if (TAROT_TOSS_APP) {
+  window.addEventListener('message', function (ev) {
+    if (!ev.data || ev.data.source !== 'paljaweb-tarot' || ev.data.type !== 'new-reading-continue') return;
+    resetAll();
+  });
+}
+
 function resetAll() {
   drawnCards = [];
   shuffledDeck = [];
@@ -2716,7 +2843,8 @@ if (TAROT_STANDALONE) {
   document.title = '팔자연구소 · 타로코드';
   var __logo = document.querySelector('.topbar-logo');
   if (__logo) {
-    __logo.setAttribute('href', 'Tarot.html?standalone=1');
+    var __q = TAROT_TOSS_APP ? 'standalone=1&app=1' : 'standalone=1';
+    __logo.setAttribute('href', 'Tarot.html?' + __q);
     __logo.setAttribute('aria-label', '팔자연구소 타로코드 처음으로');
   }
 }
@@ -2725,4 +2853,5 @@ initBirthDatePickers();
 initAuth();
 </script>
 </body>
+</html>
 </html>
