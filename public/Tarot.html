@@ -1727,6 +1727,7 @@
 <script src="js/tarot-spread-bridge.js?v=7"></script>
 <script src="js/tarot-major-scripted.js?v=6"></script>
 <script src="js/tarot-minor-scripted.js?v=18"></script>
+<script src="js/tarot-topic-scan-pairs.js?v=2"></script>
 <script>
 const TAROT_STANDALONE = document.documentElement.classList.contains('tarot-standalone');
 const TAROT_TOSS_APP = document.documentElement.classList.contains('tarot-toss-app');
@@ -3141,8 +3142,22 @@ function flowKeywordsFromTopicSummary(summary) {
   return isBrokenScanPair(pair) ? '' : pair;
 }
 
+function topicKeyForScan() {
+  return (
+    { love: 'love', work: 'job', money: 'finance', relation: 'relation', inner: 'growth' }[
+      curTopic
+    ] || ''
+  );
+}
+
 function cardFlowKeywords(card, slotIndex) {
   if (curMode === 'question' && curTopic && curTopic !== 'custom') {
+    const topicKey = topicKeyForScan();
+    if (typeof getTarotTopicScanPair === 'function' && card && topicKey) {
+      const deck = card.suit === 'major' ? 'major' : 'minor';
+      const fixed = getTarotTopicScanPair(deck, card.id, topicKey);
+      if (fixed && !isBrokenScanPair(fixed)) return fixed;
+    }
     const sc = getScriptedCard(card, slotIndex);
     if (sc && sc.summary) {
       const topicPair = flowKeywordsFromTopicSummary(sc.summary);

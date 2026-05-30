@@ -66,6 +66,7 @@ const files = [
   "js/tarot-spread-bridge.js",
   "js/tarot-major-scripted.js",
   "js/tarot-minor-scripted.js",
+  "js/tarot-topic-scan-pairs.js",
   "js/tarot-ads.js",
 ];
 
