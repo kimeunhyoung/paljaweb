@@ -687,12 +687,36 @@
       letter-spacing: .02em;
     }
     .shuffle-btn:hover { background: var(--warm-brown); transform: translateY(-1px); }
-    .shuffle-btn:disabled { opacity: .5; cursor: not-allowed; transform: none; }
+    .shuffle-btn--inactive {
+      opacity: 0.52;
+      cursor: pointer;
+      transform: none;
+    }
+    .shuffle-btn--inactive:hover {
+      background: var(--deep-brown);
+      transform: none;
+    }
+    .shuffle-nudge {
+      display: none;
+      margin: 10px 0 0;
+      padding: 10px 12px;
+      font-size: 12.5px;
+      font-weight: 600;
+      line-height: 1.5;
+      color: var(--warm-brown);
+      text-align: center;
+      background: rgba(139, 111, 71, 0.12);
+      border: 1px solid rgba(139, 111, 71, 0.22);
+      border-radius: 8px;
+    }
+    .shuffle-nudge.is-visible {
+      display: block;
+    }
     @keyframes shuffleReadyPulse {
       0%, 100% { box-shadow: 0 0 0 0 rgba(200, 169, 110, 0.45); }
       50% { box-shadow: 0 0 0 8px rgba(200, 169, 110, 0); }
     }
-    .shuffle-btn--highlight:not(:disabled) {
+    .shuffle-btn--highlight:not(.shuffle-btn--inactive) {
       animation: shuffleReadyPulse 0.85s ease 2;
     }
 
@@ -1643,9 +1667,16 @@
 
       <div id="step1Cta" class="step1-cta-wrap">
         <p class="shuffle-hint" id="shuffleHint">선택하셨어요 · 아래에서 카드 뽑기를 시작하세요</p>
-        <button type="button" class="shuffle-btn" id="shuffleBtn" onclick="startSpread()" disabled>
+        <button
+          type="button"
+          class="shuffle-btn shuffle-btn--inactive"
+          id="shuffleBtn"
+          onclick="handleShuffleCtaClick()"
+          aria-disabled="true"
+        >
           ✦ 카드 뽑기 시작
         </button>
+        <p class="shuffle-nudge" id="shuffleNudge" role="alert" hidden></p>
       </div>
     </div>
   </div>
@@ -1846,10 +1877,54 @@ function isShuffleReady() {
   return true;
 }
 
+function showShuffleNudge(message) {
+  const el = document.getElementById('shuffleNudge');
+  if (!el) return;
+  el.textContent = message;
+  el.hidden = false;
+  el.classList.add('is-visible');
+}
+
+function clearShuffleNudge() {
+  const el = document.getElementById('shuffleNudge');
+  if (!el) return;
+  el.textContent = '';
+  el.hidden = true;
+  el.classList.remove('is-visible');
+}
+
+function handleShuffleCtaClick() {
+  if (!birthReady) {
+    showShuffleNudge('먼저 위에서 생년월일을 넣고 「에너지 확인」을 눌러 주세요.');
+    const birth = document.querySelector('.birth-wrap');
+    if (birth) birth.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    return;
+  }
+  if (!curMode) {
+    showShuffleNudge('에너지 흐름 또는 질문 중 하나를 선택해 주세요.');
+    document.getElementById('step1')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    return;
+  }
+  if (curMode === 'question') {
+    if (!curTopic) {
+      showShuffleNudge('무엇이 궁금하신지 주제를 선택해 주세요.');
+      document.getElementById('questionOpts')?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      return;
+    }
+    if (curTopic === 'custom' && !document.getElementById('customQuestionInput').value.trim()) {
+      showShuffleNudge('마음속 질문을 입력해 주세요.');
+      document.getElementById('customQuestionInput')?.focus();
+      return;
+    }
+  }
+  clearShuffleNudge();
+  startSpread();
+}
+
 function scrollToShuffleCta() {
   const btn = document.getElementById('shuffleBtn');
   const wrap = document.getElementById('step1Cta');
-  if (!btn || btn.disabled) return;
+  if (!btn || !isShuffleReady()) return;
   const target = wrap || btn;
   requestAnimationFrame(() => {
     target.scrollIntoView({ behavior: 'smooth', block: 'end' });
@@ -1866,7 +1941,9 @@ function syncShuffleBtn() {
   const hint = document.getElementById('shuffleHint');
   if (!btn) return;
   const ready = isShuffleReady();
-  btn.disabled = !ready;
+  btn.classList.toggle('shuffle-btn--inactive', !ready);
+  btn.setAttribute('aria-disabled', ready ? 'false' : 'true');
+  if (ready) clearShuffleNudge();
   if (wrap) wrap.classList.toggle('is-ready', ready);
   if (hint && ready) {
     if (curMode === 'question') {
