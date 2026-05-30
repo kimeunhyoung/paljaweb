@@ -1142,6 +1142,36 @@
       line-height: 1.55;
       color: var(--ink);
     }
+    .rq-row.rq-energy--compact {
+      padding: 9px 12px;
+    }
+    .rq-energy-chip {
+      margin: 0;
+      font-size: 14px;
+      line-height: 1.45;
+      color: var(--ink);
+    }
+    .rq-energy-chip strong {
+      font-weight: 700;
+      color: var(--deep-brown);
+    }
+    .rq-energy-list--compact {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .rq-energy-list--compact .rq-row.rq-energy--compact {
+      flex: 1 1 100%;
+      margin: 0;
+    }
+    @media (min-width: 400px) {
+      .rq-energy-list--compact .rq-row.rq-energy--compact {
+        flex: 1 1 calc(50% - 4px);
+      }
+    }
+    .reading-detail-section .rq-num-detail {
+      margin: 0 0 16px;
+    }
     .rq-tag {
       display: inline-block;
       margin-right: 6px;
@@ -2751,48 +2781,40 @@ function cardReadingOneline(card, slotIndex) {
   return onelinerClip(mono, 88);
 }
 
+/** 한눈에 보기 — 「올해 1번 · 시작」형 짧은 칩만 */
 function buildQuickScanEnergyRows(qTrim) {
   if (!birthReady) return '';
   const hideToday = spreadSkipsTodayEnergy();
   const showToday = !qTrim && !hideToday;
-  const kwSuffix = function (n) {
-    const k = NUM_KW_SHORT[n];
-    return k ? ' · ' + k : '';
+  const chip = function (periodLabel, n) {
+    const kw = NUM_KW_SHORT[n] || '';
+    const kwPart = kw ? ' · ' + kw : '';
+    return (
+      '<li class="rq-row rq-energy rq-energy--compact">' +
+      '<p class="rq-energy-chip">' +
+      escapeHtml(periodLabel) +
+      ' <strong>' +
+      n +
+      '번</strong>' +
+      escapeHtml(kwPart) +
+      '</p></li>'
+    );
   };
-  const rows = [
-    {
-      label: '올해',
-      badge: calcPy + '번' + kwSuffix(calcPy),
-      line: onelinerClip(hintPick(YEAR_HINT, calcPy), 96),
-    },
-    {
-      label: '이번 달',
-      badge: calcPm + '번' + kwSuffix(calcPm),
-      line: onelinerClip(hintPick(MONTH_HINT, calcPm), 96),
-    },
-  ];
-  if (showToday) {
-    rows.push({
-      label: '오늘',
-      badge: calcPd + '번' + kwSuffix(calcPd),
-      line: onelinerClip(hintPick(DAY_HINT, calcPd), 96),
-    });
-  }
-  return rows
-    .map(function (r) {
-      return (
-        '<li class="rq-row rq-energy">' +
-        '<span class="rq-label">' +
-        escapeHtml(r.label) +
-        '<span class="rq-badge">' +
-        escapeHtml(r.badge) +
-        '</span></span>' +
-        '<p class="rq-line">' +
-        escapeHtml(r.line) +
-        '</p></li>'
-      );
-    })
-    .join('');
+  let html = chip('올해', calcPy) + chip('이번 달', calcPm);
+  if (showToday) html += chip('오늘', calcPd);
+  return html;
+}
+
+/** 상세 리딩 — 수비학 본문(기존 맥락 더 보기) */
+function buildNumerologyDetailAccordion(qTrim) {
+  if (!birthReady) return '';
+  return (
+    '<details class="ec-accordion rq-num-detail">' +
+    '<summary class="ec-accordion-summary">수비학 맥락 상세 리딩</summary>' +
+    '<div class="ec-accordion-body">' +
+    buildNumMergeBlock(qTrim) +
+    '</div></details>'
+  );
 }
 
 function buildReadingQuickScanHtml(cards, positions, qTrim) {
@@ -2830,31 +2852,23 @@ function buildReadingQuickScanHtml(cards, positions, qTrim) {
   let energyBlock = '';
   if (energyRows) {
     energyBlock =
-      '<div class="rq-block"><h3 class="rq-h">현재 에너지</h3><ul class="rq-list">' +
+      '<div class="rq-block"><h3 class="rq-h">현재 에너지</h3>' +
+      '<ul class="rq-list rq-energy-list--compact">' +
       energyRows +
       '</ul></div>';
   } else if (!birthReady) {
     energyBlock =
-      '<p class="rq-birth-hint">생년월일을 입력하면 올해·이번 달 에너지 한줄이 여기에 붙어요.</p>';
+      '<p class="rq-birth-hint">생년월일을 입력하면 올해·이번 달 에너지가 여기에 붙어요.</p>';
   }
-
-  const numMore = birthReady
-    ? '<details class="ec-accordion rq-num-more">' +
-      '<summary class="ec-accordion-summary">수비학 맥락 더 보기</summary>' +
-      '<div class="ec-accordion-body">' +
-      buildNumMergeBlock(qTrim) +
-      '</div></details>'
-    : '';
 
   return (
     '<div class="reading-section reading-quickscan">' +
     '<div class="reading-tag">한눈에 보기</div>' +
-    '<p class="rq-lead">먼저 전체 흐름만 훑어 보세요. 궁금한 카드는 아래 <strong>상세 리딩</strong>에서 펼치면 됩니다.</p>' +
+    '<p class="rq-lead">먼저 <strong>에너지 번호</strong>와 <strong>카드 한줄</strong>만 훑어 보세요. 수비학·카드 자세한 설명은 아래 <strong>상세 리딩</strong>에서 펼치면 됩니다.</p>' +
     energyBlock +
     '<div class="rq-block"><h3 class="rq-h">카드 한줄</h3><ul class="rq-list">' +
     cardRows +
     '</ul></div>' +
-    numMore +
     '</div>'
   );
 }
@@ -3022,6 +3036,7 @@ function startReading() {
 
   const readingArea = document.getElementById('readingArea');
   const quickScanHtml = buildReadingQuickScanHtml(drawnCards, positions, qTrim);
+  const numDetailHtml = buildNumerologyDetailAccordion(qTrim);
   const enrichedHtml = buildEnrichedReadingHtml(drawnCards, positions);
   const enrichedBirthNote = !birthReady
     ? '<div class="ec-wrap-birth-note"><p class="ec-p">' + escapeHtml(numerologyBridgeText(null)) + '</p></div>'
@@ -3061,6 +3076,7 @@ function startReading() {
     `<div class="reading-section reading-detail-section">
       <div class="reading-tag">✦ 상세 리딩</div>
       <div class="reading-title">${titleQ}</div>
+      ${numDetailHtml}
       <div class="reading-enriched ec-wrap">${enrichedBirthNote}${enrichedHtml}</div>
     </div>` +
     gateHtml;
