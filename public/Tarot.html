@@ -1146,49 +1146,64 @@
     .rq-energy-badges {
       display: flex;
       flex-direction: row;
-      flex-wrap: nowrap;
-      gap: 6px;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 0;
       list-style: none;
       margin: 0;
       padding: 0;
+      pointer-events: none;
+      user-select: none;
+      -webkit-user-select: none;
     }
     .rq-energy-badge {
-      flex: 1 1 0;
+      flex: 0 1 auto;
       min-width: 0;
       margin: 0;
-      padding: 6px 12px;
-      text-align: center;
+      padding: 0;
+      text-align: left;
       font-size: 12px;
-      font-weight: 600;
-      line-height: 1.35;
-      color: #555555;
-      background: #f4f4f2;
+      font-weight: 500;
+      line-height: 1.45;
+      color: #6f6f6f;
+      background: transparent;
       border: none;
-      border-radius: 999px;
+      border-radius: 0;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
       box-shadow: none;
+      cursor: default;
+    }
+    .rq-energy-badge + .rq-energy-badge {
+      border-left: 1px solid #d6d6d4;
+      padding-left: 10px;
+      margin-left: 10px;
     }
     .rq-energy-badge-period {
-      font-weight: 600;
-      color: #6f6f6f;
-      font-size: 0.92em;
+      font-weight: 500;
+      color: #8a8a88;
+      font-size: 1em;
     }
     .rq-energy-badge-num,
     .rq-energy-badge-kw {
-      font-weight: 700;
-      color: #3a3a3a;
+      font-weight: 600;
+      color: #4a4a48;
     }
     .rq-energy-badge-sep {
-      font-weight: 500;
-      color: #8c8c8c;
-      margin: 0 1px;
+      font-weight: 400;
+      color: #a8a8a6;
+      margin: 0 2px;
     }
-    html.tarot-toss-app .rq-energy-badges { gap: 5px; }
+    html.tarot-toss-app .rq-energy-badges {
+      row-gap: 6px;
+    }
     html.tarot-toss-app .rq-energy-badge {
       font-size: 11px;
-      padding: 6px 10px;
+    }
+    html.tarot-toss-app .rq-energy-badge + .rq-energy-badge {
+      padding-left: 8px;
+      margin-left: 8px;
     }
     .ec-card--numerology .ec-accordion {
       margin-top: 0;
@@ -1248,10 +1263,15 @@
       border-radius: 12px;
       padding: 22px 18px;
     }
-    .flow-title {
+    .flow-item--title {
+      margin-bottom: 2px;
+    }
+    .flow-item--title .flow-label {
+      visibility: hidden;
+    }
+    .flow-content--title {
       font-size: 13px;
       color: #8a9a93;
-      margin: 0 0 16px;
       font-weight: 600;
       line-height: 1.4;
     }
@@ -3060,6 +3080,16 @@ function buildFlowArrowHtml() {
   return '<div class="flow-arrow" aria-hidden="true">↓</div>';
 }
 
+function buildFlowTitleRowHtml(titleText) {
+  return (
+    '<div class="flow-item flow-item--title">' +
+    '<span class="flow-label" aria-hidden="true">\u00a0</span>' +
+    '<span class="flow-content flow-content--title">' +
+    titleText +
+    '</span></div>'
+  );
+}
+
 function buildSpreadFlowQuickScanHtml(cards, positions, qTrim) {
   const src = spreadFlowSnippetSource(cards, positions);
   if (!src) return '';
@@ -3067,7 +3097,7 @@ function buildSpreadFlowQuickScanHtml(cards, positions, qTrim) {
   const titleText = buildFlowTitleText(qTrim, positions, src);
   const bodyParts = [];
   if (titleText) {
-    bodyParts.push('<div class="flow-title">' + titleText + '</div>');
+    bodyParts.push(buildFlowTitleRowHtml(titleText));
   }
 
   src.indices.forEach(function (i, idx) {
@@ -3155,7 +3185,7 @@ function buildReadingQuickScanHtml(cards, positions, qTrim) {
   if (energyRows) {
     energyBlock =
       '<div class="rq-block rq-block--energy">' +
-      '<ul class="rq-energy-badges">' +
+      '<ul class="rq-energy-badges" aria-label="수비학 맥락">' +
       energyRows +
       '</ul></div>';
   } else if (!birthReady) {
