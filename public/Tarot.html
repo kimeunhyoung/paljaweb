@@ -1580,7 +1580,7 @@
 
 <script type="module" src="js/tarot-ads.js?v=2"></script>
 <script src="js/tarot-topic-lens.js?v=2"></script>
-<script src="js/tarot-spread-bridge.js?v=1"></script>
+<script src="js/tarot-spread-bridge.js?v=2"></script>
 <script src="js/tarot-major-scripted.js?v=6"></script>
 <script src="js/tarot-minor-scripted.js?v=18"></script>
 <script>
@@ -2827,14 +2827,35 @@ function spreadFlowSnippetSource(cards, positions) {
   return null;
 }
 
+function cardFlowKeywords(card, slotIndex) {
+  if (typeof extractTarotCardFlowKeyword === 'function') {
+    const fromBridge = extractTarotCardFlowKeyword(card);
+    if (fromBridge) return fromBridge;
+  }
+  const parts = (card.keywords || '')
+    .split(/[,，、]/)
+    .map(function (s) {
+      return s.trim();
+    })
+    .filter(Boolean);
+  if (parts.length >= 2) return parts[0] + '·' + parts[1];
+  if (parts.length === 1) return parts[0];
+  const sc = getScriptedCard(card, slotIndex);
+  if (sc && sc.mainTitle) {
+    const bit = sc.mainTitle.split(/[,，]/)[0].trim();
+    if (bit.length <= 14) return bit;
+  }
+  return (card.name || '이 카드').replace(/^(완드|소드|컵|펜타클)\s+/, '').trim();
+}
+
 function buildSpreadFlowNarrativeText(cards, positions, qTrim) {
   const src = spreadFlowSnippetSource(cards, positions);
   if (!src || typeof buildTarotSpreadFlowNarrative !== 'function') return '';
-  const snippets = src.indices.map(function (i) {
-    return cardReadingOneline(cards[i], i);
+  const keywords = src.indices.map(function (i) {
+    return cardFlowKeywords(cards[i], i);
   });
   return buildTarotSpreadFlowNarrative({
-    snippets: snippets,
+    keywords: keywords,
     positions: src.positions,
     curMode: curMode,
     curEopt: curEopt,

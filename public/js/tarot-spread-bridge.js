@@ -1,6 +1,6 @@
 /**
  * 타로코드 · 다장 스프레드 연결 해석
- * 카드별 설명을 「과거 → 현재 → 미래」식 한 문단으로 잇습니다.
+ * 카드별 키워드 1~2개로 짧은 연결 문장을 만듭니다.
  */
 (function () {
   const TOPIC_LABEL = {
@@ -17,28 +17,50 @@
       .trim();
   }
 
-  function threeActLabels(positions) {
-    const p0 = positions[0] || '';
-    if (p0 === '과거') {
-      return { a: '과거', b: '현재', c: '미래', template: 'question' };
-    }
-    if (p0.indexOf('시작') >= 0 || p0.indexOf('흐름') >= 0) {
-      return { a: '초반', b: '한가운데', c: '마무리', template: 'timeline' };
-    }
-    if (p0.indexOf('마음') >= 0) {
-      return { a: '마음', b: '실행', c: '주변', template: 'next_month' };
-    }
-    return {
-      a: positions[0] || '첫째',
-      b: positions[1] || '둘째',
-      c: positions[2] || '셋째',
-      template: 'generic',
-    };
+  /** 받침 있으면 「으로」, 없으면 「로」 */
+  function josaRo(phrase) {
+    const w = String(phrase || '').replace(/·/g, '').trim();
+    if (!w) return '로';
+    const ch = w.charCodeAt(w.length - 1);
+    if (ch < 0xac00 || ch > 0xd7a3) return '로';
+    return (ch - 0xac00) % 28 !== 0 ? '으로' : '로';
   }
 
   /**
+   * 카드 keywords 필드 → 연결용 짧은 표현 (최대 2개)
+   * @param {{ keywords?: string, name?: string, faceRev?: boolean, textReversed?: string }} card
+   */
+  function extractCardFlowKeyword(card) {
+    if (!card) return '';
+    let raw = card.keywords || '';
+    if (card.faceRev && card.textReversed) {
+      const revParts = String(card.textReversed)
+        .split(/[,，、]/)
+        .map(function (s) {
+          return s.trim();
+        })
+        .filter(Boolean);
+      if (revParts.length) raw = revParts.slice(0, 2).join(', ');
+    }
+    const parts = String(raw)
+      .split(/[,，、]/)
+      .map(function (s) {
+        return s.trim();
+      })
+      .filter(Boolean);
+    if (parts.length >= 2) return parts[0] + '·' + parts[1];
+    if (parts.length === 1) return parts[0];
+    const name = String(card.name || '')
+      .replace(/^(완드|소드|컵|펜타클)\s+/, '')
+      .trim();
+    return name || '이 카드';
+  }
+
+  window.extractTarotCardFlowKeyword = extractCardFlowKeyword;
+
+  /**
    * @param {{
-   *   snippets: string[],
+   *   keywords: string[],
    *   positions: string[],
    *   curMode: string,
    *   curEopt: string,
@@ -46,19 +68,15 @@
    *   questionText: string,
    *   dailyFive?: boolean
    * }} opts
-   * @returns {string} plain text (no HTML)
+   * @returns {string}
    */
   function buildTarotSpreadFlowNarrative(opts) {
-    const snippets = (opts.snippets || []).map(trimSnippet);
-    const positions = opts.positions || [];
-    if (snippets.length < 3) return '';
+    const keys = (opts.keywords || []).map(trimSnippet);
+    if (keys.length < 3 || !keys[0] || !keys[1] || !keys[2]) return '';
 
-    const s0 = snippets[0];
-    const s1 = snippets[1];
-    const s2 = snippets[2];
-    if (!s0 || !s1 || !s2) return '';
-
-    const labels = threeActLabels(positions);
+    const k0 = keys[0];
+    const k1 = keys[1];
+    const k2 = keys[2];
     let intro = '';
     let body = '';
     let suffix = '';
@@ -73,53 +91,41 @@
           ? opts.questionText
           : TOPIC_LABEL[opts.curTopic] || '';
       if (topic && opts.curTopic === 'custom') {
-        intro = '「' + topic + '」에 대해 세 장이 말하는 연결 흐름은 이렇게 읽혀요. ';
+        intro = '「' + topic + '」 기준으로, ';
       } else if (topic) {
-        intro = topic + '을(를) 놓고 세 장을 이어 보면, ';
-      } else {
-        intro = '세 장을 시간의 흐름으로 이어 보면, ';
+        intro = topic + ' 흐름으로 보면, ';
       }
       body =
-        labels.a +
-        '에는 ' +
-        s0 +
-        ' 흐름이 있었고, ' +
-        labels.b +
-        '는 ' +
-        s1 +
-        ' 상태로 이어지며, ' +
-        labels.c +
-        '에는 ' +
-        s2 +
-        ' 방향으로 갈 가능성이 커 보여요.';
+        k0 +
+        '의 흐름이 ' +
+        k1 +
+        josaRo(k1) +
+        ' 이어지고 있고, 앞으로 ' +
+        k2 +
+        '의 국면이 올 수 있어요.';
       return intro + body + suffix;
     }
 
     if (opts.curEopt === 'next_month') {
-      intro = '다음 달을 준비하는 세 장의 연결은, ';
+      intro = '다음 달 흐름으로 보면, ';
     } else if (opts.curEopt === 'month') {
-      intro = '이번 달 세 장을 시간순으로 잇으면, ';
+      intro = '이번 달 흐름으로 보면, ';
     } else if (opts.dailyFive) {
-      intro = '오늘의 흐름 세 장만 잇으면, ';
+      intro = '오늘의 흐름으로 보면, ';
     } else if (opts.curEopt === 'year') {
       return '';
     } else {
-      intro = '세 장의 연결은, ';
+      intro = '';
     }
 
     body =
-      labels.a +
-      '에는 ' +
-      s0 +
-      ' 기운이 보이고, ' +
-      labels.b +
-      '에는 ' +
-      s1 +
-      ' 흐름이 중심이 되며, ' +
-      labels.c +
-      '에는 ' +
-      s2 +
-      ' 쪽으로 이어지는 그림이에요.';
+      k0 +
+      '에서 ' +
+      k1 +
+      josaRo(k1) +
+      ' 이어지고, ' +
+      k2 +
+      ' 국면이 다가올 수 있어요.';
 
     return intro + body + suffix;
   }
