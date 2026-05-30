@@ -1096,6 +1096,7 @@
     }
     .rq-block { margin-bottom: 14px; }
     .rq-block:last-child { margin-bottom: 0; }
+    .rq-block--energy { margin-top: 0; }
     .rq-h {
       font-size: 11px;
       font-weight: 700;
@@ -1232,7 +1233,7 @@
 
     html.tarot-toss-app .reading-quickscan {
       margin-bottom: 16px;
-      padding-bottom: 4px;
+      padding-bottom: 18px;
     }
     html.tarot-toss-app .rq-row { padding: 10px 11px; }
     html.tarot-toss-app .rq-line { font-size: 13.5px; line-height: 1.5; }
@@ -3153,7 +3154,7 @@ function buildReadingQuickScanHtml(cards, positions, qTrim) {
   let energyBlock = '';
   if (energyRows) {
     energyBlock =
-      '<div class="rq-block"><h3 class="rq-h">현재 에너지</h3>' +
+      '<div class="rq-block rq-block--energy">' +
       '<ul class="rq-energy-badges">' +
       energyRows +
       '</ul></div>';
