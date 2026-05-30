@@ -1,0 +1,15 @@
+node_modules
+dist
+.granite
+*.ait
+.env
+.env.local
+brand-icon.url
+
+# sync-tarot-public.mjs 가 복사하는 정적 자산
+/public/Tarot.html
+/public/tarot-app.html
+/public/tarot/
+/public/js/
+/public/css/
+/public/brand-icon.jpg
