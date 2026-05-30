@@ -2979,7 +2979,54 @@ function cardFlowKeywordsDailyWarn(card) {
   return cardFlowKeywords(card, -1);
 }
 
+function normalizeFlowChunk(text) {
+  return String(text || '')
+    .trim()
+    .replace(/\s+/g, ' ')
+    .replace(/\s*와\s+/g, '·')
+    .replace(/\s*과\s+/g, '·')
+    .replace(/\s*(운|흐름|시기|타이밍)$/u, '')
+    .trim()
+    .slice(0, 14);
+}
+
+/** 질문 모드 — 주제(사랑·일 등) summary에서 한눈에 보기 키워드 2개 */
+function flowKeywordsFromTopicSummary(summary) {
+  const head = String(summary || '')
+    .trim()
+    .split(/이나|다만/)[0]
+    .trim();
+  if (!head) return '';
+
+  const vivid = head.match(/^(.+?)이\s+(?:돋보|드러)[가-힣]*\s*(.+)$/u);
+  if (vivid) {
+    const left = normalizeFlowChunk(vivid[1]);
+    const right = normalizeFlowChunk(vivid[2]);
+    if (left && right) return left + '·' + right;
+  }
+
+  const commaParts = head
+    .split(/[,，、]/)
+    .map(function (t) {
+      return normalizeFlowChunk(t);
+    })
+    .filter(function (t) {
+      return t.length >= 2;
+    });
+  if (commaParts.length >= 2) return commaParts[0] + '·' + commaParts[1];
+
+  if (head.length <= 16) return normalizeFlowChunk(head);
+  return '';
+}
+
 function cardFlowKeywords(card, slotIndex) {
+  if (curMode === 'question' && curTopic && curTopic !== 'custom') {
+    const sc = getScriptedCard(card, slotIndex);
+    if (sc && sc.summary) {
+      const topicPair = flowKeywordsFromTopicSummary(sc.summary);
+      if (topicPair) return topicPair;
+    }
+  }
   if (typeof extractTarotCardFlowKeyword === 'function') {
     const fromBridge = extractTarotCardFlowKeyword(card);
     if (fromBridge) return fromBridge;

@@ -992,6 +992,7 @@
       mainTitle,
       mono: sec.body,
       advice: sectionToAdvice(sec),
+      summary: (sec.summary || '').trim(),
     };
   };
 
