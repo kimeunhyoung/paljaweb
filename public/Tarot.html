@@ -1142,32 +1142,50 @@
       line-height: 1.55;
       color: var(--ink);
     }
-    .rq-row.rq-energy--compact {
-      padding: 9px 12px;
-    }
-    .rq-energy-chip {
+    .rq-energy-badges {
+      display: flex;
+      flex-direction: row;
+      flex-wrap: nowrap;
+      gap: 6px;
+      list-style: none;
       margin: 0;
-      font-size: 14px;
-      line-height: 1.45;
-      color: var(--ink);
+      padding: 0;
     }
-    .rq-energy-chip strong {
+    .rq-energy-badge {
+      flex: 1 1 0;
+      min-width: 0;
+      margin: 0;
+      padding: 8px 10px;
+      text-align: center;
+      font-size: 12px;
+      line-height: 1.35;
+      color: var(--ink);
+      background: rgba(44, 36, 24, 0.06);
+      border: 1px solid rgba(44, 36, 24, 0.1);
+      border-radius: 999px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .rq-energy-badge-period {
+      font-weight: 500;
+      color: var(--muted);
+      font-size: 0.92em;
+    }
+    .rq-energy-badge-num,
+    .rq-energy-badge-kw {
       font-weight: 700;
       color: var(--deep-brown);
     }
-    .rq-energy-list--compact {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
+    .rq-energy-badge-sep {
+      font-weight: 400;
+      color: var(--muted);
+      margin: 0 1px;
     }
-    .rq-energy-list--compact .rq-row.rq-energy--compact {
-      flex: 1 1 100%;
-      margin: 0;
-    }
-    @media (min-width: 400px) {
-      .rq-energy-list--compact .rq-row.rq-energy--compact {
-        flex: 1 1 calc(50% - 4px);
-      }
+    html.tarot-toss-app .rq-energy-badges { gap: 5px; }
+    html.tarot-toss-app .rq-energy-badge {
+      font-size: 11px;
+      padding: 7px 8px;
     }
     .ec-card--numerology .ec-accordion {
       margin-top: 0;
@@ -2856,27 +2874,32 @@ function cardReadingOneline(card, slotIndex) {
   return onelinerClip(mono, 88);
 }
 
-/** 한눈에 보기 — 「올해 1번 · 시작」형 짧은 칩만 */
+/** 한눈에 보기 — 현재 에너지 배지(2안) 한 줄 */
 function buildQuickScanEnergyRows(qTrim) {
   if (!birthReady) return '';
   const hideToday = spreadSkipsTodayEnergy();
   const showToday = !qTrim && !hideToday;
-  const chip = function (periodLabel, n) {
+  const badge = function (periodLabel, n) {
     const kw = NUM_KW_SHORT[n] || '';
-    const kwPart = kw ? ' · ' + kw : '';
+    const kwHtml = kw
+      ? '<span class="rq-energy-badge-sep">·</span><span class="rq-energy-badge-kw">' +
+        escapeHtml(kw) +
+        '</span>'
+      : '';
     return (
-      '<li class="rq-row rq-energy rq-energy--compact">' +
-      '<p class="rq-energy-chip">' +
+      '<li class="rq-energy-badge">' +
+      '<span class="rq-energy-badge-period">' +
       escapeHtml(periodLabel) +
-      ' <strong>' +
-      n +
-      '번</strong>' +
-      escapeHtml(kwPart) +
-      '</p></li>'
+      '</span> ' +
+      '<span class="rq-energy-badge-num">' +
+      escapeHtml(String(n)) +
+      '번</span>' +
+      kwHtml +
+      '</li>'
     );
   };
-  let html = chip('올해', calcPy) + chip('이번 달', calcPm);
-  if (showToday) html += chip('오늘', calcPd);
+  let html = badge('올해', calcPy) + badge('이번 달', calcPm);
+  if (showToday) html += badge('오늘', calcPd);
   return html;
 }
 
@@ -3104,7 +3127,7 @@ function buildReadingQuickScanHtml(cards, positions, qTrim) {
   if (energyRows) {
     energyBlock =
       '<div class="rq-block"><h3 class="rq-h">현재 에너지</h3>' +
-      '<ul class="rq-list rq-energy-list--compact">' +
+      '<ul class="rq-energy-badges">' +
       energyRows +
       '</ul></div>';
   } else if (!birthReady) {
@@ -3119,7 +3142,7 @@ function buildReadingQuickScanHtml(cards, positions, qTrim) {
     : '<p class="rq-lead rq-lead--web-only">아래 <strong>흐름 한눈에 보기</strong>를 먼저 훑고, 자세한 내용은 <strong>상세 리딩</strong>에서 펼쳐 보세요.</p>';
 
   const cardListHtml = skipCardList
-    ? '<p class="rq-scan-hint">힘·주의 카드와 자세한 해석은 <strong>상세 리딩</strong>에서 볼 수 있어요.</p>'
+    ? '<p class="rq-scan-hint">자세한 해석은 <strong>상세 리딩</strong>에서 볼 수 있어요.</p>'
     : '<div class="rq-block"><h3 class="rq-h">카드 한줄</h3><ul class="rq-list">' +
       cardRows +
       '</ul></div>';
