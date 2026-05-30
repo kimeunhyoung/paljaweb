@@ -1096,7 +1096,10 @@
     }
     .rq-block { margin-bottom: 14px; }
     .rq-block:last-child { margin-bottom: 0; }
-    .rq-block--energy { margin-top: 0; }
+    .rq-block--energy {
+      margin-top: 0;
+      margin-bottom: 12px;
+    }
     .rq-h {
       font-size: 11px;
       font-weight: 700;
@@ -1162,10 +1165,10 @@
       margin: 0;
       padding: 0;
       text-align: left;
-      font-size: 12px;
+      font-size: 13px;
       font-weight: 500;
-      line-height: 1.45;
-      color: #6f6f6f;
+      line-height: 1.5;
+      color: #5c5c5a;
       background: transparent;
       border: none;
       border-radius: 0;
@@ -1188,7 +1191,7 @@
     .rq-energy-badge-num,
     .rq-energy-badge-kw {
       font-weight: 600;
-      color: #4a4a48;
+      color: #3a3a38;
     }
     .rq-energy-badge-sep {
       font-weight: 400;
@@ -1199,7 +1202,8 @@
       row-gap: 6px;
     }
     html.tarot-toss-app .rq-energy-badge {
-      font-size: 11px;
+      font-size: 12.5px;
+      line-height: 1.48;
     }
     html.tarot-toss-app .rq-energy-badge + .rq-energy-badge {
       padding-left: 8px;
@@ -1263,17 +1267,18 @@
       border-radius: 12px;
       padding: 22px 18px;
     }
-    .flow-item--title {
-      margin-bottom: 2px;
-    }
-    .flow-item--title .flow-label {
-      visibility: hidden;
-    }
-    .flow-content--title {
-      font-size: 13px;
-      color: #8a9a93;
+    .flow-box-head {
+      margin: 0 0 12px;
+      padding: 0 0 10px;
+      border-bottom: 1px solid #dce8e3;
+      font-size: 12px;
       font-weight: 600;
-      line-height: 1.4;
+      color: #7a8f86;
+      line-height: 1.45;
+      letter-spacing: 0.01em;
+    }
+    .flow-box-head + .flow-item {
+      margin-top: 2px;
     }
     .flow-item {
       display: flex;
@@ -1328,6 +1333,11 @@
     }
     html.tarot-toss-app .flow-box {
       padding: 18px 14px;
+    }
+    html.tarot-toss-app .flow-box-head {
+      font-size: 11.5px;
+      margin-bottom: 10px;
+      padding-bottom: 8px;
     }
     html.tarot-toss-app .flow-content {
       font-size: 13.5px;
@@ -3128,13 +3138,7 @@ function buildFlowArrowHtml() {
 }
 
 function buildFlowTitleRowHtml(titleText) {
-  return (
-    '<div class="flow-item flow-item--title">' +
-    '<span class="flow-label" aria-hidden="true">\u00a0</span>' +
-    '<span class="flow-content flow-content--title">' +
-    titleText +
-    '</span></div>'
-  );
+  return '<div class="flow-box-head">' + titleText + '</div>';
 }
 
 function buildSpreadFlowQuickScanHtml(cards, positions, qTrim) {
