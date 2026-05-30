@@ -1,7 +1,7 @@
 {
   "name": "toss-tarot",
   "private": true,
-  "version": "0.2.4",
+  "version": "0.2.6",
   "type": "module",
   "scripts": {
     "sync": "node scripts/sync-tarot-public.mjs",
