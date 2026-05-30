@@ -1155,37 +1155,39 @@
       flex: 1 1 0;
       min-width: 0;
       margin: 0;
-      padding: 8px 10px;
+      padding: 6px 12px;
       text-align: center;
       font-size: 12px;
+      font-weight: 600;
       line-height: 1.35;
-      color: var(--ink);
-      background: rgba(44, 36, 24, 0.06);
-      border: 1px solid rgba(44, 36, 24, 0.1);
+      color: #555555;
+      background: #f4f4f2;
+      border: none;
       border-radius: 999px;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
+      box-shadow: none;
     }
     .rq-energy-badge-period {
-      font-weight: 500;
-      color: var(--muted);
+      font-weight: 600;
+      color: #6f6f6f;
       font-size: 0.92em;
     }
     .rq-energy-badge-num,
     .rq-energy-badge-kw {
       font-weight: 700;
-      color: var(--deep-brown);
+      color: #3a3a3a;
     }
     .rq-energy-badge-sep {
-      font-weight: 400;
-      color: var(--muted);
+      font-weight: 500;
+      color: #8c8c8c;
       margin: 0 1px;
     }
     html.tarot-toss-app .rq-energy-badges { gap: 5px; }
     html.tarot-toss-app .rq-energy-badge {
       font-size: 11px;
-      padding: 7px 8px;
+      padding: 6px 10px;
     }
     .ec-card--numerology .ec-accordion {
       margin-top: 0;
@@ -1253,35 +1255,35 @@
       font-weight: 600;
       color: var(--muted);
     }
-    .rq-flow-lane {
-      display: flex;
-      flex-direction: column;
-      align-items: stretch;
-      gap: 0;
+    .rq-flow-chain {
       margin: 0;
       font-size: 14px;
-      line-height: 1.45;
+      line-height: 1.5;
       color: var(--ink);
     }
-    .rq-flow-step {
-      display: flex;
-      align-items: flex-start;
-      gap: 10px;
-      padding: 7px 0;
-      border-bottom: 1px solid rgba(46, 139, 122, 0.12);
+    .rq-flow-chain-line {
+      margin: 0;
+      padding: 2px 0;
     }
-    .rq-flow-step:last-child { border-bottom: none; padding-bottom: 0; }
-    .rq-flow-step:first-child { padding-top: 0; }
     .rq-flow-role {
-      flex: 0 0 2.6em;
-      font-size: 11px;
+      font-size: 12px;
       font-weight: 700;
       letter-spacing: 0.02em;
       color: var(--warm-brown);
-      line-height: 1.45;
-      padding-top: 1px;
+      margin-right: 6px;
     }
-    .rq-flow-kws { flex: 1; min-width: 0; }
+    .rq-flow-kws { font-size: 14px; }
+    .rq-flow-down {
+      margin: 2px 0;
+      padding: 0;
+      text-align: center;
+      font-size: 13px;
+      line-height: 1.2;
+      color: rgba(46, 139, 122, 0.55);
+      user-select: none;
+    }
+    .rq-flow-chain-line--help .rq-flow-role { color: var(--teal); }
+    .rq-flow-chain-line--warn .rq-flow-role { color: #8b5a2b; }
     .rq-flow-roles {
       font-weight: 500;
       color: var(--muted);
@@ -1295,29 +1297,8 @@
       color: var(--muted);
       font-size: 0.92em;
     }
-    .rq-flow-extras {
-      margin-top: 12px;
-      padding-top: 12px;
-      border-top: 1px dashed rgba(46, 139, 122, 0.28);
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-    }
-    .rq-flow-extra {
-      margin: 0;
-      font-size: 13.5px;
-      line-height: 1.5;
-      color: var(--ink);
-    }
-    .rq-flow-extra-ico { margin-right: 2px; }
-    .rq-flow-extra-label {
-      font-weight: 600;
-      color: var(--deep-brown);
-      margin-right: 4px;
-    }
-    .rq-flow-extra--warn .rq-flow-extra-label { color: #8b5a2b; }
-    html.tarot-toss-app .rq-flow-lane { font-size: 13.5px; gap: 6px 4px; }
-    html.tarot-toss-app .rq-flow-extra { font-size: 13px; }
+    html.tarot-toss-app .rq-flow-chain { font-size: 13.5px; }
+    html.tarot-toss-app .rq-flow-kws { font-size: 13.5px; }
     html.tarot-toss-app .rq-lead--web-only { display: none; }
     .rq-scan-hint {
       margin: 0;
@@ -3036,51 +3017,66 @@ function buildSpreadFlowTopicLine(qTrim, positions, src) {
   return '<p class="rq-flow-topic">' + escapeHtml(main) + hint + '</p>';
 }
 
+function buildFlowDownHtml() {
+  return '<div class="rq-flow-down" aria-hidden="true">↓</div>';
+}
+
+function buildFlowChainLine(role, pairHtml, extraClass) {
+  const cls = extraClass ? ' rq-flow-chain-line ' + extraClass : ' rq-flow-chain-line';
+  return (
+    '<p class="' +
+    cls.trim() +
+    '">' +
+    '<span class="rq-flow-role">' +
+    escapeHtml(role) +
+    '</span>' +
+    '<span class="rq-flow-kws">' +
+    pairHtml +
+    '</span></p>'
+  );
+}
+
 function buildSpreadFlowQuickScanHtml(cards, positions, qTrim) {
   const src = spreadFlowSnippetSource(cards, positions);
   if (!src) return '';
 
-  const stepsHtml = src.indices
-    .map(function (i) {
-      const role = flowRoleFromPosition(positions[i]);
-      const pairHtml = buildFlowPairHtml(cardFlowKeywords(cards[i], i));
-      return (
-        '<div class="rq-flow-step" role="listitem">' +
-        '<span class="rq-flow-role">' +
-        escapeHtml(role) +
-        '</span>' +
-        '<span class="rq-flow-kws">' +
-        pairHtml +
-        '</span></div>'
-      );
-    })
-    .join('');
+  const chainParts = [];
+  src.indices.forEach(function (i, idx) {
+    if (idx > 0) chainParts.push(buildFlowDownHtml());
+    chainParts.push(
+      buildFlowChainLine(
+        flowRoleFromPosition(positions[i]),
+        buildFlowPairHtml(cardFlowKeywords(cards[i], i))
+      )
+    );
+  });
 
-  let extrasHtml = '';
   if (src.dailyFive && cards.length >= 5) {
-    const helpCard = cards[3];
-    const warnCard = cards[4];
-    extrasHtml =
-      '<div class="rq-flow-extras">' +
-      '<p class="rq-flow-extra rq-flow-extra--help">' +
-      '<span class="rq-flow-extra-label">힘이 되는 에너지</span> ' +
-      buildFlowPairHtml(cardFlowKeywordsDailyHelp(helpCard)) +
-      '</p>' +
-      '<p class="rq-flow-extra rq-flow-extra--warn">' +
-      '<span class="rq-flow-extra-label">오늘의 주의점</span> ' +
-      buildFlowPairHtml(cardFlowKeywordsDailyWarn(warnCard)) +
-      '</p></div>';
+    chainParts.push(buildFlowDownHtml());
+    chainParts.push(
+      buildFlowChainLine(
+        '힘이 되는 에너지',
+        buildFlowPairHtml(cardFlowKeywordsDailyHelp(cards[3])),
+        'rq-flow-chain-line--help'
+      )
+    );
+    chainParts.push(buildFlowDownHtml());
+    chainParts.push(
+      buildFlowChainLine(
+        '오늘의 주의점',
+        buildFlowPairHtml(cardFlowKeywordsDailyWarn(cards[4])),
+        'rq-flow-chain-line--warn'
+      )
+    );
   }
 
   return (
     '<div class="rq-block rq-flow">' +
     '<h3 class="rq-h">흐름 한눈에 보기</h3>' +
     buildSpreadFlowTopicLine(qTrim, positions, src) +
-    '<div class="rq-flow-lane" role="list">' +
-    stepsHtml +
-    '</div>' +
-    extrasHtml +
-    '</div>'
+    '<div class="rq-flow-chain">' +
+    chainParts.join('') +
+    '</div></div>'
   );
 }
 
@@ -3088,9 +3084,15 @@ function isDailyFiveQuickScan(cards) {
   return cards.length === 5 && curMode === 'energy' && curEopt === 'daily';
 }
 
+/** 흐름 한눈에 보기가 있으면 카드 한줄(중복) 생략 */
+function shouldSkipQuickScanCardList(cards, positions) {
+  if (isDailyFiveQuickScan(cards)) return true;
+  return !!spreadFlowSnippetSource(cards, positions);
+}
+
 function buildReadingQuickScanHtml(cards, positions, qTrim) {
   const energyRows = buildQuickScanEnergyRows(qTrim);
-  const skipCardList = isDailyFiveQuickScan(cards);
+  const skipCardList = shouldSkipQuickScanCardList(cards, positions);
   const cardRows = skipCardList
     ? ''
     : cards
