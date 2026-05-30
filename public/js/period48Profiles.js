@@ -1738,7 +1738,7 @@
       "예리한관찰력",
       "철저한보안"
     ],
-    "tarot": "여교황 (The High Priestess)",
+    "tarot": "여사제 (The High Priestess)",
     "element": "흙(Earth)",
     "planet": "수성/해왕성",
     "cusp": false,

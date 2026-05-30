@@ -1,6 +1,6 @@
 /**
  * 타로코드 · 다장 스프레드 연결 해석
- * 카드별 키워드 1~2개로 짧은 연결 문장을 만듭니다.
+ * 카드별 키워드 2개로 짧은 연결 문장을 만듭니다.
  */
 (function () {
   const TOPIC_LABEL = {
@@ -12,12 +12,10 @@
   };
 
   function trimSnippet(s) {
-    return String(s || '')
-      .replace(/\s+/g, ' ')
-      .trim();
+    return String(s || '').replace(/\s+/g, ' ').trim();
   }
 
-  /** 받침 있으면 「으로」, 없으면 「로」 */
+  /** 받침 있으면 「으로」, 없으면 「로」 (화면에 「(으)로」 글자 그대로 넣지 않음) */
   function josaRo(phrase) {
     const w = String(phrase || '').replace(/·/g, '').trim();
     if (!w) return '로';
@@ -27,8 +25,8 @@
   }
 
   /**
-   * 카드 keywords 필드 → 연결용 짧은 표현 (최대 2개)
-   * @param {{ keywords?: string, name?: string, faceRev?: boolean, textReversed?: string }} card
+   * 카드 keywords 필드 → 연결용 앞 2개 키워드를 ·로 연결
+   * 예: "마음의 권태, 정체기, 흥미 상실" → "마음의 권태·정체기"
    */
   function extractCardFlowKeyword(card) {
     if (!card) return '';
@@ -58,18 +56,6 @@
 
   window.extractTarotCardFlowKeyword = extractCardFlowKeyword;
 
-  /**
-   * @param {{
-   *   keywords: string[],
-   *   positions: string[],
-   *   curMode: string,
-   *   curEopt: string,
-   *   curTopic: string,
-   *   questionText: string,
-   *   dailyFive?: boolean
-   * }} opts
-   * @returns {string}
-   */
   function buildTarotSpreadFlowNarrative(opts) {
     const keys = (opts.keywords || []).map(trimSnippet);
     if (keys.length < 3 || !keys[0] || !keys[1] || !keys[2]) return '';
@@ -77,12 +63,30 @@
     const k0 = keys[0];
     const k1 = keys[1];
     const k2 = keys[2];
+
     let intro = '';
     let body = '';
     let suffix = '';
 
     if (opts.dailyFive) {
-      suffix = ' 아래 「힘」「주의」 두 장은 오늘을 돕거나 조심할 포인트예요.';
+      const ex = opts.dailyExtra || {};
+      const help = trimSnippet(ex.help);
+      const warn = trimSnippet(ex.warn);
+      if (help && warn) {
+        suffix =
+          ' 오늘 힘이 되는 에너지는 ' +
+          help +
+          ' 쪽, 오늘의 주의는 ' +
+          warn +
+          ' 쪽을 보면 돼요.';
+      } else if (help || warn) {
+        suffix =
+          (help ? ' 오늘 힘이 되는 에너지는 ' + help + ' 쪽이에요.' : '') +
+          (warn ? ' 오늘의 주의는 ' + warn + ' 쪽을 보면 돼요.' : '');
+      } else {
+        suffix =
+          ' 아래 「오늘 힘이 되는 에너지」「오늘의 주의」 카드도 함께 읽어 보세요.';
+      }
     }
 
     if (opts.curMode === 'question') {
@@ -97,12 +101,12 @@
       }
       body =
         k0 +
-        '의 흐름이 ' +
+        '에서 ' +
         k1 +
         josaRo(k1) +
-        ' 이어지고 있고, 앞으로 ' +
+        ' 이어지고 있고, 앞으로는 ' +
         k2 +
-        '의 국면이 올 수 있어요.';
+        '에 가까울 수 있어요.';
       return intro + body + suffix;
     }
 
@@ -114,8 +118,6 @@
       intro = '오늘의 흐름으로 보면, ';
     } else if (opts.curEopt === 'year') {
       return '';
-    } else {
-      intro = '';
     }
 
     body =
@@ -123,10 +125,9 @@
       '에서 ' +
       k1 +
       josaRo(k1) +
-      ' 이어지고, ' +
+      ' 이어지고, 앞으로는 ' +
       k2 +
-      ' 국면이 다가올 수 있어요.';
-
+      ' 흐름이 다가올 수 있어요.';
     return intro + body + suffix;
   }
 
