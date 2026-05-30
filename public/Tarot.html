@@ -1220,13 +1220,21 @@
     html.tarot-toss-app .ec-accordion-summary { font-size: 12.5px; padding: 11px 12px; }
     html.tarot-toss-app .ec-card { padding: 14px 12px; margin-bottom: 12px; }
 
-    /* 토스: 오늘 1장 중심 — 질문·다장 스프레드 숨김 */
-    html.tarot-toss-app .mode-card[data-mode="question"] { display: none; }
-    html.tarot-toss-app .eopt:not([data-eopt="daily"]) { display: none; }
-    html.tarot-toss-app .mode-card[data-mode="energy"] .mode-desc {
-      font-size: 12px;
-    }
     html.tarot-toss-app #step1 .step-note--web-only { display: none; }
+    .rq-flow {
+      margin-bottom: 14px;
+      padding: 14px;
+      background: rgba(46, 139, 122, 0.07);
+      border: 1px solid rgba(46, 139, 122, 0.22);
+      border-radius: 10px;
+    }
+    .rq-flow .rq-h { margin-bottom: 8px; }
+    .rq-flow-p {
+      margin: 0;
+      font-size: 14px;
+      line-height: 1.72;
+      color: var(--ink);
+    }
 
     .ec-opposite {
       margin-top: 14px;
@@ -1470,7 +1478,7 @@
     <div class="step-card">
       <div class="step-title">어떤 것이 궁금하세요?</div>
       <p class="step-note">위에서 <strong>생년월일(양력)</strong>을 넣고 에너지를 확인하면, 올해·이달·오늘 숫자가 타로와 함께 <strong>맥락</strong>으로 붙습니다. 아래에서 <strong>에너지 흐름</strong> 또는 <strong>질문</strong>을 고른 뒤, 이어지는 항목을 선택해 주세요.</p>
-      <p class="step-note step-note--toss-only" hidden>생년월일을 넣으면 <strong>오늘 1장</strong>과 수비학 한줄로 빠르게 읽을 수 있어요. 카드를 펼친 뒤 <strong>한눈에 보기</strong>부터 확인해 보세요.</p>
+      <p class="step-note step-note--toss-only" hidden>생년월일을 넣은 뒤 <strong>에너지 3~5장</strong> 또는 <strong>질문 3장</strong>을 고르세요. 펼친 뒤 <strong>연결 흐름</strong>과 <strong>한눈에 보기</strong>부터 읽어 보세요.</p>
 
       <div class="mode-grid">
         <div class="mode-card" data-mode="energy" onclick="selectMode('energy', this)">
@@ -1572,6 +1580,7 @@
 
 <script type="module" src="js/tarot-ads.js?v=2"></script>
 <script src="js/tarot-topic-lens.js?v=2"></script>
+<script src="js/tarot-spread-bridge.js?v=1"></script>
 <script src="js/tarot-major-scripted.js?v=6"></script>
 <script src="js/tarot-minor-scripted.js?v=18"></script>
 <script>
@@ -1620,7 +1629,7 @@ async function initAuth() {
   } catch (e) {}
 }
 
-let spreadCount = TAROT_TOSS_APP ? 1 : 5;
+let spreadCount = 5;
 let curMode = '';
 let curEopt = 'daily';
 let curTopic = '';
@@ -1629,12 +1638,6 @@ const REVERSED_CARD_RATE = 0.3;
 const TOPIC_LABELS = { love: '사랑', work: '일·커리어', money: '재정', relation: '관계', inner: '내면·성장' };
 const EOPT_READING_TITLE = {
   daily: '데일리 · 오늘의 흐름',
-  month: '이번 달 에너지',
-  next_month: '다음 달 준비',
-  year: '올해 에너지 흐름',
-};
-const EOPT_READING_TITLE_TOSS = {
-  daily: '오늘의 카드',
   month: '이번 달 에너지',
   next_month: '다음 달 준비',
   year: '올해 에너지 흐름',
@@ -1706,20 +1709,10 @@ function getScriptedCard(card, slotIndex) {
 
 function getPositions() {
   if (curMode === 'question') return ['과거', '현재', '미래'];
-  if (TAROT_TOSS_APP && curEopt === 'daily' && spreadCount === 1) {
-    return ['오늘의 카드'];
-  }
   return ENERGY_POSITIONS[curEopt] || ENERGY_POSITIONS.daily;
 }
 
 function resolveSpreadCount() {
-  if (TAROT_TOSS_APP) {
-    if (curMode === 'question') return 3;
-    if (curEopt === 'daily') return 1;
-    if (curEopt === 'month' || curEopt === 'next_month') return 3;
-    if (curEopt === 'year') return 5;
-    return 1;
-  }
   if (curMode === 'question') return 3;
   if (curMode === 'energy') {
     if (curEopt === 'month' || curEopt === 'next_month') return 3;
@@ -1766,9 +1759,12 @@ function syncShuffleBtn() {
     if (curMode === 'question') {
       hint.textContent = '주제를 고르셨어요 · 카드 뽑기를 시작하세요';
     } else {
-      const labels = TAROT_TOSS_APP
-        ? { daily: '오늘 1장', month: '이번 달 3장', next_month: '다음 달 준비 3장', year: '올해 5장' }
-        : { daily: '데일리 5장', month: '이번 달 3장', next_month: '다음 달 준비 3장', year: '올해 5장' };
+      const labels = {
+        daily: '데일리 5장',
+        month: '이번 달 3장',
+        next_month: '다음 달 준비 3장',
+        year: '올해 5장',
+      };
       hint.textContent = (labels[curEopt] || '스프레드') + ' · 카드 뽑기를 시작하세요';
     }
   }
@@ -2817,6 +2813,49 @@ function buildNumerologyDetailAccordion(qTrim) {
   );
 }
 
+function spreadFlowSnippetSource(cards, positions) {
+  if (cards.length === 3) {
+    return { indices: [0, 1, 2], positions: positions, dailyFive: false };
+  }
+  if (cards.length === 5 && curMode === 'energy' && curEopt === 'daily') {
+    return {
+      indices: [0, 1, 2],
+      positions: [positions[0], positions[1], positions[2]],
+      dailyFive: true,
+    };
+  }
+  return null;
+}
+
+function buildSpreadFlowNarrativeText(cards, positions, qTrim) {
+  const src = spreadFlowSnippetSource(cards, positions);
+  if (!src || typeof buildTarotSpreadFlowNarrative !== 'function') return '';
+  const snippets = src.indices.map(function (i) {
+    return cardReadingOneline(cards[i], i);
+  });
+  return buildTarotSpreadFlowNarrative({
+    snippets: snippets,
+    positions: src.positions,
+    curMode: curMode,
+    curEopt: curEopt,
+    curTopic: curTopic,
+    questionText: qTrim,
+    dailyFive: src.dailyFive,
+  });
+}
+
+function buildSpreadFlowQuickScanHtml(cards, positions, qTrim) {
+  const text = buildSpreadFlowNarrativeText(cards, positions, qTrim);
+  if (!text) return '';
+  return (
+    '<div class="rq-block rq-flow">' +
+    '<h3 class="rq-h">연결 흐름</h3>' +
+    '<p class="rq-flow-p">' +
+    escapeHtml(text) +
+    '</p></div>'
+  );
+}
+
 function buildReadingQuickScanHtml(cards, positions, qTrim) {
   const energyRows = buildQuickScanEnergyRows(qTrim);
   const cardRows = cards
@@ -2861,11 +2900,14 @@ function buildReadingQuickScanHtml(cards, positions, qTrim) {
       '<p class="rq-birth-hint">생년월일을 입력하면 올해·이번 달 에너지가 여기에 붙어요.</p>';
   }
 
+  const flowBlock = buildSpreadFlowQuickScanHtml(cards, positions, qTrim);
+
   return (
     '<div class="reading-section reading-quickscan">' +
     '<div class="reading-tag">한눈에 보기</div>' +
-    '<p class="rq-lead">먼저 <strong>에너지 번호</strong>와 <strong>카드 한줄</strong>만 훑어 보세요. 수비학·카드 자세한 설명은 아래 <strong>상세 리딩</strong>에서 펼치면 됩니다.</p>' +
+    '<p class="rq-lead">먼저 <strong>연결 흐름</strong>과 <strong>카드 한줄</strong>을 훑어 보세요. 카드별 자세한 설명은 아래 <strong>상세 리딩</strong>에서 펼치면 됩니다.</p>' +
     energyBlock +
+    flowBlock +
     '<div class="rq-block"><h3 class="rq-h">카드 한줄</h3><ul class="rq-list">' +
     cardRows +
     '</ul></div>' +
@@ -3044,8 +3086,7 @@ function startReading() {
 
   let titleQ;
   if (curMode === 'energy') {
-    const titles = TAROT_TOSS_APP ? EOPT_READING_TITLE_TOSS : EOPT_READING_TITLE;
-    titleQ = titles[curEopt] || '에너지 흐름';
+    titleQ = EOPT_READING_TITLE[curEopt] || '에너지 흐름';
   } else if (curTopic === 'custom' && qTrim) {
     titleQ = '"' + escapeHtml(qTrim) + '"';
   } else if (qTrim) {
@@ -3114,7 +3155,7 @@ function resetAll() {
   curMode = '';
   curEopt = 'daily';
   curTopic = '';
-  spreadCount = TAROT_TOSS_APP ? 1 : 5;
+  spreadCount = 5;
 
   document.querySelectorAll('.mode-card').forEach(e => e.classList.remove('selected'));
   document.getElementById('energyOpts').classList.remove('on');
@@ -3159,31 +3200,6 @@ function initTossAppUi() {
   if (!TAROT_TOSS_APP) return;
   var tossNote = document.querySelector('.step-note--toss-only');
   if (tossNote) tossNote.hidden = false;
-  var energyDesc = document.getElementById('modeEnergyDesc');
-  if (energyDesc) {
-    energyDesc.textContent =
-      '올해·이번 달·오늘 수비학 맥락과 함께, 오늘의 카드 1장으로 빠르게 읽어요.';
-  }
-  var dailyTitle = document.getElementById('eoptDailyTitle');
-  var dailyDesc = document.getElementById('eoptDailyDesc');
-  if (dailyTitle) dailyTitle.textContent = '오늘 1장';
-  if (dailyDesc) {
-    dailyDesc.textContent =
-      '카드 1장 · 한눈 요약 → 필요하면 상세 설명을 펼쳐 보세요.';
-  }
-  curMode = 'energy';
-  curEopt = 'daily';
-  var energyCard = document.querySelector('.mode-card[data-mode="energy"]');
-  if (energyCard) {
-    document.querySelectorAll('.mode-card').forEach(function (e) {
-      e.classList.remove('selected');
-    });
-    energyCard.classList.add('selected');
-  }
-  var eo = document.getElementById('energyOpts');
-  if (eo) eo.classList.add('on');
-  applySpreadCountFromMode();
-  syncShuffleBtn();
 }
 
 initBirthDatePickers();

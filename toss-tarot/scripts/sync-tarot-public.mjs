@@ -47,6 +47,7 @@ const files = [
   "tarot-app.html",
   "css/site-header.css",
   "js/tarot-topic-lens.js",
+  "js/tarot-spread-bridge.js",
   "js/tarot-major-scripted.js",
   "js/tarot-minor-scripted.js",
   "js/tarot-ads.js",
