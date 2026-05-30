@@ -1294,14 +1294,15 @@
     .flow-item.advice-item:last-child {
       margin-bottom: 0;
     }
+    .flow-item.advice-item .flow-label {
+      flex: 0 0 118px;
+      width: 118px;
+      min-width: 118px;
+    }
     .flow-label.advice-energy {
-      flex: 0 0 110px;
-      width: 110px;
       color: #2f80ed;
     }
     .flow-label.advice-caution {
-      flex: 0 0 110px;
-      width: 110px;
       color: #eb5757;
     }
     html.tarot-toss-app .flow-box {
@@ -1310,20 +1311,13 @@
     html.tarot-toss-app .flow-content {
       font-size: 13.5px;
     }
-    html.tarot-toss-app .flow-label.advice-energy,
-    html.tarot-toss-app .flow-label.advice-caution {
-      flex: 0 0 96px;
-      width: 96px;
+    html.tarot-toss-app .flow-item.advice-item .flow-label {
+      flex: 0 0 110px;
+      width: 110px;
+      min-width: 110px;
       font-size: 12px;
     }
     html.tarot-toss-app .rq-lead--web-only { display: none; }
-    .rq-scan-hint {
-      margin: 0;
-      font-size: 12.5px;
-      line-height: 1.55;
-      color: var(--muted);
-      padding: 0 2px;
-    }
 
     .ec-opposite {
       margin-top: 14px;
@@ -3105,7 +3099,6 @@ function buildSpreadFlowQuickScanHtml(cards, positions, qTrim) {
 
   return (
     '<div class="rq-block">' +
-    '<h3 class="rq-h">흐름 한눈에 보기</h3>' +
     '<div class="flow-box">' +
     bodyParts.join('') +
     '</div></div>'
@@ -3173,10 +3166,10 @@ function buildReadingQuickScanHtml(cards, positions, qTrim) {
 
   const leadHtml = TAROT_TOSS_APP
     ? ''
-    : '<p class="rq-lead rq-lead--web-only">아래 <strong>흐름 한눈에 보기</strong>를 먼저 훑고, 자세한 내용은 <strong>상세 리딩</strong>에서 펼쳐 보세요.</p>';
+    : '<p class="rq-lead rq-lead--web-only">아래 <strong>한눈에 보기</strong>에서 흐름을 확인한 뒤, 자세한 내용은 <strong>상세 리딩</strong>에서 펼쳐 보세요.</p>';
 
   const cardListHtml = skipCardList
-    ? '<p class="rq-scan-hint">자세한 해석은 <strong>상세 리딩</strong>에서 볼 수 있어요.</p>'
+    ? ''
     : '<div class="rq-block"><h3 class="rq-h">카드 한줄</h3><ul class="rq-list">' +
       cardRows +
       '</ul></div>';
