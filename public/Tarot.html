@@ -1072,6 +1072,124 @@
       font-size: 13px;
       line-height: 1.75;
     }
+    .ec-detail-title {
+      margin: 0 0 10px;
+      padding: 0 0 10px;
+      border-bottom: 1px dashed var(--border);
+      font-size: 13px;
+      line-height: 1.55;
+      color: var(--warm-brown);
+      font-weight: 600;
+    }
+    .ec-p.ec-muted { color: var(--muted); font-size: 12.5px; }
+
+    /* 한눈에 보기 (토스·모바일 스캔용) */
+    .reading-quickscan {
+      border-left-color: var(--accent);
+      margin-bottom: 20px;
+    }
+    .rq-lead {
+      font-size: 13px;
+      line-height: 1.6;
+      color: var(--muted);
+      margin: 0 0 16px;
+    }
+    .rq-block { margin-bottom: 14px; }
+    .rq-block:last-child { margin-bottom: 0; }
+    .rq-h {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      color: var(--deep-brown);
+      margin: 0 0 8px;
+      text-transform: none;
+    }
+    .rq-list {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .rq-row {
+      padding: 11px 12px;
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+    }
+    .rq-label {
+      display: block;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--deep-brown);
+      margin-bottom: 5px;
+      line-height: 1.4;
+    }
+    .rq-label strong { font-weight: 700; }
+    .rq-badge {
+      display: inline-block;
+      margin-left: 6px;
+      font-family: var(--font-mono);
+      font-size: 10px;
+      font-weight: 500;
+      letter-spacing: 0.04em;
+      color: var(--muted);
+    }
+    .rq-line {
+      margin: 0;
+      font-size: 14px;
+      line-height: 1.55;
+      color: var(--ink);
+    }
+    .rq-tag {
+      display: inline-block;
+      margin-right: 6px;
+      padding: 1px 6px;
+      border-radius: 4px;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      vertical-align: middle;
+      background: rgba(46, 139, 122, 0.12);
+      color: var(--teal);
+    }
+    .rq-tag--warn {
+      background: rgba(139, 111, 71, 0.14);
+      color: var(--warm-brown);
+    }
+    .rq-birth-hint {
+      font-size: 12.5px;
+      line-height: 1.55;
+      color: var(--muted);
+      margin: 0 0 12px;
+      padding: 10px 12px;
+      border: 1px dashed var(--border);
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.45);
+    }
+    .rq-num-more { margin-top: 12px; }
+    .rq-num-more .num-merge {
+      margin: 0;
+      border: none;
+      padding: 0;
+      background: transparent;
+    }
+    .rq-num-more .num-merge-title { font-size: 15px; margin-bottom: 10px; }
+    .reading-detail-section { margin-bottom: 20px; }
+    .reading-detail-section .reading-title { font-size: 17px; margin-bottom: 12px; }
+    #readingArea .reading-quickscan { scroll-margin-top: 72px; }
+
+    html.tarot-toss-app .reading-quickscan {
+      margin-bottom: 16px;
+      padding-bottom: 4px;
+    }
+    html.tarot-toss-app .rq-row { padding: 10px 11px; }
+    html.tarot-toss-app .rq-line { font-size: 13.5px; line-height: 1.5; }
+    html.tarot-toss-app .rq-lead { font-size: 12.5px; margin-bottom: 12px; }
+    html.tarot-toss-app .ec-accordion-summary { font-size: 12.5px; padding: 11px 12px; }
+    html.tarot-toss-app .ec-card { padding: 14px 12px; margin-bottom: 12px; }
+
     .ec-opposite {
       margin-top: 14px;
       padding-top: 12px;
@@ -2563,6 +2681,139 @@ function parseFactCounsel(text) {
   return { summary: raw, counsel: '' };
 }
 
+/** 한눈 요약용 — 첫 문장 또는 길이 제한 */
+function onelinerClip(text, maxLen) {
+  const max = maxLen || 90;
+  const t = String(text || '')
+    .replace(/\s+/g, ' ')
+    .trim();
+  if (!t) return '';
+  const parts = t.split(/(?<=[.!?…])\s+/);
+  const first = (parts[0] || t).trim();
+  const base = first.length >= 16 && first.length < t.length ? first : t;
+  if (base.length <= max) return base;
+  return base.slice(0, max - 1) + '…';
+}
+
+function cardReadingOneline(card, slotIndex) {
+  const mdd = dailyDoDontInterpret(card, slotIndex);
+  if (mdd && mdd.body) return onelinerClip(mdd.body);
+  const { summary } = parseFactCounsel(actionAdviceBlock(card));
+  if (summary) return summary;
+  const kw = (card.keywords || '').trim();
+  if (kw) return onelinerClip(kw.replace(/,\s*/g, ' · '), 72);
+  const mono = (readingPrimaryVoice(card, slotIndex) || '').trim();
+  return onelinerClip(mono, 88);
+}
+
+function buildQuickScanEnergyRows(qTrim) {
+  if (!birthReady) return '';
+  const hideToday = spreadSkipsTodayEnergy();
+  const showToday = !qTrim && !hideToday;
+  const kwSuffix = function (n) {
+    const k = NUM_KW_SHORT[n];
+    return k ? ' · ' + k : '';
+  };
+  const rows = [
+    {
+      label: '올해',
+      badge: calcPy + '번' + kwSuffix(calcPy),
+      line: onelinerClip(hintPick(YEAR_HINT, calcPy), 96),
+    },
+    {
+      label: '이번 달',
+      badge: calcPm + '번' + kwSuffix(calcPm),
+      line: onelinerClip(hintPick(MONTH_HINT, calcPm), 96),
+    },
+  ];
+  if (showToday) {
+    rows.push({
+      label: '오늘',
+      badge: calcPd + '번' + kwSuffix(calcPd),
+      line: onelinerClip(hintPick(DAY_HINT, calcPd), 96),
+    });
+  }
+  return rows
+    .map(function (r) {
+      return (
+        '<li class="rq-row rq-energy">' +
+        '<span class="rq-label">' +
+        escapeHtml(r.label) +
+        '<span class="rq-badge">' +
+        escapeHtml(r.badge) +
+        '</span></span>' +
+        '<p class="rq-line">' +
+        escapeHtml(r.line) +
+        '</p></li>'
+      );
+    })
+    .join('');
+}
+
+function buildReadingQuickScanHtml(cards, positions, qTrim) {
+  const energyRows = buildQuickScanEnergyRows(qTrim);
+  const cardRows = cards
+    .map(function (card, i) {
+      const mdd = dailyDoDontInterpret(card, i);
+      const line = cardReadingOneline(card, i);
+      const tag =
+        mdd && mdd.shortTag
+          ? '<span class="rq-tag' +
+            (mdd.shortTag === '주의' ? ' rq-tag--warn' : '') +
+            '">' +
+            escapeHtml(mdd.shortTag) +
+            '</span>'
+          : '';
+      const rev = card.faceRev ? ' ↺' : '';
+      return (
+        '<li class="rq-row rq-card">' +
+        '<span class="rq-label">' +
+        tag +
+        escapeHtml(positions[i]) +
+        ' · <strong>' +
+        escapeHtml(card.name) +
+        '</strong>' +
+        rev +
+        '</span>' +
+        '<p class="rq-line">' +
+        escapeHtml(line || '카드를 펼치면 한줄이 채워져요.') +
+        '</p></li>'
+      );
+    })
+    .join('');
+
+  let energyBlock = '';
+  if (energyRows) {
+    energyBlock =
+      '<div class="rq-block"><h3 class="rq-h">현재 에너지</h3><ul class="rq-list">' +
+      energyRows +
+      '</ul></div>';
+  } else if (!birthReady) {
+    energyBlock =
+      '<p class="rq-birth-hint">생년월일을 입력하면 올해·이번 달 에너지 한줄이 여기에 붙어요.</p>';
+  }
+
+  const numMore = birthReady
+    ? '<details class="ec-accordion rq-num-more">' +
+      '<summary class="ec-accordion-summary">수비학 맥락 더 보기</summary>' +
+      '<div class="ec-accordion-body">' +
+      buildNumMergeBlock(qTrim) +
+      '</div></details>'
+    : '';
+
+  return (
+    '<div class="reading-section reading-quickscan">' +
+    '<div class="reading-tag">한눈에 보기</div>' +
+    '<p class="rq-lead">먼저 전체 흐름만 훑어 보세요. 궁금한 카드는 아래 <strong>상세 리딩</strong>에서 펼치면 됩니다.</p>' +
+    energyBlock +
+    '<div class="rq-block"><h3 class="rq-h">카드 한줄</h3><ul class="rq-list">' +
+    cardRows +
+    '</ul></div>' +
+    numMore +
+    '</div>'
+  );
+}
+
 /** 소마이너 정방향 — `MINOR_ENRICHED.advice`에 적어 둔 문구만 사용(사용자 CSV의 팩트·조언 열). 키워드로 팩트를 덧붙이지 않음. */
 function minorUprightAdviceFormatted(card, minorUp) {
   const adv = (minorUp.advice || '').trim();
@@ -2602,69 +2853,62 @@ function hasScriptedCard(card, slotIndex) {
 
 function buildCardReadingBodyHtml(card, slotIndex) {
   const mono = (readingPrimaryVoice(card, slotIndex) || '').trim();
-  const { summary, counsel } = parseFactCounsel(actionAdviceBlock(card));
+  const { counsel } = parseFactCounsel(actionAdviceBlock(card));
+  const sc = getScriptedCard(card, slotIndex);
+  const mainTitle = sc && sc.mainTitle ? String(sc.mainTitle).trim() : '';
+  const mdd = dailyDoDontInterpret(card, slotIndex);
   let html = '';
-  if (summary) {
-    html +=
-      '<div class="ec-summary ec-summary--fact">' +
-      '<span class="ec-summary-label">한줄 요약</span>' +
-      '<p class="ec-summary-text">' + escapeHtml(summary) + '</p>' +
-      '</div>';
+  const detailParts = [];
+  if (mainTitle) {
+    detailParts.push('<p class="ec-detail-title">' + escapeHtml(mainTitle) + '</p>');
   }
-  if (mono) {
+  if (mdd && mdd.body) {
+    detailParts.push('<p class="ec-p">' + escapeHtml(mdd.body).replace(/\n/g, '<br>') + '</p>');
+  } else if (mono) {
+    detailParts.push('<p class="ec-p">' + escapeHtml(mono).replace(/\n/g, '<br>') + '</p>');
+  }
+  if (detailParts.length) {
     html +=
       '<details class="ec-accordion">' +
-      '<summary class="ec-accordion-summary">카드 메시지 자세히 보기</summary>' +
-      '<div class="ec-accordion-body"><p class="ec-p">' + escapeHtml(mono).replace(/\n/g, '<br>') + '</p></div>' +
-      '</details>';
+      '<summary class="ec-accordion-summary">상세 설명</summary>' +
+      '<div class="ec-accordion-body">' +
+      detailParts.join('') +
+      '</div></details>';
   }
   if (counsel) {
     html +=
-      '<div class="ec-summary ec-summary--counsel">' +
-      '<span class="ec-summary-label">현실조언</span>' +
-      '<p class="ec-summary-text">' + escapeHtml(counsel) + '</p>' +
-      '</div>';
+      '<details class="ec-accordion">' +
+      '<summary class="ec-accordion-summary">현실 조언</summary>' +
+      '<div class="ec-accordion-body"><p class="ec-p">' +
+      escapeHtml(counsel) +
+      '</p></div></details>';
+  }
+  if (!html) {
+    html = '<p class="ec-p ec-muted">위 한줄 요약만 참고해 주세요.</p>';
   }
   return html;
 }
 
 function buildEnrichedReadingHtml(cards, positions) {
-  return cards.map((card, i) => {
-    const pos = escapeHtml(positions[i]);
-    const nm = escapeHtml(card.name);
-    const rev = card.faceRev ? ' (역방향)' : '';
-    const mdd = dailyDoDontInterpret(card, i);
-    if (mdd) {
-      const bodyHtml = escapeHtml(mdd.body).replace(/\n/g, '<br>');
-      const posTitle = positions[i];
-      const labelHtml =
-        mdd.label && mdd.label !== posTitle
-          ? '<span class="ec-summary-label">' + escapeHtml(mdd.label) + '</span>'
-          : '';
+  return cards
+    .map(function (card, i) {
+      const pos = escapeHtml(positions[i]);
+      const nm = escapeHtml(card.name);
+      const rev = card.faceRev ? ' (역방향)' : '';
+      const bodyHtml = buildCardReadingBodyHtml(card, i);
       return (
         '<div class="ec-card">' +
-        '<div class="ec-pos">' + pos + ' · ' + nm + rev + '</div>' +
-        '<div class="ec-summary' + (labelHtml ? ' ec-summary--fact' : '') + '">' +
-        labelHtml +
-        '<p class="ec-summary-text">' + bodyHtml + '</p>' +
+        '<div class="ec-pos">' +
+        pos +
+        ' · ' +
+        nm +
+        rev +
         '</div>' +
+        bodyHtml +
         '</div>'
       );
-    }
-    const sc = getScriptedCard(card, i);
-    const mainTitleHtml =
-      sc && sc.mainTitle
-        ? '<p class="ec-main-title">' + escapeHtml(sc.mainTitle) + '</p>'
-        : '';
-    const bodyHtml = buildCardReadingBodyHtml(card, i);
-    return (
-      '<div class="ec-card">' +
-      '<div class="ec-pos">' + pos + ' · ' + nm + rev + '</div>' +
-      mainTitleHtml +
-      bodyHtml +
-      '</div>'
-    );
-  }).join('');
+    })
+    .join('');
 }
 
 /** drawnCards[3]·[4] = 데일리 「오늘 힘이 되는 에너지」「오늘의 주의」(연간 5장 마지막 칸과 구분) */
@@ -2732,12 +2976,12 @@ function startReading() {
   summaries.style.display = 'none';
 
   const readingArea = document.getElementById('readingArea');
+  const quickScanHtml = buildReadingQuickScanHtml(drawnCards, positions, qTrim);
   const enrichedHtml = buildEnrichedReadingHtml(drawnCards, positions);
   const enrichedBirthNote = !birthReady
     ? '<div class="ec-wrap-birth-note"><p class="ec-p">' + escapeHtml(numerologyBridgeText(null)) + '</p></div>'
     : '';
 
-  const numBlock = buildNumMergeBlock(qTrim);
   let titleQ;
   if (curMode === 'energy') {
     titleQ = EOPT_READING_TITLE[curEopt] || '에너지 흐름';
@@ -2767,9 +3011,9 @@ function startReading() {
   }
 
   readingArea.innerHTML =
-    numBlock +
-    `<div class="reading-section">
-      <div class="reading-tag">✦ 카드 리딩</div>
+    quickScanHtml +
+    `<div class="reading-section reading-detail-section">
+      <div class="reading-tag">✦ 상세 리딩</div>
       <div class="reading-title">${titleQ}</div>
       <div class="reading-enriched ec-wrap">${enrichedBirthNote}${enrichedHtml}</div>
     </div>` +
@@ -2778,8 +3022,8 @@ function startReading() {
   requestAnimationFrame(() => {
     requestAnimationFrame(() => {
       const focus =
-        document.querySelector('#readingArea .num-merge') ||
-        document.querySelector('#readingArea .reading-section') ||
+        document.querySelector('#readingArea .reading-quickscan') ||
+        document.querySelector('#readingArea .reading-detail-section') ||
         readingArea;
       scrollTarotFocus(focus, true);
     });
