@@ -1237,32 +1237,36 @@
     }
     .rq-flow-lane {
       display: flex;
-      flex-wrap: wrap;
-      align-items: center;
-      gap: 8px 6px;
+      flex-direction: column;
+      align-items: stretch;
+      gap: 0;
       margin: 0;
       font-size: 14px;
       line-height: 1.45;
       color: var(--ink);
     }
     .rq-flow-step {
-      display: inline-flex;
-      align-items: center;
-      gap: 5px;
-      flex: 0 1 auto;
-      min-width: 0;
-      max-width: 100%;
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      padding: 7px 0;
+      border-bottom: 1px solid rgba(46, 139, 122, 0.12);
     }
-    .rq-flow-arrow {
-      font-size: 14px;
-      line-height: 1;
-      opacity: 0.7;
-      flex-shrink: 0;
+    .rq-flow-step:last-child { border-bottom: none; padding-bottom: 0; }
+    .rq-flow-step:first-child { padding-top: 0; }
+    .rq-flow-role {
+      flex: 0 0 2.6em;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+      color: var(--warm-brown);
+      line-height: 1.45;
+      padding-top: 1px;
     }
-    .rq-card-emoji {
-      font-size: 1.1em;
-      line-height: 1;
-      flex-shrink: 0;
+    .rq-flow-kws { flex: 1; min-width: 0; }
+    .rq-flow-roles {
+      font-weight: 500;
+      color: var(--muted);
     }
     .rq-kw {
       font-weight: 700;
@@ -2977,25 +2981,36 @@ function buildFlowPairHtml(pairStr) {
     .join('<span class="rq-kw-sep"> · </span>');
 }
 
-function cardFlowEmoji(card) {
-  const sym = card && card.symbol ? String(card.symbol).trim() : '';
-  if (!sym) return '';
-  return '<span class="rq-card-emoji" aria-hidden="true">' + sym + '</span>';
+function flowRoleFromPosition(pos) {
+  const bits = String(pos || '').split('·');
+  return bits[bits.length - 1].trim();
 }
 
-function buildSpreadFlowTopicLine(qTrim) {
+function buildSpreadFlowTopicLine(qTrim, positions, src) {
+  const rolePositions = src.indices.map(function (i) {
+    return positions[i];
+  });
+  const rolesHint = rolePositions
+    .map(flowRoleFromPosition)
+    .filter(Boolean)
+    .join(' · ');
+  const hint = rolesHint
+    ? ' <span class="rq-flow-roles">(' + escapeHtml(rolesHint) + ')</span>'
+    : '';
+
+  let main = '';
   if (curMode === 'question') {
     const topic =
       curTopic === 'custom'
         ? qTrim
         : { love: '사랑', work: '일·커리어', money: '재정', relation: '관계', inner: '내면·성장' }[curTopic] || '';
-    if (topic) return '<p class="rq-flow-topic">' + escapeHtml(topic) + ' 흐름</p>';
-    return '';
-  }
-  if (curEopt === 'next_month') return '<p class="rq-flow-topic">다음 달 흐름</p>';
-  if (curEopt === 'month') return '<p class="rq-flow-topic">이번 달 흐름</p>';
-  if (curMode === 'energy' && curEopt === 'daily') return '<p class="rq-flow-topic">오늘의 흐름</p>';
-  return '';
+    if (topic) main = topic + ' 흐름';
+  } else if (curEopt === 'next_month') main = '다음 달 흐름';
+  else if (curEopt === 'month') main = '이번 달 흐름';
+  else if (curMode === 'energy' && curEopt === 'daily') main = '오늘의 흐름';
+
+  if (!main && !rolesHint) return '';
+  return '<p class="rq-flow-topic">' + escapeHtml(main) + hint + '</p>';
 }
 
 function buildSpreadFlowQuickScanHtml(cards, positions, qTrim) {
@@ -3003,15 +3018,18 @@ function buildSpreadFlowQuickScanHtml(cards, positions, qTrim) {
   if (!src) return '';
 
   const stepsHtml = src.indices
-    .map(function (i, idx) {
-      const card = cards[i];
-      const pairHtml = buildFlowPairHtml(cardFlowKeywords(card, i));
-      const step =
-        '<div class="rq-flow-step">' + cardFlowEmoji(card) + pairHtml + '</div>';
-      if (idx < src.indices.length - 1) {
-        return step + '<span class="rq-flow-arrow" aria-hidden="true">➡️</span>';
-      }
-      return step;
+    .map(function (i) {
+      const role = flowRoleFromPosition(positions[i]);
+      const pairHtml = buildFlowPairHtml(cardFlowKeywords(cards[i], i));
+      return (
+        '<div class="rq-flow-step" role="listitem">' +
+        '<span class="rq-flow-role">' +
+        escapeHtml(role) +
+        '</span>' +
+        '<span class="rq-flow-kws">' +
+        pairHtml +
+        '</span></div>'
+      );
     })
     .join('');
 
@@ -3022,15 +3040,11 @@ function buildSpreadFlowQuickScanHtml(cards, positions, qTrim) {
     extrasHtml =
       '<div class="rq-flow-extras">' +
       '<p class="rq-flow-extra rq-flow-extra--help">' +
-      '<span class="rq-flow-extra-ico" aria-hidden="true">💡</span> ' +
-      '<span class="rq-flow-extra-label">힘이 되는 에너지:</span> ' +
-      cardFlowEmoji(helpCard) +
+      '<span class="rq-flow-extra-label">힘이 되는 에너지</span> ' +
       buildFlowPairHtml(cardFlowKeywordsDailyHelp(helpCard)) +
       '</p>' +
       '<p class="rq-flow-extra rq-flow-extra--warn">' +
-      '<span class="rq-flow-extra-ico" aria-hidden="true">⚠️</span> ' +
-      '<span class="rq-flow-extra-label">오늘의 주의점:</span> ' +
-      cardFlowEmoji(warnCard) +
+      '<span class="rq-flow-extra-label">오늘의 주의점</span> ' +
       buildFlowPairHtml(cardFlowKeywordsDailyWarn(warnCard)) +
       '</p></div>';
   }
@@ -3038,7 +3052,7 @@ function buildSpreadFlowQuickScanHtml(cards, positions, qTrim) {
   return (
     '<div class="rq-block rq-flow">' +
     '<h3 class="rq-h">흐름 한눈에 보기</h3>' +
-    buildSpreadFlowTopicLine(qTrim) +
+    buildSpreadFlowTopicLine(qTrim, positions, src) +
     '<div class="rq-flow-lane" role="list">' +
     stepsHtml +
     '</div>' +
@@ -3073,7 +3087,6 @@ function buildReadingQuickScanHtml(cards, positions, qTrim) {
             '<li class="rq-row rq-card">' +
             '<span class="rq-label">' +
             tag +
-            cardFlowEmoji(card) +
             escapeHtml(positions[i]) +
             ' · <strong>' +
             escapeHtml(card.name) +
