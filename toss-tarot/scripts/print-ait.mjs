@@ -6,6 +6,10 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
+const pkg = JSON.parse(
+  fs.readFileSync(path.join(root, "package.json"), "utf8"),
+);
+const version = pkg.version || "?";
 
 function findAit(dir) {
   if (!fs.existsSync(dir)) return [];
@@ -35,7 +39,9 @@ const latest = candidates.sort(
 
 console.log("");
 console.log("=== 토스 버전 등록용 .ait ===");
+console.log("버전:", version);
 console.log(latest);
 console.log("");
 console.log("앱인토스 콘솔 → 개발 → 앱 출시 → 버전 등록하기 → 위 파일 업로드");
+console.log("변경 내용 예시는 toss-tarot/UPLOAD.md 또는 RELEASE.md 참고");
 console.log("");

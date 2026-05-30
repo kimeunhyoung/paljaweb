@@ -10,6 +10,22 @@ const root = path.resolve(__dirname, "..");
 const srcRoot = path.resolve(root, "..", "public");
 const destRoot = path.resolve(root, "public");
 
+const pkg = JSON.parse(
+  fs.readFileSync(path.join(root, "package.json"), "utf8"),
+);
+const bundleVersion = String(pkg.version || "0.0.0");
+
+function stampBundleVersion(html) {
+  const meta = `name="tarot-bundle-version" content="${bundleVersion}"`;
+  if (html.includes("tarot-bundle-version")) {
+    return html.replace(/name="tarot-bundle-version"\s+content="[^"]*"/, meta);
+  }
+  return html.replace(
+    /<meta charset="UTF-8"\s*\/?>/i,
+    `<meta charset="UTF-8"/>\n  <meta ${meta} />`,
+  );
+}
+
 function ensureDir(p) {
   fs.mkdirSync(p, { recursive: true });
 }
@@ -56,9 +72,16 @@ const files = [
 for (const f of files) copyFile(f, f);
 copyDirFiles("tarot", "tarot");
 
+const tarotPath = path.join(destRoot, "Tarot.html");
+if (fs.existsSync(tarotPath)) {
+  let html = fs.readFileSync(tarotPath, "utf8");
+  html = stampBundleVersion(html);
+  fs.writeFileSync(tarotPath, html);
+  console.log("[sync-tarot-public] bundle version:", bundleVersion);
+}
+
 const adGroupId = process.env.TOSS_AD_GROUP_ID?.trim();
 if (adGroupId) {
-  const tarotPath = path.join(destRoot, "Tarot.html");
   if (fs.existsSync(tarotPath)) {
     let html = fs.readFileSync(tarotPath, "utf8");
     html = html.replace(

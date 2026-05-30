@@ -24,7 +24,9 @@ npm run build     # dist + .ait 생성
 npm run release   # sync + build + .ait 경로 출력 (버전 등록용)
 ```
 
-토스 출시본은 **오늘 1장** 기본(`app=1`) · **한눈에 보기** UI입니다. 자세한 등록 절차는 [RELEASE.md](./RELEASE.md) 를 보세요.
+토스 출시본은 `app=1` · **✦ 한눈에 보기 flow-box** · 질문 6 + 에너지 4 통일 UI입니다.
+
+**지금 올리기:** [UPLOAD.md](./UPLOAD.md) 체크리스트 → `npm run release` → 콘솔에 `.ait` 등록. 상세는 [RELEASE.md](./RELEASE.md).
 
 ## 광고 그룹 ID
 
