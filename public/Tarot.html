@@ -1228,12 +1228,81 @@
       border: 1px solid rgba(46, 139, 122, 0.22);
       border-radius: 10px;
     }
-    .rq-flow .rq-h { margin-bottom: 8px; }
-    .rq-flow-p {
+    .rq-flow .rq-h { margin-bottom: 10px; }
+    .rq-flow-topic {
+      margin: 0 0 10px;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--muted);
+    }
+    .rq-flow-lane {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 8px 6px;
       margin: 0;
       font-size: 14px;
-      line-height: 1.72;
+      line-height: 1.45;
       color: var(--ink);
+    }
+    .rq-flow-step {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      flex: 0 1 auto;
+      min-width: 0;
+      max-width: 100%;
+    }
+    .rq-flow-arrow {
+      font-size: 14px;
+      line-height: 1;
+      opacity: 0.7;
+      flex-shrink: 0;
+    }
+    .rq-card-emoji {
+      font-size: 1.1em;
+      line-height: 1;
+      flex-shrink: 0;
+    }
+    .rq-kw {
+      font-weight: 700;
+      color: var(--deep-brown);
+    }
+    .rq-kw-sep {
+      font-weight: 400;
+      color: var(--muted);
+      font-size: 0.92em;
+    }
+    .rq-flow-extras {
+      margin-top: 12px;
+      padding-top: 12px;
+      border-top: 1px dashed rgba(46, 139, 122, 0.28);
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .rq-flow-extra {
+      margin: 0;
+      font-size: 13.5px;
+      line-height: 1.5;
+      color: var(--ink);
+    }
+    .rq-flow-extra-ico { margin-right: 2px; }
+    .rq-flow-extra-label {
+      font-weight: 600;
+      color: var(--deep-brown);
+      margin-right: 4px;
+    }
+    .rq-flow-extra--warn .rq-flow-extra-label { color: #8b5a2b; }
+    html.tarot-toss-app .rq-flow-lane { font-size: 13.5px; gap: 6px 4px; }
+    html.tarot-toss-app .rq-flow-extra { font-size: 13px; }
+    html.tarot-toss-app .rq-lead--web-only { display: none; }
+    .rq-scan-hint {
+      margin: 0;
+      font-size: 12.5px;
+      line-height: 1.55;
+      color: var(--muted);
+      padding: 0 2px;
     }
 
     .ec-opposite {
@@ -2753,7 +2822,7 @@ function parseFactCounsel(text) {
 
 /** 한눈 요약용 — 첫 문장 또는 길이 제한 */
 function onelinerClip(text, maxLen) {
-  const max = maxLen || 90;
+  const max = maxLen || 58;
   const t = String(text || '')
     .replace(/\s+/g, ' ')
     .trim();
@@ -2765,9 +2834,16 @@ function onelinerClip(text, maxLen) {
   return base.slice(0, max - 1) + '…';
 }
 
+/** 한눈에 보기 — 키워드 위주 짧은 줄 */
+function cardQuickScanLine(card, slotIndex) {
+  const kw = cardFlowKeywords(card, slotIndex);
+  if (kw) return kw.replace(/·/g, ' · ');
+  return cardReadingOneline(card, slotIndex);
+}
+
 function cardReadingOneline(card, slotIndex) {
   const mdd = dailyDoDontInterpret(card, slotIndex);
-  if (mdd && mdd.body) return onelinerClip(mdd.body);
+  if (mdd && mdd.body) return onelinerClip(mdd.body, 58);
   const { summary } = parseFactCounsel(actionAdviceBlock(card));
   if (summary) return summary;
   const kw = (card.keywords || '').trim();
@@ -2877,74 +2953,139 @@ function cardFlowKeywords(card, slotIndex) {
   return (card.name || '이 카드').replace(/^(완드|소드|컵|펜타클)\s+/, '').trim();
 }
 
-function buildSpreadFlowNarrativeText(cards, positions, qTrim) {
-  const src = spreadFlowSnippetSource(cards, positions);
-  if (!src || typeof buildTarotSpreadFlowNarrative !== 'function') return '';
-  const keywords = src.indices.map(function (i) {
-    return cardFlowKeywords(cards[i], i);
-  });
-  const dailyExtra =
-    src.dailyFive && cards.length >= 5
-      ? {
-          help: cardFlowKeywordsDailyHelp(cards[3]),
-          warn: cardFlowKeywordsDailyWarn(cards[4]),
-        }
-      : null;
-  return buildTarotSpreadFlowNarrative({
-    keywords: keywords,
-    positions: src.positions,
-    curMode: curMode,
-    curEopt: curEopt,
-    curTopic: curTopic,
-    questionText: qTrim,
-    dailyFive: src.dailyFive,
-    dailyExtra: dailyExtra,
-  });
+function flowKeywordParts(pairStr) {
+  const s = String(pairStr || '').trim();
+  if (!s) return [];
+  if (s.indexOf('·') >= 0) {
+    return s
+      .split('·')
+      .map(function (t) {
+        return t.trim();
+      })
+      .filter(Boolean);
+  }
+  return [s];
+}
+
+function buildFlowPairHtml(pairStr) {
+  const parts = flowKeywordParts(pairStr);
+  if (!parts.length) return '<span class="rq-kw-muted">—</span>';
+  return parts
+    .map(function (p) {
+      return '<strong class="rq-kw">' + escapeHtml(p) + '</strong>';
+    })
+    .join('<span class="rq-kw-sep"> · </span>');
+}
+
+function cardFlowEmoji(card) {
+  const sym = card && card.symbol ? String(card.symbol).trim() : '';
+  if (!sym) return '';
+  return '<span class="rq-card-emoji" aria-hidden="true">' + sym + '</span>';
+}
+
+function buildSpreadFlowTopicLine(qTrim) {
+  if (curMode === 'question') {
+    const topic =
+      curTopic === 'custom'
+        ? qTrim
+        : { love: '사랑', work: '일·커리어', money: '재정', relation: '관계', inner: '내면·성장' }[curTopic] || '';
+    if (topic) return '<p class="rq-flow-topic">' + escapeHtml(topic) + ' 흐름</p>';
+    return '';
+  }
+  if (curEopt === 'next_month') return '<p class="rq-flow-topic">다음 달 흐름</p>';
+  if (curEopt === 'month') return '<p class="rq-flow-topic">이번 달 흐름</p>';
+  if (curMode === 'energy' && curEopt === 'daily') return '<p class="rq-flow-topic">오늘의 흐름</p>';
+  return '';
 }
 
 function buildSpreadFlowQuickScanHtml(cards, positions, qTrim) {
-  const text = buildSpreadFlowNarrativeText(cards, positions, qTrim);
-  if (!text) return '';
+  const src = spreadFlowSnippetSource(cards, positions);
+  if (!src) return '';
+
+  const stepsHtml = src.indices
+    .map(function (i, idx) {
+      const card = cards[i];
+      const pairHtml = buildFlowPairHtml(cardFlowKeywords(card, i));
+      const step =
+        '<div class="rq-flow-step">' + cardFlowEmoji(card) + pairHtml + '</div>';
+      if (idx < src.indices.length - 1) {
+        return step + '<span class="rq-flow-arrow" aria-hidden="true">➡️</span>';
+      }
+      return step;
+    })
+    .join('');
+
+  let extrasHtml = '';
+  if (src.dailyFive && cards.length >= 5) {
+    const helpCard = cards[3];
+    const warnCard = cards[4];
+    extrasHtml =
+      '<div class="rq-flow-extras">' +
+      '<p class="rq-flow-extra rq-flow-extra--help">' +
+      '<span class="rq-flow-extra-ico" aria-hidden="true">💡</span> ' +
+      '<span class="rq-flow-extra-label">힘이 되는 에너지:</span> ' +
+      cardFlowEmoji(helpCard) +
+      buildFlowPairHtml(cardFlowKeywordsDailyHelp(helpCard)) +
+      '</p>' +
+      '<p class="rq-flow-extra rq-flow-extra--warn">' +
+      '<span class="rq-flow-extra-ico" aria-hidden="true">⚠️</span> ' +
+      '<span class="rq-flow-extra-label">오늘의 주의점:</span> ' +
+      cardFlowEmoji(warnCard) +
+      buildFlowPairHtml(cardFlowKeywordsDailyWarn(warnCard)) +
+      '</p></div>';
+  }
+
   return (
     '<div class="rq-block rq-flow">' +
-    '<h3 class="rq-h">연결 흐름</h3>' +
-    '<p class="rq-flow-p">' +
-    escapeHtml(text) +
-    '</p></div>'
+    '<h3 class="rq-h">흐름 한눈에 보기</h3>' +
+    buildSpreadFlowTopicLine(qTrim) +
+    '<div class="rq-flow-lane" role="list">' +
+    stepsHtml +
+    '</div>' +
+    extrasHtml +
+    '</div>'
   );
+}
+
+function isDailyFiveQuickScan(cards) {
+  return cards.length === 5 && curMode === 'energy' && curEopt === 'daily';
 }
 
 function buildReadingQuickScanHtml(cards, positions, qTrim) {
   const energyRows = buildQuickScanEnergyRows(qTrim);
-  const cardRows = cards
-    .map(function (card, i) {
-      const mdd = dailyDoDontInterpret(card, i);
-      const line = cardReadingOneline(card, i);
-      const tag =
-        mdd && mdd.shortTag
-          ? '<span class="rq-tag' +
-            (mdd.shortTag === '주의' ? ' rq-tag--warn' : '') +
-            '">' +
-            escapeHtml(mdd.shortTag) +
-            '</span>'
-          : '';
-      const rev = card.faceRev ? ' ↺' : '';
-      return (
-        '<li class="rq-row rq-card">' +
-        '<span class="rq-label">' +
-        tag +
-        escapeHtml(positions[i]) +
-        ' · <strong>' +
-        escapeHtml(card.name) +
-        '</strong>' +
-        rev +
-        '</span>' +
-        '<p class="rq-line">' +
-        escapeHtml(line || '카드를 펼치면 한줄이 채워져요.') +
-        '</p></li>'
-      );
-    })
-    .join('');
+  const skipCardList = isDailyFiveQuickScan(cards);
+  const cardRows = skipCardList
+    ? ''
+    : cards
+        .map(function (card, i) {
+          const mdd = dailyDoDontInterpret(card, i);
+          const line = cardQuickScanLine(card, i);
+          const tag =
+            mdd && mdd.shortTag
+              ? '<span class="rq-tag' +
+                (mdd.shortTag === '주의' ? ' rq-tag--warn' : '') +
+                '">' +
+                escapeHtml(mdd.shortTag) +
+                '</span>'
+              : '';
+          const rev = card.faceRev ? ' ↺' : '';
+          return (
+            '<li class="rq-row rq-card">' +
+            '<span class="rq-label">' +
+            tag +
+            cardFlowEmoji(card) +
+            escapeHtml(positions[i]) +
+            ' · <strong>' +
+            escapeHtml(card.name) +
+            '</strong>' +
+            rev +
+            '</span>' +
+            '<p class="rq-line">' +
+            escapeHtml(line || '카드를 펼치면 한줄이 채워져요.') +
+            '</p></li>'
+          );
+        })
+        .join('');
 
   let energyBlock = '';
   if (energyRows) {
@@ -2960,15 +3101,23 @@ function buildReadingQuickScanHtml(cards, positions, qTrim) {
 
   const flowBlock = buildSpreadFlowQuickScanHtml(cards, positions, qTrim);
 
+  const leadHtml = TAROT_TOSS_APP
+    ? ''
+    : '<p class="rq-lead rq-lead--web-only">아래 <strong>흐름 한눈에 보기</strong>를 먼저 훑고, 자세한 내용은 <strong>상세 리딩</strong>에서 펼쳐 보세요.</p>';
+
+  const cardListHtml = skipCardList
+    ? '<p class="rq-scan-hint">힘·주의 카드와 자세한 해석은 <strong>상세 리딩</strong>에서 볼 수 있어요.</p>'
+    : '<div class="rq-block"><h3 class="rq-h">카드 한줄</h3><ul class="rq-list">' +
+      cardRows +
+      '</ul></div>';
+
   return (
     '<div class="reading-section reading-quickscan">' +
     '<div class="reading-tag">한눈에 보기</div>' +
-    '<p class="rq-lead">먼저 <strong>연결 흐름</strong>과 <strong>카드 한줄</strong>을 훑어 보세요. 카드별 자세한 설명은 아래 <strong>상세 리딩</strong>에서 펼치면 됩니다.</p>' +
+    leadHtml +
     energyBlock +
     flowBlock +
-    '<div class="rq-block"><h3 class="rq-h">카드 한줄</h3><ul class="rq-list">' +
-    cardRows +
-    '</ul></div>' +
+    cardListHtml +
     '</div>'
   );
 }
