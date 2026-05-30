@@ -3066,44 +3066,79 @@ function cardFlowKeywordsDailyWarn(card) {
   return cardFlowKeywords(card, -1);
 }
 
-function normalizeFlowChunk(text) {
-  return String(text || '')
+function stripSummaryMainClause(summary) {
+  let s = String(summary || '').trim();
+  if (!s) return '';
+  const comma = s.indexOf(',');
+  if (comma > 0) s = s.slice(0, comma).trim();
+  s = s.replace(/(?:이|하|)?(?:지만|으나|내지만)$/u, '').trim();
+  return s;
+}
+
+/** summary 한 절에서 스캔용 짧은 구(2~3어절) */
+function shortenScanHalf(text) {
+  let t = String(text || '')
     .trim()
-    .replace(/\s+/g, ' ')
-    .replace(/\s*와\s+/g, '·')
-    .replace(/\s*과\s+/g, '·')
-    .replace(/\s*(운|흐름|시기|타이밍)$/u, '')
-    .trim()
-    .slice(0, 14);
+    .replace(/\s+/g, ' ');
+  t = t.replace(/(?:을|를|은|는|에서|으로|에게|까지)$/u, '').trim();
+  let words = t.split(/\s+/).filter(function (w) {
+    return w.length >= 2;
+  });
+  words = words.map(function (w) {
+    return w.replace(/(?:을|를|이|가)$/u, '');
+  });
+  if (
+    words.length === 2 &&
+    words[1].length <= 5 &&
+    /(?:하나|(?<!스)나|(?<!런)다)$/u.test(words[1])
+  ) {
+    return words[0];
+  }
+  if (words.length >= 2 && /[가-힣](?:하나|해요|합니다|하|다)$/u.test(words[words.length - 1])) {
+    words = words.slice(0, -1);
+  }
+  if (words.length >= 3) return words.slice(-2).join(' ');
+  if (words.length === 2) return words.join(' ');
+  if (words.length === 1) {
+    const w = words[0];
+    return w.length > 12 ? w.slice(0, 12) : w;
+  }
+  return t.slice(0, 12);
+}
+
+function isBrokenScanPair(pair) {
+  if (!pair || pair.indexOf('·') < 0) return true;
+  const parts = pair.split('·');
+  if (parts.length !== 2) return true;
+  const bad = /(?:만족스|급작|갑작|필연적|프레젠테|따르|폭발하|내지만)$/u;
+  if (parts[0].length < 2 || parts[1].length < 2) return true;
+  if (bad.test(parts[0]) || bad.test(parts[1])) return true;
+  return false;
 }
 
 /** 질문 모드 — 주제(사랑·일 등) summary에서 한눈에 보기 키워드 2개 */
 function flowKeywordsFromTopicSummary(summary) {
-  const head = String(summary || '')
-    .trim()
-    .split(/이나|다만/)[0]
-    .trim();
-  if (!head) return '';
+  const clause = stripSummaryMainClause(summary);
+  if (!clause) return '';
 
-  const vivid = head.match(/^(.+?)이\s+(?:돋보|드러)[가-힣]*\s*(.+)$/u);
-  if (vivid) {
-    const left = normalizeFlowChunk(vivid[1]);
-    const right = normalizeFlowChunk(vivid[2]);
-    if (left && right) return left + '·' + right;
+  let left = '';
+  let right = '';
+
+  const alt = clause.match(/^(.+?)이나\s+(.+)$/u);
+  if (alt) {
+    left = shortenScanHalf(alt[1]);
+    right = shortenScanHalf(alt[2]);
+  } else {
+    const join = clause.match(/^(.+?)(?:과|와|및)\s+(.+)$/u);
+    if (join) {
+      left = shortenScanHalf(join[1]);
+      right = shortenScanHalf(join[2]);
+    }
   }
 
-  const commaParts = head
-    .split(/[,，、]/)
-    .map(function (t) {
-      return normalizeFlowChunk(t);
-    })
-    .filter(function (t) {
-      return t.length >= 2;
-    });
-  if (commaParts.length >= 2) return commaParts[0] + '·' + commaParts[1];
-
-  if (head.length <= 16) return normalizeFlowChunk(head);
-  return '';
+  if (!left || !right || left === right) return '';
+  const pair = left + '·' + right;
+  return isBrokenScanPair(pair) ? '' : pair;
 }
 
 function cardFlowKeywords(card, slotIndex) {
@@ -3111,7 +3146,7 @@ function cardFlowKeywords(card, slotIndex) {
     const sc = getScriptedCard(card, slotIndex);
     if (sc && sc.summary) {
       const topicPair = flowKeywordsFromTopicSummary(sc.summary);
-      if (topicPair) return topicPair;
+      if (topicPair && !isBrokenScanPair(topicPair)) return topicPair;
     }
   }
   if (typeof extractTarotCardFlowKeyword === 'function') {
