@@ -1902,8 +1902,13 @@ document.addEventListener('keydown',e=>{
       if (badge) {
         const { data: profile } = await sb.from('profiles').select('plan, plan_active_until').eq('id', session.user.id).single();
         let plan = (profile && profile.plan) || 'free';
-        if (plan === 'professional' && profile && profile.plan_active_until && new Date(profile.plan_active_until) <= new Date()) {
-          plan = 'pro';
+        if (
+          plan !== 'free' &&
+          profile &&
+          profile.plan_active_until &&
+          new Date(profile.plan_active_until) <= new Date()
+        ) {
+          plan = 'free';
         }
         badge.textContent = plan.charAt(0).toUpperCase() + plan.slice(1);
         badge.className = 'plan-badge ' + plan;

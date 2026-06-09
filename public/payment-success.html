@@ -79,12 +79,21 @@
         return;
       }
       document.getElementById('loading').style.display = 'none';
-      document.getElementById('title').textContent = 'Professional 플랜이 활성화되었습니다';
-      document.getElementById('desc').textContent = '상담사 허브에서 고객을 관리하고 분석을 이어가세요.';
+      const plan = (j.plan || new URLSearchParams(location.search).get('plan') || 'professional').toLowerCase();
+      const labels = { basic: 'Basic', pro: 'Pro', professional: 'Professional' };
+      const hrefs = { basic: 'analysis.html', pro: 'dashboard.html', professional: 'counselor.html' };
+      const descs = {
+        basic: 'Basic 기능을 바로 이용해 보세요.',
+        pro: 'Pro 기능을 바로 이용해 보세요.',
+        professional: '상담사 허브에서 고객을 관리하고 분석을 이어가세요.',
+      };
+      const label = labels[plan] || 'Professional';
+      document.getElementById('title').textContent = label + ' 플랜이 활성화되었습니다';
+      document.getElementById('desc').textContent = descs[plan] || descs.professional;
       const a = document.getElementById('dash');
       a.style.display = 'inline-block';
-      a.href = 'counselor.html';
-      a.textContent = '상담사 허브로 이동';
+      a.href = hrefs[plan] || 'dashboard.html';
+      a.textContent = plan === 'professional' ? '상담사 허브로 이동' : '시작하기';
     } catch (_) {
       fail('서버와 통신하지 못했습니다.');
     }

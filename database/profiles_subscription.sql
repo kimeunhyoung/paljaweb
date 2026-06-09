@@ -9,7 +9,7 @@ alter table public.profiles
 alter table public.profiles
   add column if not exists toss_billing_key text;
 
-comment on column public.profiles.plan_active_until is 'Professional 이용 만료 시각. null이면 만료 제한 없음(기존 데이터·데모 등)';
+comment on column public.profiles.plan_active_until is '유료 플랜 이용 만료 시각. null이면 만료 제한 없음(수동 부여·데모 등). 만료 시 Free';
 comment on column public.profiles.professional_payment_key is '마지막으로 승인된 Professional 결제 paymentKey (환불 웹훅 매칭용)';
 comment on column public.profiles.toss_billing_key is '자동결제(빌링) 연동 시 빌링키 — BILLING_DELETED 처리용';
 

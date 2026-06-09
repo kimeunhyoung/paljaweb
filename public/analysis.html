@@ -3364,15 +3364,13 @@ async function initAuth() {
     .single();
 
   const dbPlan = profile?.plan || 'free';
-  const proExpired =
-    dbPlan === 'professional' &&
+  const planExpired =
+    dbPlan !== 'free' &&
     profile?.plan_active_until &&
     new Date(profile.plan_active_until) <= new Date();
 
   if (profile?.plan) {
-    let effective = profile.plan;
-    if (proExpired) effective = 'pro';
-    USER_PLAN = effective;
+    USER_PLAN = planExpired ? 'free' : dbPlan;
     // 개발 모드: Basic 이하만 Pro로 끌어올림. Professional은 상담사 기능 유지
     if (DEV_UNLOCK_PAID) {
       const _r = { free: 0, basic: 1, pro: 2, professional: 3 };
@@ -3394,7 +3392,7 @@ async function initAuth() {
   if (cluster) cluster.classList.add('is-visible');
 }
 
-  if (dbPlan === 'professional' && !proExpired) {
+  if (dbPlan === 'professional' && USER_PLAN === 'professional') {
     await loadPrefilledCounselorClient(session);
   }
 }

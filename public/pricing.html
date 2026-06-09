@@ -7,6 +7,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Noto+Serif+KR:wght@300;400;500;600&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <script src="js/plan-access.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="js/topbar-session.js?v=5" defer></script>
 
@@ -1069,12 +1070,12 @@ async function handleSubscribe(plan) {
     return;
   }
 
-  if (plan === 'professional') {
-    window.location.href = `checkout-professional.html?cycle=${billing}`;
+  if (plan === 'professional' || plan === 'basic' || plan === 'pro') {
+    window.location.href = `checkout.html?plan=${plan}&cycle=${billing}`;
     return;
   }
 
-  showToast('Basic·Pro 플랜 결제는 순차적으로 열립니다. Professional은 지금 바로 결제할 수 있어요.');
+  showToast('알 수 없는 플랜입니다.');
 }
 
 // 현재 플랜 표시
@@ -1090,16 +1091,16 @@ async function initAuth() {
   const plan = profile?.plan || 'free';
   if (plan === 'free') return;
 
-  const proActive =
-    plan === 'professional' &&
-    (!profile?.plan_active_until || new Date(profile.plan_active_until) > new Date());
+  const activePlan = window.PaljaPlan
+    ? PaljaPlan.effectivePlan(profile)
+    : plan;
 
-  if (plan === 'professional' && !proActive) {
-    showToast('Professional 이용 기간이 만료되었습니다. 아래에서 갱신할 수 있어요.');
+  if (activePlan === 'free' && plan !== 'free') {
+    showToast('이용 기간이 만료되어 Free 플랜입니다. 아래에서 다시 구독할 수 있어요.');
     return;
   }
 
-  showToast(`현재 ${plan} 플랜을 이용 중입니다.`);
+  showToast(`현재 ${activePlan.charAt(0).toUpperCase() + activePlan.slice(1)} 플랜을 이용 중입니다.`);
 }
 
 initAuth();

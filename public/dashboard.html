@@ -1072,11 +1072,10 @@
     try {
       const { data: profileRow } = await sb.from('profiles').select('plan, plan_active_until').eq('id', user.id).single();
       const plan = profileRow?.plan || 'free';
-      const proActive =
-        plan === 'professional' &&
+      const planActive =
+        plan !== 'free' &&
         (!profileRow?.plan_active_until || new Date(profileRow.plan_active_until) > new Date());
-      const displayPlan =
-        plan === 'professional' && profileRow?.plan_active_until && !proActive ? 'pro' : plan;
+      const displayPlan = planActive ? plan : 'free';
       const planLabel = displayPlan.charAt(0).toUpperCase() + displayPlan.slice(1);
       document.getElementById('user-plan').textContent = planLabel;
       const statPlan = document.getElementById('stat-plan-tier');
@@ -1101,18 +1100,25 @@
           upgradeBtn.style.cursor = '';
         }
       }
-      if (plan === 'professional' && profileRow?.plan_active_until) {
+      if (displayPlan === 'professional' && profileRow?.plan_active_until) {
         const until = new Date(profileRow.plan_active_until);
-        const expText = proActive
+        const expText = planActive
           ? `Professional 이용 만료: ${until.toLocaleDateString('ko-KR')}`
           : `Professional 기간이 지났습니다. 요금제에서 갱신할 수 있어요.`;
         if (descEl) {
           descEl.innerHTML = descEl.dataset.baseHtml + '<br><br><span style="font-size:12px;color:var(--accent)">' + expText + '</span>';
         }
+      } else if (planActive && displayPlan !== 'free' && profileRow?.plan_active_until) {
+        const until = new Date(profileRow.plan_active_until);
+        if (descEl) {
+          descEl.innerHTML = descEl.dataset.baseHtml + '<br><br><span style="font-size:12px;color:var(--accent)">' +
+            displayPlan.charAt(0).toUpperCase() + displayPlan.slice(1) +
+            ' 이용 만료: ' + until.toLocaleDateString('ko-KR') + '</span>';
+        }
       } else if (descEl && descEl.dataset.baseHtml) {
         descEl.innerHTML = descEl.dataset.baseHtml;
       }
-      if (proActive) {
+      if (displayPlan === 'professional' && planActive) {
         const nl = document.getElementById('navCounselorLabel');
         const nv = document.getElementById('navCounselor');
         if (nl) nl.style.display = 'block';

@@ -15,13 +15,16 @@ const pathPublic = path.join(__dirname, 'public');
 /** 로컬에서 F5만 눌렀을 때 브라우저가 옛 HTML/CSS를 붙잡는 것 완화 (운영은 NODE_ENV=production) */
 const isProd = process.env.NODE_ENV === 'production';
 
-const AMOUNTS = {
-  monthly: 49900,
-  annual: 39920 * 12,
-};
+const {
+  PLAN_AMOUNTS,
+  allValidAmounts,
+  parsePlanOrderId,
+  amountMatchesPlan,
+  createPlanBilling,
+} = require('./lib/plan-billing');
 
-/** pricing.html과 동일한 Professional 금액(원) */
-const PROFESSIONAL_AMOUNTS = new Set([AMOUNTS.monthly, AMOUNTS.annual]);
+const VALID_PAYMENT_AMOUNTS = allValidAmounts();
+let planBilling;
 
 function tossAuthHeader() {
   const secret = process.env.TOSS_SECRET_KEY;
@@ -57,32 +60,7 @@ function getUserIdFromAuth(authHeader) {
 }
 
 function parseProfessionalOrderId(orderId) {
-  const s = String(orderId);
-  const m = s.match(/^ppro_([ma])_([0-9a-f]{32})_/i);
-  if (m) {
-    const h = m[2].toLowerCase();
-    const userId =
-      `${h.slice(0, 8)}-${h.slice(8, 12)}-${h.slice(12, 16)}-${h.slice(16, 20)}-${h.slice(20)}`;
-    return {
-      userId,
-      cycle: m[1].toLowerCase() === 'a' ? 'annual' : 'monthly',
-    };
-  }
-  if (/^palja_pro_/i.test(s)) return { legacy: true };
-  return null;
-}
-
-function amountMatchesCycle(amount, cycle) {
-  const n = Number(amount);
-  if (cycle === 'annual') return n === AMOUNTS.annual;
-  return n === AMOUNTS.monthly;
-}
-
-function addSubscriptionPeriod(fromDate, cycle) {
-  const d = new Date(fromDate.getTime());
-  if (cycle === 'annual') d.setFullYear(d.getFullYear() + 1);
-  else d.setMonth(d.getMonth() + 1);
-  return d;
+  return parsePlanOrderId(orderId);
 }
 
 async function tossGetPayment(paymentKey) {
@@ -170,69 +148,11 @@ async function insertAppliedPaymentKey(paymentKey, userId, orderId) {
   return true;
 }
 
-async function extendProfessionalForUser(userId, cycle, paymentKey) {
-  const profile = await getProfile(userId);
-  const curUntil = profile?.plan_active_until ? new Date(profile.plan_active_until) : null;
-  const now = new Date();
-  const baseDate = curUntil && curUntil > now ? curUntil : now;
-  const until = addSubscriptionPeriod(baseDate, cycle);
-  await patchProfileFields(userId, {
-    plan: 'professional',
-    plan_active_until: until.toISOString(),
-    professional_payment_key: paymentKey,
-  });
-}
-
-async function downgradeIfProfessionalPayment(paymentKey, userId) {
-  const profile = await getProfile(userId);
-  if (!profile || profile.plan !== 'professional') return;
-  if (profile.professional_payment_key !== paymentKey) return;
-  await patchProfileFields(userId, {
-    plan: 'pro',
-    plan_active_until: null,
-    professional_payment_key: null,
-  });
-}
-
-async function downgradeByBillingKey(billingKey) {
-  const base = process.env.SUPABASE_URL.replace(/\/$/, '');
-  const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
-  const fr = await fetch(
-    `${base}/rest/v1/profiles?toss_billing_key=eq.${encodeURIComponent(billingKey)}&select=id,plan`,
-    { headers: supabaseHeaders(key) },
-  );
-  const rows = await fr.json();
-  for (const row of rows || []) {
-    if (row.plan === 'professional') {
-      await patchProfileFields(row.id, {
-        plan: 'pro',
-        plan_active_until: null,
-        professional_payment_key: null,
-        toss_billing_key: null,
-      });
-    }
-  }
-}
-
-/**
- * 승인 API 또는 웹훅에서 공통: 한 paymentKey당 1회만 구독 기간 연장
- */
-async function applyProfessionalPaymentSuccess(paymentKey, orderId, totalAmount) {
-  const parsed = parseProfessionalOrderId(orderId);
-  if (!parsed || parsed.legacy || !parsed.userId) {
-    console.warn('[palja] skip apply: orderId not in ppro_ format', orderId);
-    return { ok: false, reason: 'order_format' };
-  }
-  const amt = Number(totalAmount);
-  if (!amountMatchesCycle(amt, parsed.cycle)) {
-    console.warn('[palja] amount/cycle mismatch', amt, parsed.cycle);
-    return { ok: false, reason: 'amount' };
-  }
-  const claimed = await insertAppliedPaymentKey(paymentKey, parsed.userId, orderId);
-  if (!claimed) return { ok: true, skipped: true };
-  await extendProfessionalForUser(parsed.userId, parsed.cycle, paymentKey);
-  return { ok: true };
-}
+planBilling = createPlanBilling({
+  patchProfileFields,
+  getProfile,
+  insertAppliedPaymentKey,
+});
 
 app.use(express.json({ limit: '512kb' }));
 
@@ -240,6 +160,7 @@ app.get('/api/checkout-config', (req, res) => {
   res.json({
     tossClientKey: process.env.TOSS_CLIENT_KEY || '',
     demoUpgrade: isDemoUpgradeAllowed(),
+    plans: PLAN_AMOUNTS,
   });
 });
 
@@ -296,15 +217,15 @@ app.post('/api/toss/webhook', async (req, res) => {
       }
 
       if (pay.status === 'DONE') {
-        await applyProfessionalPaymentSuccess(paymentKey, pay.orderId, pay.totalAmount);
+        await planBilling.applyPlanPaymentSuccess(paymentKey, pay.orderId, pay.totalAmount);
         res.sendStatus(200);
         return;
       }
 
       if (pay.status === 'CANCELED') {
-        const parsed = parseProfessionalOrderId(pay.orderId);
+        const parsed = parsePlanOrderId(pay.orderId);
         if (parsed && parsed.userId) {
-          await downgradeIfProfessionalPayment(paymentKey, parsed.userId);
+          await planBilling.downgradeToFree(parsed.userId, paymentKey);
         }
         res.sendStatus(200);
         return;
@@ -316,7 +237,7 @@ app.post('/api/toss/webhook', async (req, res) => {
 
     if (eventType === 'BILLING_DELETED') {
       const billingKey = body.data?.billingKey;
-      if (billingKey) await downgradeByBillingKey(billingKey);
+      if (billingKey) await planBilling.downgradeByBillingKey(billingKey);
       res.sendStatus(200);
       return;
     }
@@ -347,33 +268,35 @@ app.post('/api/toss/confirm', async (req, res) => {
   }
 
   const amt = Number(amount);
-  if (!Number.isFinite(amt) || !PROFESSIONAL_AMOUNTS.has(amt)) {
-    res.status(400).json({ error: 'Invalid amount for Professional plan' });
+  if (!Number.isFinite(amt) || !VALID_PAYMENT_AMOUNTS.has(amt)) {
+    res.status(400).json({ error: 'Invalid payment amount' });
     return;
   }
 
-  const parsed = parseProfessionalOrderId(orderId);
-  let cycle;
-  if (parsed && parsed.userId) {
-    if (parsed.userId !== userId) {
-      res.status(403).json({ error: 'Order does not match signed-in user' });
+  const parsed = parsePlanOrderId(orderId);
+  if (!parsed || !parsed.userId || !parsed.plan) {
+    if (parsed && parsed.legacy) {
+      const legacyPlan = 'professional';
+      const legacyCycle = amt === PLAN_AMOUNTS.professional.annual ? 'annual' : 'monthly';
+      if (!amountMatchesPlan(amt, legacyPlan, legacyCycle)) {
+        res.status(400).json({ error: 'Invalid amount' });
+        return;
+      }
+    } else {
+      res.status(400).json({
+        error: 'Unsupported orderId. Use checkout page (pbas_/pmid_/ppro_).',
+      });
       return;
     }
-    if (!amountMatchesCycle(amt, parsed.cycle)) {
-      res.status(400).json({ error: 'Amount does not match billing cycle' });
-      return;
-    }
-    cycle = parsed.cycle;
-  } else if (parsed && parsed.legacy) {
-    cycle = amt === AMOUNTS.annual ? 'annual' : 'monthly';
-    if (!amountMatchesCycle(amt, cycle)) {
-      res.status(400).json({ error: 'Invalid amount' });
-      return;
-    }
-  } else {
-    res.status(400).json({
-      error: 'Unsupported orderId. Use latest checkout (order starts with ppro_).',
-    });
+  }
+
+  if (parsed.userId && parsed.userId !== userId) {
+    res.status(403).json({ error: 'Order does not match signed-in user' });
+    return;
+  }
+
+  if (parsed.plan && !amountMatchesPlan(amt, parsed.plan, parsed.cycle)) {
+    res.status(400).json({ error: 'Amount does not match plan and billing cycle' });
     return;
   }
 
@@ -401,13 +324,22 @@ app.post('/api/toss/confirm', async (req, res) => {
   }
 
   try {
-    if (parsed.userId) {
-      await applyProfessionalPaymentSuccess(paymentKey, orderId, tossJson.totalAmount);
+    let applyResult;
+    if (parsed.userId && parsed.plan) {
+      applyResult = await planBilling.applyPlanPaymentSuccess(
+        paymentKey,
+        orderId,
+        tossJson.totalAmount,
+      );
     } else {
+      const legacyCycle = amt === PLAN_AMOUNTS.professional.annual ? 'annual' : 'monthly';
       const claimed = await insertAppliedPaymentKey(paymentKey, userId, orderId);
-      if (claimed) await extendProfessionalForUser(userId, cycle, paymentKey);
+      if (claimed) {
+        await planBilling.extendPlanForUser(userId, 'professional', legacyCycle, paymentKey);
+      }
+      applyResult = { ok: true, plan: 'professional' };
     }
-    res.json({ ok: true });
+    res.json({ ok: true, plan: applyResult.plan || parsed.plan || 'professional' });
   } catch (e) {
     console.error(e);
     res.status(500).json({ error: 'Paid but profile update failed — contact support with orderId' });

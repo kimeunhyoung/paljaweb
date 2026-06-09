@@ -34,15 +34,9 @@
   }
 
   function applyPlanToBadge(badge, profile) {
-    var plan = (profile && profile.plan) || 'free';
-    if (
-      plan === 'professional' &&
-      profile &&
-      profile.plan_active_until &&
-      new Date(profile.plan_active_until) <= new Date()
-    ) {
-      plan = 'pro';
-    }
+    var plan = window.PaljaPlan
+      ? PaljaPlan.effectivePlan(profile)
+      : ((profile && profile.plan) || 'free');
     badge.textContent = plan.charAt(0).toUpperCase() + plan.slice(1);
     badge.className = 'plan-badge ' + plan;
   }
