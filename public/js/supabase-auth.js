@@ -4,7 +4,13 @@ import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js
 const SUPABASE_URL = 'https://sghsryumnrnftyjoqmwf.supabase.co'
 const SUPABASE_KEY = 'sb_publishable_6S3W_oWrzG-Nv8wLK98gmg_q_KcB2I1'
 
-const supabase = createClient(SUPABASE_URL, SUPABASE_KEY)
+const supabase = createClient(SUPABASE_URL, SUPABASE_KEY, {
+  auth: {
+    detectSessionInUrl: true,
+    flowType: 'pkce',
+    persistSession: true
+  }
+})
 
 // 메시지 표시 함수
 function readSafeNextUrl() {
@@ -22,7 +28,8 @@ function readSafeNextUrl() {
 
 function buildOAuthRedirectUrl() {
   const next = readSafeNextUrl()
-  const base = window.location.origin + '/auth/callback.html'
+  const path = window.location.pathname.includes('signup') ? '/signup.html' : '/login.html'
+  const base = window.location.origin + path
   return next ? `${base}?next=${encodeURIComponent(next)}` : base
 }
 
@@ -131,16 +138,48 @@ document.querySelectorAll('[data-provider="naver"]').forEach(btn => {
   btn.title = '도메인 설정 후 이용 가능합니다'
 })
 
-// ===== OAuth 오류 메시지 (callback 실패 후 login.html?error=) =====
+// ===== OAuth 오류 메시지 =====
 const oauthErr = new URLSearchParams(window.location.search).get('error')
 if (oauthErr && document.getElementById('auth-msg')) {
   showMsg('소셜 로그인 실패: ' + decodeURIComponent(oauthErr), true)
 }
 
-// ===== 로그인 상태 확인 (이미 로그인된 경우 대시보드로) =====
-supabase.auth.getSession().then(({ data: { session } }) => {
-  if (session && (window.location.pathname.includes('login') || window.location.pathname.includes('signup'))) {
+// ===== OAuth 복귀 (?code=) — 로그인 시작한 같은 페이지에서 세션 교환 =====
+async function handleOAuthReturn() {
+  const params = new URLSearchParams(window.location.search)
+  const code = params.get('code')
+  if (!code) return
+
+  showMsg('로그인 처리 중...')
+
+  await new Promise((r) => setTimeout(r, 150))
+
+  let { data: { session } } = await supabase.auth.getSession()
+  if (!session) {
+    const { error } = await supabase.auth.exchangeCodeForSession(code)
+    if (error) {
+      showMsg('소셜 로그인 실패: ' + error.message, true)
+      return
+    }
+    ;({ data: { session } } = await supabase.auth.getSession())
+  }
+
+  if (session) {
     const next = readSafeNextUrl()
     window.location.href = next || 'dashboard.html'
+  } else {
+    showMsg('소셜 로그인 실패: 로그인 세션을 확인할 수 없습니다.', true)
   }
-})
+}
+
+const isAuthPage = window.location.pathname.includes('login') || window.location.pathname.includes('signup')
+if (isAuthPage && new URLSearchParams(window.location.search).get('code')) {
+  handleOAuthReturn()
+} else {
+  supabase.auth.getSession().then(({ data: { session } }) => {
+    if (session && isAuthPage) {
+      const next = readSafeNextUrl()
+      window.location.href = next || 'dashboard.html'
+    }
+  })
+}
