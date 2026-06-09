@@ -138,44 +138,88 @@ document.querySelectorAll('[data-provider="naver"]').forEach(btn => {
   btn.title = '도메인 설정 후 이용 가능합니다'
 })
 
-// ===== OAuth 오류 메시지 =====
-const oauthErr = new URLSearchParams(window.location.search).get('error')
-if (oauthErr && document.getElementById('auth-msg')) {
-  showMsg('소셜 로그인 실패: ' + decodeURIComponent(oauthErr), true)
+function waitForSession(timeoutMs = 8000) {
+  return new Promise((resolve) => {
+    let done = false
+    const finish = (session) => {
+      if (done) return
+      done = true
+      subscription.unsubscribe()
+      clearTimeout(timer)
+      resolve(session || null)
+    }
+
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session) finish(session)
+    })
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (session && (event === 'SIGNED_IN' || event === 'INITIAL_SESSION' || event === 'TOKEN_REFRESHED')) {
+        finish(session)
+      }
+    })
+
+    const timer = setTimeout(async () => {
+      const { data: { session } } = await supabase.auth.getSession()
+      finish(session)
+    }, timeoutMs)
+  })
+}
+
+function cleanAuthQuery() {
+  const params = new URLSearchParams(window.location.search)
+  params.delete('code')
+  params.delete('error')
+  params.delete('error_description')
+  const next = params.get('next')
+  const qs = next ? '?next=' + encodeURIComponent(next) : ''
+  window.history.replaceState({}, '', window.location.pathname + qs)
 }
 
 // ===== OAuth 복귀 (?code=) — 로그인 시작한 같은 페이지에서 세션 교환 =====
 async function handleOAuthReturn() {
   const params = new URLSearchParams(window.location.search)
   const code = params.get('code')
-  if (!code) return
+  if (!code) return false
 
   showMsg('로그인 처리 중...')
 
-  await new Promise((r) => setTimeout(r, 150))
+  await new Promise((r) => setTimeout(r, 200))
 
-  let { data: { session } } = await supabase.auth.getSession()
+  let session = await waitForSession(2500)
   if (!session) {
     const { error } = await supabase.auth.exchangeCodeForSession(code)
     if (error) {
+      cleanAuthQuery()
       showMsg('소셜 로그인 실패: ' + error.message, true)
-      return
+      return true
     }
-    ;({ data: { session } } = await supabase.auth.getSession())
+    session = await waitForSession(4000)
   }
 
   if (session) {
     const next = readSafeNextUrl()
-    window.location.href = next || 'dashboard.html'
-  } else {
-    showMsg('소셜 로그인 실패: 로그인 세션을 확인할 수 없습니다.', true)
+    window.location.replace(next || '/dashboard.html')
+    return true
   }
+
+  cleanAuthQuery()
+  showMsg('소셜 로그인 실패: 로그인 세션을 확인할 수 없습니다.', true)
+  return true
 }
 
 const isAuthPage = window.location.pathname.includes('login') || window.location.pathname.includes('signup')
-if (isAuthPage && new URLSearchParams(window.location.search).get('code')) {
+const authParams = new URLSearchParams(window.location.search)
+
+if (isAuthPage && authParams.get('code')) {
   handleOAuthReturn()
 } else {
+  const oauthErr = authParams.get('error_description') || authParams.get('error')
+  if (oauthErr && document.getElementById('auth-msg')) {
+    showMsg('소셜 로그인 실패: ' + decodeURIComponent(oauthErr), true)
+    cleanAuthQuery()
+  }
+
   supabase.auth.getSession().then(({ data: { session } }) => {
     if (session && isAuthPage) {
       const next = readSafeNextUrl()
