@@ -7,7 +7,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500&family=Noto+Serif+KR:wght@400;500&family=DM+Mono:wght@400&display=swap" rel="stylesheet"/>
-  <script src="https://js.tosspayments.com/v2/standard"></script>
+  <script src="https://cdn.portone.io/v2/browser-sdk.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="js/plan-access.js"></script>
   <style>
@@ -28,7 +28,7 @@
     .sub { font-size: 13px; color: var(--muted); line-height: 1.7; margin-bottom: 28px; }
     .amount { font-family: var(--font-serif); font-size: 36px; color: var(--deep); margin-bottom: 24px; }
     .amount small { font-size: 14px; color: var(--muted); font-family: var(--font-body); }
-    #payment-method, #agreement { width: 100%; margin-bottom: 16px; }
+    #payment-method, #agreement { display: none; }
     .btn {
       display: inline-block; width: 100%; text-align: center; padding: 14px 20px; border: none; border-radius: 8px;
       font-family: var(--font-body); font-size: 14px; font-weight: 500; cursor: pointer;
@@ -137,7 +137,7 @@
       return;
     }
 
-    let cfg = { tossClientKey: '', demoUpgrade: false };
+    let cfg = { storeId: '', channelKey: '', portoneConfigured: false, demoUpgrade: false };
     try {
       const r = await fetch('/api/checkout-config');
       if (r.ok) cfg = await r.json();
@@ -172,18 +172,17 @@
       };
     }
 
-    if (!cfg.tossClientKey) {
-      showMsg('TOSS_CLIENT_KEY가 설정되지 않았습니다.', 'err');
+    if (!cfg.portoneConfigured || !cfg.storeId || !cfg.channelKey) {
+      showMsg('PORTONE_STORE_ID, PORTONE_CHANNEL_KEY, PORTONE_API_SECRET 환경변수를 Render에 설정해 주세요.', 'err');
       document.getElementById('payBtn').disabled = true;
       return;
     }
 
-    const tossPayments = TossPayments(cfg.tossClientKey);
-    const widgets = tossPayments.widgets({ customerKey: session.user.id });
-
-    await widgets.setAmount({ currency: 'KRW', value: amount });
-    await widgets.renderPaymentMethods({ selector: '#payment-method', variantKey: 'DEFAULT' });
-    await widgets.renderAgreement({ selector: '#agreement', variantKey: 'AGREEMENT' });
+    if (typeof PortOne === 'undefined') {
+      showMsg('PortOne 결제 SDK를 불러오지 못했습니다.', 'err');
+      document.getElementById('payBtn').disabled = true;
+      return;
+    }
 
     document.getElementById('payBtn').disabled = false;
     document.getElementById('payBtn').onclick = async () => {
@@ -191,18 +190,33 @@
       btn.disabled = true;
       const uidCompact = session.user.id.replace(/-/g, '');
       const cycleTag = cycle === 'annual' ? 'a' : 'm';
-      const orderId =
+      const paymentId =
         meta.prefix + '_' + cycleTag + '_' + uidCompact + '_' + Date.now() + '_' + Math.random().toString(36).slice(2, 8);
       try {
         const { data: { session: s2 } } = await sb.auth.getSession();
-        await widgets.requestPayment({
-          orderId,
+        const response = await PortOne.requestPayment({
+          storeId: cfg.storeId,
+          channelKey: cfg.channelKey,
+          paymentId,
           orderName: meta.orderName,
-          successUrl: window.location.origin + '/payment-success.html?plan=' + encodeURIComponent(plan),
-          failUrl: window.location.origin + '/payment-fail.html',
-          customerEmail: s2.user.email || undefined,
-          customerName: s2.user.user_metadata?.full_name || s2.user.email || '회원',
+          totalAmount: amount,
+          currency: 'CURRENCY_KRW',
+          payMethod: 'CARD',
+          customer: {
+            customerId: s2.user.id,
+            fullName: s2.user.user_metadata?.full_name || s2.user.email || '회원',
+            email: s2.user.email || undefined,
+          },
         });
+        if (response && response.code != null) {
+          showMsg(response.message || '결제가 취소되었습니다.', 'err');
+          btn.disabled = false;
+          return;
+        }
+        window.location.href =
+          window.location.origin +
+          '/payment-success.html?paymentId=' + encodeURIComponent(paymentId) +
+          '&plan=' + encodeURIComponent(plan);
       } catch (e) {
         showMsg(e?.message || '결제 창을 열 수 없습니다.', 'err');
         btn.disabled = false;

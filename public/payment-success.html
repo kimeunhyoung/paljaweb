@@ -33,9 +33,8 @@
 
   async function run() {
     const q = new URLSearchParams(location.search);
-    const paymentKey = q.get('paymentKey');
-    const orderId = q.get('orderId');
-    const amount = q.get('amount');
+    const paymentId = q.get('paymentId');
+    const planParam = q.get('plan');
 
     const fail = (msg) => {
       document.getElementById('loading').style.display = 'none';
@@ -49,7 +48,7 @@
       document.getElementById('dash').textContent = '요금제로 돌아가기';
     };
 
-    if (!paymentKey || !orderId || amount == null) {
+    if (!paymentId) {
       fail('결제 정보가 없습니다. 요금제에서 다시 시도해주세요.');
       return;
     }
@@ -61,25 +60,21 @@
     }
 
     try {
-      const res = await fetch('/api/toss/confirm', {
+      const res = await fetch('/api/portone/confirm', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           Authorization: 'Bearer ' + session.access_token,
         },
-        body: JSON.stringify({
-          paymentKey,
-          orderId,
-          amount: Number(amount),
-        }),
+        body: JSON.stringify({ paymentId }),
       });
       const j = await res.json().catch(() => ({}));
       if (!res.ok) {
-        fail(j.error || j.toss || '결제 승인에 실패했습니다.');
+        fail(j.error || '결제 승인에 실패했습니다.');
         return;
       }
       document.getElementById('loading').style.display = 'none';
-      const plan = (j.plan || new URLSearchParams(location.search).get('plan') || 'professional').toLowerCase();
+      const plan = (j.plan || planParam || 'professional').toLowerCase();
       const labels = { basic: 'Basic', pro: 'Pro', professional: 'Professional' };
       const hrefs = { basic: 'analysis.html', pro: 'dashboard.html', professional: 'counselor.html' };
       const descs = {
