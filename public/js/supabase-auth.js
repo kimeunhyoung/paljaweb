@@ -130,7 +130,18 @@ bindOAuthButton('google', '구글로 이동 중...', '구글 로그인 실패', 
   queryParams: { prompt: 'select_account' }
 })
 bindOAuthButton('kakao', '카카오로 이동 중...', '카카오 로그인 실패')
-bindOAuthButton('naver', '네이버로 이동 중...', '네이버 로그인 실패', {}, 'custom:naver')
+
+// ===== 네이버 로그인 (서버 OAuth — Supabase Custom Provider 불필요) =====
+document.querySelectorAll('[data-provider="naver"]').forEach(btn => {
+  btn.addEventListener('click', () => {
+    btn.disabled = true
+    btn.textContent = '네이버로 이동 중...'
+    const next = readSafeNextUrl()
+    let url = '/api/auth/naver'
+    if (next) url += '?next=' + encodeURIComponent(next)
+    window.location.href = url
+  })
+})
 
 function waitForSession(timeoutMs = 8000) {
   return new Promise((resolve) => {

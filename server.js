@@ -5,6 +5,7 @@ const path = require('path');
 const fs = require('fs');
 const jwt = require('jsonwebtoken');
 const { registerLifecodeRoutes } = require('./lib/lifecode-api');
+const { registerNaverAuthRoutes } = require('./lib/naver-auth');
 
 const app = express();
 
@@ -414,6 +415,7 @@ app.post('/api/toss/confirm', async (req, res) => {
 });
 
 registerLifecodeRoutes(app);
+registerNaverAuthRoutes(app);
 
 app.post('/api/ai/messages', async (req, res) => {
   const apiKey = process.env.ANTHROPIC_API_KEY;
