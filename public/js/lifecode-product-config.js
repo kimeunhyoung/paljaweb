@@ -97,7 +97,7 @@ export function applyLifecodeProductShell() {
     footer.innerHTML =
       '<span class="site-legal-business">' +
       '8코드(8CODE) · 대표 김태훈 · 사업자등록번호 624-55-00806 · 통신판매업 신고번호 제 2026-부산수영-0361 호<br>' +
-      '부산광역시 수영구 수영로 632-1, 602호 · 유선번호 <a href="tel:0519250441">051-925-0441</a>' +
+      '부산광역시 수영구 수영로 632-1, 602호 · 휴대폰 <a href="tel:01052802300">010-5280-2300</a>' +
       '</span>' +
       '<span style="color:var(--muted);font-size:12px;">라이프코드 단품</span>' +
       '<span aria-hidden="true"> · </span>' +
