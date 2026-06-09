@@ -20,6 +20,12 @@ function readSafeNextUrl() {
   }
 }
 
+function buildOAuthRedirectUrl() {
+  const next = readSafeNextUrl()
+  const base = window.location.origin + '/auth/callback.html'
+  return next ? `${base}?next=${encodeURIComponent(next)}` : base
+}
+
 function showMsg(msg, isError = false) {
   const el = document.getElementById('auth-msg')
   if (!el) return
@@ -91,13 +97,25 @@ if (signupForm) {
 const googleBtns = document.querySelectorAll('[data-provider="google"]')
 googleBtns.forEach(btn => {
   btn.addEventListener('click', async () => {
+    const label = btn.textContent
+    btn.disabled = true
+    btn.textContent = '구글로 이동 중...'
+
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
-        redirectTo: window.location.origin + '/dashboard.html'
+        redirectTo: buildOAuthRedirectUrl(),
+        queryParams: {
+          prompt: 'select_account'
+        }
       }
     })
-    if (error) showMsg('구글 로그인 실패: ' + error.message, true)
+
+    if (error) {
+      showMsg('구글 로그인 실패: ' + error.message, true)
+      btn.disabled = false
+      btn.textContent = label
+    }
   })
 })
 
@@ -108,6 +126,12 @@ document.querySelectorAll('[data-provider="kakao"], [data-provider="naver"]').fo
   btn.style.cursor = 'not-allowed'
   btn.title = '도메인 설정 후 이용 가능합니다'
 })
+
+// ===== OAuth 오류 메시지 (callback 실패 후 login.html?error=) =====
+const oauthErr = new URLSearchParams(window.location.search).get('error')
+if (oauthErr && document.getElementById('auth-msg')) {
+  showMsg('소셜 로그인 실패: ' + decodeURIComponent(oauthErr), true)
+}
 
 // ===== 로그인 상태 확인 (이미 로그인된 경우 대시보드로) =====
 supabase.auth.getSession().then(({ data: { session } }) => {
