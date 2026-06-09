@@ -100,9 +100,10 @@ if (signupForm) {
   })
 }
 
-// ===== 소셜 로그인 (구글·카카오) =====
-function bindOAuthButton(provider, loadingText, failLabel, extraOptions = {}) {
-  document.querySelectorAll(`[data-provider="${provider}"]`).forEach(btn => {
+// ===== 소셜 로그인 (구글·카카오·네이버) =====
+function bindOAuthButton(selector, loadingText, failLabel, extraOptions = {}, oauthProvider) {
+  const provider = oauthProvider || selector
+  document.querySelectorAll(`[data-provider="${selector}"]`).forEach(btn => {
     btn.addEventListener('click', async () => {
       const label = btn.textContent
       btn.disabled = true
@@ -129,14 +130,7 @@ bindOAuthButton('google', '구글로 이동 중...', '구글 로그인 실패', 
   queryParams: { prompt: 'select_account' }
 })
 bindOAuthButton('kakao', '카카오로 이동 중...', '카카오 로그인 실패')
-
-// ===== 네이버 버튼 비활성화 (추후 설정) =====
-document.querySelectorAll('[data-provider="naver"]').forEach(btn => {
-  btn.disabled = true
-  btn.style.opacity = '0.4'
-  btn.style.cursor = 'not-allowed'
-  btn.title = '도메인 설정 후 이용 가능합니다'
-})
+bindOAuthButton('naver', '네이버로 이동 중...', '네이버 로그인 실패', {}, 'custom:naver')
 
 function waitForSession(timeoutMs = 8000) {
   return new Promise((resolve) => {
