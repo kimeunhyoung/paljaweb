@@ -40,7 +40,12 @@
     const SUPABASE_KEY = 'sb_publishable_6S3W_oWrzG-Nv8wLK98gmg_q_KcB2I1'
 
     const supabase = createClient(SUPABASE_URL, SUPABASE_KEY, {
-      auth: { detectSessionInUrl: true, flowType: 'pkce' }
+      auth: {
+        detectSessionInUrl: true,
+        flowType: 'pkce',
+        persistSession: true,
+        autoRefreshToken: true
+      }
     })
 
     function readSafeNextUrl() {
@@ -57,31 +62,74 @@
       }
     }
 
+    function readOAuthError() {
+      const search = new URLSearchParams(window.location.search)
+      const hash = new URLSearchParams(window.location.hash.replace(/^#/, ''))
+      return (
+        search.get('error_description') ||
+        search.get('error') ||
+        hash.get('error_description') ||
+        hash.get('error')
+      )
+    }
+
     function goLogin(msg) {
       const q = msg ? '?error=' + encodeURIComponent(msg) : ''
       window.location.replace('/login.html' + q)
     }
 
+    function waitForSession(timeoutMs = 6000) {
+      return new Promise((resolve) => {
+        let settled = false
+        const done = (session) => {
+          if (settled) return
+          settled = true
+          subscription.unsubscribe()
+          clearTimeout(timer)
+          resolve(session || null)
+        }
+
+        supabase.auth.getSession().then(({ data: { session } }) => {
+          if (session) done(session)
+        })
+
+        const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+          if (session && (event === 'SIGNED_IN' || event === 'INITIAL_SESSION' || event === 'TOKEN_REFRESHED')) {
+            done(session)
+          }
+        })
+
+        const timer = setTimeout(async () => {
+          const { data: { session } } = await supabase.auth.getSession()
+          done(session)
+        }, timeoutMs)
+      })
+    }
+
     async function finishOAuth() {
-      const params = new URLSearchParams(window.location.search)
-      const oauthError = params.get('error_description') || params.get('error')
+      const oauthError = readOAuthError()
       if (oauthError) {
-        goLogin(oauthError)
+        goLogin(decodeURIComponent(oauthError))
         return
       }
 
-      const code = params.get('code')
-      if (code) {
+      // detectSessionInUrl 초기화 대기
+      await new Promise((r) => setTimeout(r, 150))
+
+      let session = await waitForSession(2500)
+      const code = new URLSearchParams(window.location.search).get('code')
+
+      if (!session && code) {
         const { error } = await supabase.auth.exchangeCodeForSession(code)
         if (error) {
-          goLogin('소셜 로그인에 실패했습니다.')
+          goLogin(error.message || '소셜 로그인에 실패했습니다.')
           return
         }
+        session = await waitForSession(3000)
       }
 
-      const { data: { session } } = await supabase.auth.getSession()
       if (!session) {
-        goLogin('로그인 세션을 확인할 수 없습니다.')
+        goLogin('로그인 세션을 확인할 수 없습니다. 카카오는 Supabase에서 Allow users without an email을 켜보세요.')
         return
       }
 
