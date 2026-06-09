@@ -93,34 +93,38 @@ if (signupForm) {
   })
 }
 
-// ===== 구글 로그인 =====
-const googleBtns = document.querySelectorAll('[data-provider="google"]')
-googleBtns.forEach(btn => {
-  btn.addEventListener('click', async () => {
-    const label = btn.textContent
-    btn.disabled = true
-    btn.textContent = '구글로 이동 중...'
+// ===== 소셜 로그인 (구글·카카오) =====
+function bindOAuthButton(provider, loadingText, failLabel, extraOptions = {}) {
+  document.querySelectorAll(`[data-provider="${provider}"]`).forEach(btn => {
+    btn.addEventListener('click', async () => {
+      const label = btn.textContent
+      btn.disabled = true
+      btn.textContent = loadingText
 
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider: 'google',
-      options: {
-        redirectTo: buildOAuthRedirectUrl(),
-        queryParams: {
-          prompt: 'select_account'
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider,
+        options: {
+          redirectTo: buildOAuthRedirectUrl(),
+          ...extraOptions
         }
+      })
+
+      if (error) {
+        showMsg(failLabel + ': ' + error.message, true)
+        btn.disabled = false
+        btn.textContent = label
       }
     })
-
-    if (error) {
-      showMsg('구글 로그인 실패: ' + error.message, true)
-      btn.disabled = false
-      btn.textContent = label
-    }
   })
-})
+}
 
-// ===== 카카오/네이버 버튼 비활성화 (추후 설정) =====
-document.querySelectorAll('[data-provider="kakao"], [data-provider="naver"]').forEach(btn => {
+bindOAuthButton('google', '구글로 이동 중...', '구글 로그인 실패', {
+  queryParams: { prompt: 'select_account' }
+})
+bindOAuthButton('kakao', '카카오로 이동 중...', '카카오 로그인 실패')
+
+// ===== 네이버 버튼 비활성화 (추후 설정) =====
+document.querySelectorAll('[data-provider="naver"]').forEach(btn => {
   btn.disabled = true
   btn.style.opacity = '0.4'
   btn.style.cursor = 'not-allowed'
