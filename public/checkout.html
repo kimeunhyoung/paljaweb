@@ -191,7 +191,7 @@
       const uidCompact = session.user.id.replace(/-/g, '');
       const cycleTag = cycle === 'annual' ? 'a' : 'm';
       const paymentId =
-        meta.prefix + '_' + cycleTag + '_' + uidCompact + '_' + Date.now() + '_' + Math.random().toString(36).slice(2, 8);
+        meta.prefix + cycleTag + uidCompact + Date.now() + Math.random().toString(36).slice(2, 8);
       try {
         const { data: { session: s2 } } = await sb.auth.getSession();
         const response = await PortOne.requestPayment({
