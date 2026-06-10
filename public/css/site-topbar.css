@@ -2,6 +2,8 @@
  * 팔자연구소 — 공통 상단 탑바·프로그램 내비
  * 페이지 :root 변수와 충돌하지 않도록 --tb-* 스코프 변수만 사용합니다.
  */
+@import url('https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@400;500;600;700&display=swap');
+
 .site-top {
   --tb-cream: #f5f0e8;
   --tb-border: rgba(139, 111, 71, 0.15);
@@ -15,6 +17,7 @@
   --tb-teal-lt: rgba(46, 139, 122, 0.12);
   --tb-parchment: #ede5d4;
   --tb-font-serif: 'Noto Serif KR', serif;
+  --tb-content-max: 1140px;
 
   position: sticky;
   top: 0;
@@ -28,9 +31,15 @@
   background: rgba(245, 240, 232, 0.92);
   backdrop-filter: blur(8px);
   border-bottom: 1px solid var(--tb-border);
+  padding: 10px 32px;
+}
+
+.site-top .topbar-inner {
+  max-width: var(--tb-content-max);
+  margin: 0 auto;
+  width: 100%;
   display: flex;
   align-items: center;
-  padding: 10px 32px;
   justify-content: space-between;
   gap: 16px;
 }
@@ -42,7 +51,7 @@
 }
 
 .site-top .program-nav-inner {
-  max-width: 1100px;
+  max-width: var(--tb-content-max);
   margin: 0 auto;
   display: flex;
   flex-wrap: wrap;
@@ -92,25 +101,30 @@
   flex-shrink: 0;
 }
 
-.site-top .topbar-logo-mark {
+.site-top a.topbar-logo .topbar-logo-mark {
   width: 30px;
   height: 30px;
+  min-width: 30px;
+  min-height: 30px;
   border-radius: 9px;
   background: linear-gradient(160deg, #5a402d 0%, #3d2b1f 65%, #2d1f16 100%);
   color: var(--tb-cream);
-  font-family: var(--tb-font-serif);
+  font-family: 'Noto Serif KR', serif;
   font-size: 17px;
   font-weight: 700;
+  line-height: 1;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   border: 1px solid rgba(245, 240, 232, 0.22);
+  box-sizing: border-box;
   position: relative;
   overflow: hidden;
   flex-shrink: 0;
+  text-decoration: none;
 }
 
-.site-top .topbar-logo-mark::before {
+.site-top a.topbar-logo .topbar-logo-mark::before {
   content: '';
   position: absolute;
   inset: 0;
@@ -118,11 +132,12 @@
   pointer-events: none;
 }
 
-.site-top .topbar-logo-mark::after {
+.site-top a.topbar-logo .topbar-logo-mark::after {
   content: '八';
   position: absolute;
   right: 2px;
   top: 0;
+  font-family: 'Noto Serif KR', serif;
   font-size: 11px;
   font-weight: 700;
   color: rgba(255, 255, 255, 0.3);

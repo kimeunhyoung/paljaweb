@@ -79,6 +79,7 @@
 
     mount.innerHTML =
       '<header class="topbar">' +
+      '<div class="topbar-inner">' +
       '<div class="topbar-left">' +
       '<a class="topbar-logo" href="index.html">' +
       '<span class="topbar-logo-mark" aria-hidden="true">八</span>팔자연구소</a>' +
@@ -89,6 +90,7 @@
       '<a class="topbar-auth-link" id="auth-peer-link" href="' + esc(peerHref) + '">' +
       esc(peerLabel) +
       '</a>' +
+      '</div>' +
       '</div>' +
       '</header>';
   }
@@ -109,6 +111,7 @@
 
     mount.innerHTML =
       '<header class="topbar">' +
+      '<div class="topbar-inner">' +
       '<div class="topbar-left">' +
       '<a class="topbar-logo" href="index.html">' +
       '<span class="topbar-logo-mark" aria-hidden="true">八</span>팔자연구소</a>' +
@@ -128,6 +131,7 @@
       '<span class="topbar-auth-dot" aria-hidden="true">·</span>' +
       '<button type="button" class="topbar-auth-link topbar-auth-btn" data-topbar-auth-signout>로그아웃</button>' +
       '</span>' +
+      '</div>' +
       '</div>' +
       '</header>' +
       '<nav class="program-nav" aria-label="팔자연구소 프로그램 이동">' +

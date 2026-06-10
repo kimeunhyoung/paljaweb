@@ -160,7 +160,7 @@ html {
 
 /* ── 모바일: 상단 액션 한 블록으로 정돈 ── */
 @media (max-width: 700px) {
-  .site-top .topbar {
+  .site-top .topbar-inner {
     flex-direction: column;
     align-items: stretch;
     gap: 10px;
