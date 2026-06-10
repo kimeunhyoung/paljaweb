@@ -40,14 +40,34 @@ function isDemoUpgradeAllowed() {
   return v === '1' || v === 'true' || v === 'yes';
 }
 
-function getUserIdFromAuth(authHeader) {
+async function getUserIdFromAuth(authHeader) {
   if (!authHeader || !authHeader.startsWith('Bearer ')) return null;
   const token = authHeader.slice(7);
+
   const secret = process.env.SUPABASE_JWT_SECRET;
-  if (!secret) return null;
+  if (secret) {
+    try {
+      const payload = jwt.verify(token, secret, { algorithms: ['HS256'] });
+      if (typeof payload.sub === 'string') return payload.sub;
+    } catch {
+      /* fall through — validate via Supabase Auth API */
+    }
+  }
+
+  const base = process.env.SUPABASE_URL;
+  const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  if (!base || !key) return null;
+
   try {
-    const payload = jwt.verify(token, secret, { algorithms: ['HS256'] });
-    return typeof payload.sub === 'string' ? payload.sub : null;
+    const res = await fetch(`${base.replace(/\/$/, '')}/auth/v1/user`, {
+      headers: {
+        apikey: key,
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    if (!res.ok) return null;
+    const user = await res.json();
+    return typeof user?.id === 'string' ? user.id : null;
   } catch {
     return null;
   }
@@ -184,7 +204,7 @@ app.post('/api/checkout/prepare', async (req, res) => {
     res.status(503).json({ error: 'Supabase server config missing' });
     return;
   }
-  const userId = getUserIdFromAuth(req.headers.authorization);
+  const userId = await getUserIdFromAuth(req.headers.authorization);
   if (!userId) {
     res.status(401).json({ error: 'Invalid or missing session' });
     return;
@@ -222,7 +242,7 @@ app.post('/api/demo-upgrade-professional', async (req, res) => {
     res.status(403).json({ error: 'Demo upgrade disabled' });
     return;
   }
-  const userId = getUserIdFromAuth(req.headers.authorization);
+  const userId = await getUserIdFromAuth(req.headers.authorization);
   if (!userId) {
     res.status(401).json({ error: 'Invalid or missing session' });
     return;

@@ -200,7 +200,10 @@
         });
         const prepJson = await prep.json().catch(() => ({}));
         if (!prep.ok) {
-          showMsg(prepJson.error || '결제 준비에 실패했습니다.', 'err');
+          const errMsg = prep.status === 401
+            ? '로그인이 만료되었습니다. 다시 로그인한 뒤 결제해 주세요.'
+            : (prepJson.error || '결제 준비에 실패했습니다.');
+          showMsg(errMsg, 'err');
           btn.disabled = false;
           return;
         }
