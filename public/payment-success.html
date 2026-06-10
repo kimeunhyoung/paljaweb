@@ -31,10 +31,30 @@
   const { createClient } = supabase;
   const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
+  const labels = { basic: 'Basic', pro: 'Pro', professional: 'Professional' };
+  const hrefs = { basic: 'analysis.html', pro: 'dashboard.html', professional: 'counselor.html' };
+  const descs = {
+    basic: 'Basic 기능을 바로 이용해 보세요.',
+    pro: 'Pro 기능을 바로 이용해 보세요.',
+    professional: '상담사 허브에서 고객을 관리하고 분석을 이어가세요.',
+  };
+
+  function showSuccess(plan) {
+    document.getElementById('loading').style.display = 'none';
+    const label = labels[plan] || plan;
+    document.getElementById('title').textContent = label + ' 정기구독이 시작되었습니다';
+    document.getElementById('desc').textContent =
+      (descs[plan] || descs.professional) + ' 이용 기간마다 자동으로 갱신됩니다. 해지는 대시보드에서 할 수 있어요.';
+    const a = document.getElementById('dash');
+    a.style.display = 'inline-block';
+    a.href = hrefs[plan] || 'dashboard.html';
+    a.textContent = plan === 'professional' ? '상담사 허브로 이동' : '시작하기';
+  }
+
   async function run() {
     const q = new URLSearchParams(location.search);
     const paymentId = q.get('paymentId');
-    const planParam = q.get('plan');
+    const planParam = (q.get('plan') || '').toLowerCase();
 
     const fail = (msg) => {
       document.getElementById('loading').style.display = 'none';
@@ -69,27 +89,24 @@
         body: JSON.stringify({ paymentId }),
       });
       const j = await res.json().catch(() => ({}));
-      if (!res.ok) {
-        fail(j.error || '결제 승인에 실패했습니다.');
+      if (res.ok) {
+        showSuccess((j.plan || planParam || 'basic').toLowerCase());
         return;
       }
-      document.getElementById('loading').style.display = 'none';
-      const plan = (j.plan || planParam || 'professional').toLowerCase();
-      const labels = { basic: 'Basic', pro: 'Pro', professional: 'Professional' };
-      const hrefs = { basic: 'analysis.html', pro: 'dashboard.html', professional: 'counselor.html' };
-      const descs = {
-        basic: 'Basic 기능을 바로 이용해 보세요.',
-        pro: 'Pro 기능을 바로 이용해 보세요.',
-        professional: '상담사 허브에서 고객을 관리하고 분석을 이어가세요.',
-      };
-      const label = labels[plan] || 'Professional';
-      document.getElementById('title').textContent = label + ' 정기구독이 시작되었습니다';
-      document.getElementById('desc').textContent =
-        (descs[plan] || descs.professional) + ' 이용 기간마다 자동으로 갱신됩니다. 해지는 대시보드에서 할 수 있어요.';
-      const a = document.getElementById('dash');
-      a.style.display = 'inline-block';
-      a.href = hrefs[plan] || 'dashboard.html';
-      a.textContent = plan === 'professional' ? '상담사 허브로 이동' : '시작하기';
+
+      const stRes = await fetch('/api/subscription/status', {
+        headers: { Authorization: 'Bearer ' + session.access_token },
+      });
+      if (stRes.ok) {
+        const st = await stRes.json();
+        const activePlan = (st.plan || 'free').toLowerCase();
+        if (activePlan !== 'free' && (!planParam || activePlan === planParam)) {
+          showSuccess(activePlan);
+          return;
+        }
+      }
+
+      fail(j.error || '결제 승인에 실패했습니다.');
     } catch (_) {
       fail('서버와 통신하지 못했습니다.');
     }

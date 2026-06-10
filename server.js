@@ -126,6 +126,18 @@ async function insertAppliedPaymentKey(paymentKey, userId, orderId) {
   return true;
 }
 
+async function findAppliedPayment(paymentKey, userId) {
+  const base = process.env.SUPABASE_URL.replace(/\/$/, '');
+  const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  const url =
+    `${base}/rest/v1/toss_applied_payments?payment_key=eq.${encodeURIComponent(paymentKey)}` +
+    `&user_id=eq.${encodeURIComponent(userId)}&select=payment_key`;
+  const res = await fetch(url, { headers: supabaseHeaders(key) });
+  if (!res.ok) return false;
+  const rows = await res.json();
+  return rows.length > 0;
+}
+
 planBilling = createPlanBilling({
   patchProfileFields,
   getProfile,
@@ -241,6 +253,8 @@ async function resolvePaymentContext(paymentId, authUserId) {
 const checkoutStore = {
   resolvePaymentContext,
   deletePending: deleteCheckoutPending,
+  findAppliedPayment,
+  getProfile,
 };
 
 app.use(express.json({ limit: '512kb' }));
