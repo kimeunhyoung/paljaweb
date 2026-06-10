@@ -1238,16 +1238,9 @@
       margin-top: 4px;
       line-height: 1.35;
     }
-    a.lc-glance-cell--locked {
-      text-decoration: none;
-      color: inherit;
-      cursor: pointer;
+    .lc-glance-cell--locked {
       background: rgba(255,255,255,.72);
-      transition: border-color .15s, background .15s;
-    }
-    a.lc-glance-cell--locked:hover {
-      border-color: rgba(200,169,110,.45);
-      background: rgba(255,255,255,.95);
+      cursor: default;
     }
     .lc-glance-lock {
       font-size: 20px;
@@ -4955,11 +4948,11 @@ function lcNumCell(label, value, sub, cellClass) {
 
 function lcNumCellLocked(label, cellClass) {
   const cls = cellClass ? ` ${cellClass}` : '';
-  return `<a href="pricing.html" class="lc-glance-cell lc-glance-cell--locked${cls}" title="Basic 플랜에서 확인">
+  return `<div class="lc-glance-cell lc-glance-cell--locked${cls}" aria-label="${escapeHtml(label)} · Basic 플랜">
     <div class="lc-glance-label">${escapeHtml(label)}</div>
     <div class="lc-glance-value lc-glance-lock" aria-hidden="true">🔒</div>
     <div class="lc-glance-sub">Basic</div>
-  </a>`;
+  </div>`;
 }
 
 /** 현재 나이 기준 대주기·절정수·도전수 (인생 4단계와 동일 산식) */
