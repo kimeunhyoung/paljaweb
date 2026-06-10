@@ -8,6 +8,13 @@
 }
 .birth-pick:not([hidden]) { display: grid; }
 
+@media (max-width: 768px) {
+  .input-row .birth-field-group,
+  .birth-row .birth-field-group {
+    grid-column: 1 / -1;
+  }
+}
+
 .birth-field-group {
   --birth-pick-bg: rgba(245, 240, 232, 0.08);
   --birth-pick-border: rgba(200, 169, 110, 0.2);
