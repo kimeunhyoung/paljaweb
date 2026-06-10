@@ -9,6 +9,7 @@
 <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="js/topbar-session.js?v=5" defer></script>
+<link rel="stylesheet" href="css/birth-date-picker.css">
 <style>
 :root {
   --void: #100c08;
@@ -1262,9 +1263,14 @@ body {
         <input type="text" id="name1" placeholder="김은형 · Kim Eunhyoung" autocomplete="off">
         <div class="field-hint">한글 또는 영문 모두 가능해요</div>
       </div>
-      <div class="field">
-        <label>생년월일 <span class="opt-tag">선택</span></label>
-        <input type="date" id="dob1">
+      <div class="field birth-field-group">
+        <label for="dob1">생년월일 <span class="opt-tag">선택</span></label>
+        <input class="birth-date-native" type="date" id="dob1">
+        <div class="birth-pick" id="dob1PickRow" role="group" aria-label="생년월일" hidden>
+          <button type="button" class="birth-pick-btn is-placeholder" id="dob1YearBtn">연도</button>
+          <button type="button" class="birth-pick-btn is-placeholder" id="dob1MonthBtn">월</button>
+          <button type="button" class="birth-pick-btn is-placeholder" id="dob1DayBtn">일</button>
+        </div>
         <div class="field-hint">✦ 입력 시 인생수가 추가돼 정확도가 높아져요</div>
       </div>
     </div>
@@ -1280,9 +1286,14 @@ body {
         <input type="text" id="name2" placeholder="이민준 · Lee Minjun" autocomplete="off">
         <div class="field-hint">한글 또는 영문 모두 가능해요</div>
       </div>
-      <div class="field">
-        <label>생년월일 <span class="opt-tag">선택</span></label>
-        <input type="date" id="dob2">
+      <div class="field birth-field-group">
+        <label for="dob2">생년월일 <span class="opt-tag">선택</span></label>
+        <input class="birth-date-native" type="date" id="dob2">
+        <div class="birth-pick" id="dob2PickRow" role="group" aria-label="생년월일" hidden>
+          <button type="button" class="birth-pick-btn is-placeholder" id="dob2YearBtn">연도</button>
+          <button type="button" class="birth-pick-btn is-placeholder" id="dob2MonthBtn">월</button>
+          <button type="button" class="birth-pick-btn is-placeholder" id="dob2DayBtn">일</button>
+        </div>
         <div class="field-hint">✦ 입력 시 인생수가 추가돼 정확도가 높아져요</div>
       </div>
     </div>
@@ -2259,6 +2270,19 @@ document.addEventListener('keydown', e=>{ if(e.key==='Enter') runAnalysis(); });
     // 인증 확인 실패 시 기존 동작 유지
   }
 })();
+</script>
+<div class="birth-picker-backdrop" id="birthPickerBackdrop" hidden aria-hidden="true">
+  <div class="birth-picker-sheet" role="dialog" aria-modal="true" aria-labelledby="birthPickerTitle">
+    <div class="birth-picker-head" id="birthPickerTitle">연도 선택</div>
+    <ul class="birth-picker-list" id="birthPickerList"></ul>
+  </div>
+</div>
+<script src="js/birth-date-picker.js"></script>
+<script>
+PaljaBirthDatePicker.initAll([
+  { inputId: 'dob1', pickRowId: 'dob1PickRow', yearBtnId: 'dob1YearBtn', monthBtnId: 'dob1MonthBtn', dayBtnId: 'dob1DayBtn' },
+  { inputId: 'dob2', pickRowId: 'dob2PickRow', yearBtnId: 'dob2YearBtn', monthBtnId: 'dob2MonthBtn', dayBtnId: 'dob2DayBtn' },
+]);
 </script>
 </body>
 </html>

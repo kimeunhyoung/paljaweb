@@ -10,6 +10,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400&family=Noto+Serif+KR:wght@400;500;600;700&display=swap" rel="stylesheet"/>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="js/topbar-session.js?v=5" defer></script>
+  <link rel="stylesheet" href="css/birth-date-picker.css">
   <script src="js/period48Data.js" defer></script>
   <script src="js/period48LifeZones.js" defer></script>
   <script src="js/period48Profiles.js" defer></script>
@@ -418,9 +419,14 @@
         <label for="p48Name1">이름</label>
         <input type="text" id="p48Name1" placeholder="이름 (선택)" autocomplete="name"/>
       </div>
-      <div class="field">
+      <div class="field birth-field-group birth-field-group--light">
         <label for="p48Dob1">생년월일</label>
-        <input type="date" id="p48Dob1" required/>
+        <input class="birth-date-native" type="date" id="p48Dob1" required/>
+        <div class="birth-pick" id="p48Dob1PickRow" role="group" aria-label="생년월일" hidden>
+          <button type="button" class="birth-pick-btn is-placeholder" id="p48Dob1YearBtn">연도</button>
+          <button type="button" class="birth-pick-btn is-placeholder" id="p48Dob1MonthBtn">월</button>
+          <button type="button" class="birth-pick-btn is-placeholder" id="p48Dob1DayBtn">일</button>
+        </div>
       </div>
     </div>
     <div class="divider-col"><div class="hex" aria-hidden="true">48</div></div>
@@ -430,9 +436,14 @@
         <label for="p48Name2">이름</label>
         <input type="text" id="p48Name2" placeholder="이름 (선택)" autocomplete="name"/>
       </div>
-      <div class="field">
+      <div class="field birth-field-group birth-field-group--light">
         <label for="p48Dob2">생년월일</label>
-        <input type="date" id="p48Dob2" required/>
+        <input class="birth-date-native" type="date" id="p48Dob2" required/>
+        <div class="birth-pick" id="p48Dob2PickRow" role="group" aria-label="생년월일" hidden>
+          <button type="button" class="birth-pick-btn is-placeholder" id="p48Dob2YearBtn">연도</button>
+          <button type="button" class="birth-pick-btn is-placeholder" id="p48Dob2MonthBtn">월</button>
+          <button type="button" class="birth-pick-btn is-placeholder" id="p48Dob2DayBtn">일</button>
+        </div>
       </div>
     </div>
   </div>
@@ -468,5 +479,18 @@
   </section>
 </div>
 
+<div class="birth-picker-backdrop" id="birthPickerBackdrop" hidden aria-hidden="true">
+  <div class="birth-picker-sheet" role="dialog" aria-modal="true" aria-labelledby="birthPickerTitle">
+    <div class="birth-picker-head" id="birthPickerTitle">연도 선택</div>
+    <ul class="birth-picker-list" id="birthPickerList"></ul>
+  </div>
+</div>
+<script src="js/birth-date-picker.js"></script>
+<script>
+PaljaBirthDatePicker.initAll([
+  { inputId: 'p48Dob1', pickRowId: 'p48Dob1PickRow', yearBtnId: 'p48Dob1YearBtn', monthBtnId: 'p48Dob1MonthBtn', dayBtnId: 'p48Dob1DayBtn' },
+  { inputId: 'p48Dob2', pickRowId: 'p48Dob2PickRow', yearBtnId: 'p48Dob2YearBtn', monthBtnId: 'p48Dob2MonthBtn', dayBtnId: 'p48Dob2DayBtn' },
+]);
+</script>
 </body>
 </html>

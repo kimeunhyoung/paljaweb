@@ -11,6 +11,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="js/topbar-session.js?v=5" defer></script>
+<link rel="stylesheet" href="css/birth-date-picker.css">
 <style>
 :root {
   --cream:      #f5f0e8;
@@ -555,9 +556,14 @@ body{font-family:var(--font-body);background:var(--cream);color:var(--ink);min-h
             <label class="input-label">대상자 이름 / 성 <span style="color:rgba(200,169,110,.4);font-size:9px;">(선택)</span></label>
             <input class="input-field" id="baseName" type="text" placeholder="예) 김은형 또는 김">
           </div>
-          <div class="input-group">
-            <label class="input-label">생년월일 <span style="color:rgba(200,169,110,.4);font-size:9px;">(선택 — 입력 시 훨씬 정확해요)</span></label>
-            <input class="input-field" id="birthDate" type="date">
+          <div class="input-group birth-field-group">
+            <label class="input-label" for="birthDate">생년월일 <span style="color:rgba(200,169,110,.4);font-size:9px;">(선택 — 입력 시 훨씬 정확해요)</span></label>
+            <input class="input-field birth-date-native" id="birthDate" type="date">
+            <div class="birth-pick" id="birthDatePickRow" role="group" aria-label="생년월일" hidden>
+              <button type="button" class="birth-pick-btn is-placeholder" id="birthDateYearBtn">연도</button>
+              <button type="button" class="birth-pick-btn is-placeholder" id="birthDateMonthBtn">월</button>
+              <button type="button" class="birth-pick-btn is-placeholder" id="birthDateDayBtn">일</button>
+            </div>
           </div>
         </div>
         <div class="input-section-title">분석할 이름 (최대 5개)</div>
@@ -607,9 +613,14 @@ body{font-family:var(--font-body);background:var(--cream);color:var(--ink);min-h
             <label class="input-label">성(姓) <span style="color:rgba(200,169,110,.4);font-size:9px;">(선택)</span></label>
             <input class="input-field" id="recSurname" type="text" placeholder="예) 김">
           </div>
-          <div class="input-group">
-            <label class="input-label">생년월일 <span style="color:rgba(200,169,110,.4);font-size:9px;">(선택 — 부족수 기반 자동 추천)</span></label>
-            <input class="input-field" id="recBirth" type="date">
+          <div class="input-group birth-field-group">
+            <label class="input-label" for="recBirth">생년월일 <span style="color:rgba(200,169,110,.4);font-size:9px;">(선택 — 부족수 기반 자동 추천)</span></label>
+            <input class="input-field birth-date-native" id="recBirth" type="date">
+            <div class="birth-pick" id="recBirthPickRow" role="group" aria-label="생년월일" hidden>
+              <button type="button" class="birth-pick-btn is-placeholder" id="recBirthYearBtn">연도</button>
+              <button type="button" class="birth-pick-btn is-placeholder" id="recBirthMonthBtn">월</button>
+              <button type="button" class="birth-pick-btn is-placeholder" id="recBirthDayBtn">일</button>
+            </div>
           </div>
         </div>
         <div class="birth-row" style="margin-bottom:20px;">
@@ -1923,6 +1934,19 @@ document.addEventListener('keydown',e=>{
     // 인증 확인 실패 시 기존 동작 유지
   }
 })();
+</script>
+<div class="birth-picker-backdrop" id="birthPickerBackdrop" hidden aria-hidden="true">
+  <div class="birth-picker-sheet" role="dialog" aria-modal="true" aria-labelledby="birthPickerTitle">
+    <div class="birth-picker-head" id="birthPickerTitle">연도 선택</div>
+    <ul class="birth-picker-list" id="birthPickerList"></ul>
+  </div>
+</div>
+<script src="js/birth-date-picker.js"></script>
+<script>
+PaljaBirthDatePicker.initAll([
+  { inputId: 'birthDate', pickRowId: 'birthDatePickRow', yearBtnId: 'birthDateYearBtn', monthBtnId: 'birthDateMonthBtn', dayBtnId: 'birthDateDayBtn' },
+  { inputId: 'recBirth', pickRowId: 'recBirthPickRow', yearBtnId: 'recBirthYearBtn', monthBtnId: 'recBirthMonthBtn', dayBtnId: 'recBirthDayBtn' },
+]);
 </script>
 </body>
 </html>
