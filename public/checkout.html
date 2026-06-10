@@ -188,12 +188,23 @@
     document.getElementById('payBtn').onclick = async () => {
       const btn = document.getElementById('payBtn');
       btn.disabled = true;
-      const uidCompact = session.user.id.replace(/-/g, '');
-      const cycleTag = cycle === 'annual' ? 'a' : 'm';
-      const paymentId =
-        meta.prefix + cycleTag + uidCompact + Date.now() + Math.random().toString(36).slice(2, 8);
       try {
         const { data: { session: s2 } } = await sb.auth.getSession();
+        const prep = await fetch('/api/checkout/prepare', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: 'Bearer ' + s2.access_token,
+          },
+          body: JSON.stringify({ plan, cycle }),
+        });
+        const prepJson = await prep.json().catch(() => ({}));
+        if (!prep.ok) {
+          showMsg(prepJson.error || '결제 준비에 실패했습니다.', 'err');
+          btn.disabled = false;
+          return;
+        }
+        const paymentId = prepJson.paymentId;
         const response = await PortOne.requestPayment({
           storeId: cfg.storeId,
           channelKey: cfg.channelKey,

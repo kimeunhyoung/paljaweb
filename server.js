@@ -17,6 +17,8 @@ const isProd = process.env.NODE_ENV === 'production';
 
 const {
   PLAN_AMOUNTS,
+  ORDER_PREFIX,
+  buildShortPaymentId,
   createPlanBilling,
 } = require('./lib/plan-billing');
 
@@ -108,6 +110,64 @@ planBilling = createPlanBilling({
   insertAppliedPaymentKey,
 });
 
+async function insertCheckoutPending(paymentId, userId, plan, cycle) {
+  const base = process.env.SUPABASE_URL.replace(/\/$/, '');
+  const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  const res = await fetch(`${base}/rest/v1/checkout_pending`, {
+    method: 'POST',
+    headers: supabaseHeaders(key, { Prefer: 'return=minimal' }),
+    body: JSON.stringify({
+      payment_id: paymentId,
+      user_id: userId,
+      plan,
+      cycle,
+    }),
+  });
+  if (!res.ok) {
+    const t = await res.text();
+    throw new Error(`checkout_pending ${res.status}: ${t}`);
+  }
+}
+
+async function getCheckoutPending(paymentId) {
+  const base = process.env.SUPABASE_URL.replace(/\/$/, '');
+  const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  const url =
+    `${base}/rest/v1/checkout_pending?payment_id=eq.${encodeURIComponent(paymentId)}` +
+    '&select=payment_id,user_id,plan,cycle';
+  const res = await fetch(url, { headers: supabaseHeaders(key) });
+  if (!res.ok) return null;
+  const rows = await res.json();
+  return rows[0] || null;
+}
+
+async function deleteCheckoutPending(paymentId) {
+  const base = process.env.SUPABASE_URL.replace(/\/$/, '');
+  const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  await fetch(
+    `${base}/rest/v1/checkout_pending?payment_id=eq.${encodeURIComponent(paymentId)}`,
+    { method: 'DELETE', headers: supabaseHeaders(key, { Prefer: 'return=minimal' }) },
+  );
+}
+
+async function resolvePaymentContext(paymentId, authUserId) {
+  const pending = await getCheckoutPending(paymentId);
+  if (!pending) throw new Error('pending not found');
+  if (authUserId && pending.user_id !== authUserId) {
+    throw new Error('user mismatch');
+  }
+  return {
+    userId: pending.user_id,
+    plan: pending.plan,
+    cycle: pending.cycle,
+  };
+}
+
+const checkoutStore = {
+  resolvePaymentContext,
+  deletePending: deleteCheckoutPending,
+};
+
 app.use(express.json({ limit: '512kb' }));
 
 app.get('/api/checkout-config', (req, res) => {
@@ -117,6 +177,44 @@ app.get('/api/checkout-config', (req, res) => {
     demoUpgrade: isDemoUpgradeAllowed(),
     plans: PLAN_AMOUNTS,
   });
+});
+
+app.post('/api/checkout/prepare', async (req, res) => {
+  if (!process.env.SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) {
+    res.status(503).json({ error: 'Supabase server config missing' });
+    return;
+  }
+  const userId = getUserIdFromAuth(req.headers.authorization);
+  if (!userId) {
+    res.status(401).json({ error: 'Invalid or missing session' });
+    return;
+  }
+  const plan = String(req.body?.plan || '').toLowerCase();
+  const cycle = req.body?.cycle === 'annual' ? 'annual' : 'monthly';
+  if (!ORDER_PREFIX[plan]) {
+    res.status(400).json({ error: 'Invalid plan' });
+    return;
+  }
+  const amount = PLAN_AMOUNTS[plan]?.[cycle];
+  if (!amount) {
+    res.status(400).json({ error: 'Invalid plan cycle' });
+    return;
+  }
+  try {
+    const paymentId = buildShortPaymentId(plan, cycle);
+    await insertCheckoutPending(paymentId, userId, plan, cycle);
+    res.json({ paymentId, plan, cycle, amount });
+  } catch (e) {
+    console.error('[checkout/prepare]', e);
+    const msg = String(e.message || '');
+    if (msg.includes('checkout_pending') && msg.includes('404')) {
+      res.status(503).json({
+        error: 'checkout_pending 테이블이 없습니다. Supabase에서 database/checkout_pending.sql 을 실행해 주세요.',
+      });
+      return;
+    }
+    res.status(500).json({ error: 'Could not prepare checkout' });
+  }
 });
 
 app.post('/api/demo-upgrade-professional', async (req, res) => {
@@ -142,7 +240,7 @@ app.post('/api/demo-upgrade-professional', async (req, res) => {
   }
 });
 
-registerPortOneRoutes(app, planBilling, getUserIdFromAuth);
+registerPortOneRoutes(app, planBilling, getUserIdFromAuth, checkoutStore);
 
 registerLifecodeRoutes(app);
 registerNaverAuthRoutes(app);
