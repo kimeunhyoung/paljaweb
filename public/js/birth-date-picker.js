@@ -21,6 +21,7 @@
   let activeInstance = null;
   let modeListenerBound = false;
   let suppressInputSync = false;
+  const instances = new Map();
 
   function pad2(n) {
     return String(n).padStart(2, '0');
@@ -38,10 +39,15 @@
     const m = parseInt(birthPick.m, 10);
     const d = parseInt(birthPick.d, 10);
     suppressInputSync = true;
-    input.value = y && m && d ? `${y}-${pad2(m)}-${pad2(d)}` : '';
-    suppressInputSync = false;
     if (y && m && d) {
+      input.value = `${y}-${pad2(m)}-${pad2(d)}`;
+      suppressInputSync = false;
       input.dispatchEvent(new Event('change', { bubbles: true }));
+    } else if (input.value) {
+      input.value = '';
+      suppressInputSync = false;
+    } else {
+      suppressInputSync = false;
     }
   }
 
@@ -99,12 +105,16 @@
         })
         .join('');
       list.querySelectorAll('.birth-picker-item').forEach((btn) => {
-        btn.addEventListener('click', () => {
+        const pickValue = (e) => {
+          e.preventDefault();
+          e.stopPropagation();
           const val = btn.getAttribute('data-value') || '';
           if (!val || !activeInstance) return;
           activeInstance.pickerDraft = val;
           closeBirthPicker(true);
-        });
+        };
+        btn.addEventListener('pointerup', pickValue);
+        btn.addEventListener('click', pickValue);
       });
       const selected = list.querySelector('.birth-picker-item.is-selected');
       if (selected) selected.scrollIntoView({ block: 'nearest' });
@@ -123,11 +133,17 @@
       document.body.style.overflow = 'hidden';
     };
 
-    backdrop.addEventListener('click', (e) => {
-      if (e.target === backdrop) closeBirthPicker(false);
+    backdrop.addEventListener('pointerdown', (e) => {
+      if (e.target === backdrop) {
+        e.preventDefault();
+        closeBirthPicker(false);
+      }
     });
     const sheet = backdrop.querySelector('.birth-picker-sheet');
-    if (sheet) sheet.addEventListener('click', (e) => e.stopPropagation());
+    if (sheet) {
+      sheet.addEventListener('pointerdown', (e) => e.stopPropagation());
+      sheet.addEventListener('click', (e) => e.stopPropagation());
+    }
 
     sharedUi = { backdrop, title, list, openBirthPicker, closeBirthPicker };
     return sharedUi;
@@ -178,6 +194,8 @@
       if (suppressInputSync) return;
       const v = (input.value || '').trim();
       if (!v) {
+        const hasPartial = birthPick.y || birthPick.m || birthPick.d;
+        if (hasPartial && window.matchMedia(cfg.mobileQuery).matches) return;
         birthPick.y = '';
         birthPick.m = '';
         birthPick.d = '';
@@ -232,6 +250,8 @@
       modeListenerBound = true;
     }
 
+    instances.set(cfg.inputId, instance);
+
     updateMode();
     syncPickFromInput();
     return instance;
@@ -241,5 +261,17 @@
     return configs.map((cfg) => init(cfg)).filter(Boolean);
   }
 
-  global.PaljaBirthDatePicker = { init, initAll };
+  function clearInput(inputId) {
+    const inst = instances.get(inputId);
+    if (!inst) return;
+    inst.birthPick.y = '';
+    inst.birthPick.m = '';
+    inst.birthPick.d = '';
+    inst.syncBirthPickButtons();
+    suppressInputSync = true;
+    inst.input.value = '';
+    suppressInputSync = false;
+  }
+
+  global.PaljaBirthDatePicker = { init, initAll, clearInput };
 })(window);

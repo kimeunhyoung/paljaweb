@@ -66,6 +66,7 @@
   align-items: flex-end;
   justify-content: center;
 }
+.birth-picker-backdrop[hidden] { display: none !important; }
 .birth-picker-backdrop.is-open { display: flex; }
 .birth-picker-sheet {
   width: 100%;

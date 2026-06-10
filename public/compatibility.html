@@ -2230,7 +2230,10 @@ function runAnalysis() {
 function doReset() {
   document.getElementById('result').style.display = 'none';
   ['name1','name2'].forEach(id=>document.getElementById(id).value='');
-  ['dob1','dob2'].forEach(id=>document.getElementById(id).value='');
+  ['dob1','dob2'].forEach((id) => {
+    if (window.PaljaBirthDatePicker?.clearInput) PaljaBirthDatePicker.clearInput(id);
+    else document.getElementById(id).value = '';
+  });
   window.scrollTo({ top:0, behavior:'smooth' });
 }
 
@@ -2277,7 +2280,7 @@ document.addEventListener('keydown', e=>{ if(e.key==='Enter') runAnalysis(); });
     <ul class="birth-picker-list" id="birthPickerList"></ul>
   </div>
 </div>
-<script src="js/birth-date-picker.js"></script>
+<script src="js/birth-date-picker.js?v=20260610"></script>
 <script>
 PaljaBirthDatePicker.initAll([
   { inputId: 'dob1', pickRowId: 'dob1PickRow', yearBtnId: 'dob1YearBtn', monthBtnId: 'dob1MonthBtn', dayBtnId: 'dob1DayBtn' },
