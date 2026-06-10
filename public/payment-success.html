@@ -83,8 +83,9 @@
         professional: '상담사 허브에서 고객을 관리하고 분석을 이어가세요.',
       };
       const label = labels[plan] || 'Professional';
-      document.getElementById('title').textContent = label + ' 플랜이 활성화되었습니다';
-      document.getElementById('desc').textContent = descs[plan] || descs.professional;
+      document.getElementById('title').textContent = label + ' 정기구독이 시작되었습니다';
+      document.getElementById('desc').textContent =
+        (descs[plan] || descs.professional) + ' 이용 기간마다 자동으로 갱신됩니다. 해지는 대시보드에서 할 수 있어요.';
       const a = document.getElementById('dash');
       a.style.display = 'inline-block';
       a.href = hrefs[plan] || 'dashboard.html';

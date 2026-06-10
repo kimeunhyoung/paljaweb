@@ -48,13 +48,13 @@
 <div class="wrap">
   <a class="back" href="pricing.html">← 요금제</a>
   <h1 id="planTitle">플랜 결제</h1>
-  <p class="sub" id="planDesc">결제가 완료되면 계정에 즉시 반영됩니다. 이용 기간이 끝나면 Free로 돌아갑니다.</p>
+  <p class="sub" id="planDesc">카드를 등록하면 첫 결제가 진행되고, 이후 이용 기간마다 자동으로 갱신됩니다. 해지 시 다음 결제일부터 청구되지 않습니다.</p>
   <div class="amount" id="amountLine">—</div>
   <div id="msg"></div>
   <div id="pay-ui">
     <div id="payment-method"></div>
     <div id="agreement"></div>
-    <button type="button" class="btn" id="payBtn" disabled>결제하기</button>
+    <button type="button" class="btn" id="payBtn" disabled>카드 등록 및 정기결제 시작</button>
   </div>
   <div id="demo-box">
     <p><strong>개발/스테이징</strong> 전용. 운영에서는 토스 실결제만 사용하세요.</p>
@@ -106,7 +106,8 @@
   const amount = PRICES[plan][cycle];
 
   document.getElementById('planTitle').textContent = meta.title;
-  document.getElementById('planDesc').textContent = meta.desc + ' 이용 기간 만료 시 Free로 돌아갑니다.';
+  document.getElementById('planDesc').textContent =
+    meta.desc + ' ' + (cycle === 'annual' ? '연간' : '월간') + ' 정기결제로 자동 갱신됩니다. 해지하면 다음 결제일부터 청구되지 않아요.';
   document.title = meta.title + ' — 팔자연구소';
 
   function showMsg(text, kind) {
@@ -208,22 +209,47 @@
           return;
         }
         const paymentId = prepJson.paymentId;
-        const response = await PortOne.requestPayment({
+        const issueId = prepJson.issueId || paymentId;
+        const customerName = s2.user.user_metadata?.full_name || s2.user.email || '회원';
+        const offerPeriod = cycle === 'annual'
+          ? { range: { from: '1년', to: '1년' } }
+          : { range: { from: '1개월', to: '1개월' } };
+
+        const issueResponse = await PortOne.requestIssueBillingKey({
           storeId: cfg.storeId,
           channelKey: cfg.channelKey,
-          paymentId,
-          orderName: meta.orderName,
-          totalAmount: amount,
-          currency: 'CURRENCY_KRW',
-          payMethod: 'CARD',
+          billingKeyMethod: 'CARD',
+          issueId,
+          issueName: meta.orderName + ' 정기결제',
+          offerPeriod,
           customer: {
             customerId: s2.user.id,
-            fullName: s2.user.user_metadata?.full_name || s2.user.email || '회원',
+            fullName: customerName,
             email: s2.user.email || undefined,
           },
         });
-        if (response && response.code != null) {
-          showMsg(response.message || '결제가 취소되었습니다.', 'err');
+        if (issueResponse && issueResponse.code != null) {
+          showMsg(issueResponse.message || '카드 등록이 취소되었습니다.', 'err');
+          btn.disabled = false;
+          return;
+        }
+
+        showMsg('첫 결제를 진행하고 있습니다…', 'info');
+        const subRes = await fetch('/api/checkout/subscribe', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: 'Bearer ' + s2.access_token,
+          },
+          body: JSON.stringify({
+            paymentId,
+            billingKey: issueResponse?.billingKey,
+            billingIssueToken: issueResponse?.billingIssueToken,
+          }),
+        });
+        const subJson = await subRes.json().catch(() => ({}));
+        if (!subRes.ok) {
+          showMsg(subJson.error || '정기결제 등록에 실패했습니다.', 'err');
           btn.disabled = false;
           return;
         }

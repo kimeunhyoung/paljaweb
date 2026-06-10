@@ -19,10 +19,12 @@ const {
   PLAN_AMOUNTS,
   ORDER_PREFIX,
   buildShortPaymentId,
+  buildShortIssueId,
   createPlanBilling,
 } = require('./lib/plan-billing');
 
 const { registerPortOneRoutes, portonePublicConfig, portoneConfigured } = require('./lib/portone-payment');
+const { createSubscriptionService } = require('./lib/subscription-service');
 
 let planBilling;
 
@@ -95,7 +97,7 @@ async function getProfile(userId) {
   if (!base || !key) return null;
   const url =
     `${base.replace(/\/$/, '')}/rest/v1/profiles?id=eq.${encodeURIComponent(userId)}` +
-    '&select=plan,plan_active_until,professional_payment_key,toss_billing_key';
+    '&select=id,full_name,plan,plan_active_until,professional_payment_key,toss_billing_key,subscription_cycle,subscription_cancel_at_period_end';
   const res = await fetch(url, { headers: supabaseHeaders(key) });
   if (!res.ok) return null;
   const rows = await res.json();
@@ -129,6 +131,59 @@ planBilling = createPlanBilling({
   getProfile,
   insertAppliedPaymentKey,
 });
+
+async function getUserEmail(userId) {
+  const base = process.env.SUPABASE_URL?.replace(/\/$/, '');
+  const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  if (!base || !key) return null;
+  try {
+    const res = await fetch(`${base}/auth/v1/admin/users/${encodeURIComponent(userId)}`, {
+      headers: { apikey: key, Authorization: `Bearer ${key}` },
+    });
+    if (!res.ok) return null;
+    const user = await res.json();
+    return user?.email || null;
+  } catch {
+    return null;
+  }
+}
+
+const subscriptionService = createSubscriptionService({
+  planBilling,
+  getProfile,
+  getUserEmail,
+  insertAppliedPaymentKey,
+});
+
+async function listRenewalCandidates() {
+  const base = process.env.SUPABASE_URL.replace(/\/$/, '');
+  const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  const until = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString();
+  const url =
+    `${base}/rest/v1/profiles` +
+    `?plan=neq.free` +
+    `&toss_billing_key=not.is.null` +
+    `&subscription_cancel_at_period_end=eq.false` +
+    `&plan_active_until=lte.${encodeURIComponent(until)}` +
+    '&select=id,plan,plan_active_until,toss_billing_key,subscription_cycle,subscription_cancel_at_period_end';
+  const res = await fetch(url, { headers: supabaseHeaders(key) });
+  if (!res.ok) return [];
+  return res.json();
+}
+
+async function listExpiredCancelledProfiles() {
+  const base = process.env.SUPABASE_URL.replace(/\/$/, '');
+  const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  const now = new Date().toISOString();
+  const url =
+    `${base}/rest/v1/profiles` +
+    `?subscription_cancel_at_period_end=eq.true` +
+    `&plan_active_until=lte.${encodeURIComponent(now)}` +
+    '&select=id';
+  const res = await fetch(url, { headers: supabaseHeaders(key) });
+  if (!res.ok) return [];
+  return res.json();
+}
 
 async function insertCheckoutPending(paymentId, userId, plan, cycle) {
   const base = process.env.SUPABASE_URL.replace(/\/$/, '');
@@ -222,8 +277,9 @@ app.post('/api/checkout/prepare', async (req, res) => {
   }
   try {
     const paymentId = buildShortPaymentId(plan, cycle);
+    const issueId = buildShortIssueId(plan, cycle);
     await insertCheckoutPending(paymentId, userId, plan, cycle);
-    res.json({ paymentId, plan, cycle, amount });
+    res.json({ paymentId, issueId, plan, cycle, amount, billingMode: 'recurring' });
   } catch (e) {
     console.error('[checkout/prepare]', e);
     const msg = String(e.message || '');
@@ -257,6 +313,115 @@ app.post('/api/demo-upgrade-professional', async (req, res) => {
   } catch (e) {
     console.error(e);
     res.status(500).json({ error: 'Could not update plan' });
+  }
+});
+
+app.post('/api/checkout/subscribe', async (req, res) => {
+  if (!portoneConfigured()) {
+    res.status(503).json({ error: 'PortOne 결제 설정이 완료되지 않았습니다.' });
+    return;
+  }
+  const userId = await getUserIdFromAuth(req.headers.authorization);
+  if (!userId) {
+    res.status(401).json({ error: 'Invalid or missing session' });
+    return;
+  }
+  const paymentId = String(req.body?.paymentId || '').trim();
+  const billingKey = String(req.body?.billingKey || '').trim() || undefined;
+  const billingIssueToken = String(req.body?.billingIssueToken || '').trim() || undefined;
+  if (!paymentId) {
+    res.status(400).json({ error: 'paymentId required' });
+    return;
+  }
+  let ctx;
+  try {
+    ctx = await resolvePaymentContext(paymentId, userId);
+  } catch (e) {
+    res.status(400).json({ error: 'Invalid or expired checkout session' });
+    return;
+  }
+  try {
+    const resolvedKey = await subscriptionService.resolveBillingKey({ billingKey, billingIssueToken });
+    const email = await getUserEmail(userId);
+    const result = await subscriptionService.chargeSubscription({
+      userId,
+      paymentId,
+      plan: ctx.plan,
+      cycle: ctx.cycle,
+      billingKey: resolvedKey,
+      email,
+    });
+    await deleteCheckoutPending(paymentId).catch(() => {});
+    res.json(result);
+  } catch (e) {
+    console.error('[checkout/subscribe]', e);
+    res.status(502).json({ error: e.message || '정기결제 등록에 실패했습니다.' });
+  }
+});
+
+app.get('/api/subscription/status', async (req, res) => {
+  const userId = await getUserIdFromAuth(req.headers.authorization);
+  if (!userId) {
+    res.status(401).json({ error: 'Invalid or missing session' });
+    return;
+  }
+  const profile = await getProfile(userId);
+  if (!profile) {
+    res.status(404).json({ error: 'Profile not found' });
+    return;
+  }
+  res.json({
+    plan: profile.plan,
+    cycle: profile.subscription_cycle,
+    activeUntil: profile.plan_active_until,
+    cancelAtPeriodEnd: !!profile.subscription_cancel_at_period_end,
+    hasBillingKey: !!profile.toss_billing_key,
+  });
+});
+
+app.post('/api/subscription/cancel', async (req, res) => {
+  const userId = await getUserIdFromAuth(req.headers.authorization);
+  if (!userId) {
+    res.status(401).json({ error: 'Invalid or missing session' });
+    return;
+  }
+  try {
+    const result = await subscriptionService.cancelSubscription(userId);
+    res.json(result);
+  } catch (e) {
+    console.error('[subscription/cancel]', e);
+    res.status(500).json({ error: '구독 해지 요청에 실패했습니다.' });
+  }
+});
+
+app.post('/api/cron/renew-subscriptions', async (req, res) => {
+  const secret = process.env.CRON_SECRET;
+  const auth = req.headers.authorization || '';
+  const token = auth.startsWith('Bearer ') ? auth.slice(7) : req.headers['x-cron-secret'];
+  if (!secret || token !== secret) {
+    res.status(401).json({ error: 'Unauthorized' });
+    return;
+  }
+  try {
+    const candidates = await listRenewalCandidates();
+    const renewResults = [];
+    for (const profile of candidates) {
+      renewResults.push(await subscriptionService.renewUserSubscription(profile.id, profile));
+    }
+    const expired = await listExpiredCancelledProfiles();
+    for (const row of expired) {
+      await planBilling.clearSubscriptionBilling(row.id);
+    }
+    res.json({
+      ok: true,
+      renewed: renewResults.filter((r) => r.ok).length,
+      failed: renewResults.filter((r) => r.ok === false).length,
+      downgraded: expired.length,
+      details: renewResults,
+    });
+  } catch (e) {
+    console.error('[cron/renew-subscriptions]', e);
+    res.status(500).json({ error: 'Renewal job failed' });
   }
 });
 

@@ -959,10 +959,9 @@
             <button class="upgrade-btn" id="upgradeBtn" onclick="onPlanActionClick()">
               플랜 관리 →
             </button>
-          </div>
-          <div style="padding: 12px 20px 20px; text-align:center;">
-            <div style="font-family:var(--font-mono); font-size:9px; letter-spacing:.12em; color:var(--muted); text-transform:uppercase; margin-bottom:8px;">토스페이먼츠 연동</div>
-            <img src="https://static.toss.im/logos/png/4x/logo-toss-payments-gray.png" alt="토스페이먼츠" style="height:16px; opacity:.4;" onerror="this.style.display='none'" />
+            <button type="button" class="upgrade-btn" id="cancelSubBtn" style="display:none;margin-top:8px;background:transparent;color:var(--muted);border:1px solid var(--border);">
+              구독 해지 (다음 결제일부터 청구 안 됨)
+            </button>
           </div>
         </div>
       </div>
@@ -1124,6 +1123,34 @@
         if (nl) nl.style.display = 'block';
         if (nv) nv.style.display = 'flex';
       }
+
+      const cancelBtn = document.getElementById('cancelSubBtn');
+      if (cancelBtn && planActive && displayPlan !== 'free') {
+        try {
+          const { data: { session } } = await sb.auth.getSession();
+          const stRes = await fetch('/api/subscription/status', {
+            headers: { Authorization: 'Bearer ' + session.access_token },
+          });
+          if (stRes.ok) {
+            const st = await stRes.json();
+            if (st.hasBillingKey && !st.cancelAtPeriodEnd) {
+              cancelBtn.style.display = 'block';
+              const cycleLabel = st.cycle === 'annual' ? '연간' : '월간';
+              if (descEl && st.activeUntil) {
+                const next = new Date(st.activeUntil).toLocaleDateString('ko-KR');
+                descEl.innerHTML += '<br><span style="font-size:12px;color:var(--muted)">' +
+                  cycleLabel + ' 정기결제 · 다음 자동 결제 예정: ' + next + '</span>';
+              }
+            } else if (st.cancelAtPeriodEnd) {
+              cancelBtn.style.display = 'none';
+              if (descEl && st.activeUntil) {
+                descEl.innerHTML += '<br><span style="font-size:12px;color:var(--muted)">해지 예약됨 · ' +
+                  new Date(st.activeUntil).toLocaleDateString('ko-KR') + '까지 이용 가능</span>';
+              }
+            }
+          }
+        } catch (_) {}
+      }
     } catch (e) { /* ignore */ }
 
     // Show app
@@ -1153,6 +1180,30 @@
       });
     });
   }
+
+  document.getElementById('cancelSubBtn')?.addEventListener('click', async () => {
+    if (!confirm('구독을 해지할까요? 이미 결제한 이용 기간이 끝날 때까지는 계속 이용할 수 있고, 그 이후 자동 결제되지 않습니다.')) return;
+    const btn = document.getElementById('cancelSubBtn');
+    btn.disabled = true;
+    try {
+      const { data: { session } } = await sb.auth.getSession();
+      const res = await fetch('/api/subscription/cancel', {
+        method: 'POST',
+        headers: { Authorization: 'Bearer ' + session.access_token },
+      });
+      const j = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        alert(j.error || '해지 요청에 실패했습니다.');
+        btn.disabled = false;
+        return;
+      }
+      alert('해지가 예약되었습니다. 이용 기간 종료 후 Free 플랜으로 전환됩니다.');
+      location.reload();
+    } catch (_) {
+      alert('요청에 실패했습니다.');
+      btn.disabled = false;
+    }
+  });
 
   // ── LOGOUT ──
   document.getElementById('logout-btn').addEventListener('click', async () => {
