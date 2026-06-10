@@ -217,6 +217,18 @@
       padding: 5px 10px;
       font-weight: 700;
     }
+    .calendar-legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px 14px;
+      margin-bottom: 10px;
+      font-size: 12px;
+      color: var(--muted);
+    }
+    .calendar-legend strong {
+      color: var(--ink);
+      font-weight: 700;
+    }
     .weekday,
     .days {
       display: grid;
@@ -263,12 +275,14 @@
     .day.is-saturday .day-num { color: var(--sat); }
     .day-sub {
       justify-self: end;
+      min-width: 20px;
+      text-align: center;
       font-size: 10px;
       font-weight: 700;
       color: var(--brand);
       background: var(--brand-soft);
       border-radius: 999px;
-      padding: 2px 6px;
+      padding: 2px 5px;
       line-height: 1.2;
     }
     .day-value {
@@ -413,6 +427,10 @@
               <span class="chip" id="personalMonthChip"></span>
             </div>
           </div>
+          <p class="calendar-legend">
+            <span><strong>큰 숫자</strong> · 개인일수</span>
+            <span><strong>작은 숫자</strong> · 일반일수</span>
+          </p>
           <div class="weekday" aria-hidden="true">
             <div>일</div><div>월</div><div>화</div><div>수</div><div>목</div><div>금</div><div>토</div>
           </div>
