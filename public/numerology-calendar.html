@@ -27,6 +27,10 @@
       --good: #2e8b7a;
       --warn: #b85c47;
       --today: #fdf5e8;
+      --sun: #c45c4a;
+      --sun-bg: #fdf0ee;
+      --sat: #3d6b8c;
+      --sat-bg: #eef4f8;
     }
     * { box-sizing: border-box; }
     body {
@@ -226,6 +230,8 @@
       font-weight: 700;
       padding-bottom: 6px;
     }
+    .weekday div:first-child { color: var(--sun); }
+    .weekday div:last-child { color: var(--sat); }
     .day {
       border: 1px solid var(--line);
       border-radius: 12px;
@@ -237,6 +243,8 @@
       grid-template-rows: auto auto 1fr;
       gap: 6px;
     }
+    .day.is-sunday:not(.is-today):not(.is-selected) { background: var(--sun-bg); }
+    .day.is-saturday:not(.is-today):not(.is-selected) { background: var(--sat-bg); }
     .day.is-today { background: var(--today); }
     .day.is-selected {
       border-color: var(--accent);
@@ -251,6 +259,8 @@
       font-weight: 700;
       color: var(--muted);
     }
+    .day.is-sunday .day-num { color: var(--sun); }
+    .day.is-saturday .day-num { color: var(--sat); }
     .day-sub {
       justify-self: end;
       font-size: 10px;

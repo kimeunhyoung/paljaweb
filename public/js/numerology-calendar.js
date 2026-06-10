@@ -215,9 +215,10 @@ function renderCalendar() {
     const universalDay = getUniversalDay(date);
     const guide = DAILY_GUIDE[personalDay] || DAILY_GUIDE[reduceNumber(personalDay, false)] || DAILY_GUIDE[1];
 
+    const dow = date.getDay();
     const button = document.createElement("button");
     button.type = "button";
-    button.className = `day${isCurrentMonth ? "" : " is-out"}${isToday ? " is-today" : ""}${isSelected ? " is-selected" : ""}`;
+    button.className = `day${isCurrentMonth ? "" : " is-out"}${dow === 0 ? " is-sunday" : ""}${dow === 6 ? " is-saturday" : ""}${isToday ? " is-today" : ""}${isSelected ? " is-selected" : ""}`;
     button.setAttribute("role", "gridcell");
     button.setAttribute("aria-selected", isSelected ? "true" : "false");
     button.setAttribute(
