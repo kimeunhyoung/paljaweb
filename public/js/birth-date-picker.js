@@ -20,6 +20,7 @@
   let sharedUi = null;
   let activeInstance = null;
   let modeListenerBound = false;
+  let suppressInputSync = false;
 
   function pad2(n) {
     return String(n).padStart(2, '0');
@@ -36,8 +37,12 @@
     const y = parseInt(birthPick.y, 10);
     const m = parseInt(birthPick.m, 10);
     const d = parseInt(birthPick.d, 10);
+    suppressInputSync = true;
     input.value = y && m && d ? `${y}-${pad2(m)}-${pad2(d)}` : '';
-    input.dispatchEvent(new Event('change', { bubbles: true }));
+    suppressInputSync = false;
+    if (y && m && d) {
+      input.dispatchEvent(new Event('change', { bubbles: true }));
+    }
   }
 
   function setBtn(btn, val, suffix, placeholder) {
@@ -170,6 +175,7 @@
     };
 
     const syncPickFromInput = () => {
+      if (suppressInputSync) return;
       const v = (input.value || '').trim();
       if (!v) {
         birthPick.y = '';
@@ -206,7 +212,7 @@
         },
         set(v) {
           nativeSet.call(this, v);
-          syncPickFromInput();
+          if (!suppressInputSync) syncPickFromInput();
         },
         configurable: true,
       });
