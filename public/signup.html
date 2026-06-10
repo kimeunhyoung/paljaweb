@@ -8,47 +8,97 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,400&family=Noto+Sans+KR:wght@300;400;500;700&family=Noto+Serif+KR:wght@400;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/style.css?v=20260507b">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css" crossorigin>
+  <link rel="stylesheet" href="css/site-topbar.css?v=3" />
+  <link rel="stylesheet" href="css/site-header.css?v=8" />
+  <link rel="stylesheet" href="css/style.css?v=20260610a">
+  <script src="js/site-topbar.js?v=3" defer></script>
+  <style>
+    body { background: #f5f0e8; }
+    .auth-main {
+      padding: 40px 24px 64px;
+      max-width: 720px;
+      margin: 0 auto;
+    }
+    .auth-main h1 {
+      font-family: var(--font-display);
+      margin-bottom: 8px;
+      color: var(--text);
+    }
+    .auth-main .auth-lead {
+      color: var(--text2);
+      margin-bottom: 24px;
+    }
+    .auth-form {
+      display: grid;
+      gap: 12px;
+    }
+    .auth-form label {
+      display: grid;
+      gap: 6px;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text2);
+    }
+    .auth-form input {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      font-family: inherit;
+      font-size: 15px;
+    }
+    .auth-oauth {
+      display: flex;
+      gap: 12px;
+      flex-direction: column;
+    }
+    .auth-divider {
+      text-align: center;
+      margin: 18px 0;
+      color: var(--text3);
+    }
+    .auth-footer {
+      margin-top: 18px;
+      color: var(--text2);
+    }
+  </style>
 </head>
 <body>
-  <nav class="navbar" id="navbar">
-    <div class="nav-inner">
-      <a href="/" class="nav-logo">
-        <div class="logo-mark">8</div>
-        <span class="logo-text">팔자연구소</span>
-      </a>
-      <div class="nav-actions">
-        <a id="nav-login-link" href="login.html" class="btn-nav-ghost">로그인</a>
-      </div>
-    </div>
-  </nav>
+  <div
+    class="site-top"
+    data-topbar-variant="auth"
+    data-topbar-title="회원가입"
+    data-auth-peer="login.html"
+    data-auth-peer-label="로그인"
+  ></div>
 
-  <main style="padding:120px 24px; max-width:720px; margin:0 auto;">
-    <h1 style="font-family:var(--font-display); margin-bottom:8px;">회원가입</h1>
-    <p style="color:var(--text2); margin-bottom:24px;">이메일과 비밀번호로 계정을 만드세요.</p>
+  <main class="auth-main">
+    <h1>회원가입</h1>
+    <p class="auth-lead">이메일과 비밀번호로 계정을 만드세요.</p>
 
     <div id="auth-msg" style="margin-bottom:12px;"></div>
 
-    <form id="signup-form" style="display:grid; gap:12px;">
+    <form id="signup-form" class="auth-form">
       <label>
         이메일
-        <input type="email" id="signup-email" required style="width:100%; padding:10px; border:1px solid var(--border); border-radius:8px;" />
+        <input type="email" id="signup-email" required />
       </label>
       <label>
         비밀번호
-        <input type="password" id="signup-password" required minlength="6" style="width:100%; padding:10px; border:1px solid var(--border); border-radius:8px;" />
+        <input type="password" id="signup-password" required minlength="6" />
       </label>
       <button type="submit" class="btn-fill" style="width:100%;">회원가입</button>
     </form>
 
-    <div style="text-align:center; margin:18px 0; color:var(--text3)">또는</div>
-    <div style="display:flex; gap:12px; flex-direction:column;">
+    <div class="auth-divider">또는</div>
+    <div class="auth-oauth">
       <button id="google-signup" data-provider="google" class="btn-cta" style="width:100%;">구글로 계속하기</button>
       <button id="kakao-signup" data-provider="kakao" class="btn-cta" style="width:100%;">카카오로 계속하기</button>
       <button id="naver-signup" data-provider="naver" class="btn-cta" style="width:100%;">네이버로 계속하기</button>
     </div>
 
-    <p style="margin-top:18px; color:var(--text2);">이미 계정이 있으신가요? <a id="inline-login-link" href="login.html">로그인</a></p>
+    <p class="auth-footer">이미 계정이 있으신가요? <a id="inline-login-link" href="login.html">로그인</a></p>
   </main>
 
   <script>
@@ -63,9 +113,7 @@
       }
       if (!next) return;
       var q = 'next=' + encodeURIComponent(next);
-      var s = document.getElementById('nav-login-link');
       var i = document.getElementById('inline-login-link');
-      if (s) s.href = 'login.html?' + q;
       if (i) i.href = 'login.html?' + q;
     })();
   </script>
@@ -73,4 +121,3 @@
   <script type="module" src="js/supabase-auth.js?v=20260614"></script>
 </body>
 </html>
-

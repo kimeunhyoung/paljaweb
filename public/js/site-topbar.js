@@ -66,8 +66,41 @@
     }).join('\n    ');
   }
 
+  function buildAuthPeerHref(peerBase) {
+    var qs = location.search;
+    return qs ? peerBase + qs : peerBase;
+  }
+
+  function renderAuth(mount) {
+    var title = mount.getAttribute('data-topbar-title') || '';
+    var peer = mount.getAttribute('data-auth-peer') || 'signup.html';
+    var peerLabel = mount.getAttribute('data-auth-peer-label') || '회원가입';
+    var peerHref = buildAuthPeerHref(peer);
+
+    mount.innerHTML =
+      '<header class="topbar">' +
+      '<div class="topbar-left">' +
+      '<a class="topbar-logo" href="index.html">' +
+      '<span class="topbar-logo-mark" aria-hidden="true">八</span>팔자연구소</a>' +
+      '<div class="topbar-sep"></div>' +
+      '<span class="topbar-title">' + esc(title) + '</span>' +
+      '</div>' +
+      '<div class="topbar-right" aria-label="계정">' +
+      '<a class="topbar-auth-link" id="auth-peer-link" href="' + esc(peerHref) + '">' +
+      esc(peerLabel) +
+      '</a>' +
+      '</div>' +
+      '</header>';
+  }
+
   function render(mount) {
     if (!mount || mount.getAttribute('data-topbar-rendered') === '1') return;
+
+    if (mount.getAttribute('data-topbar-variant') === 'auth') {
+      renderAuth(mount);
+      mount.setAttribute('data-topbar-rendered', '1');
+      return;
+    }
 
     var title = mount.getAttribute('data-topbar-title') || '';
     var current = mount.getAttribute('data-nav-current') || '';
@@ -107,7 +140,9 @@
   }
 
   function init() {
-    document.querySelectorAll('.site-top[data-nav-current]').forEach(render);
+    document
+      .querySelectorAll('.site-top[data-nav-current], .site-top[data-topbar-variant="auth"]')
+      .forEach(render);
   }
 
   if (document.readyState === 'loading') {

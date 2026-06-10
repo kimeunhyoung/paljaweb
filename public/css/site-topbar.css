@@ -1,8 +1,21 @@
 /**
  * 팔자연구소 — 공통 상단 탑바·프로그램 내비
- * site-header.css(타이포·모바일)와 함께 로드하세요.
+ * 페이지 :root 변수와 충돌하지 않도록 --tb-* 스코프 변수만 사용합니다.
  */
 .site-top {
+  --tb-cream: #f5f0e8;
+  --tb-border: rgba(139, 111, 71, 0.15);
+  --tb-muted: #9a8570;
+  --tb-deep-brown: #4a3520;
+  --tb-warm-brown: #8b6f47;
+  --tb-ink: #2c1f0e;
+  --tb-accent: #c8a96e;
+  --tb-accent-lt: #e8d5b0;
+  --tb-teal: #2e8b7a;
+  --tb-teal-lt: rgba(46, 139, 122, 0.12);
+  --tb-parchment: #ede5d4;
+  --tb-font-serif: 'Noto Serif KR', serif;
+
   position: sticky;
   top: 0;
   z-index: 100;
@@ -14,7 +27,7 @@
   min-height: 52px;
   background: rgba(245, 240, 232, 0.92);
   backdrop-filter: blur(8px);
-  border-bottom: 1px solid var(--border, rgba(139, 111, 71, 0.15));
+  border-bottom: 1px solid var(--tb-border);
   display: flex;
   align-items: center;
   padding: 10px 32px;
@@ -23,7 +36,7 @@
 }
 
 .site-top .program-nav {
-  border-bottom: 1px solid var(--border, rgba(139, 111, 71, 0.15));
+  border-bottom: 1px solid var(--tb-border);
   background: rgba(255, 255, 255, 0.55);
   padding: 0 32px;
 }
@@ -40,7 +53,7 @@
 }
 
 .site-top .program-nav-inner a {
-  color: var(--muted, #9a8570);
+  color: var(--tb-muted);
   text-decoration: none;
   font-weight: 600;
   letter-spacing: 0.02em;
@@ -49,11 +62,11 @@
 }
 
 .site-top .program-nav-inner a:hover {
-  color: var(--deep-brown, #4a3520);
+  color: var(--tb-deep-brown);
 }
 
 .site-top .program-nav-current {
-  color: var(--deep-brown, #4a3520);
+  color: var(--tb-deep-brown);
   font-weight: 700;
   white-space: nowrap;
 }
@@ -69,7 +82,7 @@
 .site-top .topbar-logo {
   font-size: 16px;
   font-weight: 700;
-  color: var(--deep-brown, #4a3520);
+  color: var(--tb-deep-brown);
   text-decoration: none;
   letter-spacing: 0.01em;
   display: inline-flex;
@@ -84,8 +97,8 @@
   height: 30px;
   border-radius: 9px;
   background: linear-gradient(160deg, #5a402d 0%, #3d2b1f 65%, #2d1f16 100%);
-  color: var(--cream, #f5f0e8);
-  font-family: var(--font-serif, 'Noto Serif KR', serif);
+  color: var(--tb-cream);
+  font-family: var(--tb-font-serif);
   font-size: 17px;
   font-weight: 700;
   display: inline-flex;
@@ -94,6 +107,7 @@
   border: 1px solid rgba(245, 240, 232, 0.22);
   position: relative;
   overflow: hidden;
+  flex-shrink: 0;
 }
 
 .site-top .topbar-logo-mark::before {
@@ -119,7 +133,7 @@
 .site-top .topbar-sep {
   width: 1px;
   height: 16px;
-  background: var(--border, rgba(139, 111, 71, 0.15));
+  background: var(--tb-border);
   flex-shrink: 0;
 }
 
@@ -127,7 +141,7 @@
   font-size: 14px;
   font-weight: 600;
   letter-spacing: 0;
-  color: var(--deep-brown, #4a3520);
+  color: var(--tb-deep-brown);
   line-height: 1.35;
   white-space: nowrap;
   overflow: hidden;
@@ -171,67 +185,70 @@
   text-transform: uppercase;
   padding: 4px 10px;
   border-radius: 20px;
-  border: 1px solid var(--border, rgba(139, 111, 71, 0.15));
-  color: var(--muted, #9a8570);
+  border: 1px solid var(--tb-border);
+  color: var(--tb-muted);
   font-weight: 700;
 }
 
 .site-top .plan-badge.free {
   border-color: rgba(139, 111, 71, 0.35);
-  color: var(--warm-brown, #8b6f47);
+  color: var(--tb-warm-brown);
   background: rgba(232, 213, 176, 0.35);
 }
 
 .site-top .plan-badge.basic {
-  border-color: var(--accent, #c8a96e);
-  color: var(--warm-brown, #8b6f47);
-  background: var(--accent-lt, #e8d5b0);
+  border-color: var(--tb-accent);
+  color: var(--tb-warm-brown);
+  background: var(--tb-accent-lt);
 }
 
 .site-top .plan-badge.pro {
-  border-color: var(--teal, #2e8b7a);
-  color: var(--teal, #2e8b7a);
-  background: var(--teal-lt, rgba(46, 139, 122, 0.12));
+  border-color: var(--tb-teal);
+  color: var(--tb-teal);
+  background: var(--tb-teal-lt);
 }
 
 .site-top .plan-badge.professional {
-  border-color: var(--deep-brown, #4a3520);
-  color: var(--deep-brown, #4a3520);
-  background: var(--parchment, #ede5d4);
+  border-color: var(--tb-deep-brown);
+  color: var(--tb-deep-brown);
+  background: var(--tb-parchment);
 }
 
 .site-top .back-btn {
   font-size: 12px;
   font-weight: 600;
   letter-spacing: 0.02em;
-  color: var(--deep-brown, #4a3520);
+  color: var(--tb-deep-brown);
   text-decoration: none;
   display: inline-flex;
   align-items: center;
   gap: 6px;
   transition: color 0.15s;
   white-space: nowrap;
+  border: none;
+  background: none;
+  padding: 0;
 }
 
 .site-top .back-btn:hover {
-  color: var(--ink, #2c1f0e);
+  color: var(--tb-ink);
 }
 
 .site-top .topbar-auth-link {
   font-size: 12px;
   font-weight: 600;
-  color: var(--muted, #9a8570);
+  color: var(--tb-muted);
   text-decoration: none;
   white-space: nowrap;
   transition: color 0.15s;
 }
 
 .site-top .topbar-auth-link:hover {
-  color: var(--deep-brown, #4a3520);
+  color: var(--tb-deep-brown);
 }
 
 .site-top .topbar-auth-dot {
-  color: var(--border, rgba(139, 111, 71, 0.15));
+  color: var(--tb-border);
   font-weight: 400;
   user-select: none;
   font-size: 12px;
@@ -259,16 +276,16 @@
   letter-spacing: 0.02em;
   padding: 6px 12px;
   border-radius: 6px;
-  border: 1px solid var(--border, rgba(139, 111, 71, 0.15));
+  border: 1px solid var(--tb-border);
   background: #fff;
-  color: var(--deep-brown, #4a3520);
+  color: var(--tb-deep-brown);
   cursor: pointer;
   box-shadow: none;
   transition: border-color 0.15s, background 0.15s, color 0.15s;
 }
 
 .site-top .counselor-bar-btn:hover {
-  background: var(--parchment, #ede5d4);
-  border-color: var(--warm-brown, #8b6f47);
-  color: var(--ink, #2c1f0e);
+  background: var(--tb-parchment);
+  border-color: var(--tb-warm-brown);
+  color: var(--tb-ink);
 }
