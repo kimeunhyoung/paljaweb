@@ -1249,6 +1249,27 @@
       margin-top: 4px;
       line-height: 1.35;
     }
+    a.lc-glance-cell--locked {
+      text-decoration: none;
+      color: inherit;
+      cursor: pointer;
+      background: rgba(255,255,255,.72);
+      transition: border-color .15s, background .15s;
+    }
+    a.lc-glance-cell--locked:hover {
+      border-color: rgba(200,169,110,.45);
+      background: rgba(255,255,255,.95);
+    }
+    .lc-glance-lock {
+      font-size: 20px;
+      line-height: 1;
+      opacity: .5;
+      letter-spacing: 0;
+    }
+    .lc-glance-cell--locked .lc-glance-sub {
+      color: var(--warm-brown);
+      font-weight: 500;
+    }
     @media (max-width: 420px) {
       .lc-all-nums-grid--strip { gap: 8px; }
       .lc-glance-cell { min-height: 72px; padding: 8px 6px; }
@@ -4896,6 +4917,15 @@ function lcNumCell(label, value, sub, cellClass) {
   return `<div class="lc-glance-cell${cls}"><div class="lc-glance-label">${escapeHtml(label)}</div><div class="lc-glance-value">${escapeHtml(v)}</div>${subHtml}</div>`;
 }
 
+function lcNumCellLocked(label, cellClass) {
+  const cls = cellClass ? ` ${cellClass}` : '';
+  return `<a href="../pricing.html" class="lc-glance-cell lc-glance-cell--locked${cls}" title="Basic 플랜에서 확인">
+    <div class="lc-glance-label">${escapeHtml(label)}</div>
+    <div class="lc-glance-value lc-glance-lock" aria-hidden="true">🔒</div>
+    <div class="lc-glance-sub">Basic</div>
+  </a>`;
+}
+
 /** 현재 나이 기준 대주기·절정수·도전수 (인생 4단계와 동일 산식) */
 function computeCurrentCycleGlance(lp, birthY, curY, mr_r, dr_r, yr_r) {
   const lpV = lp === 11 ? 2 : lp === 22 ? 4 : lp === 33 ? 6 : lp;
@@ -4943,9 +4973,15 @@ function buildLcPriorityAtGlanceHtml(ctx) {
   h += lcNumCell('올해의 수', ctx.py, ctx.pyS != null ? `전합 ${ctx.pyS}` : '');
   h += lcNumCell('이번 달의 수', ctx.pm, ctx.pmPre != null ? `전합 ${ctx.pmPre}` : '');
   if (ctx.majorNum != null && ctx.pinnacle != null && ctx.challenge != null) {
-    h += lcNumCell('대주기', ctx.majorNum, ctx.majorSub || '', 'lc-glance-cell--cycle');
-    h += lcNumCell('절정수', ctx.pinnacle, ctx.stageSub || '', 'lc-glance-cell--cycle');
-    h += lcNumCell('도전수', ctx.challenge, '현재 구간', 'lc-glance-cell--cycle');
+    if (ctx.cycleLocked) {
+      h += lcNumCellLocked('대주기', 'lc-glance-cell--cycle');
+      h += lcNumCellLocked('절정수', 'lc-glance-cell--cycle');
+      h += lcNumCellLocked('도전수', 'lc-glance-cell--cycle');
+    } else {
+      h += lcNumCell('대주기', ctx.majorNum, ctx.majorSub || '', 'lc-glance-cell--cycle');
+      h += lcNumCell('절정수', ctx.pinnacle, ctx.stageSub || '', 'lc-glance-cell--cycle');
+      h += lcNumCell('도전수', ctx.challenge, '현재 구간', 'lc-glance-cell--cycle');
+    }
   }
   return h;
 }
@@ -6274,11 +6310,12 @@ async function runAnalysis() {
     personalityPre: personalityNum ? personalityNum.pre : null,
     maturitySingle: maturityNum ? maturityNum.single : null,
     maturityPre: maturityNum ? maturityNum.pre : null,
-    majorNum: hasAccess('basic') ? cycleGlance.majorNum : null,
-    majorSub: hasAccess('basic') ? cycleGlance.majorSub : null,
-    pinnacle: hasAccess('basic') ? cycleGlance.pinnacle : null,
-    challenge: hasAccess('basic') ? cycleGlance.challenge : null,
-    stageSub: hasAccess('basic') ? cycleGlance.stageSub : null,
+    majorNum: cycleGlance.majorNum,
+    majorSub: cycleGlance.majorSub,
+    pinnacle: cycleGlance.pinnacle,
+    challenge: cycleGlance.challenge,
+    stageSub: cycleGlance.stageSub,
+    cycleLocked: !hasAccess('basic'),
   });
 
   // ── 11. PDF (Pro+) ──
