@@ -4887,11 +4887,11 @@ function buildReadingGuideCatalogInnerHtml() {
       )}
       ${lcReadingGuideCatalogRow(
         `<a href="#nav-major-cycle" class="lc-guide-link"><strong>대주기 분석</strong></a>`,
-        `월·일·연 축약 수로 세 구간(제1~3 주기)을 나눈 장주기 뷰.`,
+        `${lcGuideTierPrefix('basic')}월·일·연 축약 수로 세 구간(제1~3 주기)을 나눈 장주기 뷰.`,
       )}
       ${lcReadingGuideCatalogRow(
         `<a href="#nav-life-four" class="lc-guide-link"><strong>인생 4단계</strong></a>`,
-        `네 구간별 절정수(환경)·도전수(내적 과제) 번호 산출·표·심층 해석.`,
+        `${lcGuideTierPrefix('basic')}네 구간별 절정수(환경)·도전수(내적 과제) 번호 산출·표·심층 해석.`,
       )}
       ${lcReadingGuideCatalogRow(
         `<a href="#timelineSection" class="lc-guide-link"><strong>10년 타임라인</strong></a>`,
@@ -6058,7 +6058,7 @@ async function runAnalysis() {
     document.getElementById('monthlyContent').innerHTML = gateHTML('basic','월간 흐름','12개월 각각의 에너지 테마를 확인할 수 있습니다.');
   }
 
-  // ── 7. 대주기 분석 (모든 플랜, 기본) ──
+  // ── 7. 대주기 분석 (Basic+) ──
   const lpV=(lp===11?2:(lp===22?4:(lp===33?6:lp)));
   const age1=36-lpV;
   const userAge=curY-y;
@@ -6073,10 +6073,15 @@ async function runAnalysis() {
     { title: "두 번째 주기", age: `${age1+1}~${age1+27}세`, num: dr_r, q: "인생의 중반기, 어떤 꽃을 피워야 하는가?" },
     { title: "세 번째 주기", age: `${age1+28}세~`, num: yr_r, q: "인생의 후반기, 어떤 열매를 거두어야 하는가?" }
   ];
-  document.getElementById('majorCycleContent').innerHTML =
-    buildMajorCycleHTML(majorCards, majorDetail, curMajorIdx);
+  if (hasAccess('basic')) {
+    document.getElementById('majorCycleContent').innerHTML =
+      buildMajorCycleHTML(majorCards, majorDetail, curMajorIdx);
+  } else {
+    document.getElementById('majorCycleContent').innerHTML =
+      gateHTML('basic', '대주기 분석', '인생을 세 구간(월·일·연)으로 나눈 장기 흐름을 확인할 수 있습니다.');
+  }
 
-  // ── 8. 인생 4단계 요약 (모든 플랜, 기본) ──
+  // ── 8. 인생 4단계 요약 (Basic+) ──
   const stageSeasons = ['봄 · 씨앗기', '여름 · 성장기', '가을 · 결실기', '겨울 · 완성기'];
   const curStageIdx=userAge<=age1?0:(userAge<=age1+9?1:(userAge<=age1+18?2:3));
   // 절정수: 1=M+D, 2=D+Y, 3=P1+P2, 4=M+Y / 도전수: 1=|M-D|, 2=|D-Y|, 3=|C1-C2|, 4=|M-Y| (월·일·년은 각각 환산한 뒤 연산)
@@ -6098,38 +6103,43 @@ async function runAnalysis() {
     <td class="p-num">${c.p}</td>
     <td class="c-num">${c.c}</td>
   </tr>`).join('');
-  document.getElementById('cycleContent').innerHTML = `
-    ${buildMajorCycleFourStageIntro(userAge, curMajorIdx, curStageIdx, majorDetail, stageSeasons)}
-    <div style="background:white;border:1px solid var(--border);border-radius:10px;overflow:hidden;margin-bottom:16px;">
-      <table class="cycle-table">
-        <thead><tr><th>단계</th><th>나이</th><th>절정수(환경)</th><th>도전수(과제)</th></tr></thead>
-        <tbody>${tableRows}</tbody>
-      </table>
-    </div>
-    <div id="stageProgressBarInline"></div>
-    ${cyData.map((c,i)=>accordion(`✦ ${c.s} · 절정수 ${c.p}번${masterNumTag(c.p)} × 도전수 ${c.c}번${masterNumTag(c.c)} ${i===curStageIdx?'<span style="font-size:10px;background:var(--accent);color:white;padding:2px 8px;border-radius:20px;margin-left:8px;">현재</span>':''}`,
-      `${buildPinnacleStageLead(i)}
-       ${buildPeakChallengeBridge(c.p, c.c, TITLE_MAP)}
-       <div class="cycle-deep-block">
-         <div style="margin-bottom:12px"><strong style="color:var(--teal)">환경(절정수 ${c.p}번) · 자세히</strong> ${(PINNACLE_DEEP_MAP&&PINNACLE_DEEP_MAP[c.p])||DEEP_MAP[c.p]||''}</div>
-         <div style="margin-bottom:12px"><strong style="color:var(--warm-brown)">과제(도전수 ${c.c}번) · 자세히</strong> ${(CHALLENGE_DEEP_MAP&&CHALLENGE_DEEP_MAP[c.c])||DEEP_MAP[c.c]||''}</div>
-       </div>`, i===curStageIdx)).join('')}`;
+  if (hasAccess('basic')) {
+    document.getElementById('cycleContent').innerHTML = `
+      ${buildMajorCycleFourStageIntro(userAge, curMajorIdx, curStageIdx, majorDetail, stageSeasons)}
+      <div style="background:white;border:1px solid var(--border);border-radius:10px;overflow:hidden;margin-bottom:16px;">
+        <table class="cycle-table">
+          <thead><tr><th>단계</th><th>나이</th><th>절정수(환경)</th><th>도전수(과제)</th></tr></thead>
+          <tbody>${tableRows}</tbody>
+        </table>
+      </div>
+      <div id="stageProgressBarInline"></div>
+      ${cyData.map((c,i)=>accordion(`✦ ${c.s} · 절정수 ${c.p}번${masterNumTag(c.p)} × 도전수 ${c.c}번${masterNumTag(c.c)} ${i===curStageIdx?'<span style="font-size:10px;background:var(--accent);color:white;padding:2px 8px;border-radius:20px;margin-left:8px;">현재</span>':''}`,
+        `${buildPinnacleStageLead(i)}
+         ${buildPeakChallengeBridge(c.p, c.c, TITLE_MAP)}
+         <div class="cycle-deep-block">
+           <div style="margin-bottom:12px"><strong style="color:var(--teal)">환경(절정수 ${c.p}번) · 자세히</strong> ${(PINNACLE_DEEP_MAP&&PINNACLE_DEEP_MAP[c.p])||DEEP_MAP[c.p]||''}</div>
+           <div style="margin-bottom:12px"><strong style="color:var(--warm-brown)">과제(도전수 ${c.c}번) · 자세히</strong> ${(CHALLENGE_DEEP_MAP&&CHALLENGE_DEEP_MAP[c.c])||DEEP_MAP[c.c]||''}</div>
+         </div>`, i===curStageIdx)).join('')}`;
 
-  document.getElementById('stageProgressBarInline').innerHTML = `
-    <div class="stage-progress-wrap">
-      <div class="stage-progress-bar">
-        ${cyData.map((c, i) => `
-          <div class="stage-step ${i===curStageIdx?'active':''} ${i<curStageIdx?'done':''}">
-            <div class="step-dot">${i<curStageIdx?'✓':(i===curStageIdx?'◉':(i+1))}</div>
-            <div class="step-label">${c.s}<br>${stageSeasons[i]}</div>
-          </div>
-          ${i < cyData.length - 1 ? `<div class="step-line-wrap"><div class="step-line ${i<curStageIdx?'done':''}"></div></div>` : ''}
-        `).join('')}
-      </div>
-      <div class="stage-progress-msg">
-        현재 당신은 <strong style="color:var(--accent)">${curStageIdx + 1}단계 — ${stageSeasons[curStageIdx]}</strong>를 지나고 있습니다.
-      </div>
-    </div>`;
+    document.getElementById('stageProgressBarInline').innerHTML = `
+      <div class="stage-progress-wrap">
+        <div class="stage-progress-bar">
+          ${cyData.map((c, i) => `
+            <div class="stage-step ${i===curStageIdx?'active':''} ${i<curStageIdx?'done':''}">
+              <div class="step-dot">${i<curStageIdx?'✓':(i===curStageIdx?'◉':(i+1))}</div>
+              <div class="step-label">${c.s}<br>${stageSeasons[i]}</div>
+            </div>
+            ${i < cyData.length - 1 ? `<div class="step-line-wrap"><div class="step-line ${i<curStageIdx?'done':''}"></div></div>` : ''}
+          `).join('')}
+        </div>
+        <div class="stage-progress-msg">
+          현재 당신은 <strong style="color:var(--accent)">${curStageIdx + 1}단계 — ${stageSeasons[curStageIdx]}</strong>를 지나고 있습니다.
+        </div>
+      </div>`;
+  } else {
+    document.getElementById('cycleContent').innerHTML =
+      gateHTML('basic', '인생 4단계 요약', '절정수·도전수 네 구간별 해석을 확인할 수 있습니다.');
+  }
 
   // ── 9. 성장 지도 (Basic+) ──
   if(hasAccess('basic')) {
@@ -6297,11 +6307,11 @@ async function runAnalysis() {
     personalityPre: personalityNum ? personalityNum.pre : null,
     maturitySingle: maturityNum ? maturityNum.single : null,
     maturityPre: maturityNum ? maturityNum.pre : null,
-    majorNum: cycleGlance.majorNum,
-    majorSub: cycleGlance.majorSub,
-    pinnacle: cycleGlance.pinnacle,
-    challenge: cycleGlance.challenge,
-    stageSub: cycleGlance.stageSub,
+    majorNum: hasAccess('basic') ? cycleGlance.majorNum : null,
+    majorSub: hasAccess('basic') ? cycleGlance.majorSub : null,
+    pinnacle: hasAccess('basic') ? cycleGlance.pinnacle : null,
+    challenge: hasAccess('basic') ? cycleGlance.challenge : null,
+    stageSub: hasAccess('basic') ? cycleGlance.stageSub : null,
   });
 
   // ── 11. PDF (Pro+) ──
