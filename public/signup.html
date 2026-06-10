@@ -52,9 +52,16 @@
 
   <script>
     (function () {
-      var n = new URLSearchParams(location.search).get('next');
-      if (!n) return;
-      var q = 'next=' + encodeURIComponent(n);
+      var params = new URLSearchParams(location.search);
+      var next = params.get('next');
+      if (!next) {
+        var plan = params.get('plan');
+        if (plan === 'basic' || plan === 'pro' || plan === 'professional') {
+          next = 'checkout.html?plan=' + plan + '&cycle=monthly';
+        }
+      }
+      if (!next) return;
+      var q = 'next=' + encodeURIComponent(next);
       var s = document.getElementById('nav-login-link');
       var i = document.getElementById('inline-login-link');
       if (s) s.href = 'login.html?' + q;

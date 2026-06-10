@@ -1067,7 +1067,8 @@ async function handleSubscribe(plan) {
   const { data: { session } } = await sb.auth.getSession();
 
   if (!session) {
-    window.location.href = `signup.html?plan=${plan}`;
+    const checkoutNext = `checkout.html?plan=${plan}&cycle=${billing}`;
+    window.location.href = `login.html?next=${encodeURIComponent(checkoutNext)}`;
     return;
   }
 
