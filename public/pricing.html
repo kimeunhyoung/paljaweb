@@ -10,7 +10,8 @@
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Noto+Serif+KR:wght@300;400;500;600&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet"/>
   <script src="js/plan-access.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="js/topbar-session.js?v=5" defer></script>
+  <script src="js/site-topbar.js?v=1" defer></script>
+  <script src="js/topbar-session.js?v=6" defer></script>
 
   <style>
     :root {
@@ -696,43 +697,13 @@
     }
   </style>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css" crossorigin />
-  <link rel="stylesheet" href="css/site-header.css?v=6" />
+  <link rel="stylesheet" href="css/site-topbar.css?v=1" />
+  <link rel="stylesheet" href="css/site-header.css?v=7" />
 </head>
 <body>
 
 <!-- TOPBAR -->
-<div class="site-top">
-<header class="topbar">
-  <div class="topbar-left">
-    <a class="topbar-logo" href="index.html"><span class="topbar-logo-mark" aria-hidden="true">八</span>팔자연구소</a>
-    <div class="topbar-sep"></div>
-    <span class="topbar-title">요금제</span>
-  </div>
-  <div class="topbar-right" data-topbar-auth aria-label="계정">
-    <span class="plan-badge free" id="plan-badge">Free</span>
-    <span data-topbar-auth-guest class="pricing-auth-guest">
-      <a class="topbar-link" href="login.html?next=pricing.html">로그인</a>
-      <a class="topbar-link" href="signup.html?next=pricing.html">회원가입</a>
-    </span>
-    <span data-topbar-auth-user class="pricing-auth-user" hidden>
-      <a class="topbar-link" href="dashboard.html">나의 공간</a>
-      <button type="button" class="topbar-link" data-topbar-auth-signout style="background:none;border:none;cursor:pointer;">로그아웃</button>
-    </span>
-  </div>
-</header>
-<nav class="program-nav" aria-label="팔자연구소 프로그램 이동">
-  <div class="program-nav-inner">
-    <a href="analysis.html">라이프코드</a>
-    <a href="Tarot.html">타로코드</a>
-    <a href="name.html">네임코드</a>
-    <a href="compatibility.html">소울하모니</a>
-    <a href="period48-compat.html">48궁합</a>
-    <a href="numerology-calendar.html">수비학달력</a>
-    <a href="counselor.html">상담사허브</a>
-    <span class="program-nav-current" aria-current="page">요금제</span>
-  </div>
-</nav>
-</div>
+<div class="site-top" data-topbar-title="요금제" data-nav-current="pricing" data-login-next="pricing.html"></div>
 
 <!-- HERO -->
 <section class="hero">

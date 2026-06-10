@@ -210,15 +210,8 @@ html {
     min-height: 36px;
   }
 
-  .site-top .topbar-right > .back-btn {
-    order: 4;
-    flex: 0 0 auto;
-    justify-content: flex-end;
-    min-height: 0;
-  }
-
   .site-top .topbar-right > [data-topbar-auth-user] {
-    order: 5;
+    order: 4;
     flex: 0 0 auto;
     display: inline-flex;
     justify-content: flex-end;

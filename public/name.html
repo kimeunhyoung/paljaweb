@@ -11,7 +11,8 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="js/topbar-session.js?v=5" defer></script>
+<script src="js/site-topbar.js?v=1" defer></script>
+<script src="js/topbar-session.js?v=6" defer></script>
 <link rel="stylesheet" href="css/birth-date-picker.css">
 <style>
 :root {
@@ -467,50 +468,12 @@ body{font-family:var(--font-body);background:var(--cream);color:var(--ink);min-h
 }
 </style>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css" crossorigin />
-<link rel="stylesheet" href="css/site-header.css?v=6" />
+<link rel="stylesheet" href="css/site-topbar.css?v=1" />
+<link rel="stylesheet" href="css/site-header.css?v=7" />
 </head>
 <body>
 
-<div class="site-top">
-<header class="topbar">
-  <div class="topbar-left">
-    <a class="topbar-logo" href="index.html">
-      <span class="topbar-logo-mark">八</span>
-      <span class="topbar-logo-text">팔자연구소</span>
-    </a>
-    <div class="topbar-sep"></div>
-    <span class="topbar-title">네임코드</span>
-  </div>
-  <div class="topbar-right" data-topbar-auth aria-label="계정">
-    <span class="plan-badge free" id="plan-badge">Free</span>
-    <span class="topbar-auth-row" data-topbar-auth-guest>
-      <a class="topbar-auth-link" href="login.html?next=name.html">로그인</a>
-      <span class="topbar-auth-dot" aria-hidden="true">·</span>
-      <a class="topbar-auth-link" href="signup.html?next=name.html">회원가입</a>
-    </span>
-    <div class="topbar-export-btns">
-      <button type="button" class="counselor-bar-btn" onclick="window.print()">🖨 인쇄</button>
-      <button type="button" class="counselor-bar-btn" id="pdfBtn" onclick="savePDF()">⬇ PDF 저장</button>
-    </div>
-    <a class="back-btn" href="dashboard.html">대시보드</a>
-    <span class="topbar-auth-row" data-topbar-auth-user hidden>
-      <button type="button" class="topbar-auth-link topbar-auth-btn" data-topbar-auth-signout>로그아웃</button>
-    </span>
-  </div>
-</header>
-<nav class="program-nav" aria-label="팔자연구소 프로그램 이동">
-  <div class="program-nav-inner">
-    <a href="analysis.html">라이프코드</a>
-    <a href="Tarot.html">타로코드</a>
-    <span class="program-nav-current" aria-current="page">네임코드</span>
-    <a href="compatibility.html">소울하모니</a>
-    <a href="period48-compat.html">48궁합</a>
-    <a href="numerology-calendar.html">수비학달력</a>
-    <a href="counselor.html">상담사허브</a>
-    <a href="pricing.html">요금제</a>
-  </div>
-</nav>
-</div>
+<div class="site-top" data-topbar-title="네임코드" data-nav-current="name" data-export="print,pdf" data-pdf-handler="savePDF" data-pdf-btn-id="pdfBtn" data-login-next="name.html"></div>
 
 <section class="hero">
   <div class="hero-inner">

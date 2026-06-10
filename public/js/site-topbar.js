@@ -1,0 +1,118 @@
+/**
+ * .site-top[data-nav-current] 마운트에 공통 탑바·프로그램 내비를 렌더합니다.
+ * topbar-session.js보다 먼저 로드하세요.
+ */
+(function () {
+  var NAV = [
+    { id: 'lifecode', href: 'analysis.html', label: '라이프코드' },
+    { id: 'tarot', href: 'Tarot.html', label: '타로코드' },
+    { id: 'name', href: 'name.html', label: '네임코드' },
+    { id: 'harmony', href: 'compatibility.html', label: '소울하모니' },
+    { id: 'p48', href: 'period48-compat.html', label: '48궁합' },
+    { id: 'calendar', href: 'numerology-calendar.html', label: '수비학달력' },
+    { id: 'counselor', href: 'counselor.html', label: '상담사허브' },
+    { id: 'pricing', href: 'pricing.html', label: '요금제' }
+  ];
+
+  function esc(s) {
+    return String(s)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/"/g, '&quot;');
+  }
+
+  function pageFile() {
+    var p = location.pathname.split('/').pop();
+    return p || 'index.html';
+  }
+
+  function buildExportHtml(mount) {
+    var exp = (mount.getAttribute('data-export') || '')
+      .split(',')
+      .map(function (s) { return s.trim(); })
+      .filter(Boolean);
+    if (!exp.length) return '';
+
+    var pdfHandler = mount.getAttribute('data-pdf-handler') || 'topbarPdfClick';
+    var pdfId = mount.getAttribute('data-pdf-btn-id') || 'topbarPdfBtn';
+    var toggle = mount.getAttribute('data-export-mode') === 'toggle';
+    var clusterClass = 'topbar-export-cluster' + (toggle ? '' : ' is-always');
+
+    var html =
+      '<div class="' + clusterClass + '" id="topbarExportCluster" aria-live="polite">' +
+      '<div class="topbar-export-btns">';
+
+    if (exp.indexOf('print') >= 0) {
+      html +=
+        '<button type="button" class="counselor-bar-btn" id="topbarPrintBtn" onclick="window.print()">' +
+        '🖨 인쇄</button>';
+    }
+    if (exp.indexOf('pdf') >= 0) {
+      html +=
+        '<button type="button" class="counselor-bar-btn" id="' + esc(pdfId) + '" onclick="' +
+        esc(pdfHandler) + '()">⬇ PDF 저장</button>';
+    }
+
+    html += '</div></div>';
+    return html;
+  }
+
+  function buildNavHtml(current) {
+    return NAV.map(function (item) {
+      if (item.id === current) {
+        return '<span class="program-nav-current" aria-current="page">' + esc(item.label) + '</span>';
+      }
+      return '<a href="' + esc(item.href) + '">' + esc(item.label) + '</a>';
+    }).join('\n    ');
+  }
+
+  function render(mount) {
+    if (!mount || mount.getAttribute('data-topbar-rendered') === '1') return;
+
+    var title = mount.getAttribute('data-topbar-title') || '';
+    var current = mount.getAttribute('data-nav-current') || '';
+    var loginNext = mount.getAttribute('data-login-next') || pageFile();
+    var exportHtml = buildExportHtml(mount);
+
+    mount.innerHTML =
+      '<header class="topbar">' +
+      '<div class="topbar-left">' +
+      '<a class="topbar-logo" href="index.html">' +
+      '<span class="topbar-logo-mark" aria-hidden="true">八</span>팔자연구소</a>' +
+      '<div class="topbar-sep"></div>' +
+      '<span class="topbar-title">' + esc(title) + '</span>' +
+      '</div>' +
+      '<div class="topbar-right" data-topbar-auth aria-label="계정">' +
+      '<span class="plan-badge free" id="plan-badge">Free</span>' +
+      '<span class="topbar-auth-row" data-topbar-auth-guest>' +
+      '<a class="topbar-auth-link" href="login.html?next=' + encodeURIComponent(loginNext) + '">로그인</a>' +
+      '<span class="topbar-auth-dot" aria-hidden="true">·</span>' +
+      '<a class="topbar-auth-link" href="signup.html?next=' + encodeURIComponent(loginNext) + '">회원가입</a>' +
+      '</span>' +
+      exportHtml +
+      '<span class="topbar-auth-row" data-topbar-auth-user hidden>' +
+      '<a class="back-btn" href="dashboard.html">대시보드</a>' +
+      '<span class="topbar-auth-dot" aria-hidden="true">·</span>' +
+      '<button type="button" class="topbar-auth-link topbar-auth-btn" data-topbar-auth-signout>로그아웃</button>' +
+      '</span>' +
+      '</div>' +
+      '</header>' +
+      '<nav class="program-nav" aria-label="팔자연구소 프로그램 이동">' +
+      '<div class="program-nav-inner">' +
+      buildNavHtml(current) +
+      '</div>' +
+      '</nav>';
+
+    mount.setAttribute('data-topbar-rendered', '1');
+  }
+
+  function init() {
+    document.querySelectorAll('.site-top[data-nav-current]').forEach(render);
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    init();
+  }
+})();

@@ -35,7 +35,8 @@
       );
     })();
   </script>
-  <script src="js/topbar-session.js?v=5" defer></script>
+  <script src="js/site-topbar.js?v=1" defer></script>
+  <script src="js/topbar-session.js?v=6" defer></script>
 
   <style>
     :root {
@@ -1530,48 +1531,14 @@
     }
   </style>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css" crossorigin />
-  <link rel="stylesheet" href="css/site-header.css?v=6" />
+  <link rel="stylesheet" href="css/site-topbar.css?v=1" />
+  <link rel="stylesheet" href="css/site-header.css?v=7" />
   <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7451075921625740" crossorigin="anonymous"></script>
 </head>
 <body class="logo-style-classic">
 
 <!-- TOPBAR -->
-<div class="site-top">
-<header class="topbar">
-  <div class="topbar-left">
-    <a class="topbar-logo" href="index.html" aria-label="팔자연구소 타로코드">
-      <span class="topbar-logo-mark" aria-hidden="true">八</span>
-      <span class="topbar-logo-text">
-        <span class="topbar-logo-parent">팔자연구소</span><span class="topbar-logo-sep" aria-hidden="true">·</span><span class="topbar-logo-product">타로코드</span>
-      </span>
-    </a>
-  </div>
-  <div class="topbar-right" data-topbar-auth aria-label="계정">
-    <span class="plan-badge free" id="plan-badge">Free</span>
-    <span class="topbar-auth-row" data-topbar-auth-guest>
-      <a class="topbar-auth-link" href="login.html?next=Tarot.html">로그인</a>
-      <span class="topbar-auth-dot" aria-hidden="true">·</span>
-      <a class="topbar-auth-link" href="signup.html?next=Tarot.html">회원가입</a>
-    </span>
-    <a class="back-btn" href="dashboard.html">대시보드</a>
-    <span class="topbar-auth-row" data-topbar-auth-user hidden>
-      <button type="button" class="topbar-auth-link topbar-auth-btn" data-topbar-auth-signout>로그아웃</button>
-    </span>
-  </div>
-</header>
-<nav class="program-nav" aria-label="팔자연구소 프로그램 이동">
-  <div class="program-nav-inner">
-    <a href="analysis.html">라이프코드</a>
-    <span class="program-nav-current" aria-current="page">타로코드</span>
-    <a href="name.html">네임코드</a>
-    <a href="compatibility.html">소울하모니</a>
-    <a href="period48-compat.html">48궁합</a>
-    <a href="numerology-calendar.html">수비학달력</a>
-    <a href="counselor.html">상담사허브</a>
-    <a href="pricing.html">요금제</a>
-  </div>
-</nav>
-</div>
+<div class="site-top" data-topbar-title="타로코드" data-nav-current="tarot" data-login-next="Tarot.html"></div>
 
 <aside class="tarot-ad-slot" id="tarotAdSlotTop" aria-label="광고">
   <div class="tarot-ad-banner-host" id="tarotAdBannerHost"></div>

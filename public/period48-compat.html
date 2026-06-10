@@ -10,7 +10,8 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400&family=Noto+Serif+KR:wght@400;500;600;700&display=swap" rel="stylesheet"/>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="js/topbar-session.js?v=5" defer></script>
+  <script src="js/site-topbar.js?v=1" defer></script>
+  <script src="js/topbar-session.js?v=6" defer></script>
   <link rel="stylesheet" href="css/birth-date-picker.css">
   <script src="js/period48Data.js" defer></script>
   <script src="js/period48LifeZones.js" defer></script>
@@ -376,34 +377,12 @@
       .p48-rel-field-text { font-size: 14px; }
     }
   </style>
-  <link rel="stylesheet" href="css/site-header.css?v=6"/>
+  <link rel="stylesheet" href="css/site-topbar.css?v=1"/>
+  <link rel="stylesheet" href="css/site-header.css?v=7"/>
 </head>
 <body>
 
-<div class="site-top">
-  <header class="topbar">
-    <div class="topbar-left">
-      <a class="topbar-logo" href="index.html"><span class="topbar-logo-mark" aria-hidden="true">八</span>팔자연구소</a>
-      <div class="topbar-sep"></div>
-      <span class="topbar-title">48궁합</span>
-    </div>
-    <div class="topbar-right" data-topbar-auth aria-label="계정">
-      <a href="dashboard.html" class="back-btn">대시보드</a>
-    </div>
-  </header>
-  <nav class="program-nav" aria-label="팔자연구소 프로그램 이동">
-    <div class="program-nav-inner">
-      <a href="analysis.html">라이프코드</a>
-      <a href="Tarot.html">타로코드</a>
-      <a href="name.html">네임코드</a>
-      <a href="compatibility.html">소울하모니</a>
-      <span class="program-nav-current" aria-current="page">48궁합</span>
-      <a href="numerology-calendar.html">수비학달력</a>
-      <a href="counselor.html">상담사허브</a>
-      <a href="pricing.html">요금제</a>
-    </div>
-  </nav>
-</div>
+<div class="site-top" data-topbar-title="48궁합" data-nav-current="p48" data-login-next="period48-compat.html"></div>
 
 <div class="wrap">
   <header class="brand">
