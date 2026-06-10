@@ -480,6 +480,11 @@ app.post('/api/ai/messages', async (req, res) => {
   }
 });
 
+app.get('/favicon.ico', (req, res) => {
+  res.type('image/svg+xml');
+  res.sendFile(path.join(pathPublic, 'favicon.svg'));
+});
+
 app.use(
   express.static(pathPublic, {
     etag: isProd,
