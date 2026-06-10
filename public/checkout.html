@@ -211,9 +211,8 @@
         const paymentId = prepJson.paymentId;
         const issueId = prepJson.issueId || paymentId;
         const customerName = s2.user.user_metadata?.full_name || s2.user.email || '회원';
-        const offerPeriod = cycle === 'annual'
-          ? { range: { from: '1년', to: '1년' } }
-          : { range: { from: '1개월', to: '1개월' } };
+        // PortOne: interval은 1m(월 정기) / 1y(연 정기)만 허용. range는 ISO8601 날짜 필요.
+        const offerPeriod = cycle === 'annual' ? { interval: '1y' } : { interval: '1m' };
 
         const issueResponse = await PortOne.requestIssueBillingKey({
           storeId: cfg.storeId,
