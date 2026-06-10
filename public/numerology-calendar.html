@@ -16,10 +16,6 @@
     rel="stylesheet"
   />
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="js/site-topbar.js?v=1" defer></script>
-  <script src="js/topbar-session.js?v=6" defer></script>
-  <link rel="stylesheet" href="css/site-topbar.css?v=1" />
-  <link rel="stylesheet" href="css/site-header.css?v=7" />
   <style>
     :root {
       --bg: #f7f3ea;
@@ -50,95 +46,6 @@
       color: var(--ink);
       background: radial-gradient(1200px 600px at 50% -300px, #fff6df, var(--bg));
     }
-    .site-top {
-      position: sticky;
-      top: 0;
-      z-index: 100;
-      background: rgba(247, 243, 234, 0.98);
-      box-shadow: 0 6px 18px rgba(45, 38, 28, 0.06);
-    }
-    .topbar {
-      min-height: 52px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 10px 32px;
-      gap: 16px;
-      border-bottom: 1px solid var(--border);
-    }
-    .topbar-left { display: flex; align-items: center; gap: 16px; min-width: 0; }
-    .topbar-logo {
-      display: inline-flex;
-      align-items: center;
-      gap: 10px;
-      text-decoration: none;
-      color: var(--deep-brown);
-      font-weight: 700;
-      font-size: 16px;
-      white-space: nowrap;
-    }
-    .topbar-logo-mark {
-      width: 30px;
-      height: 30px;
-      border-radius: 9px;
-      background: linear-gradient(160deg, #5a402d, #2d1f16);
-      color: var(--cream);
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      font-family: var(--font-serif);
-      font-size: 17px;
-    }
-    .topbar-sep { width: 1px; height: 16px; background: var(--border); }
-    .topbar-title { font-size: 14px; font-weight: 600; color: var(--deep-brown); }
-    .topbar-right { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
-    .back-btn {
-      font-size: 12px;
-      color: var(--warm-brown);
-      text-decoration: none;
-      border: 1px solid var(--border);
-      padding: 6px 12px;
-      border-radius: 6px;
-      background: #fff;
-    }
-    .topbar-auth-link {
-      font-size: 12px;
-      font-weight: 600;
-      color: var(--warm-brown);
-      text-decoration: none;
-    }
-    .topbar-auth-link:hover { color: var(--deep-brown); }
-    .topbar-auth-btn {
-      background: none;
-      border: none;
-      padding: 0;
-      cursor: pointer;
-      font-family: inherit;
-    }
-    .topbar-auth-dot { color: var(--muted); }
-    .topbar-auth-row { display: inline-flex; align-items: center; gap: 8px; }
-    .program-nav {
-      border-bottom: 1px solid var(--border);
-      background: rgba(255, 255, 255, 0.55);
-      padding: 0 32px;
-    }
-    .program-nav-inner {
-      max-width: 1100px;
-      margin: 0 auto;
-      display: flex;
-      flex-wrap: wrap;
-      gap: 6px 16px;
-      padding: 7px 0 9px;
-      font-size: 12px;
-    }
-    .program-nav-inner a {
-      color: var(--muted);
-      text-decoration: none;
-      font-weight: 600;
-    }
-    .program-nav-inner a:hover { color: var(--deep-brown); }
-    .program-nav-current { color: var(--deep-brown); font-weight: 700; }
-
     .page {
       max-width: 1200px;
       margin: 0 auto;
@@ -421,6 +328,10 @@
       .metric { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     }
   </style>
+  <script src="js/site-topbar.js?v=2" defer></script>
+  <script src="js/topbar-session.js?v=6" defer></script>
+  <link rel="stylesheet" href="css/site-topbar.css?v=2" />
+  <link rel="stylesheet" href="css/site-header.css?v=8" />
 </head>
 <body>
   <div class="site-top" data-topbar-title="수비학달력" data-nav-current="calendar" data-login-next="numerology-calendar.html"></div>

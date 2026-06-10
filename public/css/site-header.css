@@ -2,6 +2,8 @@
  * 팔자연구소 — 공통 헤더/내비 타이포·모바일 정렬
  * 각 HTML의 <head> 끝에서 이 파일을 마지막으로 로드하세요.
  */
+@import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css');
+
 html {
   /* 스크롤바 유무에 따른 가로 밀림 완화 (지원 브라우저) */
   scrollbar-gutter: stable;

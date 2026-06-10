@@ -10,7 +10,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400&family=Noto+Serif+KR:wght@400;500;600;700&display=swap" rel="stylesheet"/>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="js/site-topbar.js?v=1" defer></script>
+  <script src="js/site-topbar.js?v=2" defer></script>
   <script src="js/topbar-session.js?v=6" defer></script>
   <link rel="stylesheet" href="css/birth-date-picker.css">
   <script src="js/period48Data.js" defer></script>
@@ -44,54 +44,6 @@
       color: var(--ink);
       min-height: 100vh;
     }
-    .site-top {
-      position: sticky; top: 0; z-index: 100;
-      background: rgba(245,240,232,.98);
-      box-shadow: 0 6px 18px rgba(45,38,28,.06);
-    }
-    .topbar {
-      min-height: 52px;
-      display: flex; align-items: center; justify-content: space-between;
-      padding: 10px 32px; gap: 16px;
-      border-bottom: 1px solid var(--border);
-    }
-    .topbar-left { display: flex; align-items: center; gap: 16px; min-width: 0; }
-    .topbar-logo {
-      display: inline-flex; align-items: center; gap: 10px;
-      text-decoration: none; color: var(--deep-brown);
-      font-weight: 700; font-size: 16px; white-space: nowrap;
-    }
-    .topbar-logo-mark {
-      width: 30px; height: 30px; border-radius: 9px;
-      background: linear-gradient(160deg, #5a402d, #2d1f16);
-      color: var(--cream); display: inline-flex;
-      align-items: center; justify-content: center;
-      font-family: var(--font-serif); font-size: 17px;
-    }
-    .topbar-sep { width: 1px; height: 16px; background: var(--border); }
-    .topbar-title { font-size: 14px; font-weight: 600; color: var(--deep-brown); }
-    .topbar-right { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
-    .back-btn {
-      font-size: 12px; color: var(--warm-brown); text-decoration: none;
-      border: 1px solid var(--border); padding: 6px 12px; border-radius: 6px;
-      background: #fff;
-    }
-    .program-nav {
-      border-bottom: 1px solid var(--border);
-      background: rgba(255,255,255,.55);
-      padding: 0 32px;
-    }
-    .program-nav-inner {
-      max-width: 1100px; margin: 0 auto;
-      display: flex; flex-wrap: wrap; gap: 6px 16px;
-      padding: 7px 0 9px; font-size: 12px;
-    }
-    .program-nav-inner a {
-      color: var(--muted); text-decoration: none; font-weight: 600;
-    }
-    .program-nav-inner a:hover { color: var(--deep-brown); }
-    .program-nav-current { color: var(--deep-brown); font-weight: 700; }
-
     .wrap { max-width: 920px; margin: 0 auto; padding: 40px 24px 80px; }
     .brand { text-align: center; margin-bottom: 36px; }
     .brand-badge {
@@ -377,8 +329,8 @@
       .p48-rel-field-text { font-size: 14px; }
     }
   </style>
-  <link rel="stylesheet" href="css/site-topbar.css?v=1"/>
-  <link rel="stylesheet" href="css/site-header.css?v=7"/>
+  <link rel="stylesheet" href="css/site-topbar.css?v=2"/>
+  <link rel="stylesheet" href="css/site-header.css?v=8"/>
 </head>
 <body>
 
