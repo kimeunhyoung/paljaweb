@@ -1555,6 +1555,7 @@
     }
     .loshu-block-label--strength { color: #1a5c52; border-bottom-color: rgba(46, 139, 122, 0.45); }
     .loshu-block-label--weak { color: #9c2d23; border-bottom-color: rgba(192, 57, 43, 0.4); }
+    .loshu-block-label--empty { color: #5c4a7a; border-bottom-color: rgba(92, 74, 122, 0.4); }
     .loshu-block-label--intens { color: #5c451f; border-bottom-color: rgba(200, 169, 110, 0.55); }
     .loshu-foot {
       margin-top: 20px;
@@ -3246,6 +3247,17 @@
     <div id="loshuContent"></div>
   </div>
 
+  <!-- 풀 애로우 · 순차 격자 -->
+  <div class="section" style="animation-delay:.34s" id="seqArrowSection">
+    <div class="section-header">
+      <div class="section-line"></div>
+      <span class="section-label">풀 애로우 · 순차 격자</span>
+      <div class="section-line"></div>
+    </div>
+    <div id="seqArrowSectionBridge" class="timeline-bridge loshu-map-bridge"></div>
+    <div id="seqArrowContent"></div>
+  </div>
+
   <!-- PDF 저장 -->
   <div id="pdfSection" style="text-align:center; margin-top:20px;"></div>
 
@@ -3286,6 +3298,7 @@
       <div class="analysis-jump-list">
         <a href="#growthSection">Growth Map · 성장 지도</a>
         <a href="#loshuSection">로슈 격자 분석</a>
+        <a href="#seqArrowSection">풀 애로우 · 순차 격자</a>
       </div>
     </div>
     <button type="button" class="analysis-jump-fab" id="analysisJumpFab" aria-expanded="false" aria-controls="analysisJumpPanel">
@@ -4038,18 +4051,35 @@ window.NUMEROLOGY_DATA = (() => {
       33:{status:"치유",desc:DAY_HINT[33]}
     };
     const LOSHU_STRENGTH_RULES = [
-        {requires:[9,5,1],text:`<div class="loshu-rich-item"><b>⚡ 의지의 화살 (9-5-1)</b> — 마방진 안에서 <em>이상·중심·실행</em>이 한 줄로 잇습니다. 비전(9)을 잡으면 의지(5)로 버티고, 몸으로 채워 넣는 힘(1)까지 갖춘 구조예요. 현장에서 사람을 모으거나, 막다른 길에서도 방향을 다시 잡는 역할에 강합니다.<div class="loshu-rich-caveat"><strong>균형:</strong> 혼자 끌고 가려는 습관이 지나치면 주변 소리가 잘 안 들립니다. 실행은 함께 나눌수록 더 멀리 갑니다.</div></div>`},
-        {requires:[4,9,2],text:`<div class="loshu-rich-item"><b>🧠 정신의 화살 (4-9-2)</b> — 위쪽 가로(4·9·2)가 동시에 살아 있습니다. 자료와 절차를 정리(4)하고, 큰 그림을 보며(9), 사람·맥락을 읽는 감각(2)까지 이어져 학습·기획·전략에 강한 편으로 읽힙니다.<div class="loshu-rich-caveat"><strong>균형:</strong> 분석이 길어질수록 출발이 늦어질 수 있어요. ‘70% 이해면 시험 출시’ 식으로 작은 결정을 쌓는 연습이 도움이 됩니다.</div></div>`},
-        {requires:[8,5,2],text:`<div class="loshu-rich-item"><b>🏔️ 결단의 화살 (2-5-8)</b> — 대각선(2·5·8)이 열렸을 때예요. 관계·협상의 감각(2), 흔들리지 않는 축(5), 현실에 남는 결과(8)가 한 번에 이어져 위기 대응·실무 완수에 강합니다.<div class="loshu-rich-caveat"><strong>균형:</strong> 너무 버티기만 하면 유연성이 줄어듭니다. 가끔은 속도를 조금 늦추고 관계를 먼저 정돈하는 선택도 필요합니다.</div></div>`},
-        {requires:[4,3,8],text:`<div class="loshu-rich-item"><b>📝 실행의 화살 (4-3-8)</b> — 왼쪽 세로(4·3·8)가 함께 있습니다. 뼈대·루틴(4), 아이디어와 표현(3), 성과와 책임(8)이 연결되어 ‘설계 → 시도 → 결과’로 이어지기 쉬운 패턴입니다.<div class="loshu-rich-caveat"><strong>균형:</strong> 완벽한 설계만 고르다 시작이 늦어질 수 있어요. 초안·시범부터 올리고 고치는 식이 잘 맞습니다.</div></div>`}
+        {requires:[4,9,2],text:`<div class="loshu-rich-item"><b>🧠 정신의 화살 (4-9-2)</b> — 위쪽 가로가 모두 채워진 <em>풀 화살</em>입니다. 자료와 절차(4), 큰 그림(9), 맥락 읽기(2)가 한 줄로 이어져 학습·기획·전략에 강합니다.<div class="loshu-rich-caveat"><strong>균형:</strong> 분석이 길어질수록 출발이 늦어질 수 있어요. ‘70% 이해면 시험 출시’ 식으로 작은 결정을 쌓는 연습이 도움이 됩니다.</div></div>`},
+        {requires:[3,5,7],text:`<div class="loshu-rich-item"><b>💧 감정의 화살 (3-5-7)</b> — 가운데 가로가 모두 있는 풀 화살이에요. 표현·창의(3), 중심·의지(5), 통찰·내면(7)이 함께 있어 감정을 읽고 말로 풀어내는 힘이 탄탄합니다. 상담·교육·예술형 소통에 유리합니다.<div class="loshu-rich-caveat"><strong>균형:</strong> 감정이 앞서면 판단이 흔들릴 수 있어요. 중요한 결정은 하루만 두고 다시 보는 습관이 안전장치가 됩니다.</div></div>`},
+        {requires:[8,1,6],text:`<div class="loshu-rich-item"><b>🏠 실용의 화살 (8-1-6)</b> — 아래쪽 가로 풀 화살입니다. 현실 감각(8), 주도·실행(1), 돌봄·책임(6)이 연결되어 일상·가정·조직을 <em>실제로 굴려 가는</em> 힘이 있습니다. 꾸준한 성과와 신뢰 축적에 강합니다.<div class="loshu-rich-caveat"><strong>균형:</strong> 책임을 혼자 짊어지기 쉬워요. 역할을 나누고 마감선을 명확히 하면 오래 갑니다.</div></div>`},
+        {requires:[4,3,8],text:`<div class="loshu-rich-item"><b>📝 사고의 화살 (4-3-8)</b> — 왼쪽 세로 풀 화살입니다. 뼈대·루틴(4), 아이디어·표현(3), 성과·책임(8)이 이어져 ‘설계 → 시도 → 결과’로 가기 쉬운 패턴입니다.<div class="loshu-rich-caveat"><strong>균형:</strong> 완벽한 설계만 고르다 시작이 늦어질 수 있어요. 초안·시범부터 올리고 고치는 식이 잘 맞습니다.</div></div>`},
+        {requires:[9,5,1],text:`<div class="loshu-rich-item"><b>⚡ 의지의 화살 (9-5-1)</b> — 가운데 세로 풀 화살입니다. 이상·비전(9), 중심·의지(5), 실행·주도(1)가 한 줄로 잇혀 막다른 길에서도 방향을 다시 잡는 힘이 있습니다.<div class="loshu-rich-caveat"><strong>균형:</strong> 혼자 끌고 가려는 습관이 지나치면 주변 소리가 잘 안 들립니다. 실행은 함께 나눌수록 더 멀리 갑니다.</div></div>`},
+        {requires:[2,7,6],text:`<div class="loshu-rich-item"><b>🎯 행동의 화살 (2-7-6)</b> — 오른쪽 세로 풀 화살입니다. 협력·감각(2), 분석·전문성(7), 돌봄·완수(6)가 연결되어 <em>관계를 살리며 끝까지 가져가는</em> 실행력이 돋보입니다.<div class="loshu-rich-caveat"><strong>균형:</strong> 남의 기대에 맞추다 속도가 늦어질 수 있어요. 우선순위 한 줄만 정해도 힘이 덜 새어 나갑니다.</div></div>`},
+        {requires:[2,5,8],text:`<div class="loshu-rich-item"><b>🏔️ 성취의 화살 (2-5-8)</b> — 대각선(2·5·8) 풀 화살입니다. 관계·협상(2), 흔들리지 않는 축(5), 현실 성과(8)가 한 번에 이어져 위기 대응·실무 완수에 강합니다.<div class="loshu-rich-caveat"><strong>균형:</strong> 너무 버티기만 하면 유연성이 줄어듭니다. 가끔은 속도를 조금 늦추고 관계를 먼저 정돈하는 선택도 필요합니다.</div></div>`},
+        {requires:[4,5,6],text:`<div class="loshu-rich-item"><b>✨ 영성의 화살 (4-5-6)</b> — 대각선(4·5·6) 풀 화살입니다. 토대(4), 중심(5), 조화·봉사(6)가 함께 있어 <em>삶의 의미와 관계의 온도</em>를 동시에 챙기는 균형 감각이 있습니다. 멘토링·봉사·가정 리더십에 잘 맞습니다.<div class="loshu-rich-caveat"><strong>균형:</strong> 이상과 봉사에 치우치면 자기 소진이 올 수 있어요. 회복 시간을 일정에 넣는 것도 실천입니다.</div></div>`}
+    ];
+    const LOSHU_EMPTY_ARROW_RULES = [
+        {requires:[4,9,2],text:`<div class="loshu-rich-item"><b>○ 빈 화살 · 정신 (4-9-2)</b> — 위쪽 가로 세 칸이 모두 비었습니다. 정보가 많아도 <em>정리·구조화</em>가 약해질 수 있어요. 읽은 것·들은 것을 한 줄 메모로 남기는 습관부터 시작해 보세요.</div>`},
+        {requires:[3,5,7],text:`<div class="loshu-rich-item"><b>○ 빈 화살 · 감정 (3-5-7)</b> — 가운데 가로가 모두 비었습니다. 감정을 말로 풀거나 스스로 읽는 연습이 상대적으로 약할 수 있어요. 짧은 일기·감정 단어 하나만 적어도 도움이 됩니다.</div>`},
+        {requires:[8,1,6],text:`<div class="loshu-rich-item"><b>○ 빈 화살 · 실용 (8-1-6)</b> — 아래쪽 가로가 모두 비었습니다. 아이디어는 있는데 <em>일상·가정·조직</em>에 남는 형태로 굳히기 어려울 수 있어요. 작은 마감일 하나만 지켜도 실용 축이 자랍니다.</div>`},
+        {requires:[4,3,8],text:`<div class="loshu-rich-item"><b>○ 빈 화살 · 사고 (4-3-8)</b> — 왼쪽 세로가 모두 비었습니다. 시작·표현·성과가 한 줄로 이어지기 어렵다고 느낄 수 있어요. ‘작게 시작 → 한 번 공유 → 결과 기록’ 3단계만 반복해 보세요.</div>`},
+        {requires:[9,5,1],text:`<div class="loshu-rich-item"><b>○ 빈 화살 · 의지 (9-5-1)</b> — 가운데 세로가 모두 비었습니다. 방향은 보이는데 <em>끝까지 밀어붙이는 힘</em>이 약해질 수 있어요. 하루 한 가지 ‘반드시 끝낼 일’만 정하면 의지 축이 살아납니다.</div>`},
+        {requires:[2,7,6],text:`<div class="loshu-rich-item"><b>○ 빈 화살 · 행동 (2-7-6)</b> — 오른쪽 세로가 모두 비었습니다. 생각·관계는 있는데 <em>실행·완수</em>가 늦어지기 쉬워요. 도움을 요청하거나 마감 파트너 한 명만 정해도 속도가 붙습니다.</div>`},
+        {requires:[2,5,8],text:`<div class="loshu-rich-item"><b>○ 빈 화살 · 성취 (2-5-8)</b> — 대각선(2·5·8)이 모두 비었습니다. 변화 속에서 중심·성과가 함께 흔들리기 쉬워요. 한 달에 하나만 ‘끝까지 볼 목표’를 정하고 숫자로 확인해 보세요.</div>`},
+        {requires:[4,5,6],text:`<div class="loshu-rich-item"><b>○ 빈 화살 · 영성 (4-5-6)</b> — 대각선(4·5·6)이 모두 비었습니다. 바쁜 일과 관계 사이에서 <em>의미·조화</em>를 챙기기 어렵다고 느낄 수 있어요. 주 1회, 이유 없는 휴식·감사 한 줄이 균형을 돌려줍니다.</div>`}
     ];
     const LOSHU_WEAKNESS_RULES = [
-        {missing:5,text:`<div class="loshu-rich-item"><b>⚠️ 5번(중심) 부재</b> — ‘나침반 칸’이 비어 있는 셈이라, 방향은 있는데 속은 자주 흔들린다고 느낄 수 있어요. 외부 일정·평가에 끌려 다니기 쉬우니, 하루에라도 짧게 호흡·기록으로 중심을 고정하는 습관이 큰 도움이 됩니다.</div>`},
-        {missing:8,text:`<div class="loshu-rich-item"><b>⚠️ 8번(성과·내실) 부재</b> — 재능은 있는데 <em>남는 결과·축적</em>으로 잘 안 남을 수 있어요. 감에만 맡기기보다 숫자·장부·마감일 같은 바깥 기준을 하나씩 붙이면 빈틈이 줄어듭니다.</div>`},
-        {missing:4,text:`<div class="loshu-rich-item"><b>⚠️ 4번(토대·루틴) 부재</b> — 시작은 잘하는데 끝맺음·반복이 약해질 수 있어요. 작은 루틴과 정리 습관이 쌓일수록 에너지가 새지 않습니다.</div>`},
+        {missing:1,text:`<div class="loshu-rich-item"><b>⚠️ 1번(주도·시작) 부재</b> — 스스로 끊고 나서는 힘이 약해질 수 있어요. ‘내가 먼저’ 한 걸음만 정해도 흐름이 열립니다.</div>`},
+        {missing:2,text:`<div class="loshu-rich-item"><b>⚠️ 2번(협력·직관) 부재</b> — 혼자 가는 데 익숙해 <em>도움·조율</em>을 미루기 쉬워요. 신뢰하는 사람 한 명에게만이라도 먼저 손을 내밀면 부담이 쪼개집니다.</div>`},
         {missing:3,text:`<div class="loshu-rich-item"><b>⚠️ 3번(표현·기획) 부재</b> — 실행은 빠른데 <em>앞서 정리·설명</em>이 부족해 오해받기 쉬울 수 있어요. 짧은 메모·스케치·한 줄 브리핑만 넣어도 설득력과 재미가 함께 올라갑니다.</div>`},
+        {missing:4,text:`<div class="loshu-rich-item"><b>⚠️ 4번(토대·루틴) 부재</b> — 시작은 잘하는데 끝맺음·반복이 약해질 수 있어요. 작은 루틴과 정리 습관이 쌓일수록 에너지가 새지 않습니다.</div>`},
+        {missing:5,text:`<div class="loshu-rich-item"><b>⚠️ 5번(중심) 부재</b> — ‘나침반 칸’이 비어 있는 셈이라, 방향은 있는데 속은 자주 흔들린다고 느낄 수 있어요. 외부 일정·평가에 끌려 다니기 쉬우니, 하루에라도 짧게 호흡·기록으로 중심을 고정하는 습관이 큰 도움이 됩니다.</div>`},
         {missing:6,text:`<div class="loshu-rich-item"><b>⚠️ 6번(돌봄·조화) 부재</b> — 일 처리는 되는데 <em>정서적 온도·관계</em>에서 차갑게 보일 수 있어요. 의도를 한 번 더 말로 덧붙이거나, 작은 배려 루틴이 장기적으로 운을 넓혀 줍니다.</div>`},
-        {missing:2,text:`<div class="loshu-rich-item"><b>⚠️ 2번(협력·직관) 부재</b> — 혼자 가는 데 익숙해 <em>도움·조율</em>을 미루기 쉬워요. 신뢰하는 사람 한 명에게만이라도 먼저 손을 내밀면 부담이 쪼개집니다.</div>`}
+        {missing:7,text:`<div class="loshu-rich-item"><b>⚠️ 7번(통찰·탐구) 부재</b> — 깊이 파고드는 시간이 부족해 <em>피상적으로만</em> 흘러가기 쉬워요. 주 1회 ‘왜?’를 적어보는 짧은 성찰이 전문성을 키웁니다.</div>`},
+        {missing:8,text:`<div class="loshu-rich-item"><b>⚠️ 8번(성과·내실) 부재</b> — 재능은 있는데 <em>남는 결과·축적</em>으로 잘 안 남을 수 있어요. 감에만 맡기기보다 숫자·장부·마감일 같은 바깥 기준을 하나씩 붙이면 빈틈이 줄어듭니다.</div>`},
+        {missing:9,text:`<div class="loshu-rich-item"><b>⚠️ 9번(이상·완성) 부재</b> — 당장 일은 잘해도 <em>큰 그림·의미</em>와 연결이 약해질 수 있어요. ‘이 일이 누구에게 닿는지’ 한 줄만 적어도 방향이 선명해집니다.</div>`}
     ];
     const LOSHU_INTENSITY_RULES = [
         {digit:1,minCount:2,text:`<div class="loshu-rich-item"><b>⚡ 1번 반복 · 총 \${count}개</b> — 주도·독립 에너지가 분명합니다. 스스로 끊고 치는 힘이 있어 개척·창업·1인 체제에 잘 맞아요.<div class="loshu-rich-caveat"><strong>주의:</strong> ‘내 길’이 지나치면 타인 조언이 잡음으로만 들릴 수 있어요. 중요한 결정만큼은 한 번 되돌아듣는 자리를 두면 좋습니다.</div></div>`},
@@ -4067,14 +4097,36 @@ window.NUMEROLOGY_DATA = (() => {
         loshuStrengthDefault:"지금 생일 조합에서는 화살·칸 부재·숫자 반복 중 <strong>자동으로 붙는 패턴</strong>이 거의 없거나 약합니다. 숫자가 고르게 퍼졌을 수 있어요. 격자는 스냅샷일 뿐이니, 성장 지도·타임라인·월·일 흐름과 함께 보시면 됩니다.",
         loshuSolutionWhenStable:"패턴이 약해도 괜찮아요. 위쪽 인생여정·올해·월·일 흐름과 겹쳐 보면 오늘의 무게가 잡힙니다.",
         loshuSolutionWhenWeak:"비어 있는 칸은 <strong>의도적으로 연습할 테마</strong>로, 같은 숫자가 많으면 <strong>과함·피로</strong>만 가볍게 점검하면 됩니다.",
-        loshuBridgeHtml:"<p><strong>로슈 격자</strong>는 생년월일 숫자를 <strong>고전 배치(4·9·2 · 3·5·7 · 8·1·6)</strong>에 올려, 1~9가 몇 번 나왔는지 한눈에 보게 한 것입니다. <strong>가로·세로·대각 화살</strong> 풀이는 아래 <strong>「강점 · 화살」</strong>에만 두었습니다. 빈 칸은 ‘모자람’보다 <strong>연습이 잦은 방향</strong>, 숫자가 여러 번이면 그 기운이 <strong>일상에서 자주 등장</strong>한다고 보면 됩니다.</p>",
+        loshuBridgeHtml:"<p><strong>로슈 격자</strong>는 생년월일 숫자를 <strong>고전 배치(4·9·2 · 3·5·7 · 8·1·6)</strong>에 올려, 1~9가 몇 번 나왔는지 한눈에 보게 한 것입니다. 가로·세로·대각 <strong>8개 줄</strong>에서 숫자가 모두 있으면 <strong>풀 화살(강점)</strong>, 모두 없으면 <strong>빈 화살(보완)</strong>로 읽습니다. 개별 칸 부재·숫자 반복은 아래 각 블록에 나누어 두었습니다.</p>",
         loshuFootNote:"출생일 자릿수만 반영합니다. 이름·개명·환경은 포함되지 않습니다.",
         loshuStrategyWith5:"생일에 <strong>5번</strong>이 있습니다. 중심 칸으로, 변화 속에서도 방향을 잡는 축으로 읽는 경우가 많아요. 흔들릴 땐 짧은 루틴이나 한 줄 기록만으로도 중심이 돌아옵니다.",
-        loshuStrategyWithout5:"생일에 <strong>5번</strong>이 없습니다. 불리하다는 뜻은 아니에요. 바깥 일정에 끌리기 쉬운 때는 호흡·몸의 리듬·짧은 일기처럼 <strong>고정 루틴 하나</strong>가 큰 도움이 됩니다."
+        loshuStrategyWithout5:"생일에 <strong>5번</strong>이 없습니다. 불리하다는 뜻은 아니에요. 바깥 일정에 끌리기 쉬운 때는 호흡·몸의 리듬·짧은 일기처럼 <strong>고정 루틴 하나</strong>가 큰 도움이 됩니다.",
+        seqArrowBridgeHtml:"<p><strong>풀 애로우 · 순차 격자</strong>는 1~9를 <strong>3·6·9 / 2·5·8 / 1·4·7</strong> 순으로 배치한 <em>서양식</em> 격자입니다. 위의 로슈 마방진과 <strong>칸 위치·화살 줄이 다릅니다.</strong> 같은 생일 숫자를 올리되, 가로·세로·대각 8줄에서 모두 있으면 <strong>풀 화살</strong>, 모두 없으면 <strong>빈 화살</strong>로 읽습니다.</p>",
+        seqArrowFootNote:"로슈 격자와 동일하게 출생일 자릿수만 반영합니다. 두 격자를 나란히 보면 강점이 다른 각도에서 드러납니다."
     };
+    const SEQ_ARROW_STRENGTH_RULES = [
+        {requires:[3,6,9],text:`<div class="loshu-rich-item"><b>🧠 지적 화살 (3-6-9)</b> — 윗줄(3·6·9) 풀 화살입니다. 창의(3)·책임(6)·이상(9)이 이어져 <em>아이디어를 말과 행동으로 확장</em>하는 지적·소통 에너지가 강합니다.<div class="loshu-rich-caveat"><strong>균형:</strong> 말과 기획이 앞서 실행이 늦어질 수 있어요. 하나를 끝내는 경험을 자주 쌓으세요.</div></div>`},
+        {requires:[2,5,8],text:`<div class="loshu-rich-item"><b>💧 감정의 화살 (2-5-8)</b> — 가운데 가로(2·5·8) 풀 화살입니다. 공감(2)·적응(5)·성과(8)가 함께 있어 감정을 읽고 <em>변화 속에서도 결과</em>로 연결하는 힘이 있습니다.<div class="loshu-rich-caveat"><strong>균형:</strong> 감정이 성과에 끌려 소진될 수 있어요. 회복 시간을 ‘일정’으로 잡아 두면 오래 갑니다.</div></div>`},
+        {requires:[1,4,7],text:`<div class="loshu-rich-item"><b>🏗️ 실용성의 화살 (1-4-7)</b> — 아랫줄(1·4·7) 풀 화살입니다. 주도(1)·구조(4)·탐구(7)가 연결되어 <em>현실에 뿌리 내리고 파고드는</em> 실용적 힘이 있습니다.<div class="loshu-rich-caveat"><strong>균형:</strong> 안정만 추구하면 변화를 놓칠 수 있어요. 가끔은 새 시도 한 가지를 일정에 넣어 보세요.</div></div>`},
+        {requires:[1,2,3],text:`<div class="loshu-rich-item"><b>⚡ 결단력의 화살 (1-2-3)</b> — 왼쪽 세로(1·2·3) 풀 화살입니다. 시작(1)·소통(2)·표현(3)이 한 줄로 이어져 <em>빠르게 결정하고 움직이는</em> 힘이 있습니다.<div class="loshu-rich-caveat"><strong>균형:</strong> 속도가 앞서면 준비가 부족해 보일 수 있어요. 결정 전 한 번만 점검하는 습관이면 충분합니다.</div></div>`},
+        {requires:[4,5,6],text:`<div class="loshu-rich-item"><b>⚖️ 질서와 조화의 화살 (4-5-6)</b> — 가운데 세로(4·5·6) 풀 화살입니다. 토대(4)·균형(5)·돌봄(6)이 함께 있어 일과 관계를 <em>정돈하고 맞추는</em> 능력이 돋보입니다.<div class="loshu-rich-caveat"><strong>균형:</strong> 조화를 위해 자신을 너무 누를 수 있어요. 거절 한 번이 오히려 관계를 건강하게 합니다.</div></div>`},
+        {requires:[7,8,9],text:`<div class="loshu-rich-item"><b>✨ 영성의 화살 (7-8-9)</b> — 오른쪽 세로(7·8·9) 풀 화살입니다. 통찰(7)·성취(8)·완성·이타(9)가 이어져 <em>깊이와 영향력</em>을 동시에 키우는 패턴입니다.<div class="loshu-rich-caveat"><strong>균형:</strong> 이상이 높을수록 현실과의 간극이 커질 수 있어요. 작은 실천 하나로 땅에 발을 붙이세요.</div></div>`},
+        {requires:[1,5,9],text:`<div class="loshu-rich-item"><b>🔥 독립성의 화살 (1-5-9)</b> — 대각선(1·5·9) 풀 화살입니다. 자아(1)·중심(5)·완성·비전(9)이 한 줄로 잇혀 <em>스스로 길을 정하고 끝까지 가는</em> 독립적 추진력이 있습니다.<div class="loshu-rich-caveat"><strong>균형:</strong> 혼자 가려는 성향이 강하면 협력이 어려워질 수 있어요. 중요한 일만큼은 동료 한 명과 맞춰 보세요.</div></div>`},
+        {requires:[3,5,7],text:`<div class="loshu-rich-item"><b>🎨 창의와 영성의 화살 (3-5-7)</b> — 대각선(3·5·7) 풀 화살입니다. 표현(3)·균형(5)·통찰(7)이 연결되어 <em>영감을 형태로 바꾸는</em> 창의·영성적 감각이 돋보입니다.<div class="loshu-rich-caveat"><strong>균형:</strong> 내면 세계에 머무르면 현실 연결이 약해질 수 있어요. 작품·생각을 한 번씩 밖으로 보내 보세요.</div></div>`}
+    ];
+    const SEQ_ARROW_EMPTY_RULES = [
+        {requires:[3,6,9],text:`<div class="loshu-rich-item"><b>○ 빈 화살 · 지적 (3-6-9)</b> — 윗줄이 모두 비었습니다. 아이디어·소통·이상을 한 줄로 이어가기 어려울 수 있어요. 읽은 것·생각을 짧게 메모하는 습관이 좋습니다.</div>`},
+        {requires:[2,5,8],text:`<div class="loshu-rich-item"><b>○ 빈 화살 · 감정 (2-5-8)</b> — 가운데 가로가 모두 비었습니다. 감정을 읽고 변화에 맞추는 연습이 상대적으로 약할 수 있어요. 감정 단어를 하루 한 번만 적어도 도움이 됩니다.</div>`},
+        {requires:[1,4,7],text:`<div class="loshu-rich-item"><b>○ 빈 화살 · 실용성 (1-4-7)</b> — 아랫줄이 모두 비었습니다. 현실·구조·깊이를 함께 잡기 어렵다고 느낄 수 있어요. 작은 습관·정리 하나부터 시작해 보세요.</div>`},
+        {requires:[1,2,3],text:`<div class="loshu-rich-item"><b>○ 빈 화살 · 결단력 (1-2-3)</b> — 왼쪽 세로가 모두 비었습니다. 시작·결정을 미루거나 속도가 늦어지기 쉬워요. 하루 한 가지 ‘작은 결정’만 정해 실행해 보세요.</div>`},
+        {requires:[4,5,6],text:`<div class="loshu-rich-item"><b>○ 빈 화살 · 질서와 조화 (4-5-6)</b> — 가운데 세로가 모두 비었습니다. 일과 관계의 균형·정돈이 약해질 수 있어요. 주간 루틴 하나만 고정해도 질서 축이 살아납니다.</div>`},
+        {requires:[7,8,9],text:`<div class="loshu-rich-item"><b>○ 빈 화살 · 영성 (7-8-9)</b> — 오른쪽 세로가 모두 비었습니다. 큰 그림·의미·완성과의 연결이 약할 수 있어요. ‘이 일이 나에게 무엇인지’ 한 줄만 적어 보세요.</div>`},
+        {requires:[1,5,9],text:`<div class="loshu-rich-item"><b>○ 빈 화살 · 독립성 (1-5-9)</b> — 대각선(1·5·9)이 모두 비었습니다. 스스로 방향을 잡고 끝까지 가는 힘이 약해질 수 있어요. ‘내가 끝낼 한 가지’만 정해 보세요.</div>`},
+        {requires:[3,5,7],text:`<div class="loshu-rich-item"><b>○ 빈 화살 · 창의와 영성 (3-5-7)</b> — 대각선(3·5·7)이 모두 비었습니다. 영감·통찰을 형태로 옮기기 어렵다고 느낄 수 있어요. 스케치·일기·산책 중 하나만 꾸준히 해 보세요.</div>`}
+    ];
     const ZODIACS = [{n:"양자리",s:[3,21],e:[4,19],i:"♈",t:"열정과 용기가 넘치는 개척자입니다."},{n:"황소자리",s:[4,20],e:[5,20],i:"♉",t:"안정적이고 신중한 삶의 수호자입니다."},{n:"쌍둥이자리",s:[5,21],e:[6,21],i:"♊",t:"호기심이 많고 소통을 즐기는 메신저입니다."},{n:"게자리",s:[6,22],e:[7,22],i:"♋",t:"따뜻한 감성으로 주변을 돌보는 보호자입니다."},{n:"사자자리",s:[7,23],e:[8,22],i:"♌",t:"카리스마 넘치는 타고난 리더입니다."},{n:"처녀자리",s:[8,23],e:[9,23],i:"♍",t:"세밀한 분석력이 뛰어난 조력자입니다."},{n:"천칭자리",s:[9,24],e:[10,22],i:"♎",t:"조화와 균형을 중시하는 우아한 중재자입니다."},{n:"전갈자리",s:[10,23],e:[11,22],i:"♏",t:"강렬한 통찰력과 카리스마를 지닌 탐구자입니다."},{n:"사수자리",s:[11,23],e:[12,21],i:"♐",t:"낙천적이고 모험을 즐기는 진리 탐구자입니다."},{n:"염소자리",s:[12,22],e:[1,19],i:"♑",t:"인내와 책임감이 강한 현실적 건설가입니다."},{n:"물병자리",s:[1,20],e:[2,18],i:"♒",t:"독창적이고 자유로운 사색가입니다."},{n:"물고기자리",s:[2,19],e:[3,20],i:"♓",t:"공감 능력이 탁월하고 영적 직관을 지닌 영혼입니다."}];
     function getZodiacInfo(m,d){return ZODIACS.find(z=>(m===z.s[0]&&d>=z.s[1])||(m===z.e[0]&&d<=z.e[1]))||{n:"미지",i:"✨",t:"신비로운 존재입니다."};}
-    return {TITLE_MAP,TL_KEYWORD,FLOW_PHRASE,TL_COLOR,TL_DESC,DEEP_MAP,MOON_MAP,GROWTH_DATA,TITLE_SHORT,YEAR_STRATEGY,MONTHLY_KEYWORDS,DAY_HINT,DAY_ADVICE,LOSHU_STRENGTH_RULES,LOSHU_WEAKNESS_RULES,LOSHU_INTENSITY_RULES,INTERPRETATION_TEXTS,getZodiacInfo};
+    return {TITLE_MAP,TL_KEYWORD,FLOW_PHRASE,TL_COLOR,TL_DESC,DEEP_MAP,MOON_MAP,GROWTH_DATA,TITLE_SHORT,YEAR_STRATEGY,MONTHLY_KEYWORDS,DAY_HINT,DAY_ADVICE,LOSHU_STRENGTH_RULES,LOSHU_EMPTY_ARROW_RULES,LOSHU_WEAKNESS_RULES,LOSHU_INTENSITY_RULES,SEQ_ARROW_STRENGTH_RULES,SEQ_ARROW_EMPTY_RULES,INTERPRETATION_TEXTS,getZodiacInfo};
 })();
 
 /** 라이프코드 핵심수 — 항목마다 해석 프레임을 다르게 둔 전용 맵 */
@@ -4353,7 +4405,7 @@ window.NUMEROLOGY_DATA = (() => {
 
 <script>
 const _ND = window.NUMEROLOGY_DATA;
-const { TITLE_MAP,TL_KEYWORD,FLOW_PHRASE,TL_COLOR,TL_DESC,DEEP_MAP,MOON_MAP,GROWTH_DATA,TITLE_SHORT,YEAR_STRATEGY,MONTHLY_KEYWORDS,DAY_HINT,DAY_ADVICE,LOSHU_STRENGTH_RULES,LOSHU_WEAKNESS_RULES,LOSHU_INTENSITY_RULES,INTERPRETATION_TEXTS,getZodiacInfo,
+const { TITLE_MAP,TL_KEYWORD,FLOW_PHRASE,TL_COLOR,TL_DESC,DEEP_MAP,MOON_MAP,GROWTH_DATA,TITLE_SHORT,YEAR_STRATEGY,MONTHLY_KEYWORDS,DAY_HINT,DAY_ADVICE,LOSHU_STRENGTH_RULES,LOSHU_EMPTY_ARROW_RULES,LOSHU_WEAKNESS_RULES,LOSHU_INTENSITY_RULES,SEQ_ARROW_STRENGTH_RULES,SEQ_ARROW_EMPTY_RULES,INTERPRETATION_TEXTS,getZodiacInfo,
   CORE_LIFE_PATH_MAP,CORE_MOON_MAP,ZODIAC_CORE_DESC,CORE_DESTINY_MAP,CORE_SOUL_MAP,CORE_PERSONALITY_MAP,CORE_MATURITY_MAP,INTEGRATED_STORY,
   PINNACLE_DEEP_MAP,CHALLENGE_DEEP_MAP,TIMELINE_YEAR_DEEP_MAP,PERSONAL_MONTH_DEEP_MAP,PERSONAL_DAY_DEEP_MAP,
   ACCORDION_LIFE_PATH,ACCORDION_MOON,ACCORDION_DESTINY,ACCORDION_SOUL,ACCORDION_PERSONALITY,ACCORDION_MATURITY,ACCORDION_ZODIAC } = _ND;
@@ -4897,6 +4949,10 @@ function buildReadingGuideCatalogInnerHtml() {
       ${lcReadingGuideCatalogRow(
         `<a href="#loshuSection" class="lc-guide-link"><strong>로슈 격자 분석</strong></a>`,
         `${lcGuideTierPrefix('pro')}로슈 매직 스퀘어(九宫) 패턴으로 보는 균형·강약 분포.`,
+      )}
+      ${lcReadingGuideCatalogRow(
+        `<a href="#seqArrowSection" class="lc-guide-link"><strong>풀 애로우 · 순차 격자</strong></a>`,
+        `${lcGuideTierPrefix('pro')}서양식 3·6·9 / 2·5·8 / 1·4·7 순차 격자의 8가지 풀·빈 화살 해석.`,
       )}
       <p class="lc-guide-catalog-footnote">현재 플랜으로 바로 보기 어려운 모듈은 설명 앞에 <strong class="lc-guide-tier-needed">Basic 필요</strong> 또는 <strong class="lc-guide-tier-needed">Pro 필요</strong>가 붙습니다. 이름 입력·플랜에 따라 아래 카드 일부 미표시. 우측 목차에서 동일 앵커 이동.</p>
   `;
@@ -6227,20 +6283,26 @@ async function runAnalysis() {
   if (loshuBridgeHost) {
     loshuBridgeHost.innerHTML = (INTERPRETATION_TEXTS && INTERPRETATION_TEXTS.loshuBridgeHtml) || '';
   }
+  const seqBridgeHost = document.getElementById('seqArrowSectionBridge');
+  if (seqBridgeHost) {
+    seqBridgeHost.innerHTML = (INTERPRETATION_TEXTS && INTERPRETATION_TEXTS.seqArrowBridgeHtml) || '';
+  }
 
-  // ── 10. 로슈 격자 (Pro+) ──
+  // ── 10. 로슈 격자 + 순차 풀 애로우 (Pro+) ──
   if(hasAccess('pro')) {
     const birthStr=y.toString()+m.toString().padStart(2,'0')+d.toString().padStart(2,'0');
     const counts=Array(10).fill(0);
     for(const n of birthStr) if(n!=='0') counts[Number(n)]++;
+    const IT = INTERPRETATION_TEXTS;
     /** 로슈 마방진 고전 배치(4·9·2 / 3·5·7 / 8·1·6). 화살(대각·열) 해석과 격자 위치가 같아짐 */
     const order=[[4,9,2],[3,5,7],[8,1,6]];
     const gridHtml=order.map(row=>row.map(n=>`<div class="loshu-cell${counts[n]>0?' active':''}">
       <div class="loshu-nums">${counts[n]>0?String(n).repeat(counts[n]):''}</div>
       <div style="font-size:8px;color:var(--muted)">${n}</div>
     </div>`).join('')).join('');
-    let strengthTxt='', weakTxt='', intensTxt='';
+    let strengthTxt='', emptyArrowTxt='', weakTxt='', intensTxt='';
     LOSHU_STRENGTH_RULES.forEach(r=>{if(r.requires.every(n=>counts[n]>0))strengthTxt+=r.text;});
+    LOSHU_EMPTY_ARROW_RULES.forEach(r=>{if(r.requires.every(n=>counts[n]===0))emptyArrowTxt+=r.text;});
     LOSHU_WEAKNESS_RULES.forEach(r=>{if(!counts[r.missing])weakTxt+=r.text;});
     LOSHU_INTENSITY_RULES.forEach(r=>{if(counts[r.digit]>=r.minCount)intensTxt+=r.text.replace(/\$\{count\}/g,String(counts[r.digit]));});
     const missingNums = [1,2,3,4,5,6,7,8,9].filter((n) => counts[n] === 0);
@@ -6250,8 +6312,7 @@ async function runAnalysis() {
       missingNums.length === 0
         ? `이 조합(<strong>${y}년 ${m}월 ${d}일</strong>)에서는 생일 문자열에 <strong>1~9가 모두</strong> 한 번 이상 들어왔습니다. 같은 숫자가 두 번 이상이면 칸 안에 글자를 반복해 두었습니다.`
         : `이 조합(<strong>${y}년 ${m}월 ${d}일</strong>) 기준으로, 격자에 자리 잡은 숫자는 <strong>${presentNums.join(', ')}</strong>이고, 아직 비어 있는 칸은 <strong>${missingNums.join(', ')}</strong>입니다.`;
-    const IT = INTERPRETATION_TEXTS;
-    const footSecond = weakTxt ? IT.loshuSolutionWhenWeak : IT.loshuSolutionWhenStable;
+    const footSecond = (weakTxt || emptyArrowTxt) ? IT.loshuSolutionWhenWeak : IT.loshuSolutionWhenStable;
     const strategyBody = hasCenterFive ? (IT.loshuStrategyWith5 || '') : (IT.loshuStrategyWithout5 || '');
     document.getElementById('loshuContent').innerHTML=`
       <div class="loshu-wrap">
@@ -6263,10 +6324,11 @@ async function runAnalysis() {
             <p class="loshu-snapshot">${snapLine}</p>
           </div>
           <div class="loshu-detail">
-              ${strengthTxt?`<div class="loshu-block"><div class="loshu-block-label loshu-block-label--strength">강점 · 화살</div>${strengthTxt}</div>`:''}
-              ${weakTxt?`<div class="loshu-block"><div class="loshu-block-label loshu-block-label--weak">보완 영역</div>${weakTxt}</div>`:''}
+              ${strengthTxt?`<div class="loshu-block"><div class="loshu-block-label loshu-block-label--strength">강점 · 풀 화살</div>${strengthTxt}</div>`:''}
+              ${emptyArrowTxt?`<div class="loshu-block"><div class="loshu-block-label loshu-block-label--empty">빈 화살</div>${emptyArrowTxt}</div>`:''}
+              ${weakTxt?`<div class="loshu-block"><div class="loshu-block-label loshu-block-label--weak">개별 칸 부재</div>${weakTxt}</div>`:''}
               ${intensTxt?`<div class="loshu-block"><div class="loshu-block-label loshu-block-label--intens">집중 에너지</div>${intensTxt}</div>`:''}
-              ${!strengthTxt&&!weakTxt&&!intensTxt?`<div class="loshu-block"><div class="loshu-block-label loshu-block-label--strength">패턴 요약</div><div class="loshu-plain-prose">${IT.loshuStrengthDefault}</div></div>`:''}
+              ${!strengthTxt&&!emptyArrowTxt&&!weakTxt&&!intensTxt?`<div class="loshu-block"><div class="loshu-block-label loshu-block-label--strength">패턴 요약</div><div class="loshu-plain-prose">${IT.loshuStrengthDefault}</div></div>`:''}
           </div>
           <div class="loshu-strategy"><div class="loshu-strategy-h">격자를 대하는 법</div><div>${strategyBody}</div></div>
           <div class="loshu-foot">
@@ -6275,8 +6337,39 @@ async function runAnalysis() {
           </div>
         </div>
       </div>`;
+    const seqOrder=[[3,6,9],[2,5,8],[1,4,7]];
+    const seqGridHtml=seqOrder.map(row=>row.map(n=>`<div class="loshu-cell${counts[n]>0?' active':''}">
+      <div class="loshu-nums">${counts[n]>0?String(n).repeat(counts[n]):''}</div>
+      <div style="font-size:8px;color:var(--muted)">${n}</div>
+    </div>`).join('')).join('');
+    let seqStrengthTxt='', seqEmptyTxt='';
+    SEQ_ARROW_STRENGTH_RULES.forEach(r=>{if(r.requires.every(n=>counts[n]>0))seqStrengthTxt+=r.text;});
+    SEQ_ARROW_EMPTY_RULES.forEach(r=>{if(r.requires.every(n=>counts[n]===0))seqEmptyTxt+=r.text;});
+    const seqSnapLine=missingNums.length===0
+      ? `순차 격자에도 <strong>1~9가 모두</strong> 들어왔습니다. 로슈와 줄 구성은 다르지만, 같은 생일 숫자를 씁니다.`
+      : `순차 격자 기준 비어 있는 칸: <strong>${missingNums.join(', ')}</strong> · 있는 숫자: <strong>${presentNums.join(', ')}</strong>`;
+    document.getElementById('seqArrowContent').innerHTML=`
+      <div class="loshu-wrap">
+        <div class="loshu-board">
+          <div class="loshu-top-row">
+            <div class="loshu-grid-col">
+              <div class="loshu-grid">${seqGridHtml}</div>
+            </div>
+            <p class="loshu-snapshot">${seqSnapLine}</p>
+          </div>
+          <div class="loshu-detail">
+              ${seqStrengthTxt?`<div class="loshu-block"><div class="loshu-block-label loshu-block-label--strength">강점 · 풀 화살</div>${seqStrengthTxt}</div>`:''}
+              ${seqEmptyTxt?`<div class="loshu-block"><div class="loshu-block-label loshu-block-label--empty">빈 화살</div>${seqEmptyTxt}</div>`:''}
+              ${!seqStrengthTxt&&!seqEmptyTxt?`<div class="loshu-block"><div class="loshu-block-label loshu-block-label--strength">패턴 요약</div><div class="loshu-plain-prose">${IT.loshuStrengthDefault}</div></div>`:''}
+          </div>
+          <div class="loshu-foot">
+            <p style="margin:0">${IT.seqArrowFootNote || ''}</p>
+          </div>
+        </div>
+      </div>`;
   } else {
-    document.getElementById('loshuContent').innerHTML=gateHTML('pro','로슈 격자 분석','고전 마방진에 생일 숫자를 올려 화살·빈 칸·반복 패턴을 읽습니다. 화살은 한 블록에만 풀어 중복 없이 정리합니다.');
+    document.getElementById('loshuContent').innerHTML=gateHTML('pro','로슈 격자 분석','고전 마방진에 생일 숫자를 올려 8개 풀·빈 화살, 개별 칸 부재, 반복 패턴을 읽습니다.');
+    document.getElementById('seqArrowContent').innerHTML=gateHTML('pro','풀 애로우 · 순차 격자','3·6·9 / 2·5·8 / 1·4·7 순차 격자에서 8가지 풀·빈 화살(결단력·질서·영성·실용·감정·지적·독립·창의)을 읽습니다.');
   }
 
   const pmPre = py + curM;

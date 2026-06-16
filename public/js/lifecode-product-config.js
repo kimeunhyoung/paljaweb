@@ -48,6 +48,11 @@ export const LIFECODE_PRODUCT = {
       title: '로슈 격자',
       desc: '생일 숫자를 마방진에 올려 화살·결손·반복 패턴을 읽습니다.',
     },
+    {
+      href: '#seqArrowSection',
+      title: '풀 애로우 · 순차 격자',
+      desc: '서양식 3·6·9 / 2·5·8 / 1·4·7 순차 격자의 8가지 풀·빈 화살 해석.',
+    },
   ],
 };
 
