@@ -1,0 +1,131 @@
+/* 팔자연구소 — 소개·가이드·FAQ 등 정적 콘텐츠 페이지 */
+.content-main {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 2.5rem 1.25rem 4rem;
+  line-height: 1.75;
+  color: #2c1f0e;
+}
+.content-main h1 {
+  font-family: 'Playfair Display', 'Noto Serif KR', serif;
+  font-size: clamp(1.75rem, 4vw, 2.25rem);
+  margin-bottom: 0.5rem;
+  font-weight: 700;
+}
+.content-meta {
+  font-size: 0.875rem;
+  color: #7a6b58;
+  margin-bottom: 1.75rem;
+}
+.content-lead {
+  font-size: 1.05rem;
+  color: #4a3520;
+  margin-bottom: 2rem;
+}
+.content-section {
+  margin-bottom: 2rem;
+}
+.content-section h2 {
+  font-size: 1.15rem;
+  margin: 0 0 0.65rem;
+  color: #4a3520;
+  border-bottom: 1px solid rgba(139, 111, 71, 0.2);
+  padding-bottom: 0.35rem;
+}
+.content-section h3 {
+  font-size: 1rem;
+  margin: 1rem 0 0.4rem;
+  color: #5c451f;
+}
+.content-section p { margin-bottom: 0.75rem; }
+.content-section ul,
+.content-section ol {
+  margin: 0.5rem 0 0.75rem 1.25rem;
+}
+.content-section li { margin-bottom: 0.4rem; }
+.content-section a {
+  color: #8b6f47;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.content-note {
+  font-size: 0.85rem;
+  color: #7a6b58;
+  background: rgba(139, 111, 71, 0.08);
+  border-left: 3px solid #c8a96e;
+  padding: 0.75rem 1rem;
+  margin: 1rem 0;
+}
+.content-grid {
+  display: grid;
+  gap: 12px;
+  margin: 1rem 0 1.5rem;
+}
+.content-card {
+  display: block;
+  padding: 1rem 1.15rem;
+  border: 1px solid rgba(139, 111, 71, 0.2);
+  border-radius: 10px;
+  background: #fff;
+  text-decoration: none;
+  color: inherit;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+.content-card:hover {
+  border-color: rgba(139, 111, 71, 0.45);
+  box-shadow: 0 4px 14px rgba(44, 31, 14, 0.06);
+}
+.content-card h3 {
+  margin: 0 0 0.35rem;
+  font-size: 1rem;
+  color: #4a3520;
+}
+.content-card p {
+  margin: 0;
+  font-size: 0.9rem;
+  color: #7a6b58;
+  line-height: 1.55;
+}
+.content-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+  margin: 0.75rem 0 1rem;
+}
+.content-table th,
+.content-table td {
+  border: 1px solid rgba(139, 111, 71, 0.2);
+  padding: 0.5rem 0.65rem;
+  text-align: left;
+  vertical-align: top;
+}
+.content-table th {
+  background: rgba(139, 111, 71, 0.1);
+  font-weight: 600;
+}
+.content-pre {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.85rem;
+  background: #fff;
+  border: 1px solid rgba(139, 111, 71, 0.2);
+  padding: 0.75rem 1rem;
+  margin: 0.75rem 0;
+  line-height: 1.5;
+  white-space: pre;
+}
+.faq-item {
+  border-bottom: 1px solid rgba(139, 111, 71, 0.15);
+  padding: 1rem 0;
+}
+.faq-item h3 {
+  margin: 0 0 0.4rem;
+  font-size: 1rem;
+}
+.faq-item p { margin: 0; color: #4a3520; }
+.content-footer-links {
+  margin-top: 2.5rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid rgba(139, 111, 71, 0.15);
+  font-size: 0.9rem;
+}
+.content-footer-links a { margin-right: 1rem; }
