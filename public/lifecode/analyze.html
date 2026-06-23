@@ -976,15 +976,6 @@
       border-top: 1px solid var(--border);
       text-align: left;
     }
-    .flow-card-locked {
-      background: var(--parchment);
-      border-style: dashed;
-      border-color: var(--sand);
-      box-shadow: none;
-    }
-    .flow-card-locked .flow-card-lock { font-size: 22px; margin: 10px 0 6px; line-height: 1; }
-    .flow-card-locked .flow-card-title { font-size: 11px; color: var(--muted); }
-    .flow-lock-cta { grid-column: 1 / -1; text-align: center; margin-top: 4px; }
     .flow-today-msg-wrap {
       margin-top: 20px;
       padding: 18px 20px;
@@ -4050,19 +4041,6 @@ function gateHTML(planRequired, title, desc) {
     <div class="gate-desc">${desc}<br><br><strong>${labels[planRequired]} 플랜</strong> 이상에서 이용할 수 있어요.</div>
     <button class="gate-btn" onclick="location.href='pricing.html'">플랜 업그레이드 →</button>
   </div>`;
-}
-function flowLockedRowHtml(curY, curM, curD) {
-  const cards = [
-    `${curY}년 올해의 수`,
-    `${curM}월 이번 달의 수`,
-    `오늘 ${curD}일의 수`
-  ].map((label) => `<div class="flow-card flow-card-locked">
-    <div class="flow-card-label">${label}</div>
-    <div class="flow-card-lock" aria-hidden="true">🔒</div>
-    <div class="flow-card-title">Basic 이상에서 열립니다</div>
-  </div>`).join('');
-  const cta = isLifecodeStandalone() ? '' : `<div class="flow-lock-cta"><button class="gate-btn" type="button" onclick="location.href='pricing.html'">플랜 업그레이드 →</button></div>`;
-  return cards + cta;
 }
 
 /** PDF 클론: 섹션 페이드업 미완료 시 겹침 방지, 로수 그리드만 html2canvas 보정(나머지 레이아웃은 화면과 동일) */
@@ -7393,8 +7371,14 @@ async function runAnalysis() {
   }
 
   } else {
-    if (flowBridgeEl) flowBridgeEl.innerHTML = '';
-    document.getElementById('flowRow').innerHTML = flowLockedRowHtml(curY, curM, curD);
+    if (flowBridgeEl) {
+      flowBridgeEl.innerHTML = gateHTML(
+        'basic',
+        '현재 흐름',
+        '올해·이번 달·오늘의 수비학 개인연도·타로 올해의 수와 해설을 확인할 수 있습니다.'
+      );
+    }
+    document.getElementById('flowRow').innerHTML = '';
     document.getElementById('flowAccordion').innerHTML = '';
     const flowTodayElFree = document.getElementById('flowTodayMsg');
     if (flowTodayElFree) flowTodayElFree.innerHTML = '';
