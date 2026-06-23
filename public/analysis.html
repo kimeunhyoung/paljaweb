@@ -1654,7 +1654,7 @@
     .pyramid-tri-col { flex: 0 0 auto; }
     .pyramid-status-col { flex: 1; min-width: min(100%, 220px); }
     .pyramid-tri-svg { width: min(100%, 300px); height: auto; display: block; }
-    .pyramid-edge-seg { stroke-linecap: butt; }
+    .pyramid-edge-seg line { stroke-linecap: round; }
     .pyramid-edge-seg.is-current line { filter: drop-shadow(0 0 2px rgba(46,139,122,.5)); }
     .pyramid-edge-seg--passive.is-current line { filter: drop-shadow(0 0 2px rgba(192,57,43,.45)); }
     .pyramid-edge-seg--dim line { opacity: 0.42; }
@@ -3356,7 +3356,7 @@
       <div class="section-line"></div>
     </div>
     <div class="timeline-bridge">
-      <p>막대·연도 카드를 누르면 그 해 <strong>개인년도</strong>와 <strong>타로</strong>가 펼쳐집니다. 같은 연도 카드 아래에는 <strong>긴 호흡 숫자</strong>(대주기·절정수·도전수)가 함께 표시됩니다.</p>
+      <p>막대·연도 카드를 누르면 그 해 <strong>올해의 수</strong>(연도 자릿수합+문 넘버 → 타로 0~21)와 <strong>생일+연도 타로 카드</strong>가 펼쳐집니다. 같은 연도 카드 아래에는 <strong>긴 호흡 숫자</strong>(대주기·절정수·도전수)가 함께 표시됩니다.</p>
     </div>
     <div id="timelineContent"></div>
   </div>
@@ -4696,6 +4696,28 @@ function flowYearLabel(n) {
   return kr ? `타로 ${n}번 · ${kr}` : '';
 }
 
+function tarotTimelineKeyword(n) {
+  if (TAROT_MAJOR_KR[n]) return TAROT_MAJOR_KR[n];
+  return TL_KEYWORD[n] || '';
+}
+
+function tarotTimelineDesc(n) {
+  if (TL_DESC[n]) return TL_DESC[n];
+  const kr = TAROT_MAJOR_KR[n];
+  return kr ? `타로 ${n}번 「${kr}」 — 연도 자릿수합+문 넘버로 읽은 해의 흐름입니다.` : '';
+}
+
+function tarotTimelineColor(n) {
+  if (TL_COLOR[n]) return TL_COLOR[n];
+  const classic = reduceToSingle(n, false);
+  if (TL_COLOR[classic]) return TL_COLOR[classic];
+  return `hsl(${(n * 41 + 18) % 360}, 38%, 48%)`;
+}
+
+function tarotTimelineBarHeight(n) {
+  return Math.round((Math.max(0, Math.min(21, n)) / 21) * 88) + 12;
+}
+
 function yearFlowDeepHtml(v) {
   if (TIMELINE_YEAR_DEEP_MAP && TIMELINE_YEAR_DEEP_MAP[v]) return TIMELINE_YEAR_DEEP_MAP[v];
   if (DEEP_MAP[v]) return DEEP_MAP[v];
@@ -4710,6 +4732,38 @@ const TAROT_MAJOR_KR = {
   0:'바보', 1:'마법사', 2:'여사제', 3:'여황제', 4:'황제', 5:'교황', 6:'연인', 7:'전차', 8:'힘', 9:'은둔자',
   10:'운명의 수레바퀴', 11:'정의', 12:'매달린 사람', 13:'죽음(변환)', 14:'절제', 15:'악마', 16:'탑', 17:'별', 18:'달', 19:'태양', 20:'심판', 21:'세계',
 };
+
+/** 현재 흐름 · 올해의 수 카드용 짧은 안내 (타로 0~21) */
+const TAROT_FLOW_HINT = {
+  0: '새 출발과 시도의 해입니다. 완벽한 계획보다 작은 한 걸음을 먼저 내딛어 보세요.',
+  1: '실행과 표현이 살아나는 해입니다. 아이디어를 말과 행동으로 옮기기 좋습니다.',
+  2: '직관과 관망의 해입니다. 급한 결론보다 관찰과 휴식이 답이 됩니다.',
+  3: '성장과 돌봄의 해입니다. 키우고 가꾸는 일에 에너지를 쓰세요.',
+  4: '규칙과 책임의 해입니다. 질서와 약속을 지키면 안정이 커집니다.',
+  5: '배움과 제도의 해입니다. 검증된 길과 멘토를 빌려 쓰세요.',
+  6: '선택과 관계의 해입니다. 가치관에 맞는 결정을 내리세요.',
+  7: '목표와 추진의 해입니다. 한 방향을 끝까지 밀고 가기 좋습니다.',
+  8: '인내와 감정 조절의 해입니다. 부드럽게 다루는 힘이 필요합니다.',
+  9: '성찰과 고요의 해입니다. 혼자 정리하는 시간이 방향을 잡아 줍니다.',
+  10: '변동과 타이밍의 해입니다. 통제 밖의 변화에 유연하게 대응하세요.',
+  11: '공정과 증거의 해입니다. 기록과 솔직함이 빛을 냅니다.',
+  12: '대기와 시각 전환의 해입니다. 억지 재촉보다 각도를 바꿔 보세요.',
+  13: '끊기와 변화의 해입니다. 끝낼 것을 정리하면 새 자리가 납니다.',
+  14: '균형과 조율의 해입니다. 극단을 피하고 조금씩 맞추세요.',
+  15: '집착과 습관을 비추는 해입니다. 알면서 빠진 것을 인식하고 선을 긋세요.',
+  16: '급변과 재정비의 해입니다. 흔들리면 기본과 안전망으로 돌아가세요.',
+  17: '회복과 희망의 해입니다. 작은 믿음과 루틴으로 다시 앞을 보세요.',
+  18: '불안과 팩트 체크의 해입니다. 감정과 사실을 구분해 결정하세요.',
+  19: '분명함과 성취의 해입니다. 결과를 드러내고 기쁨을 나누세요.',
+  20: '결심과 재출발의 해입니다. 지난 챕터를 접고 새 각오를 세우세요.',
+  21: '완료와 성과의 해입니다. 한 토막을 끝내고 잠시 정리하세요.',
+};
+
+function flowYearHint(n) {
+  if (TAROT_FLOW_HINT[n]) return TAROT_FLOW_HINT[n];
+  if (TL_DESC[n]) return TL_DESC[n];
+  return tarotTimelineDesc(n);
+}
 
 function moonNumberDesc(mn, mnPre) {
   const core = CORE_MOON_MAP[mn] || MOON_MAP[mn];
@@ -5453,26 +5507,24 @@ function formatPyramidAgeRangeShort(start, end) {
   return start === end ? `${start}세` : `${start}–${end}세`;
 }
 
-function pyramidEdgeNormal(ax, ay, bx, by, dist) {
-  const dx = bx - ax;
-  const dy = by - ay;
-  const len = Math.hypot(dx, dy) || 1;
-  return { nx: (-dy / len) * dist, ny: (dx / len) * dist };
-}
-
 function pyramidLerp(a, b, t) {
   return a + (b - a) * t;
 }
 
-function pyramidBezierPoint(t, p0, p1, p2) {
-  const u = 1 - t;
-  return {
-    x: u * u * p0.x + 2 * u * t * p1.x + t * t * p2.x,
-    y: u * u * p0.y + 2 * u * t * p1.y + t * t * p2.y,
-  };
+function pyramidPointOnEdge(p0, p1, t) {
+  return { x: pyramidLerp(p0.x, p1.x, t), y: pyramidLerp(p0.y, p1.y, t) };
 }
 
-const PYRAMID_EDGE_GAP = 0.018;
+/** 완성기–출발기(하강) 변이 짧은 비등변 삼각형; 충실기는 발전기→완성기 변 위 */
+function getPyramidTriangleLayout() {
+  const start = { x: 36, y: 198 };
+  const develop = { x: 254, y: 198 };
+  const peak = { x: 78, y: 26 };
+  const faithful = pyramidPointOnEdge(develop, peak, 0.48);
+  return { start, develop, faithful, peak };
+}
+
+const PYRAMID_EDGE_GAP = 0.012;
 
 function renderPyramidRhythmSegments(getPoint, stageIdx, pos) {
   const isFocusStage = pos.phase === 'in' && pos.stage.index === stageIdx;
@@ -5519,13 +5571,6 @@ function renderPyramidEdgeRhythm(x1, y1, x2, y2, stageIdx, pos, trim = 20) {
   }), stageIdx, pos);
 }
 
-function renderPyramidCurveRhythm(p0, p1, p2, stageIdx, pos, trimT = 0.08) {
-  return renderPyramidRhythmSegments((t) => {
-    const tt = trimT + t * (1 - 2 * trimT);
-    return pyramidBezierPoint(tt, p0, p1, p2);
-  }, stageIdx, pos);
-}
-
 function renderPyramidStageZoomBar(pos) {
   if (pos.phase !== 'in') return '';
   const ages = pyramidStageRhythmAges(pos.stage);
@@ -5562,26 +5607,28 @@ function renderPyramidTriangleLegend(pos) {
 
 function renderPyramidTriangleSvg(pos) {
   const curStageIdx = pos.stage ? pos.stage.index : 0;
+  const { start, develop, faithful, peak } = getPyramidTriangleLayout();
   const verts = [
-    { idx: 0, cx: 28, cy: 198, lx: 28, ly: 222, name: '출발기' },
-    { idx: 1, cx: 252, cy: 198, lx: 252, ly: 222, name: '발전기' },
-    { idx: 2, cx: 228, cy: 108, lx: 248, ly: 98, name: '충실기' },
-    { idx: 3, cx: 140, cy: 22, lx: 140, ly: 8, name: '완성기' },
+    { idx: 0, cx: start.x, cy: start.y, lx: start.x, ly: start.y + 22, name: '출발기' },
+    { idx: 1, cx: develop.x, cy: develop.y, lx: develop.x, ly: develop.y + 22, name: '발전기' },
+    { idx: 2, cx: faithful.x, cy: faithful.y, lx: faithful.x + 18, ly: faithful.y + 4, name: '충실기' },
+    { idx: 3, cx: peak.x, cy: peak.y, lx: peak.x - 6, ly: peak.y - 14, name: '완성기' },
   ];
-  const edges = renderPyramidEdgeRhythm(28, 198, 252, 198, 0, pos)
-    + renderPyramidEdgeRhythm(252, 198, 228, 108, 1, pos)
-    + renderPyramidEdgeRhythm(228, 108, 140, 22, 2, pos)
-    + renderPyramidCurveRhythm({ x: 140, y: 24 }, { x: 90, y: 120 }, { x: 28, y: 198 }, 3, pos);
+  const edges = renderPyramidEdgeRhythm(start.x, start.y, develop.x, develop.y, 0, pos)
+    + renderPyramidEdgeRhythm(develop.x, develop.y, faithful.x, faithful.y, 1, pos)
+    + renderPyramidEdgeRhythm(faithful.x, faithful.y, peak.x, peak.y, 2, pos)
+    + renderPyramidEdgeRhythm(peak.x, peak.y, start.x, start.y, 3, pos);
+  const descentMid = pyramidPointOnEdge(peak, start, 0.52);
   const vNodes = verts.map((v) => {
     const cur = v.idx === curStageIdx ? ' is-current' : '';
     return `<g class="pyramid-v${cur}"><circle cx="${v.cx}" cy="${v.cy}" r="16"/><text x="${v.cx}" y="${v.cy}">${v.idx + 1}</text><text class="pyramid-v-label" x="${v.lx}" y="${v.ly}">${v.name}</text></g>`;
   }).join('');
   return `<div class="pyramid-tri-wrap">
-    <svg viewBox="0 0 280 240" class="pyramid-tri-svg" role="img" aria-label="피라미드 4단계와 각 변의 적극·소극 리듬">
-      <polygon points="140,24 260,198 20,198" fill="rgba(46,139,122,.04)" stroke="none"/>
+    <svg viewBox="0 0 290 232" class="pyramid-tri-svg" role="img" aria-label="피라미드 4단계와 각 변의 적극·소극 리듬">
+      <polygon points="${peak.x},${peak.y} ${develop.x},${develop.y} ${start.x},${start.y}" fill="rgba(46,139,122,.04)" stroke="none"/>
       ${edges}
-      <text x="98" y="128" font-size="9" fill="var(--muted)">하강</text>
-      <text x="24" y="236" font-size="9" fill="var(--deep-brown)" font-weight="700">재출발 →</text>
+      <text x="${descentMid.x - 14}" y="${descentMid.y + 4}" font-size="9" fill="var(--muted)">하강</text>
+      <text x="${start.x - 2}" y="${start.y + 26}" font-size="9" fill="var(--deep-brown)" font-weight="700">재출발 →</text>
       ${vNodes}
     </svg>
     ${renderPyramidTriangleLegend(pos)}
@@ -5658,7 +5705,7 @@ function buildLcPriorityAtGlanceHtml(ctx) {
   let h = '';
   h += lcNumCell('별자리', ctx.zodiacSign || '—', '', 'lc-glance-cell--zodiac');
   h += lcNumCell('인생여정수', ctx.lpDisplay ?? ctx.lp, ctx.lpPreLabel != null ? `전합 ${ctx.lpPreLabel}` : (ctx.lpS != null ? `전합 ${ctx.lpS}` : ''));
-  h += lcNumCell('문 넘버', ctx.mn, ctx.mnPre != null ? moonNumberSubline(ctx.mnPre, ctx.mn) : '');
+  h += lcNumCell('문 넘버', ctx.mn, ctx.mnPre != null ? `전합 ${ctx.mnPre}` : '');
   if (ctx.destinySingle != null) {
     h += lcNumCell('운명수', ctx.destinySingle, ctx.destinyPre != null ? `전합 ${ctx.destinyPre}` : '');
     h += lcNumCell('혼의수', ctx.soulSingle, ctx.soulPre != null ? `전합 ${ctx.soulPre}` : '');
@@ -5670,7 +5717,7 @@ function buildLcPriorityAtGlanceHtml(ctx) {
     h += lcNumCell('성격수', '—', '');
     h += lcNumCell('완성수', '—', '');
   }
-  h += lcNumCell('올해의 수', ctx.py, ctx.pySubline || (ctx.pyS != null ? `전합 ${ctx.pyS}` : ''));
+  h += lcNumCell('올해의 수', ctx.py, ctx.pyS != null ? `전합 ${ctx.pyS}` : '');
   h += lcNumCell('이번 달의 수', ctx.pm, ctx.pmPre != null ? `전합 ${ctx.pmPre}` : '');
   if (ctx.majorNum != null && ctx.pinnacle != null && ctx.challenge != null) {
     if (ctx.cycleLocked) {
@@ -6300,7 +6347,6 @@ async function runAnalysis() {
   const curY_digitSum = sumYearDigits(curY);
   const pyS = curY_digitSum + mnPre;
   const py = reduceToTarotNumber(pyS);
-  const pySubline = personalYearSubline(curY_digitSum, mnPre, py);
   const pm = reduceToSingle(py + curM);
   const pd = reduceToSingle(pm + curD);
   const z = getZodiacInfo(m, d);
@@ -6390,12 +6436,19 @@ async function runAnalysis() {
   }
 
   // ── 2. AI 종합 요약 (Basic+) — 레이아웃상 별자리·48주기 다음 블록
+  const aiServerOn = !isAIRequestDisabled() && (await fetchAiAvailable());
   if(hasAccess('basic')) {
-    document.getElementById('aiSummaryContent').innerHTML = `<div class="ai-summary">
-      <div class="ai-tag"><div class="ai-dot"></div>AI 분석 생성 중</div>
-      <div class="ai-loading"><div class="ai-spinner"></div>종합 분석을 생성하고 있습니다...</div>
-    </div>`;
-    callAISummary(lp, mn, py, nameRaw, destinyNum, soulNum, personalityNum, maturityNum, y, m, d);
+    if (isAIRequestDisabled()) {
+      document.getElementById('aiSummaryContent').innerHTML = `<div class="ai-summary"><div class="ai-text" style="color:var(--muted)">AI 점검 모드로 요청이 비활성화되어 있습니다. URL에 <strong>?ai=on</strong>을 붙이면 다시 활성화됩니다.</div></div>`;
+    } else if (!aiServerOn) {
+      document.getElementById('aiSummaryContent').innerHTML = renderAiPausedHtml();
+    } else {
+      document.getElementById('aiSummaryContent').innerHTML = `<div class="ai-summary">
+        <div class="ai-tag"><div class="ai-dot"></div>AI 분석 생성 중</div>
+        <div class="ai-loading"><div class="ai-spinner"></div>종합 분석을 생성하고 있습니다...</div>
+      </div>`;
+      callAISummary(lp, mn, py, nameRaw, destinyNum, soulNum, personalityNum, maturityNum, y, m, d);
+    }
   } else {
     document.getElementById('aiSummaryContent').innerHTML = gateHTML('basic','AI 종합 요약','핵심 수들을 종합한 당신만의 성격·잠재력 분석 한 단락을 AI가 생성합니다.');
   }
@@ -6412,12 +6465,16 @@ async function runAnalysis() {
     {label:`${curY}년 올해의 수`, num:py, pre:pyS},
     {label:`${curM}월 이번 달의 수`, num:pm, pre:(py + curM)},
     {label:`오늘 ${curD}일의 수`, num:pd, pre:(pm + curD)}
-  ].map(f=>`<div class="flow-card">
+  ].map(f=>{
+    const isYear = f.label.includes('올해');
+    const hint = isYear ? flowYearHint(f.num) : (TL_DESC[f.num] || '');
+    return `<div class="flow-card">
     <div class="flow-card-label">${f.label}</div>
     <div class="flow-card-num">${f.num}<span class="pre-sum">(합산전수: ${f.pre})</span></div>
-    <div class="flow-card-title">${f.label.includes('올해') ? flowYearLabel(f.num) : (TITLE_MAP[f.num]||'')}</div>
-    ${TL_DESC[f.num] ? `<div class="flow-card-hint">${TL_DESC[f.num]}</div>` : ''}
-  </div>`).join('');
+    <div class="flow-card-title">${isYear ? flowYearLabel(f.num) : (TITLE_MAP[f.num]||'')}</div>
+    ${hint ? `<div class="flow-card-hint">${hint}</div>` : ''}
+  </div>`;
+  }).join('');
 
   document.getElementById('flowAccordion').innerHTML = [
     {k:'올해의 수', v:py, pre:pyS, kind:'year'},
@@ -6476,13 +6533,18 @@ async function runAnalysis() {
 
   // ── 4. AI 오늘의 메시지 (Pro+) ──
   if(hasAccess('pro')) {
+    const aiTodayBody = (isAIRequestDisabled())
+      ? `<div class="ai-text" style="color:var(--muted)">AI 점검 모드로 요청이 비활성화되어 있습니다. URL에 <strong>?ai=on</strong>을 붙이면 다시 활성화됩니다.</div>`
+      : (!aiServerOn)
+        ? renderAiPausedHtml()
+        : `<div class="ai-tag"><div class="ai-dot"></div>AI 메시지 생성 중</div>
+        <div class="ai-loading"><div class="ai-spinner"></div>오늘의 맞춤 메시지를 생성하고 있습니다...</div>`;
     document.getElementById('aiTodaySection').innerHTML = `
       <div class="section-header"><div class="section-line"></div><span class="section-label">AI 오늘의 메시지</span><div class="section-line"></div></div>
-      <div class="ai-summary" id="aiTodayContent">
-        <div class="ai-tag"><div class="ai-dot"></div>AI 메시지 생성 중</div>
-        <div class="ai-loading"><div class="ai-spinner"></div>오늘의 맞춤 메시지를 생성하고 있습니다...</div>
-      </div>`;
-    callAIToday(lp, py, pm, pd, curY, curM, curD);
+      <div class="ai-summary" id="aiTodayContent">${aiTodayBody}</div>`;
+    if (aiServerOn) {
+      callAIToday(lp, py, pm, pd, curY, curM, curD);
+    }
   } else {
     document.getElementById('aiTodaySection').innerHTML = `
       <div class="section-header"><div class="section-line"></div><span class="section-label">AI 오늘의 메시지</span><div class="section-line"></div></div>
@@ -6494,46 +6556,48 @@ async function runAnalysis() {
     const yearData = [];
     for(let i=0;i<10;i++){
       const yr=curY+i;
-      const num=calcPersonalYearTarot(yr, mnPre).single;
-      yearData.push({year:yr,num});
+      const pyParts = calcPersonalYearTarot(yr, mnPre);
+      yearData.push({ year: yr, num: pyParts.single, pre: pyParts.pre });
     }
     const chartBars = yearData.map(({year,num})=>{
       const isCurrent=year===curY;
       const prev = yearData.find(z=>z.year===year-1);
       const prevNum = prev ? prev.num : null;
-      const isCompletion = num === 9; // traditional completion
-      const isStart = prevNum === 9; // previous year was completion -> new cycle start
-      const displayNum=num>9?(num===11?8:9):num;
-      const hPx=Math.round((displayNum/11)*100)+12;
-      const color=TL_COLOR[num]||'#8b6f47';
+      const isCompletion = num === 21;
+      const isStart = prevNum === 21;
+      const hPx = tarotTimelineBarHeight(num);
+      const color = tarotTimelineColor(num);
+      const kw = tarotTimelineKeyword(num);
       const cls = `${isCurrent?'current':''} ${isCompletion?'complete':''} ${isStart?'start':''}`.trim();
-      const isHighlight = isCurrent || num === 1;
+      const isHighlight = isCurrent || num === 0 || num === 1;
       const bodyBg = isHighlight ? color : 'var(--parchment)';
       const borderColor = isHighlight ? color : 'var(--border)';
       return `<div class="bar-col ${cls}" tabindex="0" data-year="${year}" data-num="${num}" data-prevnum="${prevNum||''}" data-start="${isStart}" data-complete="${isCompletion}">
         <div class="bar-energy">${num}</div>
-        <div class="bar-keyword">${TL_KEYWORD[num]||''}</div>
+        <div class="bar-keyword">${kw}</div>
         <div class="bar-body" style="height:${hPx}px;background:${bodyBg};border:1px solid ${borderColor};"></div>
         <div class="bar-year">${String(year).slice(2)}'</div>
       </div>`;
     }).join('');
 
-    const yearCards = yearData.map(({year,num},idx)=>{
+    const yearCards = yearData.map(({year,num,pre},idx)=>{
       const isCurrent = year === curY;
       const prev = yearData[idx-1];
       const prevNum = prev ? prev.num : null;
-      const isCompletion = num === 9;
-      const isStart = prevNum === 9;
+      const isCompletion = num === 21;
+      const isStart = prevNum === 21;
       let badgeText = '';
       if (isCurrent) badgeText = '현재';
       else if (isStart) badgeText = '새 주기 시작';
       else if (isCompletion) badgeText = '완성';
       const cls = `${isCurrent?'current':''} ${isStart?'start':''} ${isCompletion?'complete':''}`.trim();
+      const kw = tarotTimelineKeyword(num);
+      const desc = tarotTimelineDesc(num);
       return `<div class="year-card ${cls}" data-year="${year}" data-num="${num}">
         <div class="yc-year">${year}</div>
         <div class="yc-num">${num}</div>
-        <div class="yc-keyword">${TL_KEYWORD[num]||''}</div>
-        <div class="yc-desc">${TL_DESC[num]||''}</div>
+        <div class="yc-keyword">${kw}</div>
+        <div class="yc-desc">${desc}</div>
         <div class="yc-badge ${isCurrent? 'now' : (isStart ? 'turn' : '')}">${badgeText}</div>
       </div>`;
     }).join('');
@@ -6601,11 +6665,13 @@ async function runAnalysis() {
     const buildDetail = (yd) => {
       const n = yd.num;
       const idx = yearData.indexOf(yd);
-      const isCompl = n === 9;
-      const isNewCycle = idx > 0 && yearData[idx-1].num === 9;
-      const stratObj = YEAR_STRATEGY[n] || {};
-      const flowPh = FLOW_PHRASE[n] ? `${FLOW_PHRASE[n]} 해입니다.` : '';
-      const deepYear = (TIMELINE_YEAR_DEEP_MAP && TIMELINE_YEAR_DEEP_MAP[n]) || DEEP_MAP[n] || '';
+      const isCompl = n === 21;
+      const isNewCycle = idx > 0 && yearData[idx-1].num === 21;
+      const stratObj = YEAR_STRATEGY[n] || YEAR_STRATEGY[reduceToSingle(n, false)] || {};
+      const flowPh = FLOW_PHRASE[n] ? `${FLOW_PHRASE[n]} 해입니다.` : (TAROT_MAJOR_KR[n] ? `타로 ${n}번 「${TAROT_MAJOR_KR[n]}」의 해입니다.` : '');
+      const deepYear = yearFlowDeepHtml(n) || (TIMELINE_YEAR_DEEP_MAP && TIMELINE_YEAR_DEEP_MAP[n]) || DEEP_MAP[n] || '';
+      const kw = tarotTimelineKeyword(n);
+      const descLine = tarotTimelineDesc(n);
 
       const targetYear = yd.year;
       const targetAge  = targetYear - y;
@@ -6637,9 +6703,9 @@ async function runAnalysis() {
 
       let cycleNote = '';
       if (isCompl) {
-        cycleNote = '<div class="tdc-cycle tdc-cycle--compact"><strong>9번 · 완성의 해</strong> — 마침·비움에 가깝습니다. 붙잡을 필요 없는 일은 정리하면 다음이 비워집니다.</div>';
+        cycleNote = '<div class="tdc-cycle tdc-cycle--compact"><strong>21번 · 세계(완료)</strong> — 한 사이클이 마무리되는 해에 가깝습니다. 정리하고 비우면 다음 흐름이 열립니다.</div>';
       } else if (isNewCycle) {
-        cycleNote = '<div class="tdc-cycle tdc-cycle--compact"><strong>새 주기의 시작</strong> — 직전이 9번이었다면 긴 물결 하나가 끝난 뒤입니다. 이번 해는 다음 이야기의 첫 장에 가깝습니다.</div>';
+        cycleNote = '<div class="tdc-cycle tdc-cycle--compact"><strong>새 주기의 시작</strong> — 직전이 21번(세계)이었다면 긴 물결 하나가 끝난 뒤입니다. 이번 해는 다음 이야기의 첫 장에 가깝습니다.</div>';
       }
 
       const pinColor  = (TL_COLOR && TL_COLOR[curPin])  || '#8b6f47';
@@ -6648,10 +6714,11 @@ async function runAnalysis() {
 
       return `<div class="tdc">
         <div class="tdc-top">
-          <div class="tdc-year">${targetYear}년 <span class="tdc-num">${n}번 · ${TL_KEYWORD[n]||''}</span>
+          <div class="tdc-year">${targetYear}년 <span class="tdc-num">${n}번 · ${kw}</span>
             ${isCompl?'<span class="tdc-badge complete">완성의 해</span>':''}
             ${isNewCycle?'<span class="tdc-badge start">새 주기 시작</span>':''}
           </div>
+          ${yd.pre != null ? `<div style="font-size:11px;color:var(--muted);margin-top:4px">연 ${sumYearDigits(targetYear)}+문 ${mnPre}=${yd.pre} → 타로 ${n}</div>` : ''}
         </div>
 
         <div class="tdc-cycle-strip" role="region" aria-label="긴 호흡 숫자">
@@ -6677,7 +6744,7 @@ async function runAnalysis() {
 
         ${cycleNote}
 
-        <div class="tdc-theme">✦ ${flowPh} ${TL_DESC[n]||''}</div>
+        <div class="tdc-theme">✦ ${flowPh} ${descLine}</div>
         ${stratObj.goal?`<div class="tdc-row"><span class="tdc-label">이 해의 초점</span><span>${stratObj.goal}</span></div>`:''}
         ${stratObj.action?`<div class="tdc-row"><span class="tdc-label">실천 한 줄</span><span>${stratObj.action}</span></div>`:''}
         <div class="tdc-deep-label">이 숫자를 <em>한 해</em>로 읽을 때</div>
@@ -6704,7 +6771,7 @@ async function runAnalysis() {
     };
 
     document.getElementById('timelineContent').innerHTML = `<div class="timeline-wrap">
-      <div class="current-year-banner" id="currentBanner"><strong>${curY}년</strong> · ${TL_KEYWORD[curYData.num]||''} · ${TL_DESC[curYData.num]||''}</div>
+      <div class="current-year-banner" id="currentBanner"><strong>${curY}년</strong> · ${tarotTimelineKeyword(curYData.num)} · ${tarotTimelineDesc(curYData.num)}</div>
       <div class="chart-scroll"><div class="chart-inner">${chartBars}</div></div>
       <div class="year-cards">${yearCards}</div>
       <div class="timeline-hint">연도를 바꿀 때마다 아래 패널이 함께 바뀝니다.</div>
@@ -6715,7 +6782,7 @@ async function runAnalysis() {
     setTimeout(()=>{
       const updateDetail = (yr) => {
         const n = Number(document.querySelector(`.bar-col[data-year='${yr}']`)?.dataset.num || 0);
-        document.getElementById('currentBanner').innerHTML = `<strong>${yr}년</strong> · ${TL_KEYWORD[n]||''} · ${TL_DESC[n]||''}`;
+        document.getElementById('currentBanner').innerHTML = `<strong>${yr}년</strong> · ${tarotTimelineKeyword(n)} · ${tarotTimelineDesc(n)}`;
         document.querySelectorAll('.bar-col').forEach(x=>x.classList.remove('current'));
         document.querySelector(`.bar-col[data-year='${yr}']`)?.classList.add('current');
         document.querySelectorAll('.year-card').forEach(c=>c.classList.toggle('current', Number(c.dataset.year)===yr));
@@ -7049,7 +7116,6 @@ async function runAnalysis() {
     py,
     pm,
     pyS,
-    pySubline,
     pmPre,
     zodiacSign: z && z.n ? z.n : '—',
     destinySingle: destinyNum ? destinyNum.single : null,
@@ -7128,6 +7194,33 @@ function isAIRequestDisabled() {
   } catch {
     return false;
   }
+}
+
+let _aiAvailableCache = null;
+
+async function fetchAiAvailable() {
+  if (_aiAvailableCache !== null) return _aiAvailableCache;
+  if (!isHttpOrigin()) {
+    _aiAvailableCache = false;
+    return false;
+  }
+  try {
+    const res = await fetch('/api/ai/status');
+    if (!res.ok) {
+      _aiAvailableCache = false;
+      return false;
+    }
+    const data = await res.json();
+    _aiAvailableCache = !!data.available;
+    return _aiAvailableCache;
+  } catch {
+    _aiAvailableCache = false;
+    return false;
+  }
+}
+
+function renderAiPausedHtml() {
+  return `<div class="ai-summary"><div class="ai-text" style="color:var(--muted)">AI 종합·오늘 메시지는 <strong>준비 중</strong>입니다. 위의 핵심 수·타임라인·현재 흐름 해석으로 먼저 보시면 됩니다.</div></div>`;
 }
 
 async function callAISummary(lp, mn, py, name, destinyNum, soulNum, personalityNum, maturityNum, y, m, d) {

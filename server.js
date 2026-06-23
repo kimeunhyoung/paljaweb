@@ -444,12 +444,24 @@ registerPortOneRoutes(app, planBilling, getUserIdFromAuth, checkoutStore);
 registerLifecodeRoutes(app);
 registerNaverAuthRoutes(app);
 
-app.post('/api/ai/messages', async (req, res) => {
+/** AI 호출은 ANTHROPIC_API_KEY + AI_ENABLED=true 일 때만 (기본 꺼짐) */
+function isAiAvailable() {
   const apiKey = process.env.ANTHROPIC_API_KEY;
-  if (!apiKey) {
+  if (!apiKey) return false;
+  const flag = String(process.env.AI_ENABLED || '').toLowerCase();
+  return flag === 'true' || flag === '1' || flag === 'yes';
+}
+
+app.get('/api/ai/status', (req, res) => {
+  res.json({ available: isAiAvailable() });
+});
+
+app.post('/api/ai/messages', async (req, res) => {
+  if (!isAiAvailable()) {
     res.status(503).json({ error: 'AI server not configured' });
     return;
   }
+  const apiKey = process.env.ANTHROPIC_API_KEY;
 
   const { model, max_tokens, messages } = req.body || {};
   if (!model || !Array.isArray(messages) || !messages.length) {
