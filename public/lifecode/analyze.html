@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <script src="/js/plan-access.js?v=3" defer></script>
+  <script src="/js/plan-access.js?v=4" defer></script>
   <script src="/js/lifecode-product-guard.js"></script>
   <link rel="stylesheet" href="/css/lifecode-product.css"/>
   <script type="module">
@@ -1110,6 +1110,16 @@
       border-radius: 9px;
     }
     .timeline-dual .timeline-wrap { margin-top: 0; }
+    .timeline-wrap--preview .timeline-preview-note {
+      margin: 16px 0 0;
+      font-size: 12px;
+      line-height: 1.65;
+      color: var(--muted);
+      padding: 10px 14px;
+      background: rgba(139,167,199,0.08);
+      border-radius: 8px;
+      border: 1px dashed var(--border);
+    }
 
     /* 타로 인생 전반 차트 (0~100세) */
     .tarot-life-chart {
@@ -1367,16 +1377,17 @@
     }
     .lc-guide-tier-badge {
       display: inline-block;
-      margin-left: 6px;
-      padding: 2px 7px;
+      margin-left: 5px;
+      min-width: 17px;
+      padding: 1px 5px;
       font-size: 9px;
       font-family: var(--font-mono);
-      font-weight: 600;
-      letter-spacing: .08em;
-      text-transform: uppercase;
+      font-weight: 700;
+      letter-spacing: 0;
+      text-align: center;
       border-radius: 4px;
       vertical-align: middle;
-      line-height: 1.35;
+      line-height: 1.45;
     }
     .lc-guide-tier-badge--free {
       background: #e8e4dc;
@@ -3616,7 +3627,7 @@
   <div class="section" style="animation-delay:.2s" id="pyramidRhythmSection">
     <div class="section-header">
       <div class="section-line"></div>
-      <span class="section-label">피라미드 리듬 · 인생여정수</span>
+      <span class="section-label">피라미드 리듬</span>
       <div class="section-line"></div>
     </div>
     <div id="pyramidRhythmSectionBridge" class="timeline-bridge loshu-map-bridge"></div>
@@ -3960,6 +3971,18 @@ function hasDeepAnalysisAccess() {
     return window.PaljaPlan.hasDeepAnalysisAccess(USER_PLAN, DEV_UNLOCK_PAID);
   }
   return hasAccess('pro');
+}
+function hasBasicYearTimelineAccess() {
+  if (window.PaljaPlan && typeof window.PaljaPlan.hasBasicYearTimelineAccess === 'function') {
+    return window.PaljaPlan.hasBasicYearTimelineAccess(USER_PLAN, DEV_UNLOCK_PAID);
+  }
+  return hasAccess('basic');
+}
+function hasFullTimelineAccess() {
+  if (window.PaljaPlan && typeof window.PaljaPlan.hasFullTimelineAccess === 'function') {
+    return window.PaljaPlan.hasFullTimelineAccess(USER_PLAN, DEV_UNLOCK_PAID);
+  }
+  return hasDeepAnalysisAccess();
 }
 
 function gateHTML(planRequired, title, desc) {
@@ -5212,7 +5235,9 @@ const TIMELINE_TAROT_MAJOR = {
   22: { name:'The Master Builder', kr:'건설자',      emoji:'🏛️', keywords:['큰일','구조','꾸준함'], desc:'건설자(22) 에너지는 “당장 화려하지 않아도 오래 쓰는 틀을 만드는 해”로 읽습니다. 조직 만들기, 집·사업 기반, 장기 프로젝트 설계처럼 결과가 늦게 보이는 일과 잘 맞아요. 꼼꼼함·신뢰·약속 지키기가 평판으로 돌아오기 쉽습니다. 반대로 욕심만 크고 실행이 없으면 스트레스만 커질 수 있어요. 작은 단계로 나누고, 매주 확인할 체크리스트가 있으면 이 카드의 강점이 살아납니다.' },
 };
 
-function createTenYearTimeline(mode, ctx) {
+function createTenYearTimeline(mode, ctx, options) {
+  options = options || {};
+  const previewOnly = options.previewOnly === true;
   const isTarot = mode === 'tarot';
   const { curY, mnPre, m, d, mr_r, dr_r, yr_r, lp, y } = ctx;
   const completionNum = isTarot ? 21 : 9;
@@ -5222,7 +5247,8 @@ function createTenYearTimeline(mode, ctx) {
   const getBarH = isTarot ? tarotTimelineBarHeight : classicTimelineBarHeight;
 
   const yearData = [];
-  for (let i = 0; i < 10; i++) {
+  const yearCount = previewOnly ? 1 : 10;
+  for (let i = 0; i < yearCount; i++) {
     const yr = curY + i;
     if (isTarot) {
       const pyParts = calcPersonalYearTarot(yr, mnPre);
@@ -5347,7 +5373,13 @@ function createTenYearTimeline(mode, ctx) {
     </div>`;
   };
 
-  const html = `<div class="timeline-wrap" data-timeline-mode="${mode}">
+  const html = previewOnly
+    ? `<div class="timeline-wrap timeline-wrap--preview" data-timeline-mode="${mode}">
+    <div class="current-year-banner"><strong>${curY}년</strong> · ${getKw(curYData.num)} · ${getDesc(curYData.num)}</div>
+    <div class="timeline-detail">${buildDetail(curYData)}</div>
+    <p class="timeline-preview-note">10년 차트와 인생전반표(0~100세)는 <strong>Pro</strong> 플랜에서 열립니다.</p>
+  </div>`
+    : `<div class="timeline-wrap" data-timeline-mode="${mode}">
     <div class="current-year-banner"><strong>${curY}년</strong> · ${getKw(curYData.num)} · ${getDesc(curYData.num)}</div>
     <div class="chart-scroll"><div class="chart-inner">${chartBars}</div></div>
     <div class="year-cards">${yearCards}</div>
@@ -5356,6 +5388,7 @@ function createTenYearTimeline(mode, ctx) {
   </div>`;
 
   function bind(root) {
+    if (previewOnly) return;
     const wrap = root || document.querySelector(`[data-timeline-mode="${mode}"]`);
     if (!wrap) return;
     const banner = wrap.querySelector('.current-year-banner');
@@ -5984,8 +6017,9 @@ function lcGuideTierPrefix(required) {
   if (DEV_UNLOCK_PAID) return '';
   if (required === 'pro' && hasDeepAnalysisAccess()) return '';
   if (required === 'basic' && hasAccess('basic')) return '';
-  const label = required === 'pro' ? 'Pro' : 'Basic';
-  return `<strong class="lc-guide-tier-needed">${label} 필요</strong> · `;
+  const label = required === 'pro' ? 'P' : 'B';
+  const title = required === 'pro' ? 'Pro' : 'Basic';
+  return `<strong class="lc-guide-tier-needed" title="${title} 필요">${label} 필요</strong> · `;
 }
 
 /** 목차 본문(통합 모듈 리스트) — 상단 패널에서 재사용 */
@@ -6055,7 +6089,7 @@ function buildReadingGuideCatalogInnerHtml() {
         `<a href="#seqArrowSection" class="lc-guide-link"><strong>풀 애로우 · 순차 격자</strong></a>`,
         `${lcGuideTierPrefix('pro')}서양식 3·6·9 / 2·5·8 / 1·4·7 순차 격자의 8가지 풀·빈 화살 해석.`,
       )}
-      <p class="lc-guide-catalog-footnote">현재 플랜으로 바로 보기 어려운 모듈은 설명 앞에 <strong class="lc-guide-tier-needed">Basic 필요</strong> 또는 <strong class="lc-guide-tier-needed">Pro 필요</strong>가 붙습니다. 이름 입력·플랜에 따라 아래 카드 일부 미표시. 우측 목차에서 동일 앵커 이동.</p>
+      <p class="lc-guide-catalog-footnote">설명 앞 <strong>B</strong>·<strong>P</strong> 필요는 Basic·Pro 전용 모듈입니다. 무료 모듈은 배지 없이 표시됩니다.</p>
   `;
 }
 
@@ -7375,9 +7409,9 @@ async function runAnalysis() {
       ${gateHTML('pro','AI 오늘의 메시지','날짜 에너지를 기반으로 오늘 당신에게 필요한 맞춤 메시지를 AI가 생성합니다.')}`;
   }
 
-  // ── 5. 10년 타임라인 (Pro+) ──
-  if(hasDeepAnalysisAccess()) {
-    const tlCtx = { curY, mnPre, m, d, mr_r, dr_r, yr_r, lp, y };
+  // ── 5. 10년 타임라인 (Basic: 올해 수비/타로만 · Pro: 전체 차트·인생전반표) ──
+  const tlCtx = { curY, mnPre, m, d, mr_r, dr_r, yr_r, lp, y };
+  if (hasFullTimelineAccess()) {
     const classicTL = createTenYearTimeline('classic', tlCtx);
     const tarotTL = createTenYearTimeline('tarot', tlCtx);
     const tarotLife = createTarotLifeYearChart({ y, mnPre, curY });
@@ -7399,8 +7433,23 @@ async function runAnalysis() {
       tarotTL.bind(document.querySelector('[data-timeline-mode="tarot"]'));
       tarotLife.bind(document.getElementById('tarotLifeChart'));
     }, 50);
+  } else if (hasBasicYearTimelineAccess()) {
+    const classicTL = createTenYearTimeline('classic', tlCtx, { previewOnly: true });
+    const tarotTL = createTenYearTimeline('tarot', tlCtx, { previewOnly: true });
+    document.getElementById('timelineContent').innerHTML = `<div class="timeline-dual">
+      <section class="timeline-block">
+        <h3 class="timeline-block-title">수비학 개인연도</h3>
+        <p class="timeline-block-bridge">연·월·일을 각각 1~9(11, 22)로 환원한 뒤 더합니다. <strong>Basic</strong>에서는 올해(${curY}년) 해석만 열립니다.</p>
+        ${classicTL.html}
+      </section>
+      <section class="timeline-block">
+        <h3 class="timeline-block-title">타로 올해의 수</h3>
+        <p class="timeline-block-bridge">연도 자릿수합+문 넘버(전합)을 더해 메이저 아르카나 0~21로 읽습니다. <strong>Basic</strong>에서는 올해(${curY}년) 카드 해석만 열립니다.</p>
+        ${tarotTL.html}
+      </section>
+    </div>`;
   } else {
-    document.getElementById('timelineContent').innerHTML = gateHTML('pro','10년 타임라인','앞으로 10년간의 에너지 흐름을 바 차트로 시각화합니다. 올해의 수(수비학 개인연도·타로)는 <strong>현재 흐름</strong>에서 확인할 수 있습니다.');
+    document.getElementById('timelineContent').innerHTML = gateHTML('basic','10년 타임라인','수비학 개인연도·타로 올해의 수와 10년 차트는 <strong>Basic</strong> 이상에서 확인할 수 있습니다.');
   }
 
   // ── 6. 월간 흐름 (Basic+) ──

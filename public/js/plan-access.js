@@ -27,10 +27,20 @@
     return true;
   }
 
-  /** 대주기·10년타임라인·성장지도·AI요약 등 — Pro 이상 */
+  /** 대주기·인생4단계·10년 전체·성장지도·AI요약 등 — Pro 이상 */
   function hasDeepAnalysisAccess(plan, devUnlock) {
     if (devUnlock) return true;
     return isPlanAtLeast({ plan: plan }, 'pro');
+  }
+
+  /** Basic: 10년 타임라인에서 올해(수비학 개인연도·타로 올해의 수)만 — 전체 차트·인생전반표는 Pro */
+  function hasBasicYearTimelineAccess(plan, devUnlock) {
+    if (devUnlock) return true;
+    return isPlanAtLeast({ plan: plan }, 'basic');
+  }
+
+  function hasFullTimelineAccess(plan, devUnlock) {
+    return hasDeepAnalysisAccess(plan, devUnlock);
   }
 
   /** 분석 모듈 최소 플랜 (목차 배지용) */
@@ -45,7 +55,7 @@
     '#nav-major-cycle': 'pro',
     '#nav-life-four': 'pro',
     '#pyramidRhythmSection': 'pro',
-    '#timelineSection': 'pro',
+    '#timelineSection': 'basic',
     '#growthSection': 'pro',
     '#aiSummarySection': 'pro',
     '#aiTodaySection': 'pro',
@@ -58,15 +68,18 @@
   }
 
   function tierBadgeHtml(tier) {
-    var labels = { free: 'Free', basic: 'Basic', pro: 'Pro' };
+    if (tier === 'free') return '';
+    var labels = { basic: 'B', pro: 'P' };
+    var titles = { basic: 'Basic', pro: 'Pro' };
     var t = labels[tier] ? tier : 'pro';
-    var label = labels[t] || 'Pro';
+    var label = labels[t] || 'P';
+    var title = (titles[t] || 'Pro') + ' 플랜';
     return (
       '<span class="lc-guide-tier-badge lc-guide-tier-badge--' +
       t +
       '" title="' +
-      label +
-      ' 플랜">' +
+      title +
+      '">' +
       label +
       '</span>'
     );
@@ -79,9 +92,8 @@
   function tierLegendHtml() {
     return (
       '<p class="lc-guide-tier-legend">' +
-      '<span class="lc-guide-tier-badge lc-guide-tier-badge--free">Free</span> 무료 · ' +
-      '<span class="lc-guide-tier-badge lc-guide-tier-badge--basic">Basic</span> 베이직 이상 · ' +
-      '<span class="lc-guide-tier-badge lc-guide-tier-badge--pro">Pro</span> 프로 이상' +
+      '<span class="lc-guide-tier-badge lc-guide-tier-badge--basic" title="Basic 플랜">B</span> 베이직 이상 · ' +
+      '<span class="lc-guide-tier-badge lc-guide-tier-badge--pro" title="Pro 플랜">P</span> 프로 이상' +
       '</p>'
     );
   }
@@ -91,6 +103,8 @@
     isPlanAtLeast: isPlanAtLeast,
     hasCoreProfileAccess: hasCoreProfileAccess,
     hasDeepAnalysisAccess: hasDeepAnalysisAccess,
+    hasBasicYearTimelineAccess: hasBasicYearTimelineAccess,
+    hasFullTimelineAccess: hasFullTimelineAccess,
     moduleMinTier: moduleMinTier,
     tierBadgeHtml: tierBadgeHtml,
     tierBadgeForHref: tierBadgeForHref,

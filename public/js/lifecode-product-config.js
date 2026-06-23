@@ -18,7 +18,7 @@ export const LIFECODE_PRODUCT = {
 
   readingGuideKicker: '라이프코드 단품에 포함된 모듈입니다.',
   readingGuideFootnote:
-    '제목 옆 배지로 Basic(30일 단품)·Pro(상담사) 구분. AI 요약·오늘 메시지는 단품에 포함하지 않습니다.',
+    '제목 옆 <strong>B</strong>·<strong>P</strong>는 Basic·Pro 전용 모듈입니다. AI 요약·오늘 메시지는 단품에 포함하지 않습니다.',
 
   pdfFilenamePrefix: '라이프코드',
 
@@ -31,6 +31,7 @@ export const LIFECODE_PRODUCT = {
     '#nav-flow',
     '#monthlySection',
     '#weeklyForecastSection',
+    '#timelineSection',
   ],
 
   /** 단품 목차에 노출할 앵커 (hidden 제외) */
@@ -48,11 +49,11 @@ export const LIFECODE_PRODUCT = {
     { href: '#nav-life-four', title: '인생 4단계', tier: 'pro', desc: '절정수·도전수 네 구간.' },
     {
       href: '#pyramidRhythmSection',
-      title: '피라미드 리듬 · 인생여정수',
+      title: '피라미드 리듬',
       tier: 'pro',
       desc: '전체 자릿수 합 인생여정수(표의 뒤 숫자) 기준 4단계·적극/소극 구간과 삼각형 순환 리듬.',
     },
-    { href: '#timelineSection', title: '10년 타임라인', tier: 'pro', desc: '앞으로 10년 개인년도 흐름.' },
+    { href: '#timelineSection', title: '10년 타임라인', tier: 'basic', desc: '올해 수비학 개인연도·타로 올해의 수. 10년 차트·인생전반표는 Pro.' },
     { href: '#monthlySection', title: '월간 흐름', tier: 'basic', desc: '선택 연도의 월별 리듬.' },
     { href: '#nav-flow', title: '지금의 흐름', tier: 'basic', desc: '수비학 개인연도·타로 올해의 수, 이번 달·오늘.' },
     {
@@ -145,14 +146,15 @@ export function buildLifecodeProductReadingGuideInner() {
   const badge = (tier) => {
     const g = typeof window !== 'undefined' ? window.PaljaPlan : null;
     if (g && g.tierBadgeHtml) return g.tierBadgeHtml(tier);
-    const labels = { free: 'Free', basic: 'Basic', pro: 'Pro' };
+    if (tier === 'free') return '';
+    const labels = { basic: 'B', pro: 'P' };
     const t = labels[tier] ? tier : 'pro';
-    return `<span class="lc-guide-tier-badge lc-guide-tier-badge--${t}">${labels[t]}</span>`;
+    return `<span class="lc-guide-tier-badge lc-guide-tier-badge--${t}" title="${t === 'basic' ? 'Basic' : 'Pro'} 플랜">${labels[t] || 'P'}</span>`;
   };
   const legend =
     typeof window !== 'undefined' && window.PaljaPlan && window.PaljaPlan.tierLegendHtml
       ? window.PaljaPlan.tierLegendHtml()
-      : '<p class="lc-guide-tier-legend"><span class="lc-guide-tier-badge lc-guide-tier-badge--basic">Basic</span> 30일 단품 · <span class="lc-guide-tier-badge lc-guide-tier-badge--pro">Pro</span> 상담사 이용권</p>';
+      : '<p class="lc-guide-tier-legend"><span class="lc-guide-tier-badge lc-guide-tier-badge--basic" title="Basic 플랜">B</span> 30일 단품 · <span class="lc-guide-tier-badge lc-guide-tier-badge--pro" title="Pro 플랜">P</span> 상담사 이용권</p>';
   const rows = modules
     .map(
       (m) => `
