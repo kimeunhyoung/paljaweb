@@ -1,4 +1,10 @@
-/* 라이프코드 단품 전용 (/lifecode/) — lifecode-product.css 상단바 + 콘텐츠 숨김 */
+.lifecode-product-footer-label {
+  font-family: 'Noto Serif KR', var(--font-serif, Georgia, serif);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--deep-brown, #4a3520);
+  letter-spacing: 0.02em;
+}
 @import url('/css/lifecode-standalone.css');
 
 html.lifecode-product .lc-product-off,

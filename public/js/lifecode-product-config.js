@@ -18,44 +18,52 @@ export const LIFECODE_PRODUCT = {
 
   readingGuideKicker: '라이프코드 단품에 포함된 모듈입니다.',
   readingGuideFootnote:
-    '단품에는 AI 요약·오늘 메시지는 포함하지 않습니다. 우측 목차에서 이동할 수 있습니다.',
+    '제목 옆 배지로 Basic(30일 단품)·Pro(상담사) 구분. AI 요약·오늘 메시지는 단품에 포함하지 않습니다.',
 
   pdfFilenamePrefix: '라이프코드',
+
+  /** 단품 Basic(30일) 목차 — 리듬 묶음만 */
+  basicGuideHrefs: ['#nav-at-a-glance', '#nav-flow', '#monthlySection', '#weeklyForecastSection'],
 
   /** 단품 목차에 노출할 앵커 (hidden 제외) */
   guideModules: [
     {
       href: '#nav-at-a-glance',
       title: '먼저 보는 수',
-      desc: '별자리·핵심 수·올해·이번 달·대주기·절정수·도전수 요약 그리드.',
+      tier: 'basic',
+      desc: '올해의 수(수비/타로)·이번 달 요약 그리드.',
     },
-    { href: '#nav-core', title: '핵심 수', desc: '생년월일·이름에서 뽑은 대표 수비학 숫자와 해석.' },
-    { href: '#zodiacInsightSection', title: '별자리', desc: '생일 기준 별자리 레이어(수비 숫자와 함께 읽기).' },
-    { href: '#period48Section', title: '48주기 성격', desc: '생일 구간별 성격·역할 패턴(48 세그먼트).' },
-    { href: '#nav-major-cycle', title: '대주기', desc: '인생을 세 구간으로 나눈 장기 흐름.' },
-    { href: '#nav-life-four', title: '인생 4단계', desc: '절정수·도전수 네 구간.' },
+    { href: '#nav-core', title: '핵심 수', tier: 'pro', desc: '생년월일·이름에서 뽑은 대표 수비학 숫자와 해석.' },
+    { href: '#zodiacInsightSection', title: '별자리', tier: 'pro', desc: '생일 기준 별자리 레이어(수비 숫자와 함께 읽기).' },
+    { href: '#period48Section', title: '48주기 성격', tier: 'pro', desc: '생일 구간별 성격·역할 패턴(48 세그먼트).' },
+    { href: '#nav-major-cycle', title: '대주기', tier: 'pro', desc: '인생을 세 구간으로 나눈 장기 흐름.' },
+    { href: '#nav-life-four', title: '인생 4단계', tier: 'pro', desc: '절정수·도전수 네 구간.' },
     {
       href: '#pyramidRhythmSection',
       title: '피라미드 리듬 · 인생여정수',
+      tier: 'pro',
       desc: '전체 자릿수 합 인생여정수(표의 뒤 숫자) 기준 4단계·적극/소극 구간과 삼각형 순환 리듬.',
     },
-    { href: '#timelineSection', title: '10년 타임라인', desc: '앞으로 10년 개인년도 흐름.' },
-    { href: '#monthlySection', title: '월간 흐름', desc: '선택 연도의 월별 리듬.' },
-    { href: '#nav-flow', title: '지금의 흐름', desc: '올해·이번 달·오늘의 수.' },
+    { href: '#timelineSection', title: '10년 타임라인', tier: 'pro', desc: '앞으로 10년 개인년도 흐름.' },
+    { href: '#monthlySection', title: '월간 흐름', tier: 'basic', desc: '선택 연도의 월별 리듬.' },
+    { href: '#nav-flow', title: '지금의 흐름', tier: 'basic', desc: '수비학 개인연도·타로 올해의 수, 이번 달·오늘.' },
     {
       href: '#weeklyForecastSection',
       title: '향후 7일',
+      tier: 'basic',
       desc: '오늘부터 7일간 일간 수·에너지 가이드 표.',
     },
-    { href: '#growthSection', title: '성장 지도', desc: '비어 있는 숫자·보완 포인트.' },
+    { href: '#growthSection', title: '성장 지도', tier: 'pro', desc: '비어 있는 숫자·보완 포인트.' },
     {
       href: '#loshuSection',
       title: '로슈 격자',
+      tier: 'pro',
       desc: '생일 숫자를 마방진에 올려 화살·결손·반복 패턴을 읽습니다.',
     },
     {
       href: '#seqArrowSection',
       title: '풀 애로우 · 순차 격자',
+      tier: 'pro',
       desc: '서양식 3·6·9 / 2·5·8 / 1·4·7 순차 격자의 8가지 풀·빈 화살 해석.',
     },
   ],
@@ -109,7 +117,7 @@ export function applyLifecodeProductShell() {
       '8코드(8CODE) · 대표 김태훈 · 사업자등록번호 624-55-00806 · 통신판매업 신고번호 제 2026-부산수영-0361 호<br>' +
       '부산광역시 수영구 수영로 632-1, 602호 · 유선번호 <a href="tel:0519250441">051-925-0441</a> · 휴대폰 <a href="tel:01052802300">010-5280-2300</a>' +
       '</span>' +
-      '<span style="color:var(--muted);font-size:12px;">라이프코드 단품</span>' +
+      '<span class="lifecode-product-footer-label">라이프코드 단품</span>' +
       '<span aria-hidden="true"> · </span>' +
       '<a href="../terms.html">이용약관</a>' +
       '<span aria-hidden="true"> · </span>' +
@@ -120,17 +128,35 @@ export function applyLifecodeProductShell() {
 }
 
 export function buildLifecodeProductReadingGuideInner() {
-  const rows = LIFECODE_PRODUCT.guideModules
+  const plan = (typeof window !== 'undefined' && window.USER_PLAN) || 'basic';
+  const isFullTier = plan === 'pro' || plan === 'professional';
+  const allowed = new Set(LIFECODE_PRODUCT.basicGuideHrefs || []);
+  const modules = isFullTier
+    ? LIFECODE_PRODUCT.guideModules
+    : LIFECODE_PRODUCT.guideModules.filter((m) => allowed.has(m.href));
+  const badge = (tier) => {
+    const g = typeof window !== 'undefined' ? window.PaljaPlan : null;
+    if (g && g.tierBadgeHtml) return g.tierBadgeHtml(tier);
+    const labels = { free: 'Free', basic: 'Basic', pro: 'Pro' };
+    const t = labels[tier] ? tier : 'pro';
+    return `<span class="lc-guide-tier-badge lc-guide-tier-badge--${t}">${labels[t]}</span>`;
+  };
+  const legend =
+    typeof window !== 'undefined' && window.PaljaPlan && window.PaljaPlan.tierLegendHtml
+      ? window.PaljaPlan.tierLegendHtml()
+      : '<p class="lc-guide-tier-legend"><span class="lc-guide-tier-badge lc-guide-tier-badge--basic">Basic</span> 30일 단품 · <span class="lc-guide-tier-badge lc-guide-tier-badge--pro">Pro</span> 상담사 이용권</p>';
+  const rows = modules
     .map(
       (m) => `
     <div class="lc-guide-row">
-      <div class="lc-guide-nav"><a href="${m.href}" class="lc-guide-link"><strong>${m.title}</strong></a></div>
+      <div class="lc-guide-nav"><a href="${m.href}" class="lc-guide-link"><strong>${m.title}</strong></a>${badge(m.tier || 'basic')}</div>
       <p class="lc-guide-desc">${m.desc}</p>
     </div>`,
     )
     .join('');
   return `
     <p class="lc-guide-catalog-kicker">${LIFECODE_PRODUCT.readingGuideKicker}</p>
+    ${legend}
     ${rows}
     <p class="lc-guide-catalog-footnote">${LIFECODE_PRODUCT.readingGuideFootnote}</p>`;
 }

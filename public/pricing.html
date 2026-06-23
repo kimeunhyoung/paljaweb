@@ -273,7 +273,7 @@
       display: grid;
       grid-template-columns: repeat(4, 1fr);
       gap: 16px;
-      align-items: start;
+      align-items: stretch;
     }
 
     .plan-card {
@@ -285,6 +285,10 @@
       transition: box-shadow .2s, transform .2s;
       animation: fadeUp .5s ease forwards;
       opacity: 0;
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      min-height: 0;
     }
     .plan-card:hover {
       box-shadow: 0 12px 40px var(--shadow);
@@ -293,9 +297,12 @@
     .plan-card.featured {
       background: var(--deep-brown);
       border-color: var(--deep-brown);
-      transform: translateY(-8px);
+      box-shadow: 0 8px 28px rgba(74, 53, 32, .16);
     }
-    .plan-card.featured:hover { transform: translateY(-12px); }
+    .plan-card.featured:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 12px 36px rgba(74, 53, 32, .22);
+    }
     .plan-card.professional {
       scroll-margin-top: 100px;
       background: var(--parchment);
@@ -372,7 +379,8 @@
 
     .feature-list {
       list-style: none;
-      margin-bottom: 28px;
+      margin-bottom: 0;
+      flex: 1 1 auto;
     }
     .feature-list li {
       display: flex;
@@ -429,6 +437,8 @@
       text-align: center;
       text-decoration: none;
       letter-spacing: .02em;
+      margin-top: 28px;
+      flex-shrink: 0;
     }
     .plan-btn-outline {
       background: none;
@@ -491,9 +501,10 @@
     }
     .compare-table th:first-child { text-align: left; }
     .compare-table th.featured-col {
-      background: var(--deep-brown);
-      color: rgba(245,240,232,.6);
-      border-radius: 8px 8px 0 0;
+      background: var(--parchment);
+      color: var(--deep-brown);
+      font-weight: 600;
+      box-shadow: inset 0 -2px 0 var(--deep-brown);
     }
     .compare-table td {
       padding: 12px 16px;
@@ -646,6 +657,82 @@
     }
     .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 
+    /* ── 라이프코드 건별 이용권 ── */
+    .lifecode-onetime {
+      margin-top: 40px;
+      padding: 28px 24px 26px;
+      background: linear-gradient(180deg, #fff 0%, var(--parchment) 100%);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      box-shadow: 0 4px 20px rgba(74, 53, 32, .06);
+    }
+    .lifecode-onetime-kicker {
+      display: inline-block;
+      margin-bottom: 10px;
+      padding: 5px 12px;
+      font-family: var(--font-serif);
+      font-size: 14px;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      color: var(--deep-brown);
+      background: rgba(200, 169, 110, .28);
+      border: 1px solid rgba(139, 111, 71, .45);
+      border-radius: 999px;
+    }
+    .lifecode-onetime-title {
+      font-family: var(--font-serif);
+      font-size: 22px;
+      font-weight: 400;
+      color: var(--deep-brown);
+      margin: 0 0 8px;
+    }
+    .lifecode-onetime-lede {
+      font-size: 13px;
+      color: var(--muted);
+      line-height: 1.7;
+      margin: 0 0 14px;
+      max-width: 520px;
+    }
+    .lifecode-onetime-lede strong {
+      color: var(--deep-brown);
+      font-weight: 600;
+    }
+    .lifecode-onetime-warn {
+      max-width: 640px;
+      margin-bottom: 18px;
+      padding: 14px 16px 14px 40px;
+      background: linear-gradient(135deg, #fff7ed, #ffedd5);
+      border: 2px solid #ea580c;
+      border-radius: 12px;
+      position: relative;
+      box-shadow: 0 2px 8px rgba(234, 88, 12, .1);
+    }
+    .lifecode-onetime-warn-icon {
+      position: absolute;
+      left: 14px;
+      top: 14px;
+      font-size: 1.1rem;
+      line-height: 1;
+    }
+    .lifecode-onetime-warn-title {
+      font-size: 13px;
+      font-weight: 600;
+      color: #9a3412;
+      margin-bottom: 5px;
+    }
+    .lifecode-onetime-warn p {
+      font-size: 12px;
+      color: #7c2d12;
+      line-height: 1.65;
+      margin: 0;
+    }
+    .lifecode-onetime-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 14px;
+      max-width: 640px;
+    }
+
     /* ── RESPONSIVE ── */
     @media (max-width: 900px) {
       .pricing-grid { grid-template-columns: 1fr 1fr; }
@@ -702,18 +789,17 @@
       <div class="popular-badge">가장 인기</div>
       <div class="plan-name">Basic</div>
       <div class="plan-price" id="basic-price">9,900<span class="plan-price-unit">원/월</span></div>
-      <p class="plan-tagline">꾸준히 나를 알아가는 분.<br>AI 분석 포함.</p>
+      <p class="plan-tagline">지금의 리듬을 읽는 분.<br>흐름·월간·7일 중심.</p>
       <div class="plan-divider"></div>
       <ul class="feature-list">
-        <li><div class="feature-check">✓</div>Free 모든 기능</li>
-        <li><div class="feature-check">✓</div>대주기 분석 · 인생 4단계</li>
-        <li><div class="feature-check">✓</div>AI 종합 성격 요약</li>
-        <li><div class="feature-check">✓</div>10년 타임라인</li>
+        <li><div class="feature-check">✓</div>수비학 개인연도 · 타로 올해의 수</li>
+        <li><div class="feature-check">✓</div>현재 흐름 (올해·이번 달·오늘)</li>
         <li><div class="feature-check">✓</div>월간 흐름 12개월</li>
-        <li><div class="feature-check">✓</div>Growth Map 성장 지도</li>
-        <li class="no"><div class="feature-x">×</div>AI 오늘의 메시지</li>
-        <li class="no"><div class="feature-x">×</div>로슈 격자 분석</li>
-        <li class="no"><div class="feature-x">×</div>PDF 저장</li>
+        <li><div class="feature-check">✓</div>향후 7일 에너지 흐름</li>
+        <li class="no"><div class="feature-x">×</div>핵심 수 · 별자리 · 48주기</li>
+        <li class="no"><div class="feature-x">×</div>대주기 · 인생 4단계 · 10년 타임라인</li>
+        <li class="no"><div class="feature-x">×</div>AI 종합 요약 · Growth Map</li>
+        <li class="no"><div class="feature-x">×</div>로슈 격자 · PDF 저장</li>
       </ul>
       <button class="plan-btn plan-btn-cream" onclick="handleSubscribe('basic')">시작하기</button>
     </div>
@@ -721,18 +807,18 @@
     <!-- PRO -->
     <div class="plan-card">
       <div class="plan-name">Pro</div>
-      <div class="plan-price" id="pro-price">19,900<span class="plan-price-unit">원/월</span></div>
-      <p class="plan-tagline">깊이 있는 분석이 필요한 분.<br>전체 기능 이용.</p>
+      <div class="plan-price" id="pro-price">29,900<span class="plan-price-unit">원/월</span></div>
+      <p class="plan-tagline">깊이 있는 분석이 필요한 분.<br>핵심 수·타임라인·AI 포함.</p>
       <div class="plan-divider"></div>
       <ul class="feature-list">
         <li><div class="feature-check">✓</div>Basic 모든 기능</li>
+        <li><div class="feature-check">✓</div>핵심 수 · 별자리 · 48주기</li>
+        <li><div class="feature-check">✓</div>대주기 · 인생 4단계 · 10년 타임라인</li>
+        <li><div class="feature-check">✓</div>AI 종합 성격 요약 · Growth Map</li>
         <li><div class="feature-check">✓</div>AI 오늘의 맞춤 메시지</li>
         <li><div class="feature-check">✓</div>로슈 격자 심층 분석</li>
         <li><div class="feature-check">✓</div>PDF 저장 · 공유</li>
         <li><div class="feature-check">✓</div>분석 히스토리 저장</li>
-        <li><div class="feature-check">✓</div>신규 기능 우선 이용</li>
-        <li class="no"><div class="feature-x">×</div>고객 관리</li>
-        <li class="no"><div class="feature-x">×</div>다중 분석</li>
       </ul>
       <button class="plan-btn plan-btn-accent" onclick="handleSubscribe('pro')">시작하기</button>
     </div>
@@ -740,7 +826,7 @@
     <!-- PROFESSIONAL -->
     <div class="plan-card professional" id="professional">
       <div class="plan-name">Professional</div>
-      <div class="plan-price" id="pro2-price">49,900<span class="plan-price-unit">원/월</span></div>
+      <div class="plan-price" id="pro2-price">39,900<span class="plan-price-unit">원/월</span></div>
       <p class="plan-tagline">수비학 상담사를 위한 플랜.<br>고객 관리 포함.</p>
       <div class="plan-divider"></div>
       <ul class="feature-list">
@@ -759,20 +845,20 @@
   </div>
 
   <!-- 라이프코드 건별 이용권 -->
-  <div class="lifecode-onetime" style="margin-top:40px;padding:28px 24px;background:white;border:1px solid var(--border);border-radius:14px;">
-    <div style="font-family:var(--font-mono);font-size:9px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);margin-bottom:10px;">라이프코드 단품</div>
-    <h3 style="font-family:var(--font-serif);font-size:22px;font-weight:400;color:var(--deep-brown);margin-bottom:8px;">건별 결제 · 접속 코드</h3>
-    <p style="font-size:13px;color:var(--muted);line-height:1.7;margin-bottom:14px;max-width:520px;">팔자연구소 전체 구독 없이 <strong>라이프코드 단품</strong>만 쓰고 싶다면 1회 결제로 접속 코드를 받으세요. 정기 결제·자동 갱신 없음.</p>
-    <div style="max-width:640px;margin-bottom:18px;padding:14px 16px 14px 40px;background:linear-gradient(135deg,#fff7ed,#ffedd5);border:2px solid #ea580c;border-radius:12px;position:relative;box-shadow:0 2px 8px rgba(234,88,12,.1);">
-      <span style="position:absolute;left:14px;top:14px;font-size:1.1rem;line-height:1;" aria-hidden="true">⚠</span>
-      <div style="font-size:13px;font-weight:600;color:#9a3412;margin-bottom:5px;">기기 1대 전용</div>
-      <p style="font-size:12px;color:#7c2d12;line-height:1.65;margin:0;">접속 코드는 <strong style="color:#c2410c;">처음 등록한 기기 1대</strong>에서만 사용됩니다. 평소 쓰는 휴대폰·PC에서 결제 후 바로 등록하세요.</p>
+  <div class="lifecode-onetime">
+    <div class="lifecode-onetime-kicker">라이프코드 단품</div>
+    <h3 class="lifecode-onetime-title">건별 결제 · 접속 코드</h3>
+    <p class="lifecode-onetime-lede">팔자연구소 전체 구독 없이 <strong>라이프코드 단품</strong>만 쓰고 싶다면 1회 결제로 접속 코드를 받으세요. 정기 결제·자동 갱신 없음.</p>
+    <div class="lifecode-onetime-warn">
+      <span class="lifecode-onetime-warn-icon" aria-hidden="true">⚠</span>
+      <div class="lifecode-onetime-warn-title">기기 1대 전용</div>
+      <p>접속 코드는 <strong style="color:#c2410c;">처음 등록한 기기 1대</strong>에서만 사용됩니다. 평소 쓰는 휴대폰·PC에서 결제 후 바로 등록하세요.</p>
     </div>
-    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px;max-width:640px;">
+    <div class="lifecode-onetime-grid">
       <div style="border:1px solid var(--border);border-radius:12px;padding:18px 16px;background:var(--parchment);">
         <div style="font-size:12px;color:var(--muted);margin-bottom:6px;">30일 이용권</div>
         <div style="font-family:var(--font-serif);font-size:28px;color:var(--deep-brown);margin-bottom:6px;">7,900<span style="font-size:13px;color:var(--muted);font-family:var(--font-body);">원 · 1회</span></div>
-        <p style="font-size:12px;color:var(--muted);line-height:1.55;margin-bottom:14px;">기기 1대 · 라이프코드 리포트 전체(단품 구성)</p>
+        <p style="font-size:12px;color:var(--muted);line-height:1.55;margin-bottom:14px;">기기 1대 · 리듬 분석(현재·월간·7일)</p>
         <a href="/lifecode/buy.html?product=basic30" class="plan-btn plan-btn-outline" style="display:block;text-decoration:none;">구매하기</a>
       </div>
       <div style="border:1px solid var(--accent);border-radius:12px;padding:18px 16px;background:#fff;">
@@ -806,28 +892,56 @@
       <tr>
         <td>인생여정수 · 문 넘버</td>
         <td><span class="check">✓</span></td>
+        <td class="featured-col"><span class="cross">—</span></td>
+        <td><span class="check">✓</span></td>
+        <td><span class="check">✓</span></td>
+      </tr>
+      <tr>
+        <td>수비학 개인연도 · 타로 올해의 수</td>
+        <td><span class="cross">—</span></td>
         <td class="featured-col"><span class="check">✓</span></td>
         <td><span class="check">✓</span></td>
         <td><span class="check">✓</span></td>
       </tr>
       <tr>
-        <td>오늘의 에너지 흐름</td>
-        <td><span class="check">✓</span></td>
+        <td>현재 흐름 (올해·이번 달·오늘)</td>
+        <td><span class="cross">—</span></td>
         <td class="featured-col"><span class="check">✓</span></td>
+        <td><span class="check">✓</span></td>
+        <td><span class="check">✓</span></td>
+      </tr>
+      <tr>
+        <td>오늘의 에너지 (무료 미리보기)</td>
+        <td><span class="check">✓</span></td>
+        <td class="featured-col"><span class="cross">—</span></td>
+        <td><span class="check">✓</span></td>
+        <td><span class="check">✓</span></td>
+      </tr>
+      <tr>
+        <td>향후 7일 에너지 흐름</td>
+        <td><span class="cross">—</span></td>
+        <td class="featured-col"><span class="check">✓</span></td>
+        <td><span class="check">✓</span></td>
+        <td><span class="check">✓</span></td>
+      </tr>
+      <tr>
+        <td>별자리 · 48주기 성격학</td>
+        <td><span class="check">✓</span></td>
+        <td class="featured-col"><span class="cross">—</span></td>
         <td><span class="check">✓</span></td>
         <td><span class="check">✓</span></td>
       </tr>
       <tr>
         <td>대주기 분석</td>
         <td><span class="cross">—</span></td>
-        <td class="featured-col"><span class="check">✓</span></td>
+        <td class="featured-col"><span class="cross">—</span></td>
         <td><span class="check">✓</span></td>
         <td><span class="check">✓</span></td>
       </tr>
       <tr>
         <td>인생 4단계 요약</td>
         <td><span class="cross">—</span></td>
-        <td class="featured-col"><span class="check">✓</span></td>
+        <td class="featured-col"><span class="cross">—</span></td>
         <td><span class="check">✓</span></td>
         <td><span class="check">✓</span></td>
       </tr>
@@ -836,7 +950,7 @@
       <tr>
         <td>10년 타임라인</td>
         <td><span class="cross">—</span></td>
-        <td class="featured-col"><span class="check">✓</span></td>
+        <td class="featured-col"><span class="cross">—</span></td>
         <td><span class="check">✓</span></td>
         <td><span class="check">✓</span></td>
       </tr>
@@ -850,7 +964,7 @@
       <tr>
         <td>Growth Map 성장 지도</td>
         <td><span class="cross">—</span></td>
-        <td class="featured-col"><span class="check">✓</span></td>
+        <td class="featured-col"><span class="cross">—</span></td>
         <td><span class="check">✓</span></td>
         <td><span class="check">✓</span></td>
       </tr>
@@ -866,7 +980,7 @@
       <tr>
         <td>AI 종합 성격 요약</td>
         <td><span class="cross">—</span></td>
-        <td class="featured-col"><span class="check">✓</span></td>
+        <td class="featured-col"><span class="cross">—</span></td>
         <td><span class="check">✓</span></td>
         <td><span class="check">✓</span></td>
       </tr>
@@ -995,7 +1109,7 @@ const { createClient } = supabase;
 const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 // ── 요금 데이터 (월간만) ──
-const PRICES = { basic: '9,900', pro: '19,900', professional: '49,900' };
+const PRICES = { basic: '9,900', pro: '29,900', professional: '39,900' };
 
 function showToast(msg) {
   const t = document.getElementById('toast');

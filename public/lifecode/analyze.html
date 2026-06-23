@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <script src="/js/plan-access.js?v=3" defer></script>
   <script src="/js/lifecode-product-guard.js"></script>
   <link rel="stylesheet" href="/css/lifecode-product.css"/>
   <script type="module">
@@ -1363,6 +1364,44 @@
       color: var(--warm-brown);
       font-weight: 700;
       letter-spacing: .02em;
+    }
+    .lc-guide-tier-badge {
+      display: inline-block;
+      margin-left: 6px;
+      padding: 2px 7px;
+      font-size: 9px;
+      font-family: var(--font-mono);
+      font-weight: 600;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      border-radius: 4px;
+      vertical-align: middle;
+      line-height: 1.35;
+    }
+    .lc-guide-tier-badge--free {
+      background: #e8e4dc;
+      color: #5c5040;
+      border: 1px solid rgba(92, 80, 64, .2);
+    }
+    .lc-guide-tier-badge--basic {
+      background: #f5ebe0;
+      color: #8b6f47;
+      border: 1px solid rgba(139, 111, 71, .4);
+    }
+    .lc-guide-tier-badge--pro {
+      background: var(--deep-brown);
+      color: var(--cream);
+      border: 1px solid var(--deep-brown);
+    }
+    .lc-guide-tier-legend {
+      margin: 0 0 12px;
+      font-size: 11px;
+      line-height: 1.8;
+      color: var(--muted);
+    }
+    .lc-guide-tier-legend .lc-guide-tier-badge {
+      margin-left: 0;
+      margin-right: 2px;
     }
     .lc-guide-catalog-footnote {
       margin: 11px 0 0;
@@ -3875,32 +3914,31 @@ function setLifecodeCounselorUi(enabled) {
 }
 
 async function initAuth() {
-  USER_PLAN = 'pro';
+  USER_PLAN = 'basic';
   CURRENT_USER_ID = 'lifecode';
   setLifecodeCounselorUi(false);
 
   try {
-    const { fetchLifecodeSession, lifecodeApi } = await import('/js/lifecode-session.js');
+    const { fetchLifecodeSession } = await import('/js/lifecode-session.js');
     const lc = await fetchLifecodeSession();
     if (!lc.ok) return;
 
-    if (!lc.counselorHub) {
-      return;
+    if (lc.counselorHub) {
+      USER_PLAN = 'professional';
+      setLifecodeCounselorUi(true);
+      const { lifecodeApi } = await import('/js/lifecode-session.js');
+      const clientId = new URLSearchParams(location.search).get('client');
+      if (!clientId) return;
+      const { ok, data } = await lifecodeApi(`/api/lifecode/clients/${clientId}`);
+      if (!ok || !data.client) return;
+      const c = data.client;
+      const birthEl = document.getElementById('inputBirth');
+      const nameEl = document.getElementById('inputName');
+      const clientEl = document.getElementById('inputClient');
+      if (birthEl && c.birthDate) birthEl.value = c.birthDate;
+      if (nameEl) nameEl.value = (c.legalName || '').trim();
+      if (clientEl) clientEl.value = (c.displayName || '').trim();
     }
-
-    USER_PLAN = 'professional';
-    setLifecodeCounselorUi(true);
-    const clientId = new URLSearchParams(location.search).get('client');
-    if (!clientId) return;
-    const { ok, data } = await lifecodeApi(`/api/lifecode/clients/${clientId}`);
-    if (!ok || !data.client) return;
-    const c = data.client;
-    const birthEl = document.getElementById('inputBirth');
-    const nameEl = document.getElementById('inputName');
-    const clientEl = document.getElementById('inputClient');
-    if (birthEl && c.birthDate) birthEl.value = c.birthDate;
-    if (nameEl) nameEl.value = (c.legalName || '').trim();
-    if (clientEl) clientEl.value = (c.displayName || '').trim();
   } catch (_) { /* ignore */ }
 }
 
@@ -3909,6 +3947,21 @@ function hasAccess(required) {
   // 개발 플래그가 켜져 있으면 모든 권한 허용
   if (DEV_UNLOCK_PAID) return true;
   return PLANS[USER_PLAN] >= PLANS[required];
+}
+function hasCoreProfileAccess() {
+  if (window.PaljaPlan && typeof window.PaljaPlan.hasCoreProfileAccess === 'function') {
+    return window.PaljaPlan.hasCoreProfileAccess(USER_PLAN, DEV_UNLOCK_PAID);
+  }
+  if (DEV_UNLOCK_PAID) return true;
+  if (PLANS[USER_PLAN] >= PLANS.pro) return true;
+  if (USER_PLAN === 'basic') return false;
+  return true;
+}
+function hasDeepAnalysisAccess() {
+  if (window.PaljaPlan && typeof window.PaljaPlan.hasDeepAnalysisAccess === 'function') {
+    return window.PaljaPlan.hasDeepAnalysisAccess(USER_PLAN, DEV_UNLOCK_PAID);
+  }
+  return hasAccess('pro');
 }
 
 function gateHTML(planRequired, title, desc) {
@@ -5930,7 +5983,9 @@ function lcReadingGuideCatalogRow(navHtml, descriptionHtml) {
 
 /** 목차 줄 앞머리: 현재 플랜으로 열 수 없으면 필요 티어 표시 (호출 시점에 USER_PLAN·hasAccess 반영) */
 function lcGuideTierPrefix(required) {
-  if (DEV_UNLOCK_PAID || hasAccess(required)) return '';
+  if (DEV_UNLOCK_PAID) return '';
+  if (required === 'pro' && hasDeepAnalysisAccess()) return '';
+  if (required === 'basic' && hasAccess('basic')) return '';
   const label = required === 'pro' ? 'Pro' : 'Basic';
   return `<strong class="lc-guide-tier-needed">${label} 필요</strong> · `;
 }
@@ -6418,6 +6473,12 @@ function renderPyramidRhythmHTML(lifePathSingle, userAge) {
 
 /** 별자리 → 핵심 수·이름 수 → 올해·이번 달 → 현재 주기 */
 function buildLcPriorityAtGlanceHtml(ctx) {
+  if (!DEV_UNLOCK_PAID && USER_PLAN === 'basic') {
+    let h = '';
+    h += lcNumCell('올해의 수 (수비/타로)', ctx.pyDisplay ?? ctx.py, ctx.pyPreLabel != null ? `전합 ${ctx.pyPreLabel}` : (ctx.pyS != null ? `전합 ${ctx.pyS}` : ''));
+    h += lcNumCell('이번 달의 수', ctx.pm, ctx.pmPre != null ? `전합 ${ctx.pmPre}` : '');
+    return h;
+  }
   let h = '';
   h += lcNumCell('별자리', ctx.zodiacSign || '—', '', 'lc-glance-cell--zodiac');
   h += lcNumCell('인생여정수', ctx.lpDisplay ?? ctx.lp, ctx.lpPreLabel != null ? `전합 ${ctx.lpPreLabel}` : (ctx.lpS != null ? `전합 ${ctx.lpS}` : ''));
@@ -7092,7 +7153,8 @@ async function runAnalysis() {
     return (baseHtml || '') + `<div class="core-acc-extra">${ex}</div>`;
   }
 
-  // ── 1. CORE NUMBERS (모든 플랜) ──
+  // ── 1. CORE NUMBERS ──
+  if (hasCoreProfileAccess()) {
   const coreItems = [
     { label:'인생여정수', value:lp, valueDisplay:lpDisplay, pre:lpPreLabel, desc: CORE_LIFE_PATH_MAP[lp]||DEEP_MAP[lp]||'',
       accBody: lifePathCalcExplainHtml(y, m, d, lpParts) + coreAccordionBody(CORE_LIFE_PATH_MAP[lp]||DEEP_MAP[lp]||'', lp, ACCORDION_LIFE_PATH) },
@@ -7146,20 +7208,32 @@ async function runAnalysis() {
       storyBody.innerHTML = '';
     }
   }
+  } else {
+    document.getElementById('coreGrid').innerHTML = '';
+    document.getElementById('coreAccordion').innerHTML = gateHTML('pro', '핵심 수', '생년월일·이름에서 뽑은 인생여정수, 문 넘버, 운명수 등 대표 수비학 숫자와 해석입니다.');
+    const storySectionOff = document.getElementById('integratedStorySection');
+    if (storySectionOff) {
+      storySectionOff.style.display = 'none';
+      const storyBodyOff = document.getElementById('integratedStoryBody');
+      if (storyBodyOff) storyBodyOff.innerHTML = '';
+    }
+  }
 
   const zodiacHost = document.getElementById('zodiacInsightContent');
   if (zodiacHost) {
-    zodiacHost.innerHTML = buildZodiacInsightHTML(z, {
-      lp,
-      mn,
-      destiny: destinyNum?.single || lp
-    });
+    zodiacHost.innerHTML = hasCoreProfileAccess()
+      ? buildZodiacInsightHTML(z, {
+        lp,
+        mn,
+        destiny: destinyNum?.single || lp
+      })
+      : gateHTML('pro', '별자리', '생일 기준 별자리 레이어와 수비 숫자를 함께 읽는 해석입니다.');
   }
 
   // ── 2. AI 종합 요약 — 라이프코드 단품 제외
   const aiServerOn = !isAIRequestDisabled() && (await fetchAiAvailable());
   if (lcSection('aiSummarySection')) {
-    if (hasAccess('basic')) {
+    if (hasDeepAnalysisAccess()) {
       if (isAIRequestDisabled()) {
         document.getElementById('aiSummaryContent').innerHTML = `<div class="ai-summary"><div class="ai-text" style="color:var(--muted)">AI 점검 모드로 요청이 비활성화되어 있습니다. URL에 <strong>?ai=on</strong>을 붙이면 다시 활성화됩니다.</div></div>`;
       } else if (!aiServerOn) {
@@ -7173,12 +7247,13 @@ async function runAnalysis() {
         callAISummary(lp, mn, py, nameRaw, destinyNum, soulNum, personalityNum, maturityNum, y, m, d);
       }
     } else {
-      document.getElementById('aiSummaryContent').innerHTML = gateHTML('basic','AI 종합 요약','핵심 수들을 종합한 당신만의 성격·잠재력 분석 한 단락을 AI가 생성합니다.');
+      document.getElementById('aiSummaryContent').innerHTML = gateHTML('pro','AI 종합 요약','핵심 수들을 종합한 당신만의 성격·잠재력 분석 한 단락을 AI가 생성합니다.');
     }
   }
 
-  // ── 3. 현재 흐름 (모든 플랜) ──
+  // ── 3. 현재 흐름 (Basic+: 수비학 개인연도·타로 올해의 수 포함) ──
   const flowBridgeEl = document.getElementById('flowBridge');
+  if (hasAccess('basic')) {
   if (flowBridgeEl) {
     flowBridgeEl.innerHTML = `<div class="timeline-bridge">
       <p><strong>올해의 수</strong>는 <strong>수비학 개인연도</strong>(연·월·일 각 환원 후 합산)와 <strong>타로 올해의 수</strong>(<strong>${curY}년</strong> 연도 자릿수합 <strong>${curY_digitSum}</strong>+문 넘버 <strong>${mnPre}</strong> → 0~21)를 함께 봅니다. 카드에는 <strong>수비학/타로</strong> 순으로 표시됩니다. <strong>이번 달의 수</strong>는 타로 올해의 수에 <strong>${curM}월</strong>을, <strong>오늘의 수</strong>는 그 위에 <strong>${curD}일</strong>을 더해 줄인 값입니다.</p>
@@ -7226,9 +7301,36 @@ async function runAnalysis() {
       </p>${todayHintParagraph}`;
   }
 
+  } else {
+    if (flowBridgeEl) {
+      flowBridgeEl.innerHTML = `<div class="timeline-bridge"><p>무료 플랜에서는 <strong>오늘의 일간 수</strong>만 미리 볼 수 있습니다. 수비학 개인연도·타로 올해의 수·이번 달 흐름은 <strong>Basic</strong> 이상에서 열립니다.</p></div>`;
+    }
+    const todayDayLineFree = TL_DESC[pd] || '오늘의 리듬에 몸을 맡기며 하루를 살아가 보세요.';
+    document.getElementById('flowRow').innerHTML = `<div class="flow-card">
+    <div class="flow-card-label">오늘 ${curD}일의 수</div>
+    <div class="flow-card-num">${pd}<span class="pre-sum">(전합 ${pm + curD})</span></div>
+    <div class="flow-card-title">${TITLE_MAP[pd]||''}</div>
+    <div class="flow-card-hint">${todayDayLineFree}</div>
+  </div>`;
+    document.getElementById('flowAccordion').innerHTML = accordion(`✦ 오늘의 수 ${pd}번 (전합 ${pm + curD})`, currentFlowDeepHtml('day', pd), false);
+    const flowTodayElFree = document.getElementById('flowTodayMsg');
+    if (flowTodayElFree) {
+      flowTodayElFree.innerHTML = `
+      <div class="flow-today-msg-label">오늘의 메시지</div>
+      <p class="flow-today-msg-body">오늘 하루는 <strong class="flow-today-em flow-today-em--d">${pd}번 · ${todayDayLineFree}</strong> 쪽 에너지입니다.</p>`;
+    }
+  }
+
   const weeklyBody = document.getElementById('weeklyForecastBody');
   const weeklyBridgeEl = document.getElementById('weeklyBridge');
+  const weeklyTableWrap = document.querySelector('#weeklyForecastSection .weekly-table-wrap');
   if (lcSection('weeklyForecastSection') && weeklyBody) {
+    if (!hasAccess('basic')) {
+      if (weeklyBridgeEl) weeklyBridgeEl.innerHTML = '';
+      if (weeklyTableWrap) {
+        weeklyTableWrap.innerHTML = gateHTML('basic', '향후 7일간의 에너지 흐름', '오늘부터 7일간 일간 수와 행동 가이드를 표로 확인할 수 있습니다.');
+      }
+    } else {
     const adviceMap = (typeof DAY_ADVICE !== 'undefined' && DAY_ADVICE) || window.NUMEROLOGY_DATA?.DAY_ADVICE || {};
     const hintOnly = (typeof DAY_HINT !== 'undefined' && DAY_HINT) || window.NUMEROLOGY_DATA?.DAY_HINT || {};
     const day0 = new Date(now.getFullYear(), now.getMonth(), now.getDate());
@@ -7258,6 +7360,7 @@ async function runAnalysis() {
         <p>오늘을 첫날로 이어지는 7일 동안, 각 날의 <strong>일간 수</strong>를 표에 담았습니다.</p>
       </div>`;
     }
+    }
   }
 
   // ── 4. AI 오늘의 메시지 (Pro+) — 단품 제외 ──
@@ -7280,8 +7383,8 @@ async function runAnalysis() {
       ${gateHTML('pro','AI 오늘의 메시지','날짜 에너지를 기반으로 오늘 당신에게 필요한 맞춤 메시지를 AI가 생성합니다.')}`;
   }
 
-  // ── 5. 10년 타임라인 (Basic+) ──
-  if(hasAccess('basic')) {
+  // ── 5. 10년 타임라인 (Pro+) ──
+  if(hasDeepAnalysisAccess()) {
     const tlCtx = { curY, mnPre, m, d, mr_r, dr_r, yr_r, lp, y };
     const classicTL = createTenYearTimeline('classic', tlCtx);
     const tarotTL = createTenYearTimeline('tarot', tlCtx);
@@ -7305,7 +7408,7 @@ async function runAnalysis() {
       tarotLife.bind(document.getElementById('tarotLifeChart'));
     }, 50);
   } else {
-    document.getElementById('timelineContent').innerHTML = gateHTML('basic','10년 타임라인','앞으로 10년간의 에너지 흐름을 바 차트로 시각화합니다.');
+    document.getElementById('timelineContent').innerHTML = gateHTML('pro','10년 타임라인','앞으로 10년간의 에너지 흐름을 바 차트로 시각화합니다. 올해의 수(수비학 개인연도·타로)는 <strong>현재 흐름</strong>에서 확인할 수 있습니다.');
   }
 
   // ── 6. 월간 흐름 (Basic+) ──
@@ -7346,12 +7449,12 @@ async function runAnalysis() {
     { title: "두 번째 주기", age: `${age1+1}~${age1+27}세`, num: dr_r, q: "인생의 중반기, 어떤 꽃을 피워야 하는가?" },
     { title: "세 번째 주기", age: `${age1+28}세~`, num: yr_r, q: "인생의 후반기, 어떤 열매를 거두어야 하는가?" }
   ];
-  if (hasAccess('basic')) {
+  if (hasDeepAnalysisAccess()) {
     document.getElementById('majorCycleContent').innerHTML =
       buildMajorCycleHTML(majorCards, majorDetail, curMajorIdx);
   } else {
     document.getElementById('majorCycleContent').innerHTML =
-      gateHTML('basic', '대주기 분석', '인생을 세 구간(월·일·연)으로 나눈 장기 흐름을 확인할 수 있습니다.');
+      gateHTML('pro', '대주기 분석', '인생을 세 구간(월·일·연)으로 나눈 장기 흐름을 확인할 수 있습니다.');
   }
 
   // ── 8. 인생 4단계 요약 (Basic+) ──
@@ -7376,7 +7479,7 @@ async function runAnalysis() {
     <td class="p-num">${c.p}</td>
     <td class="c-num">${c.c}</td>
   </tr>`).join('');
-  if (hasAccess('basic')) {
+  if (hasDeepAnalysisAccess()) {
     document.getElementById('cycleContent').innerHTML = `
       ${buildMajorCycleFourStageIntro(userAge, curMajorIdx, curStageIdx, majorDetail, stageSeasons)}
       <div style="background:white;border:1px solid var(--border);border-radius:10px;overflow:hidden;margin-bottom:16px;">
@@ -7411,11 +7514,11 @@ async function runAnalysis() {
       </div>`;
   } else {
     document.getElementById('cycleContent').innerHTML =
-      gateHTML('basic', '인생 4단계 요약', '절정수·도전수 네 구간별 해석을 확인할 수 있습니다.');
+      gateHTML('pro', '인생 4단계 요약', '절정수·도전수 네 구간별 해석을 확인할 수 있습니다.');
   }
 
-  // ── 9. 성장 지도 (Basic+) ──
-  if(hasAccess('basic')) {
+  // ── 9. 성장 지도 (Pro+) ──
+  if(hasDeepAnalysisAccess()) {
     const birthDigits = new Set((String(y)+String(m)+String(d)).split('').map(Number).filter(n=>n!==0));
     const karmicLessons = [1,2,3,4,5,6,7,8,9].filter(n=>!birthDigits.has(n));
     const hasName = Boolean(nameRaw && nameRaw.trim());
@@ -7501,7 +7604,7 @@ async function runAnalysis() {
         </div>`;
     }
   } else {
-    document.getElementById('growthContent').innerHTML=gateHTML('basic','Growth Map · 성장 지도','선천적으로 미개발된 역량과 구체적인 실천 방향을 분석합니다.');
+    document.getElementById('growthContent').innerHTML=gateHTML('pro','Growth Map · 성장 지도','선천적으로 미개발된 역량과 구체적인 실천 방향을 분석합니다.');
   }
 
   const loshuBridgeHost = document.getElementById('loshuSectionBridge');
@@ -7614,10 +7717,10 @@ async function runAnalysis() {
   // ── 11. 피라미드 리듬 (Basic+, 전체 자릿수 합 인생여정수 = lpAlt) ──
   const userAgePyramid = curY - y;
   if (lcSection('pyramidRhythmSection')) {
-    if (hasAccess('basic')) {
+    if (hasDeepAnalysisAccess()) {
       document.getElementById('pyramidRhythmContent').innerHTML = renderPyramidRhythmHTML(lpAlt, userAgePyramid);
     } else {
-      document.getElementById('pyramidRhythmContent').innerHTML = gateHTML('basic', '피라미드 리듬', '전체 자릿수 합 인생여정수 기준 출발기·발전기·충실기·완성기 4단계와 적극/소극 구간, 삼각형 순환 리듬을 안내합니다.');
+      document.getElementById('pyramidRhythmContent').innerHTML = gateHTML('pro', '피라미드 리듬', '전체 자릿수 합 인생여정수 기준 출발기·발전기·충실기·완성기 4단계와 적극/소극 구간, 삼각형 순환 리듬을 안내합니다.');
     }
   }
 
@@ -7653,7 +7756,7 @@ async function runAnalysis() {
     pinnacle: cycleGlance.pinnacle,
     challenge: cycleGlance.challenge,
     stageSub: cycleGlance.stageSub,
-    cycleLocked: !hasAccess('basic'),
+    cycleLocked: !hasDeepAnalysisAccess(),
   });
 
   // ── 11. PDF (Pro+) ──
@@ -7662,7 +7765,14 @@ async function runAnalysis() {
       <button type="button" class="gate-btn" style="background:var(--warm-brown)" onclick="downloadAnalysisPdf()">PDF로 저장하기</button>`;
   }
 
-  renderPeriod48(y, m, d);
+  if (hasCoreProfileAccess()) {
+    renderPeriod48(y, m, d);
+  } else {
+    const p48 = document.getElementById('period48Content');
+    if (p48) {
+      p48.innerHTML = gateHTML('pro', '48주기 성격학', '생월·생일 구간별 48세그먼트 성격·역할 패턴 분석입니다.');
+    }
+  }
 
   const waitEl = document.getElementById('analysisWait');
   if (waitEl) waitEl.style.display = 'none';
