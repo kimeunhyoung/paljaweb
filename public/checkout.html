@@ -95,20 +95,20 @@
   };
 
   const PRICES = {
-    basic: { monthly: 9900, annual: 7920 * 12 },
-    pro: { monthly: 19900, annual: 15920 * 12 },
-    professional: { monthly: 49900, annual: 39920 * 12 },
+    basic: 9900,
+    pro: 19900,
+    professional: 49900,
   };
 
   const params = new URLSearchParams(location.search);
   const plan = PLAN_META[params.get('plan')] ? params.get('plan') : 'professional';
-  const cycle = params.get('cycle') === 'annual' ? 'annual' : 'monthly';
+  const cycle = 'monthly';
   const meta = PLAN_META[plan];
-  const amount = PRICES[plan][cycle];
+  const amount = PRICES[plan];
 
   document.getElementById('planTitle').textContent = meta.title;
   document.getElementById('planDesc').textContent =
-    meta.desc + ' ' + (cycle === 'annual' ? '연간' : '월간') + ' 정기결제로 자동 갱신됩니다. 해지하면 다음 결제일부터 청구되지 않아요.';
+    meta.desc + ' 월간 정기결제로 자동 갱신됩니다. 해지하면 다음 결제일부터 청구되지 않아요.';
   document.title = meta.title + ' — 팔자연구소';
 
   function showMsg(text, kind) {
@@ -119,8 +119,7 @@
   }
 
   document.getElementById('amountLine').innerHTML =
-    new Intl.NumberFormat('ko-KR').format(amount) + '원 <small>' +
-    (cycle === 'annual' ? '(연간 일시 납부)' : '(월간)') + '</small>';
+    new Intl.NumberFormat('ko-KR').format(amount) + '원 <small>(월간)</small>';
 
   async function main() {
     const { data: { session } } = await sb.auth.getSession();
@@ -212,8 +211,7 @@
         const paymentId = prepJson.paymentId;
         const issueId = prepJson.issueId || paymentId;
         const customerName = s2.user.user_metadata?.full_name || s2.user.email || '회원';
-        // PortOne: interval은 1m(월 정기) / 1y(연 정기)만 허용. range는 ISO8601 날짜 필요.
-        const offerPeriod = cycle === 'annual' ? { interval: '1y' } : { interval: '1m' };
+        const offerPeriod = { interval: '1m' };
 
         const issueResponse = await PortOne.requestIssueBillingKey({
           storeId: cfg.storeId,

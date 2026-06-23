@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
+  <meta name="theme-color" content="#4a3520"/>
+  <title>라이프코드 이용권 구매 — 건별 결제</title>
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@400;600&family=DM+Mono:wght@400&display=swap" rel="stylesheet"/>
+  <script src="https://cdn.portone.io/v2/browser-sdk.js"></script>
+  <style>
+    :root {
+      --cream: #f5f0e8;
+      --deep: #4a3520;
+      --ink: #2c1f0e;
+      --muted: #9a8570;
+      --accent: #c8a96e;
+      --teal: #2e8b7a;
+      --border: rgba(74,53,32,.12);
+      --font-body: 'Noto Serif KR', serif;
+      --font-mono: 'DM Mono', monospace;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: var(--font-body);
+      background: var(--cream);
+      color: var(--ink);
+      min-height: 100dvh;
+      padding: 32px 20px 64px;
+    }
+    .wrap { max-width: 520px; margin: 0 auto; }
+    .back {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      color: var(--muted);
+      text-decoration: none;
+      display: inline-block;
+      margin-bottom: 20px;
+    }
+    h1 { font-size: 1.45rem; font-weight: 600; color: var(--deep); margin-bottom: 8px; }
+    .lede { font-size: 0.88rem; color: var(--muted); line-height: 1.65; margin-bottom: 24px; }
+    .product-list { display: flex; flex-direction: column; gap: 12px; margin-bottom: 20px; }
+    .product {
+      display: block;
+      width: 100%;
+      text-align: left;
+      padding: 18px 18px 16px;
+      border: 2px solid var(--border);
+      border-radius: 14px;
+      background: #fff;
+      cursor: pointer;
+      transition: border-color .15s, box-shadow .15s;
+      font-family: inherit;
+      color: inherit;
+    }
+    .product:hover { border-color: var(--accent); }
+    .product.is-selected {
+      border-color: var(--teal);
+      box-shadow: 0 0 0 1px var(--teal);
+    }
+    .product-name { font-size: 1rem; font-weight: 600; color: var(--deep); margin-bottom: 4px; }
+    .product-price {
+      font-size: 1.35rem;
+      font-weight: 600;
+      color: var(--deep);
+      margin-bottom: 6px;
+    }
+    .product-price small { font-size: 0.75rem; color: var(--muted); font-weight: 400; }
+    .product-desc { font-size: 0.8rem; color: var(--muted); line-height: 1.55; }
+    .field { margin-bottom: 16px; }
+    .field label { display: block; font-size: 0.75rem; color: var(--muted); margin-bottom: 6px; }
+    .field input {
+      width: 100%;
+      padding: 12px 14px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      font-family: inherit;
+      font-size: 0.9rem;
+    }
+    .field input:focus { outline: 2px solid var(--accent); border-color: var(--accent); }
+    .btn {
+      width: 100%;
+      padding: 14px;
+      border: none;
+      border-radius: 12px;
+      background: var(--deep);
+      color: var(--cream);
+      font-family: inherit;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .btn:disabled { opacity: .5; cursor: wait; }
+    .msg {
+      display: none;
+      margin: 14px 0;
+      padding: 12px 14px;
+      border-radius: 10px;
+      font-size: 0.85rem;
+      line-height: 1.55;
+    }
+    .msg.err { display: block; background: #fef2f2; color: #991b1b; border: 1px solid #fecaca; }
+    .msg.info { display: block; background: #fffbeb; color: #92400e; border: 1px solid #fde68a; }
+    .success {
+      display: none;
+      margin-top: 24px;
+      padding: 22px 20px;
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      border-left: 4px solid var(--teal);
+    }
+    .success.is-visible { display: block; }
+    .success-kicker {
+      font-family: var(--font-mono);
+      font-size: 9px;
+      letter-spacing: .16em;
+      text-transform: uppercase;
+      color: var(--teal);
+      margin-bottom: 10px;
+    }
+    .code-box {
+      font-family: var(--font-mono);
+      font-size: 1.35rem;
+      letter-spacing: 0.12em;
+      color: var(--deep);
+      padding: 14px;
+      background: var(--cream);
+      border-radius: 10px;
+      text-align: center;
+      margin: 12px 0;
+      user-select: all;
+    }
+    .success-note { font-size: 0.82rem; color: var(--muted); line-height: 1.65; margin-bottom: 14px; }
+    .success-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+    .success-actions a, .success-actions button {
+      flex: 1;
+      min-width: 120px;
+      text-align: center;
+      padding: 11px 14px;
+      border-radius: 10px;
+      font-size: 0.85rem;
+      font-family: inherit;
+      text-decoration: none;
+      cursor: pointer;
+    }
+    .link-primary { background: var(--deep); color: var(--cream); border: none; }
+    .link-secondary { background: #fff; color: var(--deep); border: 1px solid var(--border); }
+    .fine { margin-top: 20px; font-size: 0.72rem; color: var(--muted); line-height: 1.6; }
+  </style>
+</head>
+<body>
+<div class="wrap">
+  <a class="back" href="/pricing.html">← 요금제</a>
+  <h1>라이프코드 건별 이용권</h1>
+  <p class="lede">정기 구독 없이 <strong>한 번 결제</strong>로 접속 코드를 받습니다. 코드는 <strong>기기 1대</strong>에 등록되며, 기간이 끝나면 자동 갱신되지 않습니다.</p>
+
+  <div id="shop">
+    <div class="product-list" id="productList"></div>
+    <div class="field">
+      <label for="email">이메일 (선택 · 영수증·문의용)</label>
+      <input type="email" id="email" placeholder="you@example.com" autocomplete="email"/>
+    </div>
+    <div id="msg" class="msg" role="alert"></div>
+    <button type="button" class="btn" id="payBtn" disabled>결제하기</button>
+    <p class="fine">카드 1회 결제입니다. 자동 갱신·빌링키 등록 없음. 결제 완료 후 접속 코드를 반드시 저장해 두세요.</p>
+  </div>
+
+  <div class="success" id="successPanel">
+    <div class="success-kicker">결제 완료</div>
+    <p class="success-note">아래 접속 코드를 복사해 두세요. 이 화면을 닫으면 코드를 다시 볼 수 없습니다.</p>
+    <div class="code-box" id="accessCode">—</div>
+    <p class="success-note" id="expiresLine"></p>
+    <div class="success-actions">
+      <button type="button" class="link-secondary" id="copyBtn">코드 복사</button>
+      <a class="link-primary" href="/lifecode/">접속하기 →</a>
+    </div>
+  </div>
+</div>
+
+<script>
+(function () {
+  const productList = document.getElementById('productList');
+  const payBtn = document.getElementById('payBtn');
+  const msgEl = document.getElementById('msg');
+  const successPanel = document.getElementById('successPanel');
+  const shop = document.getElementById('shop');
+  let products = [];
+  let selectedKey = 'basic30';
+  let cfg = null;
+
+  function showMsg(text, kind) {
+    msgEl.textContent = text;
+    msgEl.className = 'msg ' + (kind === 'err' ? 'err' : 'info');
+    msgEl.style.display = 'block';
+  }
+  function clearMsg() {
+    msgEl.style.display = 'none';
+    msgEl.textContent = '';
+  }
+
+  function renderProducts() {
+    productList.innerHTML = products.map((p) => {
+      const sel = p.key === selectedKey ? ' is-selected' : '';
+      const amt = new Intl.NumberFormat('ko-KR').format(p.amount);
+      return `<button type="button" class="product${sel}" data-key="${p.key}">
+        <div class="product-name">${p.title}</div>
+        <div class="product-price">${amt}원 <small>/ ${p.days}일 · 1회 결제</small></div>
+        <div class="product-desc">${p.desc}</div>
+      </button>`;
+    }).join('');
+    productList.querySelectorAll('.product').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        selectedKey = btn.dataset.key;
+        renderProducts();
+      });
+    });
+  }
+
+  async function init() {
+    try {
+      const r = await fetch('/api/lifecode/checkout/config');
+      cfg = await r.json();
+      products = cfg.products || [];
+      if (!cfg.portoneConfigured || !products.length) {
+        showMsg('결제 준비 중입니다. 잠시 후 다시 시도해 주세요.', 'err');
+        return;
+      }
+      if (!products.find((p) => p.key === selectedKey)) {
+        selectedKey = products[0].key;
+      }
+      renderProducts();
+      payBtn.disabled = false;
+    } catch (_) {
+      showMsg('서버에 연결할 수 없습니다.', 'err');
+    }
+  }
+
+  function showSuccess(result) {
+    shop.style.display = 'none';
+    successPanel.classList.add('is-visible');
+    document.getElementById('accessCode').textContent = result.code || '—';
+    const exp = result.expiresAt ? new Date(result.expiresAt) : null;
+    document.getElementById('expiresLine').textContent = exp
+      ? `이용 기한: ${exp.getFullYear()}년 ${exp.getMonth() + 1}월 ${exp.getDate()}일까지`
+      : '';
+  }
+
+  document.getElementById('copyBtn').addEventListener('click', async () => {
+    const code = document.getElementById('accessCode').textContent;
+    try {
+      await navigator.clipboard.writeText(code);
+      document.getElementById('copyBtn').textContent = '복사됨';
+      setTimeout(() => { document.getElementById('copyBtn').textContent = '코드 복사'; }, 2000);
+    } catch (_) {
+      alert('복사에 실패했습니다. 코드를 직접 선택해 복사해 주세요.');
+    }
+  });
+
+  payBtn.addEventListener('click', async () => {
+    clearMsg();
+    if (typeof PortOne === 'undefined') {
+      showMsg('결제 모듈을 불러오지 못했습니다.', 'err');
+      return;
+    }
+    payBtn.disabled = true;
+    try {
+      const email = document.getElementById('email').value.trim();
+      const prep = await fetch('/api/lifecode/checkout/prepare', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ productKey: selectedKey, email: email || undefined }),
+      });
+      const prepJson = await prep.json().catch(() => ({}));
+      if (!prep.ok) {
+        showMsg(prepJson.error || '결제 준비에 실패했습니다.', 'err');
+        payBtn.disabled = false;
+        return;
+      }
+
+      const response = await PortOne.requestPayment({
+        storeId: cfg.storeId,
+        channelKey: cfg.channelKey,
+        paymentId: prepJson.paymentId,
+        orderName: prepJson.orderName,
+        totalAmount: prepJson.amount,
+        currency: 'CURRENCY_KRW',
+        payMethod: 'CARD',
+        customer: email ? { email, fullName: '라이프코드 구매자' } : { fullName: '라이프코드 구매자' },
+      });
+
+      if (response && response.code != null) {
+        showMsg(response.message || '결제가 취소되었습니다.', 'err');
+        payBtn.disabled = false;
+        return;
+      }
+
+      showMsg('결제 확인 중…', 'info');
+      const conf = await fetch('/api/lifecode/checkout/confirm', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ paymentId: prepJson.paymentId }),
+      });
+      const confJson = await conf.json().catch(() => ({}));
+      if (!conf.ok) {
+        showMsg(confJson.error || '결제 확인에 실패했습니다. 문의해 주세요.', 'err');
+        payBtn.disabled = false;
+        return;
+      }
+      if (confJson.alreadyFulfilled && !confJson.code) {
+        showMsg('이미 처리된 결제입니다. 접속 코드는 최초 발급 시에만 표시됩니다. ' + (confJson.codeHint ? '(' + confJson.codeHint + ')' : ''), 'info');
+        payBtn.disabled = false;
+        return;
+      }
+      showSuccess(confJson);
+    } catch (e) {
+      console.error(e);
+      showMsg('결제 중 오류가 발생했습니다.', 'err');
+      payBtn.disabled = false;
+    }
+  });
+
+  const params = new URLSearchParams(location.search);
+  const qProduct = params.get('product');
+  if (qProduct === 'basic30' || qProduct === 'counselor30') selectedKey = qProduct;
+
+  init();
+})();
+</script>
+</body>
+</html>

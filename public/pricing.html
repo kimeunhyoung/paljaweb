@@ -260,45 +260,7 @@
       color: var(--muted);
       line-height: 1.8;
       max-width: 480px;
-      margin: 0 auto 32px;
-    }
-
-    /* 연간/월간 토글 */
-    .billing-toggle {
-      display: inline-flex;
-      background: var(--parchment);
-      border: 1px solid var(--border);
-      border-radius: 30px;
-      padding: 4px;
-      gap: 2px;
-      margin-bottom: 64px;
-    }
-    .toggle-btn {
-      padding: 8px 20px;
-      border-radius: 24px;
-      border: none;
-      background: none;
-      font-family: var(--font-mono);
-      font-size: 10px;
-      letter-spacing: .12em;
-      text-transform: uppercase;
-      color: var(--muted);
-      cursor: pointer;
-      transition: all .2s;
-    }
-    .toggle-btn.active {
-      background: var(--deep-brown);
-      color: var(--cream);
-    }
-    .save-badge {
-      font-family: var(--font-mono);
-      font-size: 8px;
-      background: var(--teal);
-      color: white;
-      padding: 2px 8px;
-      border-radius: 10px;
-      margin-left: 6px;
-      letter-spacing: .06em;
+      margin: 0 auto 48px;
     }
 
     /* ── PRICING GRID ── */
@@ -709,13 +671,7 @@
 <section class="hero">
   <div class="hero-tag">Pricing · 요금제</div>
   <h1 class="hero-title">나에게 맞는<br><em>플랜을 선택하세요</em></h1>
-  <p class="hero-desc">언제든지 업그레이드하거나 취소할 수 있어요.<br>첫 달은 무료로 시작할 수 있습니다.</p>
-  <div class="billing-toggle">
-    <button class="toggle-btn active" id="btnMonthly" onclick="setBilling('monthly')">월간</button>
-    <button class="toggle-btn" id="btnAnnual" onclick="setBilling('annual')">
-      연간 <span class="save-badge">20% 절약</span>
-    </button>
-  </div>
+  <p class="hero-desc">언제든지 업그레이드하거나 취소할 수 있어요.<br>모든 유료 플랜은 <strong>월간 정기결제</strong>로 제공됩니다.</p>
 </section>
 
 <!-- PRICING GRID -->
@@ -802,14 +758,24 @@
 
   </div>
 
-  <!-- 개별 구독 (결제 연동 전까지 비표시) -->
-  <div hidden style="margin-top:40px;text-align:center;padding:24px;background:white;border:1px solid var(--border);border-radius:10px;">
-    <div style="font-family:var(--font-mono);font-size:9px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);margin-bottom:12px;">개별 서비스</div>
-    <div style="font-size:13px;color:var(--muted);margin-bottom:16px;">특정 서비스만 필요하다면 개별 구독도 가능해요.</div>
-    <div style="display:flex;justify-content:center;gap:12px;flex-wrap:wrap;">
-      <div style="background:var(--parchment);border:1px solid var(--border);border-radius:20px;padding:8px 20px;font-size:12.5px;">라이프코드 <strong style="color:var(--deep-brown)">4,900원/월</strong></div>
-      <div style="background:var(--parchment);border:1px solid var(--border);border-radius:20px;padding:8px 20px;font-size:12.5px;">소울하모니 <strong style="color:var(--deep-brown)">4,900원/월</strong> <span style="font-size:10px;color:var(--muted)">(출시 예정)</span></div>
-      <div style="background:var(--parchment);border:1px solid var(--border);border-radius:20px;padding:8px 20px;font-size:12.5px;">점성학 <strong style="color:var(--deep-brown)">4,900원/월</strong> <span style="font-size:10px;color:var(--muted)">(출시 예정)</span></div>
+  <!-- 라이프코드 건별 이용권 -->
+  <div class="lifecode-onetime" style="margin-top:40px;padding:28px 24px;background:white;border:1px solid var(--border);border-radius:14px;">
+    <div style="font-family:var(--font-mono);font-size:9px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);margin-bottom:10px;">라이프코드 단품</div>
+    <h3 style="font-family:var(--font-serif);font-size:22px;font-weight:400;color:var(--deep-brown);margin-bottom:8px;">건별 결제 · 접속 코드</h3>
+    <p style="font-size:13px;color:var(--muted);line-height:1.7;margin-bottom:20px;max-width:520px;">팔자연구소 전체 구독 없이 <strong>라이프코드 단품</strong>만 쓰고 싶다면 1회 결제로 접속 코드를 받으세요. 정기 결제·자동 갱신 없음.</p>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px;max-width:640px;">
+      <div style="border:1px solid var(--border);border-radius:12px;padding:18px 16px;background:var(--parchment);">
+        <div style="font-size:12px;color:var(--muted);margin-bottom:6px;">30일 이용권</div>
+        <div style="font-family:var(--font-serif);font-size:28px;color:var(--deep-brown);margin-bottom:6px;">7,900<span style="font-size:13px;color:var(--muted);font-family:var(--font-body);">원 · 1회</span></div>
+        <p style="font-size:12px;color:var(--muted);line-height:1.55;margin-bottom:14px;">기기 1대 · 라이프코드 리포트 전체(단품 구성)</p>
+        <a href="/lifecode/buy.html?product=basic30" class="plan-btn plan-btn-outline" style="display:block;text-decoration:none;">구매하기</a>
+      </div>
+      <div style="border:1px solid var(--accent);border-radius:12px;padding:18px 16px;background:#fff;">
+        <div style="font-size:12px;color:var(--warm-brown);margin-bottom:6px;">상담사 30일</div>
+        <div style="font-family:var(--font-serif);font-size:28px;color:var(--deep-brown);margin-bottom:6px;">29,900<span style="font-size:13px;color:var(--muted);font-family:var(--font-body);">원 · 1회</span></div>
+        <p style="font-size:12px;color:var(--muted);line-height:1.55;margin-bottom:14px;">기본 + 상담사 허브(고객 카드 관리)</p>
+        <a href="/lifecode/buy.html?product=counselor30" class="plan-btn plan-btn-accent" style="display:block;text-decoration:none;">구매하기</a>
+      </div>
     </div>
   </div>
 </div>
@@ -967,8 +933,8 @@
     <div class="faq-a">네, 언제든지 해지할 수 있어요. 해지하면 <strong>다음 자동 결제일부터 청구되지 않으며</strong>, 이미 결제한 이용 기간이 끝날 때까지는 계속 이용할 수 있습니다. 대시보드 또는 고객센터에서 해지 신청이 가능합니다.</div>
   </div>
   <div class="faq-item" onclick="this.classList.toggle('open')">
-    <div class="faq-q">연간 플랜은 어떻게 결제되나요? <span class="faq-arrow">▼</span></div>
-    <div class="faq-a">연간 플랜은 1년치 금액이 한 번에 결제됩니다. 월간 대비 20% 저렴하게 이용할 수 있어요. 중도 해지 시 남은 기간에 대한 환불 정책은 이용약관을 참고해주세요.</div>
+    <div class="faq-q">라이프코드만 따로 쓸 수 있나요? <span class="faq-arrow">▼</span></div>
+    <div class="faq-a">네. <a href="/lifecode/buy.html">라이프코드 건별 이용권</a>을 1회 결제하면 접속 코드가 발급됩니다. 팔자연구소 월 구독과 별개이며, 자동 갱신되지 않습니다.</div>
   </div>
   <div class="faq-item" onclick="this.classList.toggle('open')">
     <div class="faq-q">플랜 업그레이드는 언제 적용되나요? <span class="faq-arrow">▼</span></div>
@@ -1019,24 +985,8 @@ const SUPABASE_ANON_KEY = 'sb_publishable_6S3W_oWrzG-Nv8wLK98gmg_q_KcB2I1';
 const { createClient } = supabase;
 const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-// ── 요금 데이터 ──
-const PRICES = {
-  monthly: { basic: '9,900', pro: '19,900', professional: '49,900' },
-  annual:  { basic: '7,920', pro: '15,920', professional: '39,920' }
-};
-
-let billing = 'monthly';
-
-function setBilling(type) {
-  billing = type;
-  document.getElementById('btnMonthly').classList.toggle('active', type === 'monthly');
-  document.getElementById('btnAnnual').classList.toggle('active', type === 'annual');
-
-  const unit = type === 'monthly' ? '원/월' : '원/월 (연간)';
-  document.getElementById('basic-price').innerHTML = `${PRICES[type].basic}<span class="plan-price-unit">${unit}</span>`;
-  document.getElementById('pro-price').innerHTML = `${PRICES[type].pro}<span class="plan-price-unit">${unit}</span>`;
-  document.getElementById('pro2-price').innerHTML = `${PRICES[type].professional}<span class="plan-price-unit">${unit}</span>`;
-}
+// ── 요금 데이터 (월간만) ──
+const PRICES = { basic: '9,900', pro: '19,900', professional: '49,900' };
 
 function showToast(msg) {
   const t = document.getElementById('toast');
@@ -1049,13 +999,13 @@ async function handleSubscribe(plan) {
   const { data: { session } } = await sb.auth.getSession();
 
   if (!session) {
-    const checkoutNext = `checkout.html?plan=${plan}&cycle=${billing}`;
+    const checkoutNext = `checkout.html?plan=${plan}&cycle=monthly`;
     window.location.href = `login.html?next=${encodeURIComponent(checkoutNext)}`;
     return;
   }
 
   if (plan === 'professional' || plan === 'basic' || plan === 'pro') {
-    window.location.href = `checkout.html?plan=${plan}&cycle=${billing}`;
+    window.location.href = `checkout.html?plan=${plan}&cycle=monthly`;
     return;
   }
 

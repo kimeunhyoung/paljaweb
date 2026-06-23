@@ -279,7 +279,7 @@ app.post('/api/checkout/prepare', async (req, res) => {
     return;
   }
   const plan = String(req.body?.plan || '').toLowerCase();
-  const cycle = req.body?.cycle === 'annual' ? 'annual' : 'monthly';
+  const cycle = 'monthly';
   if (!ORDER_PREFIX[plan]) {
     res.status(400).json({ error: 'Invalid plan' });
     return;
@@ -441,7 +441,7 @@ app.post('/api/cron/renew-subscriptions', async (req, res) => {
 
 registerPortOneRoutes(app, planBilling, getUserIdFromAuth, checkoutStore);
 
-registerLifecodeRoutes(app);
+registerLifecodeRoutes(app, { portoneConfigured, portonePublicConfig });
 registerNaverAuthRoutes(app);
 
 /** AI 호출은 ANTHROPIC_API_KEY + AI_ENABLED=true 일 때만 (기본 꺼짐) */
