@@ -1261,6 +1261,13 @@
       color: var(--muted);
       margin-top: 1px;
     }
+    .life-tbl-year {
+      font-size: 8px;
+      color: var(--muted);
+      font-family: var(--font-mono);
+      margin-top: 1px;
+      opacity: 0.9;
+    }
 
     /* 읽기 흐름 · 한 줄 요약 · 실천 한 가지 */
     .lc-reading-guide {
@@ -5418,6 +5425,7 @@ function createTarotLifeYearChart(ctx) {
         <div class="life-tbl-num" style="color:${tarotTimelineColor(row.num)}">${row.num}</div>
         <div class="life-tbl-kw">${row.kw}</div>
         <div class="life-tbl-age">${row.age}세</div>
+        <div class="life-tbl-year">${row.year}</div>
       </td>`;
     }
     tableRows += '</tr>';
