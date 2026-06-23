@@ -976,6 +976,15 @@
       border-top: 1px solid var(--border);
       text-align: left;
     }
+    .flow-card-locked {
+      background: var(--parchment);
+      border-style: dashed;
+      border-color: var(--sand);
+      box-shadow: none;
+    }
+    .flow-card-locked .flow-card-lock { font-size: 22px; margin: 10px 0 6px; line-height: 1; }
+    .flow-card-locked .flow-card-title { font-size: 11px; color: var(--muted); }
+    .flow-lock-cta { grid-column: 1 / -1; text-align: center; margin-top: 4px; }
     .flow-today-msg-wrap {
       margin-top: 20px;
       padding: 18px 20px;
@@ -4041,6 +4050,19 @@ function gateHTML(planRequired, title, desc) {
     <div class="gate-desc">${desc}<br><br><strong>${labels[planRequired]} 플랜</strong> 이상에서 이용할 수 있어요.</div>
     <button class="gate-btn" onclick="location.href='pricing.html'">플랜 업그레이드 →</button>
   </div>`;
+}
+function flowLockedRowHtml(curY, curM, curD) {
+  const cards = [
+    `${curY}년 올해의 수`,
+    `${curM}월 이번 달의 수`,
+    `오늘 ${curD}일의 수`
+  ].map((label) => `<div class="flow-card flow-card-locked">
+    <div class="flow-card-label">${label}</div>
+    <div class="flow-card-lock" aria-hidden="true">🔒</div>
+    <div class="flow-card-title">Basic 이상에서 열립니다</div>
+  </div>`).join('');
+  const cta = isLifecodeStandalone() ? '' : `<div class="flow-lock-cta"><button class="gate-btn" type="button" onclick="location.href='pricing.html'">플랜 업그레이드 →</button></div>`;
+  return cards + cta;
 }
 
 /** PDF 클론: 섹션 페이드업 미완료 시 겹침 방지, 로수 그리드만 html2canvas 보정(나머지 레이아웃은 화면과 동일) */
@@ -7372,11 +7394,7 @@ async function runAnalysis() {
 
   } else {
     if (flowBridgeEl) flowBridgeEl.innerHTML = '';
-    document.getElementById('flowRow').innerHTML = gateHTML(
-      'basic',
-      '현재 흐름',
-      '올해·이번 달·오늘의 수비학 개인연도·타로 올해의 수와 해설을 확인할 수 있습니다.'
-    );
+    document.getElementById('flowRow').innerHTML = flowLockedRowHtml(curY, curM, curD);
     document.getElementById('flowAccordion').innerHTML = '';
     const flowTodayElFree = document.getElementById('flowTodayMsg');
     if (flowTodayElFree) flowTodayElFree.innerHTML = '';
@@ -7386,37 +7404,47 @@ async function runAnalysis() {
   const weeklyBridgeEl = document.getElementById('weeklyBridge');
   const weeklyTableWrap = document.querySelector('#weeklyForecastSection .weekly-table-wrap');
   if (lcSection('weeklyForecastSection') && weeklyBody) {
-    const adviceMap = (typeof DAY_ADVICE !== 'undefined' && DAY_ADVICE) || window.NUMEROLOGY_DATA?.DAY_ADVICE || {};
-    const hintOnly = (typeof DAY_HINT !== 'undefined' && DAY_HINT) || window.NUMEROLOGY_DATA?.DAY_HINT || {};
-    const day0 = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-    const rows = [];
-    const dayCount = hasBasicFlowAccess() ? 7 : 1;
-    for (let i = 0; i < dayCount; i++) {
-      const td = new Date(day0);
-      td.setDate(day0.getDate() + i);
-      const tM = td.getMonth() + 1;
-      const tD = td.getDate();
-      const tPm = reduceToSingle(py + tM);
-      const tPd = reduceToSingle(tPm + tD, true);
-      const adv = adviceMap[tPd] || { status: '평온', desc: hintOnly[tPd] || '차분히 호흡을 고르고, 오늘은 한 가지에만 집중해 보세요.' };
-      let stCls = '';
-      if (tPd === 4 || tPd === 9) stCls = 'weekly-status-caution';
-      else if (tPd === 1 || tPd === 8) stCls = 'weekly-status-luck';
-      else if (tPd === 11 || tPd === 22 || tPd === 33) stCls = 'weekly-status-master';
-      const numColor = (TL_COLOR && TL_COLOR[tPd]) ? TL_COLOR[tPd] : 'var(--accent)';
-      const trToday = i === 0 ? ' weekly-tr-today' : '';
-      const dateCell = i === 0
-        ? `${tM}/${tD}<span class="weekly-today-badge">오늘</span>`
-        : `${tM}/${tD}`;
-      rows.push(`<tr class="${trToday.trim()}"><td class="weekly-td-date">${dateCell}</td><td class="weekly-td-num" style="color:${numColor}">${tPd}</td><td class="weekly-td-status ${stCls}">${adv.status}</td><td>${adv.desc}</td></tr>`);
-    }
-    weeklyBody.innerHTML = rows.join('');
-    if (weeklyBridgeEl) {
-      weeklyBridgeEl.innerHTML = hasBasicFlowAccess()
-        ? `<div class="timeline-bridge">
+    if (!hasBasicFlowAccess()) {
+      if (weeklyBridgeEl) {
+        weeklyBridgeEl.innerHTML = gateHTML(
+          'basic',
+          '향후 7일간의 에너지 흐름',
+          '오늘부터 이어지는 7일 동안 각 날의 일간 수와 행동 가이드를 확인할 수 있습니다.'
+        );
+      }
+      if (weeklyTableWrap) weeklyTableWrap.style.display = 'none';
+      weeklyBody.innerHTML = '';
+    } else {
+      if (weeklyTableWrap) weeklyTableWrap.style.display = '';
+      const adviceMap = (typeof DAY_ADVICE !== 'undefined' && DAY_ADVICE) || window.NUMEROLOGY_DATA?.DAY_ADVICE || {};
+      const hintOnly = (typeof DAY_HINT !== 'undefined' && DAY_HINT) || window.NUMEROLOGY_DATA?.DAY_HINT || {};
+      const day0 = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+      const rows = [];
+      for (let i = 0; i < 7; i++) {
+        const td = new Date(day0);
+        td.setDate(day0.getDate() + i);
+        const tM = td.getMonth() + 1;
+        const tD = td.getDate();
+        const tPm = reduceToSingle(py + tM);
+        const tPd = reduceToSingle(tPm + tD, true);
+        const adv = adviceMap[tPd] || { status: '평온', desc: hintOnly[tPd] || '차분히 호흡을 고르고, 오늘은 한 가지에만 집중해 보세요.' };
+        let stCls = '';
+        if (tPd === 4 || tPd === 9) stCls = 'weekly-status-caution';
+        else if (tPd === 1 || tPd === 8) stCls = 'weekly-status-luck';
+        else if (tPd === 11 || tPd === 22 || tPd === 33) stCls = 'weekly-status-master';
+        const numColor = (TL_COLOR && TL_COLOR[tPd]) ? TL_COLOR[tPd] : 'var(--accent)';
+        const trToday = i === 0 ? ' weekly-tr-today' : '';
+        const dateCell = i === 0
+          ? `${tM}/${tD}<span class="weekly-today-badge">오늘</span>`
+          : `${tM}/${tD}`;
+        rows.push(`<tr class="${trToday.trim()}"><td class="weekly-td-date">${dateCell}</td><td class="weekly-td-num" style="color:${numColor}">${tPd}</td><td class="weekly-td-status ${stCls}">${adv.status}</td><td>${adv.desc}</td></tr>`);
+      }
+      weeklyBody.innerHTML = rows.join('');
+      if (weeklyBridgeEl) {
+        weeklyBridgeEl.innerHTML = `<div class="timeline-bridge">
         <p>오늘을 첫날로 이어지는 7일 동안, 각 날의 <strong>일간 수</strong>를 표에 담았습니다.</p>
-      </div>`
-        : `<div class="timeline-bridge"><p>무료에서는 <strong>오늘</strong>만 미리 볼 수 있습니다. 7일 전체는 <strong>Basic</strong> 이상에서 열립니다.</p></div>`;
+      </div>`;
+      }
     }
   }
 
