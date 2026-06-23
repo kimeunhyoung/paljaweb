@@ -149,13 +149,69 @@
     .link-primary { background: var(--deep); color: var(--cream); border: none; }
     .link-secondary { background: #fff; color: var(--deep); border: 1px solid var(--border); }
     .fine { margin-top: 20px; font-size: 0.72rem; color: var(--muted); line-height: 1.6; }
+    .device-notice {
+      margin-bottom: 20px;
+      padding: 16px 16px 15px 44px;
+      background: linear-gradient(135deg, #fff7ed 0%, #ffedd5 100%);
+      border: 2px solid #ea580c;
+      border-radius: 12px;
+      position: relative;
+      box-shadow: 0 2px 8px rgba(234, 88, 12, .12);
+    }
+    .device-notice::before {
+      content: '⚠';
+      position: absolute;
+      left: 14px;
+      top: 16px;
+      font-size: 1.15rem;
+      line-height: 1;
+    }
+    .device-notice-title {
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: #9a3412;
+      margin-bottom: 7px;
+      letter-spacing: -0.01em;
+    }
+    .device-notice p {
+      font-size: 0.84rem;
+      color: #7c2d12;
+      line-height: 1.65;
+    }
+    .device-notice strong { color: #c2410c; font-weight: 600; }
+    .device-notice--pay {
+      margin-top: 4px;
+      margin-bottom: 14px;
+      padding: 12px 14px 12px 40px;
+      border-width: 1px;
+      box-shadow: none;
+    }
+    .device-notice--pay::before { top: 12px; font-size: 1rem; }
+    .device-notice--pay .device-notice-title { font-size: 0.88rem; margin-bottom: 4px; }
+    .device-notice--pay p { font-size: 0.8rem; }
+    .success-device {
+      margin: 0 0 14px;
+      padding: 12px 14px;
+      background: #fff7ed;
+      border: 1px solid #fdba74;
+      border-radius: 10px;
+      font-size: 0.82rem;
+      color: #9a3412;
+      line-height: 1.6;
+    }
+    .success-device strong { color: #c2410c; }
   </style>
 </head>
 <body>
 <div class="wrap">
   <a class="back" href="/pricing.html">← 요금제</a>
   <h1>라이프코드 건별 이용권</h1>
-  <p class="lede">정기 구독 없이 <strong>한 번 결제</strong>로 접속 코드를 받습니다. 코드는 <strong>기기 1대</strong>에 등록되며, 기간이 끝나면 자동 갱신되지 않습니다.</p>
+  <p class="lede">정기 구독 없이 <strong>한 번 결제</strong>로 접속 코드를 받습니다. 기간이 끝나면 자동 갱신되지 않습니다.</p>
+
+  <div class="device-notice" role="note">
+    <div class="device-notice-title">기기 1대 전용 — 결제 전 꼭 확인하세요</div>
+    <p>접속 코드는 <strong>처음 등록한 기기(휴대폰·PC·태블릿) 1대</strong>에서만 사용할 수 있습니다. 다른 기기·브라우저·시크릿 모드에서는 열리지 않습니다. 폰을 바꾸거나 PC에서도 쓰려면 <strong>지금 쓸 기기에서</strong> 결제 후 바로 등록하세요.</p>
+  </div>
 
   <div id="shop">
     <div class="product-list" id="productList"></div>
@@ -164,12 +220,19 @@
       <input type="email" id="email" placeholder="you@example.com" autocomplete="email"/>
     </div>
     <div id="msg" class="msg" role="alert"></div>
+    <div class="device-notice device-notice--pay" role="note">
+      <div class="device-notice-title">이 기기에서 결제·등록하시겠어요?</div>
+      <p>코드 입력 시 <strong>지금 이 기기</strong>에 고정됩니다. 이후 기기 변경은 관리자 문의가 필요합니다.</p>
+    </div>
     <button type="button" class="btn" id="payBtn" disabled>결제하기</button>
     <p class="fine">카드 1회 결제입니다. 자동 갱신·빌링키 등록 없음. 결제 완료 후 접속 코드를 반드시 저장해 두세요.</p>
   </div>
 
   <div class="success" id="successPanel">
     <div class="success-kicker">결제 완료</div>
+    <div class="success-device" role="note">
+      <strong>이 기기에만 적용됩니다.</strong> 아래 <strong>접속하기</strong>를 눌러 이 기기에서 바로 등록하세요. 다른 기기에서는 사용할 수 없습니다.
+    </div>
     <p class="success-note">아래 접속 코드를 복사해 두세요. 이 화면을 닫으면 코드를 다시 볼 수 없습니다.</p>
     <div class="code-box" id="accessCode">—</div>
     <p class="success-note" id="expiresLine"></p>
