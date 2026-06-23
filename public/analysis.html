@@ -1078,6 +1078,25 @@
     .timeline-bridge p { margin: 0 0 10px 0; }
     .timeline-bridge p:last-child { margin-bottom: 0; }
     .timeline-bridge strong { color: var(--deep-brown); }
+    .timeline-dual { display: flex; flex-direction: column; gap: 32px; }
+    .timeline-block-title {
+      font-family: var(--font-serif);
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: var(--deep-brown);
+      margin: 0 0 10px;
+    }
+    .timeline-block-bridge {
+      font-size: 12.5px;
+      line-height: 1.72;
+      color: var(--muted);
+      margin: 0 0 14px;
+      padding: 12px 14px;
+      background: rgba(255,255,255,.65);
+      border: 1px solid var(--border);
+      border-radius: 9px;
+    }
+    .timeline-dual .timeline-wrap { margin-top: 0; }
 
     /* 읽기 흐름 · 한 줄 요약 · 실천 한 가지 */
     .lc-reading-guide {
@@ -2161,6 +2180,27 @@
       letter-spacing: 0.04em;
       color: var(--accent);
       margin-bottom: 5px;
+      text-transform: uppercase;
+    }
+    .core-acc-calc {
+      margin-bottom: 1em;
+      padding: 12px 14px;
+      background: rgba(255,251,243,.85);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      font-size: 12.5px;
+      line-height: 1.72;
+      color: var(--muted);
+    }
+    .core-acc-calc p { margin: 0 0 0.65em; }
+    .core-acc-calc p:last-child { margin-bottom: 0; }
+    .core-acc-calc .acc-h {
+      display: block;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      color: var(--accent);
+      margin-bottom: 4px;
       text-transform: uppercase;
     }
     .ai-tag {
@@ -3359,7 +3399,9 @@
       <div class="section-line"></div>
     </div>
     <div class="timeline-bridge">
-      <p>막대·연도 카드를 누르면 그 해 <strong>올해의 수</strong>(연도 자릿수합+문 넘버 → 타로 0~21)와 <strong>생일+연도 타로 카드</strong>가 펼쳐집니다. 같은 연도 카드 아래에는 <strong>긴 호흡 숫자</strong>(대주기·절정수·도전수)가 함께 표시됩니다.</p>
+      <p>아래 <strong>두 가지</strong>로 앞으로 10년을 봅니다. 막대·연도 카드를 누르면 그 해 해석과 <strong>긴 호흡 숫자</strong>(대주기·절정수·도전수), <strong>생일+연도 타로 카드</strong>가 펼쳐집니다.</p>
+      <p><strong>수비학 개인연도</strong> — 연·월·일을 각각 환원(1~9, 11, 22)한 뒤 더합니다. 9년 주기의 완성·새 출발을 읽습니다.</p>
+      <p><strong>타로 올해의 수</strong> — 연도 자릿수합+문 넘버(전합)을 더해 메이저 아르카나 0~21로 읽습니다. 현재 흐름의 올해의 수와 같습니다.</p>
     </div>
     <div id="timelineContent"></div>
   </div>
@@ -4656,6 +4698,28 @@ function lifePathValueLabel(lp, lpAlt) {
   return `${lp}/${lpAlt}`;
 }
 
+function lifePathCalcExplainHtml(birthY, birthM, birthD, parts) {
+  const { yr_sum, yr_r, mr_r, dr_r, lpS, lpSAlt, lp, lpAlt } = parts;
+  const yrDigits = String(birthY).split('').join('+');
+  const allExpr = String(birthY).split('').concat(String(birthM).split(''), String(birthD).split('')).join('+');
+  const r1 = lpS !== lp ? ` → 환원 <strong>${lp}</strong>` : '';
+  const r2 = lpSAlt !== lpAlt ? ` → 환원 <strong>${lpAlt}</strong>` : '';
+  return `<div class="core-acc-calc">
+    <p><span class="acc-h">합 ${lpS} · 연·월·일 각 환원</span>연 ${yrDigits}=${yr_sum} → ${yr_r}, 월 ${birthM} → ${mr_r}, 일 ${birthD} → ${dr_r}. <strong>${yr_r}+${mr_r}+${dr_r}=${lpS}</strong>${r1}</p>
+    <p><span class="acc-h">합 ${lpSAlt} · 생년월일 전체 자릿수</span>${allExpr}=<strong>${lpSAlt}</strong>${r2}</p>
+  </div>`;
+}
+
+function personalYearValueLabel(pyClassic, pyTarot) {
+  if (pyTarot == null || pyTarot === '') return String(pyClassic);
+  return `${pyClassic}/${pyTarot}`;
+}
+
+function personalYearPreLabel(pyClassicPre, pyTarotPre) {
+  if (pyTarotPre == null || pyTarotPre === '') return String(pyClassicPre);
+  return `${pyClassicPre}/${pyTarotPre}`;
+}
+
 /** 타로 메이저 아르카나 번호(0~21). 22→0, 그 외 범위 밖은 자릿수 합으로 반복 환원 */
 function reduceToTarotNumber(n) {
   let r = Number(n);
@@ -4766,6 +4830,307 @@ const TAROT_FLOW_HINT = {
 
 function flowYearHint(n) {
   return tarotTimelineDesc(n);
+}
+
+/** 개인연도(클래식) — 연·월·일 각각 환원 후 합산 → 1~9, 11, 22, 33 */
+function calcPersonalYearClassic(year, mr_r, dr_r) {
+  const yr_r = reduceToSingle(sumYearDigits(year));
+  const pre = yr_r + mr_r + dr_r;
+  return { pre, single: reduceToSingle(pre), yr_r };
+}
+
+function classicTimelineKeyword(n) {
+  return TL_KEYWORD[n] || TITLE_SHORT[n] || '';
+}
+
+function classicTimelineDesc(n) {
+  return TL_DESC[n] || '';
+}
+
+function classicTimelineBarHeight(n) {
+  const displayNum = n > 9 ? (n === 11 ? 8 : 9) : n;
+  return Math.round((displayNum / 11) * 100) + 12;
+}
+
+function classicYearDeepHtml(v) {
+  if (TIMELINE_YEAR_DEEP_MAP && TIMELINE_YEAR_DEEP_MAP[v]) return TIMELINE_YEAR_DEEP_MAP[v];
+  if (DEEP_MAP[v]) return DEEP_MAP[v];
+  const title = TITLE_MAP[v];
+  if (title) return `<b>개인연도 ${v}번 · ${title}</b><br>${TL_DESC[v] || ''}`;
+  return '';
+}
+
+function calcTarotCard(month, day, targetYear) {
+  const mr = reduceToSingle(month);
+  const dr = reduceToSingle(day);
+  const yr = reduceToSingle(sumYearDigits(targetYear));
+  const total = mr + dr + yr;
+  if (total >= 0 && total <= 21) return total;
+  return reduceToSingle(total);
+}
+
+const TIMELINE_NUM_SHORT = {
+  1:'새출발·독립', 2:'협력·기다림', 3:'표현·창의', 4:'기반·성실',
+  5:'변화·자유', 6:'돌봄·책임', 7:'성찰·탐구', 8:'성취·재물',
+  9:'마무리·통합', 11:'직관·영감', 22:'대설계·건설', 33:'치유·봉사'
+};
+
+function getMajorCycleAtAge(age, lifePath) {
+  const lpV = (lifePath === 11 ? 2 : (lifePath === 22 ? 4 : (lifePath === 33 ? 6 : lifePath)));
+  const age1 = 36 - lpV;
+  if (age <= age1) return 1;
+  if (age <= age1 + 27) return 2;
+  return 3;
+}
+
+function getPinnacleIdxAtAge(age, lifePath) {
+  const lpV = (lifePath === 11 ? 2 : (lifePath === 22 ? 4 : (lifePath === 33 ? 6 : lifePath)));
+  const age1 = 36 - lpV;
+  if (age <= age1) return 0;
+  if (age <= age1 + 9) return 1;
+  if (age <= age1 + 18) return 2;
+  return 3;
+}
+
+const TIMELINE_TAROT_MAJOR = {
+  0:  { name:'The Fool',        kr:'바보',           emoji:'🃏', keywords:['새 출발','용기','시도'], desc:'바보 카드는 보통 “아직 정해지지 않은 새 시작, 막 시작한 상태”로 설명합니다. 아무 일도 없던 사람에게 갑자기 새 일이 들어오거나, 다른 사람이 보기엔 무명해 보이는 선택을 하게 되는 식으로 나타나기도 해요. 완벽한 계획이 없어도 한 걸음 내딛어도 된다는 뜻에 가깝지, 무조건 실패한다는 뜻은 아닙니다. 일상에서는 이직·전학·새 취미·처음 해보는 제안처럼 “처음”이 반복될 수 있어요. 조심할 점은 준비 없이 큰돈·계약만 서두르는 것입니다. 대신 작게 시험해 보고, 맞으면 키우는 방식이 잘 맞습니다.' },
+  1:  { name:'The Magician',    kr:'마법사',         emoji:'🔮', keywords:['실행','실력','말과 행동'], desc:'마법사 카드는 “말이나 아이디어를 실제 행동으로 옮기는 힘”을 말합니다. 머릿속에만 있던 것을 밖으로 꺼내기 좋은 해예요. 일에서는 제안·발표·영업·학습 시작처럼 내 역량을 드러내는 일이 늘어날 수 있습니다. 이미 갖고 있는 재능·시간·연줄이 도구처럼 쓰인다고 보면 됩니다. “언젠가 한다”가 아니라 “오늘 한 조각이라도 한다”에 가점이 있는 시기예요. 과하면 과시만 하고 결과가 약해질 수 있으니, 작은 결과부터 남기는 습관이 필요합니다.' },
+  2:  { name:'The High Priestess', kr:'여사제',      emoji:'🌙', keywords:['직관','관망','속마음'], desc:'여사제 카드는 “겉으로 드러나지 않는 정보와 속 느낌이 중요해지는 시기”로 읽습니다. 당장 결론을 내기보다 관찰·조사·휴식이 답이 되는 경우가 많아요. 사람 관계에서는 상대 속마음이나 분위기를 읽는 일이 생기고, 일에서는 숨은 조건·약속·감정이 변수가 될 수 있습니다. 급하게 결정하면 나중에 “그때 뭔가 이상했다”고 느낄 수 있어요. 그래서 중요한 서류·이사·연애 결정은 하루 이상 시간을 두고 다시 보는 편이 안전합니다. 반대로 속으로만 삼키기만 하면 스트레스가 쌓이니, 믿을 사람에게만이라도 말로 정리하는 게 좋습니다.' },
+  3:  { name:'The Empress',     kr:'여황제',         emoji:'🌸', keywords:['성장','돌봄','풀어짐'], desc:'여황제 카드는 “키우고, 돌보고, 풍성해지는 기운”을 냅니다. 돈·건강·연애·가족·창작처럼 ‘내가 가꾸는 영역’이 커지기 쉬운 해예요. 남에게 잘해 주기도 하지만, 나 자신을 챙기는 시간도 함께 있으면 더 잘 맞습니다. 일에서는 결과가 조금씩 쌓이고, 사람에게는 정이 붙는 일이 생길 수 있어요. 과하면 과소비·과식·과한 타인 간섭처럼 “너무 채우려다 지치는” 패턴이 나올 수 있습니다. 생활 리듬을 규칙적으로 맞추고, 쉼도 일정에 넣는 게 도움이 됩니다.' },
+  4:  { name:'The Emperor',     kr:'황제',           emoji:'👑', keywords:['규칙','책임','안정'], desc:'황제 카드는 “질서, 책임, 권한, 장기 계획”이 강조되는 시기입니다. 일에서는 규칙·직급·문서·예산처럼 공식적인 틀이 중요해지고, 집에서는 가장·생활 규칙·부양 문제가 부각될 수 있어요. 무질서하게 흘려내던 일을 이제는 표로 정리하고 싶어지는 마음이 들 수 있습니다. 잘 쓰면 신뢰와 승진·안정으로 이어지고, 지나치면 융통성 없는 사람으로 보일 수 있어요. 중요한 건 “나만의 기준 한두 개를 지키되, 사소한 것까지 굳이 통제하지 않기”입니다.' },
+  5:  { name:'The Hierophant',  kr:'교황',           emoji:'⛪', keywords:['배움','제도','멘토'], desc:'교황 카드는 “남이 이미 만들어 둔 지식·제도·스승을 빌려 쓰는 해”에 가깝습니다. 혼자서 모든 걸 새로 발명하려 하기보다, 자격증·교육·회사 내 매뉴얼·선배 조언처럼 검증된 길을 타면 속도가 나요. 종교·전통·가문의 기대처럼 “정해진 틀”과 마주할 일도 생길 수 있습니다. 잘 쓰면 실력이 빨리 익고, 갈등이 줄어듭니다. 주의할 점은 남의 기준에만 끌려가 내가 원하는 삶과 어긋나는 것 — 그때는 어느 부분까지 따를지 선을 말로 정하면 됩니다.' },
+  6:  { name:'The Lovers',      kr:'연인',           emoji:'💛', keywords:['선택','관계','가치'], desc:'연인 카드는 반드시 연애만 뜻하지 않습니다. “둘 중 하나를 골라야 하는 결정”, “관계에서 내 가치관 드러내기”에 가까워요. 일에서는 A안과 B안, 연애에서는 진지한 대화나 약속, 돈에서는 소비·저축의 방향처럼 갈림길이 나올 수 있습니다. 이때 중요한 건 남이 시키는 대로가 아니라, 나중에 후회하지 않을 선택인지 스스로에게 묻는 것입니다. 잘 쓰면 관계가 깊어지고 방향이 선명해지고, 피하면 답만 미루다 스트레스가 쌓일 수 있어요.' },
+  7:  { name:'The Chariot',     kr:'전차',           emoji:'🏆', keywords:['목표','밀어붙임','독립'], desc:'전차 카드는 “목표를 향해 밀고 나가는 해”입니다. 경쟁 시험, 승진, 이사, 새 프로젝트처럼 속도를 내야 하는 일이 생기기 쉽습니다. 주변 반대가 있어도 내가 정한 방향이 맞다면 버티는 힘이 필요해요. 다만 목표만 앞세우면 주변 사람과 충돌하거나 몸이 먼저 망가질 수 있습니다. 그래서 일정표·수면·운동처럼 기본 체력을 같이 챙기면 오래 갑니다. “동시에 여러 가지”보다 “한 가지 끝까지”가 이 카드와 잘 맞습니다.' },
+  8:  { name:'Strength',        kr:'힘',             emoji:'🦁', keywords:['인내','감정 조절','용기'], desc:'힘 카드는 주먹질하는 힘보다 “버티고, 부드럽게 다루는 힘”을 말합니다. 화가 나는 일, 겁나는 일, 오래 붙잡고 싶은 일이 있어도 감정을 통째로 터뜨리기보다 조금씩 다루는 연습이 필요한 시기예요. 육아·간병·팀 갈등처럼 당장 결과가 안 나와도 매일 해야 하는 일이 있을 수 있습니다. 잘하면 주변 사람들이 신뢰하고 맡기는 역할이 되고, 못하면 속으로만 쌓다 한 번에 터질 수 있어요. 운동·호흡·짧은 휴식으로 감정 배출통을 따로 만들어 두면 좋습니다.' },
+  9:  { name:'The Hermit',      kr:'은둔자',         emoji:'🕯️', keywords:['성찰','혼자 시간','공부'], desc:'은둔자 카드는 “사람 많은 자리보다 혼자 정리하는 시간이 필요한 해”입니다. 진로·관계·건강에 대해 생각을 정리하거나, 공부·자격·글쓰기처럼 조용히 쌓는 일이 잘 맞습니다. 겉으로는 한산해 보여도 안에서는 판단이 바뀌는 시기일 수 있어요. 너무 겉돌기만 하면 외로움이 커지니, 가끔은 믿는 사람에게 생각을 말로 꺼내는 것도 필요합니다. 새로운 만남을 강요하지 말고, 지금 정말 필요한 관계에만 에너지를 쓰는 해로 써도 됩니다.' },
+  10: { name:'Wheel of Fortune',kr:'운명의 수레바퀴', emoji:'☸️', keywords:['변동','시기','타이밍'], desc:'운명의 수레바퀴는 “내 힘만으로 100% 통제되지 않는 변화가 온다”는 뜻에 가깝습니다. 좋게는 기회·행운처럼 갑자기 문이 열리기도 하고, 어렵게는 예상 밖 일정·이동·인사 변화처럼 방향이 꼬이기도 해요. 같은 사건도 “큰일이다”로만 보면 힘들고, “그럼 지금 할 수 있는 준비는 이걸로 하자”로 쪼개면 덜 무섭습니다. 좋을 때는 겸손하게 기록·저축·관계를 챙기고, 힘들 때는 작게 줄이고 버티는 게 현실적인 대응입니다.' },
+  11: { name:'Justice',         kr:'정의',           emoji:'⚖️', keywords:['공정','증거','결과'], desc:'정의 카드는 “규칙, 계약, 공적인 판단, 내가 한 일의 결과”가 선명해지는 해입니다. 서류·법·회사 제도·평가처럼 증거 말이 중요해지고, 숨기고 있던 일이 드러나기도 합니다. 그래서 큰돈 빌리기, 큰 말·큰 약속, 회색지대 계약은 특히 신중해야 해요. 반대로 성실하게 해 온 일은 알아주는 분위기가 되기 쉽습니다. 솔직하고 기록 남기기를 습관화하면 이 카드 에너지가 훨씬 편하게 작동합니다.' },
+  12: { name:'The Hanged Man',  kr:'매달린 사람',    emoji:'🙃', keywords:['대기','시각 전환','멈춤'], desc:'매달린 사람 카드는 “당장은 움직여도 답이 안 나와 잠깐 멈춰야 할 때”를 말합니다. 이직·연애·소송·치료처럼 상대나 절차를 기다려야 하는 일이 생기기 쉽습니다. 억지로 재촉하면 오히려 상황이 꼬일 수 있어요. 그동안 나만 보고 있던 각도 말고, 다른 사람 입장에서 한 번 읽어 보는 게 도움이 됩니다. 멈춤이 게으름이 아니라 정보를 모으는 시간일 수 있다는 점만 기억하면 마음이 덜 조급해집니다.' },
+  13: { name:'Death',           kr:'죽음(변환)',     emoji:'🌑', keywords:['끊기','바꿈','다음 단계'], desc:'죽음 카드는 실제 죽음을 직접 예언하는 카드가 아니라, “끝나고 비워지고 다른 형태로 바뀐다”는 뜻으로 많이 설명합니다. 그만둔 직장, 정리한 관계, 끊은 습관처럼 더는 예전으로 돌아가기 어려운 변화가 올 수 있어요. 마음은 아프지만 붙잡기만 하면 새 일이 안 들어오는 경우도 있습니다. 이 카드는 “정리하면 자리가 난다”는 말과도 통합니다. 구체적으로는 서랍·인맥·생활 패턴 중 끊어도 되는 것부터 정리해 보는 해로 써도 좋습니다.' },
+  14: { name:'Temperance',      kr:'절제',           emoji:'🌊', keywords:['균형','조율','천천히'], desc:'절제 카드는 “한쪽으로 치우치지 않게 조금씩 맞추는 해”입니다. 일과 휴식, 지출과 저축, 일과 가정처럼 극단만 오가면 지치는 영역을 중간으로 끌어당기는 게 과제예요. 갑자기 큰 변화보다 작은 습관을 여러 번 조정하는 방식이 잘 맞습니다. 건강에서는 수면·식사·운동 리듬이 핵심입니다. 사람 관계에서는 “내가 너무 맞췄다” 또는 “너무 튕겼다”를 번갈아 느낄 수 있으니, 한 주에 한 번은 상태를 점검해 보는 게 좋습니다.' },
+  15: { name:'The Devil',       kr:'악마',           emoji:'🔗', keywords:['집착','습관','빠짐'], desc:'악마 카드는 “나도 알면서 빠져 있는 것”을 비춥니다. 과한 술·도박·SNS·욕심·질투·독한 관계처럼 단기간엔 시원하지만 장기적으로는 값비싼 선택이에요. 남 때문에라고 느껴도, 결국 내가 계속 허락하는 부분이 있는지 짚어볼 필요가 있습니다. 무서운 게 아니라 “인식하면 선택지가 생긴다”는 카드에 가깝습니다. 구체적으로는 한 달에 얼마까지·몇 시 이후엔 안 한다 같은 작은 규칙부터 걸어 보는 해입니다.' },
+  16: { name:'The Tower',       kr:'탑',             emoji:'⚡', keywords:['급변','깨짐','다시 짓기'], desc:'탑 카드는 “믿었던 틀이 갑자게 흔들리는 사건”을 말할 때가 많습니다. 조직 개편, 관계 결별, 계약 파기, 건강 경고처럼 예상 밖 통보가 올 수 있어요. 무섭게 들리지만, 깨지는 부분이 거짓 기반이나 더 이상 안 맞는 구조인 경우도 많습니다. 그래서 이 카드는 “급할수록 기본으로 돌아가라”는 경고에 가깝습니다. 비상금, 살던 집·일의 플랜B, 신뢰할 사람 연락처처럼 현실 안전망을 점검하는 해로 쓰는 게 현명합니다.' },
+  17: { name:'The Star',        kr:'별',             emoji:'⭐', keywords:['회복','희망','다음 목표'], desc:'별 카드는 “긴 시련 뒤에 숨통이 트이고, 다시 믿을 거리가 보인다”는 해입니다. 몸과 마음이 먼저 회복되고, 작은 믿음·취미·공부로 다시 앞을 보게 되는 흐름이에요. 아직 크게 성과가 안 나와도 방향이 맞다는 느낌이 드는 시기로 읽을 수 있습니다. 일상에서는 치료·휴식·상담·새 계획 세우기처럼 회복과 설계가 함께 가면 잘 맞습니다. 너무 크게만 욕심내기보다 작은 루틴으로 꾸준히 쌓는 게 이 카드의 장점을 살립니다.' },
+  18: { name:'The Moon',        kr:'달',             emoji:'🌙', keywords:['불안','헷갈림','팩트 체크'], desc:'달 카드는 “분위기나 상상이 커져서 팩트와 섞이기 쉬운 해”입니다. 소문, 걱정, 남의 표정 해석 때문에 마음이 출렁일 수 있어요. 그래서 돈·계약·이별·진단처럼 중요한 결정은 감정이 가라앉은 다음 날 한 번 더 확인하는 습관이 필요합니다. 꿈·직감이 전부 틀린 건 아니니 메모는 해 두되, 그걸 곧바로 결론으로 확정하지 않는 선이 좋습니다. 잠·운동·대화로 불안 온도를 낮추는 게 핵심입니다.' },
+  19: { name:'The Sun',         kr:'태양',           emoji:'☀️', keywords:['분명함','성취','기쁨'], desc:'태양 카드는 “일이 잘 보이고, 결과가 밖으로 드러나고, 기분이 밝아지는 해”에 가깝습니다. 시험 합격, 인정, 수입, 가족 경사처럼 눈에 띄는 좋은 소식이 올 수 있어요. 노력 대비 인정이 따라오기 쉬운 시기라고 보면 됩니다. 너무 겸손만 하다 보면 기회를 숨길 수 있으니, 정당한 성과는 말로도 짧게 남기는 게 좋습니다. 과하면 자만처럼 보일 수 있으니, 기쁜 일을 나누되 상대 기분도 한 번 짚어 주면 관계가 더 좋아집니다.' },
+  20: { name:'Judgement',       kr:'심판',           emoji:'🎺', keywords:['결심','정리','새 출발'], desc:'심판 카드는 “지난 챕터를 접고, 새 각오로 일어서는 해”입니다. 오래 미뤄 둔 결정, 마주하기 싫은 진실, 다시 시작하고 싶은 꿈이 동시에 떠오를 수 있어요. 일에서는 전환·복귀·브랜딩·재도전처럼 방향을 고치는 일이 생기기 쉽습니다. 종교적인 심판이 아니라 내 인생에 대한 “다시 선택”에 가깝습니다. 후회를 붙잡기보다 앞으로 어떤 한 줄을 지키겠다고 말로 정하면 마음이 가벼워집니다.' },
+  21: { name:'The World',       kr:'세계',           emoji:'🌍', keywords:['완료','성과','한 사이클'], desc:'세계 카드는 “큰 일 한 토막이 끝나고, 결과를 인정받는 해”에 가깝습니다. 졸업, 이직 완료, 계약 종료, 결혼·출산·이사 마무리처럼 구체적인 완주가 있을 수 있어요. 주변에서도 “이제 그건 끝났다”고 느끼는 분위기가 생깁니다. 끝이니까 쉬어가도 된다는 뜻도 포함됩니다. 바로 다음 목표만 쫓기보다 잠깐 정리하고, 배운 것을 글로 남기면 다음 사이클이 편해집니다.' },
+  22: { name:'The Master Builder', kr:'건설자',      emoji:'🏛️', keywords:['큰일','구조','꾸준함'], desc:'건설자(22) 에너지는 “당장 화려하지 않아도 오래 쓰는 틀을 만드는 해”로 읽습니다. 조직 만들기, 집·사업 기반, 장기 프로젝트 설계처럼 결과가 늦게 보이는 일과 잘 맞아요. 꼼꼼함·신뢰·약속 지키기가 평판으로 돌아오기 쉽습니다. 반대로 욕심만 크고 실행이 없으면 스트레스만 커질 수 있어요. 작은 단계로 나누고, 매주 확인할 체크리스트가 있으면 이 카드의 강점이 살아납니다.' },
+};
+
+function createTenYearTimeline(mode, ctx) {
+  const isTarot = mode === 'tarot';
+  const { curY, mnPre, m, d, mr_r, dr_r, yr_r, lp, y } = ctx;
+  const completionNum = isTarot ? 21 : 9;
+  const getKw = isTarot ? tarotTimelineKeyword : classicTimelineKeyword;
+  const getDesc = isTarot ? tarotTimelineDesc : classicTimelineDesc;
+  const getColor = isTarot ? tarotTimelineColor : (n) => TL_COLOR[n] || '#8b6f47';
+  const getBarH = isTarot ? tarotTimelineBarHeight : classicTimelineBarHeight;
+
+  const yearData = [];
+  for (let i = 0; i < 10; i++) {
+    const yr = curY + i;
+    if (isTarot) {
+      const pyParts = calcPersonalYearTarot(yr, mnPre);
+      yearData.push({ year: yr, num: pyParts.single, pre: pyParts.pre });
+    } else {
+      const pyParts = calcPersonalYearClassic(yr, mr_r, dr_r);
+      yearData.push({ year: yr, num: pyParts.single, pre: pyParts.pre });
+    }
+  }
+
+  const chartBars = yearData.map(({ year, num }) => {
+    const isCurrent = year === curY;
+    const prev = yearData.find((z) => z.year === year - 1);
+    const prevNum = prev ? prev.num : null;
+    const isCompletion = num === completionNum;
+    const isStart = prevNum === completionNum;
+    const hPx = getBarH(num);
+    const color = getColor(num);
+    const kw = getKw(num);
+    const cls = `${isCurrent ? 'current' : ''} ${isCompletion ? 'complete' : ''} ${isStart ? 'start' : ''}`.trim();
+    const isHighlight = isCurrent || (isTarot ? (num === 0 || num === 1) : num === 1);
+    const bodyBg = isHighlight ? color : 'var(--parchment)';
+    const borderColor = isHighlight ? color : 'var(--border)';
+    return `<div class="bar-col ${cls}" tabindex="0" data-year="${year}" data-num="${num}" data-prevnum="${prevNum || ''}" data-start="${isStart}" data-complete="${isCompletion}">
+      <div class="bar-energy">${num}</div>
+      <div class="bar-keyword">${kw}</div>
+      <div class="bar-body" style="height:${hPx}px;background:${bodyBg};border:1px solid ${borderColor};"></div>
+      <div class="bar-year">${String(year).slice(2)}'</div>
+    </div>`;
+  }).join('');
+
+  const yearCards = yearData.map(({ year, num }, idx) => {
+    const isCurrent = year === curY;
+    const prev = yearData[idx - 1];
+    const prevNum = prev ? prev.num : null;
+    const isCompletion = num === completionNum;
+    const isStart = prevNum === completionNum;
+    let badgeText = '';
+    if (isCurrent) badgeText = '현재';
+    else if (isStart) badgeText = '새 주기 시작';
+    else if (isCompletion) badgeText = '완성';
+    const cls = `${isCurrent ? 'current' : ''} ${isStart ? 'start' : ''} ${isCompletion ? 'complete' : ''}`.trim();
+    return `<div class="year-card ${cls}" data-year="${year}" data-num="${num}">
+      <div class="yc-year">${year}</div>
+      <div class="yc-num">${num}</div>
+      <div class="yc-keyword">${getKw(num)}</div>
+      <div class="yc-desc">${getDesc(num)}</div>
+      <div class="yc-badge ${isCurrent ? 'now' : (isStart ? 'turn' : '')}">${badgeText}</div>
+    </div>`;
+  }).join('');
+
+  const curYData = yearData.find((yd) => yd.year === curY) || yearData[0];
+
+  const buildDetail = (yd) => {
+    const n = yd.num;
+    const idx = yearData.indexOf(yd);
+    const isCompl = n === completionNum;
+    const isNewCycle = idx > 0 && yearData[idx - 1].num === completionNum;
+    const stratObj = isTarot
+      ? (YEAR_STRATEGY[n] || YEAR_STRATEGY[reduceToSingle(n, false)] || {})
+      : (YEAR_STRATEGY[n] || {});
+    const flowPh = isTarot
+      ? (FLOW_PHRASE[n] ? `${FLOW_PHRASE[n]} 해입니다.` : (TAROT_MAJOR_KR[n] ? `타로 ${n}번 「${TAROT_MAJOR_KR[n]}」의 해입니다.` : ''))
+      : (FLOW_PHRASE[n] ? `${FLOW_PHRASE[n]} 해입니다.` : '');
+    const deepYear = isTarot
+      ? (yearFlowDeepHtml(n) || (TIMELINE_YEAR_DEEP_MAP && TIMELINE_YEAR_DEEP_MAP[n]) || DEEP_MAP[n] || '')
+      : classicYearDeepHtml(n);
+    const kw = getKw(n);
+    const descLine = getDesc(n);
+    const targetYear = yd.year;
+    const targetAge = targetYear - y;
+    const majStage = getMajorCycleAtAge(targetAge, lp);
+    const majNum = majStage === 1 ? mr_r : (majStage === 2 ? dr_r : yr_r);
+    const majLabels = ['', '시작의 시간', '생산·성취의 시간', '수확의 시간'];
+    const majStageLabel = majLabels[majStage];
+    const pinIdx = getPinnacleIdxAtAge(targetAge, lp);
+    const pinNums = [
+      reduceToSingle(mr_r + dr_r),
+      reduceToSingle(dr_r + yr_r),
+      reduceToSingle(reduceToSingle(mr_r + dr_r) + reduceToSingle(dr_r + yr_r)),
+      reduceToSingle(mr_r + yr_r)
+    ];
+    const chalNums = [
+      reduceToSingle(Math.abs(mr_r - dr_r)),
+      reduceToSingle(Math.abs(dr_r - yr_r)),
+      reduceToSingle(Math.abs(reduceToSingle(Math.abs(mr_r - dr_r)) - reduceToSingle(Math.abs(dr_r - yr_r)))),
+      reduceToSingle(Math.abs(mr_r - yr_r))
+    ];
+    const curPin = pinNums[pinIdx];
+    const curChal = chalNums[pinIdx];
+    const tarotNum = calcTarotCard(m, d, targetYear);
+    const tarot = TIMELINE_TAROT_MAJOR[tarotNum] || TIMELINE_TAROT_MAJOR[22] || TIMELINE_TAROT_MAJOR[0];
+    const tarotReduced = tarotNum > 9 ? reduceToSingle(tarotNum) : null;
+    let cycleNote = '';
+    if (isCompl) {
+      cycleNote = isTarot
+        ? '<div class="tdc-cycle tdc-cycle--compact"><strong>21번 · 세계(완료)</strong> — 한 사이클이 마무리되는 해에 가깝습니다. 정리하고 비우면 다음 흐름이 열립니다.</div>'
+        : '<div class="tdc-cycle tdc-cycle--compact"><strong>9번 · 완성</strong> — 9년 주기가 마무리되는 해입니다. 정리하고 비우면 다음 흐름이 열립니다.</div>';
+    } else if (isNewCycle) {
+      cycleNote = isTarot
+        ? '<div class="tdc-cycle tdc-cycle--compact"><strong>새 주기의 시작</strong> — 직전이 21번(세계)이었다면 긴 물결 하나가 끝난 뒤입니다. 이번 해는 다음 이야기의 첫 장에 가깝습니다.</div>'
+        : '<div class="tdc-cycle tdc-cycle--compact"><strong>새 주기의 시작</strong> — 직전이 9번이었다면 9년 주기가 끝난 뒤입니다. 이번 해는 다음 이야기의 첫 장에 가깝습니다.</div>';
+    }
+    const pinColor = (TL_COLOR && TL_COLOR[curPin]) || '#8b6f47';
+    const chalColor = (TL_COLOR && TL_COLOR[curChal]) || '#9a8570';
+    const majColor = (TL_COLOR && TL_COLOR[majNum]) || '#7a9e8a';
+    const calcSubline = isTarot
+      ? `연 ${sumYearDigits(targetYear)}+문 ${mnPre}=${yd.pre} → 타로 ${n}`
+      : (() => {
+          const yrPart = reduceToSingle(sumYearDigits(targetYear));
+          return yd.pre !== n
+            ? `연 ${yrPart}+월 ${mr_r}+일 ${dr_r}=${yd.pre} → ${n}`
+            : `연 ${yrPart}+월 ${mr_r}+일 ${dr_r}=${yd.pre}`;
+        })();
+
+    return `<div class="tdc">
+      <div class="tdc-top">
+        <div class="tdc-year">${targetYear}년 <span class="tdc-num">${n}번 · ${kw}</span>
+          ${isCompl ? '<span class="tdc-badge complete">완성의 해</span>' : ''}
+          ${isNewCycle ? '<span class="tdc-badge start">새 주기 시작</span>' : ''}
+        </div>
+        <div style="font-size:11px;color:var(--muted);margin-top:4px">${calcSubline}</div>
+      </div>
+      <div class="tdc-cycle-strip" role="region" aria-label="긴 호흡 숫자">
+        <div class="tdc-cycle-strip-kicker">긴 호흡 숫자</div>
+        <div class="tdc-cycle-details-inner">
+          <div class="tdc-cmini" style="border-top:2px solid ${majColor}">
+            <b>대주기 ${majStage}단계</b>
+            <div class="tdc-cmini-n" style="color:${majColor}">${majNum}</div>
+            ${majStageLabel}<br><span style="color:${majColor}">${TIMELINE_NUM_SHORT[majNum] || ''}</span>
+          </div>
+          <div class="tdc-cmini" style="border-top:2px solid ${pinColor}">
+            <b>절정수<span style="font-weight:500;opacity:.9">(환경)</span></b>
+            <div class="tdc-cmini-n" style="color:${pinColor}">${curPin}</div>
+            <span style="color:${pinColor}">${TIMELINE_NUM_SHORT[curPin] || ''}</span>
+          </div>
+          <div class="tdc-cmini" style="border-top:2px solid ${chalColor}">
+            <b>도전수<span style="font-weight:500;opacity:.9">(과제)</span></b>
+            <div class="tdc-cmini-n" style="color:${chalColor}">${curChal}</div>
+            <span style="color:${chalColor}">${TIMELINE_NUM_SHORT[curChal] || ''}</span>
+          </div>
+        </div>
+      </div>
+      ${cycleNote}
+      <div class="tdc-theme">✦ ${flowPh} ${descLine}</div>
+      ${stratObj.goal ? `<div class="tdc-row"><span class="tdc-label">이 해의 초점</span><span>${stratObj.goal}</span></div>` : ''}
+      ${stratObj.action ? `<div class="tdc-row"><span class="tdc-label">실천 한 줄</span><span>${stratObj.action}</span></div>` : ''}
+      <div class="tdc-deep-label">이 숫자를 <em>한 해</em>로 읽을 때</div>
+      <div class="tdc-deep">${deepYear}</div>
+      <div style="margin-top:20px;padding:16px 18px;background:white;border:1px solid var(--border);border-radius:12px;border-left:3px solid var(--accent);">
+        <div class="tdc-tarot-heading">올해의 카드 · ${targetYear}년</div>
+        <div style="font-size:11px;color:var(--muted);line-height:1.5;margin-bottom:10px">생일+연도로 뽑은 메이저 카드입니다. 아래는 참고용 풀이입니다.</div>
+        <div style="display:flex;align-items:center;gap:14px;margin-bottom:10px;">
+          <div style="width:56px;height:56px;border-radius:10px;background:var(--parchment);border:1px solid var(--border);display:flex;flex-direction:column;align-items:center;justify-content:center;flex-shrink:0;">
+            <div style="font-size:24px;line-height:1">${tarot.emoji}</div>
+            <div style="font-size:9px;color:var(--muted);margin-top:2px">${tarotNum}번</div>
+          </div>
+          <div>
+            <div style="font-family:var(--font-serif);font-size:16px;font-weight:600;color:var(--deep-brown);margin-bottom:2px">${tarotNum}번 · ${tarot.kr}</div>
+            <div style="font-size:11px;color:var(--muted);font-style:italic">${tarot.name}</div>
+            ${tarotReduced ? `<div style="font-size:10px;color:var(--warm-brown);margin-top:4px">수비학 환원: ${tarotNum} → <strong>${tarotReduced}번</strong> 기운이 함께 겹쳐집니다.</div>` : ''}
+          </div>
+        </div>
+        ${(tarot.keywords && tarot.keywords.length) ? `<div style="margin-bottom:10px">${tarot.keywords.map((k) => `<span style="display:inline-block;font-size:10px;padding:4px 9px;margin:2px 5px 0 0;border-radius:999px;background:var(--parchment);border:1px solid var(--border);color:var(--deep-brown);font-family:var(--font-serif)">${k}</span>`).join('')}</div>` : ''}
+        <div style="font-size:13px;line-height:1.82;color:var(--ink);padding:12px 14px;background:var(--parchment);border-radius:8px">${tarot.desc}</div>
+      </div>
+    </div>`;
+  };
+
+  const html = `<div class="timeline-wrap" data-timeline-mode="${mode}">
+    <div class="current-year-banner"><strong>${curY}년</strong> · ${getKw(curYData.num)} · ${getDesc(curYData.num)}</div>
+    <div class="chart-scroll"><div class="chart-inner">${chartBars}</div></div>
+    <div class="year-cards">${yearCards}</div>
+    <div class="timeline-hint">연도를 바꿀 때마다 아래 패널이 함께 바뀝니다.</div>
+    <div class="timeline-detail">${buildDetail(curYData)}</div>
+  </div>`;
+
+  function bind(root) {
+    const wrap = root || document.querySelector(`[data-timeline-mode="${mode}"]`);
+    if (!wrap) return;
+    const banner = wrap.querySelector('.current-year-banner');
+    const detail = wrap.querySelector('.timeline-detail');
+    const updateDetail = (yr) => {
+      const bar = wrap.querySelector(`.bar-col[data-year='${yr}']`);
+      const n = Number(bar?.dataset.num || 0);
+      if (banner) banner.innerHTML = `<strong>${yr}년</strong> · ${getKw(n)} · ${getDesc(n)}`;
+      wrap.querySelectorAll('.bar-col').forEach((x) => x.classList.remove('current'));
+      bar?.classList.add('current');
+      wrap.querySelectorAll('.year-card').forEach((c) => c.classList.toggle('current', Number(c.dataset.year) === yr));
+      const yd = yearData.find((z) => z.year === yr);
+      if (yd && detail) detail.innerHTML = buildDetail(yd);
+    };
+    wrap.querySelectorAll('.bar-col').forEach((b) => {
+      b.addEventListener('click', () => updateDetail(Number(b.dataset.year)));
+      b.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { b.click(); e.preventDefault(); } });
+    });
+    wrap.querySelectorAll('.year-card').forEach((c) => {
+      c.addEventListener('click', () => updateDetail(Number(c.dataset.year)));
+    });
+  }
+
+  return { html, bind, yearData };
 }
 
 function moonNumberDesc(mn, mnPre) {
@@ -5745,7 +6110,7 @@ function buildLcPriorityAtGlanceHtml(ctx) {
     h += lcNumCell('성격수', '—', '');
     h += lcNumCell('완성수', '—', '');
   }
-  h += lcNumCell('올해의 수', ctx.py, ctx.pyS != null ? `전합 ${ctx.pyS}` : '');
+  h += lcNumCell('올해의 수', ctx.pyDisplay ?? ctx.py, ctx.pyPreLabel != null ? `전합 ${ctx.pyPreLabel}` : (ctx.pyS != null ? `전합 ${ctx.pyS}` : ''));
   h += lcNumCell('이번 달의 수', ctx.pm, ctx.pmPre != null ? `전합 ${ctx.pmPre}` : '');
   if (ctx.majorNum != null && ctx.pinnacle != null && ctx.challenge != null) {
     if (ctx.cycleLocked) {
@@ -6373,8 +6738,13 @@ async function runAnalysis() {
   const mnPre = moonNums.pre;
   const mn = moonNums.single;
   const curY_digitSum = sumYearDigits(curY);
-  const pyS = curY_digitSum + mnPre;
-  const py = reduceToTarotNumber(pyS);
+  const pyClassicParts = calcPersonalYearClassic(curY, mr_r, dr_r);
+  const pyTarotParts = calcPersonalYearTarot(curY, mnPre);
+  const pyClassic = pyClassicParts.single;
+  const py = pyTarotParts.single;
+  const pyS = pyTarotParts.pre;
+  const pyDisplay = personalYearValueLabel(pyClassic, py);
+  const pyPreLabel = personalYearPreLabel(pyClassicParts.pre, pyTarotParts.pre);
   const pm = reduceToSingle(py + curM);
   const pd = reduceToSingle(pm + curD);
   const z = getZodiacInfo(m, d);
@@ -6402,7 +6772,7 @@ async function runAnalysis() {
   // ── 1. CORE NUMBERS (모든 플랜) ──
   const coreItems = [
     { label:'인생여정수', value:lp, valueDisplay:lpDisplay, pre:lpPreLabel, desc: CORE_LIFE_PATH_MAP[lp]||DEEP_MAP[lp]||'',
-      accBody: coreAccordionBody(CORE_LIFE_PATH_MAP[lp]||DEEP_MAP[lp]||'', lp, ACCORDION_LIFE_PATH) },
+      accBody: lifePathCalcExplainHtml(y, m, d, lpParts) + coreAccordionBody(CORE_LIFE_PATH_MAP[lp]||DEEP_MAP[lp]||'', lp, ACCORDION_LIFE_PATH) },
     { label:'문 넘버', value:mn, pre:mnPre, desc: moonNumberDesc(mn, mnPre),
       accBody: coreAccordionBody(moonNumberDesc(mn, mnPre), mn, ACCORDION_MOON) }
   ];
@@ -6581,249 +6951,24 @@ async function runAnalysis() {
 
   // ── 5. 10년 타임라인 (Basic+) ──
   if(hasAccess('basic')) {
-    const yearData = [];
-    for(let i=0;i<10;i++){
-      const yr=curY+i;
-      const pyParts = calcPersonalYearTarot(yr, mnPre);
-      yearData.push({ year: yr, num: pyParts.single, pre: pyParts.pre });
-    }
-    const chartBars = yearData.map(({year,num})=>{
-      const isCurrent=year===curY;
-      const prev = yearData.find(z=>z.year===year-1);
-      const prevNum = prev ? prev.num : null;
-      const isCompletion = num === 21;
-      const isStart = prevNum === 21;
-      const hPx = tarotTimelineBarHeight(num);
-      const color = tarotTimelineColor(num);
-      const kw = tarotTimelineKeyword(num);
-      const cls = `${isCurrent?'current':''} ${isCompletion?'complete':''} ${isStart?'start':''}`.trim();
-      const isHighlight = isCurrent || num === 0 || num === 1;
-      const bodyBg = isHighlight ? color : 'var(--parchment)';
-      const borderColor = isHighlight ? color : 'var(--border)';
-      return `<div class="bar-col ${cls}" tabindex="0" data-year="${year}" data-num="${num}" data-prevnum="${prevNum||''}" data-start="${isStart}" data-complete="${isCompletion}">
-        <div class="bar-energy">${num}</div>
-        <div class="bar-keyword">${kw}</div>
-        <div class="bar-body" style="height:${hPx}px;background:${bodyBg};border:1px solid ${borderColor};"></div>
-        <div class="bar-year">${String(year).slice(2)}'</div>
-      </div>`;
-    }).join('');
-
-    const yearCards = yearData.map(({year,num,pre},idx)=>{
-      const isCurrent = year === curY;
-      const prev = yearData[idx-1];
-      const prevNum = prev ? prev.num : null;
-      const isCompletion = num === 21;
-      const isStart = prevNum === 21;
-      let badgeText = '';
-      if (isCurrent) badgeText = '현재';
-      else if (isStart) badgeText = '새 주기 시작';
-      else if (isCompletion) badgeText = '완성';
-      const cls = `${isCurrent?'current':''} ${isStart?'start':''} ${isCompletion?'complete':''}`.trim();
-      const kw = tarotTimelineKeyword(num);
-      const desc = tarotTimelineDesc(num);
-      return `<div class="year-card ${cls}" data-year="${year}" data-num="${num}">
-        <div class="yc-year">${year}</div>
-        <div class="yc-num">${num}</div>
-        <div class="yc-keyword">${kw}</div>
-        <div class="yc-desc">${desc}</div>
-        <div class="yc-badge ${isCurrent? 'now' : (isStart ? 'turn' : '')}">${badgeText}</div>
-      </div>`;
-    }).join('');
-
-    const curYData = yearData.find(yd=>yd.year===curY) || yearData[0];
-
-    const TAROT_MAJOR = {
-      0:  { name:'The Fool',        kr:'바보',           emoji:'🃏', keywords:['새 출발','용기','시도'], desc:'바보 카드는 보통 “아직 정해지지 않은 새 시작, 막 시작한 상태”로 설명합니다. 아무 일도 없던 사람에게 갑자기 새 일이 들어오거나, 다른 사람이 보기엔 무명해 보이는 선택을 하게 되는 식으로 나타나기도 해요. 완벽한 계획이 없어도 한 걸음 내딛어도 된다는 뜻에 가깝지, 무조건 실패한다는 뜻은 아닙니다. 일상에서는 이직·전학·새 취미·처음 해보는 제안처럼 “처음”이 반복될 수 있어요. 조심할 점은 준비 없이 큰돈·계약만 서두르는 것입니다. 대신 작게 시험해 보고, 맞으면 키우는 방식이 잘 맞습니다.' },
-      1:  { name:'The Magician',    kr:'마법사',         emoji:'🔮', keywords:['실행','실력','말과 행동'], desc:'마법사 카드는 “말이나 아이디어를 실제 행동으로 옮기는 힘”을 말합니다. 머릿속에만 있던 것을 밖으로 꺼내기 좋은 해예요. 일에서는 제안·발표·영업·학습 시작처럼 내 역량을 드러내는 일이 늘어날 수 있습니다. 이미 갖고 있는 재능·시간·연줄이 도구처럼 쓰인다고 보면 됩니다. “언젠가 한다”가 아니라 “오늘 한 조각이라도 한다”에 가점이 있는 시기예요. 과하면 과시만 하고 결과가 약해질 수 있으니, 작은 결과부터 남기는 습관이 필요합니다.' },
-      2:  { name:'The High Priestess', kr:'여사제',      emoji:'🌙', keywords:['직관','관망','속마음'], desc:'여사제 카드는 “겉으로 드러나지 않는 정보와 속 느낌이 중요해지는 시기”로 읽습니다. 당장 결론을 내기보다 관찰·조사·휴식이 답이 되는 경우가 많아요. 사람 관계에서는 상대 속마음이나 분위기를 읽는 일이 생기고, 일에서는 숨은 조건·약속·감정이 변수가 될 수 있습니다. 급하게 결정하면 나중에 “그때 뭔가 이상했다”고 느낄 수 있어요. 그래서 중요한 서류·이사·연애 결정은 하루 이상 시간을 두고 다시 보는 편이 안전합니다. 반대로 속으로만 삼키기만 하면 스트레스가 쌓이니, 믿을 사람에게만이라도 말로 정리하는 게 좋습니다.' },
-      3:  { name:'The Empress',     kr:'여황제',         emoji:'🌸', keywords:['성장','돌봄','풀어짐'], desc:'여황제 카드는 “키우고, 돌보고, 풍성해지는 기운”을 냅니다. 돈·건강·연애·가족·창작처럼 ‘내가 가꾸는 영역’이 커지기 쉬운 해예요. 남에게 잘해 주기도 하지만, 나 자신을 챙기는 시간도 함께 있으면 더 잘 맞습니다. 일에서는 결과가 조금씩 쌓이고, 사람에게는 정이 붙는 일이 생길 수 있어요. 과하면 과소비·과식·과한 타인 간섭처럼 “너무 채우려다 지치는” 패턴이 나올 수 있습니다. 생활 리듬을 규칙적으로 맞추고, 쉼도 일정에 넣는 게 도움이 됩니다.' },
-      4:  { name:'The Emperor',     kr:'황제',           emoji:'👑', keywords:['규칙','책임','안정'], desc:'황제 카드는 “질서, 책임, 권한, 장기 계획”이 강조되는 시기입니다. 일에서는 규칙·직급·문서·예산처럼 공식적인 틀이 중요해지고, 집에서는 가장·생활 규칙·부양 문제가 부각될 수 있어요. 무질서하게 흘려 보내던 일을 이제는 표로 정리하고 싶어지는 마음이 들 수 있습니다. 잘 쓰면 신뢰와 승진·안정으로 이어지고, 지나치면 융통성 없는 사람으로 보일 수 있어요. 중요한 건 “나만의 기준 한두 개를 지키되, 사소한 것까지 굳이 통제하지 않기”입니다.' },
-      5:  { name:'The Hierophant',  kr:'교황',           emoji:'⛪', keywords:['배움','제도','멘토'], desc:'교황 카드는 “남이 이미 만들어 둔 지식·제도·스승을 빌려 쓰는 해”에 가깝습니다. 혼자서 모든 걸 새로 발명하려 하기보다, 자격증·교육·회사 내 매뉴얼·선배 조언처럼 검증된 길을 타면 속도가 나요. 종교·전통·가문의 기대처럼 “정해진 틀”과 마주할 일도 생길 수 있습니다. 잘 쓰면 실력이 빨리 익고, 갈등이 줄어듭니다. 주의할 점은 남의 기준에만 끌려가 내가 원하는 삶과 어긋나는 것 — 그때는 어느 부분까지 따를지 선을 말로 정하면 됩니다.' },
-      6:  { name:'The Lovers',      kr:'연인',           emoji:'💛', keywords:['선택','관계','가치'], desc:'연인 카드는 반드시 연애만 뜻하지 않습니다. “둘 중 하나를 골라야 하는 결정”, “관계에서 내 가치관 드러내기”에 가까워요. 일에서는 A안과 B안, 연애에서는 진지한 대화나 약속, 돈에서는 소비·저축의 방향처럼 갈림길이 나올 수 있습니다. 이때 중요한 건 남이 시키는 대로가 아니라, 나중에 후회하지 않을 선택인지 스스로에게 묻는 것입니다. 잘 쓰면 관계가 깊어지고 방향이 선명해지고, 피하면 답만 미루다 스트레스가 쌓일 수 있어요.' },
-      7:  { name:'The Chariot',     kr:'전차',           emoji:'🏆', keywords:['목표','밀어붙임','독립'], desc:'전차 카드는 “목표를 향해 밀고 나가는 해”입니다. 경쟁 시험, 승진, 이사, 새 프로젝트처럼 속도를 내야 하는 일이 생기기 쉽습니다. 주변 반대가 있어도 내가 정한 방향이 맞다면 버티는 힘이 필요해요. 다만 목표만 앞세우면 주변 사람과 충돌하거나 몸이 먼저 망가질 수 있습니다. 그래서 일정표·수면·운동처럼 기본 체력을 같이 챙기면 오래 갑니다. “동시에 여러 가지”보다 “한 가지 끝까지”가 이 카드와 잘 맞습니다.' },
-      8:  { name:'Strength',        kr:'힘',             emoji:'🦁', keywords:['인내','감정 조절','용기'], desc:'힘 카드는 주먹질하는 힘보다 “버티고, 부드럽게 다루는 힘”을 말합니다. 화가 나는 일, 겁나는 일, 오래 붙잡고 싶은 일이 있어도 감정을 통째로 터뜨리기보다 조금씩 다루는 연습이 필요한 시기예요. 육아·간병·팀 갈등처럼 당장 결과가 안 나와도 매일 해야 하는 일이 있을 수 있습니다. 잘하면 주변 사람들이 신뢰하고 맡기는 역할이 되고, 못하면 속으로만 쌓다 한 번에 터질 수 있어요. 운동·호흡·짧은 휴식으로 감정 배출통을 따로 만들어 두면 좋습니다.' },
-      9:  { name:'The Hermit',      kr:'은둔자',         emoji:'🕯️', keywords:['성찰','혼자 시간','공부'], desc:'은둔자 카드는 “사람 많은 자리보다 혼자 정리하는 시간이 필요한 해”입니다. 진로·관계·건강에 대해 생각을 정리하거나, 공부·자격·글쓰기처럼 조용히 쌓는 일이 잘 맞습니다. 겉으로는 한산해 보여도 안에서는 판단이 바뀌는 시기일 수 있어요. 너무 겉돌기만 하면 외로움이 커지니, 가끔은 믿는 사람에게 생각을 말로 꺼내는 것도 필요합니다. 새로운 만남을 강요하지 말고, 지금 정말 필요한 관계에만 에너지를 쓰는 해로 써도 됩니다.' },
-      10: { name:'Wheel of Fortune',kr:'운명의 수레바퀴', emoji:'☸️', keywords:['변동','시기','타이밍'], desc:'운명의 수레바퀴는 “내 힘만으로 100% 통제되지 않는 변화가 온다”는 뜻에 가깝습니다. 좋게는 기회·행운처럼 갑자기 문이 열리기도 하고, 어렵게는 예상 밖 일정·이동·인사 변화처럼 방향이 꼬이기도 해요. 같은 사건도 “큰일이다”로만 보면 힘들고, “그럼 지금 할 수 있는 준비는 이걸로 하자”로 쪼개면 덜 무섭습니다. 좋을 때는 겸손하게 기록·저축·관계를 챙기고, 힘들 때는 작게 줄이고 버티는 게 현실적인 대응입니다.' },
-      11: { name:'Justice',         kr:'정의',           emoji:'⚖️', keywords:['공정','증거','결과'], desc:'정의 카드는 “규칙, 계약, 공적인 판단, 내가 한 일의 결과”가 선명해지는 해입니다. 서류·법·회사 제도·평가처럼 증거 말이 중요해지고, 숨기고 있던 일이 드러나기도 합니다. 그래서 큰돈 빌리기, 큰 말·큰 약속, 회색지대 계약은 특히 신중해야 해요. 반대로 성실하게 해 온 일은 알아주는 분위기가 되기 쉽습니다. 솔직하고 기록 남기기를 습관화하면 이 카드 에너지가 훨씬 편하게 작동합니다.' },
-      12: { name:'The Hanged Man',  kr:'매달린 사람',    emoji:'🙃', keywords:['대기','시각 전환','멈춤'], desc:'매달린 사람 카드는 “당장은 움직여도 답이 안 나와 잠깐 멈춰야 할 때”를 말합니다. 이직·연애·소송·치료처럼 상대나 절차를 기다려야 하는 일이 생기기 쉽습니다. 억지로 재촉하면 오히려 상황이 꼬일 수 있어요. 그동안 나만 보고 있던 각도 말고, 다른 사람 입장에서 한 번 읽어 보는 게 도움이 됩니다. 멈춤이 게으름이 아니라 정보를 모으는 시간일 수 있다는 점만 기억하면 마음이 덜 조급해집니다.' },
-      13: { name:'Death',           kr:'죽음(변환)',     emoji:'🌑', keywords:['끊기','바꿈','다음 단계'], desc:'죽음 카드는 실제 죽음을 직접 예언하는 카드가 아니라, “끝나고 비워지고 다른 형태로 바뀐다”는 뜻으로 많이 설명합니다. 그만둔 직장, 정리한 관계, 끊은 습관처럼 더는 예전으로 돌아가기 어려운 변화가 올 수 있어요. 마음은 아프지만 붙잡기만 하면 새 일이 안 들어오는 경우도 있습니다. 이 카드는 “정리하면 자리가 난다”는 말과도 통합니다. 구체적으로는 서랍·인맥·생활 패턴 중 끊어도 되는 것부터 정리해 보는 해로 써도 좋습니다.' },
-      14: { name:'Temperance',      kr:'절제',           emoji:'🌊', keywords:['균형','조율','천천히'], desc:'절제 카드는 “한쪽으로 치우치지 않게 조금씩 맞추는 해”입니다. 일과 휴식, 지출과 저축, 일과 가정처럼 극단만 오가면 지치는 영역을 중간으로 끌어당기는 게 과제예요. 갑자기 큰 변화보다 작은 습관을 여러 번 조정하는 방식이 잘 맞습니다. 건강에서는 수면·식사·운동 리듬이 핵심입니다. 사람 관계에서는 “내가 너무 맞췄다” 또는 “너무 튕겼다”를 번갈아 느낄 수 있으니, 한 주에 한 번은 상태를 점검해 보는 게 좋습니다.' },
-      15: { name:'The Devil',       kr:'악마',           emoji:'🔗', keywords:['집착','습관','빠짐'], desc:'악마 카드는 “나도 알면서 빠져 있는 것”을 비춥니다. 과한 술·도박·SNS·욕심·질투·독한 관계처럼 단기간엔 시원하지만 장기적으로는 값비싼 선택이에요. 남 때문에라고 느껴도, 결국 내가 계속 허락하는 부분이 있는지 짚어볼 필요가 있습니다. 무서운 게 아니라 “인식하면 선택지가 생긴다”는 카드에 가깝습니다. 구체적으로는 한 달에 얼마까지·몇 시 이후엔 안 한다 같은 작은 규칙부터 걸어 보는 해입니다.' },
-      16: { name:'The Tower',       kr:'탑',             emoji:'⚡', keywords:['급변','깨짐','다시 짓기'], desc:'탑 카드는 “믿었던 틀이 갑자게 흔들리는 사건”을 말할 때가 많습니다. 조직 개편, 관계 결별, 계약 파기, 건강 경고처럼 예상 밖 통보가 올 수 있어요. 무섭게 들리지만, 깨지는 부분이 거짓 기반이나 더 이상 안 맞는 구조인 경우도 많습니다. 그래서 이 카드는 “급할수록 기본으로 돌아가라”는 경고에 가깝습니다. 비상금, 살던 집·일의 플랜B, 신뢰할 사람 연락처처럼 현실 안전망을 점검하는 해로 쓰는 게 현명합니다.' },
-      17: { name:'The Star',        kr:'별',             emoji:'⭐', keywords:['회복','희망','다음 목표'], desc:'별 카드는 “긴 시련 뒤에 숨통이 트이고, 다시 믿을 거리가 보인다”는 해입니다. 몸과 마음이 먼저 회복되고, 작은 믿음·취미·공부로 다시 앞을 보게 되는 흐름이에요. 아직 크게 성과가 안 나와도 방향이 맞다는 느낌이 드는 시기로 읽을 수 있습니다. 일상에서는 치료·휴식·상담·새 계획 세우기처럼 회복과 설계가 함께 가면 잘 맞습니다. 너무 크게만 욕심내기보다 작은 루틴으로 꾸준히 쌓는 게 이 카드의 장점을 살립니다.' },
-      18: { name:'The Moon',        kr:'달',             emoji:'🌙', keywords:['불안','헷갈림','팩트 체크'], desc:'달 카드는 “분위기나 상상이 커져서 팩트와 섞이기 쉬운 해”입니다. 소문, 걱정, 남의 표정 해석 때문에 마음이 출렁일 수 있어요. 그래서 돈·계약·이별·진단처럼 중요한 결정은 감정이 가라앉은 다음 날 한 번 더 확인하는 습관이 필요합니다. 꿈·직감이 전부 틀린 건 아니니 메모는 해 두되, 그걸 곧바로 결론으로 확정하지 않는 선이 좋습니다. 잠·운동·대화로 불안 온도를 낮추는 게 핵심입니다.' },
-      19: { name:'The Sun',         kr:'태양',           emoji:'☀️', keywords:['분명함','성취','기쁨'], desc:'태양 카드는 “일이 잘 보이고, 결과가 밖으로 드러나고, 기분이 밝아지는 해”에 가깝습니다. 시험 합격, 인정, 수입, 가족 경사처럼 눈에 띄는 좋은 소식이 올 수 있어요. 노력 대비 인정이 따라오기 쉬운 시기라고 보면 됩니다. 너무 겸손만 하다 보면 기회를 숨길 수 있으니, 정당한 성과는 말로도 짧게 남기는 게 좋습니다. 과하면 자만처럼 보일 수 있으니, 기쁜 일을 나누되 상대 기분도 한 번 짚어 주면 관계가 더 좋아집니다.' },
-      20: { name:'Judgement',       kr:'심판',           emoji:'🎺', keywords:['결심','정리','새 출발'], desc:'심판 카드는 “지난 챕터를 접고, 새 각오로 일어서는 해”입니다. 오래 미뤄 둔 결정, 마주하기 싫은 진실, 다시 시작하고 싶은 꿈이 동시에 떠오를 수 있어요. 일에서는 전환·복귀·브랜딩·재도전처럼 방향을 고치는 일이 생기기 쉽습니다. 종교적인 심판이 아니라 내 인생에 대한 “다시 선택”에 가깝습니다. 후회를 붙잡기보다 앞으로 어떤 한 줄을 지키겠다고 말로 정하면 마음이 가벼워집니다.' },
-      21: { name:'The World',       kr:'세계',           emoji:'🌍', keywords:['완료','성과','한 사이클'], desc:'세계 카드는 “큰 일 한 토막이 끝나고, 결과를 인정받는 해”에 가깝습니다. 졸업, 이직 완료, 계약 종료, 결혼·출산·이사 마무리처럼 구체적인 완주가 있을 수 있어요. 주변에서도 “이제 그건 끝났다”고 느끼는 분위기가 생깁니다. 끝이니까 쉬어가도 된다는 뜻도 포함됩니다. 바로 다음 목표만 쫓기보다 잠깐 정리하고, 배운 것을 글로 남기면 다음 사이클이 편해집니다.' },
-      22: { name:'The Master Builder', kr:'건설자',      emoji:'🏛️', keywords:['큰일','구조','꾸준함'], desc:'건설자(22) 에너지는 “당장 화려하지 않아도 오래 쓰는 틀을 만드는 해”로 읽습니다. 조직 만들기, 집·사업 기반, 장기 프로젝트 설계처럼 결과가 늦게 보이는 일과 잘 맞아요. 꼼꼼함·신뢰·약속 지키기가 평판으로 돌아오기 쉽습니다. 반대로 욕심만 크고 실행이 없으면 스트레스만 커질 수 있어요. 작은 단계로 나누고, 매주 확인할 체크리스트가 있으면 이 카드의 강점이 살아납니다.' },
-    };
-
-    function calcTarotCard(month, day, targetYear) {
-      const mr = reduceToSingle(month);
-      const dr = reduceToSingle(day);
-      const yr = reduceToSingle(String(targetYear).split('').reduce((a,b)=>Number(a)+Number(b),0));
-      const total = mr + dr + yr;
-      if (total >= 0 && total <= 21) return total;
-      return reduceToSingle(total);
-    }
-
-    const TIMELINE_NUM_SHORT = {
-      1:'새출발·독립', 2:'협력·기다림', 3:'표현·창의', 4:'기반·성실',
-      5:'변화·자유', 6:'돌봄·책임', 7:'성찰·탐구', 8:'성취·재물',
-      9:'마무리·통합', 11:'직관·영감', 22:'대설계·건설', 33:'치유·봉사'
-    };
-
-    function getMajorCycleAtAge(age, lifePath) {
-      const lpV = (lifePath===11?2:(lifePath===22?4:(lifePath===33?6:lifePath)));
-      const age1 = 36 - lpV;
-      if (age <= age1) return 1;
-      if (age <= age1 + 27) return 2;
-      return 3;
-    }
-
-    function getPinnacleIdxAtAge(age, lifePath) {
-      const lpV = (lifePath===11?2:(lifePath===22?4:(lifePath===33?6:lifePath)));
-      const age1 = 36 - lpV;
-      if (age <= age1) return 0;
-      if (age <= age1 + 9) return 1;
-      if (age <= age1 + 18) return 2;
-      return 3;
-    }
-
-    const buildDetail = (yd) => {
-      const n = yd.num;
-      const idx = yearData.indexOf(yd);
-      const isCompl = n === 21;
-      const isNewCycle = idx > 0 && yearData[idx-1].num === 21;
-      const stratObj = YEAR_STRATEGY[n] || YEAR_STRATEGY[reduceToSingle(n, false)] || {};
-      const flowPh = FLOW_PHRASE[n] ? `${FLOW_PHRASE[n]} 해입니다.` : (TAROT_MAJOR_KR[n] ? `타로 ${n}번 「${TAROT_MAJOR_KR[n]}」의 해입니다.` : '');
-      const deepYear = yearFlowDeepHtml(n) || (TIMELINE_YEAR_DEEP_MAP && TIMELINE_YEAR_DEEP_MAP[n]) || DEEP_MAP[n] || '';
-      const kw = tarotTimelineKeyword(n);
-      const descLine = tarotTimelineDesc(n);
-
-      const targetYear = yd.year;
-      const targetAge  = targetYear - y;
-
-      const majStage = getMajorCycleAtAge(targetAge, lp);
-      const majNum = majStage === 1 ? mr_r : (majStage === 2 ? dr_r : yr_r);
-      const majLabels = ['', '시작의 시간', '생산·성취의 시간', '수확의 시간'];
-      const majStageLabel = majLabels[majStage];
-
-      const pinIdx = getPinnacleIdxAtAge(targetAge, lp);
-      const pinNums = [
-        reduceToSingle(mr_r + dr_r),
-        reduceToSingle(dr_r + yr_r),
-        reduceToSingle(reduceToSingle(mr_r+dr_r) + reduceToSingle(dr_r+yr_r)),
-        reduceToSingle(mr_r + yr_r)
-      ];
-      const chalNums = [
-        reduceToSingle(Math.abs(mr_r - dr_r)),
-        reduceToSingle(Math.abs(dr_r - yr_r)),
-        reduceToSingle(Math.abs(reduceToSingle(Math.abs(mr_r-dr_r)) - reduceToSingle(Math.abs(dr_r-yr_r)))),
-        reduceToSingle(Math.abs(mr_r - yr_r))
-      ];
-      const curPin  = pinNums[pinIdx];
-      const curChal = chalNums[pinIdx];
-
-      const tarotNum  = calcTarotCard(m, d, targetYear);
-      const tarot     = TAROT_MAJOR[tarotNum] || TAROT_MAJOR[22] || TAROT_MAJOR[0];
-      const tarotReduced = tarotNum > 9 ? reduceToSingle(tarotNum) : null;
-
-      let cycleNote = '';
-      if (isCompl) {
-        cycleNote = '<div class="tdc-cycle tdc-cycle--compact"><strong>21번 · 세계(완료)</strong> — 한 사이클이 마무리되는 해에 가깝습니다. 정리하고 비우면 다음 흐름이 열립니다.</div>';
-      } else if (isNewCycle) {
-        cycleNote = '<div class="tdc-cycle tdc-cycle--compact"><strong>새 주기의 시작</strong> — 직전이 21번(세계)이었다면 긴 물결 하나가 끝난 뒤입니다. 이번 해는 다음 이야기의 첫 장에 가깝습니다.</div>';
-      }
-
-      const pinColor  = (TL_COLOR && TL_COLOR[curPin])  || '#8b6f47';
-      const chalColor = (TL_COLOR && TL_COLOR[curChal]) || '#9a8570';
-      const majColor  = (TL_COLOR && TL_COLOR[majNum])  || '#7a9e8a';
-
-      return `<div class="tdc">
-        <div class="tdc-top">
-          <div class="tdc-year">${targetYear}년 <span class="tdc-num">${n}번 · ${kw}</span>
-            ${isCompl?'<span class="tdc-badge complete">완성의 해</span>':''}
-            ${isNewCycle?'<span class="tdc-badge start">새 주기 시작</span>':''}
-          </div>
-          ${yd.pre != null ? `<div style="font-size:11px;color:var(--muted);margin-top:4px">연 ${sumYearDigits(targetYear)}+문 ${mnPre}=${yd.pre} → 타로 ${n}</div>` : ''}
-        </div>
-
-        <div class="tdc-cycle-strip" role="region" aria-label="긴 호흡 숫자">
-          <div class="tdc-cycle-strip-kicker">긴 호흡 숫자</div>
-          <div class="tdc-cycle-details-inner">
-            <div class="tdc-cmini" style="border-top:2px solid ${majColor}">
-              <b>대주기 ${majStage}단계</b>
-              <div class="tdc-cmini-n" style="color:${majColor}">${majNum}</div>
-              ${majStageLabel}<br><span style="color:${majColor}">${TIMELINE_NUM_SHORT[majNum]||''}</span>
-            </div>
-            <div class="tdc-cmini" style="border-top:2px solid ${pinColor}">
-              <b>절정수<span style="font-weight:500;opacity:.9">(환경)</span></b>
-              <div class="tdc-cmini-n" style="color:${pinColor}">${curPin}</div>
-              <span style="color:${pinColor}">${TIMELINE_NUM_SHORT[curPin]||''}</span>
-            </div>
-            <div class="tdc-cmini" style="border-top:2px solid ${chalColor}">
-              <b>도전수<span style="font-weight:500;opacity:.9">(과제)</span></b>
-              <div class="tdc-cmini-n" style="color:${chalColor}">${curChal}</div>
-              <span style="color:${chalColor}">${TIMELINE_NUM_SHORT[curChal]||''}</span>
-            </div>
-          </div>
-        </div>
-
-        ${cycleNote}
-
-        <div class="tdc-theme">✦ ${flowPh} ${descLine}</div>
-        ${stratObj.goal?`<div class="tdc-row"><span class="tdc-label">이 해의 초점</span><span>${stratObj.goal}</span></div>`:''}
-        ${stratObj.action?`<div class="tdc-row"><span class="tdc-label">실천 한 줄</span><span>${stratObj.action}</span></div>`:''}
-        <div class="tdc-deep-label">이 숫자를 <em>한 해</em>로 읽을 때</div>
-        <div class="tdc-deep">${deepYear}</div>
-
-        <div style="margin-top:20px;padding:16px 18px;background:white;border:1px solid var(--border);border-radius:12px;border-left:3px solid var(--accent);">
-          <div class="tdc-tarot-heading">올해의 카드 · ${targetYear}년</div>
-          <div style="font-size:11px;color:var(--muted);line-height:1.5;margin-bottom:10px">생일+연도로 뽑은 메이저 카드입니다. 아래는 참고용 풀이입니다.</div>
-          <div style="display:flex;align-items:center;gap:14px;margin-bottom:10px;">
-            <div style="width:56px;height:56px;border-radius:10px;background:var(--parchment);border:1px solid var(--border);display:flex;flex-direction:column;align-items:center;justify-content:center;flex-shrink:0;">
-              <div style="font-size:24px;line-height:1">${tarot.emoji}</div>
-              <div style="font-size:9px;color:var(--muted);margin-top:2px">${tarotNum}번</div>
-            </div>
-            <div>
-              <div style="font-family:var(--font-serif);font-size:16px;font-weight:600;color:var(--deep-brown);margin-bottom:2px">${tarotNum}번 · ${tarot.kr}</div>
-              <div style="font-size:11px;color:var(--muted);font-style:italic">${tarot.name}</div>
-              ${tarotReduced ? `<div style="font-size:10px;color:var(--warm-brown);margin-top:4px">수비학 환원: ${tarotNum} → <strong>${tarotReduced}번</strong> 기운이 함께 겹쳐집니다.</div>` : ''}
-            </div>
-          </div>
-          ${(tarot.keywords && tarot.keywords.length) ? `<div style="margin-bottom:10px">${tarot.keywords.map(k=>`<span style="display:inline-block;font-size:10px;padding:4px 9px;margin:2px 5px 0 0;border-radius:999px;background:var(--parchment);border:1px solid var(--border);color:var(--deep-brown);font-family:var(--font-serif)">${k}</span>`).join('')}</div>` : ''}
-          <div style="font-size:13px;line-height:1.82;color:var(--ink);padding:12px 14px;background:var(--parchment);border-radius:8px">${tarot.desc}</div>
-        </div>
-      </div>`;
-    };
-
-    document.getElementById('timelineContent').innerHTML = `<div class="timeline-wrap">
-      <div class="current-year-banner" id="currentBanner"><strong>${curY}년</strong> · ${tarotTimelineKeyword(curYData.num)} · ${tarotTimelineDesc(curYData.num)}</div>
-      <div class="chart-scroll"><div class="chart-inner">${chartBars}</div></div>
-      <div class="year-cards">${yearCards}</div>
-      <div class="timeline-hint">연도를 바꿀 때마다 아래 패널이 함께 바뀝니다.</div>
-      <div id="timelineDetail">${buildDetail(curYData)}</div>
+    const tlCtx = { curY, mnPre, m, d, mr_r, dr_r, yr_r, lp, y };
+    const classicTL = createTenYearTimeline('classic', tlCtx);
+    const tarotTL = createTenYearTimeline('tarot', tlCtx);
+    document.getElementById('timelineContent').innerHTML = `<div class="timeline-dual">
+      <section class="timeline-block">
+        <h3 class="timeline-block-title">수비학 개인연도</h3>
+        <p class="timeline-block-bridge">연·월·일을 각각 1~9(11, 22)로 환원한 뒤 더합니다. 9년 주기의 완성(9번)·새 출발을 읽는 예전 방식입니다.</p>
+        ${classicTL.html}
+      </section>
+      <section class="timeline-block">
+        <h3 class="timeline-block-title">타로 올해의 수</h3>
+        <p class="timeline-block-bridge">연도 자릿수합+문 넘버(전합)을 더해 메이저 아르카나 0~21로 읽습니다. 아래 <strong>현재 흐름</strong>의 올해의 수와 같습니다.</p>
+        ${tarotTL.html}
+      </section>
     </div>`;
-
-    // interactivity
-    setTimeout(()=>{
-      const updateDetail = (yr) => {
-        const n = Number(document.querySelector(`.bar-col[data-year='${yr}']`)?.dataset.num || 0);
-        document.getElementById('currentBanner').innerHTML = `<strong>${yr}년</strong> · ${tarotTimelineKeyword(n)} · ${tarotTimelineDesc(n)}`;
-        document.querySelectorAll('.bar-col').forEach(x=>x.classList.remove('current'));
-        document.querySelector(`.bar-col[data-year='${yr}']`)?.classList.add('current');
-        document.querySelectorAll('.year-card').forEach(c=>c.classList.toggle('current', Number(c.dataset.year)===yr));
-        const yd = yearData.find(z=>z.year===yr);
-        if(yd) document.getElementById('timelineDetail').innerHTML = buildDetail(yd);
-      };
-      document.querySelectorAll('.bar-col').forEach(b=>{
-        b.addEventListener('click',()=>updateDetail(Number(b.dataset.year)));
-        b.addEventListener('keydown',(e)=>{ if(e.key==='Enter'||e.key===' '){ b.click(); e.preventDefault(); }});
-      });
-      document.querySelectorAll('.year-card').forEach(c=>{
-        c.addEventListener('click',()=>updateDetail(Number(c.dataset.year)));
-      });
+    setTimeout(() => {
+      classicTL.bind(document.querySelector('[data-timeline-mode="classic"]'));
+      tarotTL.bind(document.querySelector('[data-timeline-mode="tarot"]'));
     }, 50);
   } else {
     document.getElementById('timelineContent').innerHTML = gateHTML('basic','10년 타임라인','앞으로 10년간의 에너지 흐름을 바 차트로 시각화합니다.');
@@ -7142,6 +7287,9 @@ async function runAnalysis() {
     mn,
     mnPre,
     py,
+    pyDisplay,
+    pyPreLabel,
+    pyClassic,
     pm,
     pyS,
     pmPre,
