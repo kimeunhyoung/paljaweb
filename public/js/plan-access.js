@@ -21,24 +21,30 @@
     return (ranks[effectivePlan(profile)] || 0) >= (ranks[required] || 0);
   }
 
-  /** 무료·Basic·Pro 공통: 핵심수·별자리·48주기 (Basic도 무료와 동일하게 열람) */
-  function hasCoreProfileAccess(plan, devUnlock) {
+  /** 무료: 핵심수 카드(숫자)만 · Basic+: 아코디언·스토리·별자리 상세·48주기 */
+  function hasBasicProfileDetailAccess(plan, devUnlock) {
     if (devUnlock) return true;
-    return true;
+    return isPlanAtLeast({ plan: plan }, 'basic');
   }
 
-  /** 대주기·인생4단계·10년 전체·성장지도·AI요약 등 — Pro 이상 */
+  /** @deprecated use hasBasicProfileDetailAccess — 하위 호환 */
+  function hasCoreProfileAccess(plan, devUnlock) {
+    return hasBasicProfileDetailAccess(plan, devUnlock);
+  }
+
+  /** 인생전반표·피라미드·성장지도·AI요약·로슈 등 — Pro 이상 */
   function hasDeepAnalysisAccess(plan, devUnlock) {
     if (devUnlock) return true;
     return isPlanAtLeast({ plan: plan }, 'pro');
   }
 
-  /** Basic: 10년 타임라인에서 올해(수비학 개인연도·타로 올해의 수)만 — 전체 차트·인생전반표는 Pro */
+  /** Basic+: 10년 차트(수비학·타로) · Pro+: 인생전반표(0~100세) */
   function hasBasicYearTimelineAccess(plan, devUnlock) {
     if (devUnlock) return true;
     return isPlanAtLeast({ plan: plan }, 'basic');
   }
 
+  /** 인생전반표(0~100세) — Pro 이상 */
   function hasFullTimelineAccess(plan, devUnlock) {
     return hasDeepAnalysisAccess(plan, devUnlock);
   }
@@ -48,12 +54,12 @@
     '#nav-at-a-glance': 'free',
     '#nav-core': 'free',
     '#zodiacInsightSection': 'free',
-    '#period48Section': 'free',
+    '#period48Section': 'basic',
     '#nav-flow': 'basic',
     '#monthlySection': 'basic',
     '#weeklyForecastSection': 'basic',
-    '#nav-major-cycle': 'pro',
-    '#nav-life-four': 'pro',
+    '#nav-major-cycle': 'basic',
+    '#nav-life-four': 'basic',
     '#pyramidRhythmSection': 'pro',
     '#timelineSection': 'basic',
     '#growthSection': 'pro',
@@ -102,6 +108,7 @@
     effectivePlan: effectivePlan,
     isPlanAtLeast: isPlanAtLeast,
     hasCoreProfileAccess: hasCoreProfileAccess,
+    hasBasicProfileDetailAccess: hasBasicProfileDetailAccess,
     hasDeepAnalysisAccess: hasDeepAnalysisAccess,
     hasBasicYearTimelineAccess: hasBasicYearTimelineAccess,
     hasFullTimelineAccess: hasFullTimelineAccess,
