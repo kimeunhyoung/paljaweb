@@ -1739,7 +1739,10 @@
     .pyramid-v circle { fill: #fff; stroke: rgba(45,38,28,.25); stroke-width: 1.5; transition: fill .2s, stroke .2s; }
     .pyramid-v.is-current circle { fill: rgba(46,139,122,.18); stroke: var(--teal); stroke-width: 2.5; }
     .pyramid-v text { font-size: 11px; font-weight: 700; fill: var(--deep-brown); text-anchor: middle; dominant-baseline: middle; }
-    .pyramid-v-label { font-size: 9px; fill: var(--muted); text-anchor: middle; }
+    .pyramid-v-label { font-size: 9px; fill: var(--muted); text-anchor: middle; dominant-baseline: hanging; }
+    .pyramid-v-label--out { dominant-baseline: middle; }
+    .pyramid-restart-label { font-size: 8px; fill: var(--deep-brown); font-weight: 700; text-anchor: middle; }
+    .pyramid-descent-label { font-size: 9px; fill: var(--muted); text-anchor: middle; dominant-baseline: middle; }
     .pyramid-now-card {
       padding: 14px 16px;
       background: rgba(255,255,255,.8);
@@ -4702,9 +4705,10 @@ function tarotTimelineKeyword(n) {
 }
 
 function tarotTimelineDesc(n) {
+  if (TAROT_FLOW_HINT[n]) return TAROT_FLOW_HINT[n];
   if (TL_DESC[n]) return TL_DESC[n];
   const kr = TAROT_MAJOR_KR[n];
-  return kr ? `타로 ${n}번 「${kr}」 — 연도 자릿수합+문 넘버로 읽은 해의 흐름입니다.` : '';
+  return kr ? `${kr}의 해로 읽습니다.` : '';
 }
 
 function tarotTimelineColor(n) {
@@ -4722,8 +4726,9 @@ function yearFlowDeepHtml(v) {
   if (TIMELINE_YEAR_DEEP_MAP && TIMELINE_YEAR_DEEP_MAP[v]) return TIMELINE_YEAR_DEEP_MAP[v];
   if (DEEP_MAP[v]) return DEEP_MAP[v];
   const kr = TAROT_MAJOR_KR[v];
-  if (kr != null) {
-    return `<b>올해의 수 · 타로 ${v}번 ${kr}</b><br>올해 연도 자릿수합과 문 넘버를 더해 메이저 아르카나(0~21, 22→0)로 읽은 해의 에너지입니다.`;
+  const hint = TAROT_FLOW_HINT[v];
+  if (kr != null && hint) {
+    return `<b>올해의 수 · 타로 ${v}번 ${kr}</b><br>${hint}`;
   }
   return '';
 }
@@ -4760,8 +4765,6 @@ const TAROT_FLOW_HINT = {
 };
 
 function flowYearHint(n) {
-  if (TAROT_FLOW_HINT[n]) return TAROT_FLOW_HINT[n];
-  if (TL_DESC[n]) return TL_DESC[n];
   return tarotTimelineDesc(n);
 }
 
@@ -5515,6 +5518,26 @@ function pyramidPointOnEdge(p0, p1, t) {
   return { x: pyramidLerp(p0.x, p1.x, t), y: pyramidLerp(p0.y, p1.y, t) };
 }
 
+function pyramidOffsetPoint(p, nx, ny, dist) {
+  return { x: p.x + nx * dist, y: p.y + ny * dist };
+}
+
+/** 변 p0→p1 기준 바깥쪽(오른쪽) 단위 법선 */
+function pyramidOutwardNormalRight(p0, p1) {
+  const dx = p1.x - p0.x;
+  const dy = p1.y - p0.y;
+  const len = Math.hypot(dx, dy) || 1;
+  return { nx: dy / len, ny: -dx / len };
+}
+
+/** 변 p0→p1 기준 바깥쪽(왼쪽) 단위 법선 */
+function pyramidOutwardNormalLeft(p0, p1) {
+  const dx = p1.x - p0.x;
+  const dy = p1.y - p0.y;
+  const len = Math.hypot(dx, dy) || 1;
+  return { nx: -dy / len, ny: dx / len };
+}
+
 /** 완성기–출발기(하강) 변이 짧은 비등변 삼각형; 충실기는 발전기→완성기 변 위 */
 function getPyramidTriangleLayout() {
   const start = { x: 36, y: 198 };
@@ -5608,27 +5631,32 @@ function renderPyramidTriangleLegend(pos) {
 function renderPyramidTriangleSvg(pos) {
   const curStageIdx = pos.stage ? pos.stage.index : 0;
   const { start, develop, faithful, peak } = getPyramidTriangleLayout();
+  const rightOut = pyramidOutwardNormalRight(develop, peak);
+  const faithfulLbl = pyramidOffsetPoint(faithful, rightOut.nx, rightOut.ny, 28);
+  const leftOut = pyramidOutwardNormalLeft(peak, start);
+  const descentMid = pyramidPointOnEdge(peak, start, 0.52);
+  const descentLbl = pyramidOffsetPoint(descentMid, leftOut.nx, leftOut.ny, 14);
   const verts = [
-    { idx: 0, cx: start.x, cy: start.y, lx: start.x, ly: start.y + 22, name: '출발기' },
-    { idx: 1, cx: develop.x, cy: develop.y, lx: develop.x, ly: develop.y + 22, name: '발전기' },
-    { idx: 2, cx: faithful.x, cy: faithful.y, lx: faithful.x + 18, ly: faithful.y + 4, name: '충실기' },
-    { idx: 3, cx: peak.x, cy: peak.y, lx: peak.x - 6, ly: peak.y - 14, name: '완성기' },
+    { idx: 0, cx: start.x, cy: start.y, lx: start.x, ly: start.y + 30, name: '출발기', anchor: 'middle' },
+    { idx: 1, cx: develop.x, cy: develop.y, lx: develop.x, ly: develop.y + 30, name: '발전기', anchor: 'middle' },
+    { idx: 2, cx: faithful.x, cy: faithful.y, lx: faithfulLbl.x, ly: faithfulLbl.y, name: '충실기', anchor: 'start', cls: 'pyramid-v-label--out' },
+    { idx: 3, cx: peak.x, cy: peak.y, lx: peak.x, ly: peak.y - 32, name: '완성기', anchor: 'middle', cls: 'pyramid-v-label--out' },
   ];
   const edges = renderPyramidEdgeRhythm(start.x, start.y, develop.x, develop.y, 0, pos)
     + renderPyramidEdgeRhythm(develop.x, develop.y, faithful.x, faithful.y, 1, pos)
     + renderPyramidEdgeRhythm(faithful.x, faithful.y, peak.x, peak.y, 2, pos)
     + renderPyramidEdgeRhythm(peak.x, peak.y, start.x, start.y, 3, pos);
-  const descentMid = pyramidPointOnEdge(peak, start, 0.52);
   const vNodes = verts.map((v) => {
     const cur = v.idx === curStageIdx ? ' is-current' : '';
-    return `<g class="pyramid-v${cur}"><circle cx="${v.cx}" cy="${v.cy}" r="16"/><text x="${v.cx}" y="${v.cy}">${v.idx + 1}</text><text class="pyramid-v-label" x="${v.lx}" y="${v.ly}">${v.name}</text></g>`;
+    const labelCls = `pyramid-v-label${v.cls ? ` ${v.cls}` : ''}`;
+    return `<g class="pyramid-v${cur}"><circle cx="${v.cx}" cy="${v.cy}" r="16"/><text x="${v.cx}" y="${v.cy}">${v.idx + 1}</text><text class="${labelCls}" x="${v.lx}" y="${v.ly}" text-anchor="${v.anchor}">${v.name}</text></g>`;
   }).join('');
   return `<div class="pyramid-tri-wrap">
-    <svg viewBox="0 0 290 232" class="pyramid-tri-svg" role="img" aria-label="피라미드 4단계와 각 변의 적극·소극 리듬">
+    <svg viewBox="0 -14 300 262" class="pyramid-tri-svg" role="img" aria-label="피라미드 4단계와 각 변의 적극·소극 리듬">
       <polygon points="${peak.x},${peak.y} ${develop.x},${develop.y} ${start.x},${start.y}" fill="rgba(46,139,122,.04)" stroke="none"/>
       ${edges}
-      <text x="${descentMid.x - 14}" y="${descentMid.y + 4}" font-size="9" fill="var(--muted)">하강</text>
-      <text x="${start.x - 2}" y="${start.y + 26}" font-size="9" fill="var(--deep-brown)" font-weight="700">재출발 →</text>
+      <text class="pyramid-descent-label" x="${descentLbl.x}" y="${descentLbl.y}">하강</text>
+      <text class="pyramid-restart-label" x="${start.x}" y="${start.y + 44}">재출발 →</text>
       ${vNodes}
     </svg>
     ${renderPyramidTriangleLegend(pos)}
