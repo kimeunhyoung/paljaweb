@@ -961,7 +961,11 @@
       font-weight: 400;
       vertical-align: middle;
     }
-    .flow-card-title { font-size: 11px; color: var(--warm-brown); font-weight: 500; }
+    .flow-card-title { font-size: 11px; color: var(--warm-brown); font-weight: 500; line-height: 1.55; }
+    .flow-year-card-tarot { color: var(--muted); font-weight: 500; }
+    .flow-year-hint-line { display: block; margin-top: 6px; }
+    .flow-year-hint-line:first-child { margin-top: 0; }
+    .flow-year-acc-split { margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--border); }
     .flow-card-hint {
       font-size: 11.5px;
       color: var(--muted);
@@ -1105,6 +1109,158 @@
       border-radius: 9px;
     }
     .timeline-dual .timeline-wrap { margin-top: 0; }
+
+    /* 타로 인생 전반 차트 (0~100세) */
+    .tarot-life-chart {
+      margin-top: 28px;
+      padding-top: 24px;
+      border-top: 1px dashed var(--border);
+    }
+    .tarot-life-chart-title {
+      font-family: var(--font-serif);
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--deep-brown);
+      margin: 0 0 8px;
+    }
+    .tarot-life-chart-bridge {
+      font-size: 12px;
+      line-height: 1.68;
+      color: var(--muted);
+      margin: 0 0 14px;
+    }
+    .tarot-life-ribbon-scroll {
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      padding-bottom: 6px;
+      margin-bottom: 10px;
+    }
+    .tarot-life-ribbon {
+      display: flex;
+      align-items: flex-end;
+      gap: 2px;
+      min-width: max-content;
+      height: 72px;
+      padding: 0 2px 18px;
+      position: relative;
+    }
+    .life-year-cell {
+      width: 14px;
+      flex: 0 0 14px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-end;
+      cursor: pointer;
+      position: relative;
+    }
+    .life-year-cell .life-year-bar {
+      width: 100%;
+      border-radius: 3px 3px 0 0;
+      border: 1px solid rgba(45,38,28,.08);
+      transition: transform .15s, box-shadow .15s;
+      min-height: 6px;
+    }
+    .life-year-cell:hover .life-year-bar,
+    .life-year-cell.is-selected .life-year-bar {
+      transform: translateY(-2px);
+      box-shadow: 0 2px 8px rgba(45,38,28,.15);
+    }
+    .life-year-cell.is-current .life-year-bar {
+      box-shadow: 0 0 0 2px var(--accent);
+    }
+    .life-year-cell.is-selected .life-year-bar {
+      box-shadow: 0 0 0 2px var(--teal);
+    }
+    .life-year-cell.is-cycle-end .life-year-bar::after {
+      content: '';
+      position: absolute;
+      top: -4px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 4px;
+      height: 4px;
+      border-radius: 50%;
+      background: var(--gold);
+    }
+    .life-year-age-mark {
+      position: absolute;
+      bottom: 0;
+      font-size: 8px;
+      color: var(--muted);
+      font-family: var(--font-mono);
+      white-space: nowrap;
+    }
+    .tarot-life-banner {
+      font-size: 12.5px;
+      line-height: 1.6;
+      color: var(--ink);
+      padding: 10px 14px;
+      background: rgba(255,255,255,.85);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      border-left: 3px solid var(--teal);
+      margin-bottom: 12px;
+    }
+    .tarot-life-table-wrap {
+      max-height: 320px;
+      overflow: auto;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: rgba(255,255,255,.72);
+    }
+    .tarot-life-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 11px;
+    }
+    .tarot-life-table th,
+    .tarot-life-table td {
+      border: 1px solid var(--border);
+      padding: 6px 4px;
+      text-align: center;
+      vertical-align: middle;
+    }
+    .tarot-life-table .life-decade-th {
+      width: 52px;
+      background: var(--parchment);
+      color: var(--deep-brown);
+      font-weight: 700;
+      font-size: 10px;
+      position: sticky;
+      left: 0;
+      z-index: 1;
+    }
+    .life-tbl-cell {
+      cursor: pointer;
+      min-width: 44px;
+      transition: background .15s;
+    }
+    .life-tbl-cell:hover { background: rgba(200,169,110,.12); }
+    .life-tbl-cell.is-current { background: rgba(200,169,110,.18); }
+    .life-tbl-cell.is-selected { background: rgba(46,139,122,.12); outline: 1px solid var(--teal); }
+    .life-tbl-num {
+      font-family: var(--font-serif);
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--deep-brown);
+      line-height: 1.1;
+    }
+    .life-tbl-kw {
+      font-size: 9px;
+      color: var(--muted);
+      margin-top: 2px;
+      line-height: 1.2;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 52px;
+    }
+    .life-tbl-age {
+      font-size: 8px;
+      color: var(--muted);
+      margin-top: 1px;
+    }
 
     /* 읽기 흐름 · 한 줄 요약 · 실천 한 가지 */
     .lc-reading-guide {
@@ -4660,6 +4816,36 @@ function currentFlowDeepHtml(kind, v) {
   return DEEP_MAP[v] || '';
 }
 
+function flowYearAccordionHtml(pyClassic, pyTarot) {
+  const classicDeep = classicYearDeepHtml(pyClassic);
+  const tarotDeep = currentFlowDeepHtml('year', pyTarot);
+  if (!classicDeep && !tarotDeep) return '';
+  if (pyClassic === pyTarot && classicDeep === tarotDeep) return classicDeep || tarotDeep;
+  const parts = [];
+  if (classicDeep) parts.push(classicDeep);
+  if (tarotDeep) {
+    parts.push(`<div class="flow-year-acc-split">${tarotDeep}</div>`);
+  }
+  return parts.join('');
+}
+
+function flowYearCardTitle(pyClassic, pyTarot) {
+  const classicLine = TITLE_MAP[pyClassic]
+    ? `수비학 ${pyClassic}번 · ${TITLE_MAP[pyClassic]}`
+    : `수비학 ${pyClassic}번`;
+  const tarotLine = flowYearLabel(pyTarot) || `타로 ${pyTarot}번`;
+  return `${classicLine}<br><span class="flow-year-card-tarot">${tarotLine}</span>`;
+}
+
+function flowYearCardHint(pyClassic, pyTarot) {
+  const classicHint = TL_DESC[pyClassic] || '';
+  const tarotHint = flowYearHint(pyTarot) || '';
+  if (classicHint && tarotHint) {
+    return `<span class="flow-year-hint-line"><strong>수비학</strong> ${classicHint}</span><span class="flow-year-hint-line"><strong>타로</strong> ${tarotHint}</span>`;
+  }
+  return classicHint || tarotHint;
+}
+
 function reduceToSingle(n, allowM=true) {
   let r = n;
   while(r > 9) {
@@ -5162,6 +5348,129 @@ function createTenYearTimeline(mode, ctx) {
   }
 
   return { html, bind, yearData };
+}
+
+function buildTarotLifeYearSeries(birthY, mnPre, maxAge = 100) {
+  const series = [];
+  for (let age = 0; age <= maxAge; age++) {
+    const year = birthY + age;
+    const pyParts = calcPersonalYearTarot(year, mnPre);
+    const num = pyParts.single;
+    series.push({
+      age,
+      year,
+      num,
+      pre: pyParts.pre,
+      kw: tarotTimelineKeyword(num),
+      desc: tarotTimelineDesc(num),
+    });
+  }
+  return series;
+}
+
+function tarotLifeBarHeight(n) {
+  return Math.round((Math.max(0, Math.min(21, n)) / 21) * 40) + 8;
+}
+
+function tarotLifeYearBannerHtml(yd) {
+  if (!yd) return '연도를 선택하면 그 해의 타로 올해의 수가 표시됩니다.';
+  const kr = TAROT_MAJOR_KR[yd.num] || '';
+  return `<strong>${yd.year}년</strong> · <strong>${yd.age}세</strong> · 타로 <strong>${yd.num}</strong>번 ${kr} · ${yd.kw}${yd.desc ? ` — ${yd.desc}` : ''}`;
+}
+
+function createTarotLifeYearChart(ctx) {
+  const { y: birthY, mnPre, curY } = ctx;
+  const series = buildTarotLifeYearSeries(birthY, mnPre, 100);
+  const curAge = curY - birthY;
+  const curData = series.find((row) => row.year === curY) || series[Math.max(0, Math.min(series.length - 1, curAge))];
+
+  const ribbonCells = series.map((row) => {
+    const isCurrent = row.year === curY;
+    const isSelected = row.year === curData.year;
+    const isCycleEnd = row.num === 21;
+    const h = tarotLifeBarHeight(row.num);
+    const color = tarotTimelineColor(row.num);
+    const ageMark = row.age % 10 === 0 ? `<span class="life-year-age-mark">${row.age}</span>` : '';
+    const cls = [
+      isCurrent ? 'is-current' : '',
+      isSelected ? 'is-selected' : '',
+      isCycleEnd ? 'is-cycle-end' : '',
+    ].filter(Boolean).join(' ');
+    const title = `${row.year}년 (${row.age}세) · ${row.num}번 ${row.kw}`;
+    return `<div class="life-year-cell ${cls}" tabindex="0" data-year="${row.year}" data-age="${row.age}" data-num="${row.num}" title="${title}" aria-label="${title}">
+      <div class="life-year-bar" style="height:${h}px;background:${color}"></div>
+      ${ageMark}
+    </div>`;
+  }).join('');
+
+  let tableRows = '';
+  for (let decade = 0; decade <= 10; decade++) {
+    const startAge = decade * 10;
+    const endAge = decade === 10 ? 100 : startAge + 9;
+    tableRows += `<tr><th class="life-decade-th">${startAge}~${endAge}세</th>`;
+    for (let age = startAge; age <= endAge; age++) {
+      const row = series[age];
+      if (!row) continue;
+      const isCurrent = row.year === curY;
+      const isSelected = row.year === curData.year;
+      const cls = `${isCurrent ? 'is-current' : ''} ${isSelected ? 'is-selected' : ''}`.trim();
+      tableRows += `<td class="life-tbl-cell ${cls}" tabindex="0" data-year="${row.year}" data-age="${row.age}" data-num="${row.num}" title="${row.year}년 ${row.age}세">
+        <div class="life-tbl-num" style="color:${tarotTimelineColor(row.num)}">${row.num}</div>
+        <div class="life-tbl-kw">${row.kw}</div>
+        <div class="life-tbl-age">${row.age}세</div>
+      </td>`;
+    }
+    tableRows += '</tr>';
+  }
+
+  const html = `<div class="tarot-life-chart" id="tarotLifeChart" data-birth-year="${birthY}">
+    <h4 class="tarot-life-chart-title">인생 전반 · 타로 올해의 수 (0~100세)</h4>
+    <p class="tarot-life-chart-bridge">태어난 해(<strong>${birthY}년</strong>)부터 <strong>100세</strong>까지 매년의 타로 올해의 수입니다. 위 막대는 앞으로 10년, 아래는 인생 전체를 한눈에 봅니다. 막대·칸을 누르면 그 해 정보가 표시됩니다.</p>
+    <div class="tarot-life-ribbon-scroll" id="tarotLifeRibbonScroll">
+      <div class="tarot-life-ribbon" id="tarotLifeRibbon">${ribbonCells}</div>
+    </div>
+    <div class="tarot-life-banner" id="tarotLifeBanner">${tarotLifeYearBannerHtml(curData)}</div>
+    <div class="tarot-life-table-wrap">
+      <table class="tarot-life-table" aria-label="타로 올해의 수 인생 표">
+        <tbody>${tableRows}</tbody>
+      </table>
+    </div>
+  </div>`;
+
+  function bind(root) {
+    const wrap = root || document.getElementById('tarotLifeChart');
+    if (!wrap) return;
+    const banner = wrap.querySelector('#tarotLifeBanner');
+    const ribbonScroll = wrap.querySelector('#tarotLifeRibbonScroll');
+
+    const selectYear = (year) => {
+      const yd = series.find((row) => row.year === year);
+      if (!yd) return;
+      if (banner) banner.innerHTML = tarotLifeYearBannerHtml(yd);
+      wrap.querySelectorAll('.life-year-cell, .life-tbl-cell').forEach((el) => {
+        el.classList.toggle('is-selected', Number(el.dataset.year) === year);
+      });
+      const cell = wrap.querySelector(`.life-year-cell[data-year="${year}"]`);
+      if (cell && ribbonScroll) {
+        const scrollLeft = cell.offsetLeft - ribbonScroll.clientWidth / 2 + cell.offsetWidth / 2;
+        ribbonScroll.scrollTo({ left: Math.max(0, scrollLeft), behavior: 'smooth' });
+      }
+    };
+
+    wrap.querySelectorAll('.life-year-cell, .life-tbl-cell').forEach((el) => {
+      const yr = Number(el.dataset.year);
+      el.addEventListener('click', () => selectYear(yr));
+      el.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); selectYear(yr); }
+      });
+    });
+
+    if (curData) {
+      setTimeout(() => selectYear(curData.year), 80);
+    }
+  }
+
+  return { html, bind, series };
 }
 
 
@@ -6889,30 +7198,35 @@ async function runAnalysis() {
   const flowBridgeEl = document.getElementById('flowBridge');
   if (flowBridgeEl) {
     flowBridgeEl.innerHTML = `<div class="timeline-bridge">
-      <p><strong>올해의 수</strong>는 <strong>${curY}년</strong> 연도 자릿수합(<strong>${curY_digitSum}</strong>)에 <strong>문 넘버</strong>(월·일 자릿수합 <strong>${mnPre}</strong>)를 더한 뒤, 타로 메이저 아르카나 범위(<strong>0~21</strong>, 22→0)로 환원한 수입니다. 10년 타임라인의 「이번 해」와 같습니다. <strong>이번 달의 수</strong>는 올해의 수에 <strong>지금 달(${curM}월)</strong>을 더해 줄인 값이고, <strong>오늘의 수</strong>는 그 위에 <strong>오늘 날짜(${curD}일)</strong>를 더해 줄인 값입니다.</p>
+      <p><strong>올해의 수</strong>는 <strong>수비학 개인연도</strong>(연·월·일 각 환원 후 합산)와 <strong>타로 올해의 수</strong>(<strong>${curY}년</strong> 연도 자릿수합 <strong>${curY_digitSum}</strong>+문 넘버 <strong>${mnPre}</strong> → 0~21)를 함께 봅니다. 카드에는 <strong>수비학/타로</strong> 순으로 표시됩니다. <strong>이번 달의 수</strong>는 타로 올해의 수에 <strong>${curM}월</strong>을, <strong>오늘의 수</strong>는 그 위에 <strong>${curD}일</strong>을 더해 줄인 값입니다.</p>
     </div>`;
   }
 
   document.getElementById('flowRow').innerHTML = [
-    {label:`${curY}년 올해의 수`, num:py, pre:pyS},
+    {label:`${curY}년 올해의 수`, num:pyDisplay, pre:pyPreLabel, pyClassic, pyTarot:py},
     {label:`${curM}월 이번 달의 수`, num:pm, pre:(py + curM)},
     {label:`오늘 ${curD}일의 수`, num:pd, pre:(pm + curD)}
   ].map(f=>{
     const isYear = f.label.includes('올해');
-    const hint = isYear ? flowYearHint(f.num) : (TL_DESC[f.num] || '');
+    const hint = isYear ? flowYearCardHint(f.pyClassic, f.pyTarot) : (TL_DESC[f.num] || '');
     return `<div class="flow-card">
     <div class="flow-card-label">${f.label}</div>
-    <div class="flow-card-num">${f.num}<span class="pre-sum">(합산전수: ${f.pre})</span></div>
-    <div class="flow-card-title">${isYear ? flowYearLabel(f.num) : (TITLE_MAP[f.num]||'')}</div>
+    <div class="flow-card-num">${f.num}<span class="pre-sum">(전합 ${f.pre})</span></div>
+    <div class="flow-card-title">${isYear ? flowYearCardTitle(f.pyClassic, f.pyTarot) : (TITLE_MAP[f.num]||'')}</div>
     ${hint ? `<div class="flow-card-hint">${hint}</div>` : ''}
   </div>`;
   }).join('');
 
   document.getElementById('flowAccordion').innerHTML = [
-    {k:'올해의 수', v:py, pre:pyS, kind:'year'},
+    {k:'올해의 수', v:pyDisplay, pre:pyPreLabel, pyClassic, pyTarot:py},
     {k:'이번 달의 수', v:pm, pre:(py + curM), kind:'month'},
     {k:'오늘의 수', v:pd, pre:(pm + curD), kind:'day'}
-  ].map(i=>accordion(`✦ ${i.k} ${i.v}번 (합산전수: ${i.pre})`, currentFlowDeepHtml(i.kind, i.v))).join('');
+  ].map(i=>{
+    const body = i.k === '올해의 수'
+      ? flowYearAccordionHtml(i.pyClassic, i.pyTarot)
+      : currentFlowDeepHtml(i.kind, i.v);
+    return accordion(`✦ ${i.k} ${i.v}번 (전합 ${i.pre})`, body);
+  }).join('');
 
   const todayDayLine = TL_DESC[pd] || '오늘의 리듬에 몸을 맡기며 하루를 살아가 보세요.';
   const todayHintParagraph = (DAY_HINT && DAY_HINT[pd])
@@ -6923,7 +7237,7 @@ async function runAnalysis() {
     flowTodayEl.innerHTML = `
       <div class="flow-today-msg-label">오늘의 메시지</div>
       <p class="flow-today-msg-body">
-      올해(${py}번)의 <strong class="flow-today-em flow-today-em--y">${FLOW_PHRASE[py]||''}</strong> 바탕 위에서
+      올해(<strong>${pyDisplay}</strong>번)의 <strong class="flow-today-em flow-today-em--y">${FLOW_PHRASE[pyClassic] || flowYearHint(py) || ''}</strong> 바탕 위에서
       이번 달(${pm}번)은 <strong class="flow-today-em flow-today-em--m">${FLOW_PHRASE[pm]||''}</strong> 리듬을 더하고,
       오늘 하루는 <strong class="flow-today-em flow-today-em--d">${pd}번 · ${todayDayLine}</strong> 쪽으로 겹쳐 있습니다.
       </p>${todayHintParagraph}`;
@@ -6988,6 +7302,7 @@ async function runAnalysis() {
     const tlCtx = { curY, mnPre, m, d, mr_r, dr_r, yr_r, lp, y };
     const classicTL = createTenYearTimeline('classic', tlCtx);
     const tarotTL = createTenYearTimeline('tarot', tlCtx);
+    const tarotLife = createTarotLifeYearChart({ y, mnPre, curY });
     document.getElementById('timelineContent').innerHTML = `<div class="timeline-dual">
       <section class="timeline-block">
         <h3 class="timeline-block-title">수비학 개인연도</h3>
@@ -6998,11 +7313,13 @@ async function runAnalysis() {
         <h3 class="timeline-block-title">타로 올해의 수</h3>
         <p class="timeline-block-bridge">연도 자릿수합+문 넘버(전합)을 더해 메이저 아르카나 0~21로 읽습니다. 아래 <strong>현재 흐름</strong>의 올해의 수와 같습니다.</p>
         ${tarotTL.html}
+        ${tarotLife.html}
       </section>
     </div>`;
     setTimeout(() => {
       classicTL.bind(document.querySelector('[data-timeline-mode="classic"]'));
       tarotTL.bind(document.querySelector('[data-timeline-mode="tarot"]'));
+      tarotLife.bind(document.getElementById('tarotLifeChart'));
     }, 50);
   } else {
     document.getElementById('timelineContent').innerHTML = gateHTML('basic','10년 타임라인','앞으로 10년간의 에너지 흐름을 바 차트로 시각화합니다.');
