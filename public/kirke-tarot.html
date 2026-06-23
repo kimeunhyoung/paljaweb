@@ -21,7 +21,8 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400&family=Noto+Serif+KR:wght@400;500;600;700&display=swap" rel="stylesheet"/>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="js/topbar-session.js?v=5" defer></script>
+  <script src="js/site-topbar.js?v=4" defer></script>
+  <script src="js/topbar-session.js?v=6" defer></script>
   <script src="js/kirke-tarot-meanings.js?v=20260601a" defer></script>
   <script src="js/kirke-tarot-topics.js?v=20260531" defer></script>
   <script src="js/kirke-tarot-deck.js?v=20260531" defer></script>
@@ -48,71 +49,7 @@
       color: var(--ink);
       min-height: 100vh;
     }
-    .site-top {
-      position: sticky; top: 0; z-index: 100;
-      background: rgba(240, 235, 227, 0.97);
-      box-shadow: 0 6px 18px rgba(26, 22, 40, 0.06);
-    }
-    .topbar {
-      min-height: 52px;
-      display: flex; align-items: center; justify-content: space-between;
-      padding: 10px 32px; gap: 16px;
-      border-bottom: 1px solid var(--border);
-    }
-    .topbar-logo {
-      display: inline-flex; align-items: center; gap: 10px;
-      text-decoration: none; color: var(--deep);
-      font-weight: 700; font-size: 16px;
-    }
-    .topbar-logo-mark {
-      width: 30px; height: 30px; border-radius: 9px;
-      background: linear-gradient(160deg, var(--sea), var(--deep));
-      color: var(--gold-lt);
-      display: inline-flex; align-items: center; justify-content: center;
-      font-family: var(--font-serif); font-size: 17px;
-    }
-    .topbar-logo-text {
-      display: inline-flex;
-      align-items: baseline;
-      flex-wrap: wrap;
-      gap: 0;
-      line-height: 1.25;
-    }
-    .topbar-logo-parent {
-      font-size: 12px;
-      font-weight: 600;
-      color: rgba(26, 22, 40, 0.55);
-    }
-    .topbar-logo-sep {
-      font-size: 12px;
-      color: rgba(26, 22, 40, 0.35);
-      margin: 0 2px;
-    }
-    .topbar-logo-product {
-      font-size: 14px;
-      font-weight: 700;
-      color: var(--deep);
-    }
-    .back-btn {
-      font-size: 12px; color: var(--sea); text-decoration: none;
-      border: 1px solid var(--border); padding: 6px 12px; border-radius: 6px;
-      background: #fff;
-    }
-    .program-nav {
-      border-bottom: 1px solid var(--border);
-      background: rgba(255, 255, 255, 0.5);
-      padding: 0 32px;
-    }
-    .program-nav-inner {
-      max-width: 1100px; margin: 0 auto;
-      display: flex; flex-wrap: wrap; gap: 6px 16px;
-      padding: 7px 0 9px; font-size: 12px;
-    }
-    .program-nav-inner a { color: var(--muted); text-decoration: none; font-weight: 600; }
-    .program-nav-inner a:hover { color: var(--deep); }
-    .program-nav-current { color: var(--deep); font-weight: 700; }
-
-    html.kirke-standalone .program-nav { display: none !important; }
+    html.kirke-standalone .site-top .program-nav { display: none !important; }
 
     .wrap { max-width: 920px; margin: 0 auto; padding: 36px 24px 80px; }
     .brand { text-align: center; margin-bottom: 32px; }
@@ -327,7 +264,6 @@
     [hidden] { display: none !important; }
 
     @media (max-width: 720px) {
-      .topbar, .program-nav { padding-left: 16px; padding-right: 16px; }
       .kirke-card-wrap { width: min(168px, 30vw); }
       .kirke-tarot-card { width: 100%; height: auto; aspect-ratio: 2 / 3; }
     }
@@ -336,37 +272,12 @@
       .kirke-tarot-card { width: 220px; height: 330px; }
     }
   </style>
+  <link rel="stylesheet" href="css/site-topbar.css?v=5"/>
   <link rel="stylesheet" href="css/site-header.css?v=6"/>
 </head>
-<body>
+<body class="logo-style-classic">
 
-<div class="site-top">
-  <header class="topbar">
-    <div class="topbar-left">
-      <a class="topbar-logo" href="index.html" aria-label="팔자연구소 키르케타로코드" id="kirkeTopbarLogo">
-        <span class="topbar-logo-mark" aria-hidden="true">⌁</span>
-        <span class="topbar-logo-text">
-          <span class="topbar-logo-parent">팔자연구소</span><span class="topbar-logo-sep" aria-hidden="true">·</span><span class="topbar-logo-product">키르케타로코드</span>
-        </span>
-      </a>
-    </div>
-    <div class="topbar-right" data-topbar-auth aria-label="계정">
-      <a href="dashboard.html" class="back-btn">대시보드</a>
-    </div>
-  </header>
-  <nav class="program-nav" aria-label="팔자연구소 프로그램 이동">
-    <div class="program-nav-inner">
-      <a href="analysis.html">라이프코드</a>
-      <a href="Tarot.html">타로코드</a>
-      <a href="name.html">네임코드</a>
-      <a href="compatibility.html">소울하모니</a>
-      <a href="period48-compat.html">48궁합</a>
-      <a href="numerology-calendar.html">수비학달력</a>
-      <a href="counselor.html">상담사허브</a>
-      <a href="pricing.html">요금제</a>
-    </div>
-  </nav>
-</div>
+<div class="site-top" data-topbar-title="키르케타로코드" data-nav-current="tarot" data-login-next="kirke-tarot.html"></div>
 
 <div class="wrap">
   <header class="brand">
@@ -425,14 +336,15 @@
 <script>
   document.getElementById('kirkeDrawCount2').textContent =
     document.getElementById('kirkeDrawCount').textContent;
-  if (document.documentElement.classList.contains('kirke-standalone')) {
+  document.addEventListener('DOMContentLoaded', function () {
+    if (!document.documentElement.classList.contains('kirke-standalone')) return;
     document.title = '팔자연구소 · 키르케타로코드';
-    var kirkeLogo = document.getElementById('kirkeTopbarLogo');
+    var kirkeLogo = document.querySelector('.site-top .topbar-logo');
     if (kirkeLogo) {
       kirkeLogo.setAttribute('href', 'kirke-tarot.html?standalone=1');
       kirkeLogo.setAttribute('aria-label', '팔자연구소 키르케타로코드 처음으로');
     }
-  }
+  });
 </script>
 </body>
 </html>

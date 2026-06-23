@@ -21,13 +21,9 @@
     return (ranks[effectivePlan(profile)] || 0) >= (ranks[required] || 0);
   }
 
-  /** Basic 단독: 핵심수·별자리·48주기 등 프로필 심층 — Pro 이상 */
+  /** 무료·Basic·Pro 공통: 핵심수·별자리·48주기 (Basic도 무료와 동일하게 열람) */
   function hasCoreProfileAccess(plan, devUnlock) {
     if (devUnlock) return true;
-    var ranks = { free: 0, basic: 1, pro: 2, professional: 3 };
-    var rank = ranks[plan] || 0;
-    if (rank >= ranks.pro) return true;
-    if (plan === 'basic') return false;
     return true;
   }
 

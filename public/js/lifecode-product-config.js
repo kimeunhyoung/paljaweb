@@ -22,20 +22,28 @@ export const LIFECODE_PRODUCT = {
 
   pdfFilenamePrefix: '라이프코드',
 
-  /** 단품 Basic(30일) 목차 — 리듬 묶음만 */
-  basicGuideHrefs: ['#nav-at-a-glance', '#nav-flow', '#monthlySection', '#weeklyForecastSection'],
+  /** 단품 Basic(30일) 목차 — 무료 레이어 + 리듬 묶음 */
+  basicGuideHrefs: [
+    '#nav-at-a-glance',
+    '#nav-core',
+    '#zodiacInsightSection',
+    '#period48Section',
+    '#nav-flow',
+    '#monthlySection',
+    '#weeklyForecastSection',
+  ],
 
   /** 단품 목차에 노출할 앵커 (hidden 제외) */
   guideModules: [
     {
       href: '#nav-at-a-glance',
       title: '먼저 보는 수',
-      tier: 'basic',
-      desc: '올해의 수(수비/타로)·이번 달 요약 그리드.',
+      tier: 'free',
+      desc: '별자리·핵심 수·이름 수·올해·이번 달 요약 그리드.',
     },
-    { href: '#nav-core', title: '핵심 수', tier: 'pro', desc: '생년월일·이름에서 뽑은 대표 수비학 숫자와 해석.' },
-    { href: '#zodiacInsightSection', title: '별자리', tier: 'pro', desc: '생일 기준 별자리 레이어(수비 숫자와 함께 읽기).' },
-    { href: '#period48Section', title: '48주기 성격', tier: 'pro', desc: '생일 구간별 성격·역할 패턴(48 세그먼트).' },
+    { href: '#nav-core', title: '핵심 수', tier: 'free', desc: '생년월일·이름에서 뽑은 대표 수비학 숫자와 해석.' },
+    { href: '#zodiacInsightSection', title: '별자리', tier: 'free', desc: '생일 기준 별자리 레이어(수비 숫자와 함께 읽기).' },
+    { href: '#period48Section', title: '48주기 성격', tier: 'free', desc: '생일 구간별 성격·역할 패턴(48 세그먼트).' },
     { href: '#nav-major-cycle', title: '대주기', tier: 'pro', desc: '인생을 세 구간으로 나눈 장기 흐름.' },
     { href: '#nav-life-four', title: '인생 4단계', tier: 'pro', desc: '절정수·도전수 네 구간.' },
     {
