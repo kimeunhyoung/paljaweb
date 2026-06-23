@@ -117,6 +117,9 @@
 
   function runP48Compat() {
     const err = document.getElementById('p48Err');
+    if (window.PaljaPlan && !PaljaPlan.checkBasicProductAccess('p48', window.PALJA_USER_PLAN || 'free', err)) {
+      return;
+    }
     const dob1 = document.getElementById('p48Dob1')?.value;
     const dob2 = document.getElementById('p48Dob2')?.value;
     const name1 = (document.getElementById('p48Name1')?.value || '').trim();

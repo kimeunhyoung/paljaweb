@@ -10,6 +10,8 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400&family=Noto+Serif+KR:wght@400;500;600;700&display=swap" rel="stylesheet"/>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/plan-access.js?v=8"></script>
+  <script src="js/product-plan-bootstrap.js?v=1"></script>
   <script src="js/site-topbar.js?v=4" defer></script>
   <script src="js/topbar-session.js?v=6" defer></script>
   <link rel="stylesheet" href="css/birth-date-picker.css">
@@ -21,7 +23,7 @@
   <script src="js/period48-compat-engine.js?v=20260521p48c" defer></script>
   <script src="js/period48-relationship-types.js?v=20260522p48d" defer></script>
   <script src="js/period48-core.js?v=20260522p48" defer></script>
-  <script src="js/period48-compat.js?v=20260522p48read" defer></script>
+  <script src="js/period48-compat.js?v=20260623p48gate" defer></script>
   <style>
     :root {
       --cream: #f5f0e8;
@@ -423,6 +425,11 @@ PaljaBirthDatePicker.initAll([
   { inputId: 'p48Dob1', pickRowId: 'p48Dob1PickRow', yearBtnId: 'p48Dob1YearBtn', monthBtnId: 'p48Dob1MonthBtn', dayBtnId: 'p48Dob1DayBtn' },
   { inputId: 'p48Dob2', pickRowId: 'p48Dob2PickRow', yearBtnId: 'p48Dob2YearBtn', monthBtnId: 'p48Dob2MonthBtn', dayBtnId: 'p48Dob2DayBtn' },
 ]);
+(async function () {
+  if (window.PaljaProductBootstrap) {
+    await PaljaProductBootstrap.bootstrap({ product: 'p48', requireLogin: true });
+  }
+})();
 </script>
 </body>
 </html>

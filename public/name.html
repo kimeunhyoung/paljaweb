@@ -11,6 +11,8 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="js/plan-access.js?v=8"></script>
+<script src="js/product-plan-bootstrap.js?v=1"></script>
 <script src="js/site-topbar.js?v=4" defer></script>
 <script src="js/topbar-session.js?v=6" defer></script>
 <link rel="stylesheet" href="css/birth-date-picker.css">
@@ -1590,6 +1592,9 @@ function renderCompareTable(sortedResults, dist, purposeInput) {
 
 // ── 메인 분석 ──
 function runAnalysis(){
+  if (window.PaljaPlan && !PaljaPlan.checkBasicProductAccess('name', window.PALJA_USER_PLAN || 'free', null)) {
+    return;
+  }
   const baseName=document.getElementById('baseName').value.trim();
   const birthDate=document.getElementById('birthDate').value;
   const names=[...document.querySelectorAll('.name-field')].map(el=>el.value.trim()).filter(Boolean);
@@ -1668,6 +1673,9 @@ ${results.length>1?`주의 이름: ${results[results.length-1]?.name} (${Math.mi
 
 // ── AI 이름 추천 (이름만 받아서 로컬 계산) ──
 async function runRecommend(){
+  if (window.PaljaPlan && !PaljaPlan.checkBasicProductAccess('name', window.PALJA_USER_PLAN || 'free', null)) {
+    return;
+  }
   const surname  = document.getElementById('recSurname').value.trim();
   const birth    = document.getElementById('recBirth').value;
   const syllable = document.getElementById('recSyllable').value;
@@ -1865,37 +1873,8 @@ document.addEventListener('keydown',e=>{
 });
 
 (async function ensureAuthGate() {
-  try {
-    const SUPABASE_URL = 'https://sghsryumnrnftyjoqmwf.supabase.co';
-    const SUPABASE_ANON_KEY = 'sb_publishable_6S3W_oWrzG-Nv8wLK98gmg_q_KcB2I1';
-    const g = window.supabase || globalThis.supabase;
-    if (!g || typeof g.createClient !== 'function') return;
-    const sb = g.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-    const { data: { session } } = await sb.auth.getSession();
-    const badge = document.getElementById('plan-badge');
-    if (session) {
-      if (badge) {
-        const { data: profile } = await sb.from('profiles').select('plan, plan_active_until').eq('id', session.user.id).single();
-        let plan = (profile && profile.plan) || 'free';
-        if (
-          plan !== 'free' &&
-          profile &&
-          profile.plan_active_until &&
-          new Date(profile.plan_active_until) <= new Date()
-        ) {
-          plan = 'free';
-        }
-        badge.textContent = plan.charAt(0).toUpperCase() + plan.slice(1);
-        badge.className = 'plan-badge ' + plan;
-      }
-      return;
-    }
-    const next = encodeURIComponent(
-      `${window.location.pathname.split('/').pop() || 'name.html'}${window.location.search || ''}${window.location.hash || ''}`
-    );
-    window.location.replace(`login.html?next=${next}`);
-  } catch {
-    // 인증 확인 실패 시 기존 동작 유지
+  if (window.PaljaProductBootstrap) {
+    await PaljaProductBootstrap.bootstrap({ product: 'name', requireLogin: true });
   }
 })();
 </script>

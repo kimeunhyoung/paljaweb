@@ -1112,6 +1112,26 @@
       border-radius: 8px;
       border: 1px dashed var(--border);
     }
+    .timeline-life-gate {
+      margin-top: 28px;
+      padding-top: 22px;
+      border-top: 1px dashed var(--border);
+    }
+    .timeline-life-gate-note {
+      margin: 0;
+      padding: 14px 16px;
+      font-size: 12.5px;
+      line-height: 1.65;
+      color: var(--muted);
+      text-align: center;
+      background: rgba(139, 111, 71, 0.06);
+      border-radius: 10px;
+      border: 1px dashed rgba(139, 111, 71, 0.32);
+    }
+    .timeline-life-gate-note strong {
+      color: var(--deep-brown);
+      font-weight: 600;
+    }
 
     /* 타로 인생 전반 차트 (0~100세) */
     .tarot-life-chart {
@@ -3928,7 +3948,11 @@ async function initAuth() {
     new Date(profile.plan_active_until) <= new Date();
 
   if (profile?.plan) {
-    USER_PLAN = planExpired ? 'free' : dbPlan;
+    USER_PLAN = planExpired
+      ? 'free'
+      : (window.PaljaPlan && window.PaljaPlan.effectivePlan
+        ? window.PaljaPlan.effectivePlan(profile)
+        : dbPlan);
     // 개발 모드: Basic 이하만 Pro로 끌어올림. Professional은 상담사 기능 유지
     if (DEV_UNLOCK_PAID) {
       const _r = { free: 0, basic: 1, pro: 2, professional: 3 };
@@ -3977,7 +4001,13 @@ const PLANS = { free: 0, basic: 1, pro: 2, professional: 3 };
 function hasAccess(required) {
   // 개발 플래그가 켜져 있으면 모든 권한 허용
   if (DEV_UNLOCK_PAID) return true;
+  if (window.PaljaPlan && typeof window.PaljaPlan.isPlanAtLeast === 'function') {
+    return window.PaljaPlan.isPlanAtLeast({ plan: USER_PLAN }, required);
+  }
   return PLANS[USER_PLAN] >= PLANS[required];
+}
+function hasBasicFlowAccess() {
+  return hasBasicYearTimelineAccess();
 }
 /** Basic+: 핵심수 해설·스토리·별자리 상세·48주기 */
 function hasBasicProfileDetailAccess() {
@@ -6549,8 +6579,13 @@ function buildLcPriorityAtGlanceHtml(ctx) {
     h += lcNumCell('성격수', '—', '');
     h += lcNumCell('완성수', '—', '');
   }
-  h += lcNumCell('올해의 수', ctx.pyDisplay ?? ctx.py, ctx.pyPreLabel != null ? `전합 ${ctx.pyPreLabel}` : (ctx.pyS != null ? `전합 ${ctx.pyS}` : ''));
-  h += lcNumCell('이번 달의 수', ctx.pm, ctx.pmPre != null ? `전합 ${ctx.pmPre}` : '');
+  if (ctx.flowLocked) {
+    h += lcNumCellLocked('올해의 수', 'lc-glance-cell--flow');
+    h += lcNumCellLocked('이번 달의 수', 'lc-glance-cell--flow');
+  } else {
+    h += lcNumCell('올해의 수', ctx.pyDisplay ?? ctx.py, ctx.pyPreLabel != null ? `전합 ${ctx.pyPreLabel}` : (ctx.pyS != null ? `전합 ${ctx.pyS}` : ''));
+    h += lcNumCell('이번 달의 수', ctx.pm, ctx.pmPre != null ? `전합 ${ctx.pmPre}` : '');
+  }
   if (ctx.majorNum != null && ctx.pinnacle != null && ctx.challenge != null) {
     if (ctx.cycleLocked) {
       h += lcNumCellLocked('대주기', 'lc-glance-cell--cycle');
@@ -7300,9 +7335,9 @@ async function runAnalysis() {
     document.getElementById('aiSummaryContent').innerHTML = gateHTML('pro','AI 종합 요약','핵심 수들을 종합한 당신만의 성격·잠재력 분석 한 단락을 AI가 생성합니다.');
   }
 
-  // ── 3. 현재 흐름 (Basic+: 수비학 개인연도·타로 올해의 수 포함) ──
+  // ── 3. 현재 흐름 (Basic+: 올해·이번 달·오늘 전체) ──
   const flowBridgeEl = document.getElementById('flowBridge');
-  if (hasAccess('basic')) {
+  if (hasBasicFlowAccess()) {
   if (flowBridgeEl) {
     flowBridgeEl.innerHTML = `<div class="timeline-bridge">
       <p><strong>올해의 수</strong>는 <strong>수비학 개인연도</strong>(연·월·일 각 환원 후 합산)와 <strong>타로 올해의 수</strong>(<strong>${curY}년</strong> 연도 자릿수합 <strong>${curY_digitSum}</strong>+문 넘버 <strong>${mnPre}</strong> → 0~21)를 함께 봅니다. 카드에는 <strong>수비학/타로</strong> 순으로 표시됩니다. <strong>이번 달의 수</strong>는 타로 올해의 수에 <strong>${curM}월</strong>을, <strong>오늘의 수</strong>는 그 위에 <strong>${curD}일</strong>을 더해 줄인 값입니다.</p>
@@ -7351,40 +7386,27 @@ async function runAnalysis() {
   }
 
   } else {
-    if (flowBridgeEl) {
-      flowBridgeEl.innerHTML = `<div class="timeline-bridge"><p>무료 플랜에서는 <strong>오늘의 일간 수</strong>만 미리 볼 수 있습니다. 수비학 개인연도·타로 올해의 수·이번 달 흐름은 <strong>Basic</strong> 이상에서 열립니다.</p></div>`;
-    }
-    const todayDayLineFree = TL_DESC[pd] || '오늘의 리듬에 몸을 맡기며 하루를 살아가 보세요.';
-    document.getElementById('flowRow').innerHTML = `<div class="flow-card">
-    <div class="flow-card-label">오늘 ${curD}일의 수</div>
-    <div class="flow-card-num">${pd}<span class="pre-sum">(전합 ${pm + curD})</span></div>
-    <div class="flow-card-title">${TITLE_MAP[pd]||''}</div>
-    <div class="flow-card-hint">${todayDayLineFree}</div>
-  </div>`;
-    document.getElementById('flowAccordion').innerHTML = accordion(`✦ 오늘의 수 ${pd}번 (전합 ${pm + curD})`, currentFlowDeepHtml('day', pd), false);
+    if (flowBridgeEl) flowBridgeEl.innerHTML = '';
+    document.getElementById('flowRow').innerHTML = gateHTML(
+      'basic',
+      '현재 흐름',
+      '올해·이번 달·오늘의 수비학 개인연도·타로 올해의 수와 해설을 확인할 수 있습니다.'
+    );
+    document.getElementById('flowAccordion').innerHTML = '';
     const flowTodayElFree = document.getElementById('flowTodayMsg');
-    if (flowTodayElFree) {
-      flowTodayElFree.innerHTML = `
-      <div class="flow-today-msg-label">오늘의 메시지</div>
-      <p class="flow-today-msg-body">오늘 하루는 <strong class="flow-today-em flow-today-em--d">${pd}번 · ${todayDayLineFree}</strong> 쪽 에너지입니다.</p>`;
-    }
+    if (flowTodayElFree) flowTodayElFree.innerHTML = '';
   }
 
   const weeklyBody = document.getElementById('weeklyForecastBody');
   const weeklyBridgeEl = document.getElementById('weeklyBridge');
   const weeklyTableWrap = document.querySelector('#weeklyForecastSection .weekly-table-wrap');
   if (weeklyBody) {
-    if (!hasAccess('basic')) {
-      if (weeklyBridgeEl) weeklyBridgeEl.innerHTML = '';
-      if (weeklyTableWrap) {
-        weeklyTableWrap.innerHTML = gateHTML('basic', '향후 7일간의 에너지 흐름', '오늘부터 7일간 일간 수와 행동 가이드를 표로 확인할 수 있습니다.');
-      }
-    } else {
     const adviceMap = (typeof DAY_ADVICE !== 'undefined' && DAY_ADVICE) || window.NUMEROLOGY_DATA?.DAY_ADVICE || {};
     const hintOnly = (typeof DAY_HINT !== 'undefined' && DAY_HINT) || window.NUMEROLOGY_DATA?.DAY_HINT || {};
     const day0 = new Date(now.getFullYear(), now.getMonth(), now.getDate());
     const rows = [];
-    for (let i = 0; i < 7; i++) {
+    const dayCount = hasBasicFlowAccess() ? 7 : 1;
+    for (let i = 0; i < dayCount; i++) {
       const td = new Date(day0);
       td.setDate(day0.getDate() + i);
       const tM = td.getMonth() + 1;
@@ -7405,10 +7427,11 @@ async function runAnalysis() {
     }
     weeklyBody.innerHTML = rows.join('');
     if (weeklyBridgeEl) {
-      weeklyBridgeEl.innerHTML = `<div class="timeline-bridge">
+      weeklyBridgeEl.innerHTML = hasBasicFlowAccess()
+        ? `<div class="timeline-bridge">
         <p>오늘을 첫날로 이어지는 7일 동안, 각 날의 <strong>일간 수</strong>를 표에 담았습니다.</p>
-      </div>`;
-    }
+      </div>`
+        : `<div class="timeline-bridge"><p>무료에서는 <strong>오늘</strong>만 미리 볼 수 있습니다. 7일 전체는 <strong>Basic</strong> 이상에서 열립니다.</p></div>`;
     }
   }
 
@@ -7442,7 +7465,7 @@ async function runAnalysis() {
           const tarotLife = createTarotLifeYearChart({ y, mnPre, curY });
           return { html: tarotLife.html, bind: () => tarotLife.bind(document.getElementById('tarotLifeChart')) };
         })()
-      : { html: '<p class="timeline-preview-note">인생전반표(0~100세)는 <strong>Pro</strong> 플랜에서 열립니다.</p>', bind: () => {} };
+      : { html: '<div class="timeline-life-gate"><p class="timeline-life-gate-note">인생전반표(0~100세)는 <strong>Pro</strong> 플랜에서 열립니다.</p></div>', bind: () => {} };
     document.getElementById('timelineContent').innerHTML = `<div class="timeline-dual">
       <section class="timeline-block">
         <h3 class="timeline-block-title">수비학 개인연도</h3>
@@ -7799,6 +7822,7 @@ async function runAnalysis() {
     challenge: cycleGlance.challenge,
     stageSub: cycleGlance.stageSub,
     cycleLocked: !hasAccess('basic'),
+    flowLocked: !hasBasicFlowAccess(),
   });
 
   // ── 12. PDF (Pro+) ──

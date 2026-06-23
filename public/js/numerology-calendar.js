@@ -39,6 +39,8 @@ const state = {
   birthDate: "",
   viewDate: new Date(),
   selectedDate: null,
+  userPlan: "free",
+  calendarLocked: false,
 };
 
 const birthDateInput = document.getElementById("birthDateInput");
@@ -176,6 +178,7 @@ function renderDetail(date, personalMonth, personalDay, universalDay) {
 }
 
 function renderCalendar() {
+  if (state.calendarLocked) return;
   const birth = parseBirthDate(state.birthDate);
   if (!birth) {
     calendarTitle.textContent = formatYearMonthTitle(state.viewDate);
@@ -248,6 +251,55 @@ function renderCalendar() {
   renderDetail(state.selectedDate, personalMonth, firstPersonalDay, firstUniversalDay);
 }
 
+function applyCalendarPlanGate() {
+  const planApi = window.PaljaPlan;
+  const allowed = planApi
+    ? planApi.hasProductAccess("calendar", state.userPlan)
+    : state.userPlan !== "free";
+  state.calendarLocked = !allowed;
+  if (allowed) return;
+
+  const msg = planApi?.BASIC_PRODUCT_GATE_MSG || "Basic 이상 플랜에서 이용할 수 있습니다.";
+  authHint.innerHTML = `${msg} <a href="pricing.html">요금제 보기</a>`;
+  authHint.className = "hint warn";
+  birthDateInput.disabled = true;
+  prevMonthBtn.disabled = true;
+  nextMonthBtn.disabled = true;
+  todayBtn.disabled = true;
+  calendarTitle.textContent = "수비학 달력";
+  personalYearChip.textContent = "Basic 이상";
+  personalMonthChip.textContent = "플랜 필요";
+  calendarDays.innerHTML = "";
+  detailPanel.innerHTML = `
+    <h2>Basic 이상에서 이용 가능</h2>
+    <p class="detail-date">수비학 달력은 Basic 플랜 이상에서 열립니다. 타로코드는 무료로 이용할 수 있어요.</p>
+    <p class="detail-date"><a href="pricing.html">요금제 보기</a></p>
+  `;
+}
+
+async function loadUserPlan() {
+  try {
+    const { data } = await supabase.auth.getSession();
+    const session = data?.session;
+    if (!session?.user?.id) {
+      state.userPlan = "free";
+      return;
+    }
+    const { data: profile, error } = await supabase
+      .from("profiles")
+      .select("plan, plan_active_until")
+      .eq("id", session.user.id)
+      .maybeSingle();
+    if (error || !profile) {
+      state.userPlan = "free";
+      return;
+    }
+    state.userPlan = window.PaljaPlan?.effectivePlan(profile) || profile.plan || "free";
+  } catch {
+    state.userPlan = "free";
+  }
+}
+
 async function loadBirthFromProfile() {
   try {
     const { data } = await supabase.auth.getSession();
@@ -300,6 +352,9 @@ function bindEvents() {
 async function init() {
   state.viewDate = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
   bindEvents();
+  await loadUserPlan();
+  applyCalendarPlanGate();
+  if (state.calendarLocked) return;
   await loadBirthFromProfile();
   renderCalendar();
 }

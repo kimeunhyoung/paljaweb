@@ -10,6 +10,8 @@
 <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.2/dist/jspdf.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="js/plan-access.js?v=8"></script>
+<script src="js/product-plan-bootstrap.js?v=1"></script>
 <script src="js/site-topbar.js?v=4" defer></script>
 <script src="js/topbar-session.js?v=6" defer></script>
 <link rel="stylesheet" href="css/birth-date-picker.css">
@@ -2132,6 +2134,9 @@ function runAnalysis() {
   const err   = document.getElementById('errMsg');
 
   if (!name1||!name2) { err.textContent='두 사람의 이름을 모두 입력해주세요'; return; }
+  if (window.PaljaPlan && !PaljaPlan.checkBasicProductAccess('harmony', window.PALJA_USER_PLAN || 'free', err)) {
+    return;
+  }
   err.textContent='';
 
   const btn = document.getElementById('ctaBtn');
@@ -2208,37 +2213,8 @@ function doReset() {
 document.addEventListener('keydown', e=>{ if(e.key==='Enter') runAnalysis(); });
 
 (async function ensureAuthGate() {
-  try {
-    const SUPABASE_URL = 'https://sghsryumnrnftyjoqmwf.supabase.co';
-    const SUPABASE_ANON_KEY = 'sb_publishable_6S3W_oWrzG-Nv8wLK98gmg_q_KcB2I1';
-    const g = window.supabase || globalThis.supabase;
-    if (!g || typeof g.createClient !== 'function') return;
-    const sb = g.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-    const { data: { session } } = await sb.auth.getSession();
-    const badge = document.getElementById('plan-badge');
-    if (session) {
-      if (badge) {
-        const { data: profile } = await sb.from('profiles').select('plan, plan_active_until').eq('id', session.user.id).single();
-        let plan = (profile && profile.plan) || 'free';
-        if (
-          plan !== 'free' &&
-          profile &&
-          profile.plan_active_until &&
-          new Date(profile.plan_active_until) <= new Date()
-        ) {
-          plan = 'free';
-        }
-        badge.textContent = plan.charAt(0).toUpperCase() + plan.slice(1);
-        badge.className = 'plan-badge ' + plan;
-      }
-      return;
-    }
-    const next = encodeURIComponent(
-      `${window.location.pathname.split('/').pop() || 'compatibility.html'}${window.location.search || ''}${window.location.hash || ''}`
-    );
-    window.location.replace(`login.html?next=${next}`);
-  } catch {
-    // 인증 확인 실패 시 기존 동작 유지
+  if (window.PaljaProductBootstrap) {
+    await PaljaProductBootstrap.bootstrap({ product: 'harmony', requireLogin: true });
   }
 })();
 </script>

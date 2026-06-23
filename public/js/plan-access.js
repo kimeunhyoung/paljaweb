@@ -104,6 +104,47 @@
     );
   }
 
+  /** 팔자연구소 프로그램별 최소 플랜 — 타로코드만 무료, 나머지 궁합·네임·달력 등은 Basic+ */
+  var PRODUCT_MIN_PLAN = {
+    tarot: 'free',
+    lifecode: 'free',
+    name: 'basic',
+    harmony: 'basic',
+    p48: 'basic',
+    calendar: 'basic',
+  };
+
+  var BASIC_PRODUCT_GATE_MSG = 'Basic 이상 플랜에서 이용할 수 있습니다.';
+
+  function productMinPlan(product) {
+    return PRODUCT_MIN_PLAN[product] || 'basic';
+  }
+
+  function hasProductAccess(product, plan, devUnlock) {
+    if (devUnlock) return true;
+    return isPlanAtLeast({ plan: plan }, productMinPlan(product));
+  }
+
+  function basicProductGateHtml() {
+    return (
+      BASIC_PRODUCT_GATE_MSG +
+      ' <a href="pricing.html" style="color:var(--accent);text-decoration:underline">요금제 보기</a>'
+    );
+  }
+
+  function checkBasicProductAccess(product, plan, errEl, devUnlock) {
+    if (hasProductAccess(product, plan, devUnlock)) return true;
+    if (errEl) {
+      errEl.innerHTML = basicProductGateHtml();
+      if (errEl.scrollIntoView) {
+        errEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      }
+    } else {
+      alert(BASIC_PRODUCT_GATE_MSG);
+    }
+    return false;
+  }
+
   global.PaljaPlan = {
     effectivePlan: effectivePlan,
     isPlanAtLeast: isPlanAtLeast,
@@ -116,5 +157,11 @@
     tierBadgeHtml: tierBadgeHtml,
     tierBadgeForHref: tierBadgeForHref,
     tierLegendHtml: tierLegendHtml,
+    PRODUCT_MIN_PLAN: PRODUCT_MIN_PLAN,
+    productMinPlan: productMinPlan,
+    hasProductAccess: hasProductAccess,
+    BASIC_PRODUCT_GATE_MSG: BASIC_PRODUCT_GATE_MSG,
+    basicProductGateHtml: basicProductGateHtml,
+    checkBasicProductAccess: checkBasicProductAccess,
   };
 })(typeof window !== 'undefined' ? window : globalThis);
