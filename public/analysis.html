@@ -1203,9 +1203,11 @@
     }
     .tarot-life-table {
       width: 100%;
+      table-layout: fixed;
       border-collapse: collapse;
       font-size: 11px;
     }
+    .tarot-life-table col.life-decade-col { width: 52px; }
     .tarot-life-table th,
     .tarot-life-table td {
       border: 1px solid var(--border);
@@ -1225,7 +1227,7 @@
     }
     .life-tbl-cell {
       cursor: pointer;
-      min-width: 44px;
+      overflow: hidden;
       transition: background .15s;
     }
     .life-tbl-cell:hover { background: rgba(200,169,110,.12); }
@@ -1246,7 +1248,7 @@
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
-      max-width: 52px;
+      max-width: 100%;
     }
     .life-tbl-age {
       font-size: 8px;
@@ -5411,6 +5413,7 @@ function createTarotLifeYearChart(ctx) {
     <div class="tarot-life-banner" id="tarotLifeBanner">${tarotLifeYearBannerHtml(curData)}</div>
     <div class="tarot-life-table-wrap">
       <table class="tarot-life-table" aria-label="타로 올해의 수 인생 표">
+        <colgroup><col class="life-decade-col"><col span="10"></colgroup>
         <tbody>${tableRows}</tbody>
       </table>
     </div>
