@@ -5019,9 +5019,27 @@ function createTenYearTimeline(mode, ctx) {
     ];
     const curPin = pinNums[pinIdx];
     const curChal = chalNums[pinIdx];
-    const tarotNum = calcTarotCard(m, d, targetYear);
-    const tarot = TIMELINE_TAROT_MAJOR[tarotNum] || TIMELINE_TAROT_MAJOR[22] || TIMELINE_TAROT_MAJOR[0];
-    const tarotReduced = tarotNum > 9 ? reduceToSingle(tarotNum) : null;
+    let tarotCardHtml = '';
+    if (isTarot) {
+      const tarotNum = n;
+      const tarot = TIMELINE_TAROT_MAJOR[tarotNum] || TIMELINE_TAROT_MAJOR[0];
+      tarotCardHtml = `<div style="margin-top:20px;padding:16px 18px;background:white;border:1px solid var(--border);border-radius:12px;border-left:3px solid var(--accent);">
+        <div class="tdc-tarot-heading">올해의 카드 · ${targetYear}년</div>
+        <div style="font-size:11px;color:var(--muted);line-height:1.5;margin-bottom:10px">연 ${sumYearDigits(targetYear)}+문 ${mnPre}=${yd.pre} → 타로 <strong>${n}</strong>번. 위 올해의 수와 같은 메이저 아르카나입니다.</div>
+        <div style="display:flex;align-items:center;gap:14px;margin-bottom:10px;">
+          <div style="width:56px;height:56px;border-radius:10px;background:var(--parchment);border:1px solid var(--border);display:flex;flex-direction:column;align-items:center;justify-content:center;flex-shrink:0;">
+            <div style="font-size:24px;line-height:1">${tarot.emoji}</div>
+            <div style="font-size:9px;color:var(--muted);margin-top:2px">${tarotNum}번</div>
+          </div>
+          <div>
+            <div style="font-family:var(--font-serif);font-size:16px;font-weight:600;color:var(--deep-brown);margin-bottom:2px">${tarotNum}번 · ${tarot.kr}</div>
+            <div style="font-size:11px;color:var(--muted);font-style:italic">${tarot.name}</div>
+          </div>
+        </div>
+        ${(tarot.keywords && tarot.keywords.length) ? `<div style="margin-bottom:10px">${tarot.keywords.map((k) => `<span style="display:inline-block;font-size:10px;padding:4px 9px;margin:2px 5px 0 0;border-radius:999px;background:var(--parchment);border:1px solid var(--border);color:var(--deep-brown);font-family:var(--font-serif)">${k}</span>`).join('')}</div>` : ''}
+        <div style="font-size:13px;line-height:1.82;color:var(--ink);padding:12px 14px;background:var(--parchment);border-radius:8px">${tarot.desc}</div>
+      </div>`;
+    }
     let cycleNote = '';
     if (isCompl) {
       cycleNote = isTarot
@@ -5078,23 +5096,7 @@ function createTenYearTimeline(mode, ctx) {
       ${stratObj.action ? `<div class="tdc-row"><span class="tdc-label">실천 한 줄</span><span>${stratObj.action}</span></div>` : ''}
       <div class="tdc-deep-label">이 숫자를 <em>한 해</em>로 읽을 때</div>
       <div class="tdc-deep">${deepYear}</div>
-      <div style="margin-top:20px;padding:16px 18px;background:white;border:1px solid var(--border);border-radius:12px;border-left:3px solid var(--accent);">
-        <div class="tdc-tarot-heading">올해의 카드 · ${targetYear}년</div>
-        <div style="font-size:11px;color:var(--muted);line-height:1.5;margin-bottom:10px">생일+연도로 뽑은 메이저 카드입니다. 아래는 참고용 풀이입니다.</div>
-        <div style="display:flex;align-items:center;gap:14px;margin-bottom:10px;">
-          <div style="width:56px;height:56px;border-radius:10px;background:var(--parchment);border:1px solid var(--border);display:flex;flex-direction:column;align-items:center;justify-content:center;flex-shrink:0;">
-            <div style="font-size:24px;line-height:1">${tarot.emoji}</div>
-            <div style="font-size:9px;color:var(--muted);margin-top:2px">${tarotNum}번</div>
-          </div>
-          <div>
-            <div style="font-family:var(--font-serif);font-size:16px;font-weight:600;color:var(--deep-brown);margin-bottom:2px">${tarotNum}번 · ${tarot.kr}</div>
-            <div style="font-size:11px;color:var(--muted);font-style:italic">${tarot.name}</div>
-            ${tarotReduced ? `<div style="font-size:10px;color:var(--warm-brown);margin-top:4px">수비학 환원: ${tarotNum} → <strong>${tarotReduced}번</strong> 기운이 함께 겹쳐집니다.</div>` : ''}
-          </div>
-        </div>
-        ${(tarot.keywords && tarot.keywords.length) ? `<div style="margin-bottom:10px">${tarot.keywords.map((k) => `<span style="display:inline-block;font-size:10px;padding:4px 9px;margin:2px 5px 0 0;border-radius:999px;background:var(--parchment);border:1px solid var(--border);color:var(--deep-brown);font-family:var(--font-serif)">${k}</span>`).join('')}</div>` : ''}
-        <div style="font-size:13px;line-height:1.82;color:var(--ink);padding:12px 14px;background:var(--parchment);border-radius:8px">${tarot.desc}</div>
-      </div>
+      ${tarotCardHtml}
     </div>`;
   };
 
