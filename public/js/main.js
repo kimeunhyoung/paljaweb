@@ -194,6 +194,26 @@ function reduceToSingle(n, allowM = true) {
   return r
 }
 
+function sumMonthDayDigits(month, day) {
+  return String(month).split('').concat(String(day).split(''))
+    .reduce((a, b) => a + Number(b), 0)
+}
+
+function reduceToTarotNumber(n) {
+  let r = Number(n)
+  if (!Number.isFinite(r)) return 0
+  while (true) {
+    if (r === 22) return 0
+    if (r >= 0 && r <= 21) return r
+    r = String(Math.abs(r)).split('').reduce((a, b) => a + Number(b), 0)
+  }
+}
+
+function calcMoonNumber(month, day) {
+  const pre = sumMonthDayDigits(month, day)
+  return { pre, single: reduceToTarotNumber(pre) }
+}
+
 function getZodiacInfo(m, d) {
   const Z = [
     { n: '염소자리',   s: [12, 22], e: [1,  19], i: '♑' },
@@ -432,8 +452,9 @@ async function populateHeroWithUser() {
     const dr_r  = reduceToSingle(d)
     const lpS   = yr_r + mr_r + dr_r
     const lp    = reduceToSingle(lpS)
-    const mnPre = mr_r + dr_r
-    const mn    = reduceToSingle(mnPre)
+    const moonNums = calcMoonNumber(m, d)
+    const mnPre = moonNums.pre
+    const mn    = moonNums.single
     const curY  = new Date().getFullYear()
     const curY_r = reduceToSingle(String(curY).split('').reduce((a, b) => Number(a) + Number(b), 0))
     const pyS   = curY_r + mr_r + dr_r
@@ -451,7 +472,7 @@ async function populateHeroWithUser() {
     // ── insight 렌더링 (인생여정수 + 문넘버 + 별자리 + 올해) ──
     const insightEl = hero.querySelector('.card-insight')
     if (insightEl) {
-      const moonInner = MOON_NATURE_MAP[mn] || ''
+      const moonInner = MOON_NATURE_MAP[mn] || (mn >= 0 && mn <= 21 ? `타로 메이저 ${mn}번 에너지가 무의식·감정 반응의 바탕이 됩니다.` : '')
       const zodiacLine = ZODIAC_CLOSING[z.n] || ''
       const yearText = PERSONAL_YEAR_MAP[py] || ''
       const mainLine = lifePathHeroLine(lp)
@@ -492,7 +513,7 @@ async function populateHeroWithUser() {
       if (label.includes('인생여정수')) {
         valEl.innerHTML = `${lp} <span class="card-num-pre">(합산전수: ${lpS})</span>`
       } else if (label.includes('문')) {
-        valEl.innerHTML = `${mn} <span class="card-num-pre">(합산전수: ${mnPre})</span>`
+        valEl.innerHTML = `${mn} <span class="card-num-pre">(${mnPre !== mn ? `자릿수합 ${mnPre} → 타로 ${mn}` : `자릿수합 ${mnPre}`})</span>`
       } else if (label.includes('개인 연도')) {
         valEl.textContent = py
       } else if (label.includes('별자리')) {
