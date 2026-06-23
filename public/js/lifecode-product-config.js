@@ -34,6 +34,11 @@ export const LIFECODE_PRODUCT = {
     { href: '#period48Section', title: '48주기 성격', desc: '생일 구간별 성격·역할 패턴(48 세그먼트).' },
     { href: '#nav-major-cycle', title: '대주기', desc: '인생을 세 구간으로 나눈 장기 흐름.' },
     { href: '#nav-life-four', title: '인생 4단계', desc: '절정수·도전수 네 구간.' },
+    {
+      href: '#pyramidRhythmSection',
+      title: '피라미드 리듬 · 인생여정수',
+      desc: '전체 자릿수 합 인생여정수(표의 뒤 숫자) 기준 4단계·적극/소극 구간과 삼각형 순환 리듬.',
+    },
     { href: '#timelineSection', title: '10년 타임라인', desc: '앞으로 10년 개인년도 흐름.' },
     { href: '#monthlySection', title: '월간 흐름', desc: '선택 연도의 월별 리듬.' },
     { href: '#nav-flow', title: '지금의 흐름', desc: '올해·이번 달·오늘의 수.' },
@@ -52,11 +57,6 @@ export const LIFECODE_PRODUCT = {
       href: '#seqArrowSection',
       title: '풀 애로우 · 순차 격자',
       desc: '서양식 3·6·9 / 2·5·8 / 1·4·7 순차 격자의 8가지 풀·빈 화살 해석.',
-    },
-    {
-      href: '#pyramidRhythmSection',
-      title: '피라미드 리듬 · 인생여정수',
-      desc: '전체 자릿수 합 인생여정수(표의 뒤 숫자) 기준 4단계·적극/소극 구간과 삼각형 순환 리듬.',
     },
   ],
 };
