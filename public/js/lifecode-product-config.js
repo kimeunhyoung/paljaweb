@@ -56,7 +56,7 @@ export const LIFECODE_PRODUCT = {
     {
       href: '#pyramidRhythmSection',
       title: '피라미드 리듬 · 인생여정수',
-      desc: '인생여정수 기준 4단계·적극/소극 구간과 삼각형 순환 리듬.',
+      desc: '전체 자릿수 합 인생여정수(표의 뒤 숫자) 기준 4단계·적극/소극 구간과 삼각형 순환 리듬.',
     },
   ],
 };

@@ -199,6 +199,22 @@ function sumMonthDayDigits(month, day) {
     .reduce((a, b) => a + Number(b), 0)
 }
 
+function sumAllBirthDigits(year, month, day) {
+  return String(year).split('')
+    .concat(String(month).split(''), String(day).split(''))
+    .reduce((a, b) => a + Number(b), 0)
+}
+
+function lifePathPreLabel(lpS, lpSAlt) {
+  if (lpSAlt == null || lpSAlt === '') return String(lpS)
+  return `${lpS}/${lpSAlt}`
+}
+
+function lifePathValueLabel(lp, lpAlt) {
+  if (lpAlt == null || lpAlt === '') return String(lp)
+  return `${lp}/${lpAlt}`
+}
+
 function reduceToTarotNumber(n) {
   let r = Number(n)
   if (!Number.isFinite(r)) return 0
@@ -212,6 +228,20 @@ function reduceToTarotNumber(n) {
 function calcMoonNumber(month, day) {
   const pre = sumMonthDayDigits(month, day)
   return { pre, single: reduceToTarotNumber(pre) }
+}
+
+function sumYearDigits(year) {
+  return String(year).split('').reduce((a, b) => Number(a) + Number(b), 0)
+}
+
+function calcPersonalYearTarot(year, moonPre) {
+  const pre = sumYearDigits(year) + moonPre
+  return { pre, single: reduceToTarotNumber(pre) }
+}
+
+const TAROT_MAJOR_KR = {
+  0: '바보', 1: '마법사', 2: '여사제', 3: '여황제', 4: '황제', 5: '교황', 6: '연인', 7: '전차', 8: '힘', 9: '은둔자',
+  10: '운명의 수레바퀴', 11: '정의', 12: '매달린 사람', 13: '죽음(변환)', 14: '절제', 15: '악마', 16: '탑', 17: '별', 18: '달', 19: '태양', 20: '심판', 21: '세계',
 }
 
 function getZodiacInfo(m, d) {
@@ -452,13 +482,17 @@ async function populateHeroWithUser() {
     const dr_r  = reduceToSingle(d)
     const lpS   = yr_r + mr_r + dr_r
     const lp    = reduceToSingle(lpS)
+    const lpSAlt = sumAllBirthDigits(y, m, d)
+    const lpAlt = reduceToSingle(lpSAlt, false)
+    const lpDisplay = lifePathValueLabel(lp, lpAlt)
+    const lpPreLabel = lifePathPreLabel(lpS, lpSAlt)
     const moonNums = calcMoonNumber(m, d)
     const mnPre = moonNums.pre
     const mn    = moonNums.single
     const curY  = new Date().getFullYear()
-    const curY_r = reduceToSingle(String(curY).split('').reduce((a, b) => Number(a) + Number(b), 0))
-    const pyS   = curY_r + mr_r + dr_r
-    const py    = reduceToSingle(pyS)
+    const curY_digitSum = sumYearDigits(curY)
+    const pyS   = curY_digitSum + mnPre
+    const py    = reduceToTarotNumber(pyS)
     const z     = getZodiacInfo(m, d)
 
     const hero = document.querySelector('.hero-right .hero-card-main')
@@ -474,7 +508,8 @@ async function populateHeroWithUser() {
     if (insightEl) {
       const moonInner = MOON_NATURE_MAP[mn] || (mn >= 0 && mn <= 21 ? `타로 메이저 ${mn}번 에너지가 무의식·감정 반응의 바탕이 됩니다.` : '')
       const zodiacLine = ZODIAC_CLOSING[z.n] || ''
-      const yearText = PERSONAL_YEAR_MAP[py] || ''
+      const yearText = PERSONAL_YEAR_MAP[py]
+        || (TAROT_MAJOR_KR[py] != null ? `올해는 타로 ${py}번 ${TAROT_MAJOR_KR[py]} 에너지의 해입니다.` : '')
       const mainLine = lifePathHeroLine(lp)
       const moonTeaser = moonInner ? heroTextTeaser(moonInner, 48) : ''
       const zodiacTeaser = zodiacLine ? heroTextTeaser(zodiacLine, 44) : ''
@@ -482,7 +517,7 @@ async function populateHeroWithUser() {
       insightEl.className = 'card-insight card-insight--teaser'
       insightEl.innerHTML = `
         <div style="margin-bottom:8px;">
-          <div style="font-size:10px;font-weight:700;letter-spacing:0.1em;color:var(--accent);margin-bottom:4px;">삶의 방향 · 인생여정수 ${lp}</div>
+          <div style="font-size:10px;font-weight:700;letter-spacing:0.1em;color:var(--accent);margin-bottom:4px;">삶의 방향 · 인생여정수 ${lpDisplay}</div>
           <div style="font-size:12px;line-height:1.55;color:var(--cream);">${mainLine}</div>
         </div>
         ${moonTeaser ? `
@@ -511,11 +546,11 @@ async function populateHeroWithUser() {
       const valEl = item.querySelector('.card-num-val')
       if (!label || !valEl) return
       if (label.includes('인생여정수')) {
-        valEl.innerHTML = `${lp} <span class="card-num-pre">(합산전수: ${lpS})</span>`
+        valEl.innerHTML = `${lpDisplay} <span class="card-num-pre">(합산전수: ${lpPreLabel})</span>`
       } else if (label.includes('문')) {
         valEl.innerHTML = `${mn} <span class="card-num-pre">(${mnPre !== mn ? `자릿수합 ${mnPre} → 타로 ${mn}` : `자릿수합 ${mnPre}`})</span>`
       } else if (label.includes('개인 연도')) {
-        valEl.textContent = py
+        valEl.innerHTML = `${py} <span class="card-num-pre">(연 ${curY_digitSum}+문 ${mnPre}=${pyS}${pyS !== py ? ` → 타로 ${py}` : ''})</span>`
       } else if (label.includes('별자리')) {
         valEl.innerHTML = `<span class="zodiac-symbol">${z.i}</span><span class="zodiac-name-small">${z.n}</span>`
       }
