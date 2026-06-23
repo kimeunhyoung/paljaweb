@@ -53,6 +53,11 @@ export const LIFECODE_PRODUCT = {
       title: '풀 애로우 · 순차 격자',
       desc: '서양식 3·6·9 / 2·5·8 / 1·4·7 순차 격자의 8가지 풀·빈 화살 해석.',
     },
+    {
+      href: '#pyramidRhythmSection',
+      title: '피라미드 리듬',
+      desc: '운명수 기준 4단계·적극/소극 구간과 삼각형 순환 리듬.',
+    },
   ],
 };
 
