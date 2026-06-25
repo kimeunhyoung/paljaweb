@@ -658,6 +658,56 @@
     }
     .export-picker-btn--go:hover { background: var(--warm-brown); border-color: var(--warm-brown); }
 
+    /* ── 내보내기 머리글 (이름·생년월일) ── */
+    .export-doc-header {
+      text-align: center;
+      margin: 0 0 18px;
+      padding-bottom: 14px;
+      border-bottom: 1px solid var(--border);
+    }
+    .export-doc-header:empty { display: none; margin: 0; padding: 0; border: 0; }
+    .export-doc-title {
+      font-family: var(--font-serif);
+      font-size: 13px;
+      color: var(--muted);
+      letter-spacing: .06em;
+      margin-bottom: 6px;
+    }
+    .export-doc-meta {
+      display: flex;
+      align-items: baseline;
+      justify-content: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .export-doc-name {
+      font-family: var(--font-serif);
+      font-size: 23px;
+      font-weight: 600;
+      color: var(--deep-brown);
+    }
+    .export-doc-birth { font-size: 15px; color: var(--warm-brown); }
+    .export-doc-dot { color: var(--muted); }
+
+    /* ── 문 넘버 설명 (한 자리 수 + 타로) ── */
+    .moon-desc-wrap { display: flex; flex-direction: column; gap: 14px; }
+    .moon-desc-sec {
+      padding: 12px 14px;
+      background: rgba(255,255,255,.7);
+      border: 1px solid var(--border);
+      border-left: 3px solid var(--accent);
+      border-radius: 8px;
+    }
+    .moon-desc-sec + .moon-desc-sec { border-left-color: var(--teal); }
+    .moon-desc-h {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--deep-brown);
+      margin-bottom: 6px;
+    }
+    .moon-desc-body { font-size: 13px; line-height: 1.7; color: var(--ink); }
+    .moon-desc-note { font-size: 11px; font-weight: 400; color: var(--muted); }
+
     /* ── HERO INPUT ── */
     .hero {
       background: var(--deep-brown);
@@ -3710,6 +3760,7 @@
 
 <!-- RESULT AREA -->
 <div class="content" id="resultArea" style="display:none;">
+  <div id="analysisExportHeader" class="export-doc-header" aria-label="분석 대상"></div>
   <div id="analysisReadingGuide" class="analysis-reading-guide-host" aria-label="아래 결과 안내"></div>
 
   <!-- ① 핵심 수 -->
@@ -4692,6 +4743,11 @@ async function downloadAnalysisPdf(hiddenIds) {
   const glancePanel = clone.querySelector('#nav-at-a-glance');
   if (glancePanel && Math.max(glancePanel.scrollHeight, glancePanel.offsetHeight) > 6) {
     panels.unshift(glancePanel);
+  }
+  // 이름·생년월일 머리글을 가장 앞 패널로 포함
+  const headerPanel = clone.querySelector('#analysisExportHeader');
+  if (headerPanel && Math.max(headerPanel.scrollHeight, headerPanel.offsetHeight) > 6) {
+    panels.unshift(headerPanel);
   }
   if (panels.length === 0) panels = [clone];
 
@@ -5926,17 +5982,60 @@ function createTarotLifeYearChart(ctx) {
 }
 
 
+/** 인쇄·PDF 상단 머리글: 이름 + 생년월일 */
+function renderExportDocHeader(nameRaw, y, m, d) {
+  const host = document.getElementById('analysisExportHeader');
+  if (!host) return;
+  const client = (document.getElementById('inputClient')?.value || '').trim();
+  const displayName = client || (nameRaw || '').trim();
+  const pad = (n) => String(n).padStart(2, '0');
+  const birth = (y && m && d) ? `${y}년 ${pad(m)}월 ${pad(d)}일` : '';
+  const nameHtml = displayName ? `<span class="export-doc-name">${escapeHtml(displayName)}</span>` : '';
+  const birthHtml = birth ? `<span class="export-doc-birth">${birth}</span>` : '';
+  if (!nameHtml && !birthHtml) { host.innerHTML = ''; return; }
+  const dot = (nameHtml && birthHtml) ? '<span class="export-doc-dot">·</span>' : '';
+  host.innerHTML = `
+    <div class="export-doc-title">라이프코드 분석</div>
+    <div class="export-doc-meta">${nameHtml}${dot}${birthHtml}</div>`;
+}
+
+/** 문 넘버 설명: ① 한 자리 수(원래 의미) + ② 타로 카드 기준 두 가지 */
+function stripKwHeader(html) {
+  return String(html).replace(/^\s*<span class=['"]kw['"]>.*?<\/span>\s*(?:<br\s*\/?>)?/i, '').trim();
+}
 function moonNumberDesc(mn, mnPre) {
-  const core = CORE_MOON_MAP[mn] || MOON_MAP[mn];
-  if (core) return core;
-  const kr = TAROT_MAJOR_KR[mn];
-  if (kr) {
-    const preNote = mnPre != null && mnPre !== mn
-      ? ` 월·일 자릿수합 <strong>${mnPre}</strong>에서 타로 <strong>${mn}</strong>번으로 환원했습니다.`
-      : '';
-    return `<span class='kw'>문 넘버 · 타로 ${mn}번 ${kr}</span><br>생일 월·일의 모든 자릿수를 더해 무의식·감정 리듬을 읽습니다.${preNote}`;
+  const parts = [];
+
+  // ① 한 자리 수 기준 (월·일 자릿수합을 1~9로 환원한 본래 의미)
+  const single = (typeof reduceToSingle === 'function') ? reduceToSingle(mnPre, false) : mn;
+  const singleRaw = (CORE_MOON_MAP && CORE_MOON_MAP[single]) || (MOON_MAP && MOON_MAP[single]) || '';
+  if (singleRaw) {
+    parts.push(`<div class="moon-desc-sec">
+      <div class="moon-desc-h">한 자리 수 ${single}번 · 내면과 감정의 첫 반응</div>
+      <div class="moon-desc-body">${stripKwHeader(singleRaw)}</div>
+    </div>`);
   }
-  return '';
+
+  // ② 타로 카드 기준 (메이저 아르카나 0~21)
+  const card = (typeof TIMELINE_TAROT_MAJOR !== 'undefined' && TIMELINE_TAROT_MAJOR[mn]) || null;
+  if (card) {
+    const preNote = (mnPre != null && mnPre !== mn)
+      ? ` <span class="moon-desc-note">(월·일 자릿수합 ${mnPre} → 타로 ${mn})</span>`
+      : '';
+    parts.push(`<div class="moon-desc-sec">
+      <div class="moon-desc-h">타로 ${mn}번 · ${card.kr}${preNote}</div>
+      <div class="moon-desc-body">${card.desc || ''}</div>
+    </div>`);
+  }
+
+  if (!parts.length) {
+    const kr = TAROT_MAJOR_KR[mn];
+    if (kr) {
+      return `<span class='kw'>문 넘버 · 타로 ${mn}번 ${kr}</span><br>생일 월·일의 모든 자릿수를 더해 무의식·감정 리듬을 읽습니다.`;
+    }
+    return '';
+  }
+  return `<div class="moon-desc-wrap">${parts.join('')}</div>`;
 }
 
 function withPreSum(total, allowM=true) {
@@ -7552,6 +7651,7 @@ async function runAnalysis() {
   const pm = reduceToSingle(py + curM);
   const pd = reduceToSingle(pm + curD);
   const z = getZodiacInfo(m, d);
+  renderExportDocHeader(nameRaw, y, m, d);
   const coreLedeWrap = document.getElementById('coreReadingLede');
   if (coreLedeWrap) coreLedeWrap.innerHTML = '';
   const nameNums = nameRaw ? analyzeNameNumerology(nameRaw) : null;
