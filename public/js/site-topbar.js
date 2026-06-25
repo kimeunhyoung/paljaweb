@@ -43,9 +43,11 @@
       '<div class="topbar-export-btns">';
 
     if (exp.indexOf('print') >= 0) {
+      var printHandler = mount.getAttribute('data-print-handler');
+      var printOnclick = printHandler ? esc(printHandler) + '()' : 'window.print()';
       html +=
-        '<button type="button" class="counselor-bar-btn" id="topbarPrintBtn" onclick="window.print()">' +
-        '🖨 인쇄</button>';
+        '<button type="button" class="counselor-bar-btn" id="topbarPrintBtn" onclick="' +
+        printOnclick + '">🖨 인쇄</button>';
     }
     if (exp.indexOf('pdf') >= 0) {
       html +=

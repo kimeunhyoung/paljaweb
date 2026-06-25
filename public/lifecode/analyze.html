@@ -504,9 +504,12 @@
       .counselor-bar,
       .hero,
       .analysis-wait,
-      .analysis-jump-nav-shim { display: none !important; }
+      .analysis-jump-nav-shim,
+      #pdfSection,
+      .export-picker-overlay { display: none !important; }
       html, body { background: #fff !important; }
       #resultArea { display: block !important; }
+      #resultArea > .section.export-print-hide { display: none !important; }
     }
 
     .pdf-export-target {
@@ -535,6 +538,117 @@
       padding: 0 !important;
       overflow: hidden !important;
     }
+
+    /* ── EXPORT SECTION PICKER ── */
+    .export-picker-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 1000;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      background: rgba(45, 38, 28, 0.5);
+    }
+    .export-picker-overlay.is-open { display: flex; }
+    .export-picker {
+      width: 100%;
+      max-width: 420px;
+      max-height: 84vh;
+      display: flex;
+      flex-direction: column;
+      background: var(--cream);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      box-shadow: 0 18px 50px rgba(45, 38, 28, 0.28);
+      overflow: hidden;
+    }
+    .export-picker-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px 18px 12px;
+      border-bottom: 1px solid var(--border);
+    }
+    .export-picker-head h3 {
+      margin: 0;
+      font-family: var(--font-serif);
+      font-size: 18px;
+      font-weight: 400;
+      color: var(--deep-brown);
+    }
+    .export-picker-close {
+      border: none;
+      background: none;
+      font-size: 22px;
+      line-height: 1;
+      color: var(--muted);
+      cursor: pointer;
+      padding: 2px 6px;
+    }
+    .export-picker-desc {
+      margin: 12px 18px 8px;
+      font-size: 12.5px;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+    .export-picker-all {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin: 0 18px 6px;
+      padding: 8px 10px;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--deep-brown);
+      background: var(--parchment);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      cursor: pointer;
+    }
+    .export-picker-list {
+      flex: 1;
+      overflow-y: auto;
+      padding: 4px 18px 8px;
+    }
+    .export-picker-item {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      padding: 9px 4px;
+      font-size: 13.5px;
+      color: var(--warm-brown);
+      border-bottom: 1px solid var(--border);
+      cursor: pointer;
+    }
+    .export-picker-item:last-child { border-bottom: none; }
+    .export-picker-item input { width: 16px; height: 16px; accent-color: var(--accent); }
+    .export-picker-actions {
+      display: flex;
+      gap: 10px;
+      padding: 14px 18px;
+      border-top: 1px solid var(--border);
+    }
+    .export-picker-btn {
+      flex: 1;
+      padding: 11px 14px;
+      font-size: 14px;
+      font-weight: 600;
+      border-radius: 8px;
+      cursor: pointer;
+      font-family: var(--font-body);
+    }
+    .export-picker-btn--ghost {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--muted);
+    }
+    .export-picker-btn--go {
+      background: var(--deep-brown);
+      border: 1px solid var(--deep-brown);
+      color: var(--cream);
+    }
+    .export-picker-btn--go:hover { background: var(--warm-brown); border-color: var(--warm-brown); }
 
     /* ── HERO INPUT ── */
     .hero {
@@ -3528,7 +3642,7 @@
   <div class="topbar-right" aria-label="라이프코드 메뉴">
     <a class="counselor-bar-link" id="topbarCounselorHubLink" href="counselor.html">상담사 허브</a>
     <div class="topbar-export-btns">
-      <button type="button" class="counselor-bar-btn" id="topbarPrintBtn" onclick="window.print()">🖨 인쇄</button>
+      <button type="button" class="counselor-bar-btn" id="topbarPrintBtn" onclick="topbarPrintClick()">🖨 인쇄</button>
       <button type="button" class="counselor-bar-btn" id="topbarPdfBtn" onclick="topbarPdfClick()">⬇ PDF</button>
     </div>
     <span class="plan-badge free" id="plan-badge" hidden aria-hidden="true">Pro</span>
@@ -3851,18 +3965,172 @@ const DEV_UNLOCK_PAID = false;
 
 
 function topbarPdfClick() {
+  openExportPicker('pdf');
+}
+
+function topbarPrintClick() {
+  openExportPicker('print');
+}
+
+function runPdfExport(selectedIds) {
   const btn = document.getElementById('topbarPdfBtn');
+  const prevText = btn ? btn.textContent : '';
+  if (btn) {
+    btn.textContent = '⏳ 생성 중...';
+    btn.disabled = true;
+  }
+  downloadAnalysisPdf(selectedIds).finally(() => {
+    if (btn) {
+      btn.textContent = prevText || '⬇ PDF';
+      btn.disabled = false;
+    }
+  });
+}
+
+// ── 내보내기 섹션 선택 ──
+const EXPORT_PICKER_STATE = { mode: 'pdf' };
+
+/** resultArea 안에서 내보낼 수 있는(보이고·잠금 아님) 섹션 목록 */
+function collectExportSections() {
+  const root = document.getElementById('resultArea');
+  if (!root) return [];
+  const out = [];
+  Array.from(root.children).forEach((node) => {
+    if (!(node instanceof HTMLElement)) return;
+    if (!node.classList.contains('section')) return;
+    const cs = window.getComputedStyle(node);
+    if (cs.display === 'none' || cs.visibility === 'hidden') return;
+    if (Math.max(node.scrollHeight, node.offsetHeight) < 8) return;
+    if (node.querySelector('.feature-gate')) return; // 잠금 섹션 제외
+    const lbl = node.querySelector('.section-label');
+    const label = (lbl ? lbl.textContent : '').replace(/\s+/g, ' ').trim()
+      || node.getAttribute('aria-label')
+      || node.id
+      || '섹션';
+    if (!node.id) node.id = 'exp-sec-' + out.length;
+    out.push({ id: node.id, label });
+  });
+  return out;
+}
+
+function ensureExportPickerModal() {
+  if (document.getElementById('exportPickerModal')) return;
+  const m = document.createElement('div');
+  m.id = 'exportPickerModal';
+  m.className = 'export-picker-overlay';
+  m.innerHTML = `
+    <div class="export-picker" role="dialog" aria-modal="true" aria-labelledby="exportPickerTitle">
+      <div class="export-picker-head">
+        <h3 id="exportPickerTitle">섹션 선택</h3>
+        <button type="button" class="export-picker-close" aria-label="닫기">×</button>
+      </div>
+      <p class="export-picker-desc" id="exportPickerDesc">내보낼 섹션을 선택하세요.</p>
+      <label class="export-picker-all"><input type="checkbox" id="exportPickerAll" checked> 전체 선택</label>
+      <div class="export-picker-list" id="exportPickerList"></div>
+      <div class="export-picker-actions">
+        <button type="button" class="export-picker-btn export-picker-btn--ghost" id="exportPickerCancel">취소</button>
+        <button type="button" class="export-picker-btn export-picker-btn--go" id="exportPickerGo">선택 항목 저장</button>
+      </div>
+    </div>`;
+  document.body.appendChild(m);
+
+  m.addEventListener('click', (e) => { if (e.target === m) closeExportPicker(); });
+  m.querySelector('.export-picker-close').addEventListener('click', closeExportPicker);
+  m.querySelector('#exportPickerCancel').addEventListener('click', closeExportPicker);
+  m.querySelector('#exportPickerGo').addEventListener('click', confirmExportPicker);
+
+  const allBox = m.querySelector('#exportPickerAll');
+  allBox.addEventListener('change', () => {
+    m.querySelectorAll('#exportPickerList input[type=checkbox]')
+      .forEach((cb) => { cb.checked = allBox.checked; });
+  });
+  m.querySelector('#exportPickerList').addEventListener('change', syncExportPickerAll);
+}
+
+function syncExportPickerAll() {
+  const boxes = Array.from(document.querySelectorAll('#exportPickerList input[type=checkbox]'));
+  const allBox = document.getElementById('exportPickerAll');
+  if (!allBox) return;
+  allBox.checked = boxes.length > 0 && boxes.every((b) => b.checked);
+}
+
+function openExportPicker(mode) {
   const resultArea = document.getElementById('resultArea');
   if (!resultArea || resultArea.style.display === 'none') {
-    alert('먼저 분석하기를 실행해 결과를 만든 뒤 저장할 수 있어요.');
+    alert('먼저 분석하기를 실행해 결과를 만든 뒤 내보낼 수 있어요.');
     return;
   }
-  btn.textContent = '⏳ 생성 중...';
-  btn.disabled = true;
-  downloadAnalysisPdf().finally(() => {
-    btn.textContent = '⬇ PDF 저장';
-    btn.disabled = false;
+  const sections = collectExportSections();
+  if (!sections.length) {
+    alert('내보낼 수 있는 섹션이 없습니다.');
+    return;
+  }
+  EXPORT_PICKER_STATE.mode = mode === 'print' ? 'print' : 'pdf';
+  ensureExportPickerModal();
+
+  const isPrint = EXPORT_PICKER_STATE.mode === 'print';
+  document.getElementById('exportPickerTitle').textContent = isPrint ? '인쇄할 섹션 선택' : 'PDF로 저장할 섹션 선택';
+  document.getElementById('exportPickerDesc').textContent = isPrint
+    ? '인쇄할 섹션을 선택하세요. (선택하지 않은 섹션은 인쇄되지 않습니다)'
+    : 'PDF에 담을 섹션을 선택하세요. (선택하지 않은 섹션은 저장되지 않습니다)';
+  document.getElementById('exportPickerGo').textContent = isPrint ? '선택 인쇄' : '선택 PDF 저장';
+
+  const list = document.getElementById('exportPickerList');
+  list.innerHTML = sections.map((s) => `
+    <label class="export-picker-item">
+      <input type="checkbox" value="${s.id}" checked>
+      <span>${escapeHtml(s.label)}</span>
+    </label>`).join('');
+  const allBox = document.getElementById('exportPickerAll');
+  if (allBox) allBox.checked = true;
+
+  document.getElementById('exportPickerModal').classList.add('is-open');
+}
+
+function closeExportPicker() {
+  const m = document.getElementById('exportPickerModal');
+  if (m) m.classList.remove('is-open');
+}
+
+function confirmExportPicker() {
+  const ids = Array.from(document.querySelectorAll('#exportPickerList input[type=checkbox]:checked'))
+    .map((cb) => cb.value);
+  if (!ids.length) {
+    alert('한 개 이상의 섹션을 선택해 주세요.');
+    return;
+  }
+  const mode = EXPORT_PICKER_STATE.mode;
+  closeExportPicker();
+  if (mode === 'print') {
+    runSelectivePrint(ids);
+  } else {
+    runPdfExport(ids);
+  }
+}
+
+function applyPrintSelection(selectedIds) {
+  const root = document.getElementById('resultArea');
+  if (!root) return;
+  root.querySelectorAll(':scope > .section').forEach((sec) => {
+    if (sec.id && selectedIds.includes(sec.id)) sec.classList.remove('export-print-hide');
+    else sec.classList.add('export-print-hide');
   });
+}
+
+function clearPrintSelection() {
+  document.querySelectorAll('.export-print-hide')
+    .forEach((el) => el.classList.remove('export-print-hide'));
+}
+
+function runSelectivePrint(selectedIds) {
+  applyPrintSelection(selectedIds);
+  const cleanup = () => {
+    clearPrintSelection();
+    window.removeEventListener('afterprint', cleanup);
+  };
+  window.addEventListener('afterprint', cleanup);
+  setTimeout(() => { window.print(); }, 40);
+  setTimeout(clearPrintSelection, 4000);
 }
 
 function getUsageKey() {
@@ -4110,12 +4378,17 @@ ${R} .pdf-details-pdf {
 `;
 }
 
-function buildAnalysisPdfClone(el) {
+function buildAnalysisPdfClone(el, selectedIds) {
   const clone = el.cloneNode(true);
   clone.removeAttribute('id');
   clone.classList.add('pdf-export-target', 'pdf-clone-root');
   const pdfPart = clone.querySelector('#pdfSection');
   if (pdfPart) pdfPart.remove();
+  if (Array.isArray(selectedIds) && selectedIds.length) {
+    clone.querySelectorAll(':scope > .section').forEach((sec) => {
+      if (!sec.id || !selectedIds.includes(sec.id)) sec.remove();
+    });
+  }
   pdfForceOpenAllDetailsForPdf(clone);
   const flatStyle = document.createElement('style');
   flatStyle.textContent = getPdfFlatCss();
@@ -4293,7 +4566,7 @@ function pdfSplitCaptureRoots(el, maxCssPx, depth) {
 }
 
 /** Pro+ · 분석 결과 영역을 PDF로 저장 (브라우저 클라이언트 생성) */
-async function downloadAnalysisPdf() {
+async function downloadAnalysisPdf(selectedIds) {
   if (typeof html2pdf === 'undefined') {
     alert('PDF 도구를 불러오지 못했습니다. 네트워크를 확인한 뒤 새로고침해 주세요.');
     return;
@@ -4323,7 +4596,7 @@ async function downloadAnalysisPdf() {
   host.style.cssText =
     'position:fixed;left:-14000px;top:0;width:820px;background:#f5f0e8;overflow:visible;pointer-events:none;z-index:0;';
 
-  const clone = buildAnalysisPdfClone(el);
+  const clone = buildAnalysisPdfClone(el, selectedIds);
   host.innerHTML = '';
   host.appendChild(clone);
   void clone.offsetHeight;
@@ -7843,7 +8116,7 @@ async function runAnalysis() {
   // ── 11. PDF (Pro+) ──
   if (hasAccess('pro')) {
     document.getElementById('pdfSection').innerHTML = `
-      <button type="button" class="gate-btn" style="background:var(--warm-brown)" onclick="downloadAnalysisPdf()">PDF로 저장하기</button>`;
+      <button type="button" class="gate-btn" style="background:var(--warm-brown)" onclick="openExportPicker('pdf')">PDF로 저장하기</button>`;
   }
 
   if (hasBasicProfileDetailAccess()) {
