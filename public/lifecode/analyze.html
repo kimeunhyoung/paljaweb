@@ -1446,7 +1446,7 @@
     }
     .life-tbl-cell:hover { background: rgba(200,169,110,.12); }
     .life-tbl-cell.is-current { background: rgba(200,169,110,.18); }
-    .life-tbl-cell.is-selected { background: rgba(46,139,122,.12); outline: 1px solid var(--teal); }
+    .life-tbl-cell.is-selected { background: rgba(46,139,122,.12); border: 2px solid var(--teal) !important; }
     .life-tbl-num {
       font-family: var(--font-serif);
       font-size: 14px;
@@ -2243,8 +2243,8 @@
     .pyramid-cell--active { background: rgba(46,139,122,.06); }
     .pyramid-cell--passive { background: rgba(192,57,43,.05); }
     .pyramid-cell--current {
-      outline: 2px solid var(--teal);
-      outline-offset: -2px;
+      border: 2px solid var(--teal) !important;
+      background: rgba(46,139,122,.16);
       font-weight: 700;
       color: var(--deep-brown);
     }
