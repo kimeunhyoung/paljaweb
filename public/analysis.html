@@ -502,6 +502,7 @@
       html, body { background: #fff !important; }
       #resultArea { display: block !important; }
       .export-print-hide { display: none !important; }
+      #tlBlockLife, .tarot-life-chart, .tarot-life-table-wrap, .tarot-life-table { break-inside: avoid; page-break-inside: avoid; }
     }
 
     .pdf-export-target {
@@ -4644,6 +4645,26 @@ function pdfSplitCaptureRoots(el, maxCssPx, depth) {
         ch.nodeType === 1 && ch.tagName !== 'SCRIPT' && ch.tagName !== 'STYLE'
     );
     if (kids.length >= 2) {
+      return kids.flatMap((k) => pdfSplitCaptureRoots(k, maxCssPx, depth + 1));
+    }
+  }
+
+  /* 10년 타임라인: 인생 전반(100년) 표가 페이지 경계에서 잘리지 않도록 블록 단위로 분리 캡처 */
+  if (el.id === 'timelineSection') {
+    const kids = Array.from(el.children).filter(
+      (ch) => ch.nodeType === 1 && ch.tagName !== 'SCRIPT' && ch.tagName !== 'STYLE'
+        && Math.max(ch.scrollHeight, ch.offsetHeight) > 6
+    );
+    if (kids.length >= 2) {
+      return kids.flatMap((k) => pdfSplitCaptureRoots(k, maxCssPx, depth + 1));
+    }
+  }
+  if (el.classList?.contains('timeline-dual')) {
+    const kids = Array.from(el.children).filter(
+      (ch) => ch.nodeType === 1 && ch.classList?.contains('timeline-block')
+        && Math.max(ch.scrollHeight, ch.offsetHeight) > 6
+    );
+    if (kids.length >= 1) {
       return kids.flatMap((k) => pdfSplitCaptureRoots(k, maxCssPx, depth + 1));
     }
   }
