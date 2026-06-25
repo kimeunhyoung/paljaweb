@@ -6066,6 +6066,16 @@ const MOON_TAROT_MAP = {
   21: '무의식은 마무리와 완성을 향합니다. 흩어진 것을 통합해 한 사이클을 끝내려 하고, 안정된 전체감 속에서 충족을 느낍니다.'
 };
 
+/** 문 넘버 카드(그리드)용 짧은 소제목: 타로 아르카나별 내면 성향 키워드 */
+const MOON_TAROT_TITLE = {
+  0: '자유로운 직감', 1: '실행하는 본능', 2: '직감으로 읽는 마음', 3: '돌봄과 풍요의 본능',
+  4: '질서로 찾는 안정', 5: '기준을 따르는 마음', 6: '관계로 향하는 마음', 7: '밀어붙이는 의지',
+  8: '다스리는 인내', 9: '사색으로 회복', 10: '흐름을 읽는 직관', 11: '공정을 향한 본능',
+  12: '멈춰서 보는 시선', 13: '비우고 새로 시작', 14: '균형을 맞추는 본능', 15: '강한 끌림과 집착',
+  16: '한 번에 갈아엎기', 17: '희망으로 회복', 18: '예민한 직감과 불안', 19: '밝게 드러내는 본능',
+  20: '정리하고 다시 서기', 21: '완성을 향한 마음'
+};
+
 /** 문 넘버 설명: ① 한 자리 수(원래 의미) + ② 타로 카드 기준 두 가지 */
 function stripKwHeader(html) {
   return String(html).replace(/^\s*<span class=['"]kw['"]>.*?<\/span>\s*(?:<br\s*\/?>)?/i, '').trim();
@@ -6091,7 +6101,7 @@ function moonNumberDesc(mn, mnPre) {
       ? ` <span class="moon-desc-note">(월·일 자릿수합 ${mnPre} → 타로 ${mn})</span>`
       : '';
     parts.push(`<div class="moon-desc-sec">
-      <div class="moon-desc-h">타로 ${mn}번 · ${cardKr}${preNote} · 내면·무의식 패턴</div>
+      <div class="moon-desc-h">타로 ${mn}번 · ${cardKr}${preNote}</div>
       <div class="moon-desc-body">${cardDesc}</div>
     </div>`);
   }
@@ -7746,7 +7756,7 @@ async function runAnalysis() {
   const coreItems = [
     { label:'인생여정수', value:lp, valueDisplay:lpDisplay, pre:lpPreLabel, desc: CORE_LIFE_PATH_MAP[lp]||DEEP_MAP[lp]||'',
       accBody: lifePathCalcExplainHtml(y, m, d, lpParts) + coreAccordionBody(CORE_LIFE_PATH_MAP[lp]||DEEP_MAP[lp]||'', lp, ACCORDION_LIFE_PATH) },
-    { label:'문 넘버', value:mn, pre:mnPre, desc: moonNumberDesc(mn, mnPre),
+    { label:'문 넘버', value:mn, pre:mnPre, title: (MOON_TAROT_TITLE[mn] || ''), desc: moonNumberDesc(mn, mnPre),
       accBody: coreAccordionBody(moonNumberDesc(mn, mnPre), mn, ACCORDION_MOON) }
   ];
   if(destinyNum && soulNum && personalityNum && maturityNum) {
@@ -7765,7 +7775,7 @@ async function runAnalysis() {
     <div class="num-card${c.wide ? ' wide' : ''}">
       <div class="num-card-label">${c.label}</div>
       <div class="num-card-value">${c.noNum ? c.value : `${c.valueDisplay ?? c.value}${c.pre ? ` <span class="pre-sum">(합산전수: ${c.pre})</span>` : ''}`}</div>
-      <div class="num-card-title">${c.noNum ? (c.desc.split('<br>')[0]||'') : (TITLE_MAP[c.value]||'')}</div>
+      <div class="num-card-title">${c.noNum ? (c.desc.split('<br>')[0]||'') : (c.title != null ? c.title : (TITLE_MAP[c.value]||''))}</div>
       <div class="num-card-bg">${c.noNum ? '' : c.value}</div>
     </div>`).join('');
 
