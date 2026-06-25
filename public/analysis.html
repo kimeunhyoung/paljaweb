@@ -4487,6 +4487,16 @@ ${R} .pdf-details-pdf {
   overflow: visible !important;
   clear: both !important;
 }
+/* 인생 전반(100년) 표: 한 페이지에 들어가도록 PDF에서만 살짝 압축 */
+${R} .tarot-life-chart-title { margin: 0 0 6px !important; }
+${R} .tarot-life-chart-bridge { font-size: 10px !important; line-height: 1.4 !important; margin: 0 0 6px !important; }
+${R} .tarot-life-banner { font-size: 10px !important; padding: 6px 8px !important; margin: 0 0 8px !important; }
+${R} .tarot-life-table th,
+${R} .tarot-life-table td { padding: 3px 3px !important; }
+${R} .tarot-life-table .life-tbl-num { font-size: 12px !important; line-height: 1.05 !important; }
+${R} .tarot-life-table .life-tbl-kw { font-size: 8px !important; margin-top: 1px !important; }
+${R} .tarot-life-table .life-tbl-age,
+${R} .tarot-life-table .life-tbl-year { font-size: 7.5px !important; margin-top: 0 !important; }
 `;
 }
 
@@ -4669,6 +4679,11 @@ function pdfSplitCaptureRoots(el, maxCssPx, depth) {
     }
   }
 
+  /* 표는 행 단위로 쪼개면 html2canvas가 깨지므로 통짜로 캡처(잘림 방지는 압축 CSS로 처리) */
+  if (el.tagName === 'TABLE' || el.classList?.contains('tarot-life-table-wrap')) {
+    return [el];
+  }
+
   if (h <= maxCssPx || depth > 14) return [el];
 
   const accDirect = Array.from(el.children).filter(
@@ -4780,9 +4795,17 @@ async function downloadAnalysisPdf(hiddenIds) {
   let pdfScale = Math.min(1, maxCssPxBudget / hEst, maxCssPxBudget / wEst);
   pdfScale = Math.max(0.12, Math.floor(pdfScale * 1000) / 1000);
 
+  /* 한 페이지(A4 본문)에 들어가는 콘텐츠 높이(css px). 캡처 단위를 이보다 작게 쪼개
+     문단·표가 페이지 경계에서 잘리지 않고 통째로 다음 페이지로 넘어가게 한다. */
+  const innerHmmForFit = 297 - marginMm * 2;
+  const pageFitCssPx = Math.max(420, Math.floor(capPx * (innerHmmForFit / innerWmm) * 0.94));
+
   let captureRoots = [];
   for (let iter = 0; iter < 18; iter++) {
-    const maxCssH = Math.max(240, Math.floor(maxCssPxBudget / pdfScale));
+    const maxCssH = Math.min(
+      Math.max(240, Math.floor(maxCssPxBudget / pdfScale)),
+      pageFitCssPx
+    );
     captureRoots = panels.flatMap((p) => pdfSplitCaptureRoots(p, maxCssH, 0));
     if (captureRoots.length === 0) captureRoots = [clone];
     const hMax = Math.max(
