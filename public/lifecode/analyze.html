@@ -5984,7 +5984,7 @@ function renderExportDocHeader(nameRaw, y, m, d) {
   const host = document.getElementById('analysisExportHeader');
   if (!host) return;
   const client = (document.getElementById('inputClient')?.value || '').trim();
-  const displayName = client || (nameRaw || '').trim();
+  const displayName = (nameRaw || '').trim() || client;
   const pad = (n) => String(n).padStart(2, '0');
   const birth = (y && m && d) ? `${y}년 ${pad(m)}월 ${pad(d)}일` : '';
   const nameHtml = displayName ? `<span class="export-doc-name">${escapeHtml(displayName)}</span>` : '';
