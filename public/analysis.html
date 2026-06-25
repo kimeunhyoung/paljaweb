@@ -501,7 +501,7 @@
       .export-picker-overlay { display: none !important; }
       html, body { background: #fff !important; }
       #resultArea { display: block !important; }
-      #resultArea > .section.export-print-hide { display: none !important; }
+      .export-print-hide { display: none !important; }
     }
 
     .pdf-export-target {
@@ -615,6 +615,14 @@
     }
     .export-picker-item:last-child { border-bottom: none; }
     .export-picker-item input { width: 16px; height: 16px; accent-color: var(--accent); }
+    .export-picker-group {
+      margin: 10px 4px 2px;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+      color: var(--muted);
+    }
+    .export-picker-item--sub { padding-left: 18px; }
     .export-picker-actions {
       display: flex;
       gap: 10px;
@@ -1346,8 +1354,7 @@
       margin-bottom: 12px;
     }
     .tarot-life-table-wrap {
-      max-height: 320px;
-      overflow: auto;
+      overflow: visible;
       border: 1px solid var(--border);
       border-radius: 10px;
       background: rgba(255,255,255,.72);
@@ -3955,14 +3962,14 @@ function topbarPrintClick() {
   openExportPicker('print');
 }
 
-function runPdfExport(selectedIds) {
+function runPdfExport(hiddenIds) {
   const btn = document.getElementById('topbarPdfBtn');
   const prevText = btn ? btn.textContent : '';
   if (btn) {
     btn.textContent = '⏳ 생성 중...';
     btn.disabled = true;
   }
-  downloadAnalysisPdf(selectedIds).finally(() => {
+  downloadAnalysisPdf(hiddenIds).finally(() => {
     if (btn) {
       btn.textContent = prevText || '⬇ PDF 저장';
       btn.disabled = false;
@@ -3971,29 +3978,57 @@ function runPdfExport(selectedIds) {
 }
 
 // ── 내보내기 섹션 선택 ──
-const EXPORT_PICKER_STATE = { mode: 'pdf' };
+const EXPORT_PICKER_STATE = { mode: 'pdf', unitIds: [] };
 
-/** resultArea 안에서 내보낼 수 있는(보이고·잠금 아님) 섹션 목록 */
-function collectExportSections() {
+function exportUnitVisible(el) {
+  if (!el) return false;
+  const cs = window.getComputedStyle(el);
+  if (cs.display === 'none' || cs.visibility === 'hidden') return false;
+  return Math.max(el.scrollHeight, el.offsetHeight) >= 8;
+}
+
+/**
+ * resultArea 안에서 내보낼 수 있는 단위 목록.
+ * 일반 섹션 + 먼저 보는 수(요약) + 10년 타임라인 하위(개인연도·타로·인생전반)까지 세분화.
+ */
+function collectExportUnits() {
   const root = document.getElementById('resultArea');
   if (!root) return [];
-  const out = [];
+  const units = [];
+
+  const glance = document.getElementById('nav-at-a-glance');
+  if (exportUnitVisible(glance)) {
+    units.push({ id: 'nav-at-a-glance', label: '먼저 보는 수 (요약 12칸)' });
+  }
+
   Array.from(root.children).forEach((node) => {
-    if (!(node instanceof HTMLElement)) return;
-    if (!node.classList.contains('section')) return;
-    const cs = window.getComputedStyle(node);
-    if (cs.display === 'none' || cs.visibility === 'hidden') return;
-    if (Math.max(node.scrollHeight, node.offsetHeight) < 8) return;
+    if (!(node instanceof HTMLElement) || !node.classList.contains('section')) return;
+    if (!exportUnitVisible(node)) return;
     if (node.querySelector('.feature-gate')) return; // 잠금 섹션 제외
+
+    if (node.id === 'timelineSection') {
+      [
+        ['tlBlockClassic', '수비학 개인연도 (10년)'],
+        ['tlBlockTarot', '타로 올해의 수 (10년)'],
+        ['tlBlockLife', '인생 전반 (0~100세)'],
+      ].forEach(([id, label]) => {
+        const sub = document.getElementById(id);
+        if (!exportUnitVisible(sub)) return;
+        if (sub.querySelector('.feature-gate, .timeline-life-gate')) return; // 미개방 인생전반 제외
+        units.push({ id, label, group: '10년 타임라인' });
+      });
+      return;
+    }
+
     const lbl = node.querySelector('.section-label');
     const label = (lbl ? lbl.textContent : '').replace(/\s+/g, ' ').trim()
       || node.getAttribute('aria-label')
       || node.id
       || '섹션';
-    if (!node.id) node.id = 'exp-sec-' + out.length;
-    out.push({ id: node.id, label });
+    if (!node.id) node.id = 'exp-sec-' + units.length;
+    units.push({ id: node.id, label });
   });
-  return out;
+  return units;
 }
 
 function ensureExportPickerModal() {
@@ -4007,7 +4042,7 @@ function ensureExportPickerModal() {
         <h3 id="exportPickerTitle">섹션 선택</h3>
         <button type="button" class="export-picker-close" aria-label="닫기">×</button>
       </div>
-      <p class="export-picker-desc" id="exportPickerDesc">내보낼 섹션을 선택하세요.</p>
+      <p class="export-picker-desc" id="exportPickerDesc">내보낼 항목을 선택하세요.</p>
       <label class="export-picker-all"><input type="checkbox" id="exportPickerAll" checked> 전체 선택</label>
       <div class="export-picker-list" id="exportPickerList"></div>
       <div class="export-picker-actions">
@@ -4043,27 +4078,39 @@ function openExportPicker(mode) {
     alert('먼저 분석하기를 실행해 결과를 만든 뒤 내보낼 수 있어요.');
     return;
   }
-  const sections = collectExportSections();
-  if (!sections.length) {
-    alert('내보낼 수 있는 섹션이 없습니다.');
+  const units = collectExportUnits();
+  if (!units.length) {
+    alert('내보낼 수 있는 항목이 없습니다.');
     return;
   }
   EXPORT_PICKER_STATE.mode = mode === 'print' ? 'print' : 'pdf';
+  EXPORT_PICKER_STATE.unitIds = units.map((u) => u.id);
   ensureExportPickerModal();
 
   const isPrint = EXPORT_PICKER_STATE.mode === 'print';
-  document.getElementById('exportPickerTitle').textContent = isPrint ? '인쇄할 섹션 선택' : 'PDF로 저장할 섹션 선택';
+  document.getElementById('exportPickerTitle').textContent = isPrint ? '인쇄할 항목 선택' : 'PDF로 저장할 항목 선택';
   document.getElementById('exportPickerDesc').textContent = isPrint
-    ? '인쇄할 섹션을 선택하세요. (선택하지 않은 섹션은 인쇄되지 않습니다)'
-    : 'PDF에 담을 섹션을 선택하세요. (선택하지 않은 섹션은 저장되지 않습니다)';
+    ? '인쇄할 항목을 선택하세요. (선택하지 않은 항목은 인쇄되지 않습니다)'
+    : 'PDF에 담을 항목을 선택하세요. (선택하지 않은 항목은 저장되지 않습니다)';
   document.getElementById('exportPickerGo').textContent = isPrint ? '선택 인쇄' : '선택 PDF 저장';
 
   const list = document.getElementById('exportPickerList');
-  list.innerHTML = sections.map((s) => `
-    <label class="export-picker-item">
-      <input type="checkbox" value="${s.id}" checked>
-      <span>${escapeHtml(s.label)}</span>
-    </label>`).join('');
+  let lastGroup = null;
+  list.innerHTML = units.map((u) => {
+    let head = '';
+    if (u.group && u.group !== lastGroup) {
+      head = `<div class="export-picker-group">${escapeHtml(u.group)}</div>`;
+      lastGroup = u.group;
+    } else if (!u.group) {
+      lastGroup = null;
+    }
+    const itemCls = u.group ? 'export-picker-item export-picker-item--sub' : 'export-picker-item';
+    return `${head}
+    <label class="${itemCls}">
+      <input type="checkbox" value="${u.id}" checked>
+      <span>${escapeHtml(u.label)}</span>
+    </label>`;
+  }).join('');
   const allBox = document.getElementById('exportPickerAll');
   if (allBox) allBox.checked = true;
 
@@ -4076,45 +4123,55 @@ function closeExportPicker() {
 }
 
 function confirmExportPicker() {
-  const ids = Array.from(document.querySelectorAll('#exportPickerList input[type=checkbox]:checked'))
+  const selected = Array.from(document.querySelectorAll('#exportPickerList input[type=checkbox]:checked'))
     .map((cb) => cb.value);
-  if (!ids.length) {
-    alert('한 개 이상의 섹션을 선택해 주세요.');
+  if (!selected.length) {
+    alert('한 개 이상의 항목을 선택해 주세요.');
     return;
   }
+  const hiddenIds = EXPORT_PICKER_STATE.unitIds.filter((id) => !selected.includes(id));
   const mode = EXPORT_PICKER_STATE.mode;
   closeExportPicker();
   if (mode === 'print') {
-    runSelectivePrint(ids);
+    runSelectivePrint(hiddenIds);
   } else {
-    runPdfExport(ids);
+    runPdfExport(hiddenIds);
   }
 }
 
-function applyPrintSelection(selectedIds) {
-  const root = document.getElementById('resultArea');
-  if (!root) return;
-  root.querySelectorAll(':scope > .section').forEach((sec) => {
-    if (sec.id && selectedIds.includes(sec.id)) sec.classList.remove('export-print-hide');
-    else sec.classList.add('export-print-hide');
-  });
+/** 빈 껍데기만 남는 컨테이너(타임라인 섹션 등) 처리: 콜백으로 숨김/제거 */
+function pruneEmptyExportContainers(scope, hideOrRemove) {
+  const tl = scope.querySelector('#timelineSection');
+  if (tl) {
+    const blocks = Array.from(tl.querySelectorAll('.timeline-block'));
+    const anyLeft = blocks.some((b) => !b.classList.contains('export-print-hide'));
+    if (blocks.length && !anyLeft) hideOrRemove(tl);
+  }
 }
 
-function clearPrintSelection() {
+function applyExportHide(hiddenIds) {
+  hiddenIds.forEach((id) => {
+    const el = document.getElementById(id);
+    if (el) el.classList.add('export-print-hide');
+  });
+  pruneEmptyExportContainers(document, (el) => el.classList.add('export-print-hide'));
+}
+
+function clearExportHide() {
   document.querySelectorAll('.export-print-hide')
     .forEach((el) => el.classList.remove('export-print-hide'));
 }
 
-function runSelectivePrint(selectedIds) {
-  applyPrintSelection(selectedIds);
+function runSelectivePrint(hiddenIds) {
+  applyExportHide(hiddenIds);
   const cleanup = () => {
-    clearPrintSelection();
+    clearExportHide();
     window.removeEventListener('afterprint', cleanup);
   };
   window.addEventListener('afterprint', cleanup);
   setTimeout(() => { window.print(); }, 40);
   // afterprint 미발생 브라우저 대비
-  setTimeout(clearPrintSelection, 4000);
+  setTimeout(clearExportHide, 4000);
 }
 
 function getUsageKey() {
@@ -4384,16 +4441,19 @@ ${R} .pdf-details-pdf {
 `;
 }
 
-function buildAnalysisPdfClone(el, selectedIds) {
+function buildAnalysisPdfClone(el, hiddenIds) {
   const clone = el.cloneNode(true);
   clone.removeAttribute('id');
   clone.classList.add('pdf-export-target', 'pdf-clone-root');
   const pdfPart = clone.querySelector('#pdfSection');
   if (pdfPart) pdfPart.remove();
-  if (Array.isArray(selectedIds) && selectedIds.length) {
-    clone.querySelectorAll(':scope > .section').forEach((sec) => {
-      if (!sec.id || !selectedIds.includes(sec.id)) sec.remove();
+  if (Array.isArray(hiddenIds) && hiddenIds.length) {
+    hiddenIds.forEach((id) => {
+      const node = clone.querySelector('#' + (window.CSS && CSS.escape ? CSS.escape(id) : id));
+      if (node) node.remove();
     });
+    const tl = clone.querySelector('#timelineSection');
+    if (tl && tl.querySelectorAll('.timeline-block').length === 0) tl.remove();
   }
   pdfForceOpenAllDetailsForPdf(clone);
   const flatStyle = document.createElement('style');
@@ -4571,8 +4631,8 @@ function pdfSplitCaptureRoots(el, maxCssPx, depth) {
   return kids.flatMap((k) => pdfSplitCaptureRoots(k, maxCssPx, depth + 1));
 }
 
-/** Pro+ · 분석 결과 영역을 PDF로 저장 (브라우저 클라이언트 생성) · selectedIds 지정 시 해당 섹션만 */
-async function downloadAnalysisPdf(selectedIds) {
+/** Pro+ · 분석 결과 영역을 PDF로 저장 (브라우저 클라이언트 생성) · hiddenIds 지정 시 해당 항목 제외 */
+async function downloadAnalysisPdf(hiddenIds) {
   if (typeof html2pdf === 'undefined') {
     alert('PDF 도구를 불러오지 못했습니다. 네트워크를 확인한 뒤 새로고침해 주세요.');
     return;
@@ -4601,7 +4661,7 @@ async function downloadAnalysisPdf(selectedIds) {
   host.style.cssText =
     'position:fixed;left:-14000px;top:0;width:820px;background:#f5f0e8;overflow:visible;pointer-events:none;z-index:0;';
 
-  const clone = buildAnalysisPdfClone(el, selectedIds);
+  const clone = buildAnalysisPdfClone(el, hiddenIds);
   host.innerHTML = '';
   host.appendChild(clone);
   void clone.offsetHeight;
@@ -4633,6 +4693,11 @@ async function downloadAnalysisPdf(selectedIds) {
     if (cs.display === 'none' || cs.visibility === 'hidden') return false;
     return Math.max(sec.scrollHeight, sec.offsetHeight) > 6;
   });
+  // 먼저 보는 수(요약 카드)는 .section이 아니므로 별도 패널로 맨 앞에 포함
+  const glancePanel = clone.querySelector('#nav-at-a-glance');
+  if (glancePanel && Math.max(glancePanel.scrollHeight, glancePanel.offsetHeight) > 6) {
+    panels.unshift(glancePanel);
+  }
   if (panels.length === 0) panels = [clone];
 
   const wEst = Math.max(clone.scrollWidth, clone.offsetWidth, capPx, 1);
@@ -7759,15 +7824,17 @@ async function runAnalysis() {
         })()
       : { html: '<div class="timeline-life-gate"><p class="timeline-life-gate-note">인생전반표(0~100세)는 <strong>Pro</strong> 플랜에서 열립니다.</p></div>', bind: () => {} };
     document.getElementById('timelineContent').innerHTML = `<div class="timeline-dual">
-      <section class="timeline-block">
+      <section class="timeline-block" id="tlBlockClassic">
         <h3 class="timeline-block-title">수비학 개인연도</h3>
         <p class="timeline-block-bridge">연·월·일을 각각 1~9(11, 22)로 환원한 뒤 더합니다. 9년 주기의 완성(9번)과 새 출발을 읽는 수비학 개인연도입니다.</p>
         ${classicTL.html}
       </section>
-      <section class="timeline-block">
+      <section class="timeline-block" id="tlBlockTarot">
         <h3 class="timeline-block-title">타로 올해의 수</h3>
         <p class="timeline-block-bridge">연도 자릿수합+문 넘버(전합)을 더해 메이저 아르카나 0~21로 읽습니다. 아래 <strong>현재 흐름</strong>의 올해의 수와 같습니다.</p>
         ${tarotTL.html}
+      </section>
+      <section class="timeline-block" id="tlBlockLife">
         ${tarotLifeBlock.html}
       </section>
     </div>`;
