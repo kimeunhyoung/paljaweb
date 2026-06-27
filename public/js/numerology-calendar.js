@@ -244,7 +244,10 @@ function renderCalendar() {
   });
 
   if (!state.selectedDate || state.selectedDate.getMonth() !== state.viewDate.getMonth() || state.selectedDate.getFullYear() !== state.viewDate.getFullYear()) {
-    state.selectedDate = new Date(year, month - 1, 1);
+    const now = new Date();
+    state.selectedDate = (now.getFullYear() === year && now.getMonth() === month - 1)
+      ? new Date(year, month - 1, now.getDate())
+      : new Date(year, month - 1, 1);
   }
   const firstPersonalDay = getPersonalDay(personalMonth, state.selectedDate.getDate());
   const firstUniversalDay = getUniversalDay(state.selectedDate);
