@@ -287,6 +287,12 @@
       const r = await fetch('/api/lifecode/checkout/config');
       cfg = await r.json();
       products = cfg.products || [];
+      if (cfg.oneTimeEnabled === false) {
+        renderProducts();
+        showMsg('단건(1회) 구매는 현재 준비 중입니다. 지금은 월 구독으로 이용하실 수 있어요.', 'info');
+        payBtn.disabled = true;
+        return;
+      }
       if (!cfg.portoneConfigured || !products.length) {
         showMsg('결제 준비 중입니다. 잠시 후 다시 시도해 주세요.', 'err');
         return;
@@ -338,6 +344,10 @@
       });
       const prepJson = await prep.json().catch(() => ({}));
       if (!prep.ok) {
+        if (prepJson.error === 'one_time_disabled') {
+          showMsg('단건(1회) 구매는 현재 준비 중입니다. 지금은 월 구독으로 이용하실 수 있어요.', 'info');
+          return;
+        }
         showMsg(prepJson.error || '결제 준비에 실패했습니다.', 'err');
         payBtn.disabled = false;
         return;
