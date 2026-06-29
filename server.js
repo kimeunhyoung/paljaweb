@@ -561,6 +561,13 @@ app.get('/favicon.ico', (req, res) => {
   res.sendFile(path.join(pathPublic, 'favicon.svg'));
 });
 
+// TWA(안드로이드 앱)–도메인 연결 인증 파일. express.static은 .well-known(점 폴더)을
+// 기본적으로 무시하므로 명시적 라우트로 제공한다.
+app.get('/.well-known/assetlinks.json', (req, res) => {
+  res.type('application/json');
+  res.sendFile(path.join(pathPublic, '.well-known', 'assetlinks.json'));
+});
+
 app.use(
   express.static(pathPublic, {
     etag: isProd,
