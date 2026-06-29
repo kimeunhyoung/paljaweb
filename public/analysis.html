@@ -15,6 +15,9 @@
   <meta property="og:image" content="https://8code.kr/applogo600.png">
   <meta property="og:locale" content="ko_KR">
   <meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#c4603a">
+  <link rel="apple-touch-icon" href="/icons/icon-192.png">
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,500&family=Noto+Serif+KR:wght@400;500;600;700&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet"/>
@@ -8657,5 +8660,13 @@ PaljaBirthDatePicker.init({ inputId: 'inputBirth', yearMin: 1900 });
   await autoRunFromQuickStart();
 })();
 </script>
+<script>
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('/sw.js').catch(() => {});
+    });
+  }
+</script>
+<script src="js/pwa-install.js?v=1" defer></script>
 </body>
 </html>
