@@ -15,4 +15,4 @@ Disallow: /signup.html
 Disallow: /auth/
 Disallow: /lifecode/admin.html
 
-Sitemap: https://paljaweb.onrender.com/sitemap.xml
+Sitemap: https://8code.kr/sitemap.xml
