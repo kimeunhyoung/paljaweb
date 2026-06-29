@@ -961,6 +961,7 @@
             <button class="upgrade-btn" id="upgradeBtn" onclick="onPlanActionClick()">
               플랜 관리 →
             </button>
+            <div id="upgradeBox"></div>
             <button type="button" class="upgrade-btn" id="cancelSubBtn" style="display:none;margin-top:8px;background:transparent;color:var(--muted);border:1px solid var(--border);">
               구독 해지 (다음 결제일부터 청구 안 됨)
             </button>
@@ -1025,6 +1026,64 @@
       return;
     }
     window.location.href = 'pricing.html';
+  }
+
+  const UPGRADE_PLAN_LABEL = { basic: 'Basic', pro: 'Pro', professional: 'Professional(상담사)' };
+  const UPGRADE_TIER_ORDER = ['basic', 'pro', 'professional'];
+
+  async function renderUpgradeOptions(currentPlan, session) {
+    const box = document.getElementById('upgradeBox');
+    if (!box || !session) return;
+    const idx = UPGRADE_TIER_ORDER.indexOf(currentPlan);
+    if (idx < 0) return;
+    const higher = UPGRADE_TIER_ORDER.slice(idx + 1);
+    if (!higher.length) return;
+
+    let html = '';
+    for (const plan of higher) {
+      try {
+        const r = await fetch('/api/subscription/upgrade-preview?plan=' + plan, {
+          headers: { Authorization: 'Bearer ' + session.access_token },
+        });
+        const c = await r.json();
+        if (c && c.ok && c.amount >= 100) {
+          const amt = new Intl.NumberFormat('ko-KR').format(c.amount);
+          html += '<button type="button" class="upgrade-btn js-upgrade-btn" data-plan="' + plan +
+            '" data-amount="' + c.amount + '" style="margin-top:8px;">' +
+            UPGRADE_PLAN_LABEL[plan] + '로 업그레이드 · 차액 ' + amt + '원</button>';
+        }
+      } catch (_) {}
+    }
+    box.innerHTML = html;
+    box.querySelectorAll('.js-upgrade-btn').forEach((btn) => {
+      btn.addEventListener('click', () => doUpgrade(btn.dataset.plan, btn.dataset.amount, btn));
+    });
+  }
+
+  async function doUpgrade(plan, amount, btn) {
+    const amt = new Intl.NumberFormat('ko-KR').format(Number(amount));
+    if (!confirm(UPGRADE_PLAN_LABEL[plan] + ' 플랜으로 지금 업그레이드할까요?\n등록된 카드로 차액 ' + amt +
+      '원이 즉시 결제되고, 남은 기간 동안 바로 상위 플랜이 적용됩니다.')) return;
+    btn.disabled = true;
+    try {
+      const { data: { session } } = await sb.auth.getSession();
+      const res = await fetch('/api/subscription/upgrade', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + session.access_token },
+        body: JSON.stringify({ plan }),
+      });
+      const j = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        alert(j.error || '업그레이드에 실패했습니다.');
+        btn.disabled = false;
+        return;
+      }
+      alert('업그레이드가 완료되었습니다. 상위 플랜이 바로 적용됩니다.');
+      location.reload();
+    } catch (_) {
+      alert('요청에 실패했습니다.');
+      btn.disabled = false;
+    }
   }
 
   // ── CONFIG ── (replace with your actual values)
@@ -1137,6 +1196,7 @@
             const st = await stRes.json();
             if (st.hasBillingKey && !st.cancelAtPeriodEnd) {
               cancelBtn.style.display = 'block';
+              renderUpgradeOptions(displayPlan, session);
               const cycleLabel = st.cycle === 'annual' ? '연간' : '월간';
               if (descEl && st.activeUntil) {
                 const next = new Date(st.activeUntil).toLocaleDateString('ko-KR');

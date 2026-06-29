@@ -408,6 +408,58 @@ app.post('/api/subscription/cancel', async (req, res) => {
   }
 });
 
+app.get('/api/subscription/upgrade-preview', async (req, res) => {
+  const userId = await getUserIdFromAuth(req.headers.authorization);
+  if (!userId) {
+    res.status(401).json({ error: 'Invalid or missing session' });
+    return;
+  }
+  try {
+    const targetPlan = String(req.query.plan || '').trim();
+    const calc = await subscriptionService.previewUpgrade(userId, targetPlan);
+    res.json(calc);
+  } catch (e) {
+    console.error('[subscription/upgrade-preview]', e);
+    res.status(500).json({ error: '업그레이드 금액 계산에 실패했습니다.' });
+  }
+});
+
+const UPGRADE_ERROR_MESSAGES = {
+  no_active_subscription: '활성 구독이 없어 업그레이드할 수 없습니다.',
+  no_billing_key: '등록된 결제 수단이 없습니다.',
+  cancelled: '해지 예약된 구독은 업그레이드할 수 없습니다.',
+  invalid_target: '잘못된 플랜입니다.',
+  not_upgrade: '현재 플랜보다 상위 플랜만 업그레이드할 수 있습니다.',
+  expired: '구독 기간이 만료되어 업그레이드할 수 없습니다.',
+  invalid_cycle: '결제 주기 정보가 올바르지 않습니다.',
+  amount_too_small: '남은 기간이 짧아 차액이 거의 없습니다. 다음 결제일에 전환하는 것을 권장합니다.',
+};
+
+app.post('/api/subscription/upgrade', async (req, res) => {
+  if (!portoneConfigured()) {
+    res.status(503).json({ error: 'PortOne 결제 설정이 완료되지 않았습니다.' });
+    return;
+  }
+  const userId = await getUserIdFromAuth(req.headers.authorization);
+  if (!userId) {
+    res.status(401).json({ error: 'Invalid or missing session' });
+    return;
+  }
+  try {
+    const targetPlan = String(req.body?.plan || '').trim();
+    const email = await getUserEmail(userId);
+    const result = await subscriptionService.upgradeSubscription({ userId, targetPlan, email });
+    res.json(result);
+  } catch (e) {
+    if (e.code && UPGRADE_ERROR_MESSAGES[e.code]) {
+      res.status(400).json({ error: UPGRADE_ERROR_MESSAGES[e.code], code: e.code });
+      return;
+    }
+    console.error('[subscription/upgrade]', e);
+    res.status(502).json({ error: '업그레이드 결제에 실패했습니다. 잠시 후 다시 시도해 주세요.' });
+  }
+});
+
 app.post('/api/cron/renew-subscriptions', async (req, res) => {
   const secret = process.env.CRON_SECRET;
   const auth = req.headers.authorization || '';
