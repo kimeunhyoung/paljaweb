@@ -129,7 +129,7 @@
       '</span>' +
       exportHtml +
       '<span class="topbar-auth-row" data-topbar-auth-user hidden>' +
-      '<a class="back-btn" href="dashboard.html">대시보드</a>' +
+      '<a class="back-btn" href="dashboard.html">마이페이지</a>' +
       '<span class="topbar-auth-dot" aria-hidden="true">·</span>' +
       '<button type="button" class="topbar-auth-link topbar-auth-btn" data-topbar-auth-signout>로그아웃</button>' +
       '</span>' +

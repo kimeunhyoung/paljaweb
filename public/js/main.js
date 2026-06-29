@@ -157,12 +157,12 @@ async function updateNav() {
     const loggedInHtml = `
       <span style="font-size:13px; color:var(--text2); max-width:160px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${email}</span>
       ${counselorNav}
-      <a href="dashboard.html" class="btn-nav-ghost">대시보드</a>
+      <a href="dashboard.html" class="btn-nav-ghost">마이페이지</a>
       <button class="btn-nav-fill logout-btn">로그아웃</button>
     `
     const mobileLoggedInHtml = `
       ${counselorNav}
-      <a href="dashboard.html" class="btn-nav-ghost">대시보드</a>
+      <a href="dashboard.html" class="btn-nav-ghost">마이페이지</a>
       <button class="btn-nav-fill logout-btn">로그아웃</button>
     `
     renderAuthActions(navActions, loggedInHtml, true)

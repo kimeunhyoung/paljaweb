@@ -23,7 +23,7 @@
   <h1 id="title">결제 확인 중</h1>
   <p id="desc">잠시만 기다려주세요.</p>
   <p id="err" class="err" style="display:none"></p>
-  <a href="dashboard.html" id="dash" style="display:none">대시보드</a>
+  <a href="dashboard.html" id="dash" style="display:none">마이페이지</a>
 </div>
 <script>
 (function () {
@@ -45,7 +45,7 @@
     const label = labels[plan] || plan;
     document.getElementById('title').textContent = label + ' 정기구독이 시작되었습니다';
     document.getElementById('desc').textContent =
-      (descs[plan] || descs.professional) + ' 이용 기간마다 자동으로 갱신됩니다. 해지는 대시보드에서 할 수 있어요.';
+      (descs[plan] || descs.professional) + ' 이용 기간마다 자동으로 갱신됩니다. 해지는 마이페이지에서 할 수 있어요.';
     const a = document.getElementById('dash');
     a.style.display = 'inline-block';
     a.href = hrefs[plan] || 'dashboard.html';
