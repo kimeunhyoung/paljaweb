@@ -3721,6 +3721,9 @@
         </div>
         <button type="button" class="analyze-btn" id="btnAnalyze" onclick="runAnalysis()">분석하기</button>
       </div>
+      <div id="guestHint" hidden style="margin-top:14px;padding:10px 14px;border:1px solid var(--border);border-radius:10px;background:rgba(46,139,122,.06);font-size:13px;color:var(--muted);line-height:1.5;">
+        로그인 없이 무료로 바로 분석해 볼 수 있어요. <a href="login.html?next=analysis.html" style="color:var(--accent);text-decoration:underline;font-weight:600;">로그인</a>하면 결과 저장·심화 분석·구독 기능을 이용할 수 있어요.
+      </div>
     </div>
   </div>
 </section>
@@ -4309,10 +4312,17 @@ async function initAuth() {
   if (!sb) return;
   const { data: { session } } = await sb.auth.getSession();
   if (!session) {
-    const next = encodeURIComponent(
-      `${window.location.pathname.split('/').pop() || 'analysis.html'}${window.location.search || ''}${window.location.hash || ''}`
-    );
-    window.location.replace(`login.html?next=${next}`);
+    // 비로그인 게스트: 무료 등급으로 즉시 이용 (하드 로그인 월 제거)
+    USER_PLAN = 'free';
+    CURRENT_USER_ID = 'guest';
+    if (DEV_UNLOCK_PAID) USER_PLAN = 'pro';
+    const badge = document.getElementById('plan-badge');
+    if (badge) {
+      badge.textContent = USER_PLAN.charAt(0).toUpperCase() + USER_PLAN.slice(1);
+      badge.className = `plan-badge ${USER_PLAN}`;
+    }
+    const hint = document.getElementById('guestHint');
+    if (hint && !DEV_UNLOCK_PAID) hint.hidden = false;
     return;
   }
   CURRENT_USER_ID = session.user?.id || 'guest';
@@ -4713,6 +4723,19 @@ function pdfSplitCaptureRoots(el, maxCssPx, depth) {
   if (kids.length === 0) return [el];
   if (kids.length === 1) return pdfSplitCaptureRoots(kids[0], maxCssPx, depth + 1);
   return kids.flatMap((k) => pdfSplitCaptureRoots(k, maxCssPx, depth + 1));
+}
+
+/** 무료/베이직 사용자가 PDF 저장 버튼을 눌렀을 때 업그레이드 유도 */
+function promptPdfUpgrade() {
+  if (CURRENT_USER_ID === 'guest') {
+    if (confirm('PDF 저장은 Pro 플랜 기능이에요. 로그인 후 요금제를 확인하시겠어요?')) {
+      location.href = 'login.html?next=pricing.html';
+    }
+    return;
+  }
+  if (confirm('PDF 저장·인쇄는 Pro 플랜부터 이용할 수 있어요. 요금제를 확인하시겠어요?')) {
+    location.href = 'pricing.html';
+  }
 }
 
 /** Pro+ · 분석 결과 영역을 PDF로 저장 (브라우저 클라이언트 생성) · hiddenIds 지정 시 해당 항목 제외 */
@@ -8366,6 +8389,11 @@ async function runAnalysis() {
   if (hasAccess('pro')) {
     document.getElementById('pdfSection').innerHTML = `
       <button type="button" class="gate-btn" style="background:var(--warm-brown)" onclick="openExportPicker('pdf')">PDF로 저장하기</button>`;
+  } else {
+    // 무료/베이직: 기능 발견용 잠금 버튼 (클릭 시 업그레이드 유도)
+    document.getElementById('pdfSection').innerHTML = `
+      <button type="button" class="gate-btn" style="background:#cbb9a3;cursor:pointer" onclick="promptPdfUpgrade()">🔒 PDF로 저장하기 (Pro 전용)</button>
+      <div style="margin-top:8px;font-size:12px;color:var(--muted)">분석 결과를 PDF로 저장·인쇄하는 기능은 Pro 플랜부터 이용할 수 있어요.</div>`;
   }
 
   if (hasBasicProfileDetailAccess()) {
