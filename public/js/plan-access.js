@@ -104,13 +104,13 @@
     );
   }
 
-  /** 팔자연구소 프로그램별 최소 플랜 — 타로코드만 무료, 나머지 궁합·네임·달력 등은 Basic+ */
+  /** 팔자연구소 프로그램별 최소 플랜 — 타로코드·라이프코드 무료, 수비학달력 Basic+, 네임·소울하모니·48궁합 Pro+ */
   var PRODUCT_MIN_PLAN = {
     tarot: 'free',
     lifecode: 'free',
-    name: 'basic',
-    harmony: 'basic',
-    p48: 'basic',
+    name: 'pro',
+    harmony: 'pro',
+    p48: 'pro',
     calendar: 'basic',
   };
 
@@ -120,11 +120,29 @@
     return PRODUCT_MIN_PLAN[product] || 'basic';
   }
 
+  function planKoLabel(plan) {
+    if (plan === 'pro') return 'Pro';
+    if (plan === 'professional') return 'Professional';
+    return 'Basic';
+  }
+
+  function productGateMsg(product) {
+    return planKoLabel(productMinPlan(product)) + ' 이상 플랜에서 이용할 수 있습니다.';
+  }
+
   function hasProductAccess(product, plan, devUnlock) {
     if (devUnlock) return true;
     return isPlanAtLeast({ plan: plan }, productMinPlan(product));
   }
 
+  function productGateHtml(product) {
+    return (
+      productGateMsg(product) +
+      ' <a href="pricing.html" style="color:var(--accent);text-decoration:underline">요금제 보기</a>'
+    );
+  }
+
+  /** @deprecated use productGateHtml(product) */
   function basicProductGateHtml() {
     return (
       BASIC_PRODUCT_GATE_MSG +
@@ -134,13 +152,14 @@
 
   function checkBasicProductAccess(product, plan, errEl, devUnlock) {
     if (hasProductAccess(product, plan, devUnlock)) return true;
+    var msg = productGateMsg(product);
     if (errEl) {
-      errEl.innerHTML = basicProductGateHtml();
+      errEl.innerHTML = productGateHtml(product);
       if (errEl.scrollIntoView) {
         errEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
       }
     } else {
-      alert(BASIC_PRODUCT_GATE_MSG);
+      alert(msg);
     }
     return false;
   }
@@ -160,6 +179,8 @@
     PRODUCT_MIN_PLAN: PRODUCT_MIN_PLAN,
     productMinPlan: productMinPlan,
     hasProductAccess: hasProductAccess,
+    productGateMsg: productGateMsg,
+    productGateHtml: productGateHtml,
     BASIC_PRODUCT_GATE_MSG: BASIC_PRODUCT_GATE_MSG,
     basicProductGateHtml: basicProductGateHtml,
     checkBasicProductAccess: checkBasicProductAccess,
