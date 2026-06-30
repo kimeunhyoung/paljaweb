@@ -266,6 +266,83 @@
   function synastryPairKey(a, b) { return [a, b].sort().join('_'); }
   function synastryPairNote(a, b) { return SYNASTRY_PAIR[synastryPairKey(a, b)] || ''; }
 
+  var EXTRA_LABELS = {
+    asc: '상승궁', mc: '중천점', fortune: '포르투나', vertex: '버텍스',
+    northnode: '북교점', southnode: '남교점', lilith: '릴리스', chiron: '카이런'
+  };
+  var EXTRA_AREA = {
+    asc: '나 자신·첫인상·몸', mc: '커리어·사회적 위치·명예',
+    fortune: '행운·성취가 모이는 지점', vertex: '운명적 만남·전환점',
+    northnode: '삶의 성장 방향', southnode: '익숙한 과거 패턴', lilith: '본능·억압된 욕망', chiron: '상처와 치유'
+  };
+  var ASP_KR = { conjunction: '합', opposition: '충', trine: '삼각', square: '사각', sextile: '육각' };
+
+  function bodyLabel(k) {
+    if (PLANETS[k]) return PLANETS[k].ko;
+    return EXTRA_LABELS[k] || k;
+  }
+  function bodyArea(k) {
+    if (PLANETS[k]) return PLANETS[k].role.split('·')[0].trim();
+    return EXTRA_AREA[k] || bodyLabel(k);
+  }
+
+  /** 출생 차트 어스펙트 — 행성쌍 + 각 조합의 풍부한 해석 */
+  function aspectPairNote(p1, p2, aspectKey) {
+    var asp = ASPECT_MEANING[aspectKey];
+    if (!asp) return '';
+    var pair = synastryPairNote(p1, p2);
+    var n1 = bodyLabel(p1), n2 = bodyLabel(p2);
+    var ak = ASP_KR[aspectKey] || aspectKey;
+    if (pair) {
+      return n1 + ' ' + ak + ' ' + n2 + ' — ' + pair + ' 이번 각에서는 ' + asp.text;
+    }
+    var a1 = bodyArea(p1), a2 = bodyArea(p2);
+    if (asp.tone === 'easy') {
+      return a1 + '과(와) ' + a2 + '가 ' + ak + '으로 자연스럽게 연결됩니다. ' + asp.text + ' 일상에서 ' + a1 + '과 ' + a2 + '를 함께 쓰면 강점이 드러납니다.';
+    }
+    if (asp.tone === 'tense') {
+      return a1 + '과(와) ' + a2 + ' 사이에 ' + ak + '의 긴장이 있습니다. ' + asp.text + ' ' + a1 + '과 ' + a2 + '가 충돌할 때 한쪽만 고집하지 않도록 조율이 필요합니다.';
+    }
+    return a1 + '과(와) ' + a2 + '가 ' + ak + '으로 강하게 맞물립니다. ' + asp.text;
+  }
+
+  var TRANSIT_THEME = {
+    sun: '활력·자아·주목', moon: '감정·컨디션·리듬', mercury: '생각·소통·일정',
+    venus: '사랑·관계·돈·취향', mars: '의욕·추진·경쟁', jupiter: '확장·기회·행운',
+    saturn: '책임·시험·정리·한계', uranus: '변화·각성·돌발', neptune: '꿈·영감·혼란', pluto: '근본 변형·집중'
+  };
+  var TRANSIT_PAIR = {
+    sun_sun: '자아와 활력의 리셋·재점화 시기입니다.',
+    moon_moon: '감정 패턴이 크게 움직이는 때예요. 몸과 마음의 리듬을 살피세요.',
+    saturn_sun: '책임·현실 점검이 정체성을 시험합니다. 구조를 다지면 오래 갑니다.',
+    jupiter_sun: '성장·기회의 문이 열립니다. 과신만 피하면 좋은 확장이 됩니다.',
+    mars_moon: '감정 반응이 빨라지고 충동이 올 수 있어요. 말과 행동에 한 박자 쉬세요.',
+    venus_venus: '관계·돈·미적 취향에 변화의 바람이 붑니다.',
+    pluto_sun: '근본적인 자아 변형·재탄생의 에너지입니다. 낡은 정체성을 내려놓을 수 있어요.',
+    neptune_mc: '커리어·방향에 이상과 혼란이 섞입니다. 비전은 키우되 현실 확인이 필요합니다.',
+    uranus_asc: '외모·첫인상·삶의 방식에 돌발 변화가 올 수 있습니다.',
+    saturn_moon: '감정적으로 무겁거나 책임감이 커지는 시기입니다. 혼자 버티지 마세요.'
+  };
+  var TRANSIT_TAIL = {
+    easy: '무리하지 않고 받아들이면 기회로 이어집니다.',
+    tense: '속도를 늦추고 현실을 점검하는 것이 좋습니다.',
+    strong: '흐름이 강하니 의식적으로 방향을 잡으세요.'
+  };
+
+  /** 트랜짓 — 트랜짓 행성 × 본명 천체 × 각의 풍부한 해석 */
+  function transitPairNote(tk, nk, aspectKey) {
+    var asp = ASPECT_MEANING[aspectKey];
+    if (!asp) return '';
+    var theme = TRANSIT_THEME[tk];
+    var area = EXTRA_AREA[nk] || (PLANETS[nk] && PLANETS[nk].role.split('·')[0].trim()) || bodyLabel(nk);
+    var ak = ASP_KR[aspectKey] || aspectKey;
+    var specific = TRANSIT_PAIR[synastryPairKey(tk, nk)];
+    var line1 = '요즘 <strong>' + theme + '</strong>의 기운이 <strong>' + area + '</strong>에 ' + ak + ' 각을 맺고 있어요.';
+    var line2 = specific || asp.text;
+    var line3 = TRANSIT_TAIL[asp.tone] || '';
+    return line1 + ' ' + line2 + ' ' + line3;
+  }
+
   function signFromDegree(deg) {
     var d = ((deg % 360) + 360) % 360;
     var idx = Math.floor(d / 30) % 12;
@@ -287,6 +364,9 @@
     OUTER_GENERATIONAL: OUTER_GENERATIONAL,
     SYNASTRY_PAIR: SYNASTRY_PAIR,
     synastryPairNote: synastryPairNote,
+    aspectPairNote: aspectPairNote,
+    transitPairNote: transitPairNote,
+    bodyLabel: bodyLabel,
     planetInSign: planetInSign,
     planetInHouse: planetInHouse,
     signFromDegree: signFromDegree
