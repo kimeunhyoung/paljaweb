@@ -634,6 +634,7 @@ table.astro-table td .glyph{font-size:16px;margin-right:4px;color:var(--accent);
       computeDerivedPoints();
     }
     renderAspectGrid();
+    renderDerivedTableRows(horoscope, opts.unknownTime);
     LAST_CTX = {
       displayName: opts.displayName, unknownTime: opts.unknownTime, coordLabel: opts.coordLabel,
       sunSign, moonSign, ascSign, planetReads,
@@ -717,6 +718,45 @@ table.astro-table td .glyph{font-size:16px;margin-right:4px;color:var(--accent);
       };
       N.vertex = ascFn(ramc + 180, 90 - lat);
     }
+  }
+
+  function houseOfDeg(d, horoscope) {
+    const houses = horoscope.Houses || [];
+    if (!houses.length || d == null) return '';
+    for (let i = 0; i < houses.length; i++) {
+      const a = houseStart(houses[i]);
+      const b = houseStart(houses[(i + 1) % houses.length]);
+      if (a == null || b == null) continue;
+      const span = (((b - a) % 360) + 360) % 360;
+      const off = (((d - a) % 360) + 360) % 360;
+      if (off < (span || 360)) return houses[i].id || (i + 1);
+    }
+    return '';
+  }
+
+  // 파생 포인트(포르투나·버텍스)를 행성 표에 행으로 추가
+  function renderDerivedTableRows(horoscope, unknownTime) {
+    if (unknownTime) return;
+    const table = $('planetTable');
+    const tbody = table ? table.querySelector('tbody') : null;
+    if (!tbody) return;
+    const defs = [
+      { key: 'fortune', glyph: '⊗', ko: '포르투나', role: '행운·성취의 지점' },
+      { key: 'vertex', glyph: 'Vx', ko: '버텍스', role: '운명적 만남·전환점' },
+    ];
+    defs.forEach((p) => {
+      const d = NATAL_DEGS[p.key];
+      if (d == null) return;
+      const s = M.signFromDegree(d);
+      const hid = houseOfDeg(d, horoscope);
+      const tr = document.createElement('tr');
+      tr.innerHTML = `<td><span class="glyph">${p.glyph}</span>${p.ko}</td>
+        <td><span class="glyph">${s.sign.glyph}</span>${s.sign.ko}</td>
+        <td>${fmtDeg(s.degInSign)}</td>
+        <td>${hid ? hid + '하우스' : '-'}</td>
+        <td style="color:var(--muted);font-size:12px">${p.role}</td>`;
+      tbody.appendChild(tr);
+    });
   }
 
   // ── 어스펙트 그리드(삼각 표) ──
