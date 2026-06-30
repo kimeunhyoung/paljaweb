@@ -9,6 +9,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@400;500;600;700&display=swap" rel="stylesheet"/>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/plan-access.js?v=1"></script>
   <script src="js/astro-cities.js?v=1"></script>
   <script src="js/site-topbar.js?v=5" defer></script>
   <script src="js/topbar-session.js?v=6" defer></script>
@@ -627,28 +628,48 @@
     catch { return {}; }
   }
 
-  async function main() {
+  let workspaceReady = false;
+
+  /** 로그인·Professional 플랜 확인 (뒤로/앞으로 bfcache 복원 시에도 재실행) */
+  async function checkAccess() {
+    const guard = document.getElementById('guard');
+    const gate = document.getElementById('gate');
+    const workspace = document.getElementById('workspace');
+    guard.style.display = 'flex';
+    gate.style.display = 'none';
+    workspace.style.display = 'none';
+
     const { data: { session } } = await sb.auth.getSession();
-    document.getElementById('guard').style.display = 'none';
+    guard.style.display = 'none';
     document.getElementById('app').style.display = 'block';
 
     if (!session) {
       window.location.replace('login.html?next=' + encodeURIComponent('counselor.html'));
-      return;
+      return null;
     }
 
-    const { data: profile } = await sb.from('profiles').select('plan, plan_active_until').eq('id', session.user.id).single();
-    const plan = profile?.plan || 'free';
-    const proOk =
-      plan === 'professional' &&
-      (!profile?.plan_active_until || new Date(profile.plan_active_until) > new Date());
+    const { data: profile, error } = await sb.from('profiles')
+      .select('plan, plan_active_until')
+      .eq('id', session.user.id)
+      .maybeSingle();
+
+    const proOk = !error && profile &&
+      window.PaljaPlan &&
+      PaljaPlan.isPlanAtLeast(profile, 'professional');
 
     if (!proOk) {
-      document.getElementById('gate').style.display = 'block';
-      return;
+      gate.style.display = 'block';
+      return null;
     }
 
-    document.getElementById('workspace').style.display = 'block';
+    workspace.style.display = 'block';
+    return session;
+  }
+
+  async function main() {
+    const session = await checkAccess();
+    if (!session || workspaceReady) return;
+    workspaceReady = true;
 
     const msgEl = document.getElementById('clientFormMsg');
     const form = document.getElementById('clientForm');
@@ -1218,6 +1239,11 @@
   }
 
   main();
+
+  // 브라우저 뒤로/앞으로(bfcache)로 복원될 때 잠금 화면이 남는 문제 방지
+  window.addEventListener('pageshow', (e) => {
+    if (e.persisted) checkAccess();
+  });
 })();
 </script>
 </body>

@@ -1566,6 +1566,9 @@ table.astro-table td .glyph{font-size:16px;margin-right:4px;color:var(--accent);
     }
   });
 
+  // 인쇄 취소·뒤/앞으로 이동 시 숨김 클래스가 남지 않도록
+  window.addEventListener('pageshow', () => { clearExportHide(); });
+
   // Web Share API 지원 시 공유 버튼 노출
   if (navigator.share) {
     const sh = $('btnShare');
