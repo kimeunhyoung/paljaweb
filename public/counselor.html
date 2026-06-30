@@ -341,11 +341,18 @@
     .list-loading, .list-empty { font-size: 12px; color: var(--muted); }
 
     /* 대시보드 */
-    .dash-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin-bottom: 8px; }
+    .dash-head { display: flex; align-items: center; justify-content: space-between; }
+    .dash-head .btn-sm { font-size: 11px; padding: 6px 12px; }
+    .dash-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin-bottom: 8px; }
     .dash-card { background: #fff; border: 1px solid var(--border); border-radius: 12px; padding: 16px 18px; box-shadow: 0 6px 18px rgba(44,31,14,.05); }
     .dash-num { font-family: var(--font-serif); font-size: 30px; font-weight: 700; color: var(--deep); line-height: 1; }
     .dash-num small { font-size: 14px; color: var(--muted); font-weight: 500; }
     .dash-label { font-size: 12px; color: var(--muted); margin-top: 8px; }
+    .dash-unlimited { color: var(--accent); font-weight: 600; }
+    .dash-upcoming { margin-top: 12px; display: grid; gap: 6px; }
+    .dash-upcoming .up-item { display: flex; align-items: center; gap: 10px; font-size: 12.5px; color: var(--deep); background: var(--parchment); border: 1px solid var(--border); border-radius: 8px; padding: 8px 12px; }
+    .dash-upcoming .up-date { font-weight: 700; color: var(--accent); }
+    .dash-upcoming .up-empty { font-size: 12px; color: var(--muted); padding: 4px 2px; }
     @media (max-width: 640px) { .dash-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 
     /* 상담사 브랜드 */
@@ -424,13 +431,18 @@
   </div>
 
   <div id="workspace">
-    <div class="section-title">한눈에 보기</div>
+    <div class="section-title dash-head">한눈에 보기
+      <button type="button" class="btn-sm outline" id="exportCsvBtn">CSV 내보내기</button>
+    </div>
     <div class="dash-grid">
-      <div class="dash-card"><div class="dash-num" id="dashClients">0</div><div class="dash-label">전체 고객</div></div>
+      <div class="dash-card"><div class="dash-num" id="dashClients">0</div><div class="dash-label">전체 고객 <span class="dash-unlimited">· 무제한</span></div></div>
       <div class="dash-card"><div class="dash-num" id="dashUpcoming">0</div><div class="dash-label">다가오는 약속(2주)</div></div>
       <div class="dash-card"><div class="dash-num" id="dashRecent">—</div><div class="dash-label">최근 상담일</div></div>
       <div class="dash-card"><div class="dash-num" id="dashNew">0</div><div class="dash-label">이번 달 신규 고객</div></div>
+      <div class="dash-card"><div class="dash-num" id="dashMonthSessions">0</div><div class="dash-label">이번 달 상담 건수</div></div>
+      <div class="dash-card"><div class="dash-num" id="dashRepeat">0<small>%</small></div><div class="dash-label">재방문율(2회+)</div></div>
     </div>
+    <div class="dash-upcoming" id="dashUpcomingList"></div>
 
     <div class="section-title">상담사 브랜드 (리포트 머리글)</div>
     <div class="brand-panel">
@@ -450,7 +462,7 @@
 
     <div class="section-title">고객 카드</div>
     <div class="client-panel">
-      <p class="client-intro">상담 대상별로 생일·이름을 저장해 두었다가 <strong>라이프코드 분석</strong>으로 바로 불러올 수 있어요. (Supabase에 <code class="inline-code">counselor_clients</code> 테이블이 있어야 합니다.)</p>
+      <p class="client-intro">상담 대상별로 생일·이름을 저장해 두었다가 <strong>라이프코드 분석</strong>으로 바로 불러올 수 있어요. 고객 수 <strong>무제한</strong>이며, 위의 <strong>CSV 내보내기</strong>로 언제든 백업할 수 있습니다. (Supabase에 <code class="inline-code">counselor_clients</code> 테이블이 있어야 합니다.)</p>
       <form id="clientForm" class="client-form" autocomplete="off">
         <input type="hidden" id="editClientId" value=""/>
         <div>
@@ -901,10 +913,44 @@
         : null;
       const ym = todayStr.slice(0, 7);
       const newCount = clientRows.filter((c) => String(c.created_at || '').slice(0, 7) === ym).length;
+      // 이번 달 상담 건수
+      const monthSessions = sessionRows.filter((s) => String(s.session_date || '').slice(0, 7) === ym).length;
+      // 재방문율: 상담 기록이 있는 고객 중 2회 이상 상담한 비율
+      const counts = {};
+      sessionRows.forEach((s) => { counts[s.client_id] = (counts[s.client_id] || 0) + 1; });
+      const seen = Object.keys(counts).length;
+      const repeated = Object.values(counts).filter((n) => n >= 2).length;
+      const repeatRate = seen ? Math.round((repeated / seen) * 100) : 0;
       document.getElementById('dashClients').textContent = String(clientRows.length);
       document.getElementById('dashUpcoming').textContent = String(upcoming);
       document.getElementById('dashRecent').textContent = recent || '—';
       document.getElementById('dashNew').textContent = String(newCount);
+      document.getElementById('dashMonthSessions').textContent = String(monthSessions);
+      document.getElementById('dashRepeat').innerHTML = String(repeatRate) + '<small>%</small>';
+      renderUpcomingList(todayStr, horizonStr);
+    }
+
+    function renderUpcomingList(todayStr, horizonStr) {
+      const host = document.getElementById('dashUpcomingList');
+      if (!host) return;
+      const items = [];
+      clientRows.forEach((c) => {
+        const d = clientUpcomingDate(c.id, c.next_appointment);
+        if (d && d >= todayStr && d <= horizonStr) {
+          items.push({ name: c.display_name || c.legal_name || '고객', date: d, id: c.id });
+        }
+      });
+      items.sort((a, b) => a.date.localeCompare(b.date));
+      if (!items.length) {
+        host.innerHTML = '<div class="up-empty">2주 내 예정된 약속이 없습니다.</div>';
+        return;
+      }
+      host.innerHTML = items.map((it) =>
+        '<div class="up-item"><span class="up-date">' + escapeHtml(it.date) + '</span>' +
+        '<span>' + escapeHtml(it.name) + '</span>' +
+        '<button type="button" class="btn-sm outline" data-act="sessions" data-id="' + it.id + '" style="margin-left:auto;font-size:11px;padding:5px 10px;">상담 기록</button></div>'
+      ).join('');
+      host.querySelectorAll('button[data-act]').forEach((btn) => btn.addEventListener('click', onRowAction));
     }
 
     // ── 관계 분석(고객 간 궁합) ──
@@ -947,6 +993,46 @@
         if (qs) window.location.href = 'period48-compat.html?' + qs.toString();
       });
     }
+
+    // ── CSV 내보내기 (고객 + 상담 요약) ──
+    function csvCell(v) {
+      const s = (v == null) ? '' : String(v);
+      return /[",\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s;
+    }
+    function exportClientsCsv() {
+      if (!clientRows.length) { alert('내보낼 고객이 없습니다.'); return; }
+      const header = ['표시이름', '본명', '생년월일', '연락처', '태그', '다음약속', '총상담횟수', '최근상담일', '메모', '등록일'];
+      const lines = [header.map(csvCell).join(',')];
+      clientRows.forEach((c) => {
+        const ls = clientLastSession(c.id);
+        lines.push([
+          c.display_name || '', c.legal_name || '', c.birth_date || '', c.phone || '',
+          c.tags || '', c.next_appointment || '', ls.count, ls.last || '',
+          c.notes || '', String(c.created_at || '').slice(0, 10),
+        ].map(csvCell).join(','));
+      });
+      // 상담 기록 상세도 함께 (있을 때)
+      if (sessionRows.length) {
+        const nameById = {};
+        clientRows.forEach((c) => { nameById[c.id] = c.display_name || c.legal_name || ''; });
+        lines.push('');
+        lines.push(['[상담기록]', '고객', '상담일', '요약', '다음약속'].map(csvCell).join(','));
+        sessionRows.slice().sort((a, b) => String(a.session_date).localeCompare(String(b.session_date))).forEach((s) => {
+          lines.push(['', nameById[s.client_id] || '', s.session_date || '', s.summary || '', s.next_appointment || ''].map(csvCell).join(','));
+        });
+      }
+      const blob = new Blob(['\uFEFF' + lines.join('\r\n')], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = '상담사_고객목록_' + ymd(new Date()) + '.csv';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }
+    const exportCsvBtn = document.getElementById('exportCsvBtn');
+    if (exportCsvBtn) exportCsvBtn.addEventListener('click', exportClientsCsv);
 
     // ── 상담사 브랜드 ──
     (function initBrand() {

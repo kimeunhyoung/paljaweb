@@ -843,8 +843,10 @@
       <p class="plan-tagline">처음 만나는 수비학.<br>핵심 수만 무료로.</p>
       <div class="plan-divider"></div>
       <ul class="feature-list">
-        <li><div class="feature-check">✓</div>핵심 수 숫자 카드 (해설 제외)</li>
+        <li><div class="feature-check">✓</div>핵심 수 숫자 카드 전체</li>
+        <li><div class="feature-check">✓</div><strong>인생여정수 해설 무료 공개</strong></li>
         <li><div class="feature-check">✓</div>타로코드</li>
+        <li class="no"><div class="feature-x">×</div>나머지 숫자 해설 · 통합 스토리</li>
         <li class="no"><div class="feature-x">×</div>현재 흐름 · 7일 · 월간 흐름</li>
         <li class="no"><div class="feature-x">×</div>스토리 · 별자리 상세 · 48주기</li>
         <li class="no"><div class="feature-x">×</div>대주기 · 인생 4단계</li>
@@ -904,16 +906,17 @@
     <!-- PROFESSIONAL -->
     <div class="plan-card professional" id="professional">
       <div class="plan-name">Professional</div>
-      <div class="plan-price" id="pro2-price">39,900<span class="plan-price-unit">원/월</span></div>
+      <div class="plan-price" id="pro2-price">49,900<span class="plan-price-unit">원/월</span></div>
       <p class="plan-tagline">수비학 상담사를 위한 플랜.<br>고객 관리·상담 도구 포함.</p>
       <div class="plan-divider"></div>
       <ul class="feature-list">
         <li><div class="feature-check">✓</div>Pro 모든 기능</li>
-        <li><div class="feature-check">✓</div>상담사 허브 · 대시보드</li>
-        <li><div class="feature-check">✓</div>고객 카드 + 세션 기록(CRM)</li>
+        <li><div class="feature-check">✓</div>상담사 허브 · 대시보드(상담 통계·재방문율)</li>
+        <li><div class="feature-check">✓</div>고객 카드 <strong>무제한</strong> + 세션 기록(CRM)</li>
+        <li><div class="feature-check">✓</div>상담일·다음 약속 관리 · 다가오는 약속 알림</li>
         <li><div class="feature-check">✓</div>고객용 브랜디드 리포트 PDF</li>
-        <li><div class="feature-check">✓</div>상담 준비 요약 카드</li>
-        <li><div class="feature-check">✓</div>고객 간 궁합 분석</li>
+        <li><div class="feature-check">✓</div>상담 준비 요약 카드 · 고객 간 궁합</li>
+        <li><div class="feature-check">✓</div>고객·상담 기록 CSV 내보내기(백업)</li>
       </ul>
       <button class="plan-btn plan-btn-dark" onclick="handleSubscribe('professional')">시작하기</button>
     </div>
@@ -921,7 +924,7 @@
   </div>
 
   <!-- 라이프코드 건별 이용권 -->
-  <div class="lifecode-onetime">
+  <div class="lifecode-onetime" id="onetime">
     <div class="lifecode-onetime-kicker">라이프코드 단품</div>
     <h3 class="lifecode-onetime-title">건별 결제 · 접속 코드</h3>
     <p class="lifecode-onetime-lede">팔자연구소 전체 구독 없이 <strong>라이프코드 단품</strong>만 쓰고 싶다면 1회 결제로 접속 코드를 받으세요. 정기 결제·자동 갱신 없음.</p>
@@ -1168,6 +1171,20 @@
         <td><span class="cross">—</span></td>
         <td><span class="check">✓</span></td>
       </tr>
+      <tr>
+        <td>상담일·다음 약속 관리 · 재방문율 통계</td>
+        <td><span class="cross">—</span></td>
+        <td class="featured-col"><span class="cross">—</span></td>
+        <td><span class="cross">—</span></td>
+        <td><span class="check">✓</span></td>
+      </tr>
+      <tr>
+        <td>고객·상담 기록 CSV 내보내기</td>
+        <td><span class="cross">—</span></td>
+        <td class="featured-col"><span class="cross">—</span></td>
+        <td><span class="cross">—</span></td>
+        <td><span class="check">✓</span></td>
+      </tr>
     </tbody>
   </table>
 </div>
@@ -1236,7 +1253,7 @@ const { createClient } = supabase;
 const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 // ── 요금 데이터 (월간만) ──
-const PRICES = { basic: '9,900', pro: '29,900', professional: '39,900' };
+const PRICES = { basic: '9,900', pro: '29,900', professional: '49,900' };
 
 function showToast(msg) {
   const t = document.getElementById('toast');
