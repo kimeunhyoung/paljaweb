@@ -5022,6 +5022,11 @@ async function downloadAnalysisPdf(hiddenIds) {
   if (glancePanel && Math.max(glancePanel.scrollHeight, glancePanel.offsetHeight) > 6) {
     panels.unshift(glancePanel);
   }
+  // 상담사용 요약(세션 브리핑)도 .section이 아니므로 별도 패널로 포함
+  const prepPanel = clone.querySelector('#counselorPrepCard');
+  if (prepPanel && Math.max(prepPanel.scrollHeight, prepPanel.offsetHeight) > 6) {
+    panels.unshift(prepPanel);
+  }
   // 이름·생년월일 머리글을 가장 앞 패널로 포함
   const headerPanel = clone.querySelector('#analysisExportHeader');
   if (headerPanel && Math.max(headerPanel.scrollHeight, headerPanel.offsetHeight) > 6) {
