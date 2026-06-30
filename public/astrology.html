@@ -124,6 +124,7 @@ body{font-family:var(--font-body);background:var(--cream);color:var(--ink);min-h
 .ar-matrix-table .mx-row{font-size:9px;font-weight:700;background:#faf6ee;color:var(--warm-brown);width:28px;}
 .ar-matrix-glyphs{font-size:12px;line-height:1.2;letter-spacing:1px;}
 .ar-footer{margin-top:8px;font-size:10.5px;color:var(--muted);text-align:center;}
+.ar-grid-hint{margin-top:6px;font-size:9.5px;line-height:1.5;color:var(--muted);}
 .aspect-grid.compact td{width:22px;height:22px;min-width:22px;font-size:13px;}
 
 table.astro-table{width:100%;border-collapse:collapse;font-size:13.5px;}
@@ -346,8 +347,7 @@ table.astro-table td .glyph{font-size:16px;margin-right:4px;color:var(--accent);
         </div>
         <div class="export-opts-row">
           <span class="export-opts-label">표</span>
-          <label><input type="checkbox" id="expGrid"/> 어스펙트 그리드(큰)</label>
-          <label><input type="checkbox" id="expPlanet"/> 행성 표(큰)</label>
+          <label><input type="checkbox" id="expPlanet"/> 행성 표(상세)</label>
         </div>
         <div class="export-opts-row">
           <span class="export-opts-label">심화</span>
@@ -385,6 +385,7 @@ table.astro-table td .glyph{font-size:16px;margin-right:4px;color:var(--accent);
         <div class="ar-col ar-grid">
           <div class="ar-col-title">Aspects · 어스펙트</div>
           <div style="overflow-x:auto" id="arAspectGrid"></div>
+          <div class="ar-grid-hint">☌합 ☍충 △삼 □사 ⚹육 · <span class="asp-tag asp-easy">초록</span> 조화 · <span class="asp-tag asp-tense">빨강</span> 긴장</div>
         </div>
         <div class="ar-col ar-matrix">
           <div class="ar-col-title">Elements · 원소</div>
@@ -412,14 +413,6 @@ table.astro-table td .glyph{font-size:16px;margin-right:4px;color:var(--accent);
         </div>
       </div>
       <div class="note" id="balanceNote"></div>
-    </div>
-
-    <div class="card accordion open" id="aspectGridCard">
-      <button type="button" class="card-title acc-head">✦ 어스펙트 그리드<span class="acc-chev" aria-hidden="true">⌄</span></button>
-      <div class="acc-body">
-        <div style="overflow-x:auto" id="aspectGrid"></div>
-        <div class="note">행성·카이런·교점·릴리스·<strong>⊗포르투나</strong>·<strong>Vx버텍스</strong>·AC·MC가 맺는 각을 한눈에 보는 표예요. 대각선의 <strong>천체 기호</strong>를 기준으로, 각 칸의 기호가 두 천체의 각을 나타냅니다. 칸에 마우스를 올리면 무슨 각인지 보여요.<br>☌합 ☍충 △삼각 □사각 ⚹육각 ⚺세미섹스타일 ⚻퀸컹스 · <span class="asp-tag asp-easy">초록</span> 조화 · <span class="asp-tag asp-tense">빨강</span> 긴장.</div>
-      </div>
     </div>
 
     <div class="card accordion" id="planetCard">
@@ -932,7 +925,8 @@ table.astro-table td .glyph{font-size:16px;margin-right:4px;color:var(--accent);
     $('planetReadList').innerHTML = LOCK_HTML;
     $('aspectCard').style.display = '';
     $('aspectList').innerHTML = LOCK_HTML;
-    const agc = $('aspectGridCard'); if (agc) { agc.style.display = ''; $('aspectGrid').innerHTML = LOCK_HTML; }
+    const arGrid = $('arAspectGrid');
+    if (arGrid) arGrid.innerHTML = LOCK_HTML;
     const tc = $('transitControls') || document.querySelector('#transitCard .transit-controls');
     if (tc) tc.style.display = 'none';
     $('transitResult').innerHTML = LOCK_HTML;
@@ -1074,20 +1068,14 @@ table.astro-table td .glyph{font-size:16px;margin-right:4px;color:var(--accent);
     return html;
   }
   function renderAspectGrid() {
-    const card = $('aspectGridCard');
-    if (!card) return;
     const order = GRID_ORDER.filter((k) => NATAL_DEGS[k] != null);
+    const arGrid = $('arAspectGrid');
+    if (!arGrid) return;
     if (order.length < 2) {
-      card.style.display = 'none';
-      const arGrid = $('arAspectGrid');
-      if (arGrid) arGrid.innerHTML = '';
+      arGrid.innerHTML = '';
       return;
     }
-    card.style.display = '';
-    const html = buildAspectGridHtml(order, false);
-    $('aspectGrid').innerHTML = html;
-    const arGrid = $('arAspectGrid');
-    if (arGrid) arGrid.innerHTML = buildAspectGridHtml(order, true);
+    arGrid.innerHTML = buildAspectGridHtml(order, true);
   }
 
   // ── 트랜짓 계산 ──
@@ -1406,7 +1394,6 @@ table.astro-table td .glyph{font-size:16px;margin-right:4px;color:var(--accent);
   const EXPORT_MAP = [
     ['expBig3', ['big3Card']],
     ['expBalance', ['balanceCard']],
-    ['expGrid', ['aspectGridCard']],
     ['expPlanet', ['planetCard']],
     ['expPlanetRead', ['planetReadCard']],
     ['expHouse', ['houseCard']],
