@@ -247,8 +247,12 @@ table.astro-table td .glyph{font-size:16px;margin-right:4px;color:var(--accent);
   .card{box-shadow:none;border-color:#ddd;break-inside:avoid-page;}
   #result,#result *{-webkit-print-color-adjust:exact !important;print-color-adjust:exact !important;}
   .bal-fill{opacity:1 !important;}
-  #result > .card:not(.capture-off){break-inside:avoid-page;page-break-inside:avoid;}
-  #result > .card:not(.capture-off) + .card:not(.capture-off){page-break-before:always;}
+  #result > .card:not(.capture-off){break-inside:avoid-page;page-break-inside:avoid;margin-top:12px !important;padding:16px 18px !important;box-shadow:none;}
+  #result > .card:not(.capture-off):first-child{margin-top:0 !important;}
+  .big3{gap:10px;}
+  .big3-card{padding:12px 14px;}
+  .big3-card .b3-text{font-size:11.5px;}
+  #wheelCard .chart-wheel-wrap #astroPaper{max-width:340px;}
   .aspect-grid.compact td{width:17px;height:17px;min-width:17px;font-size:10px;}
   #result > .note{display:none;}
 }
@@ -1300,14 +1304,6 @@ table.astro-table td .glyph{font-size:16px;margin-right:4px;color:var(--accent);
     if (cb) cb.addEventListener('change', syncExportAllToggle);
   });
 
-  function getExportCaptureTargets() {
-    const targets = [];
-    document.querySelectorAll('#result > .card').forEach((el) => {
-      if (el.classList.contains('capture-off') || el.style.display === 'none') return;
-      targets.push(el);
-    });
-    return targets;
-  }
 
   function applyExportHide() {
     EXPORT_MAP.forEach(([id, cardIds]) => {
@@ -1622,28 +1618,25 @@ table.astro-table td .glyph{font-size:16px;margin-right:4px;color:var(--accent);
 
   $('btnPrint').addEventListener('click', () => { runExportPrint(); });
 
-  async function captureExportPages() {
+  async function captureExportCanvas() {
+    const result = $('result');
     const toolbar = $('resultToolbar');
     const prevTb = toolbar.style.display;
     toolbar.style.display = 'none';
     const reopen = prepareCapture();
     await waitForRepaint();
-    const targets = getExportCaptureTargets();
-    const canvases = [];
-    for (const target of targets) {
-      canvases.push(await html2canvas(target, {
-        backgroundColor: '#ffffff',
-        scale: 2,
-        useCORS: true,
-        logging: false,
-        windowWidth: Math.max(document.documentElement.scrollWidth, target.scrollWidth + 40),
-        windowHeight: Math.max(target.scrollHeight + 20, target.offsetHeight + 20),
-      }));
-    }
+    const canvas = await html2canvas(result, {
+      backgroundColor: '#ffffff',
+      scale: 2,
+      useCORS: true,
+      logging: false,
+      windowWidth: Math.max(document.documentElement.scrollWidth, result.scrollWidth + 40),
+      windowHeight: Math.max(result.scrollHeight + 40, result.offsetHeight + 40),
+    });
     reopen.forEach((c) => c.classList.remove('open'));
     clearExportHide();
     toolbar.style.display = prevTb;
-    return canvases;
+    return canvas;
   }
 
   function addCanvasToPdf(pdf, canvas, pageW, pageH, margin, isFirstPage) {
@@ -1684,16 +1677,12 @@ table.astro-table td .glyph{font-size:16px;margin-right:4px;color:var(--accent);
     const prev = btn.textContent;
     btn.textContent = '⏳ PDF 생성…'; btn.disabled = true;
     try {
-      const canvases = await captureExportPages();
-      if (!canvases.length) throw new Error('no targets');
+      const canvas = await captureExportCanvas();
+      if (!canvas) throw new Error('no capture');
       const { jsPDF } = window.jspdf;
       const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
       const pageW = 210; const pageH = 297; const margin = 8;
-      let isFirst = true;
-      canvases.forEach((canvas) => {
-        addCanvasToPdf(pdf, canvas, pageW, pageH, margin, isFirst);
-        isFirst = false;
-      });
+      addCanvasToPdf(pdf, canvas, pageW, pageH, margin, true);
       const nm = ($('inName').value || '네이탈차트').trim().replace(/[\\/:*?"<>|]/g, '_').slice(0, 40);
       pdf.save(`팔자연구소_점성학_${nm}.pdf`);
       flashBtn(btn, '✓ PDF 저장됨');
