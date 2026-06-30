@@ -6387,17 +6387,17 @@ function renderCounselorPrepCard(p) {
     (p.ageVibNum != null ? `<br>연령진동수: <b>만 ${esc(String(p.ageVibAge))}세 · ${esc(String(p.ageVibNum))}번${titleMap[p.ageVibNum] ? ' · ' + esc(titleMap[p.ageVibNum]) : ''}</b>` : '') +
     ((p.ageVibBack != null || p.ageVibFwd != null) ? `<br><span style="color:var(--muted);font-size:11px">전환형 보조 · 과거→현재 <b>${esc(String(p.ageVibBack))}번</b> · 현재→미래 <b>${esc(String(p.ageVibFwd))}번</b></span>` : '');
 
-  // 풀 애로우 9칸 격자 (순차 3·6·9 / 2·5·8 / 1·4·7)
-  let arrowGridHtml = '';
+  // 격자 9칸 (로슈 4·9·2 / 풀 애로우 3·6·9) — 채워진 칸 강조
+  let loshuGridHtml = '', arrowGridHtml = '';
   if (Array.isArray(p.loshuCounts)) {
     const counts = p.loshuCounts;
-    const seqOrder = [[3, 6, 9], [2, 5, 8], [1, 4, 7]];
     const missing = [1, 2, 3, 4, 5, 6, 7, 8, 9].filter((n) => !counts[n]);
-    const cells = seqOrder.map((row) => row.map((n) =>
+    const buildGrid = (order) => `<div class="loshu-grid prep-arrow-grid">${order.map((row) => row.map((n) =>
       `<div class="loshu-cell${counts[n] > 0 ? ' active' : ''}"><div class="loshu-nums">${counts[n] > 0 ? String(n).repeat(counts[n]) : ''}</div><div style="font-size:8px;color:var(--muted)">${n}</div></div>`
-    ).join('')).join('');
-    arrowGridHtml = `<div class="loshu-grid prep-arrow-grid">${cells}</div>` +
-      `<div class="prep-arrow-note">채워진 칸이 강점, 빈 칸이 보완 영역 · 빈 칸: <b>${missing.length ? missing.join(', ') : '없음'}</b></div>`;
+    ).join('')).join('')}</div>`;
+    const noteHtml = `<div class="prep-arrow-note">채워진 칸이 강점, 빈 칸이 보완 영역 · 빈 칸: <b>${missing.length ? missing.join(', ') : '없음'}</b></div>`;
+    loshuGridHtml = buildGrid([[4, 9, 2], [3, 5, 7], [8, 1, 6]]) + noteHtml;
+    arrowGridHtml = buildGrid([[3, 6, 9], [2, 5, 8], [1, 4, 7]]) + noteHtml;
   }
 
   // 최근 세션 메모
@@ -6415,7 +6415,8 @@ function renderCounselorPrepCard(p) {
       <div class="prep-box"><h4>올해 흐름</h4><div class="prep-flow">${flowText}</div></div>
       ${majorFlowHtml ? `<div class="prep-box"><h4>대주기 흐름 (3주기)</h4>${majorFlowHtml}</div>` : ''}
       ${stageFlowHtml ? `<div class="prep-box"><h4>인생 4단계 · 절정수·도전수</h4>${stageFlowHtml}</div>` : ''}
-      ${arrowGridHtml ? `<div class="prep-box"><h4>풀 애로우 격자 (3·6·9 / 2·5·8 / 1·4·7)</h4>${arrowGridHtml}</div>` : ''}
+      ${loshuGridHtml ? `<div class="prep-box"><h4>로슈 격자 (4·9·2 / 3·5·7 / 8·1·6)</h4>${loshuGridHtml}</div>` : ''}
+      ${arrowGridHtml ? `<div class="prep-box"><h4>풀 애로우 (3·6·9 / 2·5·8 / 1·4·7)</h4>${arrowGridHtml}</div>` : ''}
       ${memoHtml}
     </div>
     <p class="prep-note">생성: 저장된 핵심 수·흐름 데이터를 자동 정리한 것입니다. 상담 맥락에 맞게 참고용으로 활용하세요.</p>`;
