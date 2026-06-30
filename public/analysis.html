@@ -6379,7 +6379,8 @@ function renderCounselorPrepCard(p) {
   const flowText = `올해는 ${flowPhrase[pyKey] ? esc(flowPhrase[pyKey]) + ' ' : ''}<b>개인년 ${esc(String(p.pyDisplay != null ? p.pyDisplay : pyKey))}번${titleMap[pyKey] ? ' · ' + esc(titleMap[pyKey]) : ''}</b> 시기입니다.` +
     (yearStrat[pyKey] ? ` 목표: ${esc(yearStrat[pyKey].goal)}. 권유: ${esc(yearStrat[pyKey].action)}` : '') +
     (p.pm != null ? `<br>이번 달 키워드: <b>${esc(String(p.pm))}번 ${esc(monthKw[p.pm] || '')}</b>` : '') +
-    (p.ageVibNum != null ? `<br>연령진동수: <b>만 ${esc(String(p.ageVibAge))}세 · ${esc(String(p.ageVibNum))}번${titleMap[p.ageVibNum] ? ' · ' + esc(titleMap[p.ageVibNum]) : ''}</b>` : '');
+    (p.ageVibNum != null ? `<br>연령진동수: <b>만 ${esc(String(p.ageVibAge))}세 · ${esc(String(p.ageVibNum))}번${titleMap[p.ageVibNum] ? ' · ' + esc(titleMap[p.ageVibNum]) : ''}</b>` : '') +
+    ((p.ageVibBack != null || p.ageVibFwd != null) ? `<br><span style="color:var(--muted);font-size:11px">전환형 보조 · 과거→현재 <b>${esc(String(p.ageVibBack))}번</b> · 현재→미래 <b>${esc(String(p.ageVibFwd))}번</b></span>` : '');
 
   // 이야깃거리(talking points)
   const tp = [];
@@ -8801,6 +8802,8 @@ async function runAnalysis() {
     try {
       const _prepManAge = calcManAge(y, m, d, curY, curM, curD);
       const _prepAv = calcAgeVibration(_prepManAge);
+      const _prepAt = calcAgeTransition(_prepManAge);
+      const _prepAtf = calcAgeTransitionForward(_prepManAge);
       renderCounselorPrepCard({
         clientName: COUNSELOR_CLIENT.displayName || nameRaw,
         lp, lpDisplay,
@@ -8813,6 +8816,7 @@ async function runAnalysis() {
         maturity: maturityNum ? maturityNum.single : null,
         zodiac: z && z.n ? z.n : '—',
         ageVibNum: _prepAv.num, ageVibAge: _prepAv.age,
+        ageVibBack: _prepAt.num, ageVibFwd: _prepAtf.num,
         majorCards, cyData, curMajorIdx, curStageIdx,
       });
     } catch (e) { console.error('prep card', e); }
