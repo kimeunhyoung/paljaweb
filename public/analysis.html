@@ -1207,6 +1207,52 @@
       margin: 0;
       padding: 0;
     }
+    .age-vib-box {
+      background: linear-gradient(180deg, rgba(200,169,110,.10), rgba(200,169,110,.04));
+      border: 1px solid rgba(200,169,110,.4);
+      border-radius: 12px;
+      padding: 14px 18px;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+    .age-vib-box[hidden] { display: none; }
+    .age-vib-num {
+      flex-shrink: 0;
+      width: 58px;
+      height: 58px;
+      border-radius: 12px;
+      background: white;
+      border: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--font-serif);
+      font-size: 30px;
+      font-weight: 300;
+      color: var(--accent);
+      line-height: 1;
+    }
+    .age-vib-body { flex: 1; min-width: 0; }
+    .age-vib-label {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--warm-brown);
+      margin-bottom: 3px;
+    }
+    .age-vib-label .age-vib-tag {
+      font-weight: 600;
+      color: var(--muted);
+      margin-left: 6px;
+    }
+    .age-vib-title { font-size: 13px; font-weight: 600; color: var(--text); margin-bottom: 4px; }
+    .age-vib-desc { font-size: 12px; color: var(--muted); line-height: 1.55; }
+    .age-vib-note { font-size: 11px; color: var(--muted); line-height: 1.5; margin-top: 6px; opacity: .92; }
+    @media (max-width: 640px) {
+      .age-vib-box { padding: 12px 14px; gap: 12px; }
+      .age-vib-num { width: 48px; height: 48px; font-size: 24px; }
+    }
     .flow-today-msg-label {
       font-family: var(--font-body);
       font-size: 11px;
@@ -3924,6 +3970,7 @@
     </div>
     <div id="flowBridge"></div>
     <div class="flow-row" id="flowRow"></div>
+    <div id="ageVibBox" class="age-vib-box" hidden></div>
     <div id="flowAccordion"></div>
     <div id="flowTodayMsg" class="flow-today-msg-wrap" aria-label="오늘의 메시지"></div>
   </div>
@@ -5704,6 +5751,20 @@ function moonNumberSubline(mnPre, mn) {
 
 function sumYearDigits(year) {
   return String(year).split('').reduce((a, b) => Number(a) + Number(b), 0);
+}
+
+/** 만 나이 — 생일 경과 여부 반영 */
+function calcManAge(birthY, birthM, birthD, curY, curM, curD) {
+  let age = curY - birthY;
+  if (curM < birthM || (curM === birthM && curD < birthD)) age -= 1;
+  return Math.max(0, age);
+}
+
+/** 연령진동수 — 만 나이의 자릿수 합(마스터수 11·22·33 유지) */
+function calcAgeVibration(age) {
+  const a = Math.max(0, age | 0);
+  const pre = String(a).split('').reduce((s, c) => s + Number(c), 0);
+  return { age: a, pre, num: reduceToSingle(pre) };
 }
 
 /** 올해의 수 = 연도 자릿수합 + 문 넘버(월·일 자릿수합) → 타로 0~21 (22→0) */
@@ -8168,6 +8229,22 @@ async function runAnalysis() {
   </div>`;
   }).join('');
 
+  const ageVibEl = document.getElementById('ageVibBox');
+  if (ageVibEl) {
+    const manAge = calcManAge(y, m, d, curY, curM, curD);
+    const av = calcAgeVibration(manAge);
+    const avReduce = av.pre !== av.num ? ` → ${av.num}` : '';
+    ageVibEl.hidden = false;
+    ageVibEl.innerHTML = `
+      <div class="age-vib-num">${av.num}</div>
+      <div class="age-vib-body">
+        <div class="age-vib-label">연령진동수<span class="age-vib-tag">만 ${av.age}세 · 자릿수 합 ${av.pre}${avReduce}</span></div>
+        <div class="age-vib-title">${av.num}번 · ${TITLE_MAP[av.num] || ''}</div>
+        <div class="age-vib-desc">${TL_DESC[av.num] || ''}</div>
+        <div class="age-vib-note">만 나이의 자릿수를 더해 얻는 수로, <strong>생일마다 바뀌는 그해의 기본 리듬</strong>을 봅니다. 개인연도수가 ‘달력의 해’라면 연령진동수는 ‘내 나이의 해’를 봅니다.</div>
+      </div>`;
+  }
+
   document.getElementById('flowAccordion').innerHTML = [
     {k:'올해의 수', v:pyDisplay, pre:pyPreLabel, pyClassic, pyTarot:py},
     {k:'이번 달의 수', v:pm, pre:(py + curM), kind:'month'},
@@ -8204,6 +8281,8 @@ async function runAnalysis() {
     }
     document.getElementById('flowRow').innerHTML = '';
     document.getElementById('flowAccordion').innerHTML = '';
+    const ageVibElFree = document.getElementById('ageVibBox');
+    if (ageVibElFree) { ageVibElFree.hidden = true; ageVibElFree.innerHTML = ''; }
     const flowTodayElFree = document.getElementById('flowTodayMsg');
     if (flowTodayElFree) flowTodayElFree.innerHTML = '';
   }
