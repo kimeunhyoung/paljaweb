@@ -403,6 +403,11 @@
     .prep-cycle .cy-range { font-weight: 400; color: var(--muted); font-size: 11px; margin-left: 4px; }
     .prep-cycle .cy-val { margin-left: auto; color: var(--warm-brown); font-weight: 600; }
     .prep-cycle .cy-now { font-size: 10px; background: var(--accent); color: #fff; border-radius: 12px; padding: 2px 8px; font-weight: 700; }
+    .prep-arrow-grid { grid-template-columns: repeat(3, 46px); justify-content: center; margin: 2px auto 0; }
+    .prep-arrow-grid .loshu-cell { width: 46px; height: 46px; }
+    .prep-arrow-grid .loshu-nums { font-size: 13px; }
+    .prep-arrow-note { font-size: 11px; color: var(--muted); text-align: center; margin-top: 8px; line-height: 1.5; }
+    .prep-arrow-note b { color: var(--warm-brown); }
     .prep-memo { font-size: 13px; line-height: 1.7; color: var(--ink); white-space: pre-wrap; }
     .prep-memo .memo-date { font-size: 11px; color: var(--muted); font-weight: 700; display: block; margin-bottom: 3px; }
     .prep-note { font-size: 11px; color: var(--muted); margin-top: 12px; }
@@ -6382,22 +6387,18 @@ function renderCounselorPrepCard(p) {
     (p.ageVibNum != null ? `<br>연령진동수: <b>만 ${esc(String(p.ageVibAge))}세 · ${esc(String(p.ageVibNum))}번${titleMap[p.ageVibNum] ? ' · ' + esc(titleMap[p.ageVibNum]) : ''}</b>` : '') +
     ((p.ageVibBack != null || p.ageVibFwd != null) ? `<br><span style="color:var(--muted);font-size:11px">전환형 보조 · 과거→현재 <b>${esc(String(p.ageVibBack))}번</b> · 현재→미래 <b>${esc(String(p.ageVibFwd))}번</b></span>` : '');
 
-  // 이야깃거리(talking points)
-  const tp = [];
-  const lpDeep = prepExtractDeep(deepMap[p.lp]);
-  if (lpDeep.label) tp.push(`인생여정수 ${esc(String(p.lp))} <b>${esc(lpDeep.label)}</b>${lpDeep.keywords ? ' — ' + esc(lpDeep.keywords) : ''}`);
-  if (p.destiny != null) {
-    const dDeep = prepExtractDeep(deepMap[p.destiny]);
-    if (dDeep.label) tp.push(`운명수 ${esc(String(p.destiny))} <b>${esc(dDeep.label)}</b>${dDeep.keywords ? ' — ' + esc(dDeep.keywords) : ''}`);
+  // 풀 애로우 9칸 격자 (순차 3·6·9 / 2·5·8 / 1·4·7)
+  let arrowGridHtml = '';
+  if (Array.isArray(p.loshuCounts)) {
+    const counts = p.loshuCounts;
+    const seqOrder = [[3, 6, 9], [2, 5, 8], [1, 4, 7]];
+    const missing = [1, 2, 3, 4, 5, 6, 7, 8, 9].filter((n) => !counts[n]);
+    const cells = seqOrder.map((row) => row.map((n) =>
+      `<div class="loshu-cell${counts[n] > 0 ? ' active' : ''}"><div class="loshu-nums">${counts[n] > 0 ? String(n).repeat(counts[n]) : ''}</div><div style="font-size:8px;color:var(--muted)">${n}</div></div>`
+    ).join('')).join('');
+    arrowGridHtml = `<div class="loshu-grid prep-arrow-grid">${cells}</div>` +
+      `<div class="prep-arrow-note">채워진 칸이 강점, 빈 칸이 보완 영역 · 빈 칸: <b>${missing.length ? missing.join(', ') : '없음'}</b></div>`;
   }
-  if (flowPhrase[pyKey]) tp.push(`올해 흐름과 연결: ${esc(flowPhrase[pyKey])} 한 해`);
-  const tpHtml = tp.length ? `<ul>${tp.map((t) => `<li>${t}</li>`).join('')}</ul>` : '<p class="prep-flow" style="color:var(--muted)">이름을 입력하면 더 풍부한 이야깃거리가 나옵니다.</p>';
-
-  // 케어 포인트(주의)
-  const care = [];
-  const g = growth[reduce(p.lp, true)] || growth[reduce(p.lp, false)];
-  if (g) { if (g.t) care.push(`성장 영역: <b>${esc(g.t)}</b>`); if (g.action) care.push(esc(g.action)); }
-  const careHtml = care.length ? `<ul>${care.map((c) => `<li>${c}</li>`).join('')}</ul>` : '<p class="prep-flow" style="color:var(--muted)">—</p>';
 
   // 최근 세션 메모
   let memoHtml = '';
@@ -6412,10 +6413,9 @@ function renderCounselorPrepCard(p) {
     <div class="prep-grid">
       <div class="prep-box"><h4>핵심 수</h4><div class="prep-nums">${chips.join('')}</div></div>
       <div class="prep-box"><h4>올해 흐름</h4><div class="prep-flow">${flowText}</div></div>
-      <div class="prep-box"><h4>이야깃거리</h4>${tpHtml}</div>
-      <div class="prep-box"><h4>케어 포인트</h4>${careHtml}</div>
       ${majorFlowHtml ? `<div class="prep-box"><h4>대주기 흐름 (3주기)</h4>${majorFlowHtml}</div>` : ''}
       ${stageFlowHtml ? `<div class="prep-box"><h4>인생 4단계 · 절정수·도전수</h4>${stageFlowHtml}</div>` : ''}
+      ${arrowGridHtml ? `<div class="prep-box"><h4>풀 애로우 격자 (3·6·9 / 2·5·8 / 1·4·7)</h4>${arrowGridHtml}</div>` : ''}
       ${memoHtml}
     </div>
     <p class="prep-note">생성: 저장된 핵심 수·흐름 데이터를 자동 정리한 것입니다. 상담 맥락에 맞게 참고용으로 활용하세요.</p>`;
@@ -8804,6 +8804,9 @@ async function runAnalysis() {
       const _prepAv = calcAgeVibration(_prepManAge);
       const _prepAt = calcAgeTransition(_prepManAge);
       const _prepAtf = calcAgeTransitionForward(_prepManAge);
+      const _prepBirthStr = y.toString() + m.toString().padStart(2, '0') + d.toString().padStart(2, '0');
+      const _prepCounts = Array(10).fill(0);
+      for (const _c of _prepBirthStr) if (_c !== '0') _prepCounts[Number(_c)]++;
       renderCounselorPrepCard({
         clientName: COUNSELOR_CLIENT.displayName || nameRaw,
         lp, lpDisplay,
@@ -8817,6 +8820,7 @@ async function runAnalysis() {
         zodiac: z && z.n ? z.n : '—',
         ageVibNum: _prepAv.num, ageVibAge: _prepAv.age,
         ageVibBack: _prepAt.num, ageVibFwd: _prepAtf.num,
+        loshuCounts: _prepCounts,
         majorCards, cyData, curMajorIdx, curStageIdx,
       });
     } catch (e) { console.error('prep card', e); }
