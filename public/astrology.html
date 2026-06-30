@@ -153,6 +153,22 @@ table.astro-table td .glyph{font-size:16px;margin-right:4px;color:var(--accent);
 .asp-tense{background:rgba(217,139,95,.16);color:#a9602f;}
 .asp-strong{background:var(--accent-lt);color:var(--warm-brown);}
 
+/* 트랜짓 */
+.transit-intro{font-size:13px;line-height:1.7;color:var(--muted);margin-bottom:14px;}
+.transit-controls{display:flex;align-items:flex-end;gap:10px;flex-wrap:wrap;margin-bottom:6px;}
+.transit-date-row{display:flex;flex-direction:column;gap:5px;font-size:12px;color:var(--warm-brown);font-weight:600;}
+.transit-date-row .input-field{width:auto;}
+.transit-result{margin-top:14px;}
+.transit-now{font-size:12.5px;color:var(--muted);line-height:1.8;background:var(--cream);border-radius:10px;padding:11px 14px;margin-bottom:14px;}
+.transit-now .tn-planet{display:inline-block;margin-right:12px;white-space:nowrap;}
+.transit-now .tn-glyph{color:var(--accent);font-size:14px;margin-right:2px;}
+.transit-empty{font-size:13px;color:var(--muted);padding:8px 0;}
+
+/* AI 프롬프트 */
+.ai-prompt-box{width:100%;border:1px solid var(--border);border-radius:10px;background:var(--cream);padding:13px 15px;font-family:inherit;font-size:12.5px;line-height:1.7;color:var(--ink);resize:vertical;}
+.ai-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px;}
+.ai-actions a.rt-btn{text-decoration:none;display:inline-flex;align-items:center;}
+
 @media (max-width:680px){
   .form-grid{grid-template-columns:1fr;}
   .big3{grid-template-columns:1fr;}
@@ -275,6 +291,31 @@ table.astro-table td .glyph{font-size:16px;margin-right:4px;color:var(--accent);
       <div class="note">어스펙트(각)는 행성 사이의 각도 관계예요. 합(0°)·육각(60°)·사각(90°)·삼각(120°)·충(180°)이 대표적입니다. <span class="asp-tag asp-easy">조화</span>는 자연스러운 강점, <span class="asp-tag asp-tense">긴장</span>은 성장의 마찰입니다.</div>
     </div>
 
+    <!-- 트랜짓(오늘의 운세) -->
+    <div class="card" id="transitCard">
+      <div class="card-title">✦ 오늘의 하늘 · 트랜짓</div>
+      <p class="transit-intro">지금 이 순간 하늘의 행성들이 <strong>나의 출생 차트</strong>에 어떤 각을 맺는지를 봅니다. 요즘의 흐름·기회·과제를 읽는 ‘운세’예요.</p>
+      <div class="transit-controls">
+        <label class="transit-date-row">기준 날짜
+          <input type="date" id="transitDate" class="input-field"/>
+        </label>
+        <button type="button" class="rt-btn rt-btn--share" id="btnTransit">오늘의 트랜짓 보기</button>
+      </div>
+      <div id="transitResult" class="transit-result"></div>
+    </div>
+
+    <!-- AI 해석 프롬프트 -->
+    <div class="card" id="aiCard">
+      <div class="card-title">✦ AI 심층 해석 프롬프트</div>
+      <p class="transit-intro">아래 프롬프트를 복사해 ChatGPT·Gemini 등 AI에 붙여넣으면, 이 차트에 대한 <strong>맞춤 심층 해석</strong>을 받을 수 있어요.</p>
+      <textarea id="aiPrompt" class="ai-prompt-box" readonly rows="8"></textarea>
+      <div class="ai-actions">
+        <button type="button" class="rt-btn rt-btn--share" id="btnAiCopy">⧉ 프롬프트 복사</button>
+        <a class="rt-btn" id="btnOpenGpt" href="https://chatgpt.com/" target="_blank" rel="noopener">ChatGPT 열기 ↗</a>
+        <a class="rt-btn" id="btnOpenGemini" href="https://gemini.google.com/app" target="_blank" rel="noopener">Gemini 열기 ↗</a>
+      </div>
+    </div>
+
     <div class="note">
       ※ 트로피컬 황도 · 플라시더스 하우스 기준입니다. 출생 시간이 정확할수록 상승궁·하우스가 정확해집니다.
       서머타임 등 시간대는 출생지 좌표로 자동 계산됩니다. 본 결과는 교육·오락 목적의 참고 자료입니다.
@@ -378,9 +419,14 @@ table.astro-table td .glyph{font-size:16px;margin-right:4px;color:var(--accent);
   }
 
   let LAST_SUMMARY = '';
+  let LAST_HOROSCOPE = null;
+  let LAST_COORDS = null;
+  let NATAL_DEGS = {};        // { sun: deg, ..., asc, mc }
+  let LAST_CTX = null;        // { displayName, unknownTime, coordLabel, sunSign, moonSign, ascSign, planetReads:[] }
 
   function render(horoscope, opts) {
     const result = $('result');
+    LAST_HOROSCOPE = horoscope;
     $('resultName').textContent = (opts.displayName ? opts.displayName + ' · ' : '') + '네이탈 차트';
     // ── 빅3 ──
     const sunDeg = deg(horoscope.CelestialBodies.sun);
@@ -426,6 +472,8 @@ table.astro-table td .glyph{font-size:16px;margin-right:4px;color:var(--accent);
     const readKeys = ['sun','moon','mercury','venus','mars','jupiter','saturn','uranus','neptune','pluto'];
     let rows = `<thead><tr><th>천체</th><th>별자리</th><th>도수</th>${opts.unknownTime ? '' : '<th>하우스</th>'}<th>비고</th></tr></thead><tbody>`;
     let readHtml = '';
+    const natalDegs = {};
+    const planetReads = [];
     function pushRow(b, key) {
       const d = deg(b); if (d == null) return;
       const s = M.signFromDegree(d);
@@ -433,6 +481,7 @@ table.astro-table td .glyph{font-size:16px;margin-right:4px;color:var(--accent);
       const houseId = (b.House && b.House.id) ? b.House.id : '';
       const isRetro = (typeof b.isRetrograde === 'function') ? b.isRetrograde() : b.isRetrograde;
       const retro = isRetro ? '<span class="retro">R</span>' : '';
+      natalDegs[key] = d;
       rows += `<tr>
         <td><span class="glyph">${pk.glyph}</span>${pk.ko}</td>
         <td><span class="glyph">${s.sign.glyph}</span>${s.sign.ko}</td>
@@ -443,6 +492,7 @@ table.astro-table td .glyph{font-size:16px;margin-right:4px;color:var(--accent);
       if (readKeys.indexOf(key) >= 0) {
         const signText = M.planetInSign(key, s.sign.key);
         const houseText = (!opts.unknownTime && houseId) ? M.planetInHouse(key, houseId) : '';
+        planetReads.push({ ko: pk.ko, sign: s.sign.ko, house: houseId, retro: isRetro });
         const retroR = isRetro ? '<span class="pr-retro">R 역행</span>' : '';
         readHtml += `<div class="planet-read-item">
           <div class="pr-glyph">${pk.glyph}</div>
@@ -508,8 +558,163 @@ table.astro-table td .glyph{font-size:16px;margin-right:4px;color:var(--accent);
     // ── 요약 텍스트(복사·공유용) ──
     LAST_SUMMARY = buildSummaryText({ displayName: opts.displayName, sunSign, moonSign, ascSign });
 
+    // ── 트랜짓·AI용 컨텍스트 저장 ──
+    NATAL_DEGS = natalDegs;
+    if (!opts.unknownTime) {
+      const ad = deg(horoscope.Ascendant); if (ad != null) NATAL_DEGS.asc = ad;
+      try { const md = horoscope.Midheaven ? deg(horoscope.Midheaven) : null; if (md != null) NATAL_DEGS.mc = md; } catch (e) {}
+    }
+    LAST_CTX = {
+      displayName: opts.displayName, unknownTime: opts.unknownTime, coordLabel: opts.coordLabel,
+      sunSign, moonSign, ascSign, planetReads,
+    };
+    $('aiPrompt').value = buildAiPrompt(LAST_CTX, aspects, knownKeys);
+
+    // 트랜짓 기준일 기본값 = 오늘, 결과 초기화
+    const td = $('transitDate');
+    if (td && !td.value) {
+      const now = new Date();
+      td.value = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0') + '-' + String(now.getDate()).padStart(2, '0');
+    }
+    $('transitResult').innerHTML = '<div class="transit-empty">위 “오늘의 트랜짓 보기”를 누르면 현재 흐름이 표시됩니다.</div>';
+
     result.classList.add('show');
     result.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  // ── 어스펙트 정의(트랜짓 계산용) ──
+  const ASPECTS_DEF = [
+    { key: 'conjunction', a: 0,   orb: 5 },
+    { key: 'sextile',     a: 60,  orb: 3 },
+    { key: 'square',      a: 90,  orb: 4 },
+    { key: 'trine',       a: 120, orb: 4 },
+    { key: 'opposition',  a: 180, orb: 5 },
+  ];
+  const ASPECT_SYM = { conjunction: '☌', opposition: '☍', trine: '△', square: '□', sextile: '⚹' };
+  const ASPECT_KR2 = { conjunction: '합', opposition: '충', trine: '삼각', square: '사각', sextile: '육각' };
+  function angDiff(a, b) { let d = Math.abs(a - b) % 360; if (d > 180) d = 360 - d; return d; }
+  function findAspect(d1, d2) {
+    const diff = angDiff(d1, d2);
+    for (const A of ASPECTS_DEF) {
+      if (Math.abs(diff - A.a) <= A.orb) return { key: A.key, orbOff: Math.abs(diff - A.a) };
+    }
+    return null;
+  }
+
+  // ── 트랜짓 계산 ──
+  async function computeTransit() {
+    if (!LAST_HOROSCOPE || !LAST_COORDS) return;
+    if (libError || !Origin || !Horoscope) {
+      $('transitResult').innerHTML = '<div class="transit-empty">계산 도구를 불러오지 못했어요. 새로고침 후 다시 시도해 주세요.</div>';
+      return;
+    }
+    const btn = $('btnTransit');
+    const prev = btn.textContent; btn.textContent = '계산 중…'; btn.disabled = true;
+    try {
+      const dv = ($('transitDate').value || '').split('-').map(Number);
+      const now = new Date();
+      const y = dv[0] || now.getFullYear();
+      const mo = dv[1] || (now.getMonth() + 1);
+      const da = dv[2] || now.getDate();
+      const origin = new Origin({
+        year: y, month: mo - 1, date: da, hour: 12, minute: 0,
+        latitude: LAST_COORDS.lat, longitude: LAST_COORDS.lng,
+      });
+      const th = new Horoscope({
+        origin, houseSystem: 'placidus', zodiac: 'tropical',
+        aspectPoints: ['bodies'], aspectWithPoints: ['bodies'], aspectTypes: ['major'], language: 'en',
+      });
+      renderTransit(th, { y, mo, da });
+    } catch (e) {
+      console.error(e);
+      $('transitResult').innerHTML = '<div class="transit-empty">트랜짓 계산 중 오류가 났어요.</div>';
+    } finally {
+      btn.textContent = prev; btn.disabled = false;
+    }
+  }
+
+  function renderTransit(th, dateObj) {
+    // 트랜짓 행성: 빠른 행성 위주(태양·달·수성·금성·화성)와 느린 행성(목성~명왕성)
+    const transitKeys = ['sun','moon','mercury','venus','mars','jupiter','saturn','uranus','neptune','pluto'];
+    const tDegs = {};
+    let nowHtml = '';
+    transitKeys.forEach((k) => {
+      const b = th.CelestialBodies[k]; const d = b ? deg(b) : null;
+      if (d == null) return;
+      tDegs[k] = d;
+      const s = M.signFromDegree(d).sign;
+      const pk = M.PLANETS[k];
+      nowHtml += `<span class="tn-planet"><span class="tn-glyph">${pk.glyph}</span>${pk.ko} ${s.glyph} ${s.ko}</span>`;
+    });
+
+    // 트랜짓 행성 × 출생 행성 어스펙트
+    const natalLabelKeys = { sun:'태양', moon:'달', mercury:'수성', venus:'금성', mars:'화성', jupiter:'목성', saturn:'토성', uranus:'천왕성', neptune:'해왕성', pluto:'명왕성', asc:'상승궁', mc:'중천점' };
+    const hits = [];
+    Object.keys(tDegs).forEach((tk) => {
+      Object.keys(NATAL_DEGS).forEach((nk) => {
+        const asp = findAspect(tDegs[tk], NATAL_DEGS[nk]);
+        if (!asp) return;
+        // 같은 천체끼리의 합/충 등도 의미 있으나, 노이즈를 줄이려 동일행성-동일행성 합(=리턴)만 제외하지 않음
+        hits.push({ tk, nk, key: asp.key, orbOff: asp.orbOff });
+      });
+    });
+    // 정확도(오브 작은 것) 우선 정렬, 너무 많으면 상위 12개
+    hits.sort((a, b) => a.orbOff - b.orbOff);
+    const top = hits.slice(0, 14);
+
+    const meaning = M.ASPECT_MEANING || {};
+    const toneTag = { easy: '<span class="asp-tag asp-easy">조화</span>', tense: '<span class="asp-tag asp-tense">긴장</span>', strong: '<span class="asp-tag asp-strong">증폭</span>' };
+    let listHtml = '';
+    top.forEach((h) => {
+      const tName = M.PLANETS[h.tk] ? M.PLANETS[h.tk].ko : h.tk;
+      const nName = natalLabelKeys[h.nk] || h.nk;
+      const m = meaning[h.key] || { tone: '', text: '' };
+      listHtml += `<div class="aspect-read-item ${m.tone}">
+        <div class="ari-title"><span class="ari-sym">${ASPECT_SYM[h.key] || ''}</span>트랜짓 <strong>${tName}</strong> ${ASPECT_KR2[h.key] || ''} 본명 <strong>${nName}</strong>${toneTag[m.tone] || ''}</div>
+        <div class="ari-text">${m.text}</div>
+      </div>`;
+    });
+
+    const dstr = dateObj.y + '.' + dateObj.mo + '.' + dateObj.da;
+    let html = `<div class="transit-now"><strong>${dstr} 현재 하늘</strong><br>${nowHtml}</div>`;
+    if (listHtml) html += `<div class="aspect-read-list">${listHtml}</div>`;
+    else html += '<div class="transit-empty">이 날짜엔 출생 차트와 맺는 주요 각이 거의 없어요. 비교적 잔잔한 시기예요.</div>';
+    $('transitResult').innerHTML = html;
+  }
+
+  // ── AI 해석 프롬프트 ──
+  function buildAiPrompt(ctx, aspects, knownKeys) {
+    const L = [];
+    L.push('당신은 따뜻하고 통찰력 있는 전문 점성가입니다. 아래 출생 차트를 바탕으로, 전문 용어는 쉽게 풀어 한국어로 해석해 주세요. 성격·강점·과제·연애/관계·일/적성·올해 조언 순으로, 단정적이지 않게 다정하게 설명해 주세요.');
+    L.push('');
+    L.push('[출생 차트]');
+    if (ctx.displayName) L.push('이름: ' + ctx.displayName);
+    L.push('태양: ' + ctx.sunSign.ko + (ctx.moonSign ? ' / 달: ' + ctx.moonSign.ko : '') + (ctx.ascSign ? ' / 상승궁: ' + ctx.ascSign.ko : ' / 상승궁: (출생시간 미상)'));
+    if (ctx.planetReads && ctx.planetReads.length) {
+      L.push('행성 배치:');
+      ctx.planetReads.forEach((p) => {
+        L.push(' - ' + p.ko + ': ' + p.sign + (p.house ? ' / ' + p.house + '하우스' : '') + (p.retro ? ' (역행)' : ''));
+      });
+    }
+    if (LAST_BALANCE) {
+      const e = LAST_BALANCE.elements, m = LAST_BALANCE.modal;
+      L.push('원소 균형: 불 ' + e['불'] + ', 흙 ' + e['흙'] + ', 바람 ' + e['바람'] + ', 물 ' + e['물']);
+      L.push('모달리티: 활동 ' + m['활동'] + ', 고정 ' + m['고정'] + ', 변통 ' + m['변통']);
+    }
+    // 주요 어스펙트
+    const aspKo = { conjunction: '합', opposition: '충', trine: '삼각', square: '사각', sextile: '육각' };
+    const aspLines = [];
+    (aspects || []).forEach((a) => {
+      const kk = aspKo[a.aspectKey]; if (!kk) return;
+      if (knownKeys.indexOf(a.point1Key) < 0 || knownKeys.indexOf(a.point2Key) < 0) return;
+      const n1 = (M.PLANETS[a.point1Key] && M.PLANETS[a.point1Key].ko) || a.point1Key;
+      const n2 = (M.PLANETS[a.point2Key] && M.PLANETS[a.point2Key].ko) || a.point2Key;
+      aspLines.push(n1 + ' ' + kk + ' ' + n2);
+    });
+    if (aspLines.length) { L.push('주요 어스펙트: ' + aspLines.join(', ')); }
+    L.push('');
+    L.push('위 정보를 종합해 이 사람의 타고난 성향과 삶의 흐름을 풍부하게 해석해 주세요.');
+    return L.join('\n');
   }
 
   // ── 원소·모달리티 균형 ──
@@ -650,6 +855,7 @@ table.astro-table td .glyph{font-size:16px;margin-right:4px;color:var(--accent);
         language: 'en'
       });
       hideStatus();
+      LAST_COORDS = coords;
       const displayName = ($('inName').value || '').trim();
       render(horoscope, { unknownTime, coordLabel: coords.label, displayName });
     } catch (e) {
@@ -685,6 +891,20 @@ table.astro-table td .glyph{font-size:16px;margin-right:4px;color:var(--accent);
   });
 
   $('btnPrint').addEventListener('click', () => { window.print(); });
+
+  $('btnTransit').addEventListener('click', computeTransit);
+
+  $('btnAiCopy').addEventListener('click', async () => {
+    const txt = $('aiPrompt').value;
+    if (!txt) return;
+    try {
+      await navigator.clipboard.writeText(txt);
+      flashBtn($('btnAiCopy'), '✓ 복사됨');
+    } catch (e) {
+      const ta = $('aiPrompt'); ta.focus(); ta.select();
+      try { document.execCommand('copy'); flashBtn($('btnAiCopy'), '✓ 복사됨'); } catch (_) {}
+    }
+  });
 
   $('btnImage').addEventListener('click', async () => {
     if (typeof html2canvas !== 'function') {
