@@ -26,6 +26,7 @@
 <!-- 점성 차트 그리기(UMD 전역 astrochart) -->
 <script src="https://cdn.jsdelivr.net/npm/@astrodraw/astrochart@3.0.2/dist/astrochart.js"></script>
 <!-- 이미지 저장용 -->
+<script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.2/dist/jspdf.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
 <!-- 데이터 -->
 <script src="js/astro-cities.js?v=1"></script>
@@ -97,8 +98,14 @@ body{font-family:var(--font-body);background:var(--cream);color:var(--ink);min-h
 .big3-card .b3-text{font-size:12.5px;line-height:1.7;color:var(--ink);margin-top:10px;text-align:left;}
 
 .chart-shell{display:flex;justify-content:center;margin:6px 0;}
-#astroPaper{width:100%;max-width:560px;}
+.chart-duo{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:14px 18px;align-items:start;}
+.chart-wheel-wrap{min-width:0;display:flex;justify-content:center;}
+.chart-grid-wrap{background:#faf8f4;border:1px solid var(--border);border-radius:12px;padding:10px 8px;align-self:stretch;}
+.chart-grid-label{font-size:11px;font-weight:700;color:var(--muted);margin-bottom:8px;text-align:center;letter-spacing:.06em;}
+.chart-grid-scroll{overflow:auto;max-height:min(520px,72vw);}
+#astroPaper{width:100%;max-width:480px;}
 #astroPaper svg{width:100%;height:auto;display:block;}
+.aspect-grid.compact td{width:24px;height:24px;min-width:24px;font-size:14px;}
 
 table.astro-table{width:100%;border-collapse:collapse;font-size:13.5px;}
 table.astro-table th,table.astro-table td{padding:9px 8px;border-bottom:1px solid var(--border);text-align:left;}
@@ -124,12 +131,15 @@ table.astro-table td .glyph{font-size:16px;margin-right:4px;color:var(--accent);
 .balance-bars{display:flex;flex-direction:column;gap:9px;}
 .bal-row{display:grid;grid-template-columns:64px 1fr 26px;align-items:center;gap:10px;}
 .bal-label{font-size:13px;color:var(--ink);font-weight:600;}
-.bal-track{height:12px;background:var(--cream);border-radius:8px;overflow:hidden;border:1px solid var(--border);}
-.bal-fill{height:100%;border-radius:8px;background:linear-gradient(90deg,var(--accent),#d4b87a);transition:width .5s ease;}
-.bal-fill.fire{background:linear-gradient(90deg,#d98b5f,#e0a878);}
-.bal-fill.earth{background:linear-gradient(90deg,#9e8c5a,#bda878);}
-.bal-fill.air{background:linear-gradient(90deg,#8aafcc,#a9c8de);}
-.bal-fill.water{background:linear-gradient(90deg,#5f93b8,#86b6d2);}
+.bal-track{height:12px;background:#ece4d6;border-radius:8px;overflow:hidden;border:1px solid #d8cbb5;position:relative;}
+.bal-fill{height:100%;border-radius:7px;min-width:2px;background:#c8a96e;-webkit-print-color-adjust:exact;print-color-adjust:exact;transition:width .5s ease;}
+.bal-fill.fire{background:#d9784f;}
+.bal-fill.earth{background:#8f7a4a;}
+.bal-fill.air{background:#6a9fc4;}
+.bal-fill.water{background:#4a82b5;}
+.bal-fill.mod-cardinal{background:#c8a96e;}
+.bal-fill.mod-fixed{background:#8b6f47;}
+.bal-fill.mod-mutable{background:#6a9fc4;}
 .bal-count{font-size:12.5px;color:var(--muted);text-align:right;font-weight:600;}
 
 /* 행성 해석 */
@@ -221,6 +231,8 @@ table.astro-table td .glyph{font-size:16px;margin-right:4px;color:var(--accent);
   .big3{grid-template-columns:1fr;}
   .balance-wrap{grid-template-columns:1fr;gap:18px;}
   .result-toolbar{justify-content:flex-start;}
+  .chart-duo{grid-template-columns:1fr;}
+  .chart-grid-wrap{max-width:100%;}
 }
 
 /* 인쇄 시: 입력 폼·툴바·상단바·푸터 숨김 */
@@ -229,6 +241,8 @@ table.astro-table td .glyph{font-size:16px;margin-right:4px;color:var(--accent);
   body{background:#fff;}
   .card{box-shadow:none;border-color:#ddd;break-inside:avoid;}
   .wrap{padding-top:10px;}
+  #result,#result *{-webkit-print-color-adjust:exact !important;print-color-adjust:exact !important;}
+  .bal-fill{opacity:1 !important;}
 }
 
 /* FOOTER */
@@ -316,7 +330,8 @@ table.astro-table td .glyph{font-size:16px;margin-right:4px;color:var(--accent);
       <div class="result-actions">
         <button type="button" class="rt-btn" id="btnCopy" title="빅3·원소 요약을 클립보드로 복사">⧉ 요약 복사</button>
         <button type="button" class="rt-btn" id="btnImage" title="결과를 이미지(PNG)로 저장">⬇ 이미지 저장</button>
-        <button type="button" class="rt-btn" id="btnPrint" title="인쇄하거나 PDF로 저장">🖨 인쇄·PDF</button>
+        <button type="button" class="rt-btn" id="btnPrint" title="인쇄">🖨 인쇄</button>
+        <button type="button" class="rt-btn rt-btn--share" id="btnPdf" title="PDF 파일로 저장">⬇ PDF 저장</button>
         <button type="button" class="rt-btn rt-btn--share" id="btnSaveClient" title="고객 카드에 차트 요약 저장" hidden>💾 고객 카드에 저장</button>
         <button type="button" class="rt-btn rt-btn--share" id="btnShare" title="요약·링크 공유">↗ 공유</button>
       </div>
@@ -344,7 +359,13 @@ table.astro-table td .glyph{font-size:16px;margin-right:4px;color:var(--accent);
 
     <div class="card" id="wheelCard">
       <div class="card-title">✦ 네이탈 차트</div>
-      <div class="chart-shell"><div id="astroPaper"></div></div>
+      <div class="chart-duo">
+        <div class="chart-wheel-wrap"><div id="astroPaper"></div></div>
+        <div class="chart-grid-wrap" id="wheelGridWrap">
+          <div class="chart-grid-label">어스펙트 그리드</div>
+          <div class="chart-grid-scroll" id="wheelAspectGrid"></div>
+        </div>
+      </div>
       <div class="note" id="wheelNote"></div>
     </div>
 
@@ -878,14 +899,11 @@ table.astro-table td .glyph{font-size:16px;margin-right:4px;color:var(--accent);
     return best ? best.A : null;
   }
   function gridGlyph(k) { return (M.PLANETS[k] && M.PLANETS[k].glyph) || GRID_LABEL[k] || k; }
-  function renderAspectGrid() {
-    const card = $('aspectGridCard');
-    if (!card) return;
-    const order = GRID_ORDER.filter((k) => NATAL_DEGS[k] != null);
-    if (order.length < 2) { card.style.display = 'none'; return; }
-    card.style.display = '';
+  function buildAspectGridHtml(order, compact) {
+    if (order.length < 2) return '';
     const toneClass = { easy: 'g-easy', tense: 'g-tense', strong: 'g-strong' };
-    let html = '<table class="aspect-grid"><tbody>';
+    const cls = compact ? 'aspect-grid compact' : 'aspect-grid';
+    let html = `<table class="${cls}"><tbody>`;
     for (let i = 0; i < order.length; i++) {
       html += '<tr>';
       for (let j = 0; j < i; j++) {
@@ -901,7 +919,26 @@ table.astro-table td .glyph{font-size:16px;margin-right:4px;color:var(--accent);
       html += '</tr>';
     }
     html += '</tbody></table>';
+    return html;
+  }
+  function renderAspectGrid() {
+    const card = $('aspectGridCard');
+    if (!card) return;
+    const order = GRID_ORDER.filter((k) => NATAL_DEGS[k] != null);
+    const wheelWrap = $('wheelGridWrap');
+    if (order.length < 2) {
+      card.style.display = 'none';
+      if (wheelWrap) wheelWrap.style.display = 'none';
+      return;
+    }
+    card.style.display = '';
+    const html = buildAspectGridHtml(order, false);
     $('aspectGrid').innerHTML = html;
+    const wheelGrid = $('wheelAspectGrid');
+    if (wheelGrid) {
+      wheelGrid.innerHTML = buildAspectGridHtml(order, true);
+      if (wheelWrap) wheelWrap.style.display = '';
+    }
   }
 
   // ── 트랜짓 계산 ──
@@ -1376,11 +1413,12 @@ table.astro-table td .glyph{font-size:16px;margin-right:4px;color:var(--accent);
     $('elementBars').innerHTML = elBars;
 
     const maxMo = Math.max(1, ...Object.values(modal));
+    const moClass = { '활동': 'mod-cardinal', '고정': 'mod-fixed', '변통': 'mod-mutable' };
     let moBars = '';
     Object.keys(modal).forEach((k) => {
       const v = modal[k];
       const pct = Math.round((v / maxMo) * 100);
-      moBars += `<div class="bal-row"><span class="bal-label">${k}</span><div class="bal-track"><div class="bal-fill" style="width:${v ? Math.max(8, pct) : 0}%"></div></div><span class="bal-count">${v}</span></div>`;
+      moBars += `<div class="bal-row"><span class="bal-label">${k}</span><div class="bal-track"><div class="bal-fill ${moClass[k] || ''}" style="width:${v ? Math.max(8, pct) : 0}%"></div></div><span class="bal-count">${v}</span></div>`;
     });
     $('modalityBars').innerHTML = moBars;
 
@@ -1413,10 +1451,37 @@ table.astro-table td .glyph{font-size:16px;margin-right:4px;color:var(--accent);
     return lines.join('\n');
   }
 
+  // 아스트라·Astro-Seek 스타일: 4원소 색상 링 + 조화/긴장 어스펙트 선
+  const ASTRO_CHART_SETTINGS = {
+    COLOR_BACKGROUND: '#ffffff',
+    CIRCLE_COLOR: '#3d3d3d',
+    LINE_COLOR: '#555555',
+    MARGIN: 34,
+    PADDING: 10,
+    POINTS_STROKE: 1.7,
+    SIGNS_STROKE: 1.3,
+    CUSPS_STROKE: 0.9,
+    SHOW_DIGNITIES_TEXT: false,
+    COLORS_SIGNS: [
+      '#e15241', '#6b8e4e', '#6b9bd1', '#4a7fb5',
+      '#e15241', '#6b8e4e', '#6b9bd1', '#4a7fb5',
+      '#e15241', '#6b8e4e', '#6b9bd1', '#4a7fb5',
+    ],
+    ASPECTS: {
+      conjunction: { degree: 0, orbit: 8, color: '#888888' },
+      opposition: { degree: 180, orbit: 8, color: '#c0392b' },
+      square: { degree: 90, orbit: 7, color: '#e74c3c' },
+      trine: { degree: 120, orbit: 7, color: '#2980b9' },
+      sextile: { degree: 60, orbit: 5, color: '#27ae60' },
+      quincunx: { degree: 150, orbit: 3, color: '#9b59b6' },
+    },
+  };
+
   function drawWheel(horoscope) {
     const paper = $('astroPaper');
     paper.innerHTML = '';
-    const size = Math.min(paper.clientWidth || 520, 560);
+    const wrap = paper.closest('.chart-wheel-wrap') || paper.parentElement;
+    const size = Math.min((wrap && wrap.clientWidth) || paper.clientWidth || 480, 480);
     const planets = {};
     const map = M.CHART_KEY;
     ['sun','moon','mercury','venus','mars','jupiter','saturn','uranus','neptune','pluto','chiron'].forEach((k) => {
@@ -1430,7 +1495,7 @@ table.astro-table td .glyph{font-size:16px;margin-right:4px;color:var(--accent);
     const cusps = (horoscope.Houses || []).map(houseStart);
     if (cusps.length !== 12 || cusps.some((c) => c == null)) return;
     try {
-      const chart = new astrochart.Chart('astroPaper', size, size);
+      const chart = new astrochart.Chart('astroPaper', size, size, ASTRO_CHART_SETTINGS);
       const radix = chart.radix({ planets, cusps });
       radix.addPointsOfInterest({ As: [cusps[0]], Ic: [cusps[3]], Ds: [cusps[6]], Mc: [cusps[9]] });
       radix.aspects();
@@ -1515,6 +1580,75 @@ table.astro-table td .glyph{font-size:16px;margin-right:4px;color:var(--accent);
   });
 
   $('btnPrint').addEventListener('click', () => { runExportPrint(); });
+
+  async function captureResultCanvas() {
+    const result = $('result');
+    const toolbar = $('resultToolbar');
+    const prevTb = toolbar.style.display;
+    toolbar.style.display = 'none';
+    const reopen = prepareCapture();
+    await waitForRepaint();
+    const canvas = await html2canvas(result, {
+      backgroundColor: '#f5f0e8',
+      scale: 2,
+      useCORS: true,
+      logging: false,
+      windowWidth: Math.max(document.documentElement.scrollWidth, result.scrollWidth),
+      windowHeight: Math.max(document.documentElement.scrollHeight, result.scrollHeight),
+    });
+    reopen.forEach((c) => c.classList.remove('open'));
+    clearExportHide();
+    toolbar.style.display = prevTb;
+    return canvas;
+  }
+
+  $('btnPdf').addEventListener('click', async () => {
+    if (!window.jspdf || !window.jspdf.jsPDF) {
+      showStatus('PDF 도구를 불러오지 못했어요. 새로고침 후 다시 시도해 주세요.', 'err');
+      return;
+    }
+    if (!$('result').classList.contains('show')) {
+      showStatus('먼저 차트를 계산해 주세요.', 'err');
+      return;
+    }
+    const btn = $('btnPdf');
+    const prev = btn.textContent;
+    btn.textContent = '⏳ PDF 생성…'; btn.disabled = true;
+    try {
+      const canvas = await captureResultCanvas();
+      const { jsPDF } = window.jspdf;
+      const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+      const pageW = 210; const pageH = 297; const margin = 10;
+      const imgW = pageW - margin * 2;
+      const imgH = canvas.height * imgW / canvas.width;
+      const pageContentH = pageH - margin * 2;
+      let y = 0;
+      while (y < imgH) {
+        const sY = (y * canvas.width) / imgW;
+        const sH = (pageContentH * canvas.width) / imgW;
+        const pageCanvas = document.createElement('canvas');
+        pageCanvas.width = canvas.width;
+        pageCanvas.height = Math.min(sH, canvas.height - sY);
+        pageCanvas.getContext('2d').drawImage(
+          canvas, 0, sY, canvas.width, pageCanvas.height,
+          0, 0, canvas.width, pageCanvas.height
+        );
+        if (y > 0) pdf.addPage();
+        const hMm = pageCanvas.height * imgW / pageCanvas.width;
+        pdf.addImage(pageCanvas.toDataURL('image/jpeg', 0.92), 'JPEG', margin, margin, imgW, hMm);
+        y += pageContentH;
+      }
+      const nm = ($('inName').value || '네이탈차트').trim().replace(/[\\/:*?"<>|]/g, '_').slice(0, 40);
+      pdf.save(`팔자연구소_점성학_${nm}.pdf`);
+      flashBtn(btn, '✓ PDF 저장됨');
+    } catch (e) {
+      console.error(e);
+      showStatus('PDF 생성 중 오류가 났어요. 인쇄 기능을 이용해 보세요.', 'err');
+      btn.textContent = prev; btn.disabled = false;
+    } finally {
+      clearExportHide();
+    }
+  });
 
   $('btnTransit').addEventListener('click', computeTransit);
 
@@ -1608,16 +1742,7 @@ table.astro-table td .glyph{font-size:16px;margin-right:4px;color:var(--accent);
     const prev = btn.textContent;
     btn.textContent = '⏳ 생성 중…'; btn.disabled = true;
     try {
-      const result = $('result');
-      const toolbar = $('resultToolbar');
-      const prevTb = toolbar.style.display;
-      toolbar.style.display = 'none';
-      const reopen = prepareCapture();
-      await waitForRepaint();
-      const canvas = await html2canvas(result, { backgroundColor: '#f5f0e8', scale: 2, useCORS: true, logging: false });
-      reopen.forEach((c) => c.classList.remove('open'));
-      clearExportHide();
-      toolbar.style.display = prevTb;
+      const canvas = await captureResultCanvas();
       const nm = ($('inName').value || '네이탈차트').trim().replace(/[\\/:*?"<>|]/g, '_').slice(0, 40);
       const link = document.createElement('a');
       link.download = `팔자연구소_점성학_${nm}.png`;
@@ -1625,7 +1750,7 @@ table.astro-table td .glyph{font-size:16px;margin-right:4px;color:var(--accent);
       link.click();
     } catch (e) {
       console.error(e);
-      showStatus('이미지 생성 중 오류가 났어요. 인쇄·PDF를 이용해 보세요.', 'err');
+      showStatus('이미지 생성 중 오류가 났어요. PDF 저장을 이용해 보세요.', 'err');
     } finally {
       clearExportHide();
       btn.textContent = prev; btn.disabled = false;
