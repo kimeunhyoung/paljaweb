@@ -601,6 +601,7 @@ section { padding: 100px 0; }
   display: flex;
   align-items: center;
   gap: 8px;
+  word-break: keep-all;
   border-bottom: 1px solid var(--border);
 }
 .pricing-card.featured .plan-feature-list li { color: var(--cream2); border-bottom-color: rgba(255,255,255,0.08); }
@@ -745,6 +746,7 @@ section { padding: 100px 0; }
   gap: 8px;
   font-size: 12.5px;
   color: rgba(245,240,232,.72);
+  word-break: keep-all;
 }
 .pricing-pro-btn {
   display: inline-block;
