@@ -478,6 +478,10 @@
           <input id="cBirth" type="date" required/>
         </div>
         <div>
+          <label for="cBirthTime">출생 시간 (선택, 점성학용)</label>
+          <input id="cBirthTime" type="time"/>
+        </div>
+        <div>
           <label for="cPhone">연락처 (선택)</label>
           <input id="cPhone" type="text" placeholder="010-…"/>
         </div>
@@ -731,7 +735,7 @@
       listEl.innerHTML = '<p class="list-loading">불러오는 중…</p>';
       const { data, error } = await sb
         .from('counselor_clients')
-        .select('id,display_name,legal_name,birth_date,tags,next_appointment,created_at,updated_at')
+        .select('id,display_name,legal_name,birth_date,birth_time,tags,next_appointment,created_at,updated_at')
         .order('updated_at', { ascending: false });
       if (error) {
         listEl.innerHTML = '';
@@ -780,6 +784,7 @@
           name: ((c && (c.display_name || c.legal_name)) || '').trim(),
           date: (c && c.birth_date) || '',
         });
+        if (c && c.birth_time) qs.set('time', c.birth_time);
         window.location.href = 'astrology.html?' + qs.toString();
         return;
       }
@@ -808,6 +813,7 @@
         document.getElementById('cDisplay').value = data.display_name || '';
         document.getElementById('cLegal').value = data.legal_name || '';
         document.getElementById('cBirth').value = data.birth_date || '';
+        document.getElementById('cBirthTime').value = data.birth_time || '';
         document.getElementById('cPhone').value = data.phone || '';
         document.getElementById('cTags').value = data.tags || '';
         document.getElementById('cNext').value = data.next_appointment || '';
@@ -823,6 +829,7 @@
       const display_name = document.getElementById('cDisplay').value.trim();
       const legal_name = document.getElementById('cLegal').value.trim() || null;
       const birth_date = document.getElementById('cBirth').value;
+      const birth_time = document.getElementById('cBirthTime').value || null;
       const phone = document.getElementById('cPhone').value.trim() || null;
       const tags = document.getElementById('cTags').value.trim() || null;
       const next_appointment = document.getElementById('cNext').value || null;
@@ -836,6 +843,7 @@
           display_name,
           legal_name,
           birth_date,
+          birth_time,
           phone,
           tags,
           next_appointment,
@@ -853,6 +861,7 @@
           display_name,
           legal_name,
           birth_date,
+          birth_time,
           phone,
           tags,
           next_appointment,
@@ -1001,12 +1010,12 @@
     }
     function exportClientsCsv() {
       if (!clientRows.length) { alert('내보낼 고객이 없습니다.'); return; }
-      const header = ['표시이름', '본명', '생년월일', '연락처', '태그', '다음약속', '총상담횟수', '최근상담일', '메모', '등록일'];
+      const header = ['표시이름', '본명', '생년월일', '출생시간', '연락처', '태그', '다음약속', '총상담횟수', '최근상담일', '메모', '등록일'];
       const lines = [header.map(csvCell).join(',')];
       clientRows.forEach((c) => {
         const ls = clientLastSession(c.id);
         lines.push([
-          c.display_name || '', c.legal_name || '', c.birth_date || '', c.phone || '',
+          c.display_name || '', c.legal_name || '', c.birth_date || '', c.birth_time || '', c.phone || '',
           c.tags || '', c.next_appointment || '', ls.count, ls.last || '',
           c.notes || '', String(c.created_at || '').slice(0, 10),
         ].map(csvCell).join(','));
@@ -1099,7 +1108,7 @@
       const c = clientRows.find((x) => x.id === clientId);
       document.getElementById('sessionModalTitle').textContent = '상담 기록 · ' + (c ? (c.display_name || '') : '');
       document.getElementById('sessionModalSub').textContent = c
-        ? ('생일 ' + (c.birth_date || '—') + (c.legal_name ? ' · 본명 ' + c.legal_name : '')) : '';
+        ? ('생일 ' + (c.birth_date || '—') + (c.birth_time ? ' ' + c.birth_time : '') + (c.legal_name ? ' · 본명 ' + c.legal_name : '')) : '';
       const link = document.getElementById('sessionAnalyzeLink');
       link.href = 'analysis.html?client=' + encodeURIComponent(clientId);
       sessionForm.reset();

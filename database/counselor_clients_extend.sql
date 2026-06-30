@@ -10,3 +10,7 @@ alter table public.counselor_clients
 
 alter table public.counselor_clients
   add column if not exists next_appointment date;
+
+-- 출생 시간 (점성학 차트용, 선택). 'HH:MM' 형태로 저장.
+alter table public.counselor_clients
+  add column if not exists birth_time text;

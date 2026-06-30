@@ -730,12 +730,19 @@ table.astro-table td .glyph{font-size:16px;margin-right:4px;color:var(--accent);
   (function prefillFromQuery() {
     try {
       const qs = new URLSearchParams(location.search);
-      const nm = qs.get('name'), dt = qs.get('date');
+      const nm = qs.get('name'), dt = qs.get('date'), tm = qs.get('time');
       if (nm) $('inName').value = nm;
+      if (tm && /^\d{1,2}:\d{2}/.test(tm)) {
+        $('inTime').value = tm.slice(0, 5);
+      }
       if (dt) {
         $('inDate').value = dt;
-        showStatus('생년월일을 불러왔어요. 정확한 차트를 위해 <strong>출생 시간</strong>과 <strong>출생지</strong>를 입력한 뒤 “차트 계산하기”를 눌러주세요. (시간을 모르면 “시간 모름”을 체크)', 'info');
-        const t = $('inTime'); if (t) t.focus();
+        if (tm) {
+          showStatus('이름·생년월일·출생 시간을 불러왔어요. <strong>출생지</strong>를 확인한 뒤 “차트 계산하기”를 눌러주세요.', 'info');
+        } else {
+          showStatus('생년월일을 불러왔어요. 정확한 차트를 위해 <strong>출생 시간</strong>과 <strong>출생지</strong>를 입력한 뒤 “차트 계산하기”를 눌러주세요. (시간을 모르면 “시간 모름”을 체크)', 'info');
+          const t = $('inTime'); if (t) t.focus();
+        }
       }
     } catch (e) { /* ignore */ }
   })();
