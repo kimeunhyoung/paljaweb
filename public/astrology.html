@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<title>점성학 차트 · 네이탈(출생) 차트 — 팔자연구소</title>
+<meta name="description" content="생년월일·출생 시간·출생지로 행성 위치, 12하우스, 상승궁(Asc)을 계산해 원형 네이탈 차트를 그려 드립니다. 태양·달·상승궁 빅3 해석 포함. 팔자연구소 점성학.">
+<link rel="canonical" href="https://8code.kr/astrology.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="팔자연구소">
+<meta property="og:title" content="점성학 차트 · 네이탈(출생) 차트 — 팔자연구소">
+<meta property="og:description" content="출생 정보로 행성·12하우스·상승궁을 계산해 원형 네이탈 차트와 해석을 제공합니다.">
+<meta property="og:url" content="https://8code.kr/astrology.html">
+<meta property="og:image" content="https://8code.kr/applogo600.png">
+<meta property="og:locale" content="ko_KR">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="js/plan-access.js?v=8"></script>
+<script src="js/product-plan-bootstrap.js?v=1"></script>
+<script src="js/site-topbar.js?v=5" defer></script>
+<script src="js/topbar-session.js?v=6" defer></script>
+<!-- 점성 차트 그리기(UMD 전역 astrochart) -->
+<script src="https://cdn.jsdelivr.net/npm/@astrodraw/astrochart@3.0.2/dist/astrochart.js"></script>
+<!-- 데이터 -->
+<script src="js/astro-cities.js?v=1"></script>
+<script src="js/astro-meanings.js?v=1"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css" crossorigin />
+<link rel="stylesheet" href="css/site-topbar.css?v=5" />
+<link rel="stylesheet" href="css/site-header.css?v=7" />
+<style>
+:root {
+  --cream:#f5f0e8; --parchment:#ede5d4; --sand:#d4c4a8;
+  --warm-brown:#8b6f47; --deep-brown:#4a3520; --ink:#2c1f0e;
+  --accent:#c8a96e; --accent-lt:#e8d5b0; --muted:#9a8570;
+  --border:rgba(139,111,71,.15); --shadow:rgba(44,31,14,.08);
+  --teal:#2e8b7a; --teal-lt:rgba(46,139,122,.12);
+  --font-serif:'Noto Serif KR',serif; --font-body:'Noto Serif KR',serif;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{font-family:var(--font-body);background:var(--cream);color:var(--ink);min-height:100vh;}
+.wrap{max-width:1000px;margin:0 auto;padding:0 20px 80px;}
+
+/* HERO */
+.hero{padding:40px 20px 8px;text-align:center;}
+.hero-tag{display:inline-block;font-size:12px;letter-spacing:.16em;color:var(--accent);font-weight:700;text-transform:uppercase;margin-bottom:12px;}
+.hero-title{font-family:var(--font-serif);font-size:clamp(26px,5vw,40px);font-weight:600;line-height:1.25;color:var(--deep-brown);}
+.hero-title em{font-style:italic;color:var(--accent);}
+.hero-desc{max-width:600px;margin:14px auto 0;color:var(--muted);font-size:15px;line-height:1.8;}
+
+/* CARD */
+.card{background:#fff;border:1px solid var(--border);border-radius:16px;box-shadow:0 10px 30px var(--shadow);padding:26px;margin-top:26px;}
+.card-title{font-family:var(--font-serif);font-size:18px;font-weight:600;color:var(--deep-brown);margin-bottom:16px;display:flex;align-items:center;gap:8px;}
+
+/* FORM */
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+.field{display:flex;flex-direction:column;gap:6px;}
+.field.full{grid-column:1/-1;}
+.field label{font-size:13px;font-weight:600;color:var(--warm-brown);}
+.field .hint{font-size:11.5px;color:var(--muted);}
+.input-field,select.input-field{width:100%;padding:12px 14px;border:1px solid var(--border);border-radius:10px;background:var(--cream);font-family:inherit;font-size:15px;color:var(--ink);}
+.input-field:focus,select.input-field:focus{outline:none;border-color:var(--accent);background:#fff;}
+.row-inline{display:flex;align-items:center;gap:8px;}
+.check-row{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--muted);}
+.manual-coords{display:none;grid-template-columns:1fr 1fr;gap:12px;margin-top:10px;}
+.manual-coords.show{display:grid;}
+.analyze-btn{margin-top:20px;width:100%;padding:15px;border:none;border-radius:12px;background:var(--accent);color:#fff;font-family:var(--font-serif);font-size:17px;font-weight:600;cursor:pointer;transition:.15s;}
+.analyze-btn:hover{background:#d4b87a;transform:translateY(-1px);}
+.analyze-btn:disabled{opacity:.6;cursor:not-allowed;transform:none;}
+
+/* STATUS */
+.status{margin-top:18px;padding:14px 16px;border-radius:10px;font-size:14px;line-height:1.7;display:none;}
+.status.show{display:block;}
+.status.err{background:var(--red-lt,rgba(184,85,85,.1));color:#b85555;border:1px solid rgba(184,85,85,.25);}
+.status.info{background:var(--teal-lt);color:var(--teal);border:1px solid rgba(46,139,122,.25);}
+
+/* RESULT */
+#result{display:none;}
+#result.show{display:block;}
+.big3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:6px;}
+.big3-card{background:linear-gradient(165deg,#fffef9,#faf6ee);border:1px solid var(--border);border-radius:14px;padding:18px;text-align:center;}
+.big3-card .b3-role{font-size:11px;letter-spacing:.1em;color:var(--muted);text-transform:uppercase;}
+.big3-card .b3-glyph{font-size:34px;line-height:1;margin:8px 0 4px;color:var(--accent);}
+.big3-card .b3-sign{font-family:var(--font-serif);font-size:18px;font-weight:600;color:var(--deep-brown);}
+.big3-card .b3-text{font-size:12.5px;line-height:1.7;color:var(--ink);margin-top:10px;text-align:left;}
+
+.chart-shell{display:flex;justify-content:center;margin:6px 0;}
+#astroPaper{width:100%;max-width:560px;}
+#astroPaper svg{width:100%;height:auto;display:block;}
+
+table.astro-table{width:100%;border-collapse:collapse;font-size:13.5px;}
+table.astro-table th,table.astro-table td{padding:9px 8px;border-bottom:1px solid var(--border);text-align:left;}
+table.astro-table th{font-size:12px;color:var(--muted);font-weight:600;background:var(--parchment);}
+table.astro-table td .glyph{font-size:16px;margin-right:4px;color:var(--accent);}
+.retro{color:#b85555;font-weight:700;font-size:11px;margin-left:4px;}
+.aspect-list{display:flex;flex-wrap:wrap;gap:8px;}
+.aspect-pill{background:var(--cream);border:1px solid var(--border);border-radius:20px;padding:6px 12px;font-size:12.5px;color:var(--ink);}
+.note{font-size:12px;color:var(--muted);line-height:1.7;margin-top:12px;background:var(--cream);border-radius:10px;padding:12px 14px;}
+
+@media (max-width:680px){
+  .form-grid{grid-template-columns:1fr;}
+  .big3{grid-template-columns:1fr;}
+}
+
+/* FOOTER */
+.site-legal-footer{max-width:1000px;margin:40px auto 0;padding:20px;border-top:1px solid var(--border);font-size:12px;color:var(--muted);line-height:1.8;text-align:center;}
+.site-legal-footer a{color:var(--muted);text-decoration:none;}
+.site-legal-footer a:hover{color:var(--deep-brown);}
+</style>
+</head>
+<body>
+
+<div class="site-top" data-topbar-title="점성학" data-nav-current="astro" data-login-next="astrology.html"></div>
+
+<section class="hero">
+  <div class="hero-tag">Astrology · 네이탈 차트</div>
+  <h1 class="hero-title">별이 그린<br><em>나의 출생 지도</em></h1>
+  <p class="hero-desc">태어난 날짜·시간·장소로 행성의 위치와 <strong>12하우스</strong>, <strong>상승궁(Asc)</strong>을 계산해 원형 네이탈 차트를 그려 드립니다. 정확한 차트에는 <strong>출생 시간</strong>이 필요해요.</p>
+</section>
+
+<div class="wrap">
+  <!-- 입력 -->
+  <div class="card">
+    <div class="card-title">✦ 출생 정보 입력</div>
+    <div class="form-grid">
+      <div class="field">
+        <label for="inName">이름 <span class="hint">(선택)</span></label>
+        <input class="input-field" id="inName" type="text" placeholder="표시용 이름" autocomplete="name"/>
+      </div>
+      <div class="field">
+        <label for="inDate">생년월일</label>
+        <input class="input-field" id="inDate" type="date"/>
+      </div>
+      <div class="field">
+        <label for="inTime">출생 시간</label>
+        <input class="input-field" id="inTime" type="time"/>
+        <div class="check-row"><input type="checkbox" id="timeUnknown"/><label for="timeUnknown" style="font-weight:400;color:var(--muted)">시간 모름 (하우스·상승궁 제외)</label></div>
+      </div>
+      <div class="field">
+        <label for="inCity">출생지</label>
+        <select class="input-field" id="inCity"></select>
+        <div class="manual-coords" id="manualCoords">
+          <input class="input-field" id="inLat" type="number" step="0.0001" placeholder="위도 예: 37.5665"/>
+          <input class="input-field" id="inLng" type="number" step="0.0001" placeholder="경도 예: 126.9780"/>
+        </div>
+      </div>
+    </div>
+    <button class="analyze-btn" id="calcBtn">차트 계산하기</button>
+    <div class="status" id="status"></div>
+  </div>
+
+  <!-- 결과 -->
+  <div id="result">
+    <div class="card">
+      <div class="card-title">✦ 빅3 — 태양 · 달 · 상승궁</div>
+      <div class="big3" id="big3"></div>
+    </div>
+
+    <div class="card" id="wheelCard">
+      <div class="card-title">✦ 네이탈 차트</div>
+      <div class="chart-shell"><div id="astroPaper"></div></div>
+      <div class="note" id="wheelNote"></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">✦ 행성 위치</div>
+      <div style="overflow-x:auto"><table class="astro-table" id="planetTable"></table></div>
+    </div>
+
+    <div class="card" id="houseCard">
+      <div class="card-title">✦ 12하우스</div>
+      <div style="overflow-x:auto"><table class="astro-table" id="houseTable"></table></div>
+    </div>
+
+    <div class="card" id="aspectCard">
+      <div class="card-title">✦ 주요 어스펙트</div>
+      <div class="aspect-list" id="aspectList"></div>
+      <div class="note">어스펙트(각)는 행성 사이의 각도 관계예요. 합(0°)·육각(60°)·사각(90°)·삼각(120°)·충(180°)이 대표적입니다.</div>
+    </div>
+
+    <div class="note">
+      ※ 트로피컬 황도 · 플라시더스 하우스 기준입니다. 출생 시간이 정확할수록 상승궁·하우스가 정확해집니다.
+      서머타임 등 시간대는 출생지 좌표로 자동 계산됩니다. 본 결과는 교육·오락 목적의 참고 자료입니다.
+    </div>
+  </div>
+</div>
+
+<footer class="site-legal-footer">
+  <span>
+    8코드(8CODE) · 대표 김태훈 · 사업자등록번호 624-55-00806 · 통신판매업 신고번호 제 2026-부산수영-0361 호<br>
+    부산광역시 수영구 수영로 632-1, 602호 · <a href="tel:0519250441">051-925-0441</a> · <a href="tel:01052802300">010-5280-2300</a>
+  </span><br>
+  <a href="terms.html">이용약관</a> <span aria-hidden="true">·</span>
+  <a href="privacy.html">개인정보처리방침</a> <span aria-hidden="true">·</span>
+  <a href="mailto:ohayou989@gmail.com">문의</a>
+</footer>
+
+<script type="module">
+  // ── 계산 라이브러리 로드(ESM) ──
+  let Origin = null, Horoscope = null, libError = null;
+  try {
+    const CNH = await import('https://cdn.jsdelivr.net/npm/circular-natal-horoscope-js@1.1.0/+esm');
+    Origin = CNH.Origin || (CNH.default && CNH.default.Origin);
+    Horoscope = CNH.Horoscope || (CNH.default && CNH.default.Horoscope);
+  } catch (e) {
+    libError = e;
+    console.error('점성 계산 라이브러리 로드 실패', e);
+  }
+
+  const M = window.ASTRO_MEANINGS;
+  const CITIES = window.ASTRO_CITIES || [];
+  const $ = (id) => document.getElementById(id);
+
+  // ── 도시 셀렉트 채우기 ──
+  (function fillCities() {
+    const sel = $('inCity');
+    const krGroup = document.createElement('optgroup'); krGroup.label = '국내';
+    const wGroup = document.createElement('optgroup'); wGroup.label = '해외';
+    CITIES.forEach((c, i) => {
+      const o = document.createElement('option');
+      o.value = String(i); o.textContent = c.ko;
+      (c.group === 'kr' ? krGroup : wGroup).appendChild(o);
+    });
+    sel.appendChild(krGroup);
+    sel.appendChild(wGroup);
+    const manual = document.createElement('option');
+    manual.value = 'manual'; manual.textContent = '직접 입력 (위/경도)';
+    sel.appendChild(manual);
+    // 기본값: 서울
+    sel.value = '0';
+    sel.addEventListener('change', () => {
+      $('manualCoords').classList.toggle('show', sel.value === 'manual');
+    });
+  })();
+
+  $('timeUnknown').addEventListener('change', (e) => {
+    $('inTime').disabled = e.target.checked;
+  });
+
+  function showStatus(msg, type) {
+    const el = $('status');
+    el.className = 'status show ' + (type || 'info');
+    el.innerHTML = msg;
+  }
+  function hideStatus() { $('status').className = 'status'; }
+
+  function getCoords() {
+    const sel = $('inCity');
+    if (sel.value === 'manual') {
+      const lat = parseFloat($('inLat').value), lng = parseFloat($('inLng').value);
+      if (Number.isNaN(lat) || Number.isNaN(lng)) return null;
+      return { lat, lng, label: `위 ${lat}, 경 ${lng}` };
+    }
+    const c = CITIES[parseInt(sel.value, 10)];
+    return c ? { lat: c.lat, lng: c.lng, label: c.ko } : null;
+  }
+
+  function deg(obj) {
+    try { return obj.ChartPosition.Ecliptic.DecimalDegrees; } catch (e) { return null; }
+  }
+  function houseStart(h) {
+    try { return h.ChartPosition.StartPosition.Ecliptic.DecimalDegrees; } catch (e) { return null; }
+  }
+  function fmtDeg(d) {
+    const whole = Math.floor(d);
+    const min = Math.round((d - whole) * 60);
+    return `${whole}°${String(min).padStart(2, '0')}'`;
+  }
+
+  const ASPECT_KO = {
+    conjunction: { ko: '합', sym: '☌', a: 0 },
+    opposition:  { ko: '충', sym: '☍', a: 180 },
+    trine:       { ko: '삼각', sym: '△', a: 120 },
+    square:      { ko: '사각', sym: '□', a: 90 },
+    sextile:     { ko: '육각', sym: '⚹', a: 60 }
+  };
+
+  function bodyKoFromKey(key) {
+    const p = M.PLANETS[key];
+    return p ? p : { ko: key, glyph: '' };
+  }
+
+  function render(horoscope, opts) {
+    const result = $('result');
+    // ── 빅3 ──
+    const sunDeg = deg(horoscope.CelestialBodies.sun);
+    const moonDeg = deg(horoscope.CelestialBodies.moon);
+    const sunSign = M.signFromDegree(sunDeg).sign;
+    const moonSign = M.signFromDegree(moonDeg).sign;
+    let big3 = `
+      <div class="big3-card">
+        <div class="b3-role">태양 · 자아</div>
+        <div class="b3-glyph">${sunSign.glyph}</div>
+        <div class="b3-sign">${M.PLANETS.sun.glyph} ${sunSign.ko}</div>
+        <div class="b3-text">${M.SUN_IN_SIGN[sunSign.key] || ''}</div>
+      </div>
+      <div class="big3-card">
+        <div class="b3-role">달 · 감정</div>
+        <div class="b3-glyph">${moonSign.glyph}</div>
+        <div class="b3-sign">${M.PLANETS.moon.glyph} ${moonSign.ko}</div>
+        <div class="b3-text">${M.MOON_IN_SIGN[moonSign.key] || ''}</div>
+      </div>`;
+    if (!opts.unknownTime) {
+      const ascDeg = deg(horoscope.Ascendant);
+      const ascSign = M.signFromDegree(ascDeg).sign;
+      big3 += `
+        <div class="big3-card">
+          <div class="b3-role">상승궁 · 첫인상</div>
+          <div class="b3-glyph">${ascSign.glyph}</div>
+          <div class="b3-sign">Asc ${ascSign.ko}</div>
+          <div class="b3-text">${M.ASC_IN_SIGN[ascSign.key] || ''}</div>
+        </div>`;
+    } else {
+      big3 += `<div class="big3-card"><div class="b3-role">상승궁</div><div class="b3-glyph">⏱</div><div class="b3-sign">시간 필요</div><div class="b3-text">상승궁은 출생 시간이 있어야 계산할 수 있어요. 시간을 입력하면 표시됩니다.</div></div>`;
+    }
+    $('big3').innerHTML = big3;
+
+    // ── 행성 표 ──
+    const bodyKeys = ['sun','moon','mercury','venus','mars','jupiter','saturn','uranus','neptune','pluto','chiron'];
+    const pointKeys = ['northnode','lilith'];
+    let rows = `<thead><tr><th>천체</th><th>별자리</th><th>도수</th>${opts.unknownTime ? '' : '<th>하우스</th>'}<th>비고</th></tr></thead><tbody>`;
+    function pushRow(b, key) {
+      const d = deg(b); if (d == null) return;
+      const s = M.signFromDegree(d);
+      const pk = bodyKoFromKey(key);
+      const houseId = (b.House && b.House.id) ? b.House.id : '';
+      const isRetro = (typeof b.isRetrograde === 'function') ? b.isRetrograde() : b.isRetrograde;
+      const retro = isRetro ? '<span class="retro">R</span>' : '';
+      rows += `<tr>
+        <td><span class="glyph">${pk.glyph}</span>${pk.ko}</td>
+        <td><span class="glyph">${s.sign.glyph}</span>${s.sign.ko}</td>
+        <td>${fmtDeg(s.degInSign)}</td>
+        ${opts.unknownTime ? '' : `<td>${houseId ? houseId + '하우스' : '-'}</td>`}
+        <td style="color:var(--muted);font-size:12px">${pk.role || ''}${retro}</td>
+      </tr>`;
+    }
+    bodyKeys.forEach((k) => { if (horoscope.CelestialBodies[k]) pushRow(horoscope.CelestialBodies[k], k); });
+    pointKeys.forEach((k) => { if (horoscope.CelestialPoints && horoscope.CelestialPoints[k]) pushRow(horoscope.CelestialPoints[k], k); });
+    rows += '</tbody>';
+    $('planetTable').innerHTML = rows;
+
+    // ── 하우스 / 휠 ──
+    if (opts.unknownTime) {
+      $('houseCard').style.display = 'none';
+      $('wheelCard').style.display = 'none';
+    } else {
+      $('houseCard').style.display = '';
+      $('wheelCard').style.display = '';
+      const houses = horoscope.Houses || [];
+      let hr = '<thead><tr><th>하우스</th><th>커스프 별자리</th><th>주제</th></tr></thead><tbody>';
+      houses.forEach((h, i) => {
+        const hd = houseStart(h);
+        const s = hd != null ? M.signFromDegree(hd).sign : null;
+        const info = M.HOUSES[i];
+        hr += `<tr>
+          <td>${info.ko.split(' · ')[0]}</td>
+          <td>${s ? `<span class="glyph">${s.glyph}</span>${s.ko} ${fmtDeg(M.signFromDegree(hd).degInSign)}` : '-'}</td>
+          <td style="color:var(--muted);font-size:12px">${info.theme}</td>
+        </tr>`;
+      });
+      hr += '</tbody>';
+      $('houseTable').innerHTML = hr;
+      drawWheel(horoscope);
+      $('wheelNote').textContent = `출생지: ${opts.coordLabel} · 트로피컬 / 플라시더스`;
+    }
+
+    // ── 어스펙트 ──
+    const aspects = (horoscope.Aspects && horoscope.Aspects.all) ? horoscope.Aspects.all : [];
+    const knownKeys = bodyKeys.concat(pointKeys).concat(['ascendant','midheaven']);
+    let pills = '';
+    aspects.forEach((a) => {
+      const t = ASPECT_KO[a.aspectKey];
+      if (!t) return;
+      const k1 = a.point1Key, k2 = a.point2Key;
+      if (knownKeys.indexOf(k1) < 0 || knownKeys.indexOf(k2) < 0) return;
+      const n1 = bodyKoFromKey(k1).ko, n2 = bodyKoFromKey(k2).ko;
+      pills += `<span class="aspect-pill"><strong>${n1}</strong> ${t.sym} <strong>${n2}</strong> · ${t.ko}(${t.a}°)</span>`;
+    });
+    if (!pills) { $('aspectCard').style.display = 'none'; }
+    else { $('aspectCard').style.display = ''; $('aspectList').innerHTML = pills; }
+
+    result.classList.add('show');
+    result.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  function drawWheel(horoscope) {
+    const paper = $('astroPaper');
+    paper.innerHTML = '';
+    const size = Math.min(paper.clientWidth || 520, 560);
+    const planets = {};
+    const map = M.CHART_KEY;
+    ['sun','moon','mercury','venus','mars','jupiter','saturn','uranus','neptune','pluto','chiron'].forEach((k) => {
+      const b = horoscope.CelestialBodies[k]; const d = b ? deg(b) : null;
+      if (map[k] && d != null) planets[map[k]] = [d];
+    });
+    ['northnode','lilith'].forEach((k) => {
+      const b = horoscope.CelestialPoints && horoscope.CelestialPoints[k]; const d = b ? deg(b) : null;
+      if (map[k] && d != null) planets[map[k]] = [d];
+    });
+    const cusps = (horoscope.Houses || []).map(houseStart);
+    if (cusps.length !== 12 || cusps.some((c) => c == null)) return;
+    try {
+      const chart = new astrochart.Chart('astroPaper', size, size);
+      const radix = chart.radix({ planets, cusps });
+      radix.addPointsOfInterest({ As: [cusps[0]], Ic: [cusps[3]], Ds: [cusps[6]], Mc: [cusps[9]] });
+      radix.aspects();
+    } catch (e) {
+      console.error('차트 그리기 실패', e);
+      paper.innerHTML = '<div class="note">차트를 그리지 못했습니다. 새로고침 후 다시 시도해 주세요.</div>';
+    }
+  }
+
+  async function calculate() {
+    hideStatus();
+    if (libError || !Origin || !Horoscope) {
+      showStatus('점성 계산 도구를 불러오지 못했습니다. 네트워크를 확인하고 새로고침해 주세요.', 'err');
+      return;
+    }
+    const dateVal = $('inDate').value;
+    if (!dateVal) { showStatus('생년월일을 입력해 주세요.', 'err'); return; }
+    const unknownTime = $('timeUnknown').checked;
+    const timeVal = $('inTime').value;
+    if (!unknownTime && !timeVal) {
+      showStatus('출생 시간을 입력하거나 \u201c시간 모름\u201d을 체크해 주세요.', 'err'); return;
+    }
+    const coords = getCoords();
+    if (!coords) { showStatus('출생지를 선택하거나 위/경도를 직접 입력해 주세요.', 'err'); return; }
+
+    const [y, mo, da] = dateVal.split('-').map(Number);
+    let hh = 12, mi = 0;
+    if (!unknownTime) { const t = timeVal.split(':'); hh = parseInt(t[0], 10); mi = parseInt(t[1], 10); }
+
+    $('calcBtn').disabled = true;
+    showStatus('별의 위치를 계산하고 있어요…', 'info');
+    try {
+      const origin = new Origin({
+        year: y, month: mo - 1, date: da, hour: hh, minute: mi,
+        latitude: coords.lat, longitude: coords.lng
+      });
+      const horoscope = new Horoscope({
+        origin: origin,
+        houseSystem: 'placidus',
+        zodiac: 'tropical',
+        aspectPoints: ['bodies'],
+        aspectWithPoints: ['bodies'],
+        aspectTypes: ['major'],
+        language: 'en'
+      });
+      hideStatus();
+      render(horoscope, { unknownTime, coordLabel: coords.label });
+    } catch (e) {
+      console.error(e);
+      showStatus('계산 중 오류가 발생했습니다. 입력값(특히 좌표)을 확인해 주세요.', 'err');
+    } finally {
+      $('calcBtn').disabled = false;
+    }
+  }
+
+  $('calcBtn').addEventListener('click', calculate);
+</script>
+
+</body>
+</html>

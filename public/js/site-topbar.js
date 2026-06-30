@@ -10,6 +10,7 @@
     { id: 'harmony', href: 'compatibility.html', label: '소울하모니' },
     { id: 'p48', href: 'period48-compat.html', label: '48궁합' },
     { id: 'calendar', href: 'numerology-calendar.html', label: '수비학달력' },
+    { id: 'astro', href: 'astrology.html', label: '점성학' },
     { id: 'counselor', href: 'counselor.html', label: '상담사허브' },
     { id: 'pricing', href: 'pricing.html', label: '요금제' }
   ];
