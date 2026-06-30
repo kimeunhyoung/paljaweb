@@ -167,6 +167,20 @@ table.astro-table td .glyph{font-size:16px;margin-right:4px;color:var(--accent);
 .transit-sub-h span{font-size:11.5px;font-weight:500;color:var(--muted);}
 .transit-influence{display:inline-block;font-size:10.5px;font-weight:600;color:var(--warm-brown);background:rgba(139,111,71,.1);border-radius:10px;padding:1px 8px;margin-left:6px;}
 .transit-guide{font-size:12px;line-height:1.6;color:var(--muted);background:rgba(139,111,71,.06);border-radius:10px;padding:9px 12px;margin-bottom:14px;}
+/* 아코디언 */
+.accordion .acc-head{width:100%;display:flex;align-items:center;justify-content:space-between;gap:8px;background:none;border:0;padding:0;margin:0;cursor:pointer;text-align:left;color:inherit;}
+.accordion .acc-chev{font-size:18px;line-height:1;color:var(--muted);transition:transform .2s ease;}
+.accordion.open .acc-chev{transform:rotate(180deg);}
+.accordion .acc-body{display:none;margin-top:14px;}
+.accordion.open .acc-body{display:block;}
+/* 어스펙트 그리드 */
+.aspect-grid{border-collapse:collapse;margin:4px auto;}
+.aspect-grid td{width:30px;height:30px;min-width:30px;text-align:center;font-size:15px;border:1px solid #e8ddcb;color:var(--muted);}
+.aspect-grid .ag-head{font-size:16px;font-weight:700;background:rgba(139,111,71,.09);color:var(--deep-brown);}
+.aspect-grid .ag-cell.g-easy{color:#2f8f5b;font-weight:700;}
+.aspect-grid .ag-cell.g-tense{color:#c0492f;font-weight:700;}
+.aspect-grid .ag-cell.g-strong{color:var(--deep-brown);font-weight:700;}
+@media print{ .accordion .acc-body{display:block !important;} .accordion .acc-chev{display:none;} }
 
 /* 유료 잠금 */
 .astro-lock{display:flex;flex-direction:column;align-items:flex-start;gap:8px;background:linear-gradient(165deg,#fdfaf3,#f3ead8);border:1px dashed var(--accent);border-radius:12px;padding:18px 20px;font-size:13.5px;color:var(--deep-brown);line-height:1.7;}
@@ -281,26 +295,42 @@ table.astro-table td .glyph{font-size:16px;margin-right:4px;color:var(--accent);
       <div class="note" id="wheelNote"></div>
     </div>
 
-    <div class="card">
-      <div class="card-title">✦ 행성 위치</div>
-      <div style="overflow-x:auto"><table class="astro-table" id="planetTable"></table></div>
+    <div class="card accordion open" id="aspectGridCard">
+      <button type="button" class="card-title acc-head">✦ 어스펙트 그리드<span class="acc-chev" aria-hidden="true">⌄</span></button>
+      <div class="acc-body">
+        <div style="overflow-x:auto" id="aspectGrid"></div>
+        <div class="note">행성끼리 맺는 각을 한눈에 보는 표예요. 대각선의 <strong>행성 기호</strong>를 기준으로, 각 칸의 기호(☌합 ☍충 △삼각 □사각 ⚹육각)가 두 행성의 각을 나타냅니다. <span class="asp-tag asp-easy">초록</span> 조화 · <span class="asp-tag asp-tense">빨강</span> 긴장.</div>
+      </div>
     </div>
 
-    <div class="card" id="planetReadCard">
-      <div class="card-title">✦ 행성 해석</div>
-      <div class="planet-read-list" id="planetReadList"></div>
-      <div class="note">행성이 어떤 <strong>별자리</strong>에 있는지는 그 에너지가 “어떻게” 드러나는지를, 어떤 <strong>하우스</strong>에 있는지는 “어느 삶의 영역”에서 작동하는지를 보여 줍니다.</div>
+    <div class="card accordion" id="planetCard">
+      <button type="button" class="card-title acc-head">✦ 행성 위치<span class="acc-chev" aria-hidden="true">⌄</span></button>
+      <div class="acc-body">
+        <div style="overflow-x:auto"><table class="astro-table" id="planetTable"></table></div>
+      </div>
     </div>
 
-    <div class="card" id="houseCard">
-      <div class="card-title">✦ 12하우스</div>
-      <div style="overflow-x:auto"><table class="astro-table" id="houseTable"></table></div>
+    <div class="card accordion" id="planetReadCard">
+      <button type="button" class="card-title acc-head">✦ 행성 해석<span class="acc-chev" aria-hidden="true">⌄</span></button>
+      <div class="acc-body">
+        <div class="planet-read-list" id="planetReadList"></div>
+        <div class="note">행성이 어떤 <strong>별자리</strong>에 있는지는 그 에너지가 “어떻게” 드러나는지를, 어떤 <strong>하우스</strong>에 있는지는 “어느 삶의 영역”에서 작동하는지를 보여 줍니다.</div>
+      </div>
     </div>
 
-    <div class="card" id="aspectCard">
-      <div class="card-title">✦ 주요 어스펙트</div>
-      <div class="aspect-read-list" id="aspectList"></div>
-      <div class="note">어스펙트(각)는 행성 사이의 각도 관계예요. 합(0°)·육각(60°)·사각(90°)·삼각(120°)·충(180°)이 대표적입니다. <span class="asp-tag asp-easy">조화</span>는 자연스러운 강점, <span class="asp-tag asp-tense">긴장</span>은 성장의 마찰입니다.</div>
+    <div class="card accordion" id="houseCard">
+      <button type="button" class="card-title acc-head">✦ 12하우스<span class="acc-chev" aria-hidden="true">⌄</span></button>
+      <div class="acc-body">
+        <div style="overflow-x:auto"><table class="astro-table" id="houseTable"></table></div>
+      </div>
+    </div>
+
+    <div class="card accordion" id="aspectCard">
+      <button type="button" class="card-title acc-head">✦ 주요 어스펙트<span class="acc-chev" aria-hidden="true">⌄</span></button>
+      <div class="acc-body">
+        <div class="aspect-read-list" id="aspectList"></div>
+        <div class="note">어스펙트(각)는 행성 사이의 각도 관계예요. 합(0°)·육각(60°)·사각(90°)·삼각(120°)·충(180°)이 대표적입니다. <span class="asp-tag asp-easy">조화</span>는 자연스러운 강점, <span class="asp-tag asp-tense">긴장</span>은 성장의 마찰입니다.</div>
+      </div>
     </div>
 
     <!-- 트랜짓(오늘의 운세) -->
@@ -599,6 +629,7 @@ table.astro-table td .glyph{font-size:16px;margin-right:4px;color:var(--accent);
       const ad = deg(horoscope.Ascendant); if (ad != null) NATAL_DEGS.asc = ad;
       try { const md = horoscope.Midheaven ? deg(horoscope.Midheaven) : null; if (md != null) NATAL_DEGS.mc = md; } catch (e) {}
     }
+    renderAspectGrid();
     LAST_CTX = {
       displayName: opts.displayName, unknownTime: opts.unknownTime, coordLabel: opts.coordLabel,
       sunSign, moonSign, ascSign, planetReads,
@@ -624,6 +655,7 @@ table.astro-table td .glyph{font-size:16px;margin-right:4px;color:var(--accent);
     $('planetReadList').innerHTML = LOCK_HTML;
     $('aspectCard').style.display = '';
     $('aspectList').innerHTML = LOCK_HTML;
+    const agc = $('aspectGridCard'); if (agc) { agc.style.display = ''; $('aspectGrid').innerHTML = LOCK_HTML; }
     const tc = $('transitControls') || document.querySelector('#transitCard .transit-controls');
     if (tc) tc.style.display = 'none';
     $('transitResult').innerHTML = LOCK_HTML;
@@ -655,6 +687,37 @@ table.astro-table td .glyph{font-size:16px;margin-right:4px;color:var(--accent);
       if (Math.abs(diff - A.a) <= A.orb) return { key: A.key, orbOff: Math.abs(diff - A.a) };
     }
     return null;
+  }
+
+  // ── 어스펙트 그리드(삼각 표) ──
+  const GRID_ORDER = ['sun','moon','mercury','venus','mars','jupiter','saturn','uranus','neptune','pluto','asc','mc'];
+  const GRID_LABEL = { asc: 'AC', mc: 'MC' };
+  function gridGlyph(k) { return (M.PLANETS[k] && M.PLANETS[k].glyph) || GRID_LABEL[k] || k; }
+  function renderAspectGrid() {
+    const card = $('aspectGridCard');
+    if (!card) return;
+    const order = GRID_ORDER.filter((k) => NATAL_DEGS[k] != null);
+    if (order.length < 2) { card.style.display = 'none'; return; }
+    card.style.display = '';
+    const toneClass = { easy: 'g-easy', tense: 'g-tense', strong: 'g-strong' };
+    let html = '<table class="aspect-grid"><tbody>';
+    for (let i = 0; i < order.length; i++) {
+      html += '<tr>';
+      for (let j = 0; j < i; j++) {
+        const asp = findAspect(NATAL_DEGS[order[i]], NATAL_DEGS[order[j]]);
+        if (asp) {
+          const mean = (M.ASPECT_MEANING && M.ASPECT_MEANING[asp.key]) || { tone: '' };
+          const title = gridGlyph(order[i]) + ' ' + (ASPECT_KR2[asp.key] || '') + ' ' + gridGlyph(order[j]);
+          html += `<td class="ag-cell ${toneClass[mean.tone] || ''}" title="${title}">${ASPECT_SYM[asp.key] || ''}</td>`;
+        } else {
+          html += '<td class="ag-cell"></td>';
+        }
+      }
+      html += `<td class="ag-head" title="${gridGlyph(order[i])}">${gridGlyph(order[i])}</td>`;
+      html += '</tr>';
+    }
+    html += '</tbody></table>';
+    $('aspectGrid').innerHTML = html;
   }
 
   // ── 트랜짓 계산 ──
@@ -992,6 +1055,14 @@ table.astro-table td .glyph{font-size:16px;margin-right:4px;color:var(--accent);
 
   $('btnTransit').addEventListener('click', computeTransit);
 
+  // 아코디언 토글
+  document.querySelectorAll('.accordion .acc-head').forEach((h) => {
+    h.addEventListener('click', () => {
+      const card = h.closest('.accordion');
+      if (card) card.classList.toggle('open');
+    });
+  });
+
   $('btnAiCopy').addEventListener('click', async () => {
     const txt = $('aiPrompt').value;
     if (!txt) return;
@@ -1063,7 +1134,11 @@ table.astro-table td .glyph{font-size:16px;margin-right:4px;color:var(--accent);
       const toolbar = $('resultToolbar');
       const prevTb = toolbar.style.display;
       toolbar.style.display = 'none';
+      // 캡처 동안 접힌 아코디언을 모두 펼침
+      const reopen = [];
+      document.querySelectorAll('.accordion:not(.open)').forEach((c) => { c.classList.add('open'); reopen.push(c); });
       const canvas = await html2canvas(result, { backgroundColor: '#f5f0e8', scale: 2, useCORS: true, logging: false });
+      reopen.forEach((c) => c.classList.remove('open'));
       toolbar.style.display = prevTb;
       const nm = ($('inName').value || '네이탈차트').trim().replace(/[\\/:*?"<>|]/g, '_').slice(0, 40);
       const link = document.createElement('a');
