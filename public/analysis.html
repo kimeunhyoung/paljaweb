@@ -4836,6 +4836,12 @@ function pdfHtml2CanvasWindowSize(node, capW) {
 function pdfSplitCaptureRoots(el, maxCssPx, depth) {
   const h = Math.max(el.scrollHeight, el.offsetHeight, 1);
 
+  /* 상담사용 요약 카드: 개별 prep-box(반쪽 너비)로 쪼개면 각 조각이 페이지 전폭으로
+     확대돼 글자가 거대해진다. 카드를 통째로 한 캡처 단위로 유지(긴 경우 캔버스 세로 분할로 처리). */
+  if (el.classList?.contains('counselor-prep-card')) {
+    return [el];
+  }
+
   if (el.classList?.contains('growth-panel--focus')) {
     const kids = Array.from(el.children).filter(
       (ch) =>
