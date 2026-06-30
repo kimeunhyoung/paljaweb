@@ -3897,21 +3897,8 @@
     </div>
   </div>
 
-  <!-- ⑩ Growth Map · 성장 지도 -->
-  <div class="section" style="animation-delay:.32s" id="growthSection">
-    <div class="section-header">
-      <div class="section-line"></div>
-      <span class="section-label">Growth Map · 성장 지도</span>
-      <div class="section-line"></div>
-    </div>
-    <div class="timeline-bridge growth-map-bridge">
-      <p><strong>이 지도가 보는 것.</strong> 생년월일을 자릿수로 펼쳤을 때 <em>나오지 않는 숫자</em>는, 옛 글에서는 ‘카르마 레슨’처럼 불리기도 해요. 부족의 낙인이 아니라, 인생이 몇 번이고 돌려 보내는 <strong>연습 초대</strong>에 가깝게 받아들이면 됩니다.</p>
-    </div>
-    <div id="growthContent"></div>
-  </div>
-
   <!-- 로슈 격자 분석 -->
-  <div class="section" style="animation-delay:.34s" id="loshuSection">
+  <div class="section" style="animation-delay:.32s" id="loshuSection">
     <div class="section-header">
       <div class="section-line"></div>
       <span class="section-label">로슈 격자 분석</span>
@@ -3922,7 +3909,7 @@
   </div>
 
   <!-- 풀 애로우 · 순차 격자 -->
-  <div class="section" style="animation-delay:.36s" id="seqArrowSection">
+  <div class="section" style="animation-delay:.34s" id="seqArrowSection">
     <div class="section-header">
       <div class="section-line"></div>
       <span class="section-label">풀 애로우 · 순차 격자</span>
@@ -3930,6 +3917,19 @@
     </div>
     <div id="seqArrowSectionBridge" class="timeline-bridge loshu-map-bridge"></div>
     <div id="seqArrowContent"></div>
+  </div>
+
+  <!-- ⑩ Growth Map · 성장 지도 (격자 분석 뒤에 배치: 빈 칸을 격자로 본 뒤 성장 과제로 해석) -->
+  <div class="section" style="animation-delay:.36s" id="growthSection">
+    <div class="section-header">
+      <div class="section-line"></div>
+      <span class="section-label">Growth Map · 성장 지도</span>
+      <div class="section-line"></div>
+    </div>
+    <div class="timeline-bridge growth-map-bridge">
+      <p><strong>이 지도가 보는 것.</strong> 생년월일을 자릿수로 펼쳤을 때 <em>나오지 않는 숫자</em>는, 옛 글에서는 ‘카르마 레슨’처럼 불리기도 해요. 부족의 낙인이 아니라, 인생이 몇 번이고 돌려 보내는 <strong>연습 초대</strong>에 가깝게 받아들이면 됩니다.</p>
+    </div>
+    <div id="growthContent"></div>
   </div>
 
   <!-- PDF 저장 -->
@@ -3969,11 +3969,11 @@
         <a href="#aiTodaySection">AI 오늘의 메시지</a>
         <a href="#weeklyForecastSection">향후 7일간의 에너지 흐름</a>
       </div>
-      <div class="analysis-jump-group-label">성장 · 격자</div>
+      <div class="analysis-jump-group-label">격자 · 성장</div>
       <div class="analysis-jump-list">
-        <a href="#growthSection">Growth Map · 성장 지도</a>
         <a href="#loshuSection">로슈 격자 분석</a>
         <a href="#seqArrowSection">풀 애로우 · 순차 격자</a>
+        <a href="#growthSection">Growth Map · 성장 지도</a>
       </div>
     </div>
     <button type="button" class="analysis-jump-fab" id="analysisJumpFab" aria-expanded="false" aria-controls="analysisJumpPanel">
@@ -6715,16 +6715,16 @@ function buildReadingGuideCatalogInnerHtml() {
         `일별 일간 수·가이드를 표 형태로 표시.`,
       )}
       ${lcReadingGuideCatalogRow(
-        lcModuleNav('#growthSection', '성장 지도', 'pro'),
-        `생년월일 자리 분포의 결손·과다 숫자로 보는 보완·성장 초점.`,
-      )}
-      ${lcReadingGuideCatalogRow(
         lcModuleNav('#loshuSection', '로슈 격자 분석', 'pro'),
         `로슈 매직 스퀘어(九宫) 패턴으로 보는 균형·강약 분포.`,
       )}
       ${lcReadingGuideCatalogRow(
         lcModuleNav('#seqArrowSection', '풀 애로우 · 순차 격자', 'pro'),
         `서양식 3·6·9 / 2·5·8 / 1·4·7 순차 격자의 8가지 풀·빈 화살 해석.`,
+      )}
+      ${lcReadingGuideCatalogRow(
+        lcModuleNav('#growthSection', '성장 지도', 'pro'),
+        `생년월일 자리 분포의 결손·과다 숫자로 보는 보완·성장 초점.`,
       )}
       <p class="lc-guide-catalog-footnote">제목 옆 <strong>B</strong>·<strong>P</strong>는 Basic·Pro부터 열리는 모듈입니다. 무료 모듈은 배지 없이 표시됩니다.</p>
   `;
