@@ -4519,22 +4519,6 @@ ${R} .tarot-life-table .life-tbl-num { font-size: 12px !important; line-height: 
 ${R} .tarot-life-table .life-tbl-kw { font-size: 8px !important; margin-top: 1px !important; }
 ${R} .tarot-life-table .life-tbl-age,
 ${R} .tarot-life-table .life-tbl-year { font-size: 7.5px !important; margin-top: 0 !important; }
-/* html2canvas는 CSS grid의 1fr 트랙을 0폭으로 접어 카드가 사라지는 문제가 있다.
-   PDF 클론에서는 3칸 카드 그리드를 float 레이아웃으로 치환해 항상 렌더되게 한다. */
-${R} .core-grid,
-${R} .flow-row,
-${R} .major-cycle-grid {
-  display: block !important;
-  overflow: hidden !important;
-}
-${R} .core-grid > *,
-${R} .flow-row > *,
-${R} .major-cycle-grid > * {
-  float: left !important;
-  width: 33.333% !important;
-  box-sizing: border-box !important;
-  margin: 0 0 8px 0 !important;
-}
 `;
 }
 
@@ -4724,19 +4708,31 @@ function pdfSplitCaptureRoots(el, maxCssPx, depth) {
 
   if (h <= maxCssPx || depth > 14) return [el];
 
-  const accDirect = Array.from(el.children).filter(
-    (ch) => ch.nodeType === 1 && ch.classList && ch.classList.contains('accordion')
+  const sigDirectKids = Array.from(el.children).filter(
+    (ch) => ch.nodeType === 1 && ch.tagName !== 'SCRIPT' && ch.tagName !== 'STYLE'
+      && Math.max(ch.scrollHeight, ch.offsetHeight) > 6
   );
-  if (accDirect.length >= 2 && h > maxCssPx * 0.92) {
+  const accDirect = sigDirectKids.filter(
+    (ch) => ch.classList && ch.classList.contains('accordion')
+  );
+  /* 직속 자식이 모두 아코디언일 때만 단축. 그리드·표 등 다른 형제가 섞여 있으면
+     일반 자식 분할로 내려가 그 형제들이 누락되지 않게 한다. */
+  if (accDirect.length >= 2 && accDirect.length === sigDirectKids.length && h > maxCssPx * 0.92) {
     return accDirect.flatMap((a) => pdfSplitCaptureRoots(a, maxCssPx, depth + 1));
   }
 
   if (h > maxCssPx * 0.92 && el.querySelector && el.querySelector('.accordion')) {
-    const wrapKids = Array.from(el.children).filter((ch) => {
-      if (ch.nodeType !== 1 || ch.tagName === 'SCRIPT' || ch.tagName === 'STYLE') return false;
-      return ch.querySelector && ch.querySelector(':scope > .accordion');
-    });
-    if (wrapKids.length === 1) {
+    const sigKids = Array.from(el.children).filter(
+      (ch) => ch.nodeType === 1 && ch.tagName !== 'SCRIPT' && ch.tagName !== 'STYLE'
+        && Math.max(ch.scrollHeight, ch.offsetHeight) > 6
+    );
+    const wrapKids = sigKids.filter(
+      (ch) => ch.querySelector && ch.querySelector(':scope > .accordion')
+    );
+    /* 단축은 아코디언 래퍼가 '유일한' 실질 자식일 때만. 그렇지 않으면(예: 대주기 카드
+       그리드·핵심수 그리드·도전/절정 표가 형제로 있을 때) 그 형제들이 통째로 누락된다.
+       이 경우 아래 일반 자식 분할로 내려가 그리드·표를 보존한다. */
+    if (wrapKids.length === 1 && sigKids.length === 1) {
       const innerAcc = Array.from(wrapKids[0].querySelectorAll(':scope > .accordion'));
       if (innerAcc.length >= 2) {
         return innerAcc.flatMap((a) => pdfSplitCaptureRoots(a, maxCssPx, depth + 1));
