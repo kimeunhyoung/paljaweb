@@ -4833,7 +4833,10 @@ async function downloadAnalysisPdf(hiddenIds) {
   /* 한 페이지(A4 본문)에 들어가는 콘텐츠 높이(css px). 캡처 단위를 이보다 작게 쪼개
      문단·표가 페이지 경계에서 잘리지 않고 통째로 다음 페이지로 넘어가게 한다. */
   const innerHmmForFit = 297 - marginMm * 2;
-  const pageFitCssPx = Math.max(420, Math.floor(capPx * (innerHmmForFit / innerWmm) * 0.94));
+  /* 한 조각(캡처 단위)의 최대 높이를 한 페이지의 이 비율로 제한한다.
+     값이 작을수록 덩어리가 잘게 쪼개져 페이지 빈 공간이 줄어든다(대신 조각 수↑). */
+  const PDF_CHUNK_PAGE_RATIO = 0.55;
+  const pageFitCssPx = Math.max(360, Math.floor(capPx * (innerHmmForFit / innerWmm) * PDF_CHUNK_PAGE_RATIO));
 
   let captureRoots = [];
   for (let iter = 0; iter < 18; iter++) {
