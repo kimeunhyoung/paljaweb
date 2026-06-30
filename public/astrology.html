@@ -53,6 +53,12 @@ body{font-family:var(--font-body);background:var(--cream);color:var(--ink);min-h
 .hero-title{font-family:var(--font-serif);font-size:clamp(26px,5vw,40px);font-weight:600;line-height:1.25;color:var(--deep-brown);}
 .hero-title em{font-style:italic;color:var(--accent);}
 .hero-desc{max-width:600px;margin:14px auto 0;color:var(--muted);font-size:15px;line-height:1.8;}
+.astro-subnav{display:flex;justify-content:center;gap:10px;margin:22px auto 0;padding:0 20px;max-width:440px;}
+.astro-subnav a,.astro-subnav span{flex:1;text-align:center;padding:13px 14px;border-radius:14px;font-size:14px;font-weight:700;text-decoration:none;border:2px solid var(--border);background:rgba(255,255,255,.55);color:var(--deep-brown);transition:border-color .15s,background .15s,transform .12s;}
+.astro-subnav a:hover{border-color:var(--accent);background:rgba(255,255,255,.9);transform:translateY(-1px);}
+.astro-subnav .is-current{background:var(--accent);color:#fff;border-color:var(--accent);box-shadow:0 4px 14px rgba(139,111,71,.28);}
+.astro-subnav a.couple-link{border-color:#d4738f;background:linear-gradient(145deg,#fff8fa,#ffe4ec);color:#a33d5c;box-shadow:0 2px 10px rgba(196,92,122,.15);}
+.astro-subnav a.couple-link:hover{border-color:#c45c7a;background:linear-gradient(145deg,#ffeef3,#ffd6e3);}
 
 /* CARD */
 .card{background:#fff;border:1px solid var(--border);border-radius:16px;box-shadow:0 10px 30px var(--shadow);padding:26px;margin-top:26px;}
@@ -181,7 +187,12 @@ table.astro-table td .glyph{font-size:16px;margin-right:4px;color:var(--accent);
 .aspect-grid .ag-cell.g-tense{color:#c0492f;font-weight:700;}
 .aspect-grid .ag-cell.g-strong{color:var(--deep-brown);font-weight:700;}
 @media print{ .accordion .acc-body{display:block !important;} .accordion .acc-chev{display:none;} .export-opts,.no-print{display:none !important;} .capture-off{display:none !important;} }
-.export-opts{display:flex;flex-wrap:wrap;align-items:center;gap:10px 14px;padding:10px 14px;margin-bottom:12px;background:rgba(139,111,71,.06);border-radius:12px;font-size:12.5px;color:var(--muted);}
+.export-opts{display:flex;flex-direction:column;align-items:stretch;gap:8px;padding:12px 14px;margin-bottom:12px;background:rgba(139,111,71,.06);border-radius:12px;font-size:12.5px;color:var(--muted);}
+.export-opts-head{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 10px;}
+.export-opts-head strong{font-size:13px;color:var(--deep-brown);}
+.export-opts-head small{font-size:11.5px;font-weight:400;}
+.export-opts-row{display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px;}
+.export-opts-label{font-size:11px;font-weight:700;letter-spacing:.04em;color:var(--accent);min-width:2.4em;flex-shrink:0;}
 .export-opts label{display:inline-flex;align-items:center;gap:5px;cursor:pointer;font-weight:500;color:var(--deep-brown);}
 .export-opts input{accent-color:var(--accent);}
 .year-block{margin-bottom:16px;padding:12px 14px;background:rgba(255,255,255,.55);border-radius:12px;border:1px solid #e8ddcb;}
@@ -234,7 +245,10 @@ table.astro-table td .glyph{font-size:16px;margin-right:4px;color:var(--accent);
   <div class="hero-tag">Astrology · 네이탈 차트</div>
   <h1 class="hero-title">별이 그린<br><em>나의 출생 지도</em></h1>
   <p class="hero-desc">태어난 날짜·시간·장소로 행성의 위치와 <strong>12하우스</strong>, <strong>상승궁(Asc)</strong>을 계산해 원형 네이탈 차트를 그려 드립니다. 정확한 차트에는 <strong>출생 시간</strong>이 필요해요.</p>
-  <p style="margin-top:14px;"><a href="astrology-couple.html" style="display:inline-block;font-size:13.5px;font-weight:600;color:var(--accent);text-decoration:none;border:1px solid var(--accent);border-radius:20px;padding:7px 16px;">♥ 두 사람 궁합이 궁금하다면 · 커플 차트 →</a></p>
+  <nav class="astro-subnav" aria-label="점성학 메뉴">
+    <span class="is-current" aria-current="page">☉ 네이탈 차트</span>
+    <a href="astrology-couple.html" class="couple-link">♥ 커플 차트</a>
+  </nav>
 </section>
 
 <div class="wrap">
@@ -273,13 +287,31 @@ table.astro-table td .glyph{font-size:16px;margin-right:4px;color:var(--accent);
     <div class="result-toolbar" id="resultToolbar">
       <div class="result-name" id="resultName"></div>
       <div class="export-opts no-print" id="exportOpts">
-        <span>저장·인쇄 시 포함 <small style="font-weight:400;color:var(--muted)">(빅3·차트·원소는 항상 포함)</small></span>
-        <label><input type="checkbox" id="expDetail" checked/> 행성·하우스·해석</label>
-        <label><input type="checkbox" id="expGrid" checked/> 어스펙트 그리드</label>
-        <label><input type="checkbox" id="expTransit" checked/> 트랜짓</label>
-        <label><input type="checkbox" id="expYear" checked/> 올해 운세</label>
-        <label><input type="checkbox" id="expReport" checked/> 상담 요약</label>
-        <label><input type="checkbox" id="expAi"/> AI 해석</label>
+        <div class="export-opts-head">
+          <strong>저장·인쇄 시 포함</strong>
+          <small>원하는 항목만 골라 저장·인쇄하세요</small>
+        </div>
+        <div class="export-opts-row">
+          <span class="export-opts-label">기본</span>
+          <label><input type="checkbox" id="expBig3" checked/> 빅3</label>
+          <label><input type="checkbox" id="expBalance" checked/> 원소·모달</label>
+          <label><input type="checkbox" id="expWheel" checked/> 네이탈 차트</label>
+        </div>
+        <div class="export-opts-row">
+          <span class="export-opts-label">상세</span>
+          <label><input type="checkbox" id="expGrid" checked/> 어스펙트 그리드</label>
+          <label><input type="checkbox" id="expPlanet" checked/> 행성 위치</label>
+          <label><input type="checkbox" id="expPlanetRead" checked/> 행성 해석</label>
+          <label><input type="checkbox" id="expHouse" checked/> 12하우스</label>
+          <label><input type="checkbox" id="expAspect" checked/> 주요 어스펙트</label>
+        </div>
+        <div class="export-opts-row">
+          <span class="export-opts-label">심화</span>
+          <label><input type="checkbox" id="expTransit" checked/> 트랜짓</label>
+          <label><input type="checkbox" id="expYear" checked/> 올해 운세</label>
+          <label><input type="checkbox" id="expReport" checked/> 상담 요약</label>
+          <label><input type="checkbox" id="expAi"/> AI 해석</label>
+        </div>
       </div>
       <div class="result-actions">
         <button type="button" class="rt-btn" id="btnCopy" title="빅3·원소 요약을 클립보드로 복사">⧉ 요약 복사</button>
@@ -290,7 +322,7 @@ table.astro-table td .glyph{font-size:16px;margin-right:4px;color:var(--accent);
       </div>
     </div>
 
-    <div class="card">
+    <div class="card" id="big3Card">
       <div class="card-title">✦ 빅3 — 태양 · 달 · 상승궁</div>
       <div class="big3" id="big3"></div>
     </div>
@@ -1186,8 +1218,14 @@ table.astro-table td .glyph{font-size:16px;margin-right:4px;color:var(--accent);
 
   // ── 저장·인쇄 포함 옵션 (화면 표시에는 영향 없음, 캡처/인쇄 직전에만 적용) ──
   const EXPORT_MAP = [
-    ['expDetail', ['planetCard', 'planetReadCard', 'houseCard', 'aspectCard']],
+    ['expBig3', ['big3Card']],
+    ['expBalance', ['balanceCard']],
+    ['expWheel', ['wheelCard']],
     ['expGrid', ['aspectGridCard']],
+    ['expPlanet', ['planetCard']],
+    ['expPlanetRead', ['planetReadCard']],
+    ['expHouse', ['houseCard']],
+    ['expAspect', ['aspectCard']],
     ['expTransit', ['transitCard']],
     ['expYear', ['yearCard']],
     ['expReport', ['counselorReportCard']],
