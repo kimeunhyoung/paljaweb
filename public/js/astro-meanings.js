@@ -56,7 +56,8 @@
   var CHART_KEY = {
     sun: 'Sun', moon: 'Moon', mercury: 'Mercury', venus: 'Venus', mars: 'Mars',
     jupiter: 'Jupiter', saturn: 'Saturn', uranus: 'Uranus', neptune: 'Neptune',
-    pluto: 'Pluto', chiron: 'Chiron', northnode: 'NNode', lilith: 'Lilith'
+    pluto: 'Pluto', chiron: 'Chiron', northnode: 'NNode', lilith: 'Lilith',
+    fortune: 'Fortune', vertex: 'Vertex'
   };
 
   var HOUSES = [

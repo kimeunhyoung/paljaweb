@@ -4,17 +4,39 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
-<title>점성학 차트 · 네이탈(출생) 차트 — 팔자연구소</title>
-<meta name="description" content="생년월일·출생 시간·출생지로 행성 위치, 12하우스, 상승궁(Asc)을 계산해 원형 네이탈 차트를 그려 드립니다. 태양·달·상승궁 빅3 해석 포함. 팔자연구소 점성학.">
+<title>점성학 차트 · 네이탈(출생) 차트 무료 — 팔자연구소</title>
+<meta name="description" content="점성학 차트·네이탈(출생) 차트를 무료로 만듭니다. 생년월일·출생 시간·출생지로 행성 위치, 12하우스, 상승궁(Asc), 빅3 해석, 어스펙트 그리드까지. 팔자연구소 점성학.">
+<meta name="keywords" content="점성학, 점성학 차트, 네이탈 차트, 출생 차트, 상승궁, 빅3, 행성 위치, 12하우스, 어스펙트, 트로피컬, 팔자연구소">
+<meta name="naver-site-verification" content="370eed788420c69530c0a0b934ae1a232210dad7">
 <link rel="canonical" href="https://8code.kr/astrology.html">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="팔자연구소">
 <meta property="og:title" content="점성학 차트 · 네이탈(출생) 차트 — 팔자연구소">
-<meta property="og:description" content="출생 정보로 행성·12하우스·상승궁을 계산해 원형 네이탈 차트와 해석을 제공합니다.">
+<meta property="og:description" content="출생 정보로 점성학 네이탈 차트를 무료 계산. 행성·12하우스·상승궁·빅3 해석과 어스펙트 그리드.">
 <meta property="og:url" content="https://8code.kr/astrology.html">
 <meta property="og:image" content="https://8code.kr/applogo600.png">
 <meta property="og:locale" content="ko_KR">
 <meta name="twitter:card" content="summary_large_image">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  "name": "점성학 차트 · 네이탈 출생 차트",
+  "alternateName": ["점성학", "점성학 차트", "네이탈 차트", "출생 차트"],
+  "url": "https://8code.kr/astrology.html",
+  "description": "생년월일·출생 시간·출생지로 네이탈(출생) 차트를 계산하고 태양·달·상승궁 빅3와 행성 위치를 해석합니다.",
+  "applicationCategory": "LifestyleApplication",
+  "operatingSystem": "Web",
+  "inLanguage": "ko-KR",
+  "offers": { "@type": "Offer", "price": "0", "priceCurrency": "KRW" },
+  "provider": {
+    "@type": "Organization",
+    "name": "팔자연구소",
+    "alternateName": "8CODE",
+    "url": "https://8code.kr/"
+  }
+}
+</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -105,7 +127,7 @@ body{font-family:var(--font-body);background:var(--cream);color:var(--ink);min-h
 .chart-grid-scroll{overflow:auto;max-height:min(520px,72vw);}
 .chart-meta{font-size:13px;line-height:1.6;color:var(--deep-brown);margin:-6px 0 12px;padding:8px 12px;background:var(--cream);border-radius:10px;}
 .chart-meta strong{font-weight:700;}
-#astroPaper{width:100%;max-width:480px;}
+#astroPaper{width:100%;max-width:540px;}
 #astroPaper svg{width:100%;height:auto;display:block;}
 .chart-grid-hint{margin-top:6px;font-size:9.5px;line-height:1.5;color:var(--muted);}
 .aspect-grid.compact td{width:22px;height:22px;min-width:22px;font-size:13px;}
@@ -263,7 +285,10 @@ table.astro-table td .glyph{font-size:16px;margin-right:4px;color:var(--accent);
   .big3-card .b3-text{font-size:12.5px;margin-top:8px;line-height:1.6;}
   .big3-card .b3-glyph{font-size:30px;}
   .balance-wrap{gap:12px;}
-  #wheelCard .chart-wheel-wrap #astroPaper{max-width:440px;}
+  #wheelCard .chart-duo{grid-template-columns:1fr;justify-items:center;}
+  #wheelCard .chart-wheel-wrap{width:100%;max-width:520px;}
+  #wheelCard .chart-wheel-wrap #astroPaper{max-width:100%;}
+  #wheelCard .chart-grid-wrap{max-width:420px;width:100%;margin:0 auto;}
   #wheelCard .note{display:none !important;}
   .aspect-grid.compact td{width:17px;height:17px;min-width:17px;font-size:10px;}
   #result > .note{display:none;}
@@ -280,13 +305,19 @@ body.export-capturing .big3-card{padding:12px 14px;}
 body.export-capturing .big3-card .b3-text{font-size:12.5px;margin-top:8px;line-height:1.6;}
 body.export-capturing .big3-card .b3-glyph{font-size:30px;}
 body.export-capturing .balance-wrap{gap:12px;}
-body.export-capturing #wheelCard .chart-wheel-wrap #astroPaper{max-width:440px;}
+body.export-capturing #wheelCard .chart-duo{grid-template-columns:1fr;justify-items:center;}
+body.export-capturing #wheelCard .chart-wheel-wrap{width:100%;max-width:520px;}
+body.export-capturing #wheelCard .chart-wheel-wrap #astroPaper{max-width:100%;}
+body.export-capturing #wheelCard .chart-grid-wrap{max-width:420px;width:100%;margin:0 auto;}
 body.export-capturing #wheelCard .note{display:none !important;}
 
 /* FOOTER */
 .site-legal-footer{max-width:1000px;margin:40px auto 0;padding:20px;border-top:1px solid var(--border);font-size:12px;color:var(--muted);line-height:1.8;text-align:center;}
 .site-legal-footer a{color:var(--muted);text-decoration:none;}
 .site-legal-footer a:hover{color:var(--deep-brown);}
+.astro-seo-intro{max-width:720px;margin:32px auto 0;padding:0 20px;font-size:13px;line-height:1.75;color:var(--muted);}
+.astro-seo-intro h2{font-family:var(--font-serif);font-size:16px;font-weight:600;color:var(--deep-brown);margin:0 0 8px;}
+.astro-seo-intro a{color:var(--accent);}
 </style>
 </head>
 <body>
@@ -294,8 +325,8 @@ body.export-capturing #wheelCard .note{display:none !important;}
 <div class="site-top" data-topbar-title="점성학" data-nav-current="astro" data-login-next="astrology.html"></div>
 
 <section class="hero">
-  <div class="hero-tag">Astrology · 네이탈 차트</div>
-  <h1 class="hero-title">별이 그린<br><em>나의 출생 지도</em></h1>
+  <div class="hero-tag">점성학 · 네이탈 차트</div>
+  <h1 class="hero-title">점성학<br><em>네이탈 출생 차트</em></h1>
   <p class="hero-desc">태어난 날짜·시간·장소로 행성의 위치와 <strong>12하우스</strong>, <strong>상승궁(Asc)</strong>을 계산해 원형 네이탈 차트를 그려 드립니다. 정확한 차트에는 <strong>출생 시간</strong>이 필요해요.</p>
   <nav class="astro-subnav" aria-label="점성학 메뉴">
     <span class="is-current" aria-current="page">☉ 네이탈 차트</span>
@@ -499,6 +530,11 @@ body.export-capturing #wheelCard .note{display:none !important;}
     </div>
   </div>
 </div>
+
+<section class="astro-seo-intro">
+  <h2>무료 점성학 차트 · 네이탈(출생) 차트</h2>
+  <p>팔자연구소 <strong>점성학</strong>은 생년월일·출생 시간·출생지로 <strong>네이탈 차트</strong>(출생 차트)를 계산합니다. 태양·달·상승궁 <strong>빅3</strong>, 행성 위치, 12하우스, 원소·모달리티, 어스펙트 그리드를 한 번에 확인할 수 있어요. <a href="guide/astrology.html">점성학 차트 보는 법</a> · <a href="astrology-couple.html">커플 시너스트리</a></p>
+</section>
 
 <footer class="site-legal-footer">
   <span>
@@ -780,7 +816,6 @@ body.export-capturing #wheelCard .note{display:none !important;}
       });
       hr += '</tbody>';
       $('houseTable').innerHTML = hr;
-      drawWheel(horoscope);
       $('wheelNote').textContent = `출생지: ${opts.coordLabel} · 트로피컬 / 플라시더스`;
     }
 
@@ -814,6 +849,7 @@ body.export-capturing #wheelCard .note{display:none !important;}
       const ad = deg(horoscope.Ascendant); if (ad != null) NATAL_DEGS.asc = ad;
       try { const md = horoscope.Midheaven ? deg(horoscope.Midheaven) : null; if (md != null) NATAL_DEGS.mc = md; } catch (e) {}
       computeDerivedPoints();
+      drawWheel(horoscope);
     }
     renderAspectGrid();
     renderDerivedTableRows(horoscope, opts.unknownTime);
@@ -1549,6 +1585,7 @@ body.export-capturing #wheelCard .note{display:none !important;}
   }
 
   // 아스트라·Astro-Seek 스타일: 4원소 색상 링 + 조화/긴장 어스펙트 선
+  const WHEEL_MAX_PX = 540;
   const ASTRO_CHART_SETTINGS = {
     COLOR_BACKGROUND: '#ffffff',
     CIRCLE_COLOR: '#3d3d3d',
@@ -1559,6 +1596,18 @@ body.export-capturing #wheelCard .note{display:none !important;}
     SIGNS_STROKE: 1.3,
     CUSPS_STROKE: 0.9,
     SHOW_DIGNITIES_TEXT: false,
+    CUSTOM_SYMBOL_FN: function (name, x, y) {
+      if (name !== 'Vertex') return null;
+      var t = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+      t.setAttribute('x', String(x));
+      t.setAttribute('y', String(y + 4));
+      t.setAttribute('text-anchor', 'middle');
+      t.setAttribute('font-size', '9');
+      t.setAttribute('font-weight', '700');
+      t.setAttribute('fill', '#333');
+      t.textContent = 'Vx';
+      return t;
+    },
     COLORS_SIGNS: [
       '#e15241', '#6b8e4e', '#6b9bd1', '#4a7fb5',
       '#e15241', '#6b8e4e', '#6b9bd1', '#4a7fb5',
@@ -1579,7 +1628,9 @@ body.export-capturing #wheelCard .note{display:none !important;}
     if (!paper) return;
     paper.innerHTML = '';
     const wrap = paper.closest('.chart-wheel-wrap') || paper.parentElement;
-    const size = Math.min((wrap && wrap.clientWidth) || paper.clientWidth || 480, 480);
+    const exportCap = document.body.classList.contains('export-capturing') || window.matchMedia('print').matches;
+    const cap = exportCap ? 520 : WHEEL_MAX_PX;
+    const size = Math.min((wrap && wrap.clientWidth) || paper.clientWidth || cap, cap);
     const planets = {};
     const map = M.CHART_KEY;
     ['sun','moon','mercury','venus','mars','jupiter','saturn','uranus','neptune','pluto','chiron'].forEach((k) => {
@@ -1590,6 +1641,9 @@ body.export-capturing #wheelCard .note{display:none !important;}
       const b = horoscope.CelestialPoints && horoscope.CelestialPoints[k]; const d = b ? deg(b) : null;
       if (map[k] && d != null) planets[map[k]] = [d];
     });
+    if (NATAL_DEGS.lilith != null && planets.Lilith == null) planets.Lilith = [NATAL_DEGS.lilith];
+    if (NATAL_DEGS.fortune != null) planets.Fortune = [NATAL_DEGS.fortune];
+    if (NATAL_DEGS.vertex != null) planets.Vertex = [NATAL_DEGS.vertex];
     const cusps = (horoscope.Houses || []).map(houseStart);
     if (cusps.length !== 12 || cusps.some((c) => c == null)) return;
     try {
