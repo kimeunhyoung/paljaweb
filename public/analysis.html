@@ -1249,6 +1249,25 @@
     .age-vib-title { font-size: 13px; font-weight: 600; color: var(--text); margin-bottom: 4px; }
     .age-vib-desc { font-size: 12px; color: var(--muted); line-height: 1.55; }
     .age-vib-note { font-size: 11px; color: var(--muted); line-height: 1.5; margin-top: 6px; opacity: .92; }
+    .age-vib-alt {
+      font-size: 11.5px;
+      color: var(--warm-brown);
+      line-height: 1.5;
+      margin-top: 8px;
+      padding-top: 8px;
+      border-top: 1px dashed rgba(200,169,110,.45);
+    }
+    .age-vib-alt-tag {
+      display: inline-block;
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--muted);
+      background: rgba(0,0,0,.04);
+      border-radius: 6px;
+      padding: 1px 6px;
+      margin-right: 6px;
+    }
+    .age-vib-alt-hint { display: block; font-size: 10.5px; color: var(--muted); margin-top: 2px; }
     @media (max-width: 640px) {
       .age-vib-box { padding: 12px 14px; gap: 12px; }
       .age-vib-num { width: 48px; height: 48px; font-size: 24px; }
@@ -5767,6 +5786,14 @@ function calcAgeVibration(age) {
   return { age: a, pre, num: reduceToSingle(pre) };
 }
 
+/** 연령진동수(전환형·보조) — 이전 나이 + 현재 나이 → 환원 */
+function calcAgeTransition(age) {
+  const a = Math.max(0, age | 0);
+  const prev = Math.max(0, a - 1);
+  const sum = prev + a;
+  return { age: a, prev, sum, num: reduceToSingle(sum) };
+}
+
 /** 올해의 수 = 연도 자릿수합 + 문 넘버(월·일 자릿수합) → 타로 0~21 (22→0) */
 function calcPersonalYearTarot(year, moonPre) {
   const pre = sumYearDigits(year) + moonPre;
@@ -8234,6 +8261,7 @@ async function runAnalysis() {
     const manAge = calcManAge(y, m, d, curY, curM, curD);
     const av = calcAgeVibration(manAge);
     const avReduce = av.pre !== av.num ? ` → ${av.num}` : '';
+    const at = calcAgeTransition(manAge);
     ageVibEl.hidden = false;
     ageVibEl.innerHTML = `
       <div class="age-vib-num">${av.num}</div>
@@ -8242,6 +8270,7 @@ async function runAnalysis() {
         <div class="age-vib-title">${av.num}번 · ${TITLE_MAP[av.num] || ''}</div>
         <div class="age-vib-desc">${TL_DESC[av.num] || ''}</div>
         <div class="age-vib-note">만 나이의 자릿수를 더해 얻는 수로, <strong>생일마다 바뀌는 그해의 기본 리듬</strong>을 봅니다. 개인연도수가 ‘달력의 해’라면 연령진동수는 ‘내 나이의 해’를 봅니다.</div>
+        <div class="age-vib-alt"><span class="age-vib-alt-tag">전환형(보조)</span> 이전+현재 나이 ${at.prev}+${at.age}=${at.sum} → <strong>${at.num}번</strong> · ${TITLE_MAP[at.num] || ''}<span class="age-vib-alt-hint">한 나이에서 다음으로 넘어가는 ‘전환 에너지’를 보는 변형 방식입니다.</span></div>
       </div>`;
   }
 
