@@ -244,6 +244,22 @@ body{font-family:var(--font-body);background:var(--cream);color:var(--ink);min-h
   const CITIES = window.ASTRO_CITIES || [];
   const $ = (id) => document.getElementById(id);
 
+  // 커플 차트는 Basic 이상 기능
+  const SUPABASE_URL = 'https://sghsryumnrnftyjoqmwf.supabase.co';
+  const SUPABASE_ANON_KEY = 'sb_publishable_6S3W_oWrzG-Nv8wLK98gmg_q_KcB2I1';
+  let sbClient = null;
+  try { if (window.supabase && window.supabase.createClient) sbClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY); } catch (e) {}
+  let HAS_BASIC = false;
+  const accessReady = (async () => {
+    try {
+      if (!sbClient) return;
+      const { data: { session } } = await sbClient.auth.getSession();
+      if (!session) return;
+      const { data: profile } = await sbClient.from('profiles').select('plan, plan_active_until').eq('id', session.user.id).single();
+      HAS_BASIC = window.PaljaPlan ? window.PaljaPlan.isPlanAtLeast(profile || {}, 'basic') : false;
+    } catch (e) {}
+  })();
+
   function fillCity(selId, manualId) {
     const sel = $(selId);
     const kr = document.createElement('optgroup'); kr.label = '국내';
@@ -325,11 +341,17 @@ body{font-family:var(--font-body);background:var(--cream);color:var(--ink);min-h
     return { y, mo, da, hh, mi, lat: coords.lat, lng: coords.lng, unknown, name };
   }
 
-  function calculate() {
+  async function calculate() {
     hideStatus();
     if (libError || !Origin || !Horoscope) { showStatus('점성 계산 도구를 불러오지 못했어요. 새로고침 후 다시 시도해 주세요.', 'err'); return; }
     const A = readPerson('a'); if (A.err) { showStatus('첫 번째 사람: ' + A.err, 'err'); return; }
     const B = readPerson('b'); if (B.err) { showStatus('두 번째 사람: ' + B.err, 'err'); return; }
+
+    await accessReady;
+    if (!HAS_BASIC) {
+      showStatus('커플 차트(시너스트리)는 <strong>Basic 이상 플랜</strong>에서 이용할 수 있어요. <a href="pricing.html" style="color:var(--teal);text-decoration:underline;font-weight:600;">요금제 보기 →</a>', 'err');
+      return;
+    }
 
     $('calcBtn').disabled = true;
     showStatus('두 사람의 별을 겹쳐 보는 중…', 'info');

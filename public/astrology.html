@@ -164,6 +164,12 @@ table.astro-table td .glyph{font-size:16px;margin-right:4px;color:var(--accent);
 .transit-now .tn-glyph{color:var(--accent);font-size:14px;margin-right:2px;}
 .transit-empty{font-size:13px;color:var(--muted);padding:8px 0;}
 
+/* 유료 잠금 */
+.astro-lock{display:flex;flex-direction:column;align-items:flex-start;gap:8px;background:linear-gradient(165deg,#fdfaf3,#f3ead8);border:1px dashed var(--accent);border-radius:12px;padding:18px 20px;font-size:13.5px;color:var(--deep-brown);line-height:1.7;}
+.astro-lock .lock-emoji{font-size:20px;}
+.astro-lock a{display:inline-block;margin-top:4px;background:var(--accent);color:#fff;text-decoration:none;font-weight:600;font-size:13px;padding:8px 16px;border-radius:20px;}
+.astro-lock a:hover{background:#d4b87a;}
+
 /* AI 프롬프트 */
 .ai-prompt-box{width:100%;border:1px solid var(--border);border-radius:10px;background:var(--cream);padding:13px 15px;font-family:inherit;font-size:12.5px;line-height:1.7;color:var(--ink);resize:vertical;}
 .ai-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px;}
@@ -360,6 +366,19 @@ table.astro-table td .glyph{font-size:16px;margin-right:4px;color:var(--accent);
   } catch (e) { /* ignore */ }
   const CLIENT_ID = new URLSearchParams(location.search).get('client') || '';
   let COUNSELOR_UID = '';
+
+  // 점성학 고급 기능(트랜짓·커플·AI·상세해석)은 Basic 이상. 네이탈 기본은 무료.
+  let HAS_BASIC = false;
+  const accessReady = (async () => {
+    try {
+      if (!sbClient) return;
+      const { data: { session } } = await sbClient.auth.getSession();
+      if (!session) return;
+      const { data: profile } = await sbClient.from('profiles').select('plan, plan_active_until').eq('id', session.user.id).single();
+      HAS_BASIC = window.PaljaPlan ? window.PaljaPlan.isPlanAtLeast(profile || {}, 'basic') : false;
+    } catch (e) { /* 게스트/오류 시 무료 권한 */ }
+  })();
+  const LOCK_HTML = '<div class="astro-lock"><span class="lock-emoji">🔒</span><div><strong>Basic 이상 플랜</strong>에서 볼 수 있는 심화 분석이에요. 트랜짓(오늘의 운세)·행성 상세 해석·AI 프롬프트가 열립니다.</div><a href="pricing.html">요금제 보기 →</a></div>';
 
   // ── 도시 셀렉트 채우기 ──
   (function fillCities() {
@@ -590,8 +609,29 @@ table.astro-table td .glyph{font-size:16px;margin-right:4px;color:var(--accent);
     }
     $('transitResult').innerHTML = '<div class="transit-empty">위 “오늘의 트랜짓 보기”를 누르면 현재 흐름이 표시됩니다.</div>';
 
+    if (!HAS_BASIC) applyAstroGate();
+
     result.classList.add('show');
     result.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  // 무료 사용자: 심화 카드(행성해석·어스펙트·트랜짓·AI)를 잠금 안내로 대체
+  function applyAstroGate() {
+    $('planetReadList').innerHTML = LOCK_HTML;
+    $('aspectCard').style.display = '';
+    $('aspectList').innerHTML = LOCK_HTML;
+    const tc = $('transitControls') || document.querySelector('#transitCard .transit-controls');
+    if (tc) tc.style.display = 'none';
+    $('transitResult').innerHTML = LOCK_HTML;
+    $('aiPrompt').style.display = 'none';
+    const aiAct = document.querySelector('#aiCard .ai-actions');
+    if (aiAct) aiAct.style.display = 'none';
+    if (!document.getElementById('aiLock')) {
+      const d = document.createElement('div');
+      d.id = 'aiLock';
+      d.innerHTML = LOCK_HTML;
+      $('aiPrompt').parentNode.insertBefore(d, $('aiPrompt'));
+    }
   }
 
   // ── 어스펙트 정의(트랜짓 계산용) ──
@@ -852,6 +892,7 @@ table.astro-table td .glyph{font-size:16px;margin-right:4px;color:var(--accent);
 
     $('calcBtn').disabled = true;
     showStatus('별의 위치를 계산하고 있어요…', 'info');
+    await accessReady;
     try {
       const origin = new Origin({
         year: y, month: mo - 1, date: da, hour: hh, minute: mi,
