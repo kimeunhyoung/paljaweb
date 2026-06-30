@@ -529,9 +529,10 @@
         <div class="rel-btns">
           <button type="button" class="btn-sm" id="relGoBtn">소울하모니 궁합</button>
           <button type="button" class="btn-sm outline" id="relGo48Btn">48궁합</button>
+          <button type="button" class="btn-sm outline" id="relGoAstroBtn">♥ 커플 차트</button>
         </div>
       </div>
-      <p class="rel-hint">저장된 두 고객을 골라 궁합 페이지로 바로 분석합니다. (커플·가족 상담용) · <b>소울하모니</b>=수비학 심리 공명, <b>48궁합</b>=생년월일 관계유형 20종</p>
+      <p class="rel-hint">저장된 두 고객을 골라 궁합 페이지로 바로 분석합니다. (커플·가족 상담용) · <b>소울하모니</b>=수비학 심리 공명 · <b>48궁합</b>=생년월일 관계유형 20종 · <b>커플 차트</b>=점성학 시너스트리(출생시간·도시 있으면 더 정확)</p>
     </div>
 
     <div class="section-title">권장 진행 순서</div>
@@ -1052,6 +1053,36 @@
       relGo48Btn.addEventListener('click', () => {
         const qs = buildRelQuery();
         if (qs) window.location.href = 'period48-compat.html?' + qs.toString();
+      });
+    }
+    function buildRelAstroQuery() {
+      const aId = document.getElementById('relA').value;
+      const bId = document.getElementById('relB').value;
+      if (!aId || !bId) { alert('고객 A와 B를 모두 선택해 주세요.'); return null; }
+      if (aId === bId) { alert('서로 다른 고객을 선택해 주세요.'); return null; }
+      const a = clientRows.find((c) => c.id === aId);
+      const b = clientRows.find((c) => c.id === bId);
+      if (!a || !b) return null;
+      if (!a.birth_date || !b.birth_date) {
+        alert('커플 차트는 두 고객 모두 생년월일이 필요합니다. 고객 카드를 수정해 주세요.');
+        return null;
+      }
+      const qs = new URLSearchParams();
+      qs.set('a_name', (a.display_name || a.legal_name || '').trim());
+      qs.set('a_date', a.birth_date);
+      if (a.birth_time) qs.set('a_time', a.birth_time);
+      if (a.birth_city) qs.set('a_city', a.birth_city);
+      qs.set('b_name', (b.display_name || b.legal_name || '').trim());
+      qs.set('b_date', b.birth_date);
+      if (b.birth_time) qs.set('b_time', b.birth_time);
+      if (b.birth_city) qs.set('b_city', b.birth_city);
+      return qs;
+    }
+    const relGoAstroBtn = document.getElementById('relGoAstroBtn');
+    if (relGoAstroBtn) {
+      relGoAstroBtn.addEventListener('click', () => {
+        const qs = buildRelAstroQuery();
+        if (qs) window.location.href = 'astrology-couple.html?' + qs.toString();
       });
     }
 
