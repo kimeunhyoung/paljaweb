@@ -100,12 +100,31 @@ body{font-family:var(--font-body);background:var(--cream);color:var(--ink);min-h
 .chart-shell{display:flex;justify-content:center;margin:6px 0;}
 .chart-duo{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:14px 18px;align-items:start;}
 .chart-wheel-wrap{min-width:0;display:flex;justify-content:center;}
-.chart-grid-wrap{background:#faf8f4;border:1px solid var(--border);border-radius:12px;padding:10px 8px;align-self:stretch;}
-.chart-grid-label{font-size:11px;font-weight:700;color:var(--muted);margin-bottom:8px;text-align:center;letter-spacing:.06em;}
-.chart-grid-scroll{overflow:auto;max-height:min(520px,72vw);}
 #astroPaper{width:100%;max-width:480px;}
 #astroPaper svg{width:100%;height:auto;display:block;}
-.aspect-grid.compact td{width:24px;height:24px;min-width:24px;font-size:14px;}
+
+/* Astro-Seek 스타일 한 장 차트 */
+.astro-report-sheet{padding:20px 22px;}
+.ar-header{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;border-bottom:1.5px solid #ccc;padding-bottom:10px;margin-bottom:12px;}
+.ar-title{font-family:var(--font-serif);font-size:17px;font-weight:700;color:var(--deep-brown);margin:0 0 4px;}
+.ar-meta{font-size:12.5px;line-height:1.65;color:#444;}
+.ar-meta strong{font-size:14px;color:var(--deep-brown);}
+.ar-brand{font-size:11px;color:#888;text-align:right;line-height:1.5;white-space:nowrap;}
+.ar-chart-row{display:flex;justify-content:center;margin:4px 0 10px;}
+.ar-wheel{width:100%;max-width:400px;}
+.ar-data-row{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.15fr) minmax(0,0.85fr);gap:10px 12px;align-items:start;}
+.ar-col-title{font-size:10px;font-weight:700;letter-spacing:.08em;color:var(--muted);margin-bottom:5px;text-transform:uppercase;}
+.ar-table{width:100%;border-collapse:collapse;font-size:11px;line-height:1.35;}
+.ar-table th,.ar-table td{padding:3px 5px;border-bottom:1px solid #e8e0d4;text-align:left;vertical-align:middle;}
+.ar-table th{font-size:10px;color:var(--muted);font-weight:600;background:#faf6ee;}
+.ar-table .ar-g{font-size:13px;color:var(--accent);margin-right:2px;}
+.ar-matrix-table{width:100%;border-collapse:collapse;font-size:11px;}
+.ar-matrix-table th,.ar-matrix-table td{border:1px solid #ccc;text-align:center;padding:3px 2px;min-width:26px;height:24px;}
+.ar-matrix-table th{background:#f5f0e8;font-size:9px;font-weight:700;color:var(--muted);}
+.ar-matrix-table .mx-row{font-size:9px;font-weight:700;background:#faf6ee;color:var(--warm-brown);width:28px;}
+.ar-matrix-glyphs{font-size:12px;line-height:1.2;letter-spacing:1px;}
+.ar-footer{margin-top:8px;font-size:10.5px;color:var(--muted);text-align:center;}
+.aspect-grid.compact td{width:22px;height:22px;min-width:22px;font-size:13px;}
 
 table.astro-table{width:100%;border-collapse:collapse;font-size:13.5px;}
 table.astro-table th,table.astro-table td{padding:9px 8px;border-bottom:1px solid var(--border);text-align:left;}
@@ -231,18 +250,30 @@ table.astro-table td .glyph{font-size:16px;margin-right:4px;color:var(--accent);
   .big3{grid-template-columns:1fr;}
   .balance-wrap{grid-template-columns:1fr;gap:18px;}
   .result-toolbar{justify-content:flex-start;}
-  .chart-duo{grid-template-columns:1fr;}
-  .chart-grid-wrap{max-width:100%;}
+  .ar-data-row{grid-template-columns:1fr;}
+  .ar-wheel{max-width:100%;}
 }
 
 /* 인쇄 시: 입력 폼·툴바·상단바·푸터 숨김 */
 @media print{
+  @page{size:A4 portrait;margin:7mm;}
   .site-top,.hero,#inputCard,.result-toolbar,.site-legal-footer{display:none !important;}
-  body{background:#fff;}
-  .card{box-shadow:none;border-color:#ddd;break-inside:avoid;}
-  .wrap{padding-top:10px;}
+  body,.wrap{background:#fff;padding:0;margin:0;}
+  .card{box-shadow:none;border-color:#ddd;break-inside:avoid-page;}
   #result,#result *{-webkit-print-color-adjust:exact !important;print-color-adjust:exact !important;}
   .bal-fill{opacity:1 !important;}
+  .astro-report-sheet{border:none;box-shadow:none;padding:0;margin:0;break-inside:avoid-page;page-break-inside:avoid;}
+  .astro-report-sheet .card-title{display:none;}
+  .ar-wheel{max-width:360px;}
+  .ar-data-row{grid-template-columns:0.95fr 1.05fr 0.8fr;gap:6px;}
+  .ar-table,.ar-matrix-table{font-size:9px;}
+  .ar-table th,.ar-table td{padding:2px 3px;}
+  .aspect-grid.compact td{width:17px;height:17px;min-width:17px;font-size:10px;}
+  #astroReportSheet{page-break-after:always;}
+  #astroReportSheet:last-child,#astroReportSheet.capture-off{page-break-after:auto;}
+  #result > .card:not(.capture-off){page-break-before:always;}
+  #result > .card#astroReportSheet{page-break-before:auto;}
+  #result > .note{display:none;}
 }
 
 /* FOOTER */
@@ -302,39 +333,65 @@ table.astro-table td .glyph{font-size:16px;margin-right:4px;color:var(--accent);
       <div class="result-name" id="resultName"></div>
       <div class="export-opts no-print" id="exportOpts">
         <div class="export-opts-head">
-          <strong>저장·인쇄 시 포함</strong>
-          <small>원하는 항목만 골라 저장·인쇄하세요</small>
+          <strong>PDF·인쇄 추가 포함</strong>
+          <small>한 장 차트(이름·차트·행성·그리드)는 항상 1페이지 · 아래에서 추가 선택</small>
         </div>
         <div class="export-opts-row">
-          <span class="export-opts-label">기본</span>
-          <label><input type="checkbox" id="expBig3" checked/> 빅3</label>
-          <label><input type="checkbox" id="expBalance" checked/> 원소·모달</label>
-          <label><input type="checkbox" id="expWheel" checked/> 네이탈 차트</label>
+          <span class="export-opts-label">해석</span>
+          <label><input type="checkbox" id="expBig3"/> 빅3 해석</label>
+          <label><input type="checkbox" id="expBalance"/> 원소·모달 상세</label>
+          <label><input type="checkbox" id="expPlanetRead"/> 행성 해석</label>
+          <label><input type="checkbox" id="expHouse"/> 12하우스</label>
+          <label><input type="checkbox" id="expAspect"/> 주요 어스펙트</label>
         </div>
         <div class="export-opts-row">
-          <span class="export-opts-label">상세</span>
-          <label><input type="checkbox" id="expGrid" checked/> 어스펙트 그리드</label>
-          <label><input type="checkbox" id="expPlanet" checked/> 행성 위치</label>
-          <label><input type="checkbox" id="expPlanetRead" checked/> 행성 해석</label>
-          <label><input type="checkbox" id="expHouse" checked/> 12하우스</label>
-          <label><input type="checkbox" id="expAspect" checked/> 주요 어스펙트</label>
+          <span class="export-opts-label">표</span>
+          <label><input type="checkbox" id="expGrid"/> 어스펙트 그리드(큰)</label>
+          <label><input type="checkbox" id="expPlanet"/> 행성 표(큰)</label>
         </div>
         <div class="export-opts-row">
           <span class="export-opts-label">심화</span>
-          <label><input type="checkbox" id="expTransit" checked/> 트랜짓</label>
-          <label><input type="checkbox" id="expYear" checked/> 올해 운세</label>
-          <label><input type="checkbox" id="expReport" checked/> 상담 요약</label>
+          <label><input type="checkbox" id="expTransit"/> 트랜짓</label>
+          <label><input type="checkbox" id="expYear"/> 올해 운세</label>
+          <label><input type="checkbox" id="expReport"/> 상담 요약</label>
           <label><input type="checkbox" id="expAi"/> AI 해석</label>
         </div>
       </div>
       <div class="result-actions">
         <button type="button" class="rt-btn" id="btnCopy" title="빅3·원소 요약을 클립보드로 복사">⧉ 요약 복사</button>
-        <button type="button" class="rt-btn" id="btnImage" title="결과를 이미지(PNG)로 저장">⬇ 이미지 저장</button>
         <button type="button" class="rt-btn" id="btnPrint" title="인쇄">🖨 인쇄</button>
         <button type="button" class="rt-btn rt-btn--share" id="btnPdf" title="PDF 파일로 저장">⬇ PDF 저장</button>
         <button type="button" class="rt-btn rt-btn--share" id="btnSaveClient" title="고객 카드에 차트 요약 저장" hidden>💾 고객 카드에 저장</button>
         <button type="button" class="rt-btn rt-btn--share" id="btnShare" title="요약·링크 공유">↗ 공유</button>
       </div>
+    </div>
+
+    <div class="card astro-report-sheet" id="astroReportSheet">
+      <div class="ar-header">
+        <div class="ar-header-main">
+          <h2 class="ar-title">네이탈 차트 · Birth Chart</h2>
+          <div class="ar-meta" id="arMeta">차트를 계산하면 이름·생년월일이 표시됩니다.</div>
+        </div>
+        <div class="ar-brand">팔자연구소<br>8code.kr</div>
+      </div>
+      <div class="ar-chart-row">
+        <div class="ar-wheel"><div id="astroPaper"></div></div>
+      </div>
+      <div class="ar-data-row" id="arDataRow">
+        <div class="ar-col ar-positions">
+          <div class="ar-col-title">Planets · 행성</div>
+          <div style="overflow-x:auto"><table class="ar-table" id="arPlanetTable"></table></div>
+        </div>
+        <div class="ar-col ar-grid">
+          <div class="ar-col-title">Aspects · 어스펙트</div>
+          <div style="overflow-x:auto" id="arAspectGrid"></div>
+        </div>
+        <div class="ar-col ar-matrix">
+          <div class="ar-col-title">Elements · 원소</div>
+          <div id="arElemMatrix"></div>
+        </div>
+      </div>
+      <div class="ar-footer" id="arFooter"></div>
     </div>
 
     <div class="card" id="big3Card">
@@ -355,18 +412,6 @@ table.astro-table td .glyph{font-size:16px;margin-right:4px;color:var(--accent);
         </div>
       </div>
       <div class="note" id="balanceNote"></div>
-    </div>
-
-    <div class="card" id="wheelCard">
-      <div class="card-title">✦ 네이탈 차트</div>
-      <div class="chart-duo">
-        <div class="chart-wheel-wrap"><div id="astroPaper"></div></div>
-        <div class="chart-grid-wrap" id="wheelGridWrap">
-          <div class="chart-grid-label">어스펙트 그리드</div>
-          <div class="chart-grid-scroll" id="wheelAspectGrid"></div>
-        </div>
-      </div>
-      <div class="note" id="wheelNote"></div>
     </div>
 
     <div class="card accordion open" id="aspectGridCard">
@@ -566,6 +611,116 @@ table.astro-table td .glyph{font-size:16px;margin-right:4px;color:var(--accent);
     const min = Math.round((d - whole) * 60);
     return `${whole}°${String(min).padStart(2, '0')}'`;
   }
+  function fmtCoordDms(lat, lng) {
+    function one(v, pos, neg) {
+      const a = Math.abs(v);
+      const d = Math.floor(a);
+      const m = Math.round((a - d) * 60);
+      return `${d}°${String(m).padStart(2, '0')}'${v >= 0 ? pos : neg}`;
+    }
+    return `${one(lat, 'N', 'S')}, ${one(lng, 'E', 'W')}`;
+  }
+  function fmtBirthLine(b, unknownTime) {
+    if (!b) return '';
+    const { y, mo, da, hh, mi } = b;
+    const date = `${y}년 ${mo}월 ${da}일`;
+    if (unknownTime) return `${date} · 출생 시간 미상`;
+    const ap = hh >= 12 ? '오후' : '오전';
+    const h12 = hh % 12 || 12;
+    return `${date} · ${ap} ${h12}:${String(mi).padStart(2, '0')}`;
+  }
+  function buildArPlanetTable(horoscope, unknownTime) {
+    const keys = ['sun','moon','mercury','venus','mars','jupiter','saturn','uranus','neptune','pluto','chiron','northnode','lilith'];
+    let html = `<thead><tr><th>Planet</th><th>Sign</th><th>Pos</th>${unknownTime ? '' : '<th>H</th>'}</tr></thead><tbody>`;
+    function addRow(label, glyph, d, houseId) {
+      if (d == null) return;
+      const s = M.signFromDegree(d);
+      html += `<tr>
+        <td><span class="ar-g">${glyph}</span>${label}</td>
+        <td><span class="ar-g">${s.sign.glyph}</span>${s.sign.ko.replace('자리', '')}</td>
+        <td>${fmtDeg(s.degInSign)}</td>
+        ${unknownTime ? '' : `<td>${houseId || '-'}</td>`}
+      </tr>`;
+    }
+    keys.forEach((k) => {
+      const b = horoscope.CelestialBodies[k] || (horoscope.CelestialPoints && horoscope.CelestialPoints[k]);
+      if (!b) return;
+      const pk = bodyKoFromKey(k);
+      const houseId = (b.House && b.House.id) ? b.House.id : '';
+      addRow(pk.ko, pk.glyph, deg(b), houseId);
+    });
+    if (!unknownTime) {
+      addRow('ASC', 'Asc', deg(horoscope.Ascendant), '1');
+      if (horoscope.Midheaven) addRow('MC', 'Mc', deg(horoscope.Midheaven), '10');
+    }
+    html += '</tbody>';
+    return html;
+  }
+  function buildElementMatrixHtml(horoscope, unknownTime) {
+    const rows = ['불', '바람', '흙', '물'];
+    const cols = ['활동', '고정', '변통'];
+    const cells = {};
+    rows.forEach((r) => cols.forEach((c) => { cells[r + '/' + c] = []; }));
+    const keys = ['sun','moon','mercury','venus','mars','jupiter','saturn','uranus','neptune','pluto'];
+    keys.forEach((k) => {
+      const b = horoscope.CelestialBodies[k];
+      const d = b ? deg(b) : null;
+      if (d == null) return;
+      const s = M.signFromDegree(d).sign;
+      const ck = s.element + '/' + s.modality;
+      if (cells[ck]) cells[ck].push(M.PLANETS[k].glyph);
+    });
+    if (!unknownTime && horoscope.Ascendant) {
+      const ascD = deg(horoscope.Ascendant);
+      if (ascD != null) {
+        const s = M.signFromDegree(ascD).sign;
+        const ck = s.element + '/' + s.modality;
+        if (cells[ck]) cells[ck].push('Asc');
+      }
+    }
+    const rowLbl = { '불': 'FIR', '바람': 'AIR', '흙': 'EAR', '물': 'WAT' };
+    const colLbl = { '활동': 'CAR', '고정': 'FIX', '변통': 'MUT' };
+    let html = '<table class="ar-matrix-table"><thead><tr><th></th>';
+    cols.forEach((c) => { html += `<th>${colLbl[c]}</th>`; });
+    html += '</tr></thead><tbody>';
+    rows.forEach((r) => {
+      html += `<tr><td class="mx-row">${rowLbl[r]}</td>`;
+      cols.forEach((c) => {
+        const g = (cells[r + '/' + c] || []).join(' ');
+        html += `<td><span class="ar-matrix-glyphs">${g || '·'}</span></td>`;
+      });
+      html += '</tr>';
+    });
+    html += '</tbody></table>';
+    return html;
+  }
+  function renderReportSheet(horoscope, opts) {
+    const sheet = $('astroReportSheet');
+    if (!sheet) return;
+    const name = opts.displayName || '출생 차트';
+    const birth = fmtBirthLine(LAST_BIRTH, opts.unknownTime);
+    const city = opts.coordLabel || '';
+    const coord = LAST_COORDS ? fmtCoordDms(LAST_COORDS.lat, LAST_COORDS.lng) : '';
+    $('arMeta').innerHTML = [
+      `<strong>${name}</strong>`,
+      birth,
+      `${city}${coord ? ' · ' + coord : ''}`,
+      'Tropical · Placidus',
+    ].join('<br>');
+    $('arFooter').textContent = `팔자연구소 점성학 · ${city} · 교육·참고용`;
+    $('arPlanetTable').innerHTML = buildArPlanetTable(horoscope, opts.unknownTime);
+    $('arElemMatrix').innerHTML = buildElementMatrixHtml(horoscope, opts.unknownTime);
+    const chartRow = sheet.querySelector('.ar-chart-row');
+    const dataRow = $('arDataRow');
+    if (opts.unknownTime) {
+      if (chartRow) chartRow.style.display = 'none';
+      $('astroPaper').innerHTML = '';
+    } else {
+      if (chartRow) chartRow.style.display = '';
+      drawWheel(horoscope);
+    }
+    sheet.style.display = '';
+  }
 
   const ASPECT_KO = {
     conjunction: { ko: '합', sym: '☌', a: 0 },
@@ -691,13 +846,12 @@ table.astro-table td .glyph{font-size:16px;margin-right:4px;color:var(--accent);
     $('planetTable').innerHTML = rows;
     $('planetReadList').innerHTML = readHtml;
 
-    // ── 하우스 / 휠 ──
+    // ── 하우스 / 한 장 차트 ──
+    renderReportSheet(horoscope, opts);
     if (opts.unknownTime) {
       $('houseCard').style.display = 'none';
-      $('wheelCard').style.display = 'none';
     } else {
       $('houseCard').style.display = '';
-      $('wheelCard').style.display = '';
       const houses = horoscope.Houses || [];
       let hr = '<thead><tr><th>하우스</th><th>커스프 별자리</th><th>주제</th></tr></thead><tbody>';
       houses.forEach((h, i) => {
@@ -712,8 +866,6 @@ table.astro-table td .glyph{font-size:16px;margin-right:4px;color:var(--accent);
       });
       hr += '</tbody>';
       $('houseTable').innerHTML = hr;
-      drawWheel(horoscope);
-      $('wheelNote').textContent = `출생지: ${opts.coordLabel} · 트로피컬 / 플라시더스`;
     }
 
     // ── 어스펙트 ──
@@ -925,20 +1077,17 @@ table.astro-table td .glyph{font-size:16px;margin-right:4px;color:var(--accent);
     const card = $('aspectGridCard');
     if (!card) return;
     const order = GRID_ORDER.filter((k) => NATAL_DEGS[k] != null);
-    const wheelWrap = $('wheelGridWrap');
     if (order.length < 2) {
       card.style.display = 'none';
-      if (wheelWrap) wheelWrap.style.display = 'none';
+      const arGrid = $('arAspectGrid');
+      if (arGrid) arGrid.innerHTML = '';
       return;
     }
     card.style.display = '';
     const html = buildAspectGridHtml(order, false);
     $('aspectGrid').innerHTML = html;
-    const wheelGrid = $('wheelAspectGrid');
-    if (wheelGrid) {
-      wheelGrid.innerHTML = buildAspectGridHtml(order, true);
-      if (wheelWrap) wheelWrap.style.display = '';
-    }
+    const arGrid = $('arAspectGrid');
+    if (arGrid) arGrid.innerHTML = buildAspectGridHtml(order, true);
   }
 
   // ── 트랜짓 계산 ──
@@ -1257,7 +1406,6 @@ table.astro-table td .glyph{font-size:16px;margin-right:4px;color:var(--accent);
   const EXPORT_MAP = [
     ['expBig3', ['big3Card']],
     ['expBalance', ['balanceCard']],
-    ['expWheel', ['wheelCard']],
     ['expGrid', ['aspectGridCard']],
     ['expPlanet', ['planetCard']],
     ['expPlanetRead', ['planetReadCard']],
@@ -1268,6 +1416,17 @@ table.astro-table td .glyph{font-size:16px;margin-right:4px;color:var(--accent);
     ['expReport', ['counselorReportCard']],
     ['expAi', ['aiCard']],
   ];
+
+  function getExportCaptureTargets() {
+    const targets = [];
+    const sheet = $('astroReportSheet');
+    if (sheet && sheet.style.display !== 'none') targets.push(sheet);
+    document.querySelectorAll('#result > .card:not(#astroReportSheet)').forEach((el) => {
+      if (el.classList.contains('capture-off') || el.style.display === 'none') return;
+      targets.push(el);
+    });
+    return targets;
+  }
 
   function applyExportHide() {
     EXPORT_MAP.forEach(([id, cardIds]) => {
@@ -1479,9 +1638,10 @@ table.astro-table td .glyph{font-size:16px;margin-right:4px;color:var(--accent);
 
   function drawWheel(horoscope) {
     const paper = $('astroPaper');
+    if (!paper) return;
     paper.innerHTML = '';
-    const wrap = paper.closest('.chart-wheel-wrap') || paper.parentElement;
-    const size = Math.min((wrap && wrap.clientWidth) || paper.clientWidth || 480, 480);
+    const wrap = paper.closest('.ar-wheel') || paper.parentElement;
+    const size = Math.min((wrap && wrap.clientWidth) || paper.clientWidth || 400, 400);
     const planets = {};
     const map = M.CHART_KEY;
     ['sun','moon','mercury','venus','mars','jupiter','saturn','uranus','neptune','pluto','chiron'].forEach((k) => {
@@ -1581,25 +1741,53 @@ table.astro-table td .glyph{font-size:16px;margin-right:4px;color:var(--accent);
 
   $('btnPrint').addEventListener('click', () => { runExportPrint(); });
 
-  async function captureResultCanvas() {
-    const result = $('result');
+  async function captureExportPages() {
     const toolbar = $('resultToolbar');
     const prevTb = toolbar.style.display;
     toolbar.style.display = 'none';
     const reopen = prepareCapture();
     await waitForRepaint();
-    const canvas = await html2canvas(result, {
-      backgroundColor: '#f5f0e8',
-      scale: 2,
-      useCORS: true,
-      logging: false,
-      windowWidth: Math.max(document.documentElement.scrollWidth, result.scrollWidth),
-      windowHeight: Math.max(document.documentElement.scrollHeight, result.scrollHeight),
-    });
+    const targets = getExportCaptureTargets();
+    const canvases = [];
+    for (const target of targets) {
+      canvases.push(await html2canvas(target, {
+        backgroundColor: '#ffffff',
+        scale: 2,
+        useCORS: true,
+        logging: false,
+        windowWidth: Math.max(document.documentElement.scrollWidth, target.scrollWidth + 40),
+        windowHeight: Math.max(target.scrollHeight + 20, target.offsetHeight + 20),
+      }));
+    }
     reopen.forEach((c) => c.classList.remove('open'));
     clearExportHide();
     toolbar.style.display = prevTb;
-    return canvas;
+    return canvases;
+  }
+
+  function addCanvasToPdf(pdf, canvas, pageW, pageH, margin, isFirstPage) {
+    const imgW = pageW - margin * 2;
+    const imgH = canvas.height * imgW / canvas.width;
+    const pageContentH = pageH - margin * 2;
+    let y = 0;
+    let first = isFirstPage;
+    while (y < imgH) {
+      const sY = (y * canvas.width) / imgW;
+      const sH = (pageContentH * canvas.width) / imgW;
+      const pageCanvas = document.createElement('canvas');
+      pageCanvas.width = canvas.width;
+      pageCanvas.height = Math.min(sH, canvas.height - sY);
+      pageCanvas.getContext('2d').drawImage(
+        canvas, 0, sY, canvas.width, pageCanvas.height,
+        0, 0, canvas.width, pageCanvas.height
+      );
+      if (!first) pdf.addPage();
+      first = false;
+      const hMm = pageCanvas.height * imgW / pageCanvas.width;
+      pdf.addImage(pageCanvas.toDataURL('image/jpeg', 0.92), 'JPEG', margin, margin, imgW, hMm);
+      y += pageContentH;
+    }
+    return !isFirstPage || y < imgH;
   }
 
   $('btnPdf').addEventListener('click', async () => {
@@ -1615,29 +1803,16 @@ table.astro-table td .glyph{font-size:16px;margin-right:4px;color:var(--accent);
     const prev = btn.textContent;
     btn.textContent = '⏳ PDF 생성…'; btn.disabled = true;
     try {
-      const canvas = await captureResultCanvas();
+      const canvases = await captureExportPages();
+      if (!canvases.length) throw new Error('no targets');
       const { jsPDF } = window.jspdf;
       const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
-      const pageW = 210; const pageH = 297; const margin = 10;
-      const imgW = pageW - margin * 2;
-      const imgH = canvas.height * imgW / canvas.width;
-      const pageContentH = pageH - margin * 2;
-      let y = 0;
-      while (y < imgH) {
-        const sY = (y * canvas.width) / imgW;
-        const sH = (pageContentH * canvas.width) / imgW;
-        const pageCanvas = document.createElement('canvas');
-        pageCanvas.width = canvas.width;
-        pageCanvas.height = Math.min(sH, canvas.height - sY);
-        pageCanvas.getContext('2d').drawImage(
-          canvas, 0, sY, canvas.width, pageCanvas.height,
-          0, 0, canvas.width, pageCanvas.height
-        );
-        if (y > 0) pdf.addPage();
-        const hMm = pageCanvas.height * imgW / pageCanvas.width;
-        pdf.addImage(pageCanvas.toDataURL('image/jpeg', 0.92), 'JPEG', margin, margin, imgW, hMm);
-        y += pageContentH;
-      }
+      const pageW = 210; const pageH = 297; const margin = 8;
+      let isFirst = true;
+      canvases.forEach((canvas) => {
+        addCanvasToPdf(pdf, canvas, pageW, pageH, margin, isFirst);
+        isFirst = false;
+      });
       const nm = ($('inName').value || '네이탈차트').trim().replace(/[\\/:*?"<>|]/g, '_').slice(0, 40);
       pdf.save(`팔자연구소_점성학_${nm}.pdf`);
       flashBtn(btn, '✓ PDF 저장됨');
@@ -1730,30 +1905,6 @@ table.astro-table td .glyph{font-size:16px;margin-right:4px;color:var(--accent);
       console.error(e);
       btn.textContent = prev; btn.disabled = false;
       showStatus('저장 중 오류가 났어요: ' + (e.message || ''), 'err');
-    }
-  });
-
-  $('btnImage').addEventListener('click', async () => {
-    if (typeof html2canvas !== 'function') {
-      showStatus('이미지 저장 도구를 불러오지 못했어요. 새로고침 후 다시 시도해 주세요.', 'err');
-      return;
-    }
-    const btn = $('btnImage');
-    const prev = btn.textContent;
-    btn.textContent = '⏳ 생성 중…'; btn.disabled = true;
-    try {
-      const canvas = await captureResultCanvas();
-      const nm = ($('inName').value || '네이탈차트').trim().replace(/[\\/:*?"<>|]/g, '_').slice(0, 40);
-      const link = document.createElement('a');
-      link.download = `팔자연구소_점성학_${nm}.png`;
-      link.href = canvas.toDataURL('image/png');
-      link.click();
-    } catch (e) {
-      console.error(e);
-      showStatus('이미지 생성 중 오류가 났어요. PDF 저장을 이용해 보세요.', 'err');
-    } finally {
-      clearExportHide();
-      btn.textContent = prev; btn.disabled = false;
     }
   });
 
