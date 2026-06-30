@@ -163,6 +163,9 @@ table.astro-table td .glyph{font-size:16px;margin-right:4px;color:var(--accent);
 .transit-now .tn-planet{display:inline-block;margin-right:12px;white-space:nowrap;}
 .transit-now .tn-glyph{color:var(--accent);font-size:14px;margin-right:2px;}
 .transit-empty{font-size:13px;color:var(--muted);padding:8px 0;}
+.transit-sub-h{font-size:14px;font-weight:700;color:var(--deep-brown);margin-bottom:10px;display:flex;align-items:baseline;gap:8px;flex-wrap:wrap;}
+.transit-sub-h span{font-size:11.5px;font-weight:500;color:var(--muted);}
+.transit-influence{display:inline-block;font-size:10.5px;font-weight:600;color:var(--warm-brown);background:rgba(139,111,71,.1);border-radius:10px;padding:1px 8px;margin-left:6px;}
 
 /* 유료 잠금 */
 .astro-lock{display:flex;flex-direction:column;align-items:flex-start;gap:8px;background:linear-gradient(165deg,#fdfaf3,#f3ead8);border:1px dashed var(--accent);border-radius:12px;padding:18px 20px;font-size:13.5px;color:var(--deep-brown);line-height:1.7;}
@@ -710,27 +713,43 @@ table.astro-table td .glyph{font-size:16px;margin-right:4px;color:var(--accent);
         hits.push({ tk, nk, key: asp.key, orbOff: asp.orbOff });
       });
     });
-    // 정확도(오브 작은 것) 우선 정렬, 너무 많으면 상위 12개
     hits.sort((a, b) => a.orbOff - b.orbOff);
-    const top = hits.slice(0, 14);
 
     const meaning = M.ASPECT_MEANING || {};
     const toneTag = { easy: '<span class="asp-tag asp-easy">조화</span>', tense: '<span class="asp-tag asp-tense">긴장</span>', strong: '<span class="asp-tag asp-strong">증폭</span>' };
-    let listHtml = '';
-    top.forEach((h) => {
+    // 빠른 행성(요즘·이번 주 흐름) vs 느린 행성(인생의 큰 흐름)
+    const FAST = { sun: 1, moon: 1, mercury: 1, venus: 1, mars: 1 };
+    const INFLUENCE = {
+      moon: '약 하루', sun: '며칠', mercury: '며칠', venus: '며칠', mars: '1~2주',
+      jupiter: '수 주~2개월', saturn: '수개월', uranus: '수개월~1년+', neptune: '수개월~수년', pluto: '수개월~수년',
+    };
+    function itemHtml(h) {
       const tName = M.PLANETS[h.tk] ? M.PLANETS[h.tk].ko : h.tk;
       const nName = natalLabelKeys[h.nk] || h.nk;
       const m = meaning[h.key] || { tone: '', text: '' };
-      listHtml += `<div class="aspect-read-item ${m.tone}">
-        <div class="ari-title"><span class="ari-sym">${ASPECT_SYM[h.key] || ''}</span>트랜짓 <strong>${tName}</strong> ${ASPECT_KR2[h.key] || ''} 본명 <strong>${nName}</strong>${toneTag[m.tone] || ''}</div>
+      const inf = INFLUENCE[h.tk] ? `<span class="transit-influence">영향 ${INFLUENCE[h.tk]}</span>` : '';
+      return `<div class="aspect-read-item ${m.tone}">
+        <div class="ari-title"><span class="ari-sym">${ASPECT_SYM[h.key] || ''}</span>트랜짓 <strong>${tName}</strong> ${ASPECT_KR2[h.key] || ''} 본명 <strong>${nName}</strong>${toneTag[m.tone] || ''}${inf}</div>
         <div class="ari-text">${m.text}</div>
       </div>`;
-    });
+    }
+    const fastHits = hits.filter((h) => FAST[h.tk]).slice(0, 8);
+    const slowHits = hits.filter((h) => !FAST[h.tk]).slice(0, 8);
 
     const dstr = dateObj.y + '.' + dateObj.mo + '.' + dateObj.da;
     let html = `<div class="transit-now"><strong>${dstr} 현재 하늘</strong><br>${nowHtml}</div>`;
-    if (listHtml) html += `<div class="aspect-read-list">${listHtml}</div>`;
-    else html += '<div class="transit-empty">이 날짜엔 출생 차트와 맺는 주요 각이 거의 없어요. 비교적 잔잔한 시기예요.</div>';
+    if (!fastHits.length && !slowHits.length) {
+      html += '<div class="transit-empty">이 날짜엔 출생 차트와 맺는 주요 각이 거의 없어요. 비교적 잔잔한 시기예요.</div>';
+    } else {
+      if (fastHits.length) {
+        html += '<div class="transit-sub-h">🌙 지금·이번 주 흐름 <span>빠른 행성 — 짧게 지나가는 운세</span></div>';
+        html += `<div class="aspect-read-list">${fastHits.map(itemHtml).join('')}</div>`;
+      }
+      if (slowHits.length) {
+        html += '<div class="transit-sub-h" style="margin-top:18px;">🪐 요즘의 큰 흐름 <span>느린 행성 — 몇 달~몇 년의 인생 테마</span></div>';
+        html += `<div class="aspect-read-list">${slowHits.map(itemHtml).join('')}</div>`;
+      }
+    }
     $('transitResult').innerHTML = html;
   }
 
