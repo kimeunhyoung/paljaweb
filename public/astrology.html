@@ -25,9 +25,11 @@
 <script src="js/topbar-session.js?v=6" defer></script>
 <!-- 점성 차트 그리기(UMD 전역 astrochart) -->
 <script src="https://cdn.jsdelivr.net/npm/@astrodraw/astrochart@3.0.2/dist/astrochart.js"></script>
+<!-- 이미지 저장용 -->
+<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
 <!-- 데이터 -->
 <script src="js/astro-cities.js?v=1"></script>
-<script src="js/astro-meanings.js?v=1"></script>
+<script src="js/astro-meanings.js?v=2"></script>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css" crossorigin />
 <link rel="stylesheet" href="css/site-topbar.css?v=5" />
 <link rel="stylesheet" href="css/site-header.css?v=7" />
@@ -101,9 +103,69 @@ table.astro-table td .glyph{font-size:16px;margin-right:4px;color:var(--accent);
 .aspect-pill{background:var(--cream);border:1px solid var(--border);border-radius:20px;padding:6px 12px;font-size:12.5px;color:var(--ink);}
 .note{font-size:12px;color:var(--muted);line-height:1.7;margin-top:12px;background:var(--cream);border-radius:10px;padding:12px 14px;}
 
+/* 결과 툴바(저장/공유) */
+.result-toolbar{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-top:24px;}
+.result-name{font-family:var(--font-serif);font-size:17px;font-weight:600;color:var(--deep-brown);}
+.result-actions{display:flex;gap:8px;flex-wrap:wrap;}
+.rt-btn{background:#fff;border:1px solid var(--border);border-radius:10px;padding:9px 14px;font-family:inherit;font-size:13px;font-weight:600;color:var(--warm-brown);cursor:pointer;transition:.15s;}
+.rt-btn:hover{background:var(--accent-lt);border-color:var(--accent);color:var(--deep-brown);}
+.rt-btn--share{background:var(--accent);color:#fff;border-color:var(--accent);}
+.rt-btn--share:hover{background:#d4b87a;color:#fff;}
+
+/* 원소·모달리티 균형 */
+.balance-wrap{display:grid;grid-template-columns:1fr 1fr;gap:24px;}
+.balance-sub{font-size:12px;color:var(--muted);font-weight:600;margin-bottom:10px;letter-spacing:.05em;}
+.balance-bars{display:flex;flex-direction:column;gap:9px;}
+.bal-row{display:grid;grid-template-columns:64px 1fr 26px;align-items:center;gap:10px;}
+.bal-label{font-size:13px;color:var(--ink);font-weight:600;}
+.bal-track{height:12px;background:var(--cream);border-radius:8px;overflow:hidden;border:1px solid var(--border);}
+.bal-fill{height:100%;border-radius:8px;background:linear-gradient(90deg,var(--accent),#d4b87a);transition:width .5s ease;}
+.bal-fill.fire{background:linear-gradient(90deg,#d98b5f,#e0a878);}
+.bal-fill.earth{background:linear-gradient(90deg,#9e8c5a,#bda878);}
+.bal-fill.air{background:linear-gradient(90deg,#8aafcc,#a9c8de);}
+.bal-fill.water{background:linear-gradient(90deg,#5f93b8,#86b6d2);}
+.bal-count{font-size:12.5px;color:var(--muted);text-align:right;font-weight:600;}
+
+/* 행성 해석 */
+.planet-read-list{display:flex;flex-direction:column;gap:0;}
+.planet-read-item{display:flex;gap:12px;padding:13px 2px;border-bottom:1px solid var(--border);}
+.planet-read-item:last-child{border-bottom:none;}
+.pr-glyph{font-size:22px;color:var(--accent);line-height:1.2;flex:0 0 26px;text-align:center;}
+.pr-body{flex:1;min-width:0;}
+.pr-head{font-size:13.5px;font-weight:600;color:var(--deep-brown);margin-bottom:3px;}
+.pr-head .pr-sign{color:var(--warm-brown);}
+.pr-head .pr-house{font-size:11.5px;color:var(--muted);font-weight:500;margin-left:6px;}
+.pr-head .pr-retro{color:#b85555;font-weight:700;font-size:11px;margin-left:4px;}
+.pr-text{font-size:12.5px;line-height:1.7;color:var(--ink);}
+.pr-house-text{font-size:12px;line-height:1.6;color:var(--muted);margin-top:3px;}
+
+/* 어스펙트(의미 포함) */
+.aspect-read-list{display:flex;flex-direction:column;gap:8px;}
+.aspect-read-item{background:var(--cream);border:1px solid var(--border);border-radius:12px;padding:11px 14px;border-left:3px solid var(--accent);}
+.aspect-read-item.easy{border-left-color:#5f93b8;}
+.aspect-read-item.tense{border-left-color:#d98b5f;}
+.aspect-read-item.strong{border-left-color:#c8a96e;}
+.ari-title{font-size:13.5px;font-weight:600;color:var(--deep-brown);display:flex;align-items:center;gap:6px;flex-wrap:wrap;}
+.ari-sym{font-size:15px;color:var(--accent);}
+.ari-text{font-size:12px;line-height:1.6;color:var(--muted);margin-top:4px;}
+.asp-tag{display:inline-block;font-size:10.5px;font-weight:700;padding:1px 7px;border-radius:10px;margin-left:4px;}
+.asp-easy{background:rgba(95,147,184,.15);color:#3f6f93;}
+.asp-tense{background:rgba(217,139,95,.16);color:#a9602f;}
+.asp-strong{background:var(--accent-lt);color:var(--warm-brown);}
+
 @media (max-width:680px){
   .form-grid{grid-template-columns:1fr;}
   .big3{grid-template-columns:1fr;}
+  .balance-wrap{grid-template-columns:1fr;gap:18px;}
+  .result-toolbar{justify-content:flex-start;}
+}
+
+/* 인쇄 시: 입력 폼·툴바·상단바·푸터 숨김 */
+@media print{
+  .site-top,.hero,#inputCard,.result-toolbar,.site-legal-footer{display:none !important;}
+  body{background:#fff;}
+  .card{box-shadow:none;border-color:#ddd;break-inside:avoid;}
+  .wrap{padding-top:10px;}
 }
 
 /* FOOTER */
@@ -124,7 +186,7 @@ table.astro-table td .glyph{font-size:16px;margin-right:4px;color:var(--accent);
 
 <div class="wrap">
   <!-- 입력 -->
-  <div class="card">
+  <div class="card" id="inputCard">
     <div class="card-title">✦ 출생 정보 입력</div>
     <div class="form-grid">
       <div class="field">
@@ -155,9 +217,34 @@ table.astro-table td .glyph{font-size:16px;margin-right:4px;color:var(--accent);
 
   <!-- 결과 -->
   <div id="result">
+    <div class="result-toolbar" id="resultToolbar">
+      <div class="result-name" id="resultName"></div>
+      <div class="result-actions">
+        <button type="button" class="rt-btn" id="btnCopy" title="빅3·원소 요약을 클립보드로 복사">⧉ 요약 복사</button>
+        <button type="button" class="rt-btn" id="btnImage" title="결과를 이미지(PNG)로 저장">⬇ 이미지 저장</button>
+        <button type="button" class="rt-btn" id="btnPrint" title="인쇄하거나 PDF로 저장">🖨 인쇄·PDF</button>
+        <button type="button" class="rt-btn rt-btn--share" id="btnShare" title="공유하기" hidden>↗ 공유</button>
+      </div>
+    </div>
+
     <div class="card">
       <div class="card-title">✦ 빅3 — 태양 · 달 · 상승궁</div>
       <div class="big3" id="big3"></div>
+    </div>
+
+    <div class="card" id="balanceCard">
+      <div class="card-title">✦ 원소 · 모달리티 균형</div>
+      <div class="balance-wrap">
+        <div class="balance-col">
+          <div class="balance-sub">4원소</div>
+          <div class="balance-bars" id="elementBars"></div>
+        </div>
+        <div class="balance-col">
+          <div class="balance-sub">3모달리티</div>
+          <div class="balance-bars" id="modalityBars"></div>
+        </div>
+      </div>
+      <div class="note" id="balanceNote"></div>
     </div>
 
     <div class="card" id="wheelCard">
@@ -171,6 +258,12 @@ table.astro-table td .glyph{font-size:16px;margin-right:4px;color:var(--accent);
       <div style="overflow-x:auto"><table class="astro-table" id="planetTable"></table></div>
     </div>
 
+    <div class="card" id="planetReadCard">
+      <div class="card-title">✦ 행성 해석</div>
+      <div class="planet-read-list" id="planetReadList"></div>
+      <div class="note">행성이 어떤 <strong>별자리</strong>에 있는지는 그 에너지가 “어떻게” 드러나는지를, 어떤 <strong>하우스</strong>에 있는지는 “어느 삶의 영역”에서 작동하는지를 보여 줍니다.</div>
+    </div>
+
     <div class="card" id="houseCard">
       <div class="card-title">✦ 12하우스</div>
       <div style="overflow-x:auto"><table class="astro-table" id="houseTable"></table></div>
@@ -178,8 +271,8 @@ table.astro-table td .glyph{font-size:16px;margin-right:4px;color:var(--accent);
 
     <div class="card" id="aspectCard">
       <div class="card-title">✦ 주요 어스펙트</div>
-      <div class="aspect-list" id="aspectList"></div>
-      <div class="note">어스펙트(각)는 행성 사이의 각도 관계예요. 합(0°)·육각(60°)·사각(90°)·삼각(120°)·충(180°)이 대표적입니다.</div>
+      <div class="aspect-read-list" id="aspectList"></div>
+      <div class="note">어스펙트(각)는 행성 사이의 각도 관계예요. 합(0°)·육각(60°)·사각(90°)·삼각(120°)·충(180°)이 대표적입니다. <span class="asp-tag asp-easy">조화</span>는 자연스러운 강점, <span class="asp-tag asp-tense">긴장</span>은 성장의 마찰입니다.</div>
     </div>
 
     <div class="note">
@@ -284,8 +377,11 @@ table.astro-table td .glyph{font-size:16px;margin-right:4px;color:var(--accent);
     return p ? p : { ko: key, glyph: '' };
   }
 
+  let LAST_SUMMARY = '';
+
   function render(horoscope, opts) {
     const result = $('result');
+    $('resultName').textContent = (opts.displayName ? opts.displayName + ' · ' : '') + '네이탈 차트';
     // ── 빅3 ──
     const sunDeg = deg(horoscope.CelestialBodies.sun);
     const moonDeg = deg(horoscope.CelestialBodies.moon);
@@ -304,9 +400,10 @@ table.astro-table td .glyph{font-size:16px;margin-right:4px;color:var(--accent);
         <div class="b3-sign">${M.PLANETS.moon.glyph} ${moonSign.ko}</div>
         <div class="b3-text">${M.MOON_IN_SIGN[moonSign.key] || ''}</div>
       </div>`;
+    let ascSign = null;
     if (!opts.unknownTime) {
       const ascDeg = deg(horoscope.Ascendant);
-      const ascSign = M.signFromDegree(ascDeg).sign;
+      ascSign = M.signFromDegree(ascDeg).sign;
       big3 += `
         <div class="big3-card">
           <div class="b3-role">상승궁 · 첫인상</div>
@@ -319,10 +416,16 @@ table.astro-table td .glyph{font-size:16px;margin-right:4px;color:var(--accent);
     }
     $('big3').innerHTML = big3;
 
-    // ── 행성 표 ──
+    // ── 원소 · 모달리티 균형 ──
+    renderBalance(horoscope, { sunSign, moonSign, ascSign });
+
+    // ── 행성 표 + 행성 해석 ──
     const bodyKeys = ['sun','moon','mercury','venus','mars','jupiter','saturn','uranus','neptune','pluto','chiron'];
     const pointKeys = ['northnode','lilith'];
+    // 해석 대상(개인 행성 위주 + 사회 행성). 카이런/포인트는 표에만.
+    const readKeys = ['sun','moon','mercury','venus','mars','jupiter','saturn','uranus','neptune','pluto'];
     let rows = `<thead><tr><th>천체</th><th>별자리</th><th>도수</th>${opts.unknownTime ? '' : '<th>하우스</th>'}<th>비고</th></tr></thead><tbody>`;
+    let readHtml = '';
     function pushRow(b, key) {
       const d = deg(b); if (d == null) return;
       const s = M.signFromDegree(d);
@@ -337,11 +440,25 @@ table.astro-table td .glyph{font-size:16px;margin-right:4px;color:var(--accent);
         ${opts.unknownTime ? '' : `<td>${houseId ? houseId + '하우스' : '-'}</td>`}
         <td style="color:var(--muted);font-size:12px">${pk.role || ''}${retro}</td>
       </tr>`;
+      if (readKeys.indexOf(key) >= 0) {
+        const signText = M.planetInSign(key, s.sign.key);
+        const houseText = (!opts.unknownTime && houseId) ? M.planetInHouse(key, houseId) : '';
+        const retroR = isRetro ? '<span class="pr-retro">R 역행</span>' : '';
+        readHtml += `<div class="planet-read-item">
+          <div class="pr-glyph">${pk.glyph}</div>
+          <div class="pr-body">
+            <div class="pr-head">${pk.ko} <span class="pr-sign">${s.sign.glyph} ${s.sign.ko}</span>${(!opts.unknownTime && houseId) ? `<span class="pr-house">${houseId}하우스</span>` : ''}${retroR}</div>
+            <div class="pr-text">${signText}</div>
+            ${houseText ? `<div class="pr-house-text">${houseText}</div>` : ''}
+          </div>
+        </div>`;
+      }
     }
     bodyKeys.forEach((k) => { if (horoscope.CelestialBodies[k]) pushRow(horoscope.CelestialBodies[k], k); });
     pointKeys.forEach((k) => { if (horoscope.CelestialPoints && horoscope.CelestialPoints[k]) pushRow(horoscope.CelestialPoints[k], k); });
     rows += '</tbody>';
     $('planetTable').innerHTML = rows;
+    $('planetReadList').innerHTML = readHtml;
 
     // ── 하우스 / 휠 ──
     if (opts.unknownTime) {
@@ -371,20 +488,102 @@ table.astro-table td .glyph{font-size:16px;margin-right:4px;color:var(--accent);
     // ── 어스펙트 ──
     const aspects = (horoscope.Aspects && horoscope.Aspects.all) ? horoscope.Aspects.all : [];
     const knownKeys = bodyKeys.concat(pointKeys).concat(['ascendant','midheaven']);
-    let pills = '';
+    const toneTag = { easy: '<span class="asp-tag asp-easy">조화</span>', tense: '<span class="asp-tag asp-tense">긴장</span>', strong: '<span class="asp-tag asp-strong">증폭</span>' };
+    let items = '';
     aspects.forEach((a) => {
       const t = ASPECT_KO[a.aspectKey];
       if (!t) return;
       const k1 = a.point1Key, k2 = a.point2Key;
       if (knownKeys.indexOf(k1) < 0 || knownKeys.indexOf(k2) < 0) return;
       const n1 = bodyKoFromKey(k1).ko, n2 = bodyKoFromKey(k2).ko;
-      pills += `<span class="aspect-pill"><strong>${n1}</strong> ${t.sym} <strong>${n2}</strong> · ${t.ko}(${t.a}°)</span>`;
+      const mean = (M.ASPECT_MEANING && M.ASPECT_MEANING[a.aspectKey]) || { tone: '', text: '' };
+      items += `<div class="aspect-read-item ${mean.tone}">
+        <div class="ari-title"><span class="ari-sym">${t.sym}</span><strong>${n1}</strong> ${t.ko} <strong>${n2}</strong> <span style="color:var(--muted);font-weight:400">(${t.a}°)</span>${toneTag[mean.tone] || ''}</div>
+        <div class="ari-text">${mean.text}</div>
+      </div>`;
     });
-    if (!pills) { $('aspectCard').style.display = 'none'; }
-    else { $('aspectCard').style.display = ''; $('aspectList').innerHTML = pills; }
+    if (!items) { $('aspectCard').style.display = 'none'; }
+    else { $('aspectCard').style.display = ''; $('aspectList').innerHTML = items; }
+
+    // ── 요약 텍스트(복사·공유용) ──
+    LAST_SUMMARY = buildSummaryText({ displayName: opts.displayName, sunSign, moonSign, ascSign });
 
     result.classList.add('show');
     result.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  // ── 원소·모달리티 균형 ──
+  let LAST_BALANCE = null;
+  function renderBalance(horoscope, big3) {
+    const weightKeys = ['sun','moon','mercury','venus','mars','jupiter','saturn','uranus','neptune','pluto'];
+    const elements = { '불': 0, '흙': 0, '바람': 0, '물': 0 };
+    const modal = { '활동': 0, '고정': 0, '변통': 0 };
+    let total = 0;
+    weightKeys.forEach((k) => {
+      const b = horoscope.CelestialBodies[k];
+      const d = b ? deg(b) : null;
+      if (d == null) return;
+      const s = M.signFromDegree(d).sign;
+      // 태양·달은 비중 2배(개인의 핵심)
+      const w = (k === 'sun' || k === 'moon') ? 2 : 1;
+      if (elements[s.element] != null) elements[s.element] += w;
+      if (modal[s.modality] != null) modal[s.modality] += w;
+      total += w;
+    });
+    // 상승궁도 원소 균형에 반영(비중 2)
+    if (big3.ascSign) {
+      if (elements[big3.ascSign.element] != null) elements[big3.ascSign.element] += 2;
+      if (modal[big3.ascSign.modality] != null) modal[big3.ascSign.modality] += 2;
+      total += 2;
+    }
+    LAST_BALANCE = { elements, modal, total };
+
+    const elClass = { '불': 'fire', '흙': 'earth', '바람': 'air', '물': 'water' };
+    const maxEl = Math.max(1, ...Object.values(elements));
+    let elBars = '';
+    Object.keys(elements).forEach((k) => {
+      const v = elements[k];
+      const pct = Math.round((v / maxEl) * 100);
+      elBars += `<div class="bal-row"><span class="bal-label">${k}</span><div class="bal-track"><div class="bal-fill ${elClass[k]}" style="width:${v ? Math.max(8, pct) : 0}%"></div></div><span class="bal-count">${v}</span></div>`;
+    });
+    $('elementBars').innerHTML = elBars;
+
+    const maxMo = Math.max(1, ...Object.values(modal));
+    let moBars = '';
+    Object.keys(modal).forEach((k) => {
+      const v = modal[k];
+      const pct = Math.round((v / maxMo) * 100);
+      moBars += `<div class="bal-row"><span class="bal-label">${k}</span><div class="bal-track"><div class="bal-fill" style="width:${v ? Math.max(8, pct) : 0}%"></div></div><span class="bal-count">${v}</span></div>`;
+    });
+    $('modalityBars').innerHTML = moBars;
+
+    // 요약 문구: 가장 강한/약한 원소
+    const sorted = Object.keys(elements).sort((a, b) => elements[b] - elements[a]);
+    const top = sorted[0], bottom = sorted[sorted.length - 1];
+    const EI = M.ELEMENT_INFO || {};
+    let note = '';
+    if (elements[top] > 0) {
+      note = `<strong>${top} 원소</strong>가 가장 강합니다 — ${EI[top] ? EI[top].desc : ''}`;
+      if (elements[bottom] === 0) {
+        note += `<br><strong>${bottom} 원소</strong>는 거의 없네요 — ${EI[bottom] ? EI[bottom].low : ''}`;
+      }
+    }
+    $('balanceNote').innerHTML = note;
+  }
+
+  function buildSummaryText(o) {
+    const lines = [];
+    lines.push((o.displayName ? o.displayName + ' · ' : '') + '네이탈 차트 요약');
+    lines.push('───────────');
+    lines.push('☉ 태양: ' + o.sunSign.ko);
+    lines.push('☽ 달: ' + o.moonSign.ko);
+    if (o.ascSign) lines.push('Asc 상승궁: ' + o.ascSign.ko);
+    if (LAST_BALANCE) {
+      const e = LAST_BALANCE.elements;
+      lines.push('원소: 불 ' + e['불'] + ' · 흙 ' + e['흙'] + ' · 바람 ' + e['바람'] + ' · 물 ' + e['물']);
+    }
+    lines.push('— 팔자연구소 점성학 (8code.kr)');
+    return lines.join('\n');
   }
 
   function drawWheel(horoscope) {
@@ -451,7 +650,8 @@ table.astro-table td .glyph{font-size:16px;margin-right:4px;color:var(--accent);
         language: 'en'
       });
       hideStatus();
-      render(horoscope, { unknownTime, coordLabel: coords.label });
+      const displayName = ($('inName').value || '').trim();
+      render(horoscope, { unknownTime, coordLabel: coords.label, displayName });
     } catch (e) {
       console.error(e);
       showStatus('계산 중 오류가 발생했습니다. 입력값(특히 좌표)을 확인해 주세요.', 'err');
@@ -461,6 +661,70 @@ table.astro-table td .glyph{font-size:16px;margin-right:4px;color:var(--accent);
   }
 
   $('calcBtn').addEventListener('click', calculate);
+
+  // ── 결과 저장 / 공유 ──
+  function flashBtn(btn, msg) {
+    const prev = btn.textContent;
+    btn.textContent = msg;
+    btn.disabled = true;
+    setTimeout(() => { btn.textContent = prev; btn.disabled = false; }, 1400);
+  }
+
+  $('btnCopy').addEventListener('click', async () => {
+    if (!LAST_SUMMARY) return;
+    try {
+      await navigator.clipboard.writeText(LAST_SUMMARY);
+      flashBtn($('btnCopy'), '✓ 복사됨');
+    } catch (e) {
+      // 폴백
+      const ta = document.createElement('textarea');
+      ta.value = LAST_SUMMARY; document.body.appendChild(ta); ta.select();
+      try { document.execCommand('copy'); flashBtn($('btnCopy'), '✓ 복사됨'); } catch (_) {}
+      document.body.removeChild(ta);
+    }
+  });
+
+  $('btnPrint').addEventListener('click', () => { window.print(); });
+
+  $('btnImage').addEventListener('click', async () => {
+    if (typeof html2canvas !== 'function') {
+      showStatus('이미지 저장 도구를 불러오지 못했어요. 새로고침 후 다시 시도해 주세요.', 'err');
+      return;
+    }
+    const btn = $('btnImage');
+    const prev = btn.textContent;
+    btn.textContent = '⏳ 생성 중…'; btn.disabled = true;
+    try {
+      const result = $('result');
+      const toolbar = $('resultToolbar');
+      const prevTb = toolbar.style.display;
+      toolbar.style.display = 'none';
+      const canvas = await html2canvas(result, { backgroundColor: '#f5f0e8', scale: 2, useCORS: true, logging: false });
+      toolbar.style.display = prevTb;
+      const nm = ($('inName').value || '네이탈차트').trim().replace(/[\\/:*?"<>|]/g, '_').slice(0, 40);
+      const link = document.createElement('a');
+      link.download = `팔자연구소_점성학_${nm}.png`;
+      link.href = canvas.toDataURL('image/png');
+      link.click();
+    } catch (e) {
+      console.error(e);
+      showStatus('이미지 생성 중 오류가 났어요. 인쇄·PDF를 이용해 보세요.', 'err');
+    } finally {
+      btn.textContent = prev; btn.disabled = false;
+    }
+  });
+
+  // Web Share API 지원 시 공유 버튼 노출
+  if (navigator.share) {
+    const sh = $('btnShare');
+    sh.hidden = false;
+    sh.addEventListener('click', async () => {
+      if (!LAST_SUMMARY) return;
+      try {
+        await navigator.share({ title: '팔자연구소 점성학', text: LAST_SUMMARY, url: location.href });
+      } catch (e) { /* 사용자가 취소 */ }
+    });
+  }
 
   // 상담사 허브 등에서 URL 파라미터로 이름·생년월일 미리 채우기
   (function prefillFromQuery() {

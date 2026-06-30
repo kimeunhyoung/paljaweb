@@ -119,6 +119,131 @@
     pisces: '상승궁 물고기자리: 부드럽고 몽환적인 인상. 공감 어린 분위기로 다가갑니다.'
   };
 
+  // ── 행성별 · 별자리 안에서의 해석 (수성·금성·화성·목성·토성) ──
+  var MERCURY_IN_SIGN = {
+    aries: '빠르고 직설적인 사고. 결정이 빠르지만, 끝까지 듣는 인내를 더하면 좋아요.',
+    taurus: '신중하고 실용적인 사고. 느리지만 한번 정한 생각은 단단합니다.',
+    gemini: '재빠르고 다재다능한 사고. 호기심이 넘치나 한 주제에 머무는 힘이 과제.',
+    cancer: '감정·기억에 기반한 직관적 사고. 공감하며 부드럽게 소통합니다.',
+    leo: '자신감 있고 표현력 강한 사고. 드라마틱하게 말하되 경청도 챙기면 좋아요.',
+    virgo: '분석적이고 정밀한 사고. 디테일에 강하나 비판이 과하지 않게.',
+    libra: '균형 잡힌 비교형 사고. 공정하지만 결정을 미루기 쉬워요.',
+    scorpio: '깊이 파고드는 탐구형 사고. 통찰력이 강하나 의심은 과제.',
+    sagittarius: '큰 그림·의미 중심 사고. 낙관적이나 디테일은 놓치기 쉬워요.',
+    capricorn: '체계적이고 현실적인 사고. 신중하고 전략적으로 말합니다.',
+    aquarius: '독창적이고 객관적인 사고. 틀을 깨지만 고집이 될 수 있어요.',
+    pisces: '직관적이고 상상력 풍부한 사고. 영감은 강하나 논리 정리가 과제.'
+  };
+  var VENUS_IN_SIGN = {
+    aries: '직진형 애정. 솔직하고 열정적이나, 오래가려면 인내가 필요해요.',
+    taurus: '안정·감각적 애정. 충실하고 풍요로움을 즐깁니다.',
+    gemini: '가볍고 지적인 끌림. 대화가 통해야 마음이 열려요.',
+    cancer: '보살피는 애정. 정서적 안전과 친밀감을 중시합니다.',
+    leo: '화려하고 따뜻한 애정. 표현과 인정에서 사랑을 느껴요.',
+    virgo: '헌신적이고 섬세한 애정. 작은 돌봄으로 마음을 표현합니다.',
+    libra: '조화·미감 중심의 애정. 관계 자체를 소중히 여겨요.',
+    scorpio: '깊고 강렬한 애정. 신뢰가 쌓이면 전부를 줍니다.',
+    sagittarius: '자유롭고 모험적인 애정. 함께 성장·탐험할 상대를 원해요.',
+    capricorn: '진중하고 책임 있는 애정. 천천히, 그러나 오래갑니다.',
+    aquarius: '독립적이고 우정 같은 애정. 자유를 존중하는 관계를 선호해요.',
+    pisces: '헌신적이고 낭만적인 애정. 경계가 흐려지지 않게 주의하면 좋아요.'
+  };
+  var MARS_IN_SIGN = {
+    aries: '직접적이고 폭발적인 추진력. 빠르게 행동하나 욱함은 과제.',
+    taurus: '끈질기고 꾸준한 추진력. 느리지만 멈추지 않습니다.',
+    gemini: '여러 방향으로 뻗는 추진력. 말과 아이디어로 움직여요.',
+    cancer: '감정에 따라 움직이는 추진력. 방어적으로 흐를 수 있어요.',
+    leo: '당당하고 자기표현적인 추진력. 인정받을 때 힘이 납니다.',
+    virgo: '정교하고 효율 중심의 추진력. 디테일로 승부해요.',
+    libra: '협력·균형을 통한 추진. 직접 충돌은 피하는 편입니다.',
+    scorpio: '집요하고 강렬한 추진력. 한번 정하면 끝까지 갑니다.',
+    sagittarius: '목표·의미를 향한 추진. 자유롭게 뻗어 나가요.',
+    capricorn: '전략적이고 인내심 있는 추진력. 야망이 단단합니다.',
+    aquarius: '독창적이고 명분 중심의 추진. 틀을 깨려 해요.',
+    pisces: '간접적·직관적 추진력. 흐름을 타되 방향 설정이 과제.'
+  };
+  var JUPITER_IN_SIGN = {
+    aries: '도전과 개척에서 성장·행운이 옵니다.',
+    taurus: '꾸준한 축적과 풍요 속에서 확장됩니다.',
+    gemini: '배움·소통·다양한 경험으로 넓어집니다.',
+    cancer: '돌봄·가정·정서적 풍요에서 복이 큽니다.',
+    leo: '자기표현·창조·너그러움이 행운을 부릅니다.',
+    virgo: '성실·봉사·실용적 기술로 성장합니다.',
+    libra: '관계·협력·공정함에서 기회가 열립니다.',
+    scorpio: '깊은 탐구·변형·공유 자원에서 확장됩니다.',
+    sagittarius: '모험·배움·신념의 확장이 본령입니다(자기 자리).',
+    capricorn: '책임·구조·장기 목표 달성으로 성장합니다.',
+    aquarius: '혁신·공동체·이상 실현에서 복이 옵니다.',
+    pisces: '연민·영성·상상력에서 풍요가 깃듭니다(자기 자리).'
+  };
+  var SATURN_IN_SIGN = {
+    aries: '자기 주도와 인내를 배우는 과제. 성급함을 다듬습니다.',
+    taurus: '안정·자원에 대한 책임을 배웁니다. 집착은 내려놓기.',
+    gemini: '사고·소통의 깊이와 집중을 단련합니다.',
+    cancer: '정서적 안전·가족 책임을 성숙시킵니다.',
+    leo: '자신감과 인정 욕구를 현실적으로 다듬습니다.',
+    virgo: '완벽주의·비판을 건강한 기준으로 성숙시킵니다.',
+    libra: '관계와 공정함의 책임, 헌신의 의미를 배웁니다.',
+    scorpio: '신뢰·통제·깊은 변형을 성숙시킵니다.',
+    sagittarius: '신념·자유에 현실적 구조를 더합니다.',
+    capricorn: '책임·성취·구조의 본령(자기 자리). 권위를 세웁니다.',
+    aquarius: '공동체·이상에 책임 있는 틀을 만듭니다.',
+    pisces: '경계·영성·연민에 현실의 닻을 내립니다.'
+  };
+  var PLANET_IN_SIGN = {
+    mercury: MERCURY_IN_SIGN, venus: VENUS_IN_SIGN, mars: MARS_IN_SIGN,
+    jupiter: JUPITER_IN_SIGN, saturn: SATURN_IN_SIGN
+  };
+
+  // 천왕성·해왕성·명왕성은 세대 행성(한 별자리에 수년 머무름) → 별자리보다 하우스·어스펙트가 개인적
+  var OUTER_GENERATIONAL = { uranus: true, neptune: true, pluto: true };
+
+  /** 행성이 특정 별자리에 있을 때의 해석 문장. 데이터가 없으면 역할+별자리 키워드로 폴백 */
+  function planetInSign(planetKey, signKey) {
+    if (planetKey === 'sun') return SUN_IN_SIGN[signKey] || '';
+    if (planetKey === 'moon') return MOON_IN_SIGN[signKey] || '';
+    var table = PLANET_IN_SIGN[planetKey];
+    if (table && table[signKey]) return table[signKey];
+    var p = PLANETS[planetKey];
+    var s = null;
+    for (var i = 0; i < SIGNS.length; i++) { if (SIGNS[i].key === signKey) { s = SIGNS[i]; break; } }
+    if (!p || !s) return '';
+    var lead = OUTER_GENERATIONAL[planetKey]
+      ? '세대 차원의 ' : '';
+    return lead + p.role.split('·')[0] + '의 에너지가 ' + s.ko + '(' + s.keyword + ') 방식으로 표현됩니다.';
+  }
+
+  /** 행성이 특정 하우스에 있을 때의 짧은 의미(템플릿) */
+  function planetInHouse(planetKey, houseId) {
+    var p = PLANETS[planetKey];
+    var h = HOUSES[(houseId || 1) - 1];
+    if (!p || !h) return '';
+    var area = h.ko.split(' · ')[1] || h.ko;
+    return houseId + '하우스(' + area + ') 영역에서 ' + p.role.split('·')[0] + '의 힘이 주로 작동합니다.';
+  }
+
+  // ── 어스펙트(각) 일반 의미 ──
+  var ASPECT_MEANING = {
+    conjunction: { tone: 'strong', text: '두 힘이 한데 뭉쳐 강하게 증폭됩니다. 같은 방향으로 작동해 장점도 과제도 함께 커져요.' },
+    opposition:  { tone: 'tense',  text: '두 힘이 마주 보며 긴장·균형을 만듭니다. 양극을 통합하는 것이 과제예요.' },
+    trine:       { tone: 'easy',   text: '두 힘이 자연스럽게 흐르는 재능·강점. 애쓰지 않아도 잘 통합됩니다.' },
+    square:      { tone: 'tense',  text: '두 힘이 부딪치며 성장의 마찰을 만듭니다. 넘어서면 큰 추진력이 돼요.' },
+    sextile:     { tone: 'easy',   text: '두 힘이 서로 돕는 기회. 조금만 움직이면 좋은 결과로 이어집니다.' }
+  };
+
+  // ── 원소 · 모달리티 정보 ──
+  var ELEMENT_INFO = {
+    '불':   { en: 'fire',  glyph: '🔥', desc: '열정·행동·직관. 강하면 추진력이 좋지만 성급할 수 있어요.', low: '추진력·자신감에 불을 더하면 좋아요.' },
+    '흙':   { en: 'earth', glyph: '⛰️', desc: '현실·안정·감각. 강하면 착실하지만 변화에 둔할 수 있어요.', low: '현실 감각·꾸준함을 보강하면 좋아요.' },
+    '바람': { en: 'air',   glyph: '🌬️', desc: '사고·소통·관계. 강하면 똑똑하고 사교적이나 붕 뜰 수 있어요.', low: '객관적 소통·거리두기를 익히면 좋아요.' },
+    '물':   { en: 'water', glyph: '💧', desc: '감정·직관·공감. 강하면 깊고 섬세하나 휩쓸리기 쉬워요.', low: '감정 표현·공감을 의식적으로 더하면 좋아요.' }
+  };
+  var MODALITY_INFO = {
+    '활동': { desc: '시작하고 주도하는 힘(Cardinal).' },
+    '고정': { desc: '유지하고 끝까지 미는 힘(Fixed).' },
+    '변통': { desc: '적응하고 변화하는 힘(Mutable).' }
+  };
+
   function signFromDegree(deg) {
     var d = ((deg % 360) + 360) % 360;
     var idx = Math.floor(d / 30) % 12;
@@ -133,6 +258,13 @@
     SUN_IN_SIGN: SUN_IN_SIGN,
     MOON_IN_SIGN: MOON_IN_SIGN,
     ASC_IN_SIGN: ASC_IN_SIGN,
+    PLANET_IN_SIGN: PLANET_IN_SIGN,
+    ASPECT_MEANING: ASPECT_MEANING,
+    ELEMENT_INFO: ELEMENT_INFO,
+    MODALITY_INFO: MODALITY_INFO,
+    OUTER_GENERATIONAL: OUTER_GENERATIONAL,
+    planetInSign: planetInSign,
+    planetInHouse: planetInHouse,
     signFromDegree: signFromDegree
   };
 })();
