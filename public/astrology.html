@@ -387,14 +387,14 @@ table.astro-table td .glyph{font-size:16px;margin-right:4px;color:var(--accent);
     <!-- AI 해석 -->
     <div class="card" id="aiCard">
       <div class="card-title">✦ AI 심층 해석</div>
-      <p class="transit-intro">이 차트(트랜짓 포함)를 바탕으로 <strong>맞춤 해석</strong>을 받을 수 있어요. ‘오늘의 트랜짓 보기’를 먼저 누르면 요즘 흐름까지 반영됩니다.</p>
+      <p class="transit-intro">프롬프트를 복사해 ChatGPT·Gemini에 붙이면 이 차트(트랜짓·올해 운세 포함)에 대한 <strong>맞춤 해석</strong>을 받을 수 있어요. ‘오늘의 트랜짓 보기’를 먼저 누르면 요즘 흐름까지 반영됩니다.</p>
       <div class="ai-actions no-print">
-        <button type="button" class="rt-btn rt-btn--share" id="btnAiRun">✨ AI 해석 받기</button>
+        <button type="button" class="rt-btn rt-btn--share" id="btnAiRun" hidden>✨ AI 해석 받기</button>
         <button type="button" class="rt-btn" id="btnAiCopy">⧉ 프롬프트 복사</button>
         <a class="rt-btn" id="btnOpenGpt" href="https://chatgpt.com/" target="_blank" rel="noopener">ChatGPT ↗</a>
         <a class="rt-btn" id="btnOpenGemini" href="https://gemini.google.com/app" target="_blank" rel="noopener">Gemini ↗</a>
       </div>
-      <div id="aiResult" class="ai-result empty">AI 해석 받기를 누르면 여기에 결과가 표시됩니다.</div>
+      <div id="aiResult" class="ai-result">AI 자동 해석은 준비 중이에요. <strong>프롬프트 복사</strong> 후 ChatGPT·Gemini에서 이용해 주세요.</div>
       <details class="ai-prompt-details no-print">
         <summary>고급: 프롬프트 직접 보기</summary>
         <textarea id="aiPrompt" class="ai-prompt-box" readonly rows="6" style="margin-top:8px;"></textarea>
@@ -537,6 +537,19 @@ table.astro-table td .glyph{font-size:16px;margin-right:4px;color:var(--accent);
   let LAST_BIRTH = null;      // { y, mo, da, hh, mi, unknownTime }
   let LAST_YEAR_FORECAST = null;
   let AI_SERVER_OK = false;
+  // 점성학 AI API 일시 중단 (테스트·과금 방지). 다시 켤 때 true로 변경.
+  const ASTRO_AI_API_ENABLED = false;
+
+  function applyAstroAiOff() {
+    const btn = $('btnAiRun');
+    if (btn) { btn.hidden = true; btn.disabled = true; }
+    const box = $('aiResult');
+    if (box && !HAS_BASIC) return; // 무료 잠금은 applyAstroGate가 처리
+    if (box && !ASTRO_AI_API_ENABLED) {
+      box.className = 'ai-result';
+      box.innerHTML = 'AI 자동 해석은 <strong>준비 중</strong>이에요. <strong>프롬프트 복사</strong> 후 ChatGPT·Gemini에서 이용해 주세요.';
+    }
+  }
 
   function render(horoscope, opts) {
     const result = $('result');
@@ -703,6 +716,7 @@ table.astro-table td .glyph{font-size:16px;margin-right:4px;color:var(--accent);
     syncExportSections();
 
     if (!HAS_BASIC) applyAstroGate();
+    else applyAstroAiOff();
 
     result.classList.add('show');
     result.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -1198,15 +1212,25 @@ table.astro-table td .glyph{font-size:16px;margin-right:4px;color:var(--accent);
 
   // ── AI 해석 (서버 프록시) ──
   async function checkAiServer() {
+    if (!ASTRO_AI_API_ENABLED) return;
     try {
       const r = await fetch('/api/ai/status');
       const j = await r.json();
       AI_SERVER_OK = !!j.available;
+      if (ASTRO_AI_API_ENABLED && AI_SERVER_OK && HAS_BASIC) {
+        const btn = $('btnAiRun');
+        if (btn) btn.hidden = false;
+      }
     } catch (e) { AI_SERVER_OK = false; }
   }
-  checkAiServer();
+  if (ASTRO_AI_API_ENABLED) checkAiServer();
+  else applyAstroAiOff();
 
   async function callAstroAi() {
+    if (!ASTRO_AI_API_ENABLED) {
+      applyAstroAiOff();
+      return;
+    }
     if (!HAS_BASIC) { showStatus('AI 해석은 Basic 이상 요금제에서 이용할 수 있어요.', 'err'); return; }
     if (!LAST_CTX) return;
     const btn = $('btnAiRun');
