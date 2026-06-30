@@ -349,7 +349,7 @@ table.astro-table td .glyph{font-size:16px;margin-right:4px;color:var(--accent);
     <!-- AI 해석 프롬프트 -->
     <div class="card" id="aiCard">
       <div class="card-title">✦ AI 심층 해석 프롬프트</div>
-      <p class="transit-intro">아래 프롬프트를 복사해 ChatGPT·Gemini 등 AI에 붙여넣으면, 이 차트에 대한 <strong>맞춤 심층 해석</strong>을 받을 수 있어요.</p>
+      <p class="transit-intro">아래 프롬프트를 복사해 ChatGPT·Gemini 등 AI에 붙여넣으면, 이 차트에 대한 <strong>맞춤 심층 해석</strong>을 받을 수 있어요. 위에서 <strong>‘오늘의 트랜짓 보기’</strong>를 누르면 <strong>요즘의 흐름(트랜짓)</strong>까지 프롬프트에 자동으로 더해집니다.</p>
       <textarea id="aiPrompt" class="ai-prompt-box" readonly rows="8"></textarea>
       <div class="ai-actions">
         <button type="button" class="rt-btn rt-btn--share" id="btnAiCopy">⧉ 프롬프트 복사</button>
@@ -488,6 +488,9 @@ table.astro-table td .glyph{font-size:16px;margin-right:4px;color:var(--accent);
   let LAST_COORDS = null;
   let NATAL_DEGS = {};        // { sun: deg, ..., asc, mc }
   let LAST_CTX = null;        // { displayName, unknownTime, coordLabel, sunSign, moonSign, ascSign, planetReads:[] }
+  let LAST_ASPECTS = [];      // 출생 차트 어스펙트(AI 프롬프트 재생성용)
+  let LAST_KNOWN = [];        // 어스펙트 대상 키 목록
+  let LAST_TRANSIT = null;    // { dstr, fast:[문장], slow:[문장] }
 
   function render(horoscope, opts) {
     const result = $('result');
@@ -634,6 +637,7 @@ table.astro-table td .glyph{font-size:16px;margin-right:4px;color:var(--accent);
       displayName: opts.displayName, unknownTime: opts.unknownTime, coordLabel: opts.coordLabel,
       sunSign, moonSign, ascSign, planetReads,
     };
+    LAST_ASPECTS = aspects; LAST_KNOWN = knownKeys; LAST_TRANSIT = null;
     $('aiPrompt').value = buildAiPrompt(LAST_CTX, aspects, knownKeys);
 
     // 트랜짓 기준일 기본값 = 오늘, 결과 초기화
@@ -824,6 +828,17 @@ table.astro-table td .glyph{font-size:16px;margin-right:4px;color:var(--accent);
     const fastHits = hits.filter((h) => FAST[h.tk]).slice(0, 8);
     const slowHits = hits.filter((h) => !FAST[h.tk]).slice(0, 8);
 
+    // AI 프롬프트용 평문 트랜짓 문장
+    function plainItem(h) {
+      const tName = M.PLANETS[h.tk] ? M.PLANETS[h.tk].ko : h.tk;
+      const nName = natalLabelKeys[h.nk] || h.nk;
+      const m = meaning[h.key] || { tone: '' };
+      const theme = T_THEME[h.tk]; const area = N_AREA[h.nk];
+      const detail = (theme && area) ? ` — ${theme}의 기운이 ${area}에 작용` : '';
+      const inf = INFLUENCE[h.tk] ? ` (영향 ${INFLUENCE[h.tk]})` : '';
+      return `트랜짓 ${tName} ${ASPECT_KR2[h.key] || ''} 본명 ${nName}${inf}${detail}`;
+    }
+
     const dstr = dateObj.y + '.' + dateObj.mo + '.' + dateObj.da;
     let html = `<div class="transit-now"><strong>${dstr} 현재 하늘</strong><br>${nowHtml}</div>`;
     if (!fastHits.length && !slowHits.length) {
@@ -840,6 +855,21 @@ table.astro-table td .glyph{font-size:16px;margin-right:4px;color:var(--accent);
       }
     }
     $('transitResult').innerHTML = html;
+
+    // 트랜짓 결과를 AI 프롬프트에 자동 반영
+    LAST_TRANSIT = {
+      dstr,
+      fast: fastHits.map(plainItem),
+      slow: slowHits.map(plainItem),
+    };
+    refreshAiPrompt();
+  }
+
+  function refreshAiPrompt() {
+    if (!LAST_CTX) return;
+    const box = $('aiPrompt');
+    if (!box || box.style.display === 'none') return; // 무료 잠금 시 갱신 생략
+    box.value = buildAiPrompt(LAST_CTX, LAST_ASPECTS, LAST_KNOWN);
   }
 
   // ── AI 해석 프롬프트 ──
@@ -872,8 +902,27 @@ table.astro-table td .glyph{font-size:16px;margin-right:4px;color:var(--accent);
       aspLines.push(n1 + ' ' + kk + ' ' + n2);
     });
     if (aspLines.length) { L.push('주요 어스펙트: ' + aspLines.join(', ')); }
+
+    // 트랜짓(요즘의 흐름)이 계산돼 있으면 함께 전달
+    if (LAST_TRANSIT && (LAST_TRANSIT.fast.length || LAST_TRANSIT.slow.length)) {
+      L.push('');
+      L.push('[요즘의 흐름 · 트랜짓 (' + LAST_TRANSIT.dstr + ' 기준)]');
+      if (LAST_TRANSIT.fast.length) {
+        L.push('지금·이번 주 (빠른 행성):');
+        LAST_TRANSIT.fast.forEach((s) => L.push(' - ' + s));
+      }
+      if (LAST_TRANSIT.slow.length) {
+        L.push('요즘의 큰 흐름 (느린 행성):');
+        LAST_TRANSIT.slow.forEach((s) => L.push(' - ' + s));
+      }
+    }
+
     L.push('');
-    L.push('위 정보를 종합해 이 사람의 타고난 성향과 삶의 흐름을 풍부하게 해석해 주세요.');
+    if (LAST_TRANSIT && (LAST_TRANSIT.fast.length || LAST_TRANSIT.slow.length)) {
+      L.push('위 출생 차트로 타고난 성향을 해석하고, 이어서 [요즘의 흐름 · 트랜짓]을 바탕으로 지금 이 사람에게 어떤 시기인지, 이번 주~올해 무엇을 주의하고 어떤 기회를 살리면 좋을지 구체적인 운세 조언을 더해 주세요.');
+    } else {
+      L.push('위 정보를 종합해 이 사람의 타고난 성향과 삶의 흐름을 풍부하게 해석해 주세요.');
+    }
     return L.join('\n');
   }
 
