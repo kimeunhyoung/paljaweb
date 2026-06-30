@@ -273,7 +273,8 @@ table.astro-table td .glyph{font-size:16px;margin-right:4px;color:var(--accent);
     <div class="result-toolbar" id="resultToolbar">
       <div class="result-name" id="resultName"></div>
       <div class="export-opts no-print" id="exportOpts">
-        <span>저장·인쇄 시 포함</span>
+        <span>저장·인쇄 시 포함 <small style="font-weight:400;color:var(--muted)">(빅3·차트·원소는 항상 포함)</small></span>
+        <label><input type="checkbox" id="expDetail" checked/> 행성·하우스·해석</label>
         <label><input type="checkbox" id="expGrid" checked/> 어스펙트 그리드</label>
         <label><input type="checkbox" id="expTransit" checked/> 트랜짓</label>
         <label><input type="checkbox" id="expYear" checked/> 올해 운세</label>
@@ -285,7 +286,7 @@ table.astro-table td .glyph{font-size:16px;margin-right:4px;color:var(--accent);
         <button type="button" class="rt-btn" id="btnImage" title="결과를 이미지(PNG)로 저장">⬇ 이미지 저장</button>
         <button type="button" class="rt-btn" id="btnPrint" title="인쇄하거나 PDF로 저장">🖨 인쇄·PDF</button>
         <button type="button" class="rt-btn rt-btn--share" id="btnSaveClient" title="고객 카드에 차트 요약 저장" hidden>💾 고객 카드에 저장</button>
-        <button type="button" class="rt-btn rt-btn--share" id="btnShare" title="공유하기" hidden>↗ 공유</button>
+        <button type="button" class="rt-btn rt-btn--share" id="btnShare" title="요약·링크 공유">↗ 공유</button>
       </div>
     </div>
 
@@ -1184,19 +1185,23 @@ table.astro-table td .glyph{font-size:16px;margin-right:4px;color:var(--accent);
   }
 
   // ── 저장·인쇄 포함 옵션 (화면 표시에는 영향 없음, 캡처/인쇄 직전에만 적용) ──
+  const EXPORT_MAP = [
+    ['expDetail', ['planetCard', 'planetReadCard', 'houseCard', 'aspectCard']],
+    ['expGrid', ['aspectGridCard']],
+    ['expTransit', ['transitCard']],
+    ['expYear', ['yearCard']],
+    ['expReport', ['counselorReportCard']],
+    ['expAi', ['aiCard']],
+  ];
+
   function applyExportHide() {
-    const map = [
-      ['expGrid', 'aspectGridCard'],
-      ['expTransit', 'transitCard'],
-      ['expYear', 'yearCard'],
-      ['expReport', 'counselorReportCard'],
-      ['expAi', 'aiCard'],
-    ];
-    map.forEach(([id, cardId]) => {
-      const el = $(cardId);
+    EXPORT_MAP.forEach(([id, cardIds]) => {
       const cb = $(id);
-      if (!el || !cb) return;
-      if (!cb.checked) el.classList.add('capture-off');
+      if (!cb || cb.checked) return;
+      cardIds.forEach((cardId) => {
+        const el = $(cardId);
+        if (el) el.classList.add('capture-off');
+      });
     });
   }
 
@@ -1204,7 +1209,33 @@ table.astro-table td .glyph{font-size:16px;margin-right:4px;color:var(--accent);
     document.querySelectorAll('.capture-off').forEach((el) => el.classList.remove('capture-off'));
   }
 
+  function scheduleExportCleanup() {
+    const cleanup = () => clearExportHide();
+    window.addEventListener('afterprint', cleanup, { once: true });
+    const mq = window.matchMedia('print');
+    const onPrintChange = (e) => {
+      if (!e.matches) {
+        cleanup();
+        mq.removeEventListener('change', onPrintChange);
+      }
+    };
+    mq.addEventListener('change', onPrintChange);
+  }
+
+  function runExportPrint() {
+    clearExportHide();
+    applyExportHide();
+    scheduleExportCleanup();
+    // DOM 반영 후 인쇄(체크 해제가 미리보기에 바로 적용되도록)
+    requestAnimationFrame(() => requestAnimationFrame(() => window.print()));
+  }
+
+  async function waitForRepaint() {
+    return new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+  }
+
   function prepareCapture() {
+    clearExportHide();
     applyExportHide();
     const reopen = [];
     document.querySelectorAll('.accordion:not(.open)').forEach((c) => {
@@ -1445,11 +1476,7 @@ table.astro-table td .glyph{font-size:16px;margin-right:4px;color:var(--accent);
     }
   });
 
-  $('btnPrint').addEventListener('click', () => {
-    applyExportHide();
-    window.addEventListener('afterprint', () => clearExportHide(), { once: true });
-    window.print();
-  });
+  $('btnPrint').addEventListener('click', () => { runExportPrint(); });
 
   $('btnTransit').addEventListener('click', computeTransit);
 
@@ -1548,6 +1575,7 @@ table.astro-table td .glyph{font-size:16px;margin-right:4px;color:var(--accent);
       const prevTb = toolbar.style.display;
       toolbar.style.display = 'none';
       const reopen = prepareCapture();
+      await waitForRepaint();
       const canvas = await html2canvas(result, { backgroundColor: '#f5f0e8', scale: 2, useCORS: true, logging: false });
       reopen.forEach((c) => c.classList.remove('open'));
       clearExportHide();
@@ -1569,17 +1597,36 @@ table.astro-table td .glyph{font-size:16px;margin-right:4px;color:var(--accent);
   // 인쇄 취소·뒤/앞으로 이동 시 숨김 클래스가 남지 않도록
   window.addEventListener('pageshow', () => { clearExportHide(); });
 
-  // Web Share API 지원 시 공유 버튼 노출
-  if (navigator.share) {
-    const sh = $('btnShare');
-    sh.hidden = false;
-    sh.addEventListener('click', async () => {
-      if (!LAST_SUMMARY) return;
+  // 공유: Web Share API 미지원(윈도우 PC 등) 시 요약+링크 클립보드 복사
+  $('btnShare').addEventListener('click', async () => {
+    const text = LAST_SUMMARY || buildCounselorReportText() || '';
+    const url = location.href;
+    const payload = text ? (text + '\n\n' + url) : url;
+    const btn = $('btnShare');
+    if (navigator.share) {
       try {
-        await navigator.share({ title: '팔자연구소 점성학', text: LAST_SUMMARY, url: location.href });
-      } catch (e) { /* 사용자가 취소 */ }
-    });
-  }
+        await navigator.share({
+          title: '팔자연구소 점성학',
+          text: text || '네이탈 차트',
+          url,
+        });
+        flashBtn(btn, '✓ 공유됨');
+        return;
+      } catch (e) {
+        if (e && e.name === 'AbortError') return;
+      }
+    }
+    try {
+      await navigator.clipboard.writeText(payload);
+      flashBtn(btn, '✓ 링크 복사됨');
+    } catch (e) {
+      const ta = document.createElement('textarea');
+      ta.value = payload; document.body.appendChild(ta); ta.select();
+      try { document.execCommand('copy'); flashBtn(btn, '✓ 링크 복사됨'); }
+      catch (_) { showStatus('공유를 지원하지 않는 환경이에요. “요약 복사”를 이용해 주세요.', 'err'); }
+      document.body.removeChild(ta);
+    }
+  });
 
   // 상담사 허브 등에서 URL 파라미터로 이름·생년월일 미리 채우기
   (function prefillFromQuery() {
