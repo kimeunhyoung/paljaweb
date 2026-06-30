@@ -6352,6 +6352,7 @@ function renderCounselorPrepCard(p) {
   if (p.destiny != null) chip('운명수', p.destiny);
   if (p.soul != null) chip('혼의수', p.soul);
   if (p.personality != null) chip('성격수', p.personality);
+  if (p.maturity != null) chip('완성수', p.maturity);
   chip('문넘버', p.mn);
   if (p.zodiac && p.zodiac !== '—') chip('별자리', p.zodiac);
 
@@ -6377,7 +6378,8 @@ function renderCounselorPrepCard(p) {
   const pyKey = p.py;
   const flowText = `올해는 ${flowPhrase[pyKey] ? esc(flowPhrase[pyKey]) + ' ' : ''}<b>개인년 ${esc(String(p.pyDisplay != null ? p.pyDisplay : pyKey))}번${titleMap[pyKey] ? ' · ' + esc(titleMap[pyKey]) : ''}</b> 시기입니다.` +
     (yearStrat[pyKey] ? ` 목표: ${esc(yearStrat[pyKey].goal)}. 권유: ${esc(yearStrat[pyKey].action)}` : '') +
-    (p.pm != null ? `<br>이번 달 키워드: <b>${esc(String(p.pm))}번 ${esc(monthKw[p.pm] || '')}</b>` : '');
+    (p.pm != null ? `<br>이번 달 키워드: <b>${esc(String(p.pm))}번 ${esc(monthKw[p.pm] || '')}</b>` : '') +
+    (p.ageVibNum != null ? `<br>연령진동수: <b>만 ${esc(String(p.ageVibAge))}세 · ${esc(String(p.ageVibNum))}번${titleMap[p.ageVibNum] ? ' · ' + esc(titleMap[p.ageVibNum]) : ''}</b>` : '');
 
   // 이야깃거리(talking points)
   const tp = [];
@@ -8797,6 +8799,8 @@ async function runAnalysis() {
   // ── 상담 준비 요약 카드 (상담사 모드 · ?client= 진입 시) ──
   if (COUNSELOR_CLIENT) {
     try {
+      const _prepManAge = calcManAge(y, m, d, curY, curM, curD);
+      const _prepAv = calcAgeVibration(_prepManAge);
       renderCounselorPrepCard({
         clientName: COUNSELOR_CLIENT.displayName || nameRaw,
         lp, lpDisplay,
@@ -8806,7 +8810,9 @@ async function runAnalysis() {
         destiny: destinyNum ? destinyNum.single : null,
         soul: soulNum ? soulNum.single : null,
         personality: personalityNum ? personalityNum.single : null,
+        maturity: maturityNum ? maturityNum.single : null,
         zodiac: z && z.n ? z.n : '—',
+        ageVibNum: _prepAv.num, ageVibAge: _prepAv.age,
         majorCards, cyData, curMajorIdx, curStageIdx,
       });
     } catch (e) { console.error('prep card', e); }
