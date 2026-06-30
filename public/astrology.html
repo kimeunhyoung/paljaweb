@@ -299,7 +299,7 @@ table.astro-table td .glyph{font-size:16px;margin-right:4px;color:var(--accent);
       <button type="button" class="card-title acc-head">✦ 어스펙트 그리드<span class="acc-chev" aria-hidden="true">⌄</span></button>
       <div class="acc-body">
         <div style="overflow-x:auto" id="aspectGrid"></div>
-        <div class="note">행성끼리 맺는 각을 한눈에 보는 표예요. 대각선의 <strong>행성 기호</strong>를 기준으로, 각 칸의 기호(☌합 ☍충 △삼각 □사각 ⚹육각)가 두 행성의 각을 나타냅니다. <span class="asp-tag asp-easy">초록</span> 조화 · <span class="asp-tag asp-tense">빨강</span> 긴장.</div>
+        <div class="note">행성·카이런·교점·릴리스·AC·MC가 맺는 각을 한눈에 보는 표예요. 대각선의 <strong>천체 기호</strong>를 기준으로, 각 칸의 기호가 두 천체의 각을 나타냅니다. 칸에 마우스를 올리면 무슨 각인지 보여요.<br>☌합 ☍충 △삼각 □사각 ⚹육각 ⚺세미섹스타일 ⚻퀸컹스 · <span class="asp-tag asp-easy">초록</span> 조화 · <span class="asp-tag asp-tense">빨강</span> 긴장.</div>
       </div>
     </div>
 
@@ -694,8 +694,27 @@ table.astro-table td .glyph{font-size:16px;margin-right:4px;color:var(--accent);
   }
 
   // ── 어스펙트 그리드(삼각 표) ──
-  const GRID_ORDER = ['sun','moon','mercury','venus','mars','jupiter','saturn','uranus','neptune','pluto','asc','mc'];
+  const GRID_ORDER = ['sun','moon','mercury','venus','mars','jupiter','saturn','uranus','neptune','pluto','chiron','northnode','lilith','asc','mc'];
   const GRID_LABEL = { asc: 'AC', mc: 'MC' };
+  // 그리드 전용 어스펙트(메이저 + 마이너), 오브를 조금 넓혀 더 촘촘하게
+  const GRID_ASPECTS = [
+    { key: 'conjunction', a: 0,   orb: 7, tone: 'strong', sym: '☌', kr: '합' },
+    { key: 'semisextile', a: 30,  orb: 2, tone: 'easy',   sym: '⚺', kr: '세미섹스타일' },
+    { key: 'sextile',     a: 60,  orb: 4, tone: 'easy',   sym: '⚹', kr: '육각' },
+    { key: 'square',      a: 90,  orb: 6, tone: 'tense',  sym: '□', kr: '사각' },
+    { key: 'trine',       a: 120, orb: 6, tone: 'easy',   sym: '△', kr: '삼각' },
+    { key: 'quincunx',    a: 150, orb: 3, tone: 'tense',  sym: '⚻', kr: '퀸컹스' },
+    { key: 'opposition',  a: 180, orb: 7, tone: 'tense',  sym: '☍', kr: '충' },
+  ];
+  function findGridAspect(d1, d2) {
+    const diff = angDiff(d1, d2);
+    let best = null;
+    for (const A of GRID_ASPECTS) {
+      const off = Math.abs(diff - A.a);
+      if (off <= A.orb && (!best || off < best.off)) best = { A, off };
+    }
+    return best ? best.A : null;
+  }
   function gridGlyph(k) { return (M.PLANETS[k] && M.PLANETS[k].glyph) || GRID_LABEL[k] || k; }
   function renderAspectGrid() {
     const card = $('aspectGridCard');
@@ -708,11 +727,10 @@ table.astro-table td .glyph{font-size:16px;margin-right:4px;color:var(--accent);
     for (let i = 0; i < order.length; i++) {
       html += '<tr>';
       for (let j = 0; j < i; j++) {
-        const asp = findAspect(NATAL_DEGS[order[i]], NATAL_DEGS[order[j]]);
-        if (asp) {
-          const mean = (M.ASPECT_MEANING && M.ASPECT_MEANING[asp.key]) || { tone: '' };
-          const title = gridGlyph(order[i]) + ' ' + (ASPECT_KR2[asp.key] || '') + ' ' + gridGlyph(order[j]);
-          html += `<td class="ag-cell ${toneClass[mean.tone] || ''}" title="${title}">${ASPECT_SYM[asp.key] || ''}</td>`;
+        const A = findGridAspect(NATAL_DEGS[order[i]], NATAL_DEGS[order[j]]);
+        if (A) {
+          const title = gridGlyph(order[i]) + ' ' + A.kr + ' ' + gridGlyph(order[j]);
+          html += `<td class="ag-cell ${toneClass[A.tone] || ''}" title="${title}">${A.sym}</td>`;
         } else {
           html += '<td class="ag-cell"></td>';
         }
