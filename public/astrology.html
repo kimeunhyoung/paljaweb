@@ -319,9 +319,13 @@ table.astro-table td .glyph{font-size:16px;margin-right:4px;color:var(--accent);
       <div class="result-name" id="resultName"></div>
       <div class="export-opts no-print" id="exportOpts">
         <div class="export-opts-head">
-          <strong>PDF·인쇄 추가 포함</strong>
+          <strong>PDF·인쇄 시 포함</strong>
           <label class="export-all-toggle"><input type="checkbox" id="expAll"/> 전체</label>
-          <small>네이탈 차트+어스펙트 그리드는 항상 1페이지 · 아래에서 추가 선택</small>
+          <small>체크한 항목만 포함 · 이름·생년월일은 맨 위에 표시</small>
+        </div>
+        <div class="export-opts-row">
+          <span class="export-opts-label">차트</span>
+          <label><input type="checkbox" id="expWheel" checked/> 네이탈 차트+어스펙트</label>
         </div>
         <div class="export-opts-row">
           <span class="export-opts-label">해석</span>
@@ -1287,6 +1291,7 @@ table.astro-table td .glyph{font-size:16px;margin-right:4px;color:var(--accent);
 
   // ── 저장·인쇄 포함 옵션 (화면 표시에는 영향 없음, 캡처/인쇄 직전에만 적용) ──
   const EXPORT_MAP = [
+    ['expWheel', ['wheelCard']],
     ['expBig3', ['big3Card']],
     ['expBalance', ['balanceCard']],
     ['expPlanet', ['planetCard']],
