@@ -166,6 +166,7 @@ table.astro-table td .glyph{font-size:16px;margin-right:4px;color:var(--accent);
 .transit-sub-h{font-size:14px;font-weight:700;color:var(--deep-brown);margin-bottom:10px;display:flex;align-items:baseline;gap:8px;flex-wrap:wrap;}
 .transit-sub-h span{font-size:11.5px;font-weight:500;color:var(--muted);}
 .transit-influence{display:inline-block;font-size:10.5px;font-weight:600;color:var(--warm-brown);background:rgba(139,111,71,.1);border-radius:10px;padding:1px 8px;margin-left:6px;}
+.transit-guide{font-size:12px;line-height:1.6;color:var(--muted);background:rgba(139,111,71,.06);border-radius:10px;padding:9px 12px;margin-bottom:14px;}
 
 /* 유료 잠금 */
 .astro-lock{display:flex;flex-direction:column;align-items:flex-start;gap:8px;background:linear-gradient(165deg,#fdfaf3,#f3ead8);border:1px dashed var(--accent);border-radius:12px;padding:18px 20px;font-size:13.5px;color:var(--deep-brown);line-height:1.7;}
@@ -723,6 +724,30 @@ table.astro-table td .glyph{font-size:16px;margin-right:4px;color:var(--accent);
       moon: '약 하루', sun: '며칠', mercury: '며칠', venus: '며칠', mars: '1~2주',
       jupiter: '수 주~2개월', saturn: '수개월', uranus: '수개월~1년+', neptune: '수개월~수년', pluto: '수개월~수년',
     };
+    // 트랜짓 해석 = [트랜짓 행성 테마] × [본명 천체가 가리키는 삶의 영역] × [각의 성질]
+    const T_THEME = {
+      sun: '활력·주목', moon: '감정·컨디션', mercury: '생각·소통·일정', venus: '사랑·관계·돈',
+      mars: '의욕·추진·충돌', jupiter: '확장·기회·행운', saturn: '책임·시험·정리',
+      uranus: '변화·각성·돌발', neptune: '꿈·영감·혼란', pluto: '근본적 변형·집중',
+    };
+    const N_AREA = {
+      sun: '나의 정체성과 활력', moon: '감정과 안정감', mercury: '생각과 소통', venus: '사랑·관계·돈',
+      mars: '추진력과 욕구', jupiter: '신념과 확장', saturn: '현실 구조와 책임',
+      uranus: '자유와 변화', neptune: '이상과 영성', pluto: '깊은 변형', asc: '나 자신·첫인상',
+      mc: '커리어와 사회적 위치', chiron: '상처와 치유', northnode: '삶의 방향·성장 과제', southnode: '익숙한 과거 패턴', lilith: '본능과 욕망',
+    };
+    const TONE_PHRASE = {
+      easy: { conj: '에 힘이 실리는 시기예요. 자연스럽게 일을 키우기 좋아요.', other: '을(를) 순조롭게 도와줘요. 추진하기 좋은 때예요.' },
+      tense: { conj: '에 강하게 맞물려요. 과하지 않게 조율이 필요해요.', other: '에 마찰·시험을 일으켜요. 무리하지 말고 속도를 조절하세요.' },
+      strong: { conj: '에 크게 작용해요. 흐름을 잘 살펴 활용하세요.', other: '을(를) 강하게 자극해요. 균형을 의식하세요.' },
+    };
+    function transitText(h, tone) {
+      const theme = T_THEME[h.tk]; const area = N_AREA[h.nk];
+      if (!theme || !area || !tone || !TONE_PHRASE[tone]) return (meaning[h.key] || {}).text || '';
+      const isConj = h.key === 'conjunction';
+      const phrase = isConj ? TONE_PHRASE[tone].conj : TONE_PHRASE[tone].other;
+      return `요즘 <strong>${theme}</strong>의 기운이 <strong>${area}</strong>${phrase}`;
+    }
     function itemHtml(h) {
       const tName = M.PLANETS[h.tk] ? M.PLANETS[h.tk].ko : h.tk;
       const nName = natalLabelKeys[h.nk] || h.nk;
@@ -730,7 +755,7 @@ table.astro-table td .glyph{font-size:16px;margin-right:4px;color:var(--accent);
       const inf = INFLUENCE[h.tk] ? `<span class="transit-influence">영향 ${INFLUENCE[h.tk]}</span>` : '';
       return `<div class="aspect-read-item ${m.tone}">
         <div class="ari-title"><span class="ari-sym">${ASPECT_SYM[h.key] || ''}</span>트랜짓 <strong>${tName}</strong> ${ASPECT_KR2[h.key] || ''} 본명 <strong>${nName}</strong>${toneTag[m.tone] || ''}${inf}</div>
-        <div class="ari-text">${m.text}</div>
+        <div class="ari-text">${transitText(h, m.tone)}</div>
       </div>`;
     }
     const fastHits = hits.filter((h) => FAST[h.tk]).slice(0, 8);
@@ -741,6 +766,7 @@ table.astro-table td .glyph{font-size:16px;margin-right:4px;color:var(--accent);
     if (!fastHits.length && !slowHits.length) {
       html += '<div class="transit-empty">이 날짜엔 출생 차트와 맺는 주요 각이 거의 없어요. 비교적 잔잔한 시기예요.</div>';
     } else {
+      html += '<div class="transit-guide">읽는 법 · <strong>트랜짓 행성</strong>(요즘 들어온 기운) → <strong>본명 천체</strong>(내 삶의 영역)에 <span class="asp-tag asp-easy">조화</span>면 순조롭게, <span class="asp-tag asp-tense">긴장</span>이면 시험·마찰로 작용해요.</div>';
       if (fastHits.length) {
         html += '<div class="transit-sub-h">🌙 지금·이번 주 흐름 <span>빠른 행성 — 짧게 지나가는 운세</span></div>';
         html += `<div class="aspect-read-list">${fastHits.map(itemHtml).join('')}</div>`;
