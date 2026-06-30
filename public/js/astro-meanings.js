@@ -244,6 +244,28 @@
     '변통': { desc: '적응하고 변화하는 힘(Mutable).' }
   };
 
+  // ── 시너스트리(커플 궁합) 행성쌍 해석 ──
+  // 키: 두 행성 키를 알파벳 정렬해 '_'로 연결 (예: moon_sun)
+  var SYNASTRY_PAIR = {
+    moon_sun: '본질(태양)과 정서(달)가 만나는 궁합의 핵심 축. 잘 맞으면 깊은 안정감, 어긋나면 “왜 날 몰라줄까”의 거리감이 됩니다.',
+    sun_venus: '호감과 애정이 자연스럽게 오가는 조합. 서로를 매력적으로 느끼고 인정해 주는 따뜻한 결입니다.',
+    mars_venus: '끌림·로맨스·케미의 축. 설렘과 열정이 큰 대신, 균형이 깨지면 밀당·자극으로 흐를 수 있어요.',
+    moon_venus: '정서적 친밀감과 다정함의 결합. 함께 있으면 편안하고 사랑받는 느낌을 줍니다.',
+    mars_moon: '감정(달)과 욕구·행동(화성)의 만남. 열정적이지만, 어긋나면 감정적 마찰이 잦을 수 있어요.',
+    mercury_mercury: '대화·사고방식의 결. 말이 잘 통하는지, 생각의 속도가 맞는지를 보여 줍니다.',
+    moon_moon: '정서 리듬의 공명. 비슷하면 편하고, 다르면 서로의 감정 반응을 배워야 합니다.',
+    sun_sun: '기본 성향의 닮음/대비. 같은 방향이면 든든, 정반대면 끌리거나 부딪칩니다.',
+    venus_venus: '취향·사랑 방식의 결. 좋아하는 것이 통하는지를 봅니다.',
+    saturn_sun: '책임·신뢰·구조의 축. 안정과 헌신을 주거나, 부담·억압으로 느껴질 수 있어요.',
+    moon_saturn: '정서적 안정·보호 또는 감정적 억눌림. 진중한 결속과 무게가 함께 옵니다.',
+    saturn_venus: '오래가는 진지한 애정 또는 애정 표현의 제약. 책임감 있는 사랑의 축.',
+    jupiter_sun: '서로의 성장을 북돋우는 너그러운 조합. 함께 있으면 확장되는 느낌.',
+    jupiter_venus: '즐거움·관대함·풍요가 흐르는 다정한 조합.',
+    mars_mars: '추진력·경쟁 에너지. 같은 팀이면 강력, 어긋나면 부딪침.'
+  };
+  function synastryPairKey(a, b) { return [a, b].sort().join('_'); }
+  function synastryPairNote(a, b) { return SYNASTRY_PAIR[synastryPairKey(a, b)] || ''; }
+
   function signFromDegree(deg) {
     var d = ((deg % 360) + 360) % 360;
     var idx = Math.floor(d / 30) % 12;
@@ -263,6 +285,8 @@
     ELEMENT_INFO: ELEMENT_INFO,
     MODALITY_INFO: MODALITY_INFO,
     OUTER_GENERATIONAL: OUTER_GENERATIONAL,
+    SYNASTRY_PAIR: SYNASTRY_PAIR,
+    synastryPairNote: synastryPairNote,
     planetInSign: planetInSign,
     planetInHouse: planetInHouse,
     signFromDegree: signFromDegree

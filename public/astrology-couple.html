@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<title>커플 차트 · 시너스트리 궁합 — 팔자연구소</title>
+<meta name="description" content="두 사람의 출생 차트를 비교해 태양·달·금성·화성의 궁합(시너스트리)을 분석합니다. 끌림·정서·소통의 케미를 별자리로 읽어 드려요. 팔자연구소 점성학.">
+<link rel="canonical" href="https://8code.kr/astrology-couple.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="팔자연구소">
+<meta property="og:title" content="커플 차트 · 시너스트리 궁합 — 팔자연구소">
+<meta property="og:description" content="두 사람의 출생 차트를 비교해 관계의 케미를 분석합니다.">
+<meta property="og:url" content="https://8code.kr/astrology-couple.html">
+<meta property="og:image" content="https://8code.kr/applogo600.png">
+<meta property="og:locale" content="ko_KR">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="js/plan-access.js?v=8"></script>
+<script src="js/product-plan-bootstrap.js?v=1"></script>
+<script src="js/site-topbar.js?v=5" defer></script>
+<script src="js/topbar-session.js?v=6" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+<script src="js/astro-cities.js?v=1"></script>
+<script src="js/astro-meanings.js?v=2"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css" crossorigin />
+<link rel="stylesheet" href="css/site-topbar.css?v=5" />
+<link rel="stylesheet" href="css/site-header.css?v=7" />
+<style>
+:root {
+  --cream:#f5f0e8; --parchment:#ede5d4; --sand:#d4c4a8;
+  --warm-brown:#8b6f47; --deep-brown:#4a3520; --ink:#2c1f0e;
+  --accent:#c8a96e; --accent-lt:#e8d5b0; --muted:#9a8570;
+  --border:rgba(139,111,71,.15); --shadow:rgba(44,31,14,.08);
+  --teal:#2e8b7a; --teal-lt:rgba(46,139,122,.12);
+  --rose:#c47a8f; --rose-lt:rgba(196,122,143,.12);
+  --font-serif:'Noto Serif KR',serif; --font-body:'Noto Serif KR',serif;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{font-family:var(--font-body);background:var(--cream);color:var(--ink);min-height:100vh;}
+.wrap{max-width:1000px;margin:0 auto;padding:0 20px 80px;}
+
+.hero{padding:40px 20px 8px;text-align:center;}
+.hero-tag{display:inline-block;font-size:12px;letter-spacing:.16em;color:var(--rose);font-weight:700;text-transform:uppercase;margin-bottom:12px;}
+.hero-title{font-family:var(--font-serif);font-size:clamp(26px,5vw,40px);font-weight:600;line-height:1.25;color:var(--deep-brown);}
+.hero-title em{font-style:italic;color:var(--rose);}
+.hero-desc{max-width:620px;margin:14px auto 0;color:var(--muted);font-size:15px;line-height:1.8;}
+
+.card{background:#fff;border:1px solid var(--border);border-radius:16px;box-shadow:0 10px 30px var(--shadow);padding:26px;margin-top:26px;}
+.card-title{font-family:var(--font-serif);font-size:18px;font-weight:600;color:var(--deep-brown);margin-bottom:16px;display:flex;align-items:center;gap:8px;}
+
+.persons{display:grid;grid-template-columns:1fr 1fr;gap:18px;}
+.person-box{border:1px solid var(--border);border-radius:14px;padding:18px;background:var(--cream);}
+.person-box h3{font-family:var(--font-serif);font-size:15px;color:var(--deep-brown);margin-bottom:14px;}
+.person-box.a h3{color:var(--teal);}
+.person-box.b h3{color:var(--rose);}
+.field{display:flex;flex-direction:column;gap:6px;margin-bottom:12px;}
+.field label{font-size:12.5px;font-weight:600;color:var(--warm-brown);}
+.input-field,select.input-field{width:100%;padding:11px 13px;border:1px solid var(--border);border-radius:10px;background:#fff;font-family:inherit;font-size:14.5px;color:var(--ink);}
+.input-field:focus,select.input-field:focus{outline:none;border-color:var(--accent);}
+.check-row{display:flex;align-items:center;gap:7px;font-size:12.5px;color:var(--muted);}
+.manual-coords{display:none;grid-template-columns:1fr 1fr;gap:10px;margin-top:8px;}
+.manual-coords.show{display:grid;}
+.analyze-btn{margin-top:20px;width:100%;padding:15px;border:none;border-radius:12px;background:var(--rose);color:#fff;font-family:var(--font-serif);font-size:17px;font-weight:600;cursor:pointer;transition:.15s;}
+.analyze-btn:hover{background:#b86a80;transform:translateY(-1px);}
+.analyze-btn:disabled{opacity:.6;cursor:not-allowed;transform:none;}
+
+.status{margin-top:18px;padding:14px 16px;border-radius:10px;font-size:14px;line-height:1.7;display:none;}
+.status.show{display:block;}
+.status.err{background:rgba(184,85,85,.1);color:#b85555;border:1px solid rgba(184,85,85,.25);}
+.status.info{background:var(--teal-lt);color:var(--teal);border:1px solid rgba(46,139,122,.25);}
+
+#result{display:none;}
+#result.show{display:block;}
+
+.result-toolbar{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-top:24px;}
+.result-name{font-family:var(--font-serif);font-size:17px;font-weight:600;color:var(--deep-brown);}
+.result-actions{display:flex;gap:8px;flex-wrap:wrap;}
+.rt-btn{background:#fff;border:1px solid var(--border);border-radius:10px;padding:9px 14px;font-family:inherit;font-size:13px;font-weight:600;color:var(--warm-brown);cursor:pointer;transition:.15s;text-decoration:none;display:inline-flex;align-items:center;}
+.rt-btn:hover{background:var(--accent-lt);border-color:var(--accent);color:var(--deep-brown);}
+.rt-btn--share{background:var(--rose);color:#fff;border-color:var(--rose);}
+.rt-btn--share:hover{background:#b86a80;color:#fff;}
+
+.duo-big3{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+.duo-col{border:1px solid var(--border);border-radius:12px;padding:16px;background:linear-gradient(165deg,#fffef9,#faf6ee);}
+.duo-col h4{font-size:13px;margin-bottom:10px;}
+.duo-col.a h4{color:var(--teal);}
+.duo-col.b h4{color:var(--rose);}
+.duo-line{font-size:13px;line-height:1.9;color:var(--ink);}
+.duo-line .g{color:var(--accent);margin-right:3px;}
+
+.score-wrap{text-align:center;padding:8px 0 4px;}
+.score-num{font-family:var(--font-serif);font-size:44px;font-weight:700;color:var(--rose);line-height:1;}
+.score-label{font-size:14px;color:var(--deep-brown);font-weight:600;margin-top:8px;}
+.score-bar{height:14px;border-radius:8px;background:var(--cream);border:1px solid var(--border);overflow:hidden;margin:14px auto 0;max-width:420px;}
+.score-fill{height:100%;border-radius:8px;background:linear-gradient(90deg,var(--rose),var(--accent));}
+.score-detail{font-size:12.5px;color:var(--muted);margin-top:12px;line-height:1.7;}
+
+.syn-list{display:flex;flex-direction:column;gap:8px;}
+.syn-item{background:var(--cream);border:1px solid var(--border);border-radius:12px;padding:11px 14px;border-left:3px solid var(--accent);}
+.syn-item.easy{border-left-color:#5f93b8;}
+.syn-item.tense{border-left-color:#d98b5f;}
+.syn-item.strong{border-left-color:var(--rose);}
+.syn-title{font-size:13.5px;font-weight:600;color:var(--deep-brown);display:flex;align-items:center;gap:6px;flex-wrap:wrap;}
+.syn-sym{font-size:15px;color:var(--accent);}
+.syn-text{font-size:12px;line-height:1.6;color:var(--muted);margin-top:4px;}
+.tag{display:inline-block;font-size:10.5px;font-weight:700;padding:1px 7px;border-radius:10px;margin-left:4px;}
+.tag-easy{background:rgba(95,147,184,.15);color:#3f6f93;}
+.tag-tense{background:rgba(217,139,95,.16);color:#a9602f;}
+.tag-strong{background:var(--rose-lt);color:var(--rose);}
+.who-a{color:var(--teal);font-weight:700;}
+.who-b{color:var(--rose);font-weight:700;}
+
+.note{font-size:12px;color:var(--muted);line-height:1.7;margin-top:12px;background:var(--cream);border-radius:10px;padding:12px 14px;}
+.ai-prompt-box{width:100%;border:1px solid var(--border);border-radius:10px;background:var(--cream);padding:13px 15px;font-family:inherit;font-size:12.5px;line-height:1.7;color:var(--ink);resize:vertical;}
+.ai-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px;}
+.intro{font-size:13px;line-height:1.7;color:var(--muted);margin-bottom:14px;}
+
+.site-legal-footer{max-width:1000px;margin:40px auto 0;padding:20px;border-top:1px solid var(--border);font-size:12px;color:var(--muted);line-height:1.8;text-align:center;}
+.site-legal-footer a{color:var(--muted);text-decoration:none;}
+.site-legal-footer a:hover{color:var(--deep-brown);}
+
+@media (max-width:680px){
+  .persons{grid-template-columns:1fr;}
+  .duo-big3{grid-template-columns:1fr;}
+  .result-toolbar{justify-content:flex-start;}
+}
+@media print{
+  .site-top,.hero,#inputCard,.result-toolbar,.site-legal-footer{display:none !important;}
+  body{background:#fff;}
+  .card{box-shadow:none;border-color:#ddd;break-inside:avoid;}
+}
+</style>
+</head>
+<body>
+
+<div class="site-top" data-topbar-title="커플 차트" data-nav-current="astro" data-login-next="astrology-couple.html"></div>
+
+<section class="hero">
+  <div class="hero-tag">Synastry · 커플 차트</div>
+  <h1 class="hero-title">두 별의<br><em>케미스트리</em></h1>
+  <p class="hero-desc">두 사람의 출생 차트를 겹쳐, 태양·달·금성·화성이 맺는 각을 통해 <strong>끌림·정서·소통</strong>의 궁합을 읽습니다. 출생 시간을 알면 더 정확해요.</p>
+</section>
+
+<div class="wrap">
+  <div class="card" id="inputCard">
+    <div class="card-title">✦ 두 사람의 출생 정보</div>
+    <div class="persons">
+      <div class="person-box a">
+        <h3>● 첫 번째 사람</h3>
+        <div class="field"><label>이름 (선택)</label><input class="input-field" id="aName" type="text" placeholder="표시용"/></div>
+        <div class="field"><label>생년월일</label><input class="input-field" id="aDate" type="date"/></div>
+        <div class="field"><label>출생 시간</label><input class="input-field" id="aTime" type="time"/>
+          <div class="check-row"><input type="checkbox" id="aUnknown"/><label for="aUnknown" style="font-weight:400;color:var(--muted)">시간 모름</label></div>
+        </div>
+        <div class="field"><label>출생지</label><select class="input-field" id="aCity"></select>
+          <div class="manual-coords" id="aManual"><input class="input-field" id="aLat" type="number" step="0.0001" placeholder="위도"/><input class="input-field" id="aLng" type="number" step="0.0001" placeholder="경도"/></div>
+        </div>
+      </div>
+      <div class="person-box b">
+        <h3>● 두 번째 사람</h3>
+        <div class="field"><label>이름 (선택)</label><input class="input-field" id="bName" type="text" placeholder="표시용"/></div>
+        <div class="field"><label>생년월일</label><input class="input-field" id="bDate" type="date"/></div>
+        <div class="field"><label>출생 시간</label><input class="input-field" id="bTime" type="time"/>
+          <div class="check-row"><input type="checkbox" id="bUnknown"/><label for="bUnknown" style="font-weight:400;color:var(--muted)">시간 모름</label></div>
+        </div>
+        <div class="field"><label>출생지</label><select class="input-field" id="bCity"></select>
+          <div class="manual-coords" id="bManual"><input class="input-field" id="bLat" type="number" step="0.0001" placeholder="위도"/><input class="input-field" id="bLng" type="number" step="0.0001" placeholder="경도"/></div>
+        </div>
+      </div>
+    </div>
+    <button class="analyze-btn" id="calcBtn">궁합 분석하기</button>
+    <div class="status" id="status"></div>
+  </div>
+
+  <div id="result">
+    <div class="result-toolbar" id="resultToolbar">
+      <div class="result-name" id="resultName"></div>
+      <div class="result-actions">
+        <button type="button" class="rt-btn" id="btnCopy">⧉ 요약 복사</button>
+        <button type="button" class="rt-btn" id="btnImage">⬇ 이미지 저장</button>
+        <button type="button" class="rt-btn" id="btnPrint">🖨 인쇄·PDF</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">✦ 두 사람의 빅3</div>
+      <div class="duo-big3" id="duoBig3"></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">✦ 궁합 지수</div>
+      <div class="score-wrap">
+        <div class="score-num" id="scoreNum">—</div>
+        <div class="score-label" id="scoreLabel"></div>
+        <div class="score-bar"><div class="score-fill" id="scoreFill" style="width:0%"></div></div>
+        <div class="score-detail" id="scoreDetail"></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">✦ 시너스트리 · 관계의 각</div>
+      <p class="intro">한 사람의 행성이 상대의 행성과 맺는 각입니다. <span class="who-a">첫 번째 사람</span>의 행성 → <span class="who-b">두 번째 사람</span>의 행성 순으로 표시돼요.</p>
+      <div class="syn-list" id="synList"></div>
+    </div>
+
+    <div class="card" id="aiCard">
+      <div class="card-title">✦ AI 궁합 해석 프롬프트</div>
+      <p class="intro">아래 프롬프트를 복사해 ChatGPT·Gemini에 붙여넣으면 두 사람의 관계에 대한 심층 해석을 받을 수 있어요.</p>
+      <textarea id="aiPrompt" class="ai-prompt-box" readonly rows="8"></textarea>
+      <div class="ai-actions">
+        <button type="button" class="rt-btn rt-btn--share" id="btnAiCopy">⧉ 프롬프트 복사</button>
+        <a class="rt-btn" href="https://chatgpt.com/" target="_blank" rel="noopener">ChatGPT 열기 ↗</a>
+        <a class="rt-btn" href="https://gemini.google.com/app" target="_blank" rel="noopener">Gemini 열기 ↗</a>
+      </div>
+    </div>
+
+    <div class="note">
+      ※ 트로피컬 황도 기준. 시너스트리는 두 차트의 행성 간 각도를 비교합니다. 출생 시간이 정확할수록 달·상승궁 궁합이 정확해집니다. 본 결과는 교육·오락 목적의 참고 자료입니다.
+    </div>
+  </div>
+</div>
+
+<footer class="site-legal-footer">
+  <span>8코드(8CODE) · 대표 김태훈 · 사업자등록번호 624-55-00806 · 통신판매업 신고번호 제 2026-부산수영-0361 호<br>
+  부산광역시 수영구 수영로 632-1, 602호 · <a href="tel:0519250441">051-925-0441</a> · <a href="tel:01052802300">010-5280-2300</a></span><br>
+  <a href="terms.html">이용약관</a> <span aria-hidden="true">·</span>
+  <a href="privacy.html">개인정보처리방침</a> <span aria-hidden="true">·</span>
+  <a href="mailto:ohayou989@gmail.com">문의</a>
+</footer>
+
+<script type="module">
+  let Origin = null, Horoscope = null, libError = null;
+  try {
+    const CNH = await import('https://cdn.jsdelivr.net/npm/circular-natal-horoscope-js@1.1.0/+esm');
+    Origin = CNH.Origin || (CNH.default && CNH.default.Origin);
+    Horoscope = CNH.Horoscope || (CNH.default && CNH.default.Horoscope);
+  } catch (e) { libError = e; console.error('점성 계산 라이브러리 로드 실패', e); }
+
+  const M = window.ASTRO_MEANINGS;
+  const CITIES = window.ASTRO_CITIES || [];
+  const $ = (id) => document.getElementById(id);
+
+  function fillCity(selId, manualId) {
+    const sel = $(selId);
+    const kr = document.createElement('optgroup'); kr.label = '국내';
+    const w = document.createElement('optgroup'); w.label = '해외';
+    CITIES.forEach((c, i) => {
+      const o = document.createElement('option');
+      o.value = String(i); o.textContent = c.ko;
+      (c.group === 'kr' ? kr : w).appendChild(o);
+    });
+    sel.appendChild(kr); sel.appendChild(w);
+    const man = document.createElement('option'); man.value = 'manual'; man.textContent = '직접 입력 (위/경도)';
+    sel.appendChild(man);
+    sel.value = '0';
+    sel.addEventListener('change', () => { $(manualId).classList.toggle('show', sel.value === 'manual'); });
+  }
+  fillCity('aCity', 'aManual');
+  fillCity('bCity', 'bManual');
+  $('aUnknown').addEventListener('change', (e) => { $('aTime').disabled = e.target.checked; });
+  $('bUnknown').addEventListener('change', (e) => { $('bTime').disabled = e.target.checked; });
+
+  function showStatus(msg, type) { const el = $('status'); el.className = 'status show ' + (type || 'info'); el.innerHTML = msg; }
+  function hideStatus() { $('status').className = 'status'; }
+
+  function getCoords(selId, latId, lngId) {
+    const sel = $(selId);
+    if (sel.value === 'manual') {
+      const lat = parseFloat($(latId).value), lng = parseFloat($(lngId).value);
+      if (Number.isNaN(lat) || Number.isNaN(lng)) return null;
+      return { lat, lng, label: `위 ${lat}, 경 ${lng}` };
+    }
+    const c = CITIES[parseInt(sel.value, 10)];
+    return c ? { lat: c.lat, lng: c.lng, label: c.ko } : null;
+  }
+  function deg(obj) { try { return obj.ChartPosition.Ecliptic.DecimalDegrees; } catch (e) { return null; } }
+
+  const ASPECTS_DEF = [
+    { key: 'conjunction', a: 0,   orb: 6 },
+    { key: 'sextile',     a: 60,  orb: 4 },
+    { key: 'square',      a: 90,  orb: 5 },
+    { key: 'trine',       a: 120, orb: 5 },
+    { key: 'opposition',  a: 180, orb: 6 },
+  ];
+  const ASPECT_SYM = { conjunction: '☌', opposition: '☍', trine: '△', square: '□', sextile: '⚹' };
+  const ASPECT_KR = { conjunction: '합', opposition: '충', trine: '삼각', square: '사각', sextile: '육각' };
+  function angDiff(a, b) { let d = Math.abs(a - b) % 360; if (d > 180) d = 360 - d; return d; }
+  function findAspect(d1, d2) {
+    const diff = angDiff(d1, d2);
+    for (const A of ASPECTS_DEF) { if (Math.abs(diff - A.a) <= A.orb) return { key: A.key, orbOff: Math.abs(diff - A.a) }; }
+    return null;
+  }
+
+  function buildChart(p) {
+    const origin = new Origin({ year: p.y, month: p.mo - 1, date: p.da, hour: p.hh, minute: p.mi, latitude: p.lat, longitude: p.lng });
+    return new Horoscope({ origin, houseSystem: 'placidus', zodiac: 'tropical', aspectPoints: ['bodies'], aspectWithPoints: ['bodies'], aspectTypes: ['major'], language: 'en' });
+  }
+
+  function planetDegs(h, withAsc) {
+    const keys = ['sun','moon','mercury','venus','mars','jupiter','saturn'];
+    const out = {};
+    keys.forEach((k) => { const b = h.CelestialBodies[k]; const d = b ? deg(b) : null; if (d != null) out[k] = d; });
+    if (withAsc) { const ad = deg(h.Ascendant); if (ad != null) out.asc = ad; }
+    return out;
+  }
+
+  let LAST_SUMMARY = '';
+
+  function readPerson(prefix) {
+    const dateVal = $(prefix + 'Date').value;
+    if (!dateVal) return { err: '생년월일을 입력해 주세요.' };
+    const unknown = $(prefix + 'Unknown').checked;
+    const timeVal = $(prefix + 'Time').value;
+    if (!unknown && !timeVal) return { err: '출생 시간을 입력하거나 “시간 모름”을 체크해 주세요.' };
+    const coords = getCoords(prefix + 'City', prefix + 'Lat', prefix + 'Lng');
+    if (!coords) return { err: '출생지를 선택하거나 위/경도를 입력해 주세요.' };
+    const [y, mo, da] = dateVal.split('-').map(Number);
+    let hh = 12, mi = 0;
+    if (!unknown && timeVal) { const t = timeVal.split(':'); hh = parseInt(t[0], 10); mi = parseInt(t[1], 10); }
+    const name = ($(prefix + 'Name').value || '').trim();
+    return { y, mo, da, hh, mi, lat: coords.lat, lng: coords.lng, unknown, name };
+  }
+
+  function calculate() {
+    hideStatus();
+    if (libError || !Origin || !Horoscope) { showStatus('점성 계산 도구를 불러오지 못했어요. 새로고침 후 다시 시도해 주세요.', 'err'); return; }
+    const A = readPerson('a'); if (A.err) { showStatus('첫 번째 사람: ' + A.err, 'err'); return; }
+    const B = readPerson('b'); if (B.err) { showStatus('두 번째 사람: ' + B.err, 'err'); return; }
+
+    $('calcBtn').disabled = true;
+    showStatus('두 사람의 별을 겹쳐 보는 중…', 'info');
+    try {
+      const ha = buildChart(A), hb = buildChart(B);
+      hideStatus();
+      render(ha, hb, A, B);
+    } catch (e) {
+      console.error(e);
+      showStatus('계산 중 오류가 발생했습니다. 입력값(특히 좌표)을 확인해 주세요.', 'err');
+    } finally { $('calcBtn').disabled = false; }
+  }
+
+  function bigSign(h, key) { const b = key === 'asc' ? h.Ascendant : h.CelestialBodies[key]; const d = b ? deg(b) : null; return d != null ? M.signFromDegree(d).sign : null; }
+
+  function render(ha, hb, A, B) {
+    const nameA = A.name || '첫 번째', nameB = B.name || '두 번째';
+    $('resultName').textContent = nameA + ' ♥ ' + nameB;
+
+    // 빅3
+    function big3Col(h, who, name, unknown) {
+      const sun = bigSign(h, 'sun'), moon = bigSign(h, 'moon');
+      const asc = unknown ? null : bigSign(h, 'asc');
+      return `<div class="duo-col ${who}"><h4>● ${name}</h4>
+        <div class="duo-line"><span class="g">☉</span>태양 ${sun ? sun.ko : '-'}<br>
+        <span class="g">☽</span>달 ${moon ? moon.ko : '-'}<br>
+        <span class="g">↑</span>상승궁 ${asc ? asc.ko : '(시간 미상)'}</div></div>`;
+    }
+    $('duoBig3').innerHTML = big3Col(ha, 'a', nameA, A.unknown) + big3Col(hb, 'b', nameB, B.unknown);
+
+    // 시너스트리 각
+    const degA = planetDegs(ha, !A.unknown);
+    const degB = planetDegs(hb, !B.unknown);
+    const labelKo = { sun:'태양', moon:'달', mercury:'수성', venus:'금성', mars:'화성', jupiter:'목성', saturn:'토성', asc:'상승궁' };
+    const meaning = M.ASPECT_MEANING || {};
+    const tagOf = { easy: '<span class="tag tag-easy">조화</span>', tense: '<span class="tag tag-tense">긴장</span>', strong: '<span class="tag tag-strong">강한 끌림</span>' };
+
+    const hits = [];
+    Object.keys(degA).forEach((ak) => {
+      Object.keys(degB).forEach((bk) => {
+        const asp = findAspect(degA[ak], degB[bk]);
+        if (!asp) return;
+        hits.push({ ak, bk, key: asp.key, orbOff: asp.orbOff });
+      });
+    });
+    hits.sort((a, b) => a.orbOff - b.orbOff);
+
+    let easy = 0, tense = 0, strong = 0;
+    let synHtml = '';
+    hits.slice(0, 16).forEach((h) => {
+      const m = meaning[h.key] || { tone: '', text: '' };
+      if (m.tone === 'easy') easy++; else if (m.tone === 'tense') tense++; else if (m.tone === 'strong') strong++;
+      const pairNote = M.synastryPairNote(h.ak, h.bk);
+      const base = m.text + (pairNote ? ' · ' + pairNote : '');
+      synHtml += `<div class="syn-item ${m.tone}">
+        <div class="syn-title"><span class="syn-sym">${ASPECT_SYM[h.key] || ''}</span><span class="who-a">${nameA}</span> ${labelKo[h.ak]} ${ASPECT_KR[h.key]} <span class="who-b">${nameB}</span> ${labelKo[h.bk]}${tagOf[m.tone] || ''}</div>
+        <div class="syn-text">${base}</div>
+      </div>`;
+    });
+    $('synList').innerHTML = synHtml || '<div class="note">두 차트 사이에 뚜렷한 주요 각이 적네요. 서로 자극은 덜하지만 편안한 관계일 수 있어요.</div>';
+
+    // 궁합 지수: 조화/강한끌림은 +, 긴장은 약한 - (긴장도 관계의 활력이므로 과하게 깎지 않음)
+    const total = easy + tense + strong;
+    let score;
+    if (total === 0) score = 60;
+    else score = Math.round(((easy * 1.0 + strong * 0.9 + tense * 0.45) / total) * 100);
+    score = Math.max(35, Math.min(98, score + Math.min(strong, 3) * 2));
+    $('scoreNum').textContent = score;
+    $('scoreFill').style.width = score + '%';
+    let label;
+    if (score >= 85) label = '천생연분 케미 ✨';
+    else if (score >= 72) label = '잘 통하는 사이';
+    else if (score >= 58) label = '서로를 키워 주는 관계';
+    else label = '노력으로 깊어지는 관계';
+    $('scoreLabel').textContent = label;
+    $('scoreDetail').innerHTML = `조화로운 각 <strong>${easy + strong}</strong> · 긴장의 각 <strong>${tense}</strong><br>긴장의 각은 ‘나쁨’이 아니라 서로를 성장시키는 마찰이에요.`;
+
+    // AI 프롬프트
+    $('aiPrompt').value = buildAiPrompt(nameA, nameB, ha, hb, A, B, hits, labelKo);
+
+    // 요약
+    const sa = bigSign(ha, 'sun'), sb = bigSign(hb, 'sun');
+    LAST_SUMMARY = `${nameA} ♥ ${nameB} 궁합\n───────────\n${nameA} 태양 ${sa ? sa.ko : '-'} · ${nameB} 태양 ${sb ? sb.ko : '-'}\n궁합 지수 ${score} · ${label}\n— 팔자연구소 점성학 (8code.kr)`;
+
+    $('result').classList.add('show');
+    $('result').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  function buildAiPrompt(nameA, nameB, ha, hb, A, B, hits, labelKo) {
+    const L = [];
+    L.push('당신은 따뜻하고 통찰력 있는 전문 점성가입니다. 아래 두 사람의 출생 차트 궁합(시너스트리)을 한국어로 다정하게 해석해 주세요. 끌림·정서적 케미·소통·갈등 요소·장기적 관계 조언 순으로, 단정적이지 않게 설명해 주세요.');
+    L.push('');
+    function pdesc(name, h, unknown) {
+      const sun = bigSign(h, 'sun'), moon = bigSign(h, 'moon'), ven = bigSign(h, 'venus'), mar = bigSign(h, 'mars');
+      const asc = unknown ? null : bigSign(h, 'asc');
+      return `${name}: 태양 ${sun ? sun.ko : '-'}, 달 ${moon ? moon.ko : '-'}, 금성 ${ven ? ven.ko : '-'}, 화성 ${mar ? mar.ko : '-'}` + (asc ? `, 상승궁 ${asc.ko}` : '');
+    }
+    L.push('[' + nameA + ']'); L.push(pdesc(nameA, ha, A.unknown));
+    L.push('[' + nameB + ']'); L.push(pdesc(nameB, hb, B.unknown));
+    L.push('');
+    if (hits && hits.length) {
+      L.push('주요 시너스트리 각:');
+      hits.slice(0, 12).forEach((h) => {
+        L.push(' - ' + nameA + ' ' + labelKo[h.ak] + ' ' + ASPECT_KR[h.key] + ' ' + nameB + ' ' + labelKo[h.bk]);
+      });
+    }
+    L.push('');
+    L.push('위 정보를 종합해 두 사람의 관계 케미와 장단점을 풍부하게 해석해 주세요.');
+    return L.join('\n');
+  }
+
+  $('calcBtn').addEventListener('click', calculate);
+
+  function flashBtn(btn, msg) { const p = btn.textContent; btn.textContent = msg; btn.disabled = true; setTimeout(() => { btn.textContent = p; btn.disabled = false; }, 1400); }
+  async function copyText(txt, btn) {
+    if (!txt) return;
+    try { await navigator.clipboard.writeText(txt); flashBtn(btn, '✓ 복사됨'); }
+    catch (e) { const ta = document.createElement('textarea'); ta.value = txt; document.body.appendChild(ta); ta.select(); try { document.execCommand('copy'); flashBtn(btn, '✓ 복사됨'); } catch (_) {} document.body.removeChild(ta); }
+  }
+  $('btnCopy').addEventListener('click', () => copyText(LAST_SUMMARY, $('btnCopy')));
+  $('btnAiCopy').addEventListener('click', () => copyText($('aiPrompt').value, $('btnAiCopy')));
+  $('btnPrint').addEventListener('click', () => window.print());
+  $('btnImage').addEventListener('click', async () => {
+    if (typeof html2canvas !== 'function') { showStatus('이미지 저장 도구를 불러오지 못했어요.', 'err'); return; }
+    const btn = $('btnImage'); const prev = btn.textContent; btn.textContent = '⏳ 생성 중…'; btn.disabled = true;
+    try {
+      const tb = $('resultToolbar'); const pd = tb.style.display; tb.style.display = 'none';
+      const canvas = await html2canvas($('result'), { backgroundColor: '#f5f0e8', scale: 2, useCORS: true, logging: false });
+      tb.style.display = pd;
+      const link = document.createElement('a');
+      link.download = '팔자연구소_커플차트.png';
+      link.href = canvas.toDataURL('image/png'); link.click();
+    } catch (e) { console.error(e); showStatus('이미지 생성 중 오류가 났어요. 인쇄·PDF를 이용해 보세요.', 'err'); }
+    finally { btn.textContent = prev; btn.disabled = false; }
+  });
+
+  // URL 파라미터 프리필 (상담사 허브 등): a_name,a_date,a_time,a_city / b_*
+  (function prefill() {
+    try {
+      const qs = new URLSearchParams(location.search);
+      function set(prefix, p) {
+        const nm = qs.get(p + '_name'), dt = qs.get(p + '_date'), tm = qs.get(p + '_time'), city = qs.get(p + '_city');
+        if (nm) $(prefix + 'Name').value = nm;
+        if (dt) $(prefix + 'Date').value = dt;
+        if (tm && /^\d{1,2}:\d{2}/.test(tm)) $(prefix + 'Time').value = tm.slice(0, 5);
+        if (city) { const idx = CITIES.findIndex((c) => c.ko === city); if (idx >= 0) $(prefix + 'City').value = String(idx); }
+      }
+      set('a', 'a'); set('b', 'b');
+      if (qs.get('a_date') && qs.get('b_date')) showStatus('두 사람 정보를 불러왔어요. 출생지·시간을 확인한 뒤 “궁합 분석하기”를 눌러주세요.', 'info');
+    } catch (e) { /* ignore */ }
+  })();
+</script>
+
+</body>
+</html>
