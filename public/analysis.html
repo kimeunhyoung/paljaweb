@@ -8718,7 +8718,9 @@ async function runAnalysis() {
           <div class="loshu-detail">
               ${seqStrengthTxt?`<div class="loshu-block"><div class="loshu-block-label loshu-block-label--strength">강점 · 풀 화살</div>${seqStrengthTxt}</div>`:''}
               ${seqEmptyTxt?`<div class="loshu-block"><div class="loshu-block-label loshu-block-label--empty">빈 화살</div>${seqEmptyTxt}</div>`:''}
-              ${!seqStrengthTxt&&!seqEmptyTxt?`<div class="loshu-block"><div class="loshu-block-label loshu-block-label--strength">패턴 요약</div><div class="loshu-plain-prose">${IT.loshuStrengthDefault}</div></div>`:''}
+              ${weakTxt?`<div class="loshu-block"><div class="loshu-block-label loshu-block-label--weak">개별 칸 부재</div><p class="loshu-plain-prose" style="margin:0 0 8px">아래 숫자별 해석은 <strong>칸 위치와 무관</strong>해, 위 로슈 격자와 같은 내용입니다(생일 숫자 개수로만 정해집니다).</p>${weakTxt}</div>`:''}
+              ${intensTxt?`<div class="loshu-block"><div class="loshu-block-label loshu-block-label--intens">집중 에너지 (숫자 반복)</div>${intensTxt}</div>`:''}
+              ${!seqStrengthTxt&&!seqEmptyTxt&&!weakTxt&&!intensTxt?`<div class="loshu-block"><div class="loshu-block-label loshu-block-label--strength">패턴 요약</div><div class="loshu-plain-prose">${IT.loshuStrengthDefault}</div></div>`:''}
           </div>
           <div class="loshu-foot">
             <p style="margin:0">${IT.seqArrowFootNote || ''}</p>
@@ -8727,7 +8729,7 @@ async function runAnalysis() {
       </div>`;
   } else {
     document.getElementById('loshuContent').innerHTML=gateHTML('pro','로슈 격자 분석','고전 마방진에 생일 숫자를 올려 8개 풀·빈 화살, 개별 칸 부재, 반복 패턴을 읽습니다.');
-    document.getElementById('seqArrowContent').innerHTML=gateHTML('pro','풀 애로우 · 순차 격자','3·6·9 / 2·5·8 / 1·4·7 순차 격자에서 8가지 풀·빈 화살(결단력·질서·영성·실용·감정·지적·독립·창의)을 읽습니다.');
+    document.getElementById('seqArrowContent').innerHTML=gateHTML('pro','풀 애로우 · 순차 격자','3·6·9 / 2·5·8 / 1·4·7 순차 격자에서 8가지 풀·빈 화살과 개별 칸 부재·숫자 반복 패턴을 읽습니다.');
   }
 
   // ── 11. 피라미드 리듬 (Pro+, 전체 자릿수 합 인생여정수 = lpAlt) ──
