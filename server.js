@@ -23,7 +23,7 @@ const {
   createPlanBilling,
 } = require('./lib/plan-billing');
 
-const { registerPortOneRoutes, portonePublicConfig, portoneConfigured } = require('./lib/portone-payment');
+const { registerPortOneRoutes, portonePublicConfig, portoneOneTimePublicConfig, portoneConfigured } = require('./lib/portone-payment');
 const { createSubscriptionService } = require('./lib/subscription-service');
 
 let planBilling;
@@ -505,7 +505,7 @@ app.post('/api/cron/renew-subscriptions', async (req, res) => {
 
 registerPortOneRoutes(app, planBilling, getUserIdFromAuth, checkoutStore);
 
-registerLifecodeRoutes(app, { portoneConfigured, portonePublicConfig });
+registerLifecodeRoutes(app, { portoneConfigured, portonePublicConfig, portoneOneTimePublicConfig });
 registerNaverAuthRoutes(app);
 
 /** AI 호출은 ANTHROPIC_API_KEY + AI_ENABLED=true 일 때만 (기본 꺼짐) */
