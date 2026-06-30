@@ -4528,7 +4528,7 @@ function gateHTML(planRequired, title, desc) {
   const labels = { basic: 'Basic', pro: 'Pro', professional: 'Professional' };
   // 구독 부담을 줄이기 위한 건별(1회) 이용권 대안 — 잠금 등급에 맞는 단품 연결
   const onetime = planRequired === 'basic'
-    ? { href: '/lifecode/buy.html?product=basic30', label: '구독 없이 1회 이용권 (7,900원)' }
+    ? { href: '/lifecode/buy.html?product=basic30', label: '베이직 15일 이용권 (7,900원)' }
     : { href: '/lifecode/buy.html?product=counselor30', label: '상담사 15일 체험권 (29,900원)' };
   return `<div class="feature-gate">
     <div class="gate-icon">🔒</div>
