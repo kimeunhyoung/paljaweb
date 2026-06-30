@@ -2225,6 +2225,17 @@ document.addEventListener('keydown', e=>{ if(e.key==='Enter') runAnalysis(); });
   if (window.PaljaProductBootstrap) {
     await PaljaProductBootstrap.bootstrap({ product: 'harmony', requireLogin: true });
   }
+  // 상담사 허브 등에서 URL 파라미터로 두 사람을 미리 채우고 자동 분석
+  try {
+    const qs = new URLSearchParams(location.search);
+    const n1 = qs.get('n1'), n2 = qs.get('n2'), d1 = qs.get('d1'), d2 = qs.get('d2');
+    const setVal = (id, v) => { const el = document.getElementById(id); if (el && v) el.value = v; };
+    setVal('name1', n1); setVal('name2', n2);
+    setVal('dob1', d1); setVal('dob2', d2);
+    if (qs.get('auto') === '1' && n1 && n2) {
+      if (typeof runAnalysis === 'function') runAnalysis();
+    }
+  } catch (e) { /* ignore */ }
 })();
 </script>
 <div class="birth-picker-backdrop" id="birthPickerBackdrop" hidden aria-hidden="true">

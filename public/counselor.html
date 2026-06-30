@@ -337,6 +337,61 @@
     .pair-tag { color: var(--teal); }
     .muted-text { color: var(--muted); }
     .list-loading, .list-empty { font-size: 12px; color: var(--muted); }
+
+    /* 대시보드 */
+    .dash-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin-bottom: 8px; }
+    .dash-card { background: #fff; border: 1px solid var(--border); border-radius: 12px; padding: 16px 18px; box-shadow: 0 6px 18px rgba(44,31,14,.05); }
+    .dash-num { font-family: var(--font-serif); font-size: 30px; font-weight: 700; color: var(--deep); line-height: 1; }
+    .dash-num small { font-size: 14px; color: var(--muted); font-weight: 500; }
+    .dash-label { font-size: 12px; color: var(--muted); margin-top: 8px; }
+    @media (max-width: 640px) { .dash-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+
+    /* 상담사 브랜드 */
+    .brand-panel { background: #fff; border: 1px solid var(--border); border-radius: 12px; padding: 18px 20px; box-shadow: 0 6px 18px rgba(44,31,14,.05); }
+    .brand-row { display: grid; gap: 12px; }
+    @media (min-width: 540px) { .brand-row { grid-template-columns: 1fr 1fr auto; align-items: end; } }
+    .brand-row label { font-size: 11px; color: var(--muted); letter-spacing: .04em; display: block; margin-bottom: 6px; }
+    .brand-row input { width: 100%; padding: 10px 12px; border: 1px solid var(--border); border-radius: 8px; font-family: var(--font-body); font-size: 13px; }
+    .brand-hint { font-size: 11px; color: var(--muted); margin-top: 10px; line-height: 1.5; }
+
+    /* 관계 분석 */
+    .rel-panel { background: #fff; border: 1px solid var(--border); border-radius: 12px; padding: 18px 20px; box-shadow: 0 6px 18px rgba(44,31,14,.05); }
+    .rel-row { display: grid; gap: 12px; align-items: end; }
+    @media (min-width: 600px) { .rel-row { grid-template-columns: 1fr 1fr auto; } }
+    .rel-row label { font-size: 11px; color: var(--muted); letter-spacing: .04em; display: block; margin-bottom: 6px; }
+    .rel-row select { width: 100%; padding: 10px 12px; border: 1px solid var(--border); border-radius: 8px; font-family: var(--font-body); font-size: 13px; background: #fff; color: var(--ink); }
+    .rel-hint { font-size: 11px; color: var(--muted); margin-top: 10px; }
+
+    .client-row .row-btns button.ghost { background: var(--parchment); }
+
+    /* 고객 상세 · 세션 모달 */
+    .modal-overlay {
+      position: fixed; inset: 0; background: rgba(44,31,14,.45); z-index: 200;
+      display: none; align-items: flex-start; justify-content: center; padding: 40px 16px; overflow-y: auto;
+    }
+    .modal-overlay.open { display: flex; }
+    .modal {
+      background: var(--cream); border-radius: 16px; width: 100%; max-width: 560px;
+      box-shadow: 0 24px 60px rgba(44,31,14,.3); border: 1px solid var(--border); overflow: hidden;
+    }
+    .modal-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; padding: 18px 20px; border-bottom: 1px solid var(--border); background: #fff; }
+    .modal-head h3 { font-family: var(--font-serif); font-size: 19px; color: var(--deep); }
+    .modal-head .sub { font-size: 12px; color: var(--muted); margin-top: 4px; }
+    .modal-close { background: none; border: none; font-size: 22px; line-height: 1; color: var(--muted); cursor: pointer; padding: 0 4px; }
+    .modal-body { padding: 18px 20px; }
+    .modal-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+    .session-add { display: grid; gap: 10px; margin-bottom: 18px; }
+    @media (min-width: 480px) { .session-add { grid-template-columns: 130px 1fr; align-items: start; } .session-add .full { grid-column: 1 / -1; } }
+    .session-add label { font-size: 11px; color: var(--muted); display: block; margin-bottom: 6px; }
+    .session-add input, .session-add textarea { width: 100%; padding: 9px 11px; border: 1px solid var(--border); border-radius: 8px; font-family: var(--font-body); font-size: 13px; }
+    .session-add textarea { min-height: 60px; resize: vertical; }
+    .session-list { display: flex; flex-direction: column; gap: 10px; }
+    .session-item { background: #fff; border: 1px solid var(--border); border-radius: 10px; padding: 12px 14px; }
+    .session-item .s-date { font-size: 12px; font-weight: 700; color: var(--deep); display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+    .session-item .s-date button { font-size: 11px; color: #8b3a3a; background: none; border: none; cursor: pointer; }
+    .session-item .s-sum { font-size: 13px; color: var(--ink); line-height: 1.65; margin-top: 6px; white-space: pre-wrap; }
+    .session-item .s-next { font-size: 11px; color: var(--teal); margin-top: 6px; }
+    .session-empty { font-size: 12px; color: var(--muted); }
     @media (max-width: 640px) {
       #app { padding: 20px 16px 56px; }
       .hub-intro { padding: 14px; border-radius: 12px; }
@@ -356,15 +411,39 @@
 <div id="app">
   <div class="hub-intro">
     <h1>상담사 허브</h1>
-    <p>고객 정보 입력 → 라이프코드·궁합 도구로 분석 → 인쇄 또는 메모로 세션을 정리하세요. 이 화면은 <strong>Professional 상담사 전용 흐름</strong>으로, 상담 진행에 필요한 기능을 한곳에 모아 둔 허브입니다.</p>
+    <p>고객 관리 → 라이프코드·궁합 분석 → <strong>고객용 리포트 PDF</strong>와 <strong>고객별 세션 기록</strong>까지. 이 화면은 <strong>Professional 상담사 전용</strong>으로, 상담 업무에 필요한 도구를 한곳에 모았습니다.</p>
   </div>
   <div id="gate">
     <h2>Professional 플랜 전용</h2>
-    <p>상담사 허브는 <strong>Professional</strong> 요금제에서 이용할 수 있어요.<br>고객 표시 이름 필드와 같은 상담용 기능은 플랜 연동 후 라이프코드 분석 화면에서 함께 켜집니다.</p>
+    <p>상담사 허브는 <strong>Professional</strong> 요금제에서 이용할 수 있어요.<br>고객 카드·세션 기록(CRM), 상담사 대시보드, 고객용 브랜디드 리포트 PDF, 상담 준비 요약, 고객 간 궁합까지 상담 업무 도구가 함께 켜집니다.</p>
     <a class="cta" href="pricing.html">요금제 보기</a>
   </div>
 
   <div id="workspace">
+    <div class="section-title">한눈에 보기</div>
+    <div class="dash-grid">
+      <div class="dash-card"><div class="dash-num" id="dashClients">0</div><div class="dash-label">전체 고객</div></div>
+      <div class="dash-card"><div class="dash-num" id="dashUpcoming">0</div><div class="dash-label">다가오는 약속(2주)</div></div>
+      <div class="dash-card"><div class="dash-num" id="dashRecent">—</div><div class="dash-label">최근 상담일</div></div>
+      <div class="dash-card"><div class="dash-num" id="dashNew">0</div><div class="dash-label">이번 달 신규 고객</div></div>
+    </div>
+
+    <div class="section-title">상담사 브랜드 (리포트 머리글)</div>
+    <div class="brand-panel">
+      <div class="brand-row">
+        <div>
+          <label for="brandName">상담사/센터 이름</label>
+          <input id="brandName" type="text" placeholder="예: OO 수비학 상담소"/>
+        </div>
+        <div>
+          <label for="brandLogo">로고 이미지 URL (선택)</label>
+          <input id="brandLogo" type="url" placeholder="https://… (없으면 비워두세요)"/>
+        </div>
+        <button type="button" class="btn-sm" id="brandSaveBtn">저장</button>
+      </div>
+      <p class="brand-hint">여기에 입력한 이름·로고가 <strong>고객용 리포트 PDF</strong> 머리글에 들어갑니다. 이 기기 브라우저에 저장됩니다.</p>
+    </div>
+
     <div class="section-title">고객 카드</div>
     <div class="client-panel">
       <p class="client-intro">상담 대상별로 생일·이름을 저장해 두었다가 <strong>라이프코드 분석</strong>으로 바로 불러올 수 있어요. (Supabase에 <code class="inline-code">counselor_clients</code> 테이블이 있어야 합니다.)</p>
@@ -382,9 +461,21 @@
           <label for="cBirth">생년월일 *</label>
           <input id="cBirth" type="date" required/>
         </div>
+        <div>
+          <label for="cPhone">연락처 (선택)</label>
+          <input id="cPhone" type="text" placeholder="010-…"/>
+        </div>
+        <div>
+          <label for="cTags">태그 (선택)</label>
+          <input id="cTags" type="text" placeholder="예: 커플, 진로, 재방문"/>
+        </div>
+        <div>
+          <label for="cNext">다음 약속 (선택)</label>
+          <input id="cNext" type="date"/>
+        </div>
         <div class="full">
           <label for="cNotes">메모 (선택)</label>
-          <textarea id="cNotes" placeholder="상담 포인트, 다음 일정 등"></textarea>
+          <textarea id="cNotes" placeholder="상담 포인트, 특이사항 등"></textarea>
         </div>
         <div class="full client-actions">
           <button type="submit" class="btn-sm" id="clientSaveBtn">저장</button>
@@ -396,6 +487,22 @@
       </div>
       <div id="clientList" class="client-list"></div>
       <p id="clientFormMsg" class="form-msg"></p>
+    </div>
+
+    <div class="section-title">관계 분석 (고객 간 궁합)</div>
+    <div class="rel-panel">
+      <div class="rel-row">
+        <div>
+          <label for="relA">고객 A</label>
+          <select id="relA"></select>
+        </div>
+        <div>
+          <label for="relB">고객 B</label>
+          <select id="relB"></select>
+        </div>
+        <button type="button" class="btn-sm" id="relGoBtn">궁합 분석 열기</button>
+      </div>
+      <p class="rel-hint">저장된 두 고객을 골라 수비학 궁합 페이지로 바로 분석합니다. (커플·가족 상담용)</p>
     </div>
 
     <div class="section-title">권장 진행 순서</div>
@@ -410,7 +517,7 @@
       </div>
       <div class="flow-step">
         <div class="flow-num">3</div>
-        <div><strong>기록</strong><span>아래 메모는 이 브라우저에만 저장됩니다. 장기 보관이 필요하면 복사해 두세요.</span></div>
+        <div><strong>리포트 · 기록</strong><span>분석 화면에서 <strong>고객용 리포트 PDF</strong>를 전달하고, 고객 카드의 <strong>상담 기록</strong>에 세션을 남겨 다음 상담에 이어가세요.</span></div>
       </div>
     </div>
 
@@ -433,11 +540,45 @@
       </a>
     </div>
 
-    <div class="section-title">오늘 세션 메모</div>
+    <div class="section-title">오늘 빠른 메모</div>
     <div class="notes-wrap">
-      <label for="sessionNotes">상담 중 메모 (이 기기 브라우저에만 저장)</label>
+      <label for="sessionNotes">상담 중 빠른 메모 (이 기기 브라우저에만 저장)</label>
       <textarea id="sessionNotes" placeholder="고객 반응, 다시 볼 포인트, 과제 등"></textarea>
-      <p class="notes-hint">저장은 자동입니다. 다른 PC나 시크릿 창과는 공유되지 않습니다.</p>
+      <p class="notes-hint">자동 저장됩니다. 고객별로 남는 영구 기록은 각 고객의 <strong>상담 기록</strong> 버튼을 이용하세요.</p>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="sessionModal">
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="sessionModalTitle">
+    <div class="modal-head">
+      <div>
+        <h3 id="sessionModalTitle">상담 기록</h3>
+        <div class="sub" id="sessionModalSub"></div>
+      </div>
+      <button type="button" class="modal-close" id="sessionModalClose" aria-label="닫기">×</button>
+    </div>
+    <div class="modal-body">
+      <form id="sessionForm" class="session-add" autocomplete="off">
+        <div>
+          <label for="sDate">상담일</label>
+          <input id="sDate" type="date" required/>
+        </div>
+        <div>
+          <label for="sNext">다음 약속 (선택)</label>
+          <input id="sNext" type="date"/>
+        </div>
+        <div class="full">
+          <label for="sSummary">세션 요약</label>
+          <textarea id="sSummary" placeholder="다룬 주제, 고객 반응, 과제, 다음 상담 포인트…"></textarea>
+        </div>
+        <div class="full modal-actions">
+          <button type="submit" class="btn-sm">기록 추가</button>
+          <a class="btn-sm outline" id="sessionAnalyzeLink" href="#">분석 열기</a>
+        </div>
+      </form>
+      <p id="sessionMsg" class="form-msg"></p>
+      <div id="sessionList" class="session-list"></div>
     </div>
   </div>
 </div>
@@ -450,6 +591,12 @@
   const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
   const LS_KEY = 'palja_counselor_session_notes_v1';
+  const BRAND_KEY = 'palja_counselor_brand_v1';
+
+  function loadBrand() {
+    try { return JSON.parse(localStorage.getItem(BRAND_KEY)) || {}; }
+    catch { return {}; }
+  }
 
   async function main() {
     const { data: { session } } = await sb.auth.getSession();
@@ -480,6 +627,10 @@
     const listEl = document.getElementById('clientList');
     const searchEl = document.getElementById('clientSearch');
     let clientRows = [];
+    let sessionRows = [];
+    let sessionsAvailable = true;
+    let activeClientId = null;
+    const uid = session.user.id;
 
     function setMsg(text, isErr) {
       msgEl.textContent = text || '';
@@ -516,11 +667,17 @@
         const dn = escapeHtml(row.display_name || '');
         const birth = row.birth_date || '—';
         const ln = (row.legal_name || '').trim();
+        const next = row.next_appointment || '';
+        const tags = (row.tags || '').trim();
+        const sub = '생일 ' + escapeHtml(birth) +
+          (ln ? ' · 본명 ' + escapeHtml(ln) : '') +
+          (tags ? ' · ' + escapeHtml(tags) : '') +
+          (next ? ' · 다음 약속 ' + escapeHtml(String(next)) : '');
         div.innerHTML =
-          '<div class="meta"><strong>' + dn + '</strong><span>생일 ' + escapeHtml(birth) +
-          (ln ? ' · 본명 ' + escapeHtml(ln) : '') + '</span></div>' +
+          '<div class="meta"><strong>' + dn + '</strong><span>' + sub + '</span></div>' +
           '<div class="row-btns">' +
           '<button type="button" class="primary" data-act="analyze" data-id="' + row.id + '">분석 열기</button>' +
+          '<button type="button" class="ghost" data-act="sessions" data-id="' + row.id + '">상담 기록</button>' +
           '<button type="button" data-act="edit" data-id="' + row.id + '">수정</button>' +
           '<button type="button" data-act="del" data-id="' + row.id + '">삭제</button>' +
           '</div>';
@@ -550,21 +707,39 @@
       listEl.innerHTML = '<p class="list-loading">불러오는 중…</p>';
       const { data, error } = await sb
         .from('counselor_clients')
-        .select('id,display_name,legal_name,birth_date,updated_at')
+        .select('id,display_name,legal_name,birth_date,tags,next_appointment,created_at,updated_at')
         .order('updated_at', { ascending: false });
       if (error) {
         listEl.innerHTML = '';
         clientRows = [];
         setMsg('고객 목록을 불러오지 못했습니다. Supabase SQL로 counselor_clients를 만든 뒤 다시 시도해주세요. (' + error.message + ')', true);
+        renderDashboard();
+        populateRelSelects();
         return;
       }
-      if (!data.length) {
-        clientRows = [];
+      clientRows = data || [];
+      await loadSessions();
+      renderDashboard();
+      populateRelSelects();
+      if (!clientRows.length) {
         listEl.innerHTML = '<p class="list-empty">저장된 고객이 없습니다. 위 폼에서 추가해 보세요.</p>';
         return;
       }
-      clientRows = data;
       applyClientFilter();
+    }
+
+    async function loadSessions() {
+      const { data, error } = await sb
+        .from('counselor_sessions')
+        .select('id,client_id,session_date,summary,next_appointment,created_at')
+        .order('session_date', { ascending: false });
+      if (error) {
+        sessionRows = [];
+        sessionsAvailable = false;
+        return;
+      }
+      sessionsAvailable = true;
+      sessionRows = data || [];
     }
 
     async function onRowAction(e) {
@@ -573,6 +748,10 @@
       const act = btn.getAttribute('data-act');
       if (act === 'analyze') {
         window.location.href = 'analysis.html?client=' + encodeURIComponent(id);
+        return;
+      }
+      if (act === 'sessions') {
+        openSessionModal(id);
         return;
       }
       if (act === 'del') {
@@ -596,6 +775,9 @@
         document.getElementById('cDisplay').value = data.display_name || '';
         document.getElementById('cLegal').value = data.legal_name || '';
         document.getElementById('cBirth').value = data.birth_date || '';
+        document.getElementById('cPhone').value = data.phone || '';
+        document.getElementById('cTags').value = data.tags || '';
+        document.getElementById('cNext').value = data.next_appointment || '';
         document.getElementById('cNotes').value = data.notes || '';
         document.getElementById('clientSaveBtn').textContent = '변경 저장';
         setMsg('수정 중입니다. 저장하면 반영됩니다.');
@@ -608,10 +790,12 @@
       const display_name = document.getElementById('cDisplay').value.trim();
       const legal_name = document.getElementById('cLegal').value.trim() || null;
       const birth_date = document.getElementById('cBirth').value;
+      const phone = document.getElementById('cPhone').value.trim() || null;
+      const tags = document.getElementById('cTags').value.trim() || null;
+      const next_appointment = document.getElementById('cNext').value || null;
       const notes = document.getElementById('cNotes').value.trim() || null;
       if (!display_name || !birth_date) return;
 
-      const uid = session.user.id;
       const cid = editId.value.trim();
 
       if (cid) {
@@ -619,6 +803,9 @@
           display_name,
           legal_name,
           birth_date,
+          phone,
+          tags,
+          next_appointment,
           notes,
           updated_at: new Date().toISOString(),
         }).eq('id', cid).eq('counselor_id', uid);
@@ -633,6 +820,9 @@
           display_name,
           legal_name,
           birth_date,
+          phone,
+          tags,
+          next_appointment,
           notes,
         });
         if (error) {
@@ -643,6 +833,182 @@
         resetForm();
       }
       loadClients();
+    });
+
+    // ── 대시보드 ──
+    function ymd(d) {
+      const y = d.getFullYear(), m = String(d.getMonth() + 1).padStart(2, '0'), da = String(d.getDate()).padStart(2, '0');
+      return y + '-' + m + '-' + da;
+    }
+    function clientUpcomingDate(clientId, clientNext) {
+      const cands = [];
+      if (clientNext) cands.push(String(clientNext));
+      sessionRows.forEach((s) => { if (s.client_id === clientId && s.next_appointment) cands.push(String(s.next_appointment)); });
+      const today = ymd(new Date());
+      const future = cands.filter((x) => x >= today).sort();
+      return future.length ? future[0] : null;
+    }
+    function renderDashboard() {
+      const today = new Date();
+      const todayStr = ymd(today);
+      const horizon = new Date(today.getTime() + 14 * 86400000);
+      const horizonStr = ymd(horizon);
+      let upcoming = 0;
+      clientRows.forEach((c) => {
+        const d = clientUpcomingDate(c.id, c.next_appointment);
+        if (d && d >= todayStr && d <= horizonStr) upcoming++;
+      });
+      const recent = sessionRows.length
+        ? sessionRows.map((s) => String(s.session_date)).sort().slice(-1)[0]
+        : null;
+      const ym = todayStr.slice(0, 7);
+      const newCount = clientRows.filter((c) => String(c.created_at || '').slice(0, 7) === ym).length;
+      document.getElementById('dashClients').textContent = String(clientRows.length);
+      document.getElementById('dashUpcoming').textContent = String(upcoming);
+      document.getElementById('dashRecent').textContent = recent || '—';
+      document.getElementById('dashNew').textContent = String(newCount);
+    }
+
+    // ── 관계 분석(고객 간 궁합) ──
+    function populateRelSelects() {
+      const a = document.getElementById('relA');
+      const b = document.getElementById('relB');
+      if (!a || !b) return;
+      const opts = '<option value="">— 고객 선택 —</option>' +
+        clientRows.map((c) => '<option value="' + c.id + '">' + escapeHtml(c.display_name || '') + '</option>').join('');
+      a.innerHTML = opts;
+      b.innerHTML = opts;
+    }
+    const relGoBtn = document.getElementById('relGoBtn');
+    if (relGoBtn) {
+      relGoBtn.addEventListener('click', () => {
+        const aId = document.getElementById('relA').value;
+        const bId = document.getElementById('relB').value;
+        if (!aId || !bId) { alert('고객 A와 B를 모두 선택해 주세요.'); return; }
+        if (aId === bId) { alert('서로 다른 고객을 선택해 주세요.'); return; }
+        const a = clientRows.find((c) => c.id === aId);
+        const b = clientRows.find((c) => c.id === bId);
+        if (!a || !b) return;
+        const qs = new URLSearchParams({
+          n1: (a.legal_name || a.display_name || '').trim(),
+          d1: a.birth_date || '',
+          n2: (b.legal_name || b.display_name || '').trim(),
+          d2: b.birth_date || '',
+          auto: '1',
+        });
+        window.location.href = 'compatibility.html?' + qs.toString();
+      });
+    }
+
+    // ── 상담사 브랜드 ──
+    (function initBrand() {
+      const brand = loadBrand();
+      const nameEl = document.getElementById('brandName');
+      const logoEl = document.getElementById('brandLogo');
+      if (nameEl) nameEl.value = brand.name || '';
+      if (logoEl) logoEl.value = brand.logo || '';
+      const btn = document.getElementById('brandSaveBtn');
+      if (btn) btn.addEventListener('click', () => {
+        const payload = { name: (nameEl.value || '').trim(), logo: (logoEl.value || '').trim() };
+        localStorage.setItem(BRAND_KEY, JSON.stringify(payload));
+        btn.textContent = '저장됨 ✓';
+        setTimeout(() => { btn.textContent = '저장'; }, 1500);
+      });
+    })();
+
+    // ── 고객 상세 · 세션 기록 모달 ──
+    const sessionModal = document.getElementById('sessionModal');
+    const sessionForm = document.getElementById('sessionForm');
+    const sessionMsgEl = document.getElementById('sessionMsg');
+
+    function closeSessionModal() {
+      sessionModal.classList.remove('open');
+      activeClientId = null;
+    }
+    document.getElementById('sessionModalClose').addEventListener('click', closeSessionModal);
+    sessionModal.addEventListener('click', (e) => { if (e.target === sessionModal) closeSessionModal(); });
+
+    function renderSessionList() {
+      const listElS = document.getElementById('sessionList');
+      if (!sessionsAvailable) {
+        listElS.innerHTML = '<p class="session-empty">세션 기록 기능을 쓰려면 Supabase SQL 에디터에서 <code class="inline-code">database/counselor_sessions.sql</code>을 먼저 실행해 주세요.</p>';
+        return;
+      }
+      const rows = sessionRows.filter((s) => s.client_id === activeClientId);
+      if (!rows.length) {
+        listElS.innerHTML = '<p class="session-empty">아직 기록이 없습니다. 위에서 첫 세션을 추가해 보세요.</p>';
+        return;
+      }
+      listElS.innerHTML = rows.map((s) =>
+        '<div class="session-item">' +
+        '<div class="s-date"><span>' + escapeHtml(String(s.session_date)) + '</span>' +
+        '<button type="button" data-del-session="' + s.id + '">삭제</button></div>' +
+        (s.summary ? '<div class="s-sum">' + escapeHtml(s.summary) + '</div>' : '') +
+        (s.next_appointment ? '<div class="s-next">다음 약속: ' + escapeHtml(String(s.next_appointment)) + '</div>' : '') +
+        '</div>'
+      ).join('');
+      listElS.querySelectorAll('button[data-del-session]').forEach((b) => {
+        b.addEventListener('click', async () => {
+          if (!confirm('이 세션 기록을 삭제할까요?')) return;
+          const sid = b.getAttribute('data-del-session');
+          const { error } = await sb.from('counselor_sessions').delete().eq('id', sid);
+          if (error) { sessionMsgEl.textContent = error.message; sessionMsgEl.classList.add('err'); return; }
+          await loadSessions();
+          renderSessionList();
+          renderDashboard();
+        });
+      });
+    }
+
+    function openSessionModal(clientId) {
+      activeClientId = clientId;
+      const c = clientRows.find((x) => x.id === clientId);
+      document.getElementById('sessionModalTitle').textContent = '상담 기록 · ' + (c ? (c.display_name || '') : '');
+      document.getElementById('sessionModalSub').textContent = c
+        ? ('생일 ' + (c.birth_date || '—') + (c.legal_name ? ' · 본명 ' + c.legal_name : '')) : '';
+      const link = document.getElementById('sessionAnalyzeLink');
+      link.href = 'analysis.html?client=' + encodeURIComponent(clientId);
+      sessionForm.reset();
+      document.getElementById('sDate').value = ymd(new Date());
+      sessionMsgEl.textContent = '';
+      sessionMsgEl.classList.remove('err');
+      renderSessionList();
+      sessionModal.classList.add('open');
+    }
+
+    sessionForm.addEventListener('submit', async (ev) => {
+      ev.preventDefault();
+      sessionMsgEl.textContent = '';
+      sessionMsgEl.classList.remove('err');
+      if (!activeClientId) return;
+      if (!sessionsAvailable) {
+        sessionMsgEl.textContent = 'counselor_sessions 테이블이 아직 없습니다. SQL을 먼저 실행해 주세요.';
+        sessionMsgEl.classList.add('err');
+        return;
+      }
+      const session_date = document.getElementById('sDate').value;
+      const next_appointment = document.getElementById('sNext').value || null;
+      const summary = document.getElementById('sSummary').value.trim() || null;
+      if (!session_date) return;
+      const { error } = await sb.from('counselor_sessions').insert({
+        counselor_id: uid,
+        client_id: activeClientId,
+        session_date,
+        summary,
+        next_appointment,
+      });
+      if (error) { sessionMsgEl.textContent = error.message; sessionMsgEl.classList.add('err'); return; }
+      // 다음 약속이 입력되면 고객 카드에도 반영(목록·대시보드 동기화)
+      if (next_appointment) {
+        await sb.from('counselor_clients')
+          .update({ next_appointment, updated_at: new Date().toISOString() })
+          .eq('id', activeClientId).eq('counselor_id', uid);
+      }
+      document.getElementById('sSummary').value = '';
+      document.getElementById('sNext').value = '';
+      await loadClients();
+      renderSessionList();
+      sessionMsgEl.textContent = '기록을 추가했습니다.';
     });
 
     await loadClients();

@@ -369,6 +369,36 @@
     }
     .counselor-bar-btn:hover { background: var(--parchment); border-color: var(--warm-brown); color: var(--ink); box-shadow:none; transform:none; }
 
+    /* 상담 준비 요약 카드 (상담사 모드 · 화면 전용) */
+    .counselor-prep-card {
+      background: linear-gradient(180deg, #fffdf8 0%, #fbf6ec 100%);
+      border: 1px solid var(--warm-brown);
+      border-radius: 14px;
+      padding: 18px 20px;
+      margin: 0 0 20px;
+      box-shadow: 0 10px 30px rgba(74,53,32,.08);
+    }
+    .prep-head { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; margin-bottom: 4px; }
+    .prep-badge { font-size: 10px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: #fff; background: var(--warm-brown); padding: 3px 9px; border-radius: 20px; }
+    .prep-head h3 { font-family: var(--font-serif); font-size: 19px; color: var(--deep-brown); font-weight: 700; }
+    .prep-sub { font-size: 12px; color: var(--muted); margin-bottom: 14px; }
+    .prep-grid { display: grid; gap: 12px; }
+    @media (min-width: 640px) { .prep-grid { grid-template-columns: 1fr 1fr; } }
+    .prep-box { background: #fff; border: 1px solid var(--border); border-radius: 10px; padding: 13px 15px; }
+    .prep-box h4 { font-size: 11px; font-weight: 700; letter-spacing: .04em; color: var(--accent); margin-bottom: 8px; text-transform: uppercase; }
+    .prep-nums { display: flex; flex-wrap: wrap; gap: 6px; }
+    .prep-chip { font-size: 12px; background: var(--parchment); border: 1px solid var(--border); border-radius: 16px; padding: 4px 10px; color: var(--deep-brown); }
+    .prep-chip b { color: var(--warm-brown); }
+    .prep-box ul { list-style: none; padding: 0; margin: 0; }
+    .prep-box li { font-size: 13px; line-height: 1.7; color: var(--ink); padding: 3px 0 3px 14px; position: relative; }
+    .prep-box li::before { content: '·'; position: absolute; left: 2px; color: var(--accent); font-weight: 700; }
+    .prep-flow { font-size: 13px; line-height: 1.75; color: var(--ink); }
+    .prep-flow b { color: var(--warm-brown); }
+    .prep-memo { font-size: 13px; line-height: 1.7; color: var(--ink); white-space: pre-wrap; }
+    .prep-memo .memo-date { font-size: 11px; color: var(--muted); font-weight: 700; display: block; margin-bottom: 3px; }
+    .prep-note { font-size: 11px; color: var(--muted); margin-top: 12px; }
+    .export-brand-header { text-align: center; padding: 4px 0 10px; margin-bottom: 6px; border-bottom: 1px solid var(--border); }
+
     /* ── 분석 결과 바로가기 (플로팅) ── */
     .analysis-jump-nav-shim {
       position: fixed;
@@ -3701,6 +3731,7 @@
   <div class="counselor-bar-inner">
     <p class="counselor-bar-text">고객 생년월일·이름으로 분석하세요. <strong>고객 표시 이름</strong> 칸에 상담용 표기를 적어 두면 구분에 도움이 됩니다. 결과 화면은 인쇄해 고객 자료로 쓸 수 있어요.</p>
     <div class="counselor-bar-actions">
+      <button type="button" class="counselor-bar-btn" id="counselorReportBtn" onclick="exportCounselorReport()">고객용 리포트 PDF</button>
       <a href="counselor.html" class="counselor-bar-link">상담사 허브</a>
     </div>
   </div>
@@ -3757,6 +3788,7 @@
 <!-- RESULT AREA -->
 <div class="content" id="resultArea" style="display:none;">
   <div id="analysisExportHeader" class="export-doc-header" aria-label="분석 대상"></div>
+  <div id="counselorPrepCard" class="counselor-prep-card" style="display:none;" aria-label="상담 준비 요약"></div>
   <div id="analysisReadingGuide" class="analysis-reading-guide-host" aria-label="아래 결과 안내"></div>
 
   <!-- ① 핵심 수 -->
@@ -4017,6 +4049,26 @@ let CURRENT_USER_ID = 'guest';
 // 주의: 운영 환경에선 반드시 false로 두세요.
 const DEV_UNLOCK_PAID = false;
 
+
+// ── 상담사(Professional) 고객용 리포트 ──
+let COUNSELOR_REPORT_MODE = false;
+let COUNSELOR_CLIENT = null; // { id, displayName, recentSession }
+
+function readCounselorBrand() {
+  try { return JSON.parse(localStorage.getItem('palja_counselor_brand_v1')) || {}; }
+  catch { return {}; }
+}
+
+/** 고객용 리포트 PDF: 상담사 브랜드 머리글 + 잠금/업셀 제외(기존 로직) 으로 내보내기 */
+function exportCounselorReport() {
+  const resultArea = document.getElementById('resultArea');
+  if (!resultArea || resultArea.style.display === 'none') {
+    alert('먼저 분석하기를 실행한 뒤 리포트를 저장할 수 있어요.');
+    return;
+  }
+  COUNSELOR_REPORT_MODE = true;
+  openExportPicker('pdf');
+}
 
 function topbarPdfClick() {
   openExportPicker('pdf');
@@ -4398,6 +4450,19 @@ async function loadPrefilledCounselorClient(session) {
   if (birthEl && data.birth_date) birthEl.value = data.birth_date;
   if (nameEl) nameEl.value = (data.legal_name || '').trim();
   if (clientEl) clientEl.value = (data.display_name || '').trim();
+
+  COUNSELOR_CLIENT = { id: clientId, displayName: (data.display_name || '').trim(), recentSession: null };
+  // 최근 세션 메모(있으면) — 테이블이 없으면 조용히 무시
+  try {
+    const { data: sess } = await sb
+      .from('counselor_sessions')
+      .select('session_date,summary')
+      .eq('client_id', clientId)
+      .eq('counselor_id', session.user.id)
+      .order('session_date', { ascending: false })
+      .limit(1);
+    if (sess && sess.length && sess[0].summary) COUNSELOR_CLIENT.recentSession = sess[0];
+  } catch (e) { /* ignore */ }
 }
 
 const PLANS = { free: 0, basic: 1, pro: 2, professional: 3 };
@@ -4541,6 +4606,21 @@ function buildAnalysisPdfClone(el, hiddenIds) {
   flatStyle.textContent = getPdfFlatCss();
   clone.insertBefore(flatStyle, clone.firstChild);
   pdfReplaceAllDetailsForPdf(clone);
+  // 상담사 고객용 리포트: 브랜드(이름/로고) 머리글 삽입
+  if (COUNSELOR_REPORT_MODE) {
+    const prep = clone.querySelector('#counselorPrepCard');
+    if (prep) prep.remove(); // 상담사용 준비 카드는 고객 리포트에서 제외
+    const hdr = clone.querySelector('#analysisExportHeader');
+    const brand = readCounselorBrand();
+    if (hdr && (brand.name || brand.logo)) {
+      const bd = clone.ownerDocument.createElement('div');
+      bd.className = 'export-brand-header';
+      bd.innerHTML =
+        (brand.logo ? `<img src="${escapeHtml(brand.logo)}" alt="" style="max-height:46px;max-width:170px;object-fit:contain;display:block;margin:0 auto 6px;">` : '') +
+        (brand.name ? `<div style="font-size:15px;font-weight:700;color:#4a3520;text-align:center;">${escapeHtml(brand.name)}</div>` : '');
+      hdr.insertBefore(bd, hdr.firstChild);
+    }
+  }
   return clone;
 }
 
@@ -5030,6 +5110,7 @@ async function downloadAnalysisPdf(hiddenIds) {
   } finally {
     host.innerHTML = '';
     host.style.cssText = prevHostCss;
+    COUNSELOR_REPORT_MODE = false;
   }
 }
 </script>
@@ -6114,6 +6195,88 @@ function renderExportDocHeader(nameRaw, y, m, d) {
   host.innerHTML = `
     <div class="export-doc-title">라이프코드 분석</div>
     <div class="export-doc-meta">${nameHtml}${dot}${birthHtml}</div>`;
+}
+
+/** DEEP_MAP 문자열에서 [유형명]과 [핵심: ...] 키워드만 추출 */
+function prepExtractDeep(html) {
+  if (!html) return { label: '', keywords: '' };
+  const s = String(html);
+  const labelM = s.match(/<b>\s*\[([^\]]+)\]/);
+  const kwM = s.match(/핵심:\s*([^\]]+)\]/);
+  return {
+    label: labelM ? labelM[1].trim() : '',
+    keywords: kwM ? kwM[1].replace(/\s*\/\s*/g, ' · ').trim() : '',
+  };
+}
+
+/** 상담 준비 요약 카드(상담사 모드 · 화면 전용). 기존 계산값을 템플릿으로 재구성. */
+function renderCounselorPrepCard(p) {
+  const host = document.getElementById('counselorPrepCard');
+  if (!host) return;
+  const esc = (typeof escapeHtml === 'function') ? escapeHtml : (x) => x;
+  const titleMap = (typeof TITLE_MAP !== 'undefined') ? TITLE_MAP : {};
+  const yearStrat = (typeof YEAR_STRATEGY !== 'undefined') ? YEAR_STRATEGY : {};
+  const growth = (typeof GROWTH_DATA !== 'undefined') ? GROWTH_DATA : {};
+  const flowPhrase = (typeof FLOW_PHRASE !== 'undefined') ? FLOW_PHRASE : {};
+  const deepMap = (typeof DEEP_MAP !== 'undefined') ? DEEP_MAP : {};
+  const monthKw = (typeof MONTHLY_KEYWORDS !== 'undefined') ? MONTHLY_KEYWORDS : {};
+  const reduce = (typeof reduceToSingle === 'function') ? reduceToSingle : (n) => n;
+
+  // 핵심 수 칩
+  const chips = [];
+  const chip = (label, val, sub) => { if (val != null && val !== '') chips.push(`<span class="prep-chip"><b>${esc(label)}</b> ${esc(String(val))}${sub ? ` <span style="color:var(--muted)">${esc(sub)}</span>` : ''}</span>`); };
+  chip('인생여정수', p.lpDisplay != null ? p.lpDisplay : p.lp);
+  if (p.destiny != null) chip('운명수', p.destiny);
+  if (p.soul != null) chip('혼의수', p.soul);
+  if (p.personality != null) chip('성격수', p.personality);
+  chip('문넘버', p.mn);
+  if (p.zodiac && p.zodiac !== '—') chip('별자리', p.zodiac);
+  if (p.majorNum != null) chip('대주기', p.majorNum);
+  if (p.pinnacle != null) chip('절정수', p.pinnacle);
+  if (p.challenge != null) chip('도전수', p.challenge);
+
+  // 올해 흐름
+  const pyKey = p.py;
+  const flowText = `올해는 ${flowPhrase[pyKey] ? esc(flowPhrase[pyKey]) + ' ' : ''}<b>개인년 ${esc(String(p.pyDisplay != null ? p.pyDisplay : pyKey))}번${titleMap[pyKey] ? ' · ' + esc(titleMap[pyKey]) : ''}</b> 시기입니다.` +
+    (yearStrat[pyKey] ? ` 목표: ${esc(yearStrat[pyKey].goal)}. 권유: ${esc(yearStrat[pyKey].action)}` : '') +
+    (p.pm != null ? `<br>이번 달 키워드: <b>${esc(String(p.pm))}번 ${esc(monthKw[p.pm] || '')}</b>` : '');
+
+  // 이야깃거리(talking points)
+  const tp = [];
+  const lpDeep = prepExtractDeep(deepMap[p.lp]);
+  if (lpDeep.label) tp.push(`인생여정수 ${esc(String(p.lp))} <b>${esc(lpDeep.label)}</b>${lpDeep.keywords ? ' — ' + esc(lpDeep.keywords) : ''}`);
+  if (p.destiny != null) {
+    const dDeep = prepExtractDeep(deepMap[p.destiny]);
+    if (dDeep.label) tp.push(`운명수 ${esc(String(p.destiny))} <b>${esc(dDeep.label)}</b>${dDeep.keywords ? ' — ' + esc(dDeep.keywords) : ''}`);
+  }
+  if (flowPhrase[pyKey]) tp.push(`올해 흐름과 연결: ${esc(flowPhrase[pyKey])} 한 해`);
+  const tpHtml = tp.length ? `<ul>${tp.map((t) => `<li>${t}</li>`).join('')}</ul>` : '<p class="prep-flow" style="color:var(--muted)">이름을 입력하면 더 풍부한 이야깃거리가 나옵니다.</p>';
+
+  // 케어 포인트(주의)
+  const care = [];
+  const g = growth[reduce(p.lp, true)] || growth[reduce(p.lp, false)];
+  if (g) { if (g.t) care.push(`성장 영역: <b>${esc(g.t)}</b>`); if (g.action) care.push(esc(g.action)); }
+  const careHtml = care.length ? `<ul>${care.map((c) => `<li>${c}</li>`).join('')}</ul>` : '<p class="prep-flow" style="color:var(--muted)">—</p>';
+
+  // 최근 세션 메모
+  let memoHtml = '';
+  if (COUNSELOR_CLIENT && COUNSELOR_CLIENT.recentSession) {
+    const rs = COUNSELOR_CLIENT.recentSession;
+    memoHtml = `<div class="prep-box"><h4>최근 상담 메모</h4><div class="prep-memo"><span class="memo-date">${esc(String(rs.session_date))}</span>${esc(rs.summary || '')}</div></div>`;
+  }
+
+  host.innerHTML = `
+    <div class="prep-head"><span class="prep-badge">상담 준비</span><h3>${esc(p.clientName || '고객')} 세션 브리핑</h3></div>
+    <div class="prep-sub">아래는 상담사용 요약입니다. (고객용 리포트 PDF에는 포함되지 않습니다)</div>
+    <div class="prep-grid">
+      <div class="prep-box"><h4>핵심 수</h4><div class="prep-nums">${chips.join('')}</div></div>
+      <div class="prep-box"><h4>올해 흐름</h4><div class="prep-flow">${flowText}</div></div>
+      <div class="prep-box"><h4>이야깃거리</h4>${tpHtml}</div>
+      <div class="prep-box"><h4>케어 포인트</h4>${careHtml}</div>
+      ${memoHtml}
+    </div>
+    <p class="prep-note">생성: 저장된 핵심 수·흐름 데이터를 자동 정리한 것입니다. 상담 맥락에 맞게 참고용으로 활용하세요.</p>`;
+  host.style.display = 'block';
 }
 
 /** 문 넘버 타로 기준: 메이저 아르카나 0~21을 "내면·무의식 행동 패턴" 관점으로 해석 */
@@ -8456,6 +8619,26 @@ async function runAnalysis() {
 
   const waitEl = document.getElementById('analysisWait');
   if (waitEl) waitEl.style.display = 'none';
+
+  // ── 상담 준비 요약 카드 (상담사 모드 · ?client= 진입 시) ──
+  if (COUNSELOR_CLIENT) {
+    try {
+      renderCounselorPrepCard({
+        clientName: COUNSELOR_CLIENT.displayName || nameRaw,
+        lp, lpDisplay,
+        mn,
+        py, pyDisplay,
+        pm,
+        destiny: destinyNum ? destinyNum.single : null,
+        soul: soulNum ? soulNum.single : null,
+        personality: personalityNum ? personalityNum.single : null,
+        zodiac: z && z.n ? z.n : '—',
+        majorNum: cycleGlance.majorNum,
+        pinnacle: cycleGlance.pinnacle,
+        challenge: cycleGlance.challenge,
+      });
+    } catch (e) { console.error('prep card', e); }
+  }
 
   document.getElementById('resultArea').style.display='block';
   document.getElementById('resultArea').scrollIntoView({behavior:'smooth'});
