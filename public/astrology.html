@@ -240,6 +240,7 @@ table.astro-table td .glyph{font-size:16px;margin-right:4px;color:var(--accent);
         <button type="button" class="rt-btn" id="btnCopy" title="빅3·원소 요약을 클립보드로 복사">⧉ 요약 복사</button>
         <button type="button" class="rt-btn" id="btnImage" title="결과를 이미지(PNG)로 저장">⬇ 이미지 저장</button>
         <button type="button" class="rt-btn" id="btnPrint" title="인쇄하거나 PDF로 저장">🖨 인쇄·PDF</button>
+        <button type="button" class="rt-btn rt-btn--share" id="btnSaveClient" title="고객 카드에 차트 요약 저장" hidden>💾 고객 카드에 저장</button>
         <button type="button" class="rt-btn rt-btn--share" id="btnShare" title="공유하기" hidden>↗ 공유</button>
       </div>
     </div>
@@ -349,6 +350,16 @@ table.astro-table td .glyph{font-size:16px;margin-right:4px;color:var(--accent);
   const M = window.ASTRO_MEANINGS;
   const CITIES = window.ASTRO_CITIES || [];
   const $ = (id) => document.getElementById(id);
+
+  // 상담사 허브 연계: client 파라미터가 있으면 차트 요약을 고객 카드에 저장 가능
+  const SUPABASE_URL = 'https://sghsryumnrnftyjoqmwf.supabase.co';
+  const SUPABASE_ANON_KEY = 'sb_publishable_6S3W_oWrzG-Nv8wLK98gmg_q_KcB2I1';
+  let sbClient = null;
+  try {
+    if (window.supabase && window.supabase.createClient) sbClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  } catch (e) { /* ignore */ }
+  const CLIENT_ID = new URLSearchParams(location.search).get('client') || '';
+  let COUNSELOR_UID = '';
 
   // ── 도시 셀렉트 채우기 ──
   (function fillCities() {
@@ -904,6 +915,52 @@ table.astro-table td .glyph{font-size:16px;margin-right:4px;color:var(--accent);
     } catch (e) {
       const ta = $('aiPrompt'); ta.focus(); ta.select();
       try { document.execCommand('copy'); flashBtn($('btnAiCopy'), '✓ 복사됨'); } catch (_) {}
+    }
+  });
+
+  // ── 상담사 허브: 차트 요약을 고객 카드에 저장 ──
+  function buildClientAstroNote() {
+    if (!LAST_CTX) return '';
+    const L = [];
+    L.push('[점성학 차트 요약]');
+    L.push('태양 ' + LAST_CTX.sunSign.ko + ' · 달 ' + LAST_CTX.moonSign.ko + (LAST_CTX.ascSign ? ' · 상승궁 ' + LAST_CTX.ascSign.ko : ''));
+    if (LAST_BALANCE) {
+      const e = LAST_BALANCE.elements;
+      L.push('원소: 불 ' + e['불'] + ' / 흙 ' + e['흙'] + ' / 바람 ' + e['바람'] + ' / 물 ' + e['물']);
+    }
+    if (LAST_CTX.planetReads && LAST_CTX.planetReads.length) {
+      const parts = LAST_CTX.planetReads.map((p) => p.ko + ' ' + p.sign + (p.house ? '(' + p.house + 'H)' : ''));
+      L.push(parts.join(' · '));
+    }
+    return L.join('\n');
+  }
+
+  (async function setupClientSave() {
+    if (!CLIENT_ID || !sbClient) return;
+    try {
+      const { data: { session } } = await sbClient.auth.getSession();
+      if (!session) return;
+      COUNSELOR_UID = session.user.id;
+      $('btnSaveClient').hidden = false;
+    } catch (e) { /* ignore */ }
+  })();
+
+  $('btnSaveClient').addEventListener('click', async () => {
+    if (!CLIENT_ID || !sbClient || !COUNSELOR_UID) return;
+    const note = buildClientAstroNote();
+    if (!note) { showStatus('먼저 “차트 계산하기”로 결과를 만든 뒤 저장할 수 있어요.', 'err'); return; }
+    const btn = $('btnSaveClient');
+    const prev = btn.textContent; btn.textContent = '저장 중…'; btn.disabled = true;
+    try {
+      const { error } = await sbClient.from('counselor_clients')
+        .update({ astro_summary: note, astro_updated_at: new Date().toISOString() })
+        .eq('id', CLIENT_ID).eq('counselor_id', COUNSELOR_UID);
+      if (error) throw error;
+      flashBtn(btn, '✓ 저장됨');
+    } catch (e) {
+      console.error(e);
+      btn.textContent = prev; btn.disabled = false;
+      showStatus('저장 중 오류가 났어요: ' + (e.message || ''), 'err');
     }
   });
 

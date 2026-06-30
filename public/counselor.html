@@ -587,6 +587,7 @@
       <button type="button" class="modal-close" id="sessionModalClose" aria-label="닫기">×</button>
     </div>
     <div class="modal-body">
+      <div id="sessionAstro" class="session-astro" style="display:none;white-space:pre-wrap;font-size:12.5px;line-height:1.7;color:#4a3520;background:#f5efe3;border:1px solid rgba(139,111,71,.2);border-left:3px solid #c8a96e;border-radius:10px;padding:11px 14px;margin-bottom:14px;"></div>
       <form id="sessionForm" class="session-add" autocomplete="off">
         <div>
           <label for="sDate">상담일</label>
@@ -759,7 +760,7 @@
       listEl.innerHTML = '<p class="list-loading">불러오는 중…</p>';
       const { data, error } = await sb
         .from('counselor_clients')
-        .select('id,display_name,legal_name,birth_date,birth_time,birth_city,tags,next_appointment,created_at,updated_at')
+        .select('id,display_name,legal_name,birth_date,birth_time,birth_city,tags,next_appointment,astro_summary,astro_updated_at,created_at,updated_at')
         .order('updated_at', { ascending: false });
       if (error) {
         listEl.innerHTML = '';
@@ -810,6 +811,7 @@
         });
         if (c && c.birth_time) qs.set('time', c.birth_time);
         if (c && c.birth_city) qs.set('city', c.birth_city);
+        qs.set('client', id);
         window.location.href = 'astrology.html?' + qs.toString();
         return;
       }
@@ -1138,6 +1140,16 @@
       document.getElementById('sessionModalTitle').textContent = '상담 기록 · ' + (c ? (c.display_name || '') : '');
       document.getElementById('sessionModalSub').textContent = c
         ? ('생일 ' + (c.birth_date || '—') + (c.birth_time ? ' ' + c.birth_time : '') + (c.legal_name ? ' · 본명 ' + c.legal_name : '')) : '';
+      const astroEl = document.getElementById('sessionAstro');
+      if (astroEl) {
+        if (c && c.astro_summary) {
+          astroEl.style.display = 'block';
+          astroEl.textContent = c.astro_summary;
+        } else {
+          astroEl.style.display = 'none';
+          astroEl.textContent = '';
+        }
+      }
       const link = document.getElementById('sessionAnalyzeLink');
       link.href = 'analysis.html?client=' + encodeURIComponent(clientId);
       sessionForm.reset();
