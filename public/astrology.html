@@ -263,7 +263,7 @@ table.astro-table td .glyph{font-size:16px;margin-right:4px;color:var(--accent);
   .big3-card .b3-text{font-size:10.5px;margin-top:6px;line-height:1.45;}
   .big3-card .b3-glyph{font-size:28px;}
   .balance-wrap{gap:12px;}
-  #wheelCard .chart-wheel-wrap #astroPaper{max-width:300px;}
+  #wheelCard .chart-wheel-wrap #astroPaper{max-width:440px;}
   #wheelCard .note{display:none !important;}
   .aspect-grid.compact td{width:17px;height:17px;min-width:17px;font-size:10px;}
   #result > .note{display:none;}
@@ -280,7 +280,7 @@ body.export-capturing .big3-card{padding:10px 12px;}
 body.export-capturing .big3-card .b3-text{font-size:10.5px;margin-top:6px;line-height:1.45;}
 body.export-capturing .big3-card .b3-glyph{font-size:28px;}
 body.export-capturing .balance-wrap{gap:12px;}
-body.export-capturing #wheelCard .chart-wheel-wrap #astroPaper{max-width:288px;}
+body.export-capturing #wheelCard .chart-wheel-wrap #astroPaper{max-width:440px;}
 body.export-capturing #wheelCard .note{display:none !important;}
 
 /* FOOTER */
@@ -358,7 +358,7 @@ body.export-capturing #wheelCard .note{display:none !important;}
         </div>
         <div class="export-opts-row">
           <span class="export-opts-label">표</span>
-          <label><input type="checkbox" id="expPlanet"/> 행성 표(상세)</label>
+          <label><input type="checkbox" id="expPlanet"/> 행성 위치</label>
         </div>
         <div class="export-opts-row">
           <span class="export-opts-label">심화</span>
@@ -1397,8 +1397,10 @@ body.export-capturing #wheelCard .note{display:none !important;}
   function runExportPrint() {
     beginExportCapture();
     scheduleExportCleanup();
-    // DOM 반영 후 인쇄(체크 해제가 미리보기에 바로 적용되도록)
-    requestAnimationFrame(() => requestAnimationFrame(() => window.print()));
+    requestAnimationFrame(() => {
+      if (LAST_HOROSCOPE) drawWheel(LAST_HOROSCOPE);
+      requestAnimationFrame(() => window.print());
+    });
   }
 
   async function waitForRepaint() {
@@ -1683,6 +1685,7 @@ body.export-capturing #wheelCard .note{display:none !important;}
     const prevTb = toolbar.style.display;
     toolbar.style.display = 'none';
     const reopen = prepareCapture();
+    if (LAST_HOROSCOPE) drawWheel(LAST_HOROSCOPE);
     await waitForRepaint();
     const canvas = await html2canvas(result, {
       backgroundColor: '#ffffff',

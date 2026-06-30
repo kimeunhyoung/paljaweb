@@ -5,12 +5,12 @@
 (function () {
   var NAV = [
     { id: 'lifecode', href: 'analysis.html', label: '라이프코드' },
-    { id: 'tarot', href: 'Tarot.html', label: '타로코드' },
-    { id: 'name', href: 'name.html', label: '네임코드' },
+    { id: 'astro', href: 'astrology.html', label: '점성학' },
     { id: 'harmony', href: 'compatibility.html', label: '소울하모니' },
     { id: 'p48', href: 'period48-compat.html', label: '48궁합' },
+    { id: 'name', href: 'name.html', label: '네임코드' },
     { id: 'calendar', href: 'numerology-calendar.html', label: '수비학달력' },
-    { id: 'astro', href: 'astrology.html', label: '점성학' },
+    { id: 'tarot', href: 'Tarot.html', label: '타로코드' },
     { id: 'counselor', href: 'counselor.html', label: '상담사허브' },
     { id: 'pricing', href: 'pricing.html', label: '요금제' }
   ];
