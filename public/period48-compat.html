@@ -438,6 +438,17 @@ PaljaBirthDatePicker.initAll([
   if (window.PaljaProductBootstrap) {
     await PaljaProductBootstrap.bootstrap({ product: 'p48', requireLogin: true });
   }
+  // 상담사 허브 등에서 URL 파라미터로 두 사람을 미리 채우고 자동 분석
+  try {
+    const qs = new URLSearchParams(location.search);
+    const n1 = qs.get('n1'), n2 = qs.get('n2'), d1 = qs.get('d1'), d2 = qs.get('d2');
+    const setVal = (id, v) => { const el = document.getElementById(id); if (el && v) el.value = v; };
+    setVal('p48Name1', n1); setVal('p48Name2', n2);
+    setVal('p48Dob1', d1); setVal('p48Dob2', d2);
+    if (qs.get('auto') === '1' && d1 && d2 && typeof runP48Compat === 'function') {
+      runP48Compat();
+    }
+  } catch (e) { /* ignore */ }
 })();
 </script>
 </body>

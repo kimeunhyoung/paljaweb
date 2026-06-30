@@ -461,6 +461,20 @@ table.astro-table td .glyph{font-size:16px;margin-right:4px;color:var(--accent);
   }
 
   $('calcBtn').addEventListener('click', calculate);
+
+  // 상담사 허브 등에서 URL 파라미터로 이름·생년월일 미리 채우기
+  (function prefillFromQuery() {
+    try {
+      const qs = new URLSearchParams(location.search);
+      const nm = qs.get('name'), dt = qs.get('date');
+      if (nm) $('inName').value = nm;
+      if (dt) {
+        $('inDate').value = dt;
+        showStatus('생년월일을 불러왔어요. 정확한 차트를 위해 <strong>출생 시간</strong>과 <strong>출생지</strong>를 입력한 뒤 “차트 계산하기”를 눌러주세요. (시간을 모르면 “시간 모름”을 체크)', 'info');
+        const t = $('inTime'); if (t) t.focus();
+      }
+    } catch (e) { /* ignore */ }
+  })();
 </script>
 
 </body>

@@ -394,6 +394,15 @@
     .prep-box li::before { content: '·'; position: absolute; left: 2px; color: var(--accent); font-weight: 700; }
     .prep-flow { font-size: 13px; line-height: 1.75; color: var(--ink); }
     .prep-flow b { color: var(--warm-brown); }
+    .prep-box--wide { grid-column: 1 / -1; }
+    .prep-cycle { list-style: none; padding: 0; margin: 0; display: grid; gap: 6px; }
+    .prep-cycle li { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; font-size: 12.5px; color: var(--ink); padding: 7px 10px; border: 1px solid var(--border); border-radius: 8px; background: var(--cream); }
+    .prep-cycle li::before { content: none; }
+    .prep-cycle li.cur { border-color: var(--accent); background: var(--accent-lt); }
+    .prep-cycle .cy-label { font-weight: 600; color: var(--deep-brown); }
+    .prep-cycle .cy-range { font-weight: 400; color: var(--muted); font-size: 11px; margin-left: 4px; }
+    .prep-cycle .cy-val { margin-left: auto; color: var(--warm-brown); font-weight: 600; }
+    .prep-cycle .cy-now { font-size: 10px; background: var(--accent); color: #fff; border-radius: 12px; padding: 2px 8px; font-weight: 700; }
     .prep-memo { font-size: 13px; line-height: 1.7; color: var(--ink); white-space: pre-wrap; }
     .prep-memo .memo-date { font-size: 11px; color: var(--muted); font-weight: 700; display: block; margin-bottom: 3px; }
     .prep-note { font-size: 11px; color: var(--muted); margin-top: 12px; }
@@ -6222,7 +6231,9 @@ function renderCounselorPrepCard(p) {
   const monthKw = (typeof MONTHLY_KEYWORDS !== 'undefined') ? MONTHLY_KEYWORDS : {};
   const reduce = (typeof reduceToSingle === 'function') ? reduceToSingle : (n) => n;
 
-  // 핵심 수 칩
+  const tone = (typeof numberTone === 'function') ? numberTone : () => '';
+
+  // 핵심 수 칩 (개인 핵심수)
   const chips = [];
   const chip = (label, val, sub) => { if (val != null && val !== '') chips.push(`<span class="prep-chip"><b>${esc(label)}</b> ${esc(String(val))}${sub ? ` <span style="color:var(--muted)">${esc(sub)}</span>` : ''}</span>`); };
   chip('인생여정수', p.lpDisplay != null ? p.lpDisplay : p.lp);
@@ -6231,9 +6242,24 @@ function renderCounselorPrepCard(p) {
   if (p.personality != null) chip('성격수', p.personality);
   chip('문넘버', p.mn);
   if (p.zodiac && p.zodiac !== '—') chip('별자리', p.zodiac);
-  if (p.majorNum != null) chip('대주기', p.majorNum);
-  if (p.pinnacle != null) chip('절정수', p.pinnacle);
-  if (p.challenge != null) chip('도전수', p.challenge);
+
+  // 대주기 흐름 (3주기 전체) — 흐름 설명용
+  const majorCards = Array.isArray(p.majorCards) ? p.majorCards : [];
+  const cyData = Array.isArray(p.cyData) ? p.cyData : [];
+  const curMajorIdx = (typeof p.curMajorIdx === 'number') ? p.curMajorIdx : -1;
+  const curStageIdx = (typeof p.curStageIdx === 'number') ? p.curStageIdx : -1;
+  const majorFlowHtml = majorCards.length
+    ? `<ul class="prep-cycle">${majorCards.map((mc, i) =>
+        `<li class="${i === curMajorIdx ? 'cur' : ''}"><span class="cy-label">${esc(mc.label || ('제' + (i + 1) + '주기'))}<span class="cy-range">${esc(mc.range || '')}</span></span>` +
+        `<span class="cy-val">${esc(String(mc.num))}번 · ${esc(tone(mc.num))}</span>` +
+        `${i === curMajorIdx ? '<span class="cy-now">현재</span>' : ''}</li>`).join('')}</ul>`
+    : '';
+  const stageFlowHtml = cyData.length
+    ? `<ul class="prep-cycle">${cyData.map((c, i) =>
+        `<li class="${i === curStageIdx ? 'cur' : ''}"><span class="cy-label">${esc(c.s || ((i + 1) + '단계'))}<span class="cy-range">${esc(c.a || '')}</span></span>` +
+        `<span class="cy-val">절정 ${esc(String(c.p))} · 도전 ${esc(String(c.c))}</span>` +
+        `${i === curStageIdx ? '<span class="cy-now">현재</span>' : ''}</li>`).join('')}</ul>`
+    : '';
 
   // 올해 흐름
   const pyKey = p.py;
@@ -6273,6 +6299,8 @@ function renderCounselorPrepCard(p) {
       <div class="prep-box"><h4>올해 흐름</h4><div class="prep-flow">${flowText}</div></div>
       <div class="prep-box"><h4>이야깃거리</h4>${tpHtml}</div>
       <div class="prep-box"><h4>케어 포인트</h4>${careHtml}</div>
+      ${majorFlowHtml ? `<div class="prep-box prep-box--wide"><h4>대주기 흐름 (3주기)</h4>${majorFlowHtml}</div>` : ''}
+      ${stageFlowHtml ? `<div class="prep-box prep-box--wide"><h4>인생 4단계 · 절정수·도전수</h4>${stageFlowHtml}</div>` : ''}
       ${memoHtml}
     </div>
     <p class="prep-note">생성: 저장된 핵심 수·흐름 데이터를 자동 정리한 것입니다. 상담 맥락에 맞게 참고용으로 활용하세요.</p>`;
@@ -8633,9 +8661,7 @@ async function runAnalysis() {
         soul: soulNum ? soulNum.single : null,
         personality: personalityNum ? personalityNum.single : null,
         zodiac: z && z.n ? z.n : '—',
-        majorNum: cycleGlance.majorNum,
-        pinnacle: cycleGlance.pinnacle,
-        challenge: cycleGlance.challenge,
+        majorCards, cyData, curMajorIdx, curStageIdx,
       });
     } catch (e) { console.error('prep card', e); }
   }

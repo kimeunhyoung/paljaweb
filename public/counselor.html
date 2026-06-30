@@ -324,6 +324,8 @@
     }
     .client-row .meta { font-size: 13px; color: var(--deep); }
     .client-row .meta span { font-size: 11px; color: var(--muted); display: block; margin-top: 4px; }
+    .client-row .meta .last-visit { font-size: 11px; font-weight: 600; color: var(--deep); display: inline-block; margin-top: 6px; background: var(--cream, #f6efe2); border: 1px solid var(--border); border-radius: 20px; padding: 3px 10px; }
+    .client-row .meta .last-visit.none { font-weight: 400; color: var(--muted); background: transparent; border-style: dashed; }
     .client-row .row-btns { display: flex; flex-wrap: wrap; gap: 8px; }
     .client-row .row-btns button {
       font-size: 11px; padding: 8px 12px; border-radius: 8px; border: 1px solid var(--border);
@@ -361,6 +363,8 @@
     .rel-row label { font-size: 11px; color: var(--muted); letter-spacing: .04em; display: block; margin-bottom: 6px; }
     .rel-row select { width: 100%; padding: 10px 12px; border: 1px solid var(--border); border-radius: 8px; font-family: var(--font-body); font-size: 13px; background: #fff; color: var(--ink); }
     .rel-hint { font-size: 11px; color: var(--muted); margin-top: 10px; }
+    .rel-btns { display: flex; gap: 8px; flex-wrap: wrap; }
+    .rel-btns .btn-sm { white-space: nowrap; }
 
     .client-row .row-btns button.ghost { background: var(--parchment); }
 
@@ -500,9 +504,12 @@
           <label for="relB">고객 B</label>
           <select id="relB"></select>
         </div>
-        <button type="button" class="btn-sm" id="relGoBtn">궁합 분석 열기</button>
+        <div class="rel-btns">
+          <button type="button" class="btn-sm" id="relGoBtn">소울하모니 궁합</button>
+          <button type="button" class="btn-sm outline" id="relGo48Btn">48궁합</button>
+        </div>
       </div>
-      <p class="rel-hint">저장된 두 고객을 골라 수비학 궁합 페이지로 바로 분석합니다. (커플·가족 상담용)</p>
+      <p class="rel-hint">저장된 두 고객을 골라 궁합 페이지로 바로 분석합니다. (커플·가족 상담용) · <b>소울하모니</b>=수비학 심리 공명, <b>48궁합</b>=생년월일 관계유형 20종</p>
     </div>
 
     <div class="section-title">권장 진행 순서</div>
@@ -669,14 +676,19 @@
         const ln = (row.legal_name || '').trim();
         const next = row.next_appointment || '';
         const tags = (row.tags || '').trim();
+        const ls = clientLastSession(row.id);
         const sub = '생일 ' + escapeHtml(birth) +
           (ln ? ' · 본명 ' + escapeHtml(ln) : '') +
           (tags ? ' · ' + escapeHtml(tags) : '') +
           (next ? ' · 다음 약속 ' + escapeHtml(String(next)) : '');
+        const lastLine = ls.last
+          ? '<span class="last-visit">최근 상담 ' + escapeHtml(ls.last) + ' (' + escapeHtml(daysAgoLabel(ls.last)) + ') · 총 ' + ls.count + '회</span>'
+          : '<span class="last-visit none">상담 기록 없음</span>';
         div.innerHTML =
-          '<div class="meta"><strong>' + dn + '</strong><span>' + sub + '</span></div>' +
+          '<div class="meta"><strong>' + dn + '</strong><span>' + sub + '</span>' + lastLine + '</div>' +
           '<div class="row-btns">' +
           '<button type="button" class="primary" data-act="analyze" data-id="' + row.id + '">분석 열기</button>' +
+          '<button type="button" class="ghost" data-act="astro" data-id="' + row.id + '">점성학 차트</button>' +
           '<button type="button" class="ghost" data-act="sessions" data-id="' + row.id + '">상담 기록</button>' +
           '<button type="button" data-act="edit" data-id="' + row.id + '">수정</button>' +
           '<button type="button" data-act="del" data-id="' + row.id + '">삭제</button>' +
@@ -748,6 +760,15 @@
       const act = btn.getAttribute('data-act');
       if (act === 'analyze') {
         window.location.href = 'analysis.html?client=' + encodeURIComponent(id);
+        return;
+      }
+      if (act === 'astro') {
+        const c = clientRows.find((x) => x.id === id);
+        const qs = new URLSearchParams({
+          name: ((c && (c.display_name || c.legal_name)) || '').trim(),
+          date: (c && c.birth_date) || '',
+        });
+        window.location.href = 'astrology.html?' + qs.toString();
         return;
       }
       if (act === 'sessions') {
@@ -840,6 +861,23 @@
       const y = d.getFullYear(), m = String(d.getMonth() + 1).padStart(2, '0'), da = String(d.getDate()).padStart(2, '0');
       return y + '-' + m + '-' + da;
     }
+    function clientLastSession(clientId) {
+      const dates = sessionRows
+        .filter((s) => s.client_id === clientId && s.session_date)
+        .map((s) => String(s.session_date))
+        .sort();
+      return { last: dates.length ? dates[dates.length - 1] : null, count: dates.length };
+    }
+    function daysAgoLabel(dateStr) {
+      const d = new Date(dateStr + 'T00:00:00');
+      if (isNaN(d.getTime())) return '';
+      const diff = Math.floor((Date.now() - d.getTime()) / 86400000);
+      if (diff <= 0) return '오늘';
+      if (diff === 1) return '어제';
+      if (diff < 30) return diff + '일 전';
+      if (diff < 365) return Math.floor(diff / 30) + '개월 전';
+      return Math.floor(diff / 365) + '년 전';
+    }
     function clientUpcomingDate(clientId, clientNext) {
       const cands = [];
       if (clientNext) cands.push(String(clientNext));
@@ -879,24 +917,34 @@
       a.innerHTML = opts;
       b.innerHTML = opts;
     }
+    function buildRelQuery() {
+      const aId = document.getElementById('relA').value;
+      const bId = document.getElementById('relB').value;
+      if (!aId || !bId) { alert('고객 A와 B를 모두 선택해 주세요.'); return null; }
+      if (aId === bId) { alert('서로 다른 고객을 선택해 주세요.'); return null; }
+      const a = clientRows.find((c) => c.id === aId);
+      const b = clientRows.find((c) => c.id === bId);
+      if (!a || !b) return null;
+      return new URLSearchParams({
+        n1: (a.legal_name || a.display_name || '').trim(),
+        d1: a.birth_date || '',
+        n2: (b.legal_name || b.display_name || '').trim(),
+        d2: b.birth_date || '',
+        auto: '1',
+      });
+    }
     const relGoBtn = document.getElementById('relGoBtn');
     if (relGoBtn) {
       relGoBtn.addEventListener('click', () => {
-        const aId = document.getElementById('relA').value;
-        const bId = document.getElementById('relB').value;
-        if (!aId || !bId) { alert('고객 A와 B를 모두 선택해 주세요.'); return; }
-        if (aId === bId) { alert('서로 다른 고객을 선택해 주세요.'); return; }
-        const a = clientRows.find((c) => c.id === aId);
-        const b = clientRows.find((c) => c.id === bId);
-        if (!a || !b) return;
-        const qs = new URLSearchParams({
-          n1: (a.legal_name || a.display_name || '').trim(),
-          d1: a.birth_date || '',
-          n2: (b.legal_name || b.display_name || '').trim(),
-          d2: b.birth_date || '',
-          auto: '1',
-        });
-        window.location.href = 'compatibility.html?' + qs.toString();
+        const qs = buildRelQuery();
+        if (qs) window.location.href = 'compatibility.html?' + qs.toString();
+      });
+    }
+    const relGo48Btn = document.getElementById('relGo48Btn');
+    if (relGo48Btn) {
+      relGo48Btn.addEventListener('click', () => {
+        const qs = buildRelQuery();
+        if (qs) window.location.href = 'period48-compat.html?' + qs.toString();
       });
     }
 
