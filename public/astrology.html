@@ -122,10 +122,10 @@ table.astro-table td .glyph{font-size:16px;margin-right:4px;color:var(--accent);
 /* 결과 툴바(저장/공유) */
 .result-toolbar{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-top:24px;}
 .result-name{font-family:var(--font-serif);font-size:17px;font-weight:600;color:var(--deep-brown);}
-.report-header{background:#fff;border:1px solid var(--border);border-radius:14px;padding:14px 18px;margin-top:18px;box-shadow:0 6px 20px var(--shadow);}
-.report-header-name{font-family:var(--font-serif);font-size:20px;font-weight:700;color:var(--deep-brown);line-height:1.3;}
-.report-header-meta{font-size:13px;line-height:1.6;color:var(--muted);margin-top:5px;}
-.report-header-brand{font-size:11px;color:var(--accent);margin-top:6px;font-weight:600;}
+.report-header{background:#fff;border:1px solid var(--border);border-radius:14px;padding:12px 16px;margin-top:18px;box-shadow:0 6px 20px var(--shadow);}
+.report-header-name{font-family:var(--font-serif);font-size:18px;font-weight:700;color:var(--deep-brown);line-height:1.35;display:flex;flex-wrap:wrap;align-items:baseline;gap:0;}
+.report-header-birth{font-size:14px;font-weight:500;color:var(--muted);}
+.report-header-meta{font-size:12px;line-height:1.5;color:var(--muted);margin-top:4px;}
 .result-actions{display:flex;gap:8px;flex-wrap:wrap;}
 .rt-btn{background:#fff;border:1px solid var(--border);border-radius:10px;padding:9px 14px;font-family:inherit;font-size:13px;font-weight:600;color:var(--warm-brown);cursor:pointer;transition:.15s;}
 .rt-btn:hover{background:var(--accent-lt);border-color:var(--accent);color:var(--deep-brown);}
@@ -252,15 +252,36 @@ table.astro-table td .glyph{font-size:16px;margin-right:4px;color:var(--accent);
   #result,#result *{-webkit-print-color-adjust:exact !important;print-color-adjust:exact !important;}
   .bal-fill{opacity:1 !important;}
   #result > .card:not(.capture-off){break-inside:avoid-page;page-break-inside:avoid;margin-top:12px !important;padding:16px 18px !important;box-shadow:none;}
-  #result > .report-header{margin-top:0 !important;padding:12px 16px !important;box-shadow:none;}
-  #result > .report-header + .card:not(.capture-off){margin-top:10px !important;}
-  .big3{gap:10px;}
-  .big3-card{padding:12px 14px;}
-  .big3-card .b3-text{font-size:11.5px;}
-  #wheelCard .chart-wheel-wrap #astroPaper{max-width:340px;}
+  #result > .report-header{margin-top:0 !important;padding:8px 12px !important;box-shadow:none;}
+  #result > .report-header + .card:not(.capture-off){margin-top:8px !important;}
+  .report-header-name{font-size:16px;}
+  .report-header-birth{font-size:12px;}
+  #result > .card:not(.capture-off){margin-top:8px !important;padding:12px 14px !important;}
+  .card-title{font-size:15px;margin-bottom:10px;}
+  .big3{gap:8px;}
+  .big3-card{padding:10px 12px;}
+  .big3-card .b3-text{font-size:10.5px;margin-top:6px;line-height:1.45;}
+  .big3-card .b3-glyph{font-size:28px;}
+  .balance-wrap{gap:12px;}
+  #wheelCard .chart-wheel-wrap #astroPaper{max-width:300px;}
+  #wheelCard .note{display:none !important;}
   .aspect-grid.compact td{width:17px;height:17px;min-width:17px;font-size:10px;}
   #result > .note{display:none;}
 }
+
+/* PDF 캡처(html2canvas) 시 인쇄와 동일하게 압축 */
+body.export-capturing #result > .report-header{padding:8px 12px !important;margin-top:0 !important;}
+body.export-capturing .report-header-name{font-size:16px;}
+body.export-capturing .report-header-birth{font-size:12px;}
+body.export-capturing #result > .card:not(.capture-off){margin-top:8px !important;padding:12px 14px !important;}
+body.export-capturing .card-title{font-size:15px;margin-bottom:8px;}
+body.export-capturing .big3{gap:8px;}
+body.export-capturing .big3-card{padding:10px 12px;}
+body.export-capturing .big3-card .b3-text{font-size:10.5px;margin-top:6px;line-height:1.45;}
+body.export-capturing .big3-card .b3-glyph{font-size:28px;}
+body.export-capturing .balance-wrap{gap:12px;}
+body.export-capturing #wheelCard .chart-wheel-wrap #astroPaper{max-width:288px;}
+body.export-capturing #wheelCard .note{display:none !important;}
 
 /* FOOTER */
 .site-legal-footer{max-width:1000px;margin:40px auto 0;padding:20px;border-top:1px solid var(--border);font-size:12px;color:var(--muted);line-height:1.8;text-align:center;}
@@ -359,7 +380,6 @@ table.astro-table td .glyph{font-size:16px;margin-right:4px;color:var(--accent);
     <div class="report-header" id="reportHeader">
       <div class="report-header-name" id="reportHeaderName">네이탈 차트</div>
       <div class="report-header-meta" id="reportHeaderMeta"></div>
-      <div class="report-header-brand">팔자연구소 · 8code.kr</div>
     </div>
 
     <div class="card" id="big3Card">
@@ -638,10 +658,17 @@ table.astro-table td .glyph{font-size:16px;margin-right:4px;color:var(--accent);
     const nameEl = $('reportHeaderName');
     const metaEl = $('reportHeaderMeta');
     if (!nameEl || !metaEl) return;
-    nameEl.textContent = opts.displayName || '출생 차트';
-    const parts = [birth];
+    const name = opts.displayName || '출생 차트';
+    nameEl.textContent = '';
+    nameEl.appendChild(document.createTextNode(name));
+    const birthSpan = document.createElement('span');
+    birthSpan.className = 'report-header-birth';
+    birthSpan.textContent = ' · ' + birth;
+    nameEl.appendChild(birthSpan);
+    const parts = [];
     if (city) parts.push(`출생지: ${city}`);
     parts.push('Tropical · Placidus');
+    parts.push('팔자연구소 · 8code.kr');
     metaEl.textContent = parts.join(' · ');
   }
 
@@ -1340,10 +1367,22 @@ table.astro-table td .glyph{font-size:16px;margin-right:4px;color:var(--accent);
 
   function clearExportHide() {
     document.querySelectorAll('.capture-off').forEach((el) => el.classList.remove('capture-off'));
+    document.body.classList.remove('export-capturing');
+  }
+
+  function beginExportCapture() {
+    clearExportHide();
+    applyExportHide();
+    document.body.classList.add('export-capturing');
+  }
+
+  function endExportCapture(reopen) {
+    if (reopen) reopen.forEach((c) => c.classList.remove('open'));
+    clearExportHide();
   }
 
   function scheduleExportCleanup() {
-    const cleanup = () => clearExportHide();
+    const cleanup = () => endExportCapture();
     window.addEventListener('afterprint', cleanup, { once: true });
     const mq = window.matchMedia('print');
     const onPrintChange = (e) => {
@@ -1356,8 +1395,7 @@ table.astro-table td .glyph{font-size:16px;margin-right:4px;color:var(--accent);
   }
 
   function runExportPrint() {
-    clearExportHide();
-    applyExportHide();
+    beginExportCapture();
     scheduleExportCleanup();
     // DOM 반영 후 인쇄(체크 해제가 미리보기에 바로 적용되도록)
     requestAnimationFrame(() => requestAnimationFrame(() => window.print()));
@@ -1368,8 +1406,7 @@ table.astro-table td .glyph{font-size:16px;margin-right:4px;color:var(--accent);
   }
 
   function prepareCapture() {
-    clearExportHide();
-    applyExportHide();
+    beginExportCapture();
     const reopen = [];
     document.querySelectorAll('.accordion:not(.open)').forEach((c) => {
       if (!c.classList.contains('capture-off')) { c.classList.add('open'); reopen.push(c); }
@@ -1655,8 +1692,7 @@ table.astro-table td .glyph{font-size:16px;margin-right:4px;color:var(--accent);
       windowWidth: Math.max(document.documentElement.scrollWidth, result.scrollWidth + 40),
       windowHeight: Math.max(result.scrollHeight + 40, result.offsetHeight + 40),
     });
-    reopen.forEach((c) => c.classList.remove('open'));
-    clearExportHide();
+    endExportCapture(reopen);
     toolbar.style.display = prevTb;
     return canvas;
   }
