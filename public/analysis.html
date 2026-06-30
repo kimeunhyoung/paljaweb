@@ -4835,7 +4835,7 @@ async function downloadAnalysisPdf(hiddenIds) {
   const innerHmmForFit = 297 - marginMm * 2;
   /* 한 조각(캡처 단위)의 최대 높이를 한 페이지의 이 비율로 제한한다.
      값이 작을수록 덩어리가 잘게 쪼개져 페이지 빈 공간이 줄어든다(대신 조각 수↑). */
-  const PDF_CHUNK_PAGE_RATIO = 0.55;
+  const PDF_CHUNK_PAGE_RATIO = 0.45;
   const pageFitCssPx = Math.max(360, Math.floor(capPx * (innerHmmForFit / innerWmm) * PDF_CHUNK_PAGE_RATIO));
 
   let captureRoots = [];
