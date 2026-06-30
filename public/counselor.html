@@ -1035,33 +1035,44 @@
     }
 
     // ── CSV 내보내기 (고객 + 상담 요약) ──
+    // 한국어 윈도우/구버전 엑셀에서 한글 깨짐을 막기 위해 탭 구분 + UTF-16LE(BOM)로 저장
     function csvCell(v) {
       const s = (v == null) ? '' : String(v);
-      return /[",\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s;
+      return /[\t"\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s;
+    }
+    function strToUtf16LeBytes(str) {
+      const buf = new Uint8Array(str.length * 2 + 2);
+      buf[0] = 0xFF; buf[1] = 0xFE; // UTF-16LE BOM
+      for (let i = 0; i < str.length; i++) {
+        const code = str.charCodeAt(i);
+        buf[2 + i * 2] = code & 0xFF;
+        buf[2 + i * 2 + 1] = (code >> 8) & 0xFF;
+      }
+      return buf;
     }
     function exportClientsCsv() {
       if (!clientRows.length) { alert('내보낼 고객이 없습니다.'); return; }
       const header = ['표시이름', '본명', '생년월일', '출생시간', '출생도시', '연락처', '태그', '다음약속', '총상담횟수', '최근상담일', '메모', '등록일'];
-      const lines = [header.map(csvCell).join(',')];
+      const lines = [header.map(csvCell).join('\t')];
       clientRows.forEach((c) => {
         const ls = clientLastSession(c.id);
         lines.push([
           c.display_name || '', c.legal_name || '', c.birth_date || '', c.birth_time || '', c.birth_city || '', c.phone || '',
           c.tags || '', c.next_appointment || '', ls.count, ls.last || '',
           c.notes || '', String(c.created_at || '').slice(0, 10),
-        ].map(csvCell).join(','));
+        ].map(csvCell).join('\t'));
       });
       // 상담 기록 상세도 함께 (있을 때)
       if (sessionRows.length) {
         const nameById = {};
         clientRows.forEach((c) => { nameById[c.id] = c.display_name || c.legal_name || ''; });
         lines.push('');
-        lines.push(['[상담기록]', '고객', '상담일', '요약', '다음약속'].map(csvCell).join(','));
+        lines.push(['[상담기록]', '고객', '상담일', '요약', '다음약속'].map(csvCell).join('\t'));
         sessionRows.slice().sort((a, b) => String(a.session_date).localeCompare(String(b.session_date))).forEach((s) => {
-          lines.push(['', nameById[s.client_id] || '', s.session_date || '', s.summary || '', s.next_appointment || ''].map(csvCell).join(','));
+          lines.push(['', nameById[s.client_id] || '', s.session_date || '', s.summary || '', s.next_appointment || ''].map(csvCell).join('\t'));
         });
       }
-      const blob = new Blob(['\uFEFF' + lines.join('\r\n')], { type: 'text/csv;charset=utf-8;' });
+      const blob = new Blob([strToUtf16LeBytes(lines.join('\r\n'))], { type: 'text/csv;charset=utf-16le;' });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
