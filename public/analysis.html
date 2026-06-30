@@ -4871,8 +4871,26 @@ async function downloadAnalysisPdf(hiddenIds) {
   const hasHtml2Canvas = typeof html2canvas === 'function';
 
   async function snapshotNode(node) {
-    const win = pdfHtml2CanvasWindowSize(node, capPx);
-    return html2canvas(node, {
+    /* <table>·CSS grid 컨테이너가 캡처 '최상위 루트'가 되면 html2canvas가 내용을 비운 채
+       그리는 문제가 있다(잘게 쪼개 단독 분리될 때 3칸 그리드·절정/도전수 표가 사라지는 원인).
+       중립 div로 한 겹 감싸 캡처하면 정상 렌더된다. 클론은 캡처 후 폐기되므로 원복 불필요. */
+    let target = node;
+    try {
+      const disp = window.getComputedStyle(node).display;
+      const needsWrap = node.tagName === 'TABLE' || disp === 'grid' || disp === 'inline-grid';
+      if (needsWrap && node.parentNode) {
+        const wrap = node.ownerDocument.createElement('div');
+        const wrapW = Math.ceil(Math.max(node.scrollWidth, node.offsetWidth, capPx));
+        wrap.style.cssText =
+          `display:block;overflow:visible;background:#f5f0e8;box-sizing:border-box;width:${wrapW}px;`;
+        node.parentNode.insertBefore(wrap, node);
+        wrap.appendChild(node);
+        target = wrap;
+        void wrap.offsetHeight;
+      }
+    } catch (e) { /* 실패 시 노드를 직접 캡처 */ }
+    const win = pdfHtml2CanvasWindowSize(target, capPx);
+    return html2canvas(target, {
       scale: pdfScale,
       useCORS: true,
       logging: false,
