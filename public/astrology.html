@@ -730,10 +730,17 @@ table.astro-table td .glyph{font-size:16px;margin-right:4px;color:var(--accent);
   (function prefillFromQuery() {
     try {
       const qs = new URLSearchParams(location.search);
-      const nm = qs.get('name'), dt = qs.get('date'), tm = qs.get('time');
+      const nm = qs.get('name'), dt = qs.get('date'), tm = qs.get('time'), city = qs.get('city');
       if (nm) $('inName').value = nm;
       if (tm && /^\d{1,2}:\d{2}/.test(tm)) {
         $('inTime').value = tm.slice(0, 5);
+      }
+      if (city) {
+        const idx = CITIES.findIndex((c) => c.ko === city);
+        if (idx >= 0) {
+          $('inCity').value = String(idx);
+          $('manualCoords').classList.remove('show');
+        }
       }
       if (dt) {
         $('inDate').value = dt;

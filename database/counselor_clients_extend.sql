@@ -14,3 +14,7 @@ alter table public.counselor_clients
 -- 출생 시간 (점성학 차트용, 선택). 'HH:MM' 형태로 저장.
 alter table public.counselor_clients
   add column if not exists birth_time text;
+
+-- 출생 도시 (점성학 차트용, 선택). 도시 한글명으로 저장.
+alter table public.counselor_clients
+  add column if not exists birth_city text;
