@@ -299,7 +299,7 @@ table.astro-table td .glyph{font-size:16px;margin-right:4px;color:var(--accent);
       <button type="button" class="card-title acc-head">✦ 어스펙트 그리드<span class="acc-chev" aria-hidden="true">⌄</span></button>
       <div class="acc-body">
         <div style="overflow-x:auto" id="aspectGrid"></div>
-        <div class="note">행성·카이런·교점·릴리스·AC·MC가 맺는 각을 한눈에 보는 표예요. 대각선의 <strong>천체 기호</strong>를 기준으로, 각 칸의 기호가 두 천체의 각을 나타냅니다. 칸에 마우스를 올리면 무슨 각인지 보여요.<br>☌합 ☍충 △삼각 □사각 ⚹육각 ⚺세미섹스타일 ⚻퀸컹스 · <span class="asp-tag asp-easy">초록</span> 조화 · <span class="asp-tag asp-tense">빨강</span> 긴장.</div>
+        <div class="note">행성·카이런·교점·릴리스·<strong>⊗포르투나</strong>·<strong>Vx버텍스</strong>·AC·MC가 맺는 각을 한눈에 보는 표예요. 대각선의 <strong>천체 기호</strong>를 기준으로, 각 칸의 기호가 두 천체의 각을 나타냅니다. 칸에 마우스를 올리면 무슨 각인지 보여요.<br>☌합 ☍충 △삼각 □사각 ⚹육각 ⚺세미섹스타일 ⚻퀸컹스 · <span class="asp-tag asp-easy">초록</span> 조화 · <span class="asp-tag asp-tense">빨강</span> 긴장.</div>
       </div>
     </div>
 
@@ -631,6 +631,7 @@ table.astro-table td .glyph{font-size:16px;margin-right:4px;color:var(--accent);
     if (!opts.unknownTime) {
       const ad = deg(horoscope.Ascendant); if (ad != null) NATAL_DEGS.asc = ad;
       try { const md = horoscope.Midheaven ? deg(horoscope.Midheaven) : null; if (md != null) NATAL_DEGS.mc = md; } catch (e) {}
+      computeDerivedPoints();
     }
     renderAspectGrid();
     LAST_CTX = {
@@ -693,9 +694,34 @@ table.astro-table td .glyph{font-size:16px;margin-right:4px;color:var(--accent);
     return null;
   }
 
+  // ── 파생 포인트: 포르투나(Part of Fortune) · 버텍스(Vertex) ──
+  // 라이브러리가 계산하지 않으므로 ASC·MC·태양·달 + 위도로 직접 산출(아스트로식 값과 검증 완료)
+  function computeDerivedPoints() {
+    const N = NATAL_DEGS;
+    if (N.asc == null || N.sun == null || N.moon == null) return;
+    const D = Math.PI / 180, eps = 23.4393;
+    // 포르투나: 낮(태양이 지평선 위) = ASC + 달 − 태양, 밤 = ASC + 태양 − 달
+    const sunAboveHorizon = ((((N.sun - N.asc) % 360) + 360) % 360) >= 180;
+    const pof = sunAboveHorizon ? (N.asc + N.moon - N.sun) : (N.asc + N.sun - N.moon);
+    N.fortune = ((pof % 360) + 360) % 360;
+    // 버텍스: 코라티튜드(90−위도)에서 하지점(RAMC+180) 기준 어센던트
+    const lat = (LAST_COORDS && LAST_COORDS.lat != null) ? LAST_COORDS.lat : null;
+    if (N.mc != null && lat != null) {
+      const lon = N.mc * D;
+      let ramc = Math.atan2(Math.sin(lon) * Math.cos(eps * D), Math.cos(lon)) / D;
+      ramc = ((ramc % 360) + 360) % 360;
+      const ascFn = (ramcDeg, latDeg) => {
+        const r = ramcDeg * D, la = latDeg * D, e = eps * D;
+        let v = Math.atan2(Math.cos(r), -(Math.sin(r) * Math.cos(e) + Math.tan(la) * Math.sin(e))) / D;
+        return ((v % 360) + 360) % 360;
+      };
+      N.vertex = ascFn(ramc + 180, 90 - lat);
+    }
+  }
+
   // ── 어스펙트 그리드(삼각 표) ──
-  const GRID_ORDER = ['sun','moon','mercury','venus','mars','jupiter','saturn','uranus','neptune','pluto','chiron','northnode','lilith','asc','mc'];
-  const GRID_LABEL = { asc: 'AC', mc: 'MC' };
+  const GRID_ORDER = ['sun','moon','mercury','venus','mars','jupiter','saturn','uranus','neptune','pluto','chiron','northnode','lilith','fortune','vertex','asc','mc'];
+  const GRID_LABEL = { asc: 'AC', mc: 'MC', fortune: '⊗', vertex: 'Vx' };
   // 그리드 전용 어스펙트(메이저 + 마이너), 오브를 조금 넓혀 더 촘촘하게
   const GRID_ASPECTS = [
     { key: 'conjunction', a: 0,   orb: 7, tone: 'strong', sym: '☌', kr: '합' },
@@ -789,7 +815,7 @@ table.astro-table td .glyph{font-size:16px;margin-right:4px;color:var(--accent);
     });
 
     // 트랜짓 행성 × 출생 행성 어스펙트
-    const natalLabelKeys = { sun:'태양', moon:'달', mercury:'수성', venus:'금성', mars:'화성', jupiter:'목성', saturn:'토성', uranus:'천왕성', neptune:'해왕성', pluto:'명왕성', asc:'상승궁', mc:'중천점', chiron:'카이런', northnode:'북교점', southnode:'남교점', lilith:'릴리스', sirius:'시리우스' };
+    const natalLabelKeys = { sun:'태양', moon:'달', mercury:'수성', venus:'금성', mars:'화성', jupiter:'목성', saturn:'토성', uranus:'천왕성', neptune:'해왕성', pluto:'명왕성', asc:'상승궁', mc:'중천점', chiron:'카이런', northnode:'북교점', southnode:'남교점', lilith:'릴리스', sirius:'시리우스', fortune:'포르투나', vertex:'버텍스' };
     const hits = [];
     Object.keys(tDegs).forEach((tk) => {
       Object.keys(NATAL_DEGS).forEach((nk) => {
@@ -819,7 +845,7 @@ table.astro-table td .glyph{font-size:16px;margin-right:4px;color:var(--accent);
       sun: '나의 정체성과 활력', moon: '감정과 안정감', mercury: '생각과 소통', venus: '사랑·관계·돈',
       mars: '추진력과 욕구', jupiter: '신념과 확장', saturn: '현실 구조와 책임',
       uranus: '자유와 변화', neptune: '이상과 영성', pluto: '깊은 변형', asc: '나 자신·첫인상',
-      mc: '커리어와 사회적 위치', chiron: '상처와 치유', northnode: '삶의 방향·성장 과제', southnode: '익숙한 과거 패턴', lilith: '본능과 욕망',
+      mc: '커리어와 사회적 위치', chiron: '상처와 치유', northnode: '삶의 방향·성장 과제', southnode: '익숙한 과거 패턴', lilith: '본능과 욕망', fortune: '행운·성취의 지점', vertex: '운명적 만남·전환점',
     };
     const TONE_PHRASE = {
       easy: { conj: '에 힘이 실리는 시기예요. 자연스럽게 일을 키우기 좋아요.', other: '을(를) 순조롭게 도와줘요. 추진하기 좋은 때예요.' },
