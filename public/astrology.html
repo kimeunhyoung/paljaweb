@@ -120,17 +120,17 @@ body{font-family:var(--font-body);background:var(--cream);color:var(--ink);min-h
 .big3-card .b3-text{font-size:12.5px;line-height:1.7;color:var(--ink);margin-top:10px;text-align:left;}
 
 .chart-shell{display:flex;justify-content:center;margin:6px 0;}
-.chart-duo{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:14px 18px;align-items:start;}
-.chart-wheel-wrap{min-width:0;display:flex;justify-content:center;}
-.chart-grid-wrap{background:#faf8f4;border:1px solid var(--border);border-radius:12px;padding:10px 8px;align-self:stretch;}
+.chart-duo{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:14px 18px;align-items:start;min-width:0;max-width:100%;}
+.chart-wheel-wrap{min-width:0;max-width:100%;width:100%;display:flex;justify-content:center;overflow:hidden;}
+.chart-grid-wrap{background:#faf8f4;border:1px solid var(--border);border-radius:12px;padding:10px 8px;align-self:stretch;min-width:0;max-width:100%;width:100%;overflow:hidden;}
 .chart-grid-label{font-size:11px;font-weight:700;color:var(--muted);margin-bottom:8px;text-align:center;letter-spacing:.06em;}
-.chart-grid-scroll{overflow:auto;max-height:min(520px,72vw);}
+.chart-grid-scroll{overflow:auto;max-height:min(520px,72vw);max-width:100%;-webkit-overflow-scrolling:touch;}
 .chart-meta{font-size:13px;line-height:1.6;color:var(--deep-brown);margin:-6px 0 12px;padding:8px 12px;background:var(--cream);border-radius:10px;}
 .chart-meta strong{font-weight:700;}
-#astroPaper{width:100%;max-width:540px;}
-#astroPaper svg{width:100%;height:auto;display:block;}
+#astroPaper{width:100%;max-width:540px;margin:0 auto;}
+#astroPaper svg{width:100%!important;max-width:100%;height:auto!important;display:block;}
 .chart-grid-hint{margin-top:6px;font-size:9.5px;line-height:1.5;color:var(--muted);}
-.aspect-grid.compact td{width:22px;height:22px;min-width:22px;font-size:13px;}
+.aspect-grid.compact td{width:var(--ag-cell,22px);height:var(--ag-cell,22px);min-width:0;font-size:13px;}
 
 table.astro-table{width:100%;border-collapse:collapse;font-size:13.5px;}
 table.astro-table th,table.astro-table td{padding:9px 8px;border-bottom:1px solid var(--border);text-align:left;}
@@ -261,8 +261,15 @@ table.astro-table td .glyph{font-size:16px;margin-right:4px;color:var(--accent);
   .big3{grid-template-columns:1fr;}
   .balance-wrap{grid-template-columns:1fr;gap:18px;}
   .result-toolbar{justify-content:flex-start;}
-  .chart-duo{grid-template-columns:1fr;}
-  .chart-grid-wrap{max-width:100%;}
+  .wrap{padding:0 14px 60px;}
+  .card{padding:18px 14px;margin-top:18px;}
+  #wheelCard{overflow:hidden;}
+  .chart-duo{grid-template-columns:1fr;gap:12px;}
+  .chart-grid-wrap{max-width:100%;padding:8px 4px;}
+  .chart-grid-scroll{max-height:none;}
+  .aspect-grid.compact td{width:clamp(14px,4.1vw,20px);height:clamp(14px,4.1vw,20px);min-width:0;font-size:clamp(9px,2.7vw,12px);}
+  .aspect-grid.compact .ag-head{font-size:clamp(10px,3vw,14px);}
+  #astroPaper{max-width:min(100%,calc(100vw - 56px));}
 }
 
 /* 인쇄 시: 입력 폼·툴바·상단바·푸터 숨김 */
@@ -1026,6 +1033,21 @@ body.export-capturing #wheelCard .note{display:none !important;}
     html += '</tbody></table>';
     return html;
   }
+  function fitAspectGridScroll() {
+    const scroll = $('wheelAspectGrid');
+    if (!scroll) return;
+    const table = scroll.querySelector('table');
+    scroll.style.removeProperty('--ag-cell');
+    if (!table) return;
+    const lastRow = table.querySelector('tr:last-child');
+    const cols = lastRow ? lastRow.cells.length : 0;
+    if (!cols) return;
+    const avail = scroll.clientWidth || scroll.parentElement.clientWidth;
+    if (avail <= 0) return;
+    const cell = Math.max(14, Math.min(22, Math.floor((avail - 4) / cols)));
+    scroll.style.setProperty('--ag-cell', cell + 'px');
+  }
+
   function renderAspectGrid() {
     const order = GRID_ORDER.filter((k) => NATAL_DEGS[k] != null);
     const wheelGrid = $('wheelAspectGrid');
@@ -1038,6 +1060,7 @@ body.export-capturing #wheelCard .note{display:none !important;}
     }
     if (wheelWrap) wheelWrap.style.display = '';
     wheelGrid.innerHTML = buildAspectGridHtml(order, true);
+    requestAnimationFrame(fitAspectGridScroll);
   }
 
   // ── 트랜짓 계산 ──
@@ -1630,7 +1653,8 @@ body.export-capturing #wheelCard .note{display:none !important;}
     const wrap = paper.closest('.chart-wheel-wrap') || paper.parentElement;
     const exportCap = document.body.classList.contains('export-capturing') || window.matchMedia('print').matches;
     const cap = exportCap ? 520 : WHEEL_MAX_PX;
-    const size = Math.min((wrap && wrap.clientWidth) || paper.clientWidth || cap, cap);
+    const wrapW = wrap ? Math.min(wrap.clientWidth, window.innerWidth - 56) : cap;
+    const size = Math.min(Math.max(wrapW, 0) || paper.clientWidth || cap, cap);
     const planets = {};
     const map = M.CHART_KEY;
     ['sun','moon','mercury','venus','mars','jupiter','saturn','uranus','neptune','pluto','chiron'].forEach((k) => {
@@ -1894,6 +1918,14 @@ body.export-capturing #wheelCard .note{display:none !important;}
   });
 
   // 인쇄 취소·뒤/앞으로 이동 시 숨김 클래스가 남지 않도록
+  let gridResizeTimer;
+  window.addEventListener('resize', () => {
+    clearTimeout(gridResizeTimer);
+    gridResizeTimer = setTimeout(() => {
+      fitAspectGridScroll();
+      if (LAST_HOROSCOPE) drawWheel(LAST_HOROSCOPE);
+    }, 120);
+  });
   window.addEventListener('pageshow', () => { clearExportHide(); });
 
   // 공유: Web Share API 미지원(윈도우 PC 등) 시 요약+링크 클립보드 복사
