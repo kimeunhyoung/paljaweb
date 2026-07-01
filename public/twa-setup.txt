@@ -1,19 +1,73 @@
-타로코드 단독 출시 (구글 플레이 TWA · 토스 미니앱 웹뷰)
+구글 플레이 TWA 출시 가이드 (팔자연구소 · 타로코드)
 ================================================
 
-1) 스토어·미니앱에 넣을 시작 URL (권장)
-   https://(배포도메인)/tarot-app.html
-   → 자동으로 Tarot.html?standalone=1 로 열립니다.
+■ 앱 두 가지 (같은 Play 개발자 계정에 각각 등록)
 
-2) Android TWA (Bubblewrap 등)로 AAB 만들 때
-   - 시작 URL: 위 tarot-app.html 또는 Tarot.html?standalone=1
-   - 패키지명·서명 키를 정한 뒤, SHA-256 인증서 지문을 구합니다.
+  1) 팔자연구소 (전체 플랫폼) — 권장: 지금 이걸 먼저 출시
+     - Play 앱 이름 예: 팔자연구소 — 수비학 자기이해
+     - 패키지명: kr.co.palja.app
+     - TWA 시작 URL: https://8code.kr/play-app.html
+       (또는 https://8code.kr/ — play-app.html 은 ?source=play 붙여 메인으로 이동)
+     - 웹 매니페스트: https://8code.kr/manifest.json
+     - assetlinks: public/.well-known/assetlinks.json (패키지 kr.co.palja.app)
 
-3) Digital Asset Links
-   - 이 저장소: public/.well-known/assetlinks.json
-   - 운영 서버에 배포되면 https://(도메인)/.well-known/assetlinks.json 으로 제공됩니다.
-   - Bubblewrap이 안내하는 JSON 배열을 넣어 빈 배열 [] 을 교체하세요.
-   - 미교체 시 TWA "링크된 도메인" 검증은 통과하지 않을 수 있습니다.
+  2) 타로코드 (단독 앱) — 이미 Play에 초안 있음
+     - 패키지명: com.code8.tarotcode
+     - TWA 시작 URL: https://8code.kr/tarot-app.html
+     - assetlinks에 com.code8.tarotcode + 해당 서명 SHA-256 항목을 추가
+       (한 도메인에 앱이 여러 개면 JSON 배열에 객체를 여러 개 넣으면 됨)
 
-4) 토스 미니앱
-   - 앱인토스 개발자센터 가이드에 맞게 웹뷰/번들 URL을 위와 동일하게 설정하면 됩니다.
+■ Play Console — 팔자연구소 새 앱 만들기
+
+  1. play.google.com/console → 앱 만들기 → 앱 만들기
+  2. 앱 이름: 팔자연구소 (또는 스토어용 정식 명칭)
+  3. 기본 → 출시 → 테스트 아님, 앱 / 게임: 앱 / 유료: 무료
+  4. 패키지명: kr.co.palja.app  (한번 정하면 변경 불가)
+  5. Android 개발자 인증 배너가 있으면 먼저 완료 (패키지 kr.co.palja.app 등록)
+
+■ Bubblewrap으로 AAB 만들기 (로컬 PC)
+
+  npm install -g @bubblewrap/cli
+  bubblewrap init --manifest https://8code.kr/manifest.json
+
+  입력 시 권장값:
+  - Domain: 8code.kr
+  - URL path: /play-app.html  (또는 /)
+  - Package name: kr.co.palja.app
+  - App name: 팔자연구소
+  - Signing key: 새 keystore 생성 또는 기존 키 사용 (Play 업로드 키와 맞출 것)
+
+  bubblewrap build  →  app-release-bundle.aab
+
+  Bubblewrap이 출력하는 SHA-256 지문을 assetlinks.json 에 넣고 배포한 뒤:
+  bubblewrap validate --url https://8code.kr/.well-known/assetlinks.json
+
+■ assetlinks.json (public/.well-known/assetlinks.json)
+
+  - 운영: https://8code.kr/.well-known/assetlinks.json
+  - package_name 과 sha256_cert_fingerprints 가 AAB 서명과 일치해야 TWA 전체화면 동작
+  - 타로코드 앱도 같은 도메인을 쓰면 배열에 항목 추가:
+    "package_name": "com.code8.tarotcode"
+
+■ 스토어 등록 필수 항목 (팔자연구소)
+
+  - 앱 아이콘 512×512: public/icons/icon-512.png
+  - 스크린샷: screen1~4.png 등 (휴대폰 세로)
+  - 개인정보처리방침: https://8code.kr/privacy.html
+  - 이용약관: https://8code.kr/terms.html
+  - 콘텐츠 등급: 설문 (운세·자기계발·교육 성격)
+  - 데이터 보안 설문
+
+■ 업로드 순서
+
+  1. keystore로 AAB 빌드
+  2. assetlinks.json SHA 반영 후 8code.kr 배포
+  3. Play Console → kr.co.palja.app 앱 → 내부 테스트 → AAB 업로드
+  4. 실기기 설치·로그인·결제 흐름 확인
+  5. 프로덕션 검토 제출
+
+■ 참고
+
+  - 타로코드 초안(com.code8.tarotcode)과 팔자연구소(kr.co.palja.app)는 별도 앱입니다.
+  - 웹은 그대로 8code.kr 하나; Play에는 앱을 2개 올릴 수 있습니다.
+  - 토스 미니앱은 타로코드만 해당 (tarot-app.html / toss-tarot/).

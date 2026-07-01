@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#c4603a">
+  <meta name="color-scheme" content="light"/>
+  <title>팔자연구소</title>
+  <script>
+    (function () {
+      try {
+        var params = new URLSearchParams(window.location.search);
+        if (!params.get('source')) params.set('source', 'play');
+        var q = params.toString();
+        window.location.replace('/' + (q ? '?' + q : ''));
+      } catch (e) {
+        window.location.replace('/?source=play');
+      }
+    })();
+  </script>
+</head>
+<body>
+  <p style="font-family:system-ui,sans-serif;padding:24px;text-align:center;">
+    <a href="/?source=play">팔자연구소로 이동</a>
+  </p>
+</body>
+</html>
