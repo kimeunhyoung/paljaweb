@@ -402,7 +402,7 @@ body.export-capturing #wheelCard .note{display:none !important;}
           <span class="export-opts-label">심화</span>
           <label><input type="checkbox" id="expTransit"/> 트랜짓</label>
           <label><input type="checkbox" id="expYear"/> 올해 운세</label>
-          <label><input type="checkbox" id="expReport"/> 상담 요약</label>
+          <label id="expReportLabel" hidden><input type="checkbox" id="expReport"/> 상담 요약</label>
           <label><input type="checkbox" id="expAi"/> AI 해석</label>
         </div>
       </div>
@@ -503,8 +503,8 @@ body.export-capturing #wheelCard .note{display:none !important;}
       <div id="yearForecast" class="transit-result"><div class="transit-empty">차트 계산 후 자동으로 표시됩니다.</div></div>
     </div>
 
-    <!-- 상담사용 한 장 요약 -->
-    <div class="card" id="counselorReportCard">
+    <!-- 상담사용 한 장 요약 (Professional 전용) -->
+    <div class="card" id="counselorReportCard" hidden>
       <div class="card-title">✦ 상담사용 한 장 요약 리포트</div>
       <p class="transit-intro">빅3·핵심 어스펙트·트랜짓·올해 흐름을 <strong>상담 전 브리핑</strong> 형식으로 정리합니다. 복사하거나 고객 카드에 저장하세요.</p>
       <div id="counselorReport" class="counselor-report">차트를 계산하면 요약이 생성됩니다.</div>
@@ -579,8 +579,17 @@ body.export-capturing #wheelCard .note{display:none !important;}
   const CLIENT_ID = new URLSearchParams(location.search).get('client') || '';
   let COUNSELOR_UID = '';
 
-  // 점성학 고급 기능(트랜짓·커플·AI·상세해석)은 Basic 이상. 네이탈 기본은 무료.
+  // 점성학 고급 기능(트랜짓·커플·AI·상세해석)은 Basic 이상. 상담사 브리핑은 Professional 전용.
   let HAS_BASIC = false;
+  let HAS_PROFESSIONAL = false;
+
+  function applyCounselorAccessUi() {
+    const card = $('counselorReportCard');
+    if (card) card.hidden = !HAS_PROFESSIONAL;
+    const expLbl = $('expReportLabel');
+    if (expLbl) expLbl.hidden = !HAS_PROFESSIONAL;
+  }
+
   const accessReady = (async () => {
     try {
       if (!sbClient) return;
@@ -588,6 +597,8 @@ body.export-capturing #wheelCard .note{display:none !important;}
       if (!session) return;
       const { data: profile } = await sbClient.from('profiles').select('plan, plan_active_until').eq('id', session.user.id).single();
       HAS_BASIC = window.PaljaPlan ? window.PaljaPlan.isPlanAtLeast(profile || {}, 'basic') : false;
+      HAS_PROFESSIONAL = window.PaljaPlan ? window.PaljaPlan.isPlanAtLeast(profile || {}, 'professional') : false;
+      applyCounselorAccessUi();
     } catch (e) { /* 게스트/오류 시 무료 권한 */ }
   })();
   const LOCK_HTML = '<div class="astro-lock"><span class="lock-emoji">🔒</span><div><strong>Basic 이상 플랜</strong>에서 볼 수 있는 심화 분석이에요. 트랜짓(오늘의 운세)·행성 상세 해석·AI 프롬프트가 열립니다.</div><a href="pricing.html">요금제 보기 →</a></div>';
@@ -897,7 +908,6 @@ body.export-capturing #wheelCard .note{display:none !important;}
     if (tc) tc.style.display = 'none';
     $('transitResult').innerHTML = LOCK_HTML;
     $('yearForecast').innerHTML = LOCK_HTML;
-    $('counselorReport').textContent = 'Basic 이상 요금제에서 상담사용 요약 리포트를 이용할 수 있어요.';
     $('btnAiRun').disabled = true;
     $('aiResult').innerHTML = LOCK_HTML;
     $('aiPrompt').value = '';
@@ -1370,7 +1380,7 @@ body.export-capturing #wheelCard .note{display:none !important;}
 
   function renderCounselorReport() {
     const box = $('counselorReport');
-    if (!box || !HAS_BASIC) return;
+    if (!box || !HAS_PROFESSIONAL) return;
     const txt = buildCounselorReportText();
     box.textContent = txt || '차트를 계산하면 요약이 생성됩니다.';
   }
@@ -1890,6 +1900,8 @@ body.export-capturing #wheelCard .note{display:none !important;}
 
   (async function setupClientSave() {
     if (!CLIENT_ID || !sbClient) return;
+    await accessReady;
+    if (!HAS_PROFESSIONAL) return;
     try {
       const { data: { session } } = await sbClient.auth.getSession();
       if (!session) return;
@@ -1930,7 +1942,7 @@ body.export-capturing #wheelCard .note{display:none !important;}
 
   // 공유: Web Share API 미지원(윈도우 PC 등) 시 요약+링크 클립보드 복사
   $('btnShare').addEventListener('click', async () => {
-    const text = LAST_SUMMARY || buildCounselorReportText() || '';
+    const text = LAST_SUMMARY || (HAS_PROFESSIONAL ? buildCounselorReportText() : '') || '';
     const url = location.href;
     const payload = text ? (text + '\n\n' + url) : url;
     const btn = $('btnShare');
