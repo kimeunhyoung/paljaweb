@@ -38,13 +38,14 @@
 
   function loadAdsense() {
     if (!adsenseSlot) return false;
+    if (!standalone) return false;
     prepareHost();
     const ins = document.createElement('ins');
     ins.className = 'adsbygoogle';
     ins.style.display = 'block';
     ins.setAttribute('data-ad-client', AD_CLIENT);
     ins.setAttribute('data-ad-slot', adsenseSlot);
-    ins.setAttribute('data-ad-format', 'horizontal');
+    ins.setAttribute('data-ad-format', 'auto');
     ins.setAttribute('data-full-width-responsive', 'true');
     host.appendChild(ins);
     try {

@@ -394,8 +394,20 @@
     html.tarot-standalone .tarot-ad-slot:has(ins, iframe, .adsbygoogle, [data-toss-ad]) {
       display: block;
       min-height: 50px;
-      padding: 10px 32px 6px;
-      border-bottom: 1px dashed var(--border);
+      margin: 32px auto 40px;
+      padding: 16px 32px 20px;
+      border: 1px solid rgba(139, 111, 71, 0.18);
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.45);
+    }
+    html.tarot-standalone .tarot-ad-slot-label {
+      margin: 0 0 10px;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--muted, #9a8570);
+      text-align: center;
     }
     html.tarot-standalone .tarot-ad-banner-host {
       width: 100%;
@@ -405,17 +417,13 @@
     html.tarot-standalone .site-top {
       box-shadow: none;
     }
-    html.tarot-standalone .site-top + .hero {
-      margin-top: 0;
-    }
     @media (max-width: 600px) {
       html.tarot-standalone .tarot-ad-slot.tarot-ad-slot--active,
       html.tarot-standalone .tarot-ad-slot:has(ins, iframe, .adsbygoogle, [data-toss-ad]) {
+        margin-left: 16px;
+        margin-right: 16px;
         padding-left: 16px;
         padding-right: 16px;
-      }
-      html.tarot-standalone .hero {
-        padding-top: 28px;
       }
     }
 
@@ -1552,10 +1560,6 @@
 <!-- TOPBAR -->
 <div class="site-top" data-topbar-title="타로코드" data-nav-current="tarot" data-login-next="Tarot.html"></div>
 
-<aside class="tarot-ad-slot" id="tarotAdSlotTop" aria-label="광고">
-  <div class="tarot-ad-banner-host" id="tarotAdBannerHost"></div>
-</aside>
-
 <!-- HERO -->
 <section class="hero">
   <div class="hero-tag">팔자연구소 · 타로코드 · 수비학 맥락 카드</div>
@@ -1700,6 +1704,11 @@
 
 </div>
 
+<aside class="tarot-ad-slot" id="tarotAdSlotTop" aria-label="광고">
+  <p class="tarot-ad-slot-label">광고</p>
+  <div class="tarot-ad-banner-host" id="tarotAdBannerHost"></div>
+</aside>
+
 <div id="tarotAppModal" class="tarot-app-modal" hidden role="alertdialog" aria-modal="true" aria-labelledby="tarotAppModalMsg">
   <div class="tarot-app-modal__panel">
     <p id="tarotAppModalMsg"></p>
@@ -1707,7 +1716,7 @@
   </div>
 </div>
 
-<script type="module" src="js/tarot-ads.js?v=2"></script>
+<script type="module" src="js/tarot-ads.js?v=3"></script>
 <script src="js/tarot-topic-lens.js?v=2"></script>
 <script src="js/tarot-spread-bridge.js?v=7"></script>
 <script src="js/tarot-major-scripted.js?v=6"></script>
