@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <title>상담사용 Professional — 팔자연구소 8CODE</title>
+  <meta name="description" content="수비학·점성학·타로 상담사를 위한 팔자연구소 Professional. 고객 CRM, 상담 전 브리핑, 브랜디드 리포트 PDF까지 한 곳에서. 15일 체험권 제공.">
+  <link rel="canonical" href="https://8code.kr/for-counselors.html">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="팔자연구소">
+  <meta property="og:title" content="상담사용 Professional — 팔자연구소">
+  <meta property="og:description" content="상담 준비·고객 관리·리포트 전달을 하나의 워크플로로. 수비학 상담사를 위한 Professional 플랜.">
+  <meta property="og:url" content="https://8code.kr/for-counselors.html">
+  <meta property="og:image" content="https://8code.kr/applogo600.png">
+  <meta property="og:locale" content="ko_KR">
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=Noto+Serif+KR:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+  <script src="js/plan-access.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/site-topbar.js?v=5" defer></script>
+  <script src="js/topbar-session.js?v=6" defer></script>
+  <link rel="stylesheet" href="css/site-topbar.css?v=5" />
+  <link rel="stylesheet" href="css/site-header.css?v=7" />
+  <style>
+    :root {
+      --cream: #f5f0e8;
+      --parchment: #ede5d4;
+      --deep: #4a3520;
+      --ink: #2c1f0e;
+      --muted: #9a8570;
+      --accent: #c8a96e;
+      --accent-lt: #e8d5b0;
+      --border: rgba(139,111,71,.18);
+      --teal: #2e8b7a;
+      --font-serif: 'Cormorant Garamond', 'Noto Serif KR', serif;
+      --font-body: 'Noto Serif KR', serif;
+      --font-mono: 'DM Mono', monospace;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body { font-family: var(--font-body); background: var(--cream); color: var(--ink); line-height: 1.65; }
+
+    .fc-wrap { max-width: 1040px; margin: 0 auto; padding: 0 24px 80px; }
+
+    /* Hero */
+    .fc-hero {
+      text-align: center;
+      padding: 56px 0 48px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 48px;
+    }
+    .fc-kicker {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      color: var(--teal);
+      margin-bottom: 16px;
+    }
+    .fc-hero h1 {
+      font-family: var(--font-serif);
+      font-size: clamp(2rem, 5vw, 3rem);
+      font-weight: 600;
+      color: var(--deep);
+      line-height: 1.25;
+      margin-bottom: 16px;
+    }
+    .fc-hero h1 em { font-style: italic; color: var(--accent); }
+    .fc-lead {
+      font-size: 1.05rem;
+      color: var(--muted);
+      max-width: 560px;
+      margin: 0 auto 28px;
+    }
+    .fc-hero-cta { display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; }
+    .fc-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 13px 24px;
+      border-radius: 10px;
+      font-size: 14px;
+      font-weight: 600;
+      text-decoration: none;
+      border: none;
+      cursor: pointer;
+      transition: transform .12s, box-shadow .12s;
+    }
+    .fc-btn:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(44,31,14,.1); }
+    .fc-btn--primary { background: var(--deep); color: #fff; }
+    .fc-btn--accent { background: var(--accent); color: var(--deep); }
+    .fc-btn--ghost { background: transparent; color: var(--deep); border: 1.5px solid var(--border); }
+    .fc-hero-note { margin-top: 16px; font-size: 13px; color: var(--muted); }
+    .fc-hero-note a { color: var(--deep); font-weight: 600; }
+
+    /* Section */
+    .fc-section { margin-bottom: 56px; }
+    .fc-section-head { margin-bottom: 28px; }
+    .fc-section-head h2 {
+      font-family: var(--font-serif);
+      font-size: clamp(1.5rem, 3vw, 2rem);
+      color: var(--deep);
+      margin-bottom: 8px;
+    }
+    .fc-section-head p { color: var(--muted); font-size: 15px; max-width: 640px; }
+
+    /* Audience */
+    .fc-audience {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 14px;
+    }
+    .fc-audience-item {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 18px 20px;
+      font-size: 14px;
+    }
+    .fc-audience-item strong { display: block; color: var(--deep); margin-bottom: 6px; font-size: 15px; }
+
+    /* Workflow */
+    .fc-flow {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+    }
+    @media (max-width: 720px) { .fc-flow { grid-template-columns: 1fr; } }
+    .fc-flow-step {
+      background: linear-gradient(160deg, #fff 0%, var(--parchment) 100%);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 22px 20px;
+      position: relative;
+    }
+    .fc-flow-num {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--accent);
+      letter-spacing: .08em;
+      margin-bottom: 10px;
+    }
+    .fc-flow-step h3 { font-size: 17px; color: var(--deep); margin-bottom: 10px; }
+    .fc-flow-step p { font-size: 14px; color: var(--muted); }
+    .fc-flow-step ul { margin-top: 10px; padding-left: 18px; font-size: 13px; color: var(--ink); }
+    .fc-flow-step li { margin-bottom: 4px; }
+
+    /* Features */
+    .fc-features { display: grid; gap: 16px; }
+    .fc-feat {
+      display: grid;
+      grid-template-columns: 48px 1fr;
+      gap: 16px;
+      align-items: start;
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 22px 24px;
+    }
+    .fc-feat-icon {
+      width: 48px; height: 48px;
+      border-radius: 12px;
+      background: var(--accent-lt);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 22px;
+    }
+    .fc-feat h3 { font-size: 16px; color: var(--deep); margin-bottom: 6px; }
+    .fc-feat p { font-size: 14px; color: var(--muted); }
+    .fc-feat-tags { margin-top: 10px; display: flex; flex-wrap: wrap; gap: 6px; }
+    .fc-tag {
+      font-size: 11px;
+      font-family: var(--font-mono);
+      padding: 3px 8px;
+      border-radius: 6px;
+      background: rgba(46,139,122,.1);
+      color: var(--teal);
+    }
+
+    /* Pro vs Pro */
+    .fc-compare {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+    @media (max-width: 640px) { .fc-compare { grid-template-columns: 1fr; } }
+    .fc-compare-card {
+      border-radius: 14px;
+      padding: 24px;
+      border: 1px solid var(--border);
+    }
+    .fc-compare-card--pro { background: #fff; }
+    .fc-compare-card--pro2 {
+      background: linear-gradient(145deg, var(--deep) 0%, #3d2b1f 100%);
+      color: #f5f0e8;
+      border-color: var(--deep);
+    }
+    .fc-compare-card h3 { font-size: 14px; font-family: var(--font-mono); letter-spacing: .06em; margin-bottom: 8px; opacity: .85; }
+    .fc-compare-card--pro2 h3 { color: var(--accent); }
+    .fc-compare-card .price { font-family: var(--font-serif); font-size: 28px; margin-bottom: 12px; }
+    .fc-compare-card ul { list-style: none; font-size: 14px; }
+    .fc-compare-card li { padding: 5px 0; border-bottom: 1px solid rgba(0,0,0,.06); }
+    .fc-compare-card--pro2 li { border-color: rgba(255,255,255,.1); }
+
+    /* Pricing CTA */
+    .fc-pricing {
+      background: var(--parchment);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 36px 32px;
+      text-align: center;
+    }
+    .fc-pricing h2 { font-family: var(--font-serif); font-size: 1.75rem; color: var(--deep); margin-bottom: 8px; }
+    .fc-pricing .sub { color: var(--muted); margin-bottom: 24px; font-size: 15px; }
+    .fc-price-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+      justify-content: center;
+      margin-bottom: 24px;
+    }
+    .fc-price-box {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 20px 28px;
+      min-width: 200px;
+    }
+    .fc-price-box.featured { border-color: var(--accent); box-shadow: 0 8px 24px rgba(44,31,14,.08); }
+    .fc-price-box .label { font-size: 12px; color: var(--muted); margin-bottom: 4px; }
+    .fc-price-box .amt { font-family: var(--font-serif); font-size: 32px; color: var(--deep); }
+    .fc-price-box .amt span { font-size: 14px; font-weight: 400; }
+    .fc-price-box .note { font-size: 12px; color: var(--muted); margin-top: 6px; }
+
+    /* FAQ */
+    .fc-faq { display: grid; gap: 10px; }
+    .fc-faq details {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 14px 18px;
+    }
+    .fc-faq summary { cursor: pointer; font-weight: 600; color: var(--deep); font-size: 15px; }
+    .fc-faq p { margin-top: 10px; font-size: 14px; color: var(--muted); }
+
+    .fc-footer-links {
+      display: flex; flex-wrap: wrap; gap: 16px;
+      justify-content: center;
+      padding-top: 32px;
+      border-top: 1px solid var(--border);
+      font-size: 14px;
+    }
+    .fc-footer-links a { color: var(--deep); text-decoration: none; font-weight: 500; }
+    .fc-footer-links a:hover { text-decoration: underline; }
+
+    .site-legal-footer {
+      text-align: center;
+      font-size: 12px;
+      color: var(--muted);
+      padding: 24px;
+      border-top: 1px solid var(--border);
+    }
+    .site-legal-footer a { color: var(--deep); }
+  </style>
+</head>
+<body>
+
+<div class="site-top" data-topbar-title="상담사용" data-nav-current="for-counselors" data-login-next="for-counselors.html"></div>
+
+<div class="fc-wrap">
+
+  <header class="fc-hero">
+    <div class="fc-kicker">Professional · 상담사 전용</div>
+    <h1>상담 준비는 짧게,<br><em>고객 경험은 깊게</em></h1>
+    <p class="fc-lead">
+      팔자연구소 Professional은 수비학·점성학·타로 상담사를 위한 실무 도구입니다.
+      고객 카드, 세션 브리핑, 브랜디드 리포트까지 — 분석과 운영을 한 곳에서 이어가세요.
+    </p>
+    <div class="fc-hero-cta">
+      <a href="/lifecode/buy.html?product=counselor30" class="fc-btn fc-btn--accent">15일 체험 시작 (29,900원)</a>
+      <a href="pricing.html?checkout=professional" class="fc-btn fc-btn--primary">Professional 구독 (49,900원/월)</a>
+      <a href="counselor.html" class="fc-btn fc-btn--ghost">이미 구독 중 · 허브 열기</a>
+    </div>
+    <p class="fc-hero-note">개인 심화 분석만 필요하다면 <a href="pricing.html#plans">Pro 플랜</a>을 확인하세요.</p>
+  </header>
+
+  <section class="fc-section" id="who">
+    <div class="fc-section-head">
+      <h2>이런 상담사께 맞습니다</h2>
+      <p>1인 샵·온라인 상담·복합 역술 상담 등, 고객을 반복적으로 만나는 분을 위해 설계했습니다.</p>
+    </div>
+    <div class="fc-audience">
+      <div class="fc-audience-item"><strong>수비학 상담사</strong>라이프코드·흐름·로슈를 근거로 세션을 이끄는 분</div>
+      <div class="fc-audience-item"><strong>복합 상담</strong>수비학 + 점성학 + 타로를 함께 쓰는 분</div>
+      <div class="fc-audience-item"><strong>온라인·오프라인</strong>카톡·줌·대면 상담 후 리포트를 남기는 분</div>
+      <div class="fc-audience-item"><strong>재방문 중심</strong>고객 기록·다음 약속·통계로 운영하는 분</div>
+    </div>
+  </section>
+
+  <section class="fc-section" id="workflow">
+    <div class="fc-section-head">
+      <h2>상담 하루의 흐름</h2>
+      <p>상담 전 준비부터 상담 후 전달까지, 팔자연구소가 맡을 수 있는 구간입니다.</p>
+    </div>
+    <div class="fc-flow">
+      <div class="fc-flow-step">
+        <div class="fc-flow-num">STEP 01 · 상담 전</div>
+        <h3>고객 카드에서 바로 분석</h3>
+        <p>상담사 허브에 고객을 등록하고, 이름·생년월일이 자동으로 채워진 채 분석을 엽니다.</p>
+        <ul>
+          <li>라이프코드 <strong>상담 준비 요약</strong></li>
+          <li>점성학 <strong>한 장 브리핑</strong></li>
+          <li>최근 상담 메모 확인</li>
+        </ul>
+      </div>
+      <div class="fc-flow-step">
+        <div class="fc-flow-num">STEP 02 · 상담 중</div>
+        <h3>근거 있는 대화</h3>
+        <p>Pro 전체 분석 엔진(타임라인·AI·궁합 등)을 그대로 쓰면서, 화면에는 고객에게 맞는 해석만 골라 설명합니다.</p>
+        <ul>
+          <li>인생전반표 · Growth Map</li>
+          <li>소울하모니 · 48궁합</li>
+          <li>세션 메모 기록</li>
+        </ul>
+      </div>
+      <div class="fc-flow-step">
+        <div class="fc-flow-num">STEP 03 · 상담 후</div>
+        <h3>브랜디드 리포트 전달</h3>
+        <p>상담사 브랜드가 들어간 PDF를 고객에게 전달합니다. 상담사용 브리핑은 PDF에 포함되지 않습니다.</p>
+        <ul>
+          <li>고객용 리포트 PDF</li>
+          <li>차트 요약 고객 카드 저장</li>
+          <li>다음 약속 · 재방문 관리</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section class="fc-section" id="features">
+    <div class="fc-section-head">
+      <h2>Professional에만 있는 것</h2>
+      <p>Pro의 분석 깊이 + 상담 실무 레이어. 개인 이용(Pro)과 상담 운영(Professional)을 분리했습니다.</p>
+    </div>
+    <div class="fc-features">
+      <div class="fc-feat">
+        <div class="fc-feat-icon">📇</div>
+        <div>
+          <h3>상담사 허브 · 고객 CRM</h3>
+          <p>고객 카드 무제한, 세션 기록, 상담일·다음 약속, 재방문율 통계. 엑셀 대신 한 화면에서 관리합니다.</p>
+          <div class="fc-feat-tags"><span class="fc-tag">CRM</span><span class="fc-tag">세션 기록</span><span class="fc-tag">CSV 백업</span></div>
+        </div>
+      </div>
+      <div class="fc-feat">
+        <div class="fc-feat-icon">📋</div>
+        <div>
+          <h3>상담 준비 요약 · 점성 브리핑</h3>
+          <p>라이프코드 세션 브리핑(핵심 수·흐름·로슈)과 점성학 한 장 요약(빅3·어스펙트·트랜짓)을 상담 전에 빠르게 확인합니다.</p>
+          <div class="fc-feat-tags"><span class="fc-tag">화면 전용</span><span class="fc-tag">고객 PDF 제외</span></div>
+        </div>
+      </div>
+      <div class="fc-feat">
+        <div class="fc-feat-icon">📄</div>
+        <div>
+          <h3>고객용 브랜디드 리포트 PDF</h3>
+          <p>상담사 이름·브랜드가 들어간 PDF로 마무리합니다. 업셀 문구 없이 고객에게 전달 가능한 형태입니다.</p>
+          <div class="fc-feat-tags"><span class="fc-tag">PDF</span><span class="fc-tag">인쇄</span></div>
+        </div>
+      </div>
+      <div class="fc-feat">
+        <div class="fc-feat-icon">♡</div>
+        <div>
+          <h3>고객 간 궁합 · 통합 분석</h3>
+          <p>등록된 고객끼리 소울하모니·48궁합을 바로 열어 커플·가족 상담에 활용합니다.</p>
+          <div class="fc-feat-tags"><span class="fc-tag">궁합</span><span class="fc-tag">Pro 분석 포함</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="fc-section" id="compare">
+    <div class="fc-section-head">
+      <h2>Pro vs Professional</h2>
+      <p>「나를 깊이 아는 것」과 「고객을 운영하는 것」은 다른 니즈입니다.</p>
+    </div>
+    <div class="fc-compare">
+      <div class="fc-compare-card fc-compare-card--pro">
+        <h3>PRO · 개인 심화</h3>
+        <div class="price">29,900<span style="font-size:14px">원/월</span></div>
+        <ul>
+          <li>✓ AI 종합 요약 · Growth Map</li>
+          <li>✓ 인생전반표 · 로슈 격자</li>
+          <li>✓ 네임코드 · 궁합 · PDF</li>
+          <li>× 상담사 허브 · 고객 카드</li>
+          <li>× 세션 CRM · 브랜디드 리포트</li>
+        </ul>
+      </div>
+      <div class="fc-compare-card fc-compare-card--pro2">
+        <h3>PROFESSIONAL · 상담 실무</h3>
+        <div class="price">49,900<span style="font-size:14px">원/월</span></div>
+        <ul>
+          <li>✓ Pro 기능 전부 포함</li>
+          <li>✓ 상담사 허브 · 고객 무제한</li>
+          <li>✓ 상담 준비 요약 · 점성 브리핑</li>
+          <li>✓ 브랜디드 PDF · CSV 백업</li>
+          <li>✓ 재방문·약속 대시보드</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section class="fc-section" id="pricing">
+    <div class="fc-pricing">
+      <h2>시작 방법</h2>
+      <p class="sub">먼저 15일 체험으로 허브·분석을 써 보고, 계속 쓰실 때 월 구독이 더 경제적입니다.</p>
+      <div class="fc-price-row">
+        <div class="fc-price-box featured">
+          <div class="label">15일 체험권 (1회 결제)</div>
+          <div class="amt">29,900<span>원</span></div>
+          <div class="note">전체 심층 분석 + 간이 허브<br>기기 1대 · 정기결제 없음</div>
+        </div>
+        <div class="fc-price-box">
+          <div class="label">Professional 월 구독</div>
+          <div class="amt">49,900<span>원/월</span></div>
+          <div class="note">CRM·통계·브랜디드 PDF·다기기<br>상담사 운영 전 기능</div>
+        </div>
+      </div>
+      <div class="fc-hero-cta">
+        <a href="/lifecode/buy.html?product=counselor30" class="fc-btn fc-btn--accent">15일 체험 구매</a>
+        <a href="pricing.html?checkout=professional" class="fc-btn fc-btn--primary">월 구독 시작</a>
+      </div>
+      <p class="fc-hero-note" style="margin-top:16px">체험권에 없는 기능: CRM 통계·다가오는 약속·브랜디드 PDF·CSV·다기기 동기화 → <a href="pricing.html#onetime">상세 비교</a></p>
+    </div>
+  </section>
+
+  <section class="fc-section" id="faq">
+    <div class="fc-section-head">
+      <h2>자주 묻는 질문</h2>
+    </div>
+    <div class="fc-faq">
+      <details>
+        <summary>Pro만 있어도 상담할 수 있지 않나요?</summary>
+        <p>개인 분석·PDF는 Pro로 가능합니다. 다만 고객 카드, 세션 기록, 상담 준비 브리핑, 브랜디드 리포트, 재방문 통계는 Professional 전용입니다. 고객이 늘어나면 Professional이 실무 시간을 줄여 줍니다.</p>
+      </details>
+      <details>
+        <summary>15일 체험과 월 구독의 차이는?</summary>
+        <p>체험권은 1회 결제·기기 1대·간이 허브(고객 저장·메모) 중심입니다. 월 구독은 CRM 통계, 약속 알림, 브랜디드 PDF, CSV 백업, 다기기 이용이 포함됩니다.</p>
+      </details>
+      <details>
+        <summary>상담사용 요약이 고객 PDF에 들어가나요?</summary>
+        <p>아니요. 상담 준비 요약·점성 브리핑은 상담사 화면 전용입니다. 고객용 PDF는 별도로 구성되며, 내부 메모가 섞이지 않도록 분리되어 있습니다.</p>
+      </details>
+      <details>
+        <summary>고객은 몇 명까지 등록할 수 있나요?</summary>
+        <p>Professional 구독 시 고객 카드는 무제한입니다. 체험권은 간이 허브 범위 내에서 이용하세요.</p>
+      </details>
+      <details>
+        <summary>점성학·타로도 상담사 기능이 있나요?</summary>
+        <p>점성학은 Professional 전용 「한 장 브리핑」과 고객 카드 저장이 있습니다. 타로·궁합·이름 분석은 Pro 엔진을 그대로 쓰며, 허브에서 고객별로 열 수 있습니다.</p>
+      </details>
+    </div>
+  </section>
+
+  <div class="fc-footer-links">
+    <a href="pricing.html">전체 요금제</a>
+    <a href="counselor.html">상담사 허브</a>
+    <a href="guide/index.html">가이드</a>
+    <a href="contact.html">도입 문의</a>
+    <a href="index.html">홈</a>
+  </div>
+</div>
+
+<footer class="site-legal-footer">
+  8코드(8CODE) · 팔자연구소 ·
+  <a href="terms.html">이용약관</a> ·
+  <a href="privacy.html">개인정보처리방침</a>
+</footer>
+
+</body>
+</html>

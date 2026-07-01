@@ -11,7 +11,7 @@
     { id: 'name', href: 'name.html', label: '네임코드' },
     { id: 'calendar', href: 'numerology-calendar.html', label: '수비학달력' },
     { id: 'tarot', href: 'Tarot.html', label: '타로코드' },
-    { id: 'counselor', href: 'counselor.html', label: '상담사허브' },
+    { id: 'for-counselors', href: 'for-counselors.html', label: '상담사' },
     { id: 'pricing', href: 'pricing.html', label: '요금제' }
   ];
 
