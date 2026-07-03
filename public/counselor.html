@@ -597,7 +597,6 @@
           <button type="button" class="btn-sm outline" id="pushSaveHourBtn" style="display:none;">시간 저장</button>
         </div>
         <button type="button" class="btn-sm" id="pushToggleBtn">알림 켜기</button>
-        <button type="button" class="btn-sm outline" id="pushTestBtn" style="display:none;">지금 테스트</button>
         <span class="push-status off" id="pushStatus">확인 중…</span>
       </div>
     </div>
@@ -1634,10 +1633,8 @@
 
     function updatePushHourUi(isOn) {
       const saveBtn = document.getElementById('pushSaveHourBtn');
-      const testBtn = document.getElementById('pushTestBtn');
       const sel = document.getElementById('pushHourSelect');
       if (saveBtn) saveBtn.style.display = isOn ? '' : 'none';
-      if (testBtn) testBtn.style.display = isOn ? '' : 'none';
       if (sel) sel.disabled = false;
     }
 
@@ -1692,28 +1689,6 @@
       updatePushHourUi(mode === 'on');
     }
 
-    async function sendPushTest() {
-      const testBtn = document.getElementById('pushTestBtn');
-      if (!pushSubscription || !testBtn) return;
-      testBtn.disabled = true;
-      try {
-        const res = await fetch('/api/counselor/push/test', {
-          method: 'POST',
-          headers: { Authorization: 'Bearer ' + accessToken },
-        });
-        const json = await res.json().catch(() => ({}));
-        if (!res.ok) {
-          alert(json.error === 'no_subscription' ? '먼저 알림을 켜 주세요.' : '테스트 알림을 보내지 못했습니다.');
-          return;
-        }
-        alert('테스트 알림을 보냈습니다. 잠시 후 기기 알림을 확인해 주세요.');
-      } catch (_) {
-        alert('서버에 연결할 수 없습니다.');
-      } finally {
-        testBtn.disabled = false;
-      }
-    }
-
     async function savePushHour() {
       if (!pushSubscription) return;
       const hour = getSelectedPushHour();
@@ -1743,7 +1718,6 @@
       fillPushHourSelect(readPushHourLocal() ?? 9);
       hourSel?.addEventListener('change', onPushHourSelectChange);
       document.getElementById('pushSaveHourBtn')?.addEventListener('click', savePushHour);
-      document.getElementById('pushTestBtn')?.addEventListener('click', sendPushTest);
       if (!btn) return;
       if (!('serviceWorker' in navigator) || !('PushManager' in window) || !('Notification' in window)) {
         setPushStatus('이 브라우저는 푸시 알림을 지원하지 않습니다.', 'err');
