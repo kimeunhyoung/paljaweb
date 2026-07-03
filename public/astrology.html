@@ -710,7 +710,7 @@ body.export-capturing #wheelCard .note{display:none !important;}
   let LAST_CTX = null;        // { displayName, unknownTime, coordLabel, sunSign, moonSign, ascSign, planetReads:[] }
   let LAST_ASPECTS = [];      // 출생 차트 어스펙트(AI 프롬프트 재생성용)
   let LAST_KNOWN = [];        // 어스펙트 대상 키 목록
-  let LAST_TRANSIT = null;    // { dstr, fast:[문장], slow:[문장] }
+  let LAST_TRANSIT = null;    // { dstr, fast[], slow[], fastBuckets{}, slowBuckets{} }
   let LAST_BIRTH = null;      // { y, mo, da, hh, mi, unknownTime }
   let LAST_YEAR_FORECAST = null;
   let AI_SERVER_OK = false;
@@ -738,12 +738,12 @@ body.export-capturing #wheelCard .note{display:none !important;}
     if (LAST_TRANSIT && (LAST_TRANSIT.fast.length || LAST_TRANSIT.slow.length)) {
       tip.className = 'ai-transit-tip ai-transit-tip--ok';
       if (icon) icon.textContent = '✓';
-      body.innerHTML = `<strong>요즘 트랜짓이 AI 해석에 반영됩니다</strong>${LAST_TRANSIT.dstr} 기준 트랜짓이 포함되어 있어요. 이제 <strong>AI 해석</strong>을 눌러 주세요.`;
+      body.innerHTML = `<strong>요즘 트랜짓이 AI 해석에 반영됩니다</strong>${LAST_TRANSIT.dstr} 기준 · 이번 주 <strong>연애·일·금전</strong> 흐름까지 영역별로 풀어 드려요. <strong>AI 해석</strong>을 눌러 주세요.`;
       return;
     }
     tip.className = 'ai-transit-tip';
     if (icon) icon.textContent = '🌙';
-    body.innerHTML = `<strong>요즘 흐름까지 넣으려면 먼저 트랜짓을 보세요</strong>위 「오늘의 하늘 · 트랜짓」에서 <button type="button" class="ai-transit-tip-link" id="btnAiGoTransit">오늘의 트랜짓 보기</button>를 누른 뒤 AI 해석을 하시면, 지금~요즘 흐름까지 함께 반영됩니다.`;
+    body.innerHTML = `<strong>요즘 흐름까지 넣으려면 먼저 트랜짓을 보세요</strong>위 「오늘의 하늘 · 트랜짓」에서 <button type="button" class="ai-transit-tip-link" id="btnAiGoTransit">오늘의 트랜짓 보기</button>를 누르면, AI 해석에 <strong>이번 주 연애·일·금전</strong> 흐름이 영역별로 포함됩니다.`;
     const go = $('btnAiGoTransit');
     if (go) {
       go.onclick = () => {
@@ -1195,6 +1195,32 @@ body.export-capturing #wheelCard .note{display:none !important;}
     }
   }
 
+  function bucketTransitHits(hits, plainItem) {
+    const buckets = { love: [], career: [], money: [], general: [] };
+    const push = (key, line) => { if (line && !buckets[key].includes(line)) buckets[key].push(line); };
+    hits.forEach((h) => {
+      const line = plainItem(h);
+      const tk = h.tk;
+      const nk = h.nk;
+      let tagged = false;
+      if (['venus', 'moon'].includes(tk) || ['venus', 'moon', 'mars'].includes(nk)) { push('love', line); tagged = true; }
+      if (['sun', 'mars', 'mercury', 'saturn'].includes(tk) || ['sun', 'mars', 'mercury', 'saturn', 'mc'].includes(nk)) { push('career', line); tagged = true; }
+      if (['venus', 'jupiter', 'saturn'].includes(tk) || ['venus', 'jupiter', 'saturn', 'pluto', 'fortune'].includes(nk)) { push('money', line); tagged = true; }
+      if (!tagged) push('general', line);
+    });
+    return buckets;
+  }
+
+  function appendTransitBucketLines(L, title, buckets) {
+    if (!buckets) return;
+    const labels = { love: '연애·관계', career: '일·적성·커리어', money: '금전·재물', general: '기타' };
+    ['love', 'career', 'money', 'general'].forEach((k) => {
+      if (!buckets[k] || !buckets[k].length) return;
+      L.push(`${title} — ${labels[k]}:`);
+      buckets[k].forEach((s) => L.push(' - ' + s));
+    });
+  }
+
   function renderTransit(th, dateObj) {
     // 트랜짓 행성: 빠른 행성 위주(태양·달·수성·금성·화성)와 느린 행성(목성~명왕성)
     const transitKeys = ['sun','moon','mercury','venus','mars','jupiter','saturn','uranus','neptune','pluto'];
@@ -1256,7 +1282,7 @@ body.export-capturing #wheelCard .note{display:none !important;}
     } else {
       html += '<div class="transit-guide">읽는 법 · <strong>트랜짓 행성</strong>(요즘 들어온 기운) → <strong>본명 천체</strong>(내 삶의 영역)에 <span class="asp-tag asp-easy">조화</span>면 순조롭게, <span class="asp-tag asp-tense">긴장</span>이면 시험·마찰로 작용해요.</div>';
       if (fastHits.length) {
-        html += '<div class="transit-sub-h">🌙 지금·이번 주 흐름 <span>빠른 행성 — 짧게 지나가는 운세</span></div>';
+        html += '<div class="transit-sub-h">🌙 지금·이번 주 흐름 <span>빠른 행성 — 연애·일·금전 등 단기 운세</span></div>';
         html += `<div class="aspect-read-list">${fastHits.map(itemHtml).join('')}</div>`;
       }
       if (slowHits.length) {
@@ -1271,6 +1297,8 @@ body.export-capturing #wheelCard .note{display:none !important;}
       dstr,
       fast: fastHits.map(plainItem),
       slow: slowHits.map(plainItem),
+      fastBuckets: bucketTransitHits(fastHits, plainItem),
+      slowBuckets: bucketTransitHits(slowHits, plainItem),
     };
     refreshAiPrompt();
     renderCounselorReport();
@@ -1324,12 +1352,14 @@ body.export-capturing #wheelCard .note{display:none !important;}
       L.push('');
       L.push('[요즘의 흐름 · 트랜짓 (' + LAST_TRANSIT.dstr + ' 기준)]');
       if (LAST_TRANSIT.fast.length) {
-        L.push('지금·이번 주 (빠른 행성):');
+        L.push('지금·이번 주 (빠른 행성 — 며칠~2주):');
         LAST_TRANSIT.fast.forEach((s) => L.push(' - ' + s));
+        appendTransitBucketLines(L, '  ↳ 영역별 참고', LAST_TRANSIT.fastBuckets);
       }
       if (LAST_TRANSIT.slow.length) {
-        L.push('요즘의 큰 흐름 (느린 행성):');
+        L.push('요즘의 큰 흐름 (느린 행성 — 수주~수년):');
         LAST_TRANSIT.slow.forEach((s) => L.push(' - ' + s));
+        appendTransitBucketLines(L, '  ↳ 영역별 참고', LAST_TRANSIT.slowBuckets);
       }
     }
 
@@ -1347,25 +1377,30 @@ body.export-capturing #wheelCard .note{display:none !important;}
       '## 성격 요약 — 빅3(태양·달·상승)과 원소·모달리티를 연결해 타고난 기질',
       '## 강점 — 차트·어스펙트 근거를 들어 구체적으로',
       '## 과제·성장 포인트 — 긴장 각(사각·충)이나 과제 행성을 부드럽게',
-      '## 연애·관계 — 금성·달·7하우스·관계 관련 배치',
-      '## 일·적성·커리어 — MC·6·10하우스, 토성·화성·태양 등',
-      '## 금전·재물운 — 2·8하우스, 금성·목성·토성, 수입·지출·저축·투자 성향과 주의점(근거 행성·하우스 명시)',
+      '## 연애·관계 — 출생 차트 기준. 금성·달·7하우스·관계 어스펙트(타고난 성향)',
+      '## 일·적성·커리어 — 출생 차트 기준. MC·6·10하우스, 토성·화성·태양 등',
+      '## 금전·재물운 — 출생 차트 기준. 2·8하우스, 금성·목성·토성, 수입·지출·저축 성향',
     ];
     if (hasFast) {
-      sections.push('## 지금·이번 주 — 위 「지금·이번 주(빠른 트랜짓)」 데이터만. 일상·단기 기회·주의');
+      sections.push('## 지금·이번 주 · 연애·관계 — 빠른 트랜짓만. 오늘~이번 주 대인·연애 실전 조언(기회·주의·행동 팁). 위 영역별 트랜짓 인용');
+      sections.push('## 지금·이번 주 · 일·적성·커리어 — 빠른 트랜짓만. 이번 주 업무·일정·커리어 단기 흐름. 구체적으로');
+      sections.push('## 지금·이번 주 · 금전·재물 — 빠른 트랜짓만. 이번 주 수입·지출·소비·투자 주의·기회. 구체적으로');
     }
     if (hasSlow) {
-      sections.push('## 요즘의 큰 흐름 — 위 「요즘의 큰 흐름(느린 트랜짓)」 데이터만. 몇 달~수년 테마');
+      sections.push('## 요즘의 큰 흐름 · 연애·관계 — 느린 트랜짓만. 몇 달 단위 관계·가족 테마');
+      sections.push('## 요즘의 큰 흐름 · 일·적성·커리어 — 느린 트랜짓만. 몇 달~수년 커리어·책임 테마');
+      sections.push('## 요즘의 큰 흐름 · 금전·재물 — 느린 트랜짓만. 몇 달~수년 재정·자원 테마');
     }
     if (hasYear) {
       sections.push('## 올해 운세·테마 — 프로그레션·솔라 리턴 근거로 올해 큰 방향');
     }
     sections.forEach((s, i) => L.push(`   ${i + 1}. ${s}`));
-    L.push('2) 각 섹션 **3~4문장**. 차트 근거(행성·별자리·하우스·어스펙트)를 최소 1개 이상 언급하세요. 같은 내용 반복 금지.');
-    L.push('3) 트랜짓 섹션은 빠른/느린 흐름을 **섞지 말고** 해당 ## 아래에만 쓰세요. 금전 조언은 「금전·재물운」과 트랜짓(해당 시)에 나눠 쓰세요.');
-    L.push('4) 반드시 마지막 섹션까지 완성하고 중간에 끊지 마세요. 섹션 수가 많으면 문장을 짧게 써도 됩니다.');
+    L.push('2) 각 섹션 **3~4문장**. 차트·트랜짓 근거(행성·별자리·하우스·어스펙트)를 최소 1개 이상 언급하세요. 같은 내용 반복 금지.');
+    L.push('3) 「연애·관계」「일·적성·커리어」「금전·재물운」은 **출생 차트** 설명입니다. 「지금·이번 주 · …」 세 섹션은 **빠른 트랜짓**으로 오늘의 운세처럼 이번 주 실전 조언을 쓰세요. 해당 영역 트랜짓이 없으면 잔잔한 한 주로 짧게 쓰되 출생 차트와 연결하세요.');
+    L.push('4) 「요즘의 큰 흐름 · …」는 **느린 트랜짓**만. 빠른/느린 트랜짓을 섞지 마세요.');
+    L.push('5) 반드시 마지막 섹션까지 완성하고 중간에 끊지 마세요. 섹션 수가 많으면 문장을 짧게 써도 됩니다.');
     if (hasTransit || hasYear) {
-      L.push('5) 출생 차트 성향과 트랜짓·올해 운세는 서로 모순 없이 연결하되, 섹션은 위 순서를 유지하세요.');
+      L.push('6) 출생 차트 성향과 트랜짓·올해 운세는 서로 모순 없이 연결하되, 섹션 순서를 유지하세요.');
     }
     return L.join('\n');
   }
@@ -1643,7 +1678,7 @@ body.export-capturing #wheelCard .note{display:none !important;}
     const timeHint = $('aiTimeHint');
     if (timeHint) timeHint.classList.add('is-loading');
     const prompt = buildAiPrompt(LAST_CTX, LAST_ASPECTS, LAST_KNOWN);
-    const cacheKey = window.PaljaAiQuota ? PaljaAiQuota.hashKey('v5:' + prompt) : prompt.slice(0, 200);
+    const cacheKey = window.PaljaAiQuota ? PaljaAiQuota.hashKey('v6:' + prompt) : prompt.slice(0, 200);
     try {
       if (!window.PaljaAiQuota) throw new Error('no_quota_client');
       const { text, quota, data } = await PaljaAiQuota.callAi({
