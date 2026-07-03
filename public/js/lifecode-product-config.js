@@ -18,7 +18,7 @@ export const LIFECODE_PRODUCT = {
 
   readingGuideKicker: '라이프코드 단품에 포함된 모듈입니다.',
   readingGuideFootnote:
-    '제목 옆 <strong>B</strong>·<strong>P</strong>는 Basic·Pro 전용 모듈입니다. AI 요약·오늘 메시지는 단품에 포함하지 않습니다.',
+    '제목 옆 <strong>B</strong>·<strong>P</strong>는 Basic·Pro 전용 모듈입니다.',
 
   pdfFilenamePrefix: '라이프코드',
 

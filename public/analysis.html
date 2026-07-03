@@ -3823,6 +3823,7 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css" crossorigin />
   <link rel="stylesheet" href="css/site-topbar.css?v=5" />
   <link rel="stylesheet" href="css/site-header.css?v=7" />
+  <link rel="stylesheet" href="css/lifecode-product.css?v=1" />
 </head>
 <body class="logo-style-classic">
 
@@ -4130,6 +4131,7 @@
   </footer>
 
 <!-- DATA + LOGIC -->
+<script src="js/analysis-ai-config.js?v=1"></script>
 <script>
 // ── SUPABASE CONFIG ──
 const SUPABASE_URL = 'https://sghsryumnrnftyjoqmwf.supabase.co';
@@ -7112,10 +7114,10 @@ function buildReadingGuideCatalogInnerHtml() {
         lcModuleNav('#period48Section', '48주기 성격학', 'basic'),
         `생월·생일을 48세그먼트로 나눈 세부 기질·역할 패턴 분류.`,
       )}
-      ${lcReadingGuideCatalogRow(
+      ${(window.PaljaAnalysisAi && PaljaAnalysisAi.publicAiSectionsEnabled()) ? lcReadingGuideCatalogRow(
         lcModuleNav('#aiSummarySection', 'AI 종합 요약', 'pro'),
         `상위 수비학·보조 레이어를 한 단락으로 재구성한 생성형 요약(참고용 서술 레이어).`,
-      )}
+      ) : ''}
       ${lcReadingGuideCatalogRow(
         lcModuleNav('#nav-major-cycle', '대주기 분석', 'basic'),
         `월·일·연 축약 수로 세 구간(제1~3 주기)을 나눈 장주기 뷰.`,
@@ -7140,10 +7142,10 @@ function buildReadingGuideCatalogInnerHtml() {
         lcModuleNav('#nav-flow', '현재 흐름', 'basic'),
         `수비학 개인연도·타로 올해의 수·연령진동수와 이번 달·오늘의 수 카드.`,
       )}
-      ${lcReadingGuideCatalogRow(
+      ${(window.PaljaAnalysisAi && PaljaAnalysisAi.publicAiSectionsEnabled()) ? lcReadingGuideCatalogRow(
         lcModuleNav('#aiTodaySection', 'AI 오늘의 메시지', 'pro'),
         `당일 맥락을 한 줄로 압축한 언어 모델 브리프.`,
-      )}
+      ) : ''}
       ${lcReadingGuideCatalogRow(
         lcModuleNav('#weeklyForecastSection', '향후 7일간의 에너지 흐름', 'basic'),
         `일별 일간 수·가이드를 표 형태로 표시.`,
@@ -8339,7 +8341,8 @@ async function runAnalysis() {
     }, { includeDetail: coreDetail });
   }
 
-  // ── 2. AI 종합 요약 (Pro+) ──
+  // ── 2. AI 종합 요약 (Pro+) — 기본 비노출, ?ai=on 일 때만
+  if (window.PaljaAnalysisAi && PaljaAnalysisAi.publicAiSectionsEnabled()) {
   const aiServerOn = !isAIRequestDisabled() && (await fetchAiAvailable());
   if(hasDeepAnalysisAccess()) {
     if (isAIRequestDisabled()) {
@@ -8355,6 +8358,7 @@ async function runAnalysis() {
     }
   } else {
     document.getElementById('aiSummaryContent').innerHTML = gateHTML('pro','AI 종합 요약','핵심 수들을 종합한 당신만의 성격·잠재력 분석 한 단락을 AI가 생성합니다.');
+  }
   }
 
   // ── 3. 현재 흐름 (Basic+: 올해·이번 달·오늘 전체) ──
@@ -8500,24 +8504,27 @@ async function runAnalysis() {
     }
   }
 
-  // ── 4. AI 오늘의 메시지 (Pro+) ──
+  // ── 4. AI 오늘의 메시지 (Pro+) — 기본 비노출, ?ai=on 일 때만
+  if (window.PaljaAnalysisAi && PaljaAnalysisAi.publicAiSectionsEnabled()) {
+  const aiServerOnToday = !isAIRequestDisabled() && (await fetchAiAvailable());
   if(hasAccess('pro')) {
     const aiTodayBody = (isAIRequestDisabled())
       ? `<div class="ai-text" style="color:var(--muted)">AI 점검 모드로 요청이 비활성화되어 있습니다. URL에 <strong>?ai=on</strong>을 붙이면 다시 활성화됩니다.</div>`
-      : (!aiServerOn)
+      : (!aiServerOnToday)
         ? renderAiPausedHtml()
         : `<div class="ai-tag"><div class="ai-dot"></div>AI 메시지 생성 중</div>
         <div class="ai-loading"><div class="ai-spinner"></div>오늘의 맞춤 메시지를 생성하고 있습니다...</div>`;
     document.getElementById('aiTodaySection').innerHTML = `
       <div class="section-header"><div class="section-line"></div><span class="section-label">AI 오늘의 메시지</span><div class="section-line"></div></div>
       <div class="ai-summary" id="aiTodayContent">${aiTodayBody}</div>`;
-    if (aiServerOn) {
+    if (aiServerOnToday) {
       callAIToday(lp, py, pm, pd, curY, curM, curD);
     }
   } else {
     document.getElementById('aiTodaySection').innerHTML = `
       <div class="section-header"><div class="section-line"></div><span class="section-label">AI 오늘의 메시지</span><div class="section-line"></div></div>
       ${gateHTML('pro','AI 오늘의 메시지','날짜 에너지를 기반으로 오늘 당신에게 필요한 맞춤 메시지를 AI가 생성합니다.')}`;
+  }
   }
 
   // ── 5. 10년 타임라인 (Basic: 10년 차트 · Pro: 인생전반표) ──

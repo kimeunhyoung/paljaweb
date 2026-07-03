@@ -32,7 +32,7 @@
     return hasBasicProfileDetailAccess(plan, devUnlock);
   }
 
-  /** 인생전반표·피라미드·성장지도·AI요약·로슈 등 — Pro 이상 */
+  /** 인생전반표·피라미드·성장지도·로슈 등 — Pro 이상 */
   function hasDeepAnalysisAccess(plan, devUnlock) {
     if (devUnlock) return true;
     return isPlanAtLeast({ plan: plan }, 'pro');
