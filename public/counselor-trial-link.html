@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
+  <meta name="robots" content="noindex"/>
+  <title>15일 체험 연결 — 팔자연구소</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css" crossorigin />
+  <link rel="stylesheet" href="css/site-topbar.css?v=5" />
+  <style>
+    :root {
+      --cream: #f5f0e8;
+      --deep: #4a3520;
+      --accent: #c8a96e;
+      --muted: #9a8570;
+      --err: #c0392b;
+      --border: rgba(74,53,32,.12);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Pretendard Variable', Pretendard, sans-serif;
+      background: var(--cream);
+      color: var(--deep);
+      min-height: 100dvh;
+    }
+    .wrap {
+      max-width: 440px;
+      margin: 0 auto;
+      padding: 24px 20px 56px;
+    }
+    h1 {
+      font-size: 1.35rem;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+    .lede {
+      font-size: 0.9rem;
+      color: var(--muted);
+      line-height: 1.65;
+      margin-bottom: 24px;
+    }
+    .card {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 24px 20px;
+      box-shadow: 0 8px 28px rgba(44,31,14,.06);
+    }
+    .notice {
+      margin-bottom: 18px;
+      padding: 12px 14px;
+      background: #fff7ed;
+      border: 1px solid #fdba74;
+      border-radius: 10px;
+      font-size: 0.82rem;
+      color: #9a3412;
+      line-height: 1.6;
+    }
+    label { display: block; font-size: 0.75rem; color: var(--muted); margin-bottom: 8px; font-weight: 600; }
+    input {
+      width: 100%;
+      padding: 14px 16px;
+      font-size: 1.05rem;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      border: 1px solid rgba(74,53,32,.2);
+      border-radius: 12px;
+      margin-bottom: 14px;
+      font-family: inherit;
+    }
+    input:focus { outline: 2px solid var(--accent); border-color: var(--accent); }
+    .btn {
+      width: 100%;
+      padding: 14px;
+      font-size: 1rem;
+      font-weight: 600;
+      background: var(--deep);
+      color: var(--cream);
+      border: none;
+      border-radius: 12px;
+      cursor: pointer;
+    }
+    .btn:disabled { opacity: 0.5; cursor: wait; }
+    .msg { margin-top: 14px; font-size: 0.85rem; min-height: 1.2em; line-height: 1.5; }
+    .msg.err { color: var(--err); }
+    .msg.ok { color: #166534; }
+    .hint {
+      margin-top: 20px;
+      font-size: 0.78rem;
+      color: var(--muted);
+      line-height: 1.65;
+      text-align: center;
+    }
+    .hint a { color: var(--deep); font-weight: 600; }
+    .success-box {
+      display: none;
+      text-align: center;
+      padding: 8px 0;
+    }
+    .success-box.is-visible { display: block; }
+    .success-box h2 { font-size: 1.1rem; margin-bottom: 10px; }
+    .success-box p { font-size: 0.88rem; color: var(--muted); line-height: 1.6; margin-bottom: 18px; }
+    .success-box a {
+      display: inline-block;
+      background: var(--deep);
+      color: var(--cream);
+      padding: 12px 22px;
+      border-radius: 10px;
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 0.9rem;
+    }
+    #formPanel { display: block; }
+    #formPanel.is-hidden { display: none; }
+    #guard {
+      text-align: center;
+      padding: 48px 20px;
+      color: var(--muted);
+    }
+  </style>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+<div class="site-top" data-topbar-title="체험 연결" data-nav-current="counselor" data-login-next="counselor-trial-link.html"></div>
+
+<div class="wrap">
+  <div id="guard">로그인 확인 중…</div>
+
+  <div id="mainContent" style="display:none">
+    <h1>Professional 15일 체험 연결</h1>
+    <p class="lede">결제 후 받은 <strong>접속 코드</strong>를 팔자연구소 로그인 계정에 연결하면, 상담사 허브 <strong>전 기능</strong>을 15일간 이용할 수 있습니다. <strong>지금 쓰는 기기</strong>에서 연결해 주세요.</p>
+
+    <div class="card">
+      <div id="formPanel">
+        <div class="notice" role="note">
+          <strong>기기 1대 전용.</strong> 연결 시 이 브라우저·기기에 고정됩니다. 다른 기기에서는 월 구독(다기기)을 이용해 주세요.
+        </div>
+        <form id="form" autocomplete="off">
+          <label for="code">접속 코드</label>
+          <input id="code" name="code" autocapitalize="characters" placeholder="LC-XXXX-XXXX" required/>
+          <button type="submit" class="btn" id="submitBtn">체험 연결하기</button>
+          <p class="msg" id="msg" role="alert"></p>
+        </form>
+      </div>
+      <div class="success-box" id="successBox">
+        <h2>연결 완료</h2>
+        <p id="successText">Professional 15일 체험이 활성화되었습니다.</p>
+        <a href="counselor.html">상담사 허브 열기 →</a>
+      </div>
+    </div>
+
+    <p class="hint">
+      아직 체험권이 없으신가요? <a href="/lifecode/buy.html?product=counselor30">15일 체험 구매</a><br>
+      월 구독은 <a href="pricing.html?checkout=professional">Professional 요금제</a>에서 신청할 수 있습니다.
+    </p>
+  </div>
+</div>
+
+<script src="js/site-topbar.js?v=5" defer></script>
+<script type="module">
+  import { getLifecodeDeviceId } from '/js/lifecode-device.js';
+
+  const SUPABASE_URL = 'https://sghsryumnrnftyjoqmwf.supabase.co';
+  const SUPABASE_ANON_KEY = 'sb_publishable_6S3W_oWrzG-Nv8wLK98gmg_q_KcB2I1';
+  const { createClient } = supabase;
+  const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+  const guard = document.getElementById('guard');
+  const mainContent = document.getElementById('mainContent');
+  const form = document.getElementById('form');
+  const msgEl = document.getElementById('msg');
+  const submitBtn = document.getElementById('submitBtn');
+  const codeInput = document.getElementById('code');
+  const formPanel = document.getElementById('formPanel');
+  const successBox = document.getElementById('successBox');
+  const successText = document.getElementById('successText');
+
+  function showMsg(text, kind) {
+    msgEl.textContent = text || '';
+    msgEl.className = 'msg' + (kind === 'err' ? ' err' : kind === 'ok' ? ' ok' : '');
+  }
+
+  const params = new URLSearchParams(location.search);
+  const qCode = params.get('code');
+  const stored = sessionStorage.getItem('counselor_trial_code');
+  if (qCode) codeInput.value = qCode;
+  else if (stored) codeInput.value = stored;
+
+  async function ensureSession() {
+    const { data: { session } } = await sb.auth.getSession();
+    if (session) return session;
+    const next = 'counselor-trial-link.html' + (qCode ? '?code=' + encodeURIComponent(qCode) : '');
+    location.replace('login.html?next=' + encodeURIComponent(next));
+    return null;
+  }
+
+  const session = await ensureSession();
+  if (!session) return;
+
+  guard.style.display = 'none';
+  mainContent.style.display = 'block';
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    showMsg('');
+    submitBtn.disabled = true;
+    try {
+      const { data: { session: s } } = await sb.auth.getSession();
+      if (!s) {
+        location.replace('login.html?next=counselor-trial-link.html');
+        return;
+      }
+      const res = await fetch('/api/counselor-trial/link', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: 'Bearer ' + s.access_token,
+        },
+        body: JSON.stringify({
+          code: codeInput.value.trim(),
+          deviceId: getLifecodeDeviceId(),
+        }),
+      });
+      const json = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        showMsg(json.message || json.error || '연결에 실패했습니다.', 'err');
+        submitBtn.disabled = false;
+        return;
+      }
+      sessionStorage.removeItem('counselor_trial_code');
+      formPanel.classList.add('is-hidden');
+      successBox.classList.add('is-visible');
+      if (json.expiresAt) {
+        const exp = new Date(json.expiresAt);
+        const expStr = exp.getFullYear() + '년 ' + (exp.getMonth() + 1) + '월 ' + exp.getDate() + '일';
+        successText.textContent = 'Professional 전 기능을 ' + expStr + '까지 이용할 수 있습니다.';
+      }
+    } catch (err) {
+      console.error(err);
+      showMsg('서버에 연결할 수 없습니다.', 'err');
+      submitBtn.disabled = false;
+    }
+  });
+</script>
+</body>
+</html>

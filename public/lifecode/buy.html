@@ -236,6 +236,12 @@
     <p class="success-note">아래 접속 코드를 복사해 두세요. 이 화면을 닫으면 코드를 다시 볼 수 없습니다.</p>
     <div class="code-box" id="accessCode">—</div>
     <p class="success-note" id="expiresLine"></p>
+    <div id="counselorLinkPanel" class="success-device" style="display:none" role="note">
+      <strong>Professional 15일 체험</strong> — 팔자연구소 <strong>로그인 계정</strong>에 코드를 연결하면 상담사 허브 전 기능(CRM·캘린더·푸시·PDF)을 씁니다. <strong>이 기기</strong>에서 연결하세요.
+      <div style="margin-top:10px">
+        <a class="link-primary" href="/counselor-trial-link.html" id="counselorLinkBtn">체험 계정 연결 →</a>
+      </div>
+    </div>
     <div class="success-actions">
       <button type="button" class="link-secondary" id="copyBtn">코드 복사</button>
       <a class="link-primary" href="/lifecode/">접속하기 →</a>
@@ -310,11 +316,22 @@
   function showSuccess(result) {
     shop.style.display = 'none';
     successPanel.classList.add('is-visible');
-    document.getElementById('accessCode').textContent = result.code || '—';
+    const code = result.code || '—';
+    document.getElementById('accessCode').textContent = code;
     const exp = result.expiresAt ? new Date(result.expiresAt) : null;
     document.getElementById('expiresLine').textContent = exp
       ? `이용 기한: ${exp.getFullYear()}년 ${exp.getMonth() + 1}월 ${exp.getDate()}일까지`
       : '';
+    const linkPanel = document.getElementById('counselorLinkPanel');
+    const isCounselor = selectedKey === 'counselor30' || result.productTier === 'counselor' || result.counselorHub;
+    if (linkPanel) {
+      linkPanel.style.display = isCounselor ? 'block' : 'none';
+    }
+    if (isCounselor && code && code !== '—') {
+      try { sessionStorage.setItem('counselor_trial_code', code); } catch (_) {}
+      const linkBtn = document.getElementById('counselorLinkBtn');
+      if (linkBtn) linkBtn.href = '/counselor-trial-link.html?code=' + encodeURIComponent(code);
+    }
   }
 
   document.getElementById('copyBtn').addEventListener('click', async () => {

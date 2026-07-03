@@ -242,11 +242,27 @@
       max-width: 640px;
       line-height: 1.72;
     }
+    .trial-badge {
+      display: inline-block;
+      margin-top: 10px;
+      padding: 6px 12px;
+      font-size: 12px;
+      font-weight: 600;
+      color: #9a3412;
+      background: #fff7ed;
+      border: 1px solid #fdba74;
+      border-radius: 8px;
+    }
     @media (max-width: 560px) {
       .topbar-sep,
       .topbar-title { display: none; }
     }
     #gate { display: none; text-align: center; padding: 48px 24px; background: var(--parchment); border-radius: 12px; border: 1px solid var(--border); }
+    #trialDeviceGate { display: none; text-align: center; padding: 48px 24px; background: var(--parchment); border-radius: 12px; border: 1px solid var(--border); }
+    #trialDeviceGate h2 { font-family: var(--font-serif); font-size: 22px; color: var(--deep); margin-bottom: 12px; }
+    #trialDeviceGate p { font-size: 14px; color: var(--muted); line-height: 1.75; margin-bottom: 20px; }
+    #trialDeviceGate .cta { display: inline-block; background: var(--deep); color: var(--cream); padding: 12px 24px; border-radius: 6px; text-decoration: none; font-size: 13px; margin-top: 4px; }
+    #trialDeviceGate .cta.secondary { background: transparent; color: var(--deep); border: 1.5px solid var(--border); }
     #gate h2 { font-family: var(--font-serif); font-size: 22px; color: var(--deep); margin-bottom: 12px; }
     #gate p { font-size: 14px; color: var(--muted); line-height: 1.75; margin-bottom: 20px; }
     #gate .cta { display: inline-block; background: var(--deep); color: var(--cream); padding: 12px 24px; border-radius: 6px; text-decoration: none; font-size: 13px; margin-top: 4px; }
@@ -486,12 +502,21 @@
   <div class="hub-intro">
     <h1>상담사 허브</h1>
     <p>고객 관리 → 라이프코드·궁합 분석 → <strong>고객용 리포트 PDF</strong>와 <strong>고객별 세션 기록</strong>까지. 일정 캘린더·푸시 알림으로 오늘 상담을 챙기고, 이 화면은 <strong>Professional 상담사 전용</strong>으로 상담 업무 도구를 한곳에 모았습니다.</p>
+    <p id="trialBadge" class="trial-badge" style="display:none" role="status"></p>
   </div>
   <div id="gate">
     <h2>Professional 플랜 전용</h2>
     <p>상담사 허브는 <strong>Professional</strong> 요금제에서 이용할 수 있어요.<br>고객 카드·세션 기록(CRM), 일정 캘린더·중요 일정·웹 푸시, 상담사 대시보드, 브랜디드 리포트 PDF, 상담 준비 요약, 고객 간 궁합까지 상담 업무 도구가 함께 켜집니다.</p>
     <a class="cta" href="for-counselors.html">Professional 안내 보기</a>
+    <a class="cta secondary" href="counselor-trial-link.html" style="margin-left:8px;background:transparent;border:1.5px solid var(--border);color:var(--deep);">15일 체험 연결</a>
     <a class="cta secondary" href="pricing.html?checkout=professional" style="margin-left:8px;background:transparent;border:1.5px solid var(--border);color:var(--deep);">바로 구독</a>
+  </div>
+
+  <div id="trialDeviceGate" style="display:none">
+    <h2>체험권 — 등록된 기기에서만 이용</h2>
+    <p>15일 체험권은 <strong>결제·연결 시 등록한 기기 1대</strong>에서만 상담사 허브를 이용할 수 있습니다.<br>다른 기기에서는 월 구독(다기기)을 이용해 주세요.</p>
+    <a class="cta" href="for-counselors.html">체험·구독 안내</a>
+    <a class="cta secondary" href="pricing.html?checkout=professional" style="margin-left:8px;background:transparent;border:1.5px solid var(--border);color:var(--deep);">Professional 구독</a>
   </div>
 
   <div id="workspace">
@@ -761,13 +786,25 @@
 
   let workspaceReady = false;
 
+  function getLifecodeDeviceId() {
+    const KEY = 'lifecode_device_id';
+    let id = localStorage.getItem(KEY);
+    if (!id) {
+      id = crypto.randomUUID();
+      localStorage.setItem(KEY, id);
+    }
+    return id;
+  }
+
   /** 로그인·Professional 플랜 확인 (뒤로/앞으로 bfcache 복원 시에도 재실행) */
   async function checkAccess() {
     const guard = document.getElementById('guard');
     const gate = document.getElementById('gate');
+    const trialDeviceGate = document.getElementById('trialDeviceGate');
     const workspace = document.getElementById('workspace');
     guard.style.display = 'flex';
     gate.style.display = 'none';
+    trialDeviceGate.style.display = 'none';
     workspace.style.display = 'none';
 
     const { data: { session } } = await sb.auth.getSession();
@@ -780,7 +817,7 @@
     }
 
     const { data: profile, error } = await sb.from('profiles')
-      .select('plan, plan_active_until')
+      .select('plan, plan_active_until, counselor_trial_license_id, counselor_trial_device_id')
       .eq('id', session.user.id)
       .maybeSingle();
 
@@ -791,6 +828,24 @@
     if (!proOk) {
       gate.style.display = 'block';
       return null;
+    }
+
+    if (profile.counselor_trial_license_id) {
+      const deviceId = getLifecodeDeviceId();
+      if (profile.counselor_trial_device_id && profile.counselor_trial_device_id !== deviceId) {
+        trialDeviceGate.style.display = 'block';
+        return null;
+      }
+      const badge = document.getElementById('trialBadge');
+      if (badge && profile.plan_active_until) {
+        const exp = new Date(profile.plan_active_until);
+        const expStr = exp.getFullYear() + '년 ' + (exp.getMonth() + 1) + '월 ' + exp.getDate() + '일';
+        badge.textContent = '15일 체험 이용 중 · ' + expStr + '까지 (기기 1대)';
+        badge.style.display = 'inline-block';
+      }
+    } else {
+      const badge = document.getElementById('trialBadge');
+      if (badge) badge.style.display = 'none';
     }
 
     workspace.style.display = 'block';

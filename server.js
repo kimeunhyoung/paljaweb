@@ -7,6 +7,7 @@ const jwt = require('jsonwebtoken');
 const { registerLifecodeRoutes } = require('./lib/lifecode-api');
 const { registerNaverAuthRoutes } = require('./lib/naver-auth');
 const { registerCounselorPushRoutes } = require('./lib/counselor-push');
+const { registerCounselorTrialRoutes } = require('./lib/counselor-trial');
 
 const app = express();
 
@@ -98,7 +99,7 @@ async function getProfile(userId) {
   if (!base || !key) return null;
   const url =
     `${base.replace(/\/$/, '')}/rest/v1/profiles?id=eq.${encodeURIComponent(userId)}` +
-    '&select=id,full_name,plan,plan_active_until,professional_payment_key,toss_billing_key,subscription_cycle,subscription_cancel_at_period_end';
+    '&select=id,full_name,plan,plan_active_until,professional_payment_key,toss_billing_key,subscription_cycle,subscription_cancel_at_period_end,counselor_trial_license_id,counselor_trial_device_id';
   const res = await fetch(url, { headers: supabaseHeaders(key) });
   if (!res.ok) return null;
   const rows = await res.json();
@@ -517,6 +518,7 @@ registerPortOneRoutes(app, planBilling, getUserIdFromAuth, checkoutStore);
 registerLifecodeRoutes(app, { portoneConfigured, portonePublicConfig, portoneOneTimePublicConfig });
 registerNaverAuthRoutes(app);
 registerCounselorPushRoutes(app, getUserIdFromAuth);
+registerCounselorTrialRoutes(app, { getUserIdFromAuth, getProfile, patchProfileFields });
 
 /** AI 호출은 ANTHROPIC_API_KEY + AI_ENABLED=true 일 때만 (기본 꺼짐) */
 function isAiAvailable() {
