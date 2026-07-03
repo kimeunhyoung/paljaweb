@@ -209,6 +209,9 @@ body{font-family:var(--font-body);background:var(--cream);color:var(--ink);min-h
 .purpose-tier2-wrap{margin-top:12px;padding-top:14px;border-top:1px solid rgba(200,169,110,.18);display:none;}
 .purpose-tier2-wrap.open{display:block;}
 .purpose-sub-title{font-family:var(--font-mono);font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:rgba(200,169,110,.55);margin-bottom:8px;}
+.purpose-hint{font-size:12px;line-height:1.65;color:rgba(245,240,232,.55);margin:4px 0 18px;padding:10px 12px;background:rgba(0,0,0,.12);border-radius:8px;border-left:3px solid rgba(200,169,110,.45);}
+.purpose-hint strong{color:rgba(245,240,232,.82);font-weight:600;}
+.field-hint{font-size:11px;color:rgba(245,240,232,.42);line-height:1.55;margin:-8px 0 14px;}
 .purpose-tier1-row,.purpose-sub-row{flex-wrap:wrap;}
 .gender-row{display:flex;gap:10px;margin-bottom:8px;}
 .gender-btn{padding:8px 20px;border:1px solid rgba(200,169,110,.25);border-radius:8px;background:transparent;color:rgba(245,240,232,.55);font-family:var(--font-body);font-size:13px;cursor:pointer;transition:all .2s;}
@@ -533,6 +536,7 @@ select.input-field option{background:#2d2418;color:#f5f0e8;}
             <button type="button" class="energy-chip purpose-sub-btn" data-bucket="educator" data-display="강사·교육자" onclick="selectPurposeSub(this,'analyze','stage')">📚 강사·교육자</button>
           </div>
         </div>
+        <p class="purpose-hint" id="analyzePurposeHint"></p>
         <div class="input-section-title">기본 정보</div>
         <div class="birth-row" style="margin-bottom:20px;">
           <div class="input-group">
@@ -590,6 +594,7 @@ select.input-field option{background:#2d2418;color:#f5f0e8;}
             <button type="button" class="energy-chip purpose-sub-btn" data-bucket="educator" data-display="강사·교육자" onclick="selectPurposeSub(this,'rec','stage')">📚 강사·교육자</button>
           </div>
         </div>
+        <p class="purpose-hint" id="recPurposeHint"></p>
         <div class="input-section-title">기본 정보</div>
         <div class="birth-row" style="margin-bottom:4px;">
           <div class="input-group">
@@ -642,7 +647,8 @@ select.input-field option{background:#2d2418;color:#f5f0e8;}
           <button class="energy-chip" data-val="33" onclick="toggleChip(this)">33 · 치유·사랑 ✦</button>
         </div>
         <div class="input-section-title">추가 요청 <span style="color:rgba(200,169,110,.4);font-size:9px;">(선택)</span></div>
-        <input class="input-field" id="recExtra" type="text" placeholder="예) 부드러운 발음, 획수 적게, 자연 관련 의미 등" style="margin-bottom:16px;">
+        <input class="input-field" id="recExtra" type="text" placeholder="예) 부드러운 발음, 획수 적게, 자연 관련 의미 등">
+        <p class="field-hint">업종·분위기·피하고 싶은 느낌을 적으면 AI가 더 반영합니다. 최종 순위는 수비학 점수도 함께 봅니다.</p>
         <button class="analyze-btn" id="recBtn" onclick="runRecommend()">✧ AI 이름 추천 받기</button>
       </div>
     </div>
@@ -1359,6 +1365,55 @@ function selectSyllable(el){
 }
 function toggleNums(btn){btn.classList.toggle('open');const detail=btn.nextElementSibling;detail.classList.toggle('open');}
 
+const PURPOSE_HINT_TEXT = {
+  general: '출생신고·일상에 쓸 <strong>사람 이름</strong>을 추천합니다. 성을 넣으면 성+이름으로 분석됩니다.',
+  biz: '카페·샵·스튜디오 등 <strong>상호·브랜드명</strong>을 추천합니다. 일반 인명(김한결 등)이 아닙니다.',
+  nick: '게임·SNS·쇼핑몰 등 <strong>닉네임·핸들</strong>을 추천합니다. 실명 형태는 제외됩니다.',
+  stage: '유튜브·무대·상담실 등에 쓸 <strong>예명·활동명</strong>을 추천합니다. 출생신고용 이름과 다릅니다.',
+};
+
+const REC_EXTRA_PLACEHOLDER = {
+  general: '예) 부드러운 발음, 획수 적게, 자연 관련 의미 등',
+  biz: '예) 카페, 따뜻한 분위기, 커피·달 관련, 3~4음절',
+  nick_online: '예) 짧고 기억 쉬운, 게임 느낌, 영문 섞어도 됨',
+  creative: '예) 예술적·개성 있는, 무대에 어울리는 느낌',
+  mystic: '예) 신뢰감, 전문성, 따뜻한 상담 이미지',
+  athlete: '예) 추진력, 강인함, 코칭·팀 느낌',
+  educator: '예) 전달력, 신뢰, 포용적인 강사 이미지',
+};
+
+function getPurposeHintHtml(group) {
+  const pre = group === 'analyze' ? 'analyze' : 'rec';
+  const t1 = document.querySelector(`#${pre}PurposeTier1 .purpose-tier1-btn.selected`)?.dataset.tier1 || 'general';
+  let hint = PURPOSE_HINT_TEXT[t1] || PURPOSE_HINT_TEXT.general;
+  if (t1 === 'nick' || t1 === 'stage') {
+    const subRow = t1 === 'nick'
+      ? document.querySelector(`#${pre}PurposeTier2Nick .purpose-sub-btn.selected`)
+      : document.querySelector(`#${pre}PurposeTier2Act .purpose-sub-btn.selected`);
+    const sub = subRow?.dataset.display;
+    if (sub) hint += ` · <strong>${sub}</strong> 맥락`;
+  }
+  if (group === 'rec' && t1 !== 'general') {
+    hint += ' · 성·음절·성별은 참고용이며, 결과에 성이 자동으로 붙지 않습니다.';
+  }
+  return hint;
+}
+
+function updatePurposeHint(group) {
+  const pre = group === 'analyze' ? 'analyze' : 'rec';
+  const el = document.getElementById(pre + 'PurposeHint');
+  if (el) el.innerHTML = getPurposeHintHtml(group);
+  if (group !== 'rec') return;
+  const ctx = getPurposeSelection('rec');
+  const btn = document.getElementById('recBtn');
+  const noun = recommendResultNoun(ctx.scoringKey);
+  if (btn) btn.textContent = `✧ AI ${noun} 추천 받기`;
+  const extra = document.getElementById('recExtra');
+  if (extra) {
+    extra.placeholder = REC_EXTRA_PLACEHOLDER[ctx.scoringKey] || REC_EXTRA_PLACEHOLDER.general;
+  }
+}
+
 function selectPurposeTier1(el, group) {
   const pre = group === 'analyze' ? 'analyze' : 'rec';
   document.querySelectorAll(`#${pre}PurposeTier1 .purpose-tier1-btn`).forEach(b => b.classList.remove('selected'));
@@ -1386,6 +1441,7 @@ function selectPurposeTier1(el, group) {
     nick.style.display = 'none';
     act.style.display = 'none';
   }
+  updatePurposeHint(group);
 }
 
 function selectPurposeSub(el, group, kind) {
@@ -1394,6 +1450,7 @@ function selectPurposeSub(el, group, kind) {
   if (!row) return;
   row.querySelectorAll('.purpose-sub-btn').forEach(b => b.classList.remove('selected'));
   el.classList.add('selected');
+  updatePurposeHint(group);
 }
 
 /** @returns {{ scoringKey: string, label: string }} */
@@ -2017,6 +2074,8 @@ document.addEventListener('keydown',e=>{
     await PaljaProductBootstrap.bootstrap({ product: 'name', requireLogin: true });
   }
   await loadNameAiQuota();
+  updatePurposeHint('analyze');
+  updatePurposeHint('rec');
 })();
 </script>
 <div class="birth-picker-backdrop" id="birthPickerBackdrop" hidden aria-hidden="true">
