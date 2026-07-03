@@ -5,6 +5,7 @@ create table if not exists public.counselor_events (
   id uuid primary key default gen_random_uuid(),
   counselor_id uuid not null references auth.users (id) on delete cascade,
   event_date date not null,
+  event_time text,
   title text not null,
   note text,
   created_at timestamptz not null default now(),
