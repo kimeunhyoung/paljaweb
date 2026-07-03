@@ -63,7 +63,8 @@
   function formatQuotaLine(quota) {
     if (!quota || quota.limit == null) return '';
     const rem = quota.remaining != null ? quota.remaining : Math.max(0, quota.limit - (quota.used || 0));
-    return `이번 달 AI ${rem}/${quota.limit}크레딧`;
+    const trialTag = quota.counselorTrial ? ' · 체험' : '';
+    return `이번 달 AI ${rem}/${quota.limit}크레딧${trialTag}`;
   }
 
   function applyQuotaBadge(el, quota) {

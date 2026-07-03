@@ -213,6 +213,10 @@ body{font-family:var(--font-body);background:var(--cream);color:var(--ink);min-h
 .gender-row{display:flex;gap:10px;margin-bottom:8px;}
 .gender-btn{padding:8px 20px;border:1px solid rgba(200,169,110,.25);border-radius:8px;background:transparent;color:rgba(245,240,232,.55);font-family:var(--font-body);font-size:13px;cursor:pointer;transition:all .2s;}
 .gender-btn.selected{background:rgba(200,169,110,.15);border-color:var(--accent);color:var(--accent-lt);}
+.syllable-row{flex-wrap:wrap;}
+.syllable-row .gender-btn{flex:1 1 auto;min-width:4.5rem;text-align:center;}
+select.input-field{background-color:#2d2418;color:var(--cream);color-scheme:dark;}
+select.input-field option{background:#2d2418;color:#f5f0e8;}
 
 /* CONTENT */
 .content{max-width:960px;margin:0 auto;padding:40px 32px 80px;}
@@ -605,16 +609,17 @@ body{font-family:var(--font-body);background:var(--cream);color:var(--ink);min-h
         <div class="birth-row" style="margin-bottom:20px;">
           <div class="input-group">
             <label class="input-label">이름 음절 수</label>
-            <select class="input-field" id="recSyllable" style="cursor:pointer;">
-              <option value="any">무관</option>
-              <option value="1">1음절</option>
-              <option value="2" selected>2음절</option>
-              <option value="3">3음절</option>
-            </select>
+            <div class="gender-row syllable-row" id="recSyllableRow" style="margin:0;">
+              <button type="button" class="gender-btn" data-syllable="any" onclick="selectSyllable(this)">무관</button>
+              <button type="button" class="gender-btn" data-syllable="1" onclick="selectSyllable(this)">1음절</button>
+              <button type="button" class="gender-btn selected" data-syllable="2" onclick="selectSyllable(this)">2음절</button>
+              <button type="button" class="gender-btn" data-syllable="3" onclick="selectSyllable(this)">3음절</button>
+            </div>
+            <input type="hidden" id="recSyllable" value="2">
           </div>
           <div class="input-group">
             <label class="input-label">성별</label>
-            <div class="gender-row" style="margin:0;">
+            <div class="gender-row" id="recGenderRow" style="margin:0;">
               <button class="gender-btn selected" data-gender="무관" onclick="selectGender(this)">무관</button>
               <button class="gender-btn" data-gender="여자" onclick="selectGender(this)">여자</button>
               <button class="gender-btn" data-gender="남자" onclick="selectGender(this)">남자</button>
@@ -1236,7 +1241,16 @@ function verdictText(v, r, dist, purposeInput) {
 function onNameInput(el){el.classList.toggle('filled',el.value.trim().length>0);}
 function switchTab(tab,btn){document.querySelectorAll('.hero-tab').forEach(b=>b.classList.remove('active'));document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));btn.classList.add('active');document.getElementById('panel-'+tab).classList.add('active');document.getElementById('resultArea').style.display='none';document.getElementById('recResultArea').style.display='none';}
 function toggleChip(el){el.classList.toggle('selected');}
-function selectGender(el){document.querySelectorAll('.gender-btn').forEach(b=>b.classList.remove('selected'));el.classList.add('selected');}
+function selectGender(el){
+  (el.closest('.gender-row')||el.parentElement).querySelectorAll('.gender-btn').forEach(b=>b.classList.remove('selected'));
+  el.classList.add('selected');
+}
+function selectSyllable(el){
+  document.querySelectorAll('#recSyllableRow .gender-btn').forEach(b=>b.classList.remove('selected'));
+  el.classList.add('selected');
+  const hid=document.getElementById('recSyllable');
+  if(hid) hid.value=el.dataset.syllable||'any';
+}
 function toggleNums(btn){btn.classList.toggle('open');const detail=btn.nextElementSibling;detail.classList.toggle('open');}
 
 function selectPurposeTier1(el, group) {
@@ -1716,7 +1730,7 @@ async function runRecommend(){
   const surname  = document.getElementById('recSurname').value.trim();
   const birth    = document.getElementById('recBirth').value;
   const syllable = document.getElementById('recSyllable').value;
-  const gender   = document.querySelector('.gender-btn.selected')?.dataset.gender || '무관';
+  const gender   = document.querySelector('#recGenderRow .gender-btn.selected')?.dataset.gender || '무관';
   const extra    = document.getElementById('recExtra').value.trim();
   const chips    = [...document.querySelectorAll('#recEnergyChips .energy-chip.selected')].map(c => c.dataset.val).filter(Boolean);
   const purposeCtx  = getPurposeSelection('rec');
