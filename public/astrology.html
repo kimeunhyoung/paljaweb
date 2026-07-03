@@ -543,7 +543,7 @@ body.export-capturing #wheelCard .note{display:none !important;}
         <a class="rt-btn" id="btnOpenGemini" href="https://gemini.google.com/app" target="_blank" rel="noopener">Gemini ↗</a>
       </div>
       <div id="aiResult" class="ai-result">차트를 계산한 뒤 <strong>AI 해석</strong> 버튼을 눌러 주세요.</div>
-      <p class="ai-time-hint" id="aiTimeHint">해석 생성에 보통 30초~1분 정도 걸릴 수 있어요. 섹션이 많을수록 조금 더 걸립니다. 창을 닫지 말고 잠시만 기다려 주세요.</p>
+      <p class="ai-time-hint" id="aiTimeHint">해석 생성에 보통 30초~2분 정도 걸릴 수 있어요. 섹션이 많으면 조금 더 걸립니다. 창을 닫지 말고 잠시만 기다려 주세요.</p>
       <details class="ai-prompt-details no-print">
         <summary>고급: 프롬프트 직접 보기</summary>
         <textarea id="aiPrompt" class="ai-prompt-box" readonly rows="6" style="margin-top:8px;"></textarea>
@@ -1643,18 +1643,18 @@ body.export-capturing #wheelCard .note{display:none !important;}
     const timeHint = $('aiTimeHint');
     if (timeHint) timeHint.classList.add('is-loading');
     const prompt = buildAiPrompt(LAST_CTX, LAST_ASPECTS, LAST_KNOWN);
-    const cacheKey = window.PaljaAiQuota ? PaljaAiQuota.hashKey('v4:' + prompt) : prompt.slice(0, 200);
+    const cacheKey = window.PaljaAiQuota ? PaljaAiQuota.hashKey('v5:' + prompt) : prompt.slice(0, 200);
     try {
       if (!window.PaljaAiQuota) throw new Error('no_quota_client');
       const { text, quota, data } = await PaljaAiQuota.callAi({
         feature: 'astro',
         cacheKey,
-        max_tokens: 8192,
+        max_tokens: 16384,
         messages: [{ role: 'user', content: prompt }],
       });
       let out = text || '해석을 생성하지 못했어요.';
       if (data?.stop_reason === 'max_tokens') {
-        out += '\n\n(※ 일부 내용이 여전히 잘렸을 수 있어요. 프롬프트 복사로 이어서 보실 수도 있어요.)';
+        out += '\n\n(※ 아주 긴 해석이라 일부가 잘렸을 수 있어요. 프롬프트 복사로 이어서 보실 수도 있어요.)';
       }
       box.textContent = out;
       if (quota) {
