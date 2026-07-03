@@ -148,7 +148,9 @@
 
   function init() {
     document
-      .querySelectorAll('.site-top[data-nav-current], .site-top[data-topbar-variant="auth"]')
+      .querySelectorAll(
+        '.site-top[data-nav-current], .site-top[data-topbar-title], .site-top[data-topbar-variant="auth"]'
+      )
       .forEach(render);
   }
 
