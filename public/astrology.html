@@ -154,6 +154,8 @@ table.astro-table td .glyph{font-size:16px;margin-right:4px;color:var(--accent);
 .rt-btn:hover{background:var(--accent-lt);border-color:var(--accent);color:var(--deep-brown);}
 .rt-btn--share{background:var(--accent);color:#fff;border-color:var(--accent);}
 .rt-btn--share:hover{background:#d4b87a;color:#fff;}
+.rt-btn--pulse{animation:rtPulse .6s ease 3;box-shadow:0 0 0 3px rgba(200,169,110,.45);}
+@keyframes rtPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.04)}}
 
 /* 원소·모달리티 균형 */
 .balance-wrap{display:grid;grid-template-columns:1fr 1fr;gap:24px;}
@@ -257,6 +259,13 @@ table.astro-table td .glyph{font-size:16px;margin-right:4px;color:var(--accent);
 .ai-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px;}
 .ai-actions a.rt-btn{text-decoration:none;display:inline-flex;align-items:center;}
 .ai-quota-badge{display:inline-block;font-size:11px;font-weight:600;color:var(--warm-brown);background:var(--accent-lt);border:1px solid var(--accent);border-radius:999px;padding:4px 10px;margin:0 0 10px;}
+.ai-transit-tip{display:flex;gap:12px;align-items:flex-start;margin:0 0 14px;padding:12px 14px;border-radius:12px;border:1px solid #e0c878;background:linear-gradient(135deg,#fff9e8 0%,#fff3cc 100%);box-shadow:0 2px 8px rgba(200,169,110,.15);}
+.ai-transit-tip--ok{border-color:#9fd4b8;background:linear-gradient(135deg,#f0faf4 0%,#e4f5ec 100%);box-shadow:none;}
+.ai-transit-tip-icon{font-size:22px;line-height:1;flex-shrink:0;margin-top:1px;}
+.ai-transit-tip-body{font-size:13px;line-height:1.65;color:var(--ink);}
+.ai-transit-tip-body strong{display:block;font-size:13.5px;color:var(--deep-brown);margin-bottom:4px;}
+.ai-transit-tip-link{display:inline;font:inherit;font-weight:700;color:var(--deep-brown);background:var(--accent);border:none;border-radius:999px;padding:2px 10px;cursor:pointer;text-decoration:underline;text-underline-offset:2px;}
+.ai-transit-tip-link:hover{background:#d4b87a;}
 
 @media (max-width:680px){
   .form-grid{grid-template-columns:1fr;}
@@ -520,7 +529,11 @@ body.export-capturing #wheelCard .note{display:none !important;}
     <div class="card" id="aiCard">
       <div class="card-title">✦ AI 심층 해석</div>
       <span class="ai-quota-badge" id="aiQuotaBadge" hidden></span>
-      <p class="transit-intro">아래 <strong>AI 해석</strong> 버튼으로 차트(트랜짓·올해 운세 포함) 맞춤 해석을 바로 받을 수 있어요. ‘오늘의 트랜짓 보기’를 먼저 누르면 요즘 흐름까지 반영됩니다. 또는 프롬프트를 ChatGPT·Gemini에 붙여 이용하세요.</p>
+      <p class="transit-intro">아래 <strong>AI 해석</strong> 버튼으로 이 차트(올해 운세 포함) 맞춤 해석을 바로 받을 수 있어요. 또는 프롬프트를 ChatGPT·Gemini에 붙여 이용하세요.</p>
+      <div class="ai-transit-tip" id="aiTransitTip" hidden>
+        <div class="ai-transit-tip-icon" id="aiTransitTipIcon">🌙</div>
+        <div class="ai-transit-tip-body" id="aiTransitTipBody"></div>
+      </div>
       <div class="ai-actions no-print">
         <button type="button" class="rt-btn rt-btn--share" id="btnAiRun" disabled>✨ AI 해석</button>
         <button type="button" class="rt-btn" id="btnAiCopy">⧉ 프롬프트 복사</button>
@@ -709,6 +722,39 @@ body.export-capturing #wheelCard .note{display:none !important;}
     PaljaAiQuota.applyQuotaBadge($('aiQuotaBadge'), q);
   }
 
+  function refreshAiTransitTip() {
+    const tip = $('aiTransitTip');
+    const body = $('aiTransitTipBody');
+    const icon = $('aiTransitTipIcon');
+    if (!tip || !body) return;
+    if (!HAS_BASIC || !LAST_CTX) {
+      tip.hidden = true;
+      return;
+    }
+    tip.hidden = false;
+    if (LAST_TRANSIT && (LAST_TRANSIT.fast.length || LAST_TRANSIT.slow.length)) {
+      tip.className = 'ai-transit-tip ai-transit-tip--ok';
+      if (icon) icon.textContent = '✓';
+      body.innerHTML = `<strong>요즘 트랜짓이 AI 해석에 반영됩니다</strong>${LAST_TRANSIT.dstr} 기준 트랜짓이 포함되어 있어요. 이제 <strong>AI 해석</strong>을 눌러 주세요.`;
+      return;
+    }
+    tip.className = 'ai-transit-tip';
+    if (icon) icon.textContent = '🌙';
+    body.innerHTML = `<strong>요즘 흐름까지 넣으려면 먼저 트랜짓을 보세요</strong>위 「오늘의 하늘 · 트랜짓」에서 <button type="button" class="ai-transit-tip-link" id="btnAiGoTransit">오늘의 트랜짓 보기</button>를 누른 뒤 AI 해석을 하시면, 지금~요즘 흐름까지 함께 반영됩니다.`;
+    const go = $('btnAiGoTransit');
+    if (go) {
+      go.onclick = () => {
+        const card = $('transitCard');
+        const btn = $('btnTransit');
+        if (card) card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        if (btn) {
+          btn.classList.add('rt-btn--pulse');
+          setTimeout(() => btn.classList.remove('rt-btn--pulse'), 1800);
+        }
+      };
+    }
+  }
+
   function refreshAiUi() {
     const btn = $('btnAiRun');
     const box = $('aiResult');
@@ -738,6 +784,7 @@ body.export-capturing #wheelCard .note{display:none !important;}
     } else {
       box.innerHTML = 'AI 서버가 아직 설정되지 않았어요. <strong>프롬프트 복사</strong> 후 ChatGPT·Gemini에서 이용해 주세요.';
     }
+    refreshAiTransitTip();
   }
 
   function updateReportHeader(opts) {
@@ -947,6 +994,8 @@ body.export-capturing #wheelCard .note{display:none !important;}
     $('yearForecast').innerHTML = LOCK_HTML;
     $('btnAiRun').hidden = true;
     $('btnAiRun').disabled = true;
+    const tip = $('aiTransitTip');
+    if (tip) tip.hidden = true;
     $('aiResult').innerHTML = LOCK_HTML;
     $('aiPrompt').value = '';
     const det = document.querySelector('#aiCard .ai-prompt-details');
@@ -1222,6 +1271,7 @@ body.export-capturing #wheelCard .note{display:none !important;}
     };
     refreshAiPrompt();
     renderCounselorReport();
+    refreshAiTransitTip();
   }
 
   function refreshAiPrompt() {
