@@ -399,27 +399,29 @@ body.export-capturing #wheelCard .note{display:none !important;}
           <small>체크한 항목만 포함 · 이름·생년월일은 맨 위에 표시</small>
         </div>
         <div class="export-opts-row">
-          <span class="export-opts-label">차트</span>
+          <span class="export-opts-label">출생</span>
           <label><input type="checkbox" id="expWheel" checked/> 네이탈 차트+어스펙트</label>
+          <label><input type="checkbox" id="expBig3"/> 빅3</label>
+          <label><input type="checkbox" id="expBalance"/> 원소·모달리티</label>
         </div>
         <div class="export-opts-row">
-          <span class="export-opts-label">해석</span>
-          <label><input type="checkbox" id="expBig3"/> 빅3 해석</label>
-          <label><input type="checkbox" id="expBalance"/> 원소·모달 상세</label>
+          <span class="export-opts-label">상세</span>
+          <label><input type="checkbox" id="expPlanet"/> 행성 위치</label>
           <label><input type="checkbox" id="expPlanetRead"/> 행성 해석</label>
           <label><input type="checkbox" id="expHouse"/> 12하우스</label>
           <label><input type="checkbox" id="expAspect"/> 주요 어스펙트</label>
         </div>
         <div class="export-opts-row">
-          <span class="export-opts-label">표</span>
-          <label><input type="checkbox" id="expPlanet"/> 행성 위치</label>
+          <span class="export-opts-label">AI·운세</span>
+          <label><input type="checkbox" id="expAi"/> AI 차트 해석</label>
+          <label><input type="checkbox" id="expYear"/> 올해 운세</label>
+          <label><input type="checkbox" id="expAiYear"/> AI 올해 운세</label>
+          <label><input type="checkbox" id="expTransit"/> 트랜짓</label>
+          <label><input type="checkbox" id="expAiTransit"/> AI 트랜짓 해석</label>
         </div>
         <div class="export-opts-row">
-          <span class="export-opts-label">심화</span>
-          <label><input type="checkbox" id="expTransit"/> 트랜짓</label>
-          <label><input type="checkbox" id="expYear"/> 올해 운세</label>
+          <span class="export-opts-label">상담사</span>
           <label id="expReportLabel" hidden><input type="checkbox" id="expReport"/> 상담 요약</label>
-          <label><input type="checkbox" id="expAi"/> AI 해석</label>
         </div>
       </div>
       <div class="result-actions">
@@ -499,17 +501,53 @@ body.export-capturing #wheelCard .note{display:none !important;}
       </div>
     </div>
 
+    <!-- AI 차트 해석 (출생 차트) -->
+    <div class="card" id="aiCard">
+      <div class="card-title">✦ AI 차트 해석</div>
+      <span class="ai-quota-badge" id="aiQuotaBadge" hidden></span>
+      <p class="transit-intro">출생 차트(타고난 성향) 맞춤 해석이에요. <strong>올해 운세</strong>와 <strong>지금·이번 주 흐름</strong>은 아래에서 따로 볼 수 있어요.</p>
+      <div class="ai-actions no-print">
+        <button type="button" class="rt-btn rt-btn--share" id="btnAiRun" disabled>✨ AI 차트 해석 (2크레딧)</button>
+        <button type="button" class="rt-btn" id="btnAiCopy">⧉ 프롬프트 복사</button>
+        <a class="rt-btn" id="btnOpenGpt" href="https://chatgpt.com/" target="_blank" rel="noopener">ChatGPT ↗</a>
+        <a class="rt-btn" id="btnOpenGemini" href="https://gemini.google.com/app" target="_blank" rel="noopener">Gemini ↗</a>
+      </div>
+      <div id="aiResult" class="ai-result">차트를 계산한 뒤 <strong>AI 차트 해석</strong> 버튼을 눌러 주세요.</div>
+      <p class="ai-time-hint" id="aiTimeHint">차트 해석은 보통 30초~1분 정도 걸려요. 창을 닫지 말고 잠시만 기다려 주세요.</p>
+      <details class="ai-prompt-details no-print">
+        <summary>고급: 프롬프트 직접 보기</summary>
+        <textarea id="aiPrompt" class="ai-prompt-box" readonly rows="6" style="margin-top:8px;"></textarea>
+      </details>
+    </div>
+
+    <!-- 올해 운세 심화 -->
+    <div class="card" id="yearCard">
+      <div class="card-title">✦ 올해 운세 · 프로그레션 · 솔라 리턴</div>
+      <p class="transit-intro">2차 프로그레션(하루=1년)과 솔라 리턴(태양이 돌아오는 날의 차트)으로 <strong>올해 1년의 큰 테마</strong>를 봅니다. 출생 시간이 있을 때 더 정확해요.</p>
+      <div id="yearForecast" class="transit-result"><div class="transit-empty">차트 계산 후 자동으로 표시됩니다.</div></div>
+      <div class="transit-ai-block no-print" id="yearAiBlock" hidden>
+        <p class="transit-ai-intro">위 올해 운세를 본 뒤 <strong>AI 올해 운세</strong>로 연애·일·금전 테마를 풀어 볼 수 있어요. <span class="ai-quota-cost">(1크레딧)</span></p>
+        <div class="transit-ai-row">
+          <button type="button" class="rt-btn rt-btn--share" id="btnYearAi" disabled>✨ AI 올해 운세 (1크레딧)</button>
+        </div>
+        <div id="yearAiResult" class="ai-result empty">올해 운세가 계산되면 「AI 올해 운세」를 눌러 주세요.</div>
+        <p class="ai-time-hint" id="yearAiHint">보통 20~40초 정도 걸려요.</p>
+      </div>
+    </div>
+
     <!-- 트랜짓(오늘의 운세) -->
     <div class="card" id="transitCard">
       <div class="card-title">✦ 오늘의 하늘 · 트랜짓</div>
       <p class="transit-intro">지금 이 순간 하늘의 행성들이 <strong>나의 출생 차트</strong>에 어떤 각을 맺는지를 봅니다. 요즘의 흐름·기회·과제를 읽는 ‘운세’예요.</p>
-      <div class="transit-controls">
-        <label class="transit-date-row">기준 날짜
-          <input type="date" id="transitDate" class="input-field"/>
-        </label>
-        <button type="button" class="rt-btn rt-btn--share" id="btnTransit">오늘의 트랜짓 보기</button>
+      <div id="transitDataBlock">
+        <div class="transit-controls">
+          <label class="transit-date-row">기준 날짜
+            <input type="date" id="transitDate" class="input-field"/>
+          </label>
+          <button type="button" class="rt-btn rt-btn--share" id="btnTransit">오늘의 트랜짓 보기</button>
+        </div>
+        <div id="transitResult" class="transit-result"></div>
       </div>
-      <div id="transitResult" class="transit-result"></div>
       <div class="transit-ai-block no-print" id="transitAiBlock" hidden>
         <p class="transit-ai-intro">트랜짓을 본 뒤 아래에서 <strong>이번 주·요즘 큰 흐름</strong>만 AI로 풀어 볼 수 있어요. 오늘의 운세처럼 자주 확인해 보세요. <span class="ai-quota-cost">(각 1크레딧)</span></p>
         <div class="transit-ai-row">
@@ -525,13 +563,6 @@ body.export-capturing #wheelCard .note{display:none !important;}
       </div>
     </div>
 
-    <!-- 올해 운세 심화 -->
-    <div class="card" id="yearCard">
-      <div class="card-title">✦ 올해 운세 심화 · 프로그레션 · 솔라 리턴</div>
-      <p class="transit-intro">2차 프로그레션(하루=1년)과 솔라 리턴(태양이 돌아오는 날의 차트)으로 <strong>올해의 큰 테마</strong>를 봅니다. 출생 시간이 있을 때 더 정확해요.</p>
-      <div id="yearForecast" class="transit-result"><div class="transit-empty">차트 계산 후 자동으로 표시됩니다.</div></div>
-    </div>
-
     <!-- 상담사용 한 장 요약 (Professional 전용) -->
     <div class="card" id="counselorReportCard" hidden>
       <div class="card-title">✦ 상담사용 한 장 요약 리포트</div>
@@ -541,25 +572,6 @@ body.export-capturing #wheelCard .note{display:none !important;}
         <button type="button" class="rt-btn" id="btnReportCopy">⧉ 요약 복사</button>
         <button type="button" class="rt-btn" id="btnReportPrint">🖨 요약만 인쇄</button>
       </div>
-    </div>
-
-    <!-- AI 해석 -->
-    <div class="card" id="aiCard">
-      <div class="card-title">✦ AI 차트 해석</div>
-      <span class="ai-quota-badge" id="aiQuotaBadge" hidden></span>
-      <p class="transit-intro">출생 차트(타고난 성향) 맞춤 해석이에요. <strong>지금·이번 주 운세</strong>는 위 「오늘의 하늘 · 트랜짓」에서 따로 볼 수 있어요. 또는 프롬프트를 ChatGPT·Gemini에 붙여 이용하세요.</p>
-      <div class="ai-actions no-print">
-        <button type="button" class="rt-btn rt-btn--share" id="btnAiRun" disabled>✨ AI 차트 해석 (2크레딧)</button>
-        <button type="button" class="rt-btn" id="btnAiCopy">⧉ 프롬프트 복사</button>
-        <a class="rt-btn" id="btnOpenGpt" href="https://chatgpt.com/" target="_blank" rel="noopener">ChatGPT ↗</a>
-        <a class="rt-btn" id="btnOpenGemini" href="https://gemini.google.com/app" target="_blank" rel="noopener">Gemini ↗</a>
-      </div>
-      <div id="aiResult" class="ai-result">차트를 계산한 뒤 <strong>AI 차트 해석</strong> 버튼을 눌러 주세요.</div>
-      <p class="ai-time-hint" id="aiTimeHint">차트 해석은 보통 30초~1분 정도 걸려요. 창을 닫지 말고 잠시만 기다려 주세요.</p>
-      <details class="ai-prompt-details no-print">
-        <summary>고급: 프롬프트 직접 보기</summary>
-        <textarea id="aiPrompt" class="ai-prompt-box" readonly rows="6" style="margin-top:8px;"></textarea>
-      </details>
     </div>
 
     <div class="note">
@@ -725,6 +737,8 @@ body.export-capturing #wheelCard .note{display:none !important;}
   let LAST_TRANSIT = null;    // { dstr, fast[], slow[], fastBuckets{}, slowBuckets{} }
   let LAST_BIRTH = null;      // { y, mo, da, hh, mi, unknownTime }
   let LAST_YEAR_FORECAST = null;
+  let YEAR_AI_CACHE = { key: '', text: '' };
+  let YEAR_AI_BUSY = false;
   let AI_SERVER_OK = false;
   const ASTRO_AI_API_ENABLED = true;
 
@@ -797,9 +811,8 @@ body.export-capturing #wheelCard .note{display:none !important;}
       box.innerHTML = 'AI 서버가 아직 설정되지 않았어요. <strong>프롬프트 복사</strong> 후 ChatGPT·Gemini에서 이용해 주세요.';
     }
     refreshTransitAiUi();
+    refreshYearAiUi();
   }
-
-  function updateReportHeader(opts) {
     const birth = fmtBirthLine(LAST_BIRTH, opts.unknownTime);
     const city = opts.coordLabel || '';
     const nameEl = $('reportHeaderName');
@@ -969,7 +982,9 @@ body.export-capturing #wheelCard .note{display:none !important;}
       sunSign, moonSign, ascSign, planetReads,
     };
     LAST_ASPECTS = aspects; LAST_KNOWN = knownKeys; LAST_TRANSIT = null;
+    LAST_YEAR_FORECAST = null;
     resetTransitAiResults();
+    resetYearAiResult();
     $('aiPrompt').value = buildChartAiPrompt(LAST_CTX, aspects, knownKeys);
 
     // 트랜짓 기준일 기본값 = 오늘, 결과 초기화
@@ -1001,10 +1016,13 @@ body.export-capturing #wheelCard .note{display:none !important;}
     $('aspectList').innerHTML = LOCK_HTML;
     const arGrid = $('wheelAspectGrid');
     if (arGrid) arGrid.innerHTML = LOCK_HTML;
-    const tc = $('transitControls') || document.querySelector('#transitCard .transit-controls');
+    const tc = $('transitDataBlock') || document.querySelector('#transitCard .transit-controls');
     if (tc) tc.style.display = 'none';
     $('transitResult').innerHTML = LOCK_HTML;
     $('yearForecast').innerHTML = LOCK_HTML;
+    const yBlock = $('yearAiBlock');
+    if (yBlock) yBlock.hidden = true;
+    $('btnYearAi').hidden = true;
     $('btnAiRun').hidden = true;
     $('btnAiRun').disabled = true;
     const tBlock = $('transitAiBlock');
@@ -1367,18 +1385,10 @@ body.export-capturing #wheelCard .note{display:none !important;}
   // ── AI 차트 해석 프롬프트 (출생 차트만) ──
   function buildChartAiPrompt(ctx, aspects, knownKeys) {
     const L = [];
-    const hasYear = !!LAST_YEAR_FORECAST;
 
-    L.push('당신은 따뜻하고 통찰력 있는 전문 점성가입니다. 아래 출생 차트를 바탕으로 전문 용어는 쉽게 풀어 한국어로 해석해 주세요. 단정적 예언·공포 조장은 금지하고, 참고용 자기이해 톤으로 다정하게 써 주세요. 트랜짓·이번 주 운세는 이 요청에 포함하지 마세요.');
+    L.push('당신은 따뜻하고 통찰력 있는 전문 점성가입니다. 아래 출생 차트를 바탕으로 전문 용어는 쉽게 풀어 한국어로 해석해 주세요. 단정적 예언·공포 조장은 금지하고, 참고용 자기이해 톤으로 다정하게 써 주세요. 트랜짓·올해 운세·이번 주 운세는 이 요청에 포함하지 마세요.');
     L.push('');
     appendChartContextLines(L, ctx, aspects, knownKeys);
-
-    if (LAST_YEAR_FORECAST) {
-      L.push('');
-      L.push('[올해 운세 · 프로그레션 & 솔라 리턴]');
-      L.push('프로그레션(만 ' + LAST_YEAR_FORECAST.age + '세): 태양 ' + LAST_YEAR_FORECAST.progSun + ' · 달 ' + LAST_YEAR_FORECAST.progMoon);
-      L.push('솔라 리턴: ' + fmtYmd(LAST_YEAR_FORECAST.srDate) + (LAST_YEAR_FORECAST.srAsc ? ' · 상승궁 ' + LAST_YEAR_FORECAST.srAsc : '') + (LAST_YEAR_FORECAST.srSunHouse ? ' · 태양 ' + LAST_YEAR_FORECAST.srSunHouse + '하우스' : ''));
-    }
 
     L.push('');
     L.push('[작성 형식 — 반드시 지키세요]');
@@ -1391,12 +1401,40 @@ body.export-capturing #wheelCard .note{display:none !important;}
       '## 일·적성·커리어 — MC·6·10하우스, 토성·화성·태양 등',
       '## 금전·재물운 — 2·8하우스, 금성·목성·토성, 수입·지출·저축 성향',
     ];
-    if (hasYear) {
-      sections.push('## 올해 운세·테마 — 프로그레션·솔라 리턴 근거로 올해 큰 방향');
-    }
     sections.forEach((s, i) => L.push(`   ${i + 1}. ${s}`));
     L.push('2) 각 섹션 **3~4문장**. 차트 근거(행성·별자리·하우스·어스펙트)를 최소 1개 이상 언급하세요. 같은 내용 반복 금지.');
     L.push('3) 반드시 마지막 섹션까지 완성하고 중간에 끊지 마세요.');
+    return L.join('\n');
+  }
+
+  function currentYearKey() {
+    return String(new Date().getFullYear());
+  }
+
+  // ── AI 올해 운세 프롬프트 (프로그레션·솔라 리턴) ──
+  function buildYearAiPrompt() {
+    const yf = LAST_YEAR_FORECAST;
+    const L = [];
+    L.push('당신은 따뜻하고 통찰력 있는 전문 점성가입니다. 아래 출생 차트와 올해 프로그레션·솔라 리턴을 바탕으로 **올해 1년** 운세를 한국어로 써 주세요. 트랜짓·이번 주 운세는 제외하세요. 단정적 예언·공포 조장은 금지하고, 참고용 톤으로 다정하게 써 주세요.');
+    L.push('');
+    appendChartContextLines(L, LAST_CTX, LAST_ASPECTS, LAST_KNOWN);
+    L.push('');
+    L.push('[올해 운세 · 프로그레션 & 솔라 리턴 · ' + currentYearKey() + '년]');
+    L.push('프로그레션(만 ' + yf.age + '세): 태양 ' + yf.progSun + ' · 달 ' + yf.progMoon);
+    L.push('솔라 리턴: ' + fmtYmd(yf.srDate) + (yf.srAsc ? ' · 상승궁 ' + yf.srAsc : '') + (yf.srSunHouse ? ' · 태양 ' + yf.srSunHouse + '하우스' : ''));
+    L.push('');
+    L.push('[작성 형식 — 반드시 지키세요]');
+    L.push('1) ## 제목만 사용. 아래 순서대로 작성하세요.');
+    [
+      '## 올해 전체 테마 — 프로그레션·솔라 리턴 연결(2~3문장)',
+      '## 연애·관계 — 올해 관계·가족 테마',
+      '## 일·적성·커리어 — 올해 업무·커리어 방향',
+      '## 금전·재물 — 올해 재정·자원 흐름',
+      '## 올해 실천 포인트 — 구체적 행동 2~3가지',
+    ].forEach((s, i) => L.push(`   ${i + 1}. ${s}`));
+    L.push('2) 각 섹션 3~4문장. 프로그레션·솔라 리턴 근거를 최소 1개 이상 언급하세요.');
+    L.push('3) 출생 차트 성향과 올해 테마를 모순 없이 연결하세요.');
+    L.push('4) 반드시 마지막 섹션까지 완성하세요.');
     return L.join('\n');
   }
 
@@ -1525,6 +1563,8 @@ body.export-capturing #wheelCard .note{display:none !important;}
 
       box.innerHTML = html;
       renderCounselorReport();
+      resetYearAiResult();
+      refreshYearAiUi();
     } catch (e) {
       console.error(e);
       box.innerHTML = '<div class="transit-empty">올해 운세 계산 중 오류가 났어요.</div>';
@@ -1590,10 +1630,12 @@ body.export-capturing #wheelCard .note{display:none !important;}
     ['expPlanetRead', ['planetReadCard']],
     ['expHouse', ['houseCard']],
     ['expAspect', ['aspectCard']],
-    ['expTransit', ['transitCard']],
-    ['expYear', ['yearCard']],
-    ['expReport', ['counselorReportCard']],
     ['expAi', ['aiCard']],
+    ['expYear', ['yearForecast']],
+    ['expAiYear', ['yearAiBlock']],
+    ['expTransit', ['transitDataBlock']],
+    ['expAiTransit', ['transitAiBlock']],
+    ['expReport', ['counselorReportCard']],
   ];
   const EXPORT_CB_IDS = EXPORT_MAP.map(([id]) => id);
 
@@ -1722,7 +1764,7 @@ body.export-capturing #wheelCard .note{display:none !important;}
     const timeHint = $('aiTimeHint');
     if (timeHint) timeHint.classList.add('is-loading');
     const prompt = buildChartAiPrompt(LAST_CTX, LAST_ASPECTS, LAST_KNOWN);
-    const cacheKey = window.PaljaAiQuota ? PaljaAiQuota.hashKey('v7:chart:' + prompt) : prompt.slice(0, 200);
+    const cacheKey = window.PaljaAiQuota ? PaljaAiQuota.hashKey('v8:chart:' + prompt) : prompt.slice(0, 200);
     try {
       if (!window.PaljaAiQuota) throw new Error('no_quota_client');
       const { text, quota, data } = await PaljaAiQuota.callAi({
@@ -1772,6 +1814,105 @@ body.export-capturing #wheelCard .note{display:none !important;}
       slowBox.textContent = '느린 행성 트랜짓 기준으로 몇 달~수년 테마를 봅니다.';
     }
     refreshTransitAiUi();
+  }
+
+  function resetYearAiResult() {
+    YEAR_AI_CACHE = { key: '', text: '' };
+    const box = $('yearAiResult');
+    if (box) {
+      box.className = 'ai-result empty';
+      box.textContent = '올해 운세가 계산되면 「AI 올해 운세」를 눌러 주세요.';
+    }
+    refreshYearAiUi();
+  }
+
+  function refreshYearAiUi() {
+    const block = $('yearAiBlock');
+    if (!block) return;
+    if (!HAS_BASIC || !LAST_CTX || !LAST_YEAR_FORECAST) {
+      block.hidden = true;
+      return;
+    }
+    block.hidden = false;
+    const btn = $('btnYearAi');
+    const box = $('yearAiResult');
+    if (btn) btn.disabled = !AI_SERVER_OK || YEAR_AI_BUSY;
+    if (!box || box.textContent.includes('생성하고')) return;
+    const yKey = currentYearKey();
+    if (YEAR_AI_CACHE.key === yKey && YEAR_AI_CACHE.text) {
+      box.textContent = YEAR_AI_CACHE.text;
+      box.classList.remove('empty');
+      return;
+    }
+    if (box.classList.contains('empty') && !box.querySelector('.astro-lock')) {
+      box.textContent = yKey + '년 올해 운세를 보려면 「AI 올해 운세」를 눌러 주세요.';
+    }
+  }
+
+  async function callYearAi() {
+    if (!ASTRO_AI_API_ENABLED) return;
+    if (!HAS_BASIC) { showStatus('AI 해석은 Basic 이상 요금제에서 이용할 수 있어요.', 'err'); return; }
+    if (!LAST_CTX || !LAST_YEAR_FORECAST) {
+      showStatus('올해 운세를 먼저 계산해 주세요. 출생 시간이 필요할 수 있어요.', 'err');
+      return;
+    }
+    const btn = $('btnYearAi');
+    const box = $('yearAiResult');
+    const hint = $('yearAiHint');
+    if (!AI_SERVER_OK) {
+      box.className = 'ai-result';
+      box.textContent = 'AI 서버가 아직 설정되지 않았어요.';
+      return;
+    }
+    const yKey = currentYearKey();
+    const prev = btn.textContent;
+    YEAR_AI_BUSY = true;
+    btn.textContent = '⏳ 해석 중…';
+    btn.disabled = true;
+    box.className = 'ai-result';
+    box.textContent = '해석을 생성하고 있어요…';
+    if (hint) hint.classList.add('is-loading');
+    const prompt = buildYearAiPrompt();
+    const cacheKey = window.PaljaAiQuota
+      ? PaljaAiQuota.hashKey(`v1:year:${yKey}:` + prompt)
+      : prompt.slice(0, 200);
+    try {
+      if (!window.PaljaAiQuota) throw new Error('no_quota_client');
+      const { text, quota, data } = await PaljaAiQuota.callAi({
+        feature: 'astro_year',
+        cacheKey,
+        max_tokens: 4096,
+        messages: [{ role: 'user', content: prompt }],
+      });
+      let out = text || '해석을 생성하지 못했어요.';
+      if (data?.stop_reason === 'max_tokens') out += '\n\n(※ 해석이 길어 일부가 잘렸을 수 있어요.)';
+      YEAR_AI_CACHE = { key: yKey, text: out };
+      box.textContent = out;
+      box.classList.remove('empty');
+      if (quota) {
+        LAST_AI_QUOTA = quota;
+        PaljaAiQuota.applyQuotaBadge($('aiQuotaBadge'), quota);
+      }
+    } catch (e) {
+      console.error(e);
+      if (e.code === 'quota_exceeded' || e.status === 429) {
+        box.textContent = '이번 달 AI 크레딧을 모두 사용했어요.';
+        if (e.quota) {
+          LAST_AI_QUOTA = e.quota;
+          PaljaAiQuota.applyQuotaBadge($('aiQuotaBadge'), e.quota);
+        }
+      } else if (e.message === 'login_required') {
+        box.textContent = 'AI 해석은 로그인 후 이용할 수 있어요.';
+      } else {
+        box.textContent = 'AI 해석을 일시적으로 사용할 수 없어요.';
+      }
+    } finally {
+      YEAR_AI_BUSY = false;
+      btn.textContent = prev;
+      btn.disabled = !AI_SERVER_OK;
+      if (hint) hint.classList.remove('is-loading');
+      refreshYearAiUi();
+    }
   }
 
   async function callTransitAi(mode) {
@@ -2144,6 +2285,7 @@ body.export-capturing #wheelCard .note{display:none !important;}
   $('btnTransit').addEventListener('click', computeTransit);
 
   $('btnAiRun').addEventListener('click', callAstroAi);
+  $('btnYearAi').addEventListener('click', callYearAi);
   $('btnTransitAiFast').addEventListener('click', () => callTransitAi('fast'));
   $('btnTransitAiSlow').addEventListener('click', () => callTransitAi('slow'));
 
