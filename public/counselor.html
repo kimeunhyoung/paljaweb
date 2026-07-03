@@ -403,6 +403,8 @@
     .event-row .ev-btns { margin-left: auto; display: flex; gap: 6px; flex-shrink: 0; }
     .event-row .ev-btns button { font-size: 11px; padding: 4px 8px; }
     .event-empty { font-size: 12px; color: var(--muted); }
+    .event-upcoming-title { font-size: 12px; font-weight: 600; color: var(--deep); margin: 4px 0 8px; }
+    .event-list-hint { font-size: 11px; color: var(--muted); margin-top: 8px; line-height: 1.5; }
 
     /* 오전 알림 */
     .push-panel { background: #fff; border: 1px solid var(--border); border-radius: 12px; padding: 16px 18px; box-shadow: 0 6px 18px rgba(44,31,14,.05); display: flex; flex-wrap: wrap; align-items: center; gap: 12px; justify-content: space-between; }
@@ -555,6 +557,7 @@
             <button type="button" class="btn-sm outline" id="eventResetBtn">새로</button>
           </div>
         </form>
+        <h5 class="event-upcoming-title">다가오는 7일</h5>
         <div id="eventList" class="event-list"></div>
       </div>
     </div>
@@ -1410,17 +1413,39 @@
       document.getElementById('eventSaveBtn').textContent = '저장';
     }
 
+    function daysFromToday(dateStr) {
+      const d = new Date(dateStr + 'T00:00:00');
+      const t = new Date(ymd(new Date()) + 'T00:00:00');
+      return Math.floor((d.getTime() - t.getTime()) / 86400000);
+    }
+
     function renderEventList() {
       const host = document.getElementById('eventList');
       if (!host) return;
       const today = ymd(new Date());
       const upcoming = eventRows.filter((ev) => String(ev.event_date || '') >= today)
-        .sort((a, b) => String(a.event_date).localeCompare(String(b.event_date)));
+        .sort((a, b) => {
+          const dc = String(a.event_date).localeCompare(String(b.event_date));
+          if (dc !== 0) return dc;
+          return String(a.event_time || '').localeCompare(String(b.event_time || ''));
+        });
+      const inWeek = upcoming.filter((ev) => daysFromToday(ev.event_date) <= 7);
+      const shown = inWeek.slice(0, 5);
+      const titleEl = document.querySelector('.event-upcoming-title');
+
       if (!upcoming.length) {
+        if (titleEl) titleEl.style.display = 'none';
         host.innerHTML = '<div class="event-empty">등록된 중요 일정이 없습니다.</div>';
         return;
       }
-      host.innerHTML = upcoming.map((ev) => {
+      if (titleEl) titleEl.style.display = '';
+
+      if (!shown.length) {
+        host.innerHTML = '<div class="event-empty">7일 안에 예정된 일정이 없습니다. 캘린더에서 더 먼 날짜를 눌러 보세요.</div>';
+        return;
+      }
+
+      let html = shown.map((ev) => {
         const tl = formatEventTimeLabel(ev.event_time);
         return '<div class="event-row">' +
         '<span class="ev-date">' + escapeHtml(String(ev.event_date)) + (tl ? ' ' + escapeHtml(tl) : '') + '</span>' +
@@ -1432,6 +1457,18 @@
         '<button type="button" data-ev-del="' + ev.id + '">삭제</button>' +
         '</div></div>';
       }).join('');
+
+      const moreInWeek = inWeek.length - shown.length;
+      const laterCount = upcoming.length - inWeek.length;
+      if (moreInWeek > 0 || laterCount > 0) {
+        const parts = [];
+        if (moreInWeek > 0) parts.push('7일 안 ' + moreInWeek + '건 더');
+        if (laterCount > 0) parts.push('7일 이후 ' + laterCount + '건');
+        html += '<div class="event-list-hint">' + parts.join(' · ') +
+          ' — 위 <strong>일정 캘린더</strong>에서 날짜를 눌러 보세요.</div>';
+      }
+
+      host.innerHTML = html;
       host.querySelectorAll('[data-ev-edit]').forEach((btn) => {
         btn.addEventListener('click', () => {
           const ev = eventRows.find((x) => x.id === btn.getAttribute('data-ev-edit'));
