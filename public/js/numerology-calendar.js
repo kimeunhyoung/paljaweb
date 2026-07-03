@@ -41,6 +41,11 @@ const state = {
   selectedDate: null,
   userPlan: "free",
   calendarLocked: false,
+  aiServerOk: false,
+  aiCache: { daily: {}, monthly: {} },
+  aiBusy: { daily: false, monthly: false },
+  aiLoadingKey: { daily: null, monthly: null },
+  detailCtx: null,
 };
 
 const birthDateInput = document.getElementById("birthDateInput");
@@ -53,6 +58,194 @@ const personalYearChip = document.getElementById("personalYearChip");
 const personalMonthChip = document.getElementById("personalMonthChip");
 const calendarDays = document.getElementById("calendarDays");
 const detailPanel = document.getElementById("detailPanel");
+const numAiQuotaBadge = document.getElementById("numAiQuotaBadge");
+
+function getGuideForDay(personalDay) {
+  return DAILY_GUIDE[personalDay] || DAILY_GUIDE[reduceNumber(personalDay, false)] || DAILY_GUIDE[1];
+}
+
+function getMonthMessage(personalMonth) {
+  return MONTHLY_MESSAGE[personalMonth] || MONTHLY_MESSAGE[reduceNumber(personalMonth, false)] || "";
+}
+
+function formatDateKey(date) {
+  const y = date.getFullYear();
+  const m = String(date.getMonth() + 1).padStart(2, "0");
+  const d = String(date.getDate()).padStart(2, "0");
+  return `${y}-${m}-${d}`;
+}
+
+function formatMonthKey(year, month) {
+  return `${year}-${String(month).padStart(2, "0")}`;
+}
+
+async function loadAiQuota() {
+  if (!window.PaljaAiQuota || state.calendarLocked) return;
+  const q = await PaljaAiQuota.fetchQuota();
+  if (q) PaljaAiQuota.applyQuotaBadge(numAiQuotaBadge, q);
+}
+
+async function checkAiServer() {
+  if (!window.PaljaAiQuota) return;
+  try {
+    const j = await PaljaAiQuota.fetchStatus();
+    state.aiServerOk = !!j.available;
+    if (j.quota) PaljaAiQuota.applyQuotaBadge(numAiQuotaBadge, j.quota);
+    else await loadAiQuota();
+  } catch {
+    state.aiServerOk = false;
+  }
+}
+
+function buildDailyAiPrompt(ctx) {
+  const { birth, date, personalYear, personalMonth, personalDay, universalDay, guide, monthMessage } = ctx;
+  const L = [];
+  L.push("당신은 따뜻하고 통찰력 있는 수비학 전문가입니다. 아래 숫자를 바탕으로 오늘의 운세를 한국어로 써 주세요. 단정적 예언·공포 조장은 금지하고, 참고용·자기이해 톤으로 다정하게 써 주세요.");
+  L.push("");
+  L.push("[기본 정보]");
+  L.push(`생년월일: ${birth.y}년 ${birth.m}월 ${birth.d}일`);
+  L.push(`대상 날짜: ${formatLongDate(date)}`);
+  L.push(`개인연도수: ${personalYear} / 개인월수: ${personalMonth} / 개인일수: ${personalDay} / 일반일수: ${universalDay}`);
+  L.push(`오늘 키워드: ${guide.key}`);
+  L.push(`이번 달 배경: ${monthMessage}`);
+  L.push(`기본 DO: ${guide.do}`);
+  L.push(`기본 DON'T: ${guide.dont}`);
+  L.push("");
+  L.push("[작성 형식 — 반드시 지키세요]");
+  L.push("1) ## 제목만 사용. 아래 순서대로 작성하세요.");
+  [
+    "## 오늘의 에너지 — 개인일수·일반일수를 연결한 하루 전체 흐름(2~3문장)",
+    "## 연애·관계 — 오늘 대인·연애 실전 조언",
+    "## 일·업무·커리어 — 오늘 일과·업무 흐름",
+    "## 금전·소비 — 오늘 수입·지출·소비 주의·기회",
+    "## 오늘의 한 줄 조언 — 짧고 기억하기 쉬운 한 문장",
+  ].forEach((s, i) => L.push(`   ${i + 1}. ${s}`));
+  L.push("2) 각 섹션 3~4문장(한 줄 조언은 1문장). 숫자 근거를 최소 1개 이상 언급하세요.");
+  L.push("3) 위 DO/DON'T를 그대로 복사하지 말고, 수비학 숫자에 맞게 새로 풀어 쓰세요.");
+  L.push("4) 반드시 마지막 섹션까지 완성하세요.");
+  return L.join("\n");
+}
+
+function buildMonthlyAiPrompt(ctx) {
+  const { birth, year, month, personalYear, personalMonth, monthMessage } = ctx;
+  const L = [];
+  L.push("당신은 따뜻하고 통찰력 있는 수비학 전문가입니다. 아래 숫자를 바탕으로 이번 달 흐름을 한국어로 써 주세요. 단정적 예언·공포 조장은 금지하고, 참고용 톤으로 다정하게 써 주세요.");
+  L.push("");
+  L.push("[기본 정보]");
+  L.push(`생년월일: ${birth.y}년 ${birth.m}월 ${birth.d}일`);
+  L.push(`대상: ${year}년 ${month}월`);
+  L.push(`개인연도수: ${personalYear} / 개인월수: ${personalMonth}`);
+  L.push(`이번 달 메시지: ${monthMessage}`);
+  L.push("");
+  L.push("[작성 형식 — 반드시 지키세요]");
+  L.push("1) ## 제목만 사용. 아래 순서대로 작성하세요.");
+  [
+    "## 이번 달 전체 흐름 — 개인월수·개인연도수 연결(2~3문장)",
+    "## 연애·관계 — 이 달 관계·가족 테마",
+    "## 일·업무·커리어 — 이 달 업무·커리어 방향",
+    "## 금전·재물 — 이 달 재정·소비·투자 흐름",
+    "## 이번 달 실천 포인트 — 구체적 행동 2~3가지",
+  ].forEach((s, i) => L.push(`   ${i + 1}. ${s}`));
+  L.push("2) 각 섹션 3~4문장. 숫자 근거를 최소 1개 이상 언급하세요.");
+  L.push("3) 위 월 메시지를 그대로 복사하지 말고 새로 풀어 쓰세요.");
+  L.push("4) 반드시 마지막 섹션까지 완성하세요.");
+  return L.join("\n");
+}
+
+async function callNumerologyAi(mode) {
+  if (!state.detailCtx || state.calendarLocked) return;
+  if (!window.PaljaAiQuota) {
+    setHint("AI 운세는 로그인 후 이용할 수 있어요.", "warn");
+    return;
+  }
+  if (!state.aiServerOk) {
+    setHint("AI 서버가 아직 준비되지 않았어요. 잠시 후 다시 시도해 주세요.", "warn");
+    return;
+  }
+
+  const isDaily = mode === "daily";
+  const btn = document.getElementById(isDaily ? "btnNumAiDaily" : "btnNumAiMonthly");
+  const box = document.getElementById(isDaily ? "numAiDailyResult" : "numAiMonthlyResult");
+  const hint = document.getElementById(isDaily ? "numAiDailyHint" : "numAiMonthlyHint");
+  if (!btn || !box) return;
+
+  const ctx = state.detailCtx;
+  const cacheKeyStr = isDaily
+    ? formatDateKey(ctx.date)
+    : formatMonthKey(ctx.year, ctx.month);
+  const feature = isDaily ? "numerology_daily" : "numerology_monthly";
+  const prompt = isDaily ? buildDailyAiPrompt(ctx) : buildMonthlyAiPrompt(ctx);
+  const hash = PaljaAiQuota.hashKey(`v1:${mode}:${cacheKeyStr}:${state.birthDate}:${prompt}`);
+
+  const prevLabel = btn.textContent;
+  state.aiBusy[mode] = true;
+  state.aiLoadingKey[mode] = cacheKeyStr;
+  btn.textContent = "⏳ 해석 중…";
+  btn.disabled = true;
+  box.classList.remove("is-empty");
+  box.textContent = "해석을 생성하고 있어요…";
+  if (hint) hint.classList.add("is-loading");
+
+  try {
+    const { text, quota, data } = await PaljaAiQuota.callAi({
+      feature,
+      cacheKey: hash,
+      max_tokens: 4096,
+      messages: [{ role: "user", content: prompt }],
+    });
+    let out = text || "해석을 생성하지 못했어요.";
+    if (data?.stop_reason === "max_tokens") out += "\n\n(※ 해석이 길어 일부가 잘렸을 수 있어요.)";
+    if (isDaily) state.aiCache.daily[cacheKeyStr] = out;
+    else state.aiCache.monthly[cacheKeyStr] = out;
+    const stillCurrent = isDaily
+      ? state.detailCtx && formatDateKey(state.detailCtx.date) === cacheKeyStr
+      : state.detailCtx && formatMonthKey(state.detailCtx.year, state.detailCtx.month) === cacheKeyStr;
+    if (stillCurrent && document.getElementById(box.id)) {
+      box.textContent = out;
+      box.classList.remove("is-empty");
+    }
+    if (quota) PaljaAiQuota.applyQuotaBadge(numAiQuotaBadge, quota);
+  } catch (e) {
+    const stillCurrent = isDaily
+      ? state.detailCtx && formatDateKey(state.detailCtx.date) === cacheKeyStr
+      : state.detailCtx && formatMonthKey(state.detailCtx.year, state.detailCtx.month) === cacheKeyStr;
+    const errMsg = e.code === "quota_exceeded" || e.status === 429
+      ? "이번 달 AI 크레딧을 모두 사용했어요."
+      : e.message === "login_required"
+        ? "AI 운세는 로그인 후 이용할 수 있어요."
+        : "AI 해석을 일시적으로 사용할 수 없어요.";
+    if (stillCurrent && document.getElementById(box.id)) box.textContent = errMsg;
+    if (e.quota) PaljaAiQuota.applyQuotaBadge(numAiQuotaBadge, e.quota);
+  } finally {
+    state.aiBusy[mode] = false;
+    state.aiLoadingKey[mode] = null;
+    const stillCurrent = isDaily
+      ? state.detailCtx && formatDateKey(state.detailCtx.date) === cacheKeyStr
+      : state.detailCtx && formatMonthKey(state.detailCtx.year, state.detailCtx.month) === cacheKeyStr;
+    if (stillCurrent) {
+      const liveBtn = document.getElementById(isDaily ? "btnNumAiDaily" : "btnNumAiMonthly");
+      if (liveBtn) {
+        liveBtn.textContent = prevLabel;
+        liveBtn.disabled = !state.aiServerOk;
+      }
+      const liveHint = document.getElementById(isDaily ? "numAiDailyHint" : "numAiMonthlyHint");
+      if (liveHint) liveHint.classList.remove("is-loading");
+    }
+  }
+}
+
+function bindDetailAiEvents() {
+  const dailyBtn = document.getElementById("btnNumAiDaily");
+  const monthlyBtn = document.getElementById("btnNumAiMonthly");
+  if (dailyBtn) {
+    dailyBtn.disabled = !state.aiServerOk || state.aiBusy.daily;
+    dailyBtn.onclick = () => callNumerologyAi("daily");
+  }
+  if (monthlyBtn) {
+    monthlyBtn.disabled = !state.aiServerOk || state.aiBusy.monthly;
+    monthlyBtn.onclick = () => callNumerologyAi("monthly");
+  }
+}
 
 function setHint(text, mode = "") {
   authHint.textContent = text;
@@ -142,13 +335,42 @@ function getMonthCellDates(viewDate) {
   });
 }
 
-function renderDetail(date, personalMonth, personalDay, universalDay) {
-  const guide = DAILY_GUIDE[personalDay] || DAILY_GUIDE[reduceNumber(personalDay, false)] || DAILY_GUIDE[1];
-  const monthMessage = MONTHLY_MESSAGE[personalMonth] || MONTHLY_MESSAGE[reduceNumber(personalMonth, false)] || "";
+function renderDetail(date, personalYear, personalMonth, personalDay, universalDay) {
+  const birth = parseBirthDate(state.birthDate);
+  const guide = getGuideForDay(personalDay);
+  const monthMessage = getMonthMessage(personalMonth);
+  const year = date.getFullYear();
+  const month = date.getMonth() + 1;
+  const dailyKey = formatDateKey(date);
+  const monthlyKey = formatMonthKey(year, month);
+
+  state.detailCtx = {
+    birth,
+    date,
+    year,
+    month,
+    personalYear,
+    personalMonth,
+    personalDay,
+    universalDay,
+    guide,
+    monthMessage,
+  };
+
+  const dailyCached = state.aiCache.daily[dailyKey];
+  const monthlyCached = state.aiCache.monthly[monthlyKey];
+  const dailyLoading = state.aiBusy.daily && state.aiLoadingKey.daily === dailyKey;
+  const monthlyLoading = state.aiBusy.monthly && state.aiLoadingKey.monthly === monthlyKey;
+  const aiDisabled = !state.aiServerOk;
+
   detailPanel.innerHTML = `
     <h2>${guide.key}의 날</h2>
     <p class="detail-date">${formatLongDate(date)}</p>
     <div class="metric">
+      <div class="metric-item">
+        <div class="metric-label">개인연수</div>
+        <div class="metric-value">${personalYear}</div>
+      </div>
       <div class="metric-item">
         <div class="metric-label">개인월수</div>
         <div class="metric-value">${personalMonth}</div>
@@ -157,6 +379,8 @@ function renderDetail(date, personalMonth, personalDay, universalDay) {
         <div class="metric-label">개인일수</div>
         <div class="metric-value">${personalDay}</div>
       </div>
+    </div>
+    <div class="metric" style="margin-top:8px;grid-template-columns:1fr;">
       <div class="metric-item">
         <div class="metric-label">일반일수</div>
         <div class="metric-value">${universalDay}</div>
@@ -174,7 +398,22 @@ function renderDetail(date, personalMonth, personalDay, universalDay) {
         ${guide.dont}
       </div>
     </div>
+    <div class="ai-block">
+      <p class="ai-block-title">✨ AI 맞춤 운세</p>
+      <p class="ai-block-desc">기본 가이드 위에 연애·일·금전까지 풀어 드려요. 날짜·달마다 1크레딧 (24시간 캐시)</p>
+      <div class="ai-actions">
+        <button type="button" class="ai-btn" id="btnNumAiDaily"${aiDisabled ? " disabled" : ""}>✨ AI 오늘 운세 (1크레딧)</button>
+      </div>
+      <div class="ai-result${dailyCached || dailyLoading ? "" : " is-empty"}" id="numAiDailyResult">${dailyLoading ? "해석을 생성하고 있어요…" : (dailyCached || "「AI 오늘 운세」를 누르면 이 날짜 맞춤 해석을 받을 수 있어요.")}</div>
+      <p class="ai-time-hint" id="numAiDailyHint">보통 20~40초 정도 걸려요.</p>
+      <div class="ai-actions" style="margin-top:12px;">
+        <button type="button" class="ai-btn ai-btn--soft" id="btnNumAiMonthly"${aiDisabled ? " disabled" : ""}>✨ AI 이번 달 흐름 (1크레딧)</button>
+      </div>
+      <div class="ai-result${monthlyCached || monthlyLoading ? "" : " is-empty"}" id="numAiMonthlyResult">${monthlyLoading ? "해석을 생성하고 있어요…" : (monthlyCached || "「AI 이번 달 흐름」을 누르면 이 달 전체 테마를 풀어 드려요.")}</div>
+      <p class="ai-time-hint" id="numAiMonthlyHint">보통 20~40초 정도 걸려요.</p>
+    </div>
   `;
+  bindDetailAiEvents();
 }
 
 function renderCalendar() {
@@ -238,7 +477,7 @@ function renderCalendar() {
       if (!isCurrentMonth) return;
       state.selectedDate = new Date(date);
       renderCalendar();
-      renderDetail(date, personalMonth, personalDay, universalDay);
+      renderDetail(date, personalYear, personalMonth, personalDay, universalDay);
     });
     calendarDays.appendChild(button);
   });
@@ -251,7 +490,7 @@ function renderCalendar() {
   }
   const firstPersonalDay = getPersonalDay(personalMonth, state.selectedDate.getDate());
   const firstUniversalDay = getUniversalDay(state.selectedDate);
-  renderDetail(state.selectedDate, personalMonth, firstPersonalDay, firstUniversalDay);
+  renderDetail(state.selectedDate, personalYear, personalMonth, firstPersonalDay, firstUniversalDay);
 }
 
 function applyCalendarPlanGate() {
@@ -358,7 +597,7 @@ async function init() {
   await loadUserPlan();
   applyCalendarPlanGate();
   if (state.calendarLocked) return;
-  await loadBirthFromProfile();
+  await Promise.all([loadBirthFromProfile(), checkAiServer()]);
   renderCalendar();
 }
 

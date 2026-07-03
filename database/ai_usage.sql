@@ -15,7 +15,7 @@ create index if not exists ai_usage_monthly_period_idx
 create table if not exists public.ai_usage_cache (
   id uuid primary key default gen_random_uuid(),
   user_id uuid not null references auth.users (id) on delete cascade,
-  feature text not null check (feature in ('astro', 'name_opinion', 'name_recommend')),
+  feature text not null check (feature in ('astro', 'astro_transit', 'numerology_daily', 'numerology_monthly', 'name_opinion', 'name_recommend')),
   cache_key text not null,
   response_json jsonb not null,
   created_at timestamptz not null default now(),
