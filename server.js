@@ -8,6 +8,7 @@ const { registerLifecodeRoutes } = require('./lib/lifecode-api');
 const { registerNaverAuthRoutes } = require('./lib/naver-auth');
 const { registerCounselorPushRoutes, startCounselorPushScheduler } = require('./lib/counselor-push');
 const { registerCounselorTrialRoutes } = require('./lib/counselor-trial');
+const { registerAiUsageRoutes, isAiUpstreamAvailable } = require('./lib/ai-usage');
 
 const app = express();
 
@@ -520,52 +521,10 @@ registerNaverAuthRoutes(app);
 registerCounselorPushRoutes(app, getUserIdFromAuth);
 registerCounselorTrialRoutes(app, { getUserIdFromAuth, getProfile, patchProfileFields });
 
-/** AI 호출은 ANTHROPIC_API_KEY + AI_ENABLED=true 일 때만 (기본 꺼짐) */
-function isAiAvailable() {
-  const apiKey = process.env.ANTHROPIC_API_KEY;
-  if (!apiKey) return false;
-  const flag = String(process.env.AI_ENABLED || '').toLowerCase();
-  return flag === 'true' || flag === '1' || flag === 'yes';
-}
-
-app.get('/api/ai/status', (req, res) => {
-  res.json({ available: isAiAvailable() });
-});
-
-app.post('/api/ai/messages', async (req, res) => {
-  if (!isAiAvailable()) {
-    res.status(503).json({ error: 'AI server not configured' });
-    return;
-  }
-  const apiKey = process.env.ANTHROPIC_API_KEY;
-
-  const { model, max_tokens, messages } = req.body || {};
-  if (!model || !Array.isArray(messages) || !messages.length) {
-    res.status(400).json({ error: 'model and messages are required' });
-    return;
-  }
-
-  try {
-    const upstream = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': apiKey,
-        'anthropic-version': '2023-06-01',
-      },
-      body: JSON.stringify({
-        model,
-        max_tokens: Number(max_tokens) || 1000,
-        messages,
-      }),
-    });
-
-    const data = await upstream.json();
-    res.status(upstream.status).json(data);
-  } catch (e) {
-    console.error('ai proxy error', e);
-    res.status(502).json({ error: 'AI upstream request failed' });
-  }
+registerAiUsageRoutes(app, {
+  getUserIdFromAuth,
+  getProfile,
+  isAiAvailable: isAiUpstreamAvailable,
 });
 
 app.get('/favicon.ico', (req, res) => {

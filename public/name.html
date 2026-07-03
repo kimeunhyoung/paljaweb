@@ -22,6 +22,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="js/plan-access.js?v=8"></script>
+<script src="js/ai-quota-client.js?v=1"></script>
 <script src="js/product-plan-bootstrap.js?v=1"></script>
 <script src="js/site-topbar.js?v=5" defer></script>
 <script src="js/topbar-session.js?v=6" defer></script>
@@ -384,6 +385,7 @@ body{font-family:var(--font-body);background:var(--cream);color:var(--ink);min-h
 .ai-dot{width:6px;height:6px;border-radius:50%;background:var(--accent);animation:pulse 1.8s ease-in-out infinite;}
 @keyframes pulse{0%,100%{opacity:1;transform:scale(1);}50%{opacity:.4;transform:scale(.8);}}
 .ai-text{font-size:14px;line-height:1.9;color:var(--ink);font-family:var(--font-serif);}
+.ai-quota-badge{font-size:11px;font-weight:600;color:var(--warm-brown);background:var(--accent-lt);border:1px solid var(--accent);border-radius:999px;padding:5px 12px;margin:12px auto 0;display:inline-block;}
 .ai-loading{display:flex;align-items:center;gap:10px;font-size:12px;color:var(--muted);font-family:var(--font-mono);}
 .ai-spinner{width:14px;height:14px;border:1.5px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .8s linear infinite;}
 @keyframes spin{to{transform:rotate(360deg);}}
@@ -497,6 +499,7 @@ body{font-family:var(--font-body);background:var(--cream);color:var(--ink);min-h
       <button class="hero-tab active" onclick="switchTab('analyze',this)">✦ 네임코드</button>
       <button class="hero-tab" onclick="switchTab('recommend',this)">✧ 이름 추천</button>
     </div>
+    <p class="ai-quota-badge" id="nameAiQuotaBadge" hidden></p>
 
     <!-- 분석 탭 -->
     <div class="tab-panel active" id="panel-analyze">
@@ -1640,6 +1643,22 @@ function runAnalysis(){
   document.getElementById('analyzeBtn').disabled=false;
 }
 
+// ── AI 크레딧 ──
+async function loadNameAiQuota() {
+  if (!window.PaljaAiQuota) return;
+  const q = await PaljaAiQuota.fetchQuota();
+  PaljaAiQuota.applyQuotaBadge(document.getElementById('nameAiQuotaBadge'), q);
+}
+
+function nameAiQuotaMessage(err) {
+  if (err && (err.code === 'quota_exceeded' || err.status === 429)) {
+    if (err.quota) PaljaAiQuota.applyQuotaBadge(document.getElementById('nameAiQuotaBadge'), err.quota);
+    return '이번 달 AI 크레딧을 모두 사용했어요. 다음 달에 다시 이용하거나 수비학 점수·순위만 참고해 주세요.';
+  }
+  if (err && err.message === 'login_required') return 'AI 기능은 로그인 후 이용할 수 있어요.';
+  return null;
+}
+
 // ── AI 코멘트 ──
 async function callAI(results,baseName,birthDate,lp,dist,purposeInput){
   const pCtx = normalizePurposeArg(purposeInput);
@@ -1674,11 +1693,19 @@ ${results.length>1?`주의 이름: ${results[results.length-1]?.name} (${Math.mi
 5. 마지막 문장: "이름은 평생 불리는 에너지입니다. 수비학 점수와 함께 직접 소리 내어 불러보며 느낌도 꼭 확인해보세요." 로 마무리하세요.
 6. 번호·목록 없이 자연스러운 문단으로만, 3~4문단으로 작성하세요.`;
   try{
-    const res=await fetch('/api/ai/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:600,messages:[{role:'user',content:prompt}]})});
-    const data=await res.json();
-    const text=data.content?.map(i=>i.text||'').join('')||'';
+    if (!window.PaljaAiQuota) throw new Error('no_quota_client');
+    const { text, quota } = await PaljaAiQuota.callAi({
+      feature: 'name_opinion',
+      cacheKey: PaljaAiQuota.hashKey(prompt),
+      max_tokens: 600,
+      messages: [{ role: 'user', content: prompt }],
+    });
     document.getElementById('aiWrap').innerHTML=`<div class="ai-tag"><div class="ai-dot"></div>AI 종합 의견</div><div class="ai-text">${text}</div>`;
-  }catch(e){document.getElementById('aiWrap').innerHTML=`<div class="ai-tag">AI 분석</div><div class="ai-text" style="color:var(--muted)">AI 분석을 일시적으로 사용할 수 없습니다.</div>`;}
+    if (quota) PaljaAiQuota.applyQuotaBadge(document.getElementById('nameAiQuotaBadge'), quota);
+  }catch(e){
+    const msg = nameAiQuotaMessage(e);
+    document.getElementById('aiWrap').innerHTML=`<div class="ai-tag">AI 분석</div><div class="ai-text" style="color:var(--muted)">${msg || 'AI 분석을 일시적으로 사용할 수 없습니다.'}</div>`;
+  }
 }
 
 // ── AI 이름 추천 (이름만 받아서 로컬 계산) ──
@@ -1736,23 +1763,21 @@ ${extra ? `- 추가 요청: ${extra}` : ''}
 - 다양한 에너지의 이름을 골고루 추천`;
 
   try {
-    const res = await fetch('/api/ai/messages', {
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({
-        model:'claude-sonnet-4-20250514',
-        max_tokens:400,
-        messages:[{role:'user',content:prompt}]
-      })
+    if (!window.PaljaAiQuota) throw new Error('no_quota_client');
+    const { text, quota } = await PaljaAiQuota.callAi({
+      feature: 'name_recommend',
+      cacheKey: PaljaAiQuota.hashKey(prompt),
+      max_tokens: 400,
+      messages: [{ role: 'user', content: prompt }],
     });
-    const data = await res.json();
-    const raw = data.content?.map(i=>i.text||'').join('') || '';
+    const raw = text || '';
     const cleaned = raw.replace(/```json|```/g,'').trim();
     const match = cleaned.match(/\{[\s\S]*\}/);
     const parsed = JSON.parse(match ? match[0] : cleaned);
     const nameList = parsed.names || [];
 
     if(!nameList.length) throw new Error('이름 없음');
+    if (quota) PaljaAiQuota.applyQuotaBadge(document.getElementById('nameAiQuotaBadge'), quota);
 
     // 로컬에서 직접 계산
     document.getElementById('recResultWrap').innerHTML = `
@@ -1784,8 +1809,9 @@ ${extra ? `- 추가 요청: ${extra}` : ''}
     renderRecResultFull(sorted, dist, lp, birth, surname, purposeCtx);
 
   } catch(e) {
+    const msg = nameAiQuotaMessage(e);
     document.getElementById('recResultWrap').innerHTML =
-      `<div class="rec-loading" style="color:var(--red);">추천 생성 중 오류가 발생했습니다. 다시 시도해주세요.</div>`;
+      `<div class="rec-loading" style="color:var(--red);">${msg || '추천 생성 중 오류가 발생했습니다. 다시 시도해주세요.'}</div>`;
   }
   document.getElementById('recBtn').disabled = false;
 }
@@ -1886,6 +1912,7 @@ document.addEventListener('keydown',e=>{
   if (window.PaljaProductBootstrap) {
     await PaljaProductBootstrap.bootstrap({ product: 'name', requireLogin: true });
   }
+  await loadNameAiQuota();
 })();
 </script>
 <div class="birth-picker-backdrop" id="birthPickerBackdrop" hidden aria-hidden="true">

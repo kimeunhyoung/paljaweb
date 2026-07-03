@@ -42,6 +42,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="js/plan-access.js?v=8"></script>
+<script src="js/ai-quota-client.js?v=1"></script>
 <script src="js/product-plan-bootstrap.js?v=1"></script>
 <script src="js/site-topbar.js?v=5" defer></script>
 <script src="js/topbar-session.js?v=6" defer></script>
@@ -255,6 +256,7 @@ table.astro-table td .glyph{font-size:16px;margin-right:4px;color:var(--accent);
 .ai-prompt-box{width:100%;border:1px solid var(--border);border-radius:10px;background:var(--cream);padding:13px 15px;font-family:inherit;font-size:12.5px;line-height:1.7;color:var(--ink);resize:vertical;}
 .ai-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px;}
 .ai-actions a.rt-btn{text-decoration:none;display:inline-flex;align-items:center;}
+.ai-quota-badge{display:inline-block;font-size:11px;font-weight:600;color:var(--warm-brown);background:var(--accent-lt);border:1px solid var(--accent);border-radius:999px;padding:4px 10px;margin:0 0 10px;}
 
 @media (max-width:680px){
   .form-grid{grid-template-columns:1fr;}
@@ -517,14 +519,15 @@ body.export-capturing #wheelCard .note{display:none !important;}
     <!-- AI 해석 -->
     <div class="card" id="aiCard">
       <div class="card-title">✦ AI 심층 해석</div>
-      <p class="transit-intro">프롬프트를 복사해 ChatGPT·Gemini에 붙이면 이 차트(트랜짓·올해 운세 포함)에 대한 <strong>맞춤 해석</strong>을 받을 수 있어요. ‘오늘의 트랜짓 보기’를 먼저 누르면 요즘 흐름까지 반영됩니다.</p>
+      <span class="ai-quota-badge" id="aiQuotaBadge" hidden></span>
+      <p class="transit-intro">아래 <strong>AI 해석</strong> 버튼으로 차트(트랜짓·올해 운세 포함) 맞춤 해석을 바로 받을 수 있어요. ‘오늘의 트랜짓 보기’를 먼저 누르면 요즘 흐름까지 반영됩니다. 또는 프롬프트를 ChatGPT·Gemini에 붙여 이용하세요.</p>
       <div class="ai-actions no-print">
-        <button type="button" class="rt-btn rt-btn--share" id="btnAiRun" hidden>✨ AI 해석 받기</button>
+        <button type="button" class="rt-btn rt-btn--share" id="btnAiRun" disabled>✨ AI 해석</button>
         <button type="button" class="rt-btn" id="btnAiCopy">⧉ 프롬프트 복사</button>
         <a class="rt-btn" id="btnOpenGpt" href="https://chatgpt.com/" target="_blank" rel="noopener">ChatGPT ↗</a>
         <a class="rt-btn" id="btnOpenGemini" href="https://gemini.google.com/app" target="_blank" rel="noopener">Gemini ↗</a>
       </div>
-      <div id="aiResult" class="ai-result">AI 자동 해석은 준비 중이에요. <strong>프롬프트 복사</strong> 후 ChatGPT·Gemini에서 이용해 주세요.</div>
+      <div id="aiResult" class="ai-result">차트를 계산한 뒤 <strong>AI 해석</strong> 버튼을 눌러 주세요.</div>
       <details class="ai-prompt-details no-print">
         <summary>고급: 프롬프트 직접 보기</summary>
         <textarea id="aiPrompt" class="ai-prompt-box" readonly rows="6" style="margin-top:8px;"></textarea>
@@ -599,6 +602,9 @@ body.export-capturing #wheelCard .note{display:none !important;}
       HAS_BASIC = window.PaljaPlan ? window.PaljaPlan.isPlanAtLeast(profile || {}, 'basic') : false;
       HAS_PROFESSIONAL = window.PaljaPlan ? window.PaljaPlan.isPlanAtLeast(profile || {}, 'professional') : false;
       applyCounselorAccessUi();
+      if (ASTRO_AI_API_ENABLED) await checkAiServer();
+      else await loadAiQuota();
+      refreshAiUi();
     } catch (e) { /* 게스트/오류 시 무료 권한 */ }
   })();
   const LOCK_HTML = '<div class="astro-lock"><span class="lock-emoji">🔒</span><div><strong>Basic 이상 플랜</strong>에서 볼 수 있는 심화 분석이에요. 트랜짓(오늘의 운세)·행성 상세 해석·AI 프롬프트가 열립니다.</div><a href="pricing.html">요금제 보기 →</a></div>';
@@ -692,17 +698,45 @@ body.export-capturing #wheelCard .note{display:none !important;}
   let LAST_BIRTH = null;      // { y, mo, da, hh, mi, unknownTime }
   let LAST_YEAR_FORECAST = null;
   let AI_SERVER_OK = false;
-  // 점성학 AI API 일시 중단 (테스트·과금 방지). 다시 켤 때 true로 변경.
-  const ASTRO_AI_API_ENABLED = false;
+  const ASTRO_AI_API_ENABLED = true;
 
-  function applyAstroAiOff() {
+  let LAST_AI_QUOTA = null;
+
+  async function loadAiQuota() {
+    if (!window.PaljaAiQuota || !HAS_BASIC) return;
+    const q = await PaljaAiQuota.fetchQuota();
+    LAST_AI_QUOTA = q;
+    PaljaAiQuota.applyQuotaBadge($('aiQuotaBadge'), q);
+  }
+
+  function refreshAiUi() {
     const btn = $('btnAiRun');
-    if (btn) { btn.hidden = true; btn.disabled = true; }
     const box = $('aiResult');
-    if (box && !HAS_BASIC) return; // 무료 잠금은 applyAstroGate가 처리
-    if (box && !ASTRO_AI_API_ENABLED) {
-      box.className = 'ai-result';
-      box.innerHTML = 'AI 자동 해석은 <strong>준비 중</strong>이에요. <strong>프롬프트 복사</strong> 후 ChatGPT·Gemini에서 이용해 주세요.';
+    if (!btn || !box) return;
+    if (!HAS_BASIC) {
+      btn.hidden = true;
+      return;
+    }
+    if (!ASTRO_AI_API_ENABLED) {
+      btn.hidden = true;
+      btn.disabled = true;
+      if (!box.querySelector('.astro-lock')) {
+        box.className = 'ai-result';
+        box.innerHTML = 'AI 자동 해석은 <strong>준비 중</strong>이에요. <strong>프롬프트 복사</strong> 후 ChatGPT·Gemini에서 이용해 주세요.';
+      }
+      return;
+    }
+    btn.hidden = false;
+    const canRun = !!LAST_CTX;
+    btn.disabled = !canRun;
+    if (!canRun || box.querySelector('.astro-lock')) return;
+    const busy = box.textContent.includes('생성하고') || box.textContent.includes('해석 중');
+    if (busy) return;
+    box.className = 'ai-result';
+    if (AI_SERVER_OK) {
+      box.innerHTML = '<strong>✨ AI 해석</strong>을 누르면 이 차트를 바로 해석해 드려요. 서버가 응답하지 않으면 아래 <strong>프롬프트 복사</strong>를 이용해 주세요.';
+    } else {
+      box.innerHTML = 'AI 서버가 아직 설정되지 않았어요. <strong>프롬프트 복사</strong> 후 ChatGPT·Gemini에서 이용해 주세요.';
     }
   }
 
@@ -891,7 +925,10 @@ body.export-capturing #wheelCard .note{display:none !important;}
     renderCounselorReport();
 
     if (!HAS_BASIC) applyAstroGate();
-    else applyAstroAiOff();
+    else {
+      refreshAiUi();
+      loadAiQuota();
+    }
 
     result.classList.add('show');
     result.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -908,6 +945,7 @@ body.export-capturing #wheelCard .note{display:none !important;}
     if (tc) tc.style.display = 'none';
     $('transitResult').innerHTML = LOCK_HTML;
     $('yearForecast').innerHTML = LOCK_HTML;
+    $('btnAiRun').hidden = true;
     $('btnAiRun').disabled = true;
     $('aiResult').innerHTML = LOCK_HTML;
     $('aiPrompt').value = '';
@@ -1489,21 +1527,25 @@ body.export-capturing #wheelCard .note{display:none !important;}
   async function checkAiServer() {
     if (!ASTRO_AI_API_ENABLED) return;
     try {
-      const r = await fetch('/api/ai/status');
-      const j = await r.json();
+      const j = window.PaljaAiQuota
+        ? await PaljaAiQuota.fetchStatus()
+        : await fetch('/api/ai/status').then((r) => r.json());
       AI_SERVER_OK = !!j.available;
-      if (ASTRO_AI_API_ENABLED && AI_SERVER_OK && HAS_BASIC) {
-        const btn = $('btnAiRun');
-        if (btn) btn.hidden = false;
+      if (j.quota) {
+        LAST_AI_QUOTA = j.quota;
+        if (window.PaljaAiQuota) PaljaAiQuota.applyQuotaBadge($('aiQuotaBadge'), j.quota);
+      } else {
+        await loadAiQuota();
       }
     } catch (e) { AI_SERVER_OK = false; }
+    refreshAiUi();
   }
   if (ASTRO_AI_API_ENABLED) checkAiServer();
-  else applyAstroAiOff();
+  else refreshAiUi();
 
   async function callAstroAi() {
     if (!ASTRO_AI_API_ENABLED) {
-      applyAstroAiOff();
+      refreshAiUi();
       return;
     }
     if (!HAS_BASIC) { showStatus('AI 해석은 Basic 이상 요금제에서 이용할 수 있어요.', 'err'); return; }
@@ -1520,23 +1562,33 @@ body.export-capturing #wheelCard .note{display:none !important;}
     box.className = 'ai-result';
     box.textContent = '해석을 생성하고 있어요…';
     const prompt = buildAiPrompt(LAST_CTX, LAST_ASPECTS, LAST_KNOWN);
+    const cacheKey = window.PaljaAiQuota ? PaljaAiQuota.hashKey(prompt) : prompt.slice(0, 200);
     try {
-      const res = await fetch('/api/ai/messages', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          model: 'claude-sonnet-4-20250514',
-          max_tokens: 1200,
-          messages: [{ role: 'user', content: prompt }],
-        }),
+      if (!window.PaljaAiQuota) throw new Error('no_quota_client');
+      const { text, quota } = await PaljaAiQuota.callAi({
+        feature: 'astro',
+        cacheKey,
+        max_tokens: 1200,
+        messages: [{ role: 'user', content: prompt }],
       });
-      if (!res.ok) throw new Error('status ' + res.status);
-      const data = await res.json();
-      const text = (data.content || []).map((i) => i.text || '').join('').trim();
       box.textContent = text || '해석을 생성하지 못했어요.';
+      if (quota) {
+        LAST_AI_QUOTA = quota;
+        PaljaAiQuota.applyQuotaBadge($('aiQuotaBadge'), quota);
+      }
     } catch (e) {
       console.error(e);
-      box.textContent = 'AI 해석을 일시적으로 사용할 수 없어요. 프롬프트 복사를 이용해 주세요.';
+      if (e.code === 'quota_exceeded' || e.status === 429) {
+        box.innerHTML = '이번 달 AI 크레딧을 모두 사용했어요. <strong>프롬프트 복사</strong>로 ChatGPT·Gemini를 이용해 주세요.';
+        if (e.quota) {
+          LAST_AI_QUOTA = e.quota;
+          PaljaAiQuota.applyQuotaBadge($('aiQuotaBadge'), e.quota);
+        }
+      } else if (e.message === 'login_required') {
+        box.textContent = 'AI 해석은 로그인 후 이용할 수 있어요.';
+      } else {
+        box.textContent = 'AI 해석을 일시적으로 사용할 수 없어요. 프롬프트 복사를 이용해 주세요.';
+      }
     } finally {
       btn.textContent = prev; btn.disabled = false;
     }
