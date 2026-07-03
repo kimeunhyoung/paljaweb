@@ -1284,7 +1284,12 @@ body.export-capturing #wheelCard .note{display:none !important;}
   // ── AI 해석 프롬프트 ──
   function buildAiPrompt(ctx, aspects, knownKeys) {
     const L = [];
-    L.push('당신은 따뜻하고 통찰력 있는 전문 점성가입니다. 아래 출생 차트를 바탕으로, 전문 용어는 쉽게 풀어 한국어로 해석해 주세요. 성격·강점·과제·연애/관계·일/적성·올해 조언 순으로, 단정적이지 않게 다정하게 설명해 주세요.');
+    const hasTransit = LAST_TRANSIT && (LAST_TRANSIT.fast.length || LAST_TRANSIT.slow.length);
+    const hasFast = LAST_TRANSIT && LAST_TRANSIT.fast.length;
+    const hasSlow = LAST_TRANSIT && LAST_TRANSIT.slow.length;
+    const hasYear = !!LAST_YEAR_FORECAST;
+
+    L.push('당신은 따뜻하고 통찰력 있는 전문 점성가입니다. 아래 출생 차트를 바탕으로 전문 용어는 쉽게 풀어 한국어로 해석해 주세요. 단정적 예언·공포 조장은 금지하고, 참고용 자기이해 톤으로 다정하게 써 주세요.');
     L.push('');
     L.push('[출생 차트]');
     if (ctx.displayName) L.push('이름: ' + ctx.displayName);
@@ -1334,11 +1339,30 @@ body.export-capturing #wheelCard .note{display:none !important;}
 
     L.push('');
     L.push('[작성 형식 — 반드시 지키세요]');
-    L.push('1) ## 제목만 사용(### 소제목·이모지 남발 금지). 섹션: 성격 요약 → 강점 → 과제 → 연애·관계 → 일·적성 → 지금~올해 조언(트랜짓·올해 운세 반영 시).');
-    L.push('2) 각 섹션 3~5문장. 전체 분량은 A4 1장 안쪽으로 핵심만.');
-    L.push('3) 반드시 마지막 「지금~올해 조언」까지 완성하고 끊지 마세요.');
-    if (LAST_TRANSIT || LAST_YEAR_FORECAST) {
-      L.push('4) 출생 차트 성향 + 트랜짓·올해 운세를 한 흐름으로 연결해 주세요.');
+    L.push('1) ## 제목만 사용(### 소제목·이모지 남발 금지). 아래 순서대로 **모든 해당 섹션**을 빠짐없이 작성하세요.');
+    const sections = [
+      '## 성격 요약 — 빅3(태양·달·상승)과 원소·모달리티를 연결해 타고난 기질',
+      '## 강점 — 차트·어스펙트 근거를 들어 구체적으로',
+      '## 과제·성장 포인트 — 긴장 각(사각·충)이나 과제 행성을 부드럽게',
+      '## 연애·관계 — 금성·달·7하우스·관계 관련 배치',
+      '## 일·적성·커리어 — MC·6·10하우스, 토성·화성·태양 등',
+      '## 금전·재물운 — 2·8하우스, 금성·목성·토성, 수입·지출·저축·투자 성향과 주의점(근거 행성·하우스 명시)',
+    ];
+    if (hasFast) {
+      sections.push('## 지금·이번 주 — 위 「지금·이번 주(빠른 트랜짓)」 데이터만. 일상·단기 기회·주의');
+    }
+    if (hasSlow) {
+      sections.push('## 요즘의 큰 흐름 — 위 「요즘의 큰 흐름(느린 트랜짓)」 데이터만. 몇 달~수년 테마');
+    }
+    if (hasYear) {
+      sections.push('## 올해 운세·테마 — 프로그레션·솔라 리턴 근거로 올해 큰 방향');
+    }
+    sections.forEach((s, i) => L.push(`   ${i + 1}. ${s}`));
+    L.push('2) 각 섹션 **4~6문장**. 차트 근거(행성·별자리·하우스·어스펙트)를 최소 1개 이상 언급하세요.');
+    L.push('3) 트랜짓 섹션은 빠른/느린 흐름을 **섞지 말고** 해당 ## 아래에만 쓰세요. 금전 조언은 「금전·재물운」과 트랜짓(해당 시)에 나눠 쓰세요.');
+    L.push('4) 반드시 마지막 섹션까지 완성하고 중간에 끊지 마세요.');
+    if (hasTransit || hasYear) {
+      L.push('5) 출생 차트 성향과 트랜짓·올해 운세는 서로 모순 없이 연결하되, 섹션은 위 순서를 유지하세요.');
     }
     return L.join('\n');
   }
@@ -1614,13 +1638,13 @@ body.export-capturing #wheelCard .note{display:none !important;}
     box.className = 'ai-result';
     box.textContent = '해석을 생성하고 있어요…';
     const prompt = buildAiPrompt(LAST_CTX, LAST_ASPECTS, LAST_KNOWN);
-    const cacheKey = window.PaljaAiQuota ? PaljaAiQuota.hashKey('v2:' + prompt) : prompt.slice(0, 200);
+    const cacheKey = window.PaljaAiQuota ? PaljaAiQuota.hashKey('v3:' + prompt) : prompt.slice(0, 200);
     try {
       if (!window.PaljaAiQuota) throw new Error('no_quota_client');
       const { text, quota, data } = await PaljaAiQuota.callAi({
         feature: 'astro',
         cacheKey,
-        max_tokens: 2400,
+        max_tokens: 3200,
         messages: [{ role: 'user', content: prompt }],
       });
       let out = text || '해석을 생성하지 못했어요.';
