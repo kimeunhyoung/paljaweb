@@ -6,6 +6,7 @@ const fs = require('fs');
 const jwt = require('jsonwebtoken');
 const { registerLifecodeRoutes } = require('./lib/lifecode-api');
 const { registerNaverAuthRoutes } = require('./lib/naver-auth');
+const { registerCounselorPushRoutes } = require('./lib/counselor-push');
 
 const app = express();
 
@@ -507,6 +508,7 @@ registerPortOneRoutes(app, planBilling, getUserIdFromAuth, checkoutStore);
 
 registerLifecodeRoutes(app, { portoneConfigured, portonePublicConfig, portoneOneTimePublicConfig });
 registerNaverAuthRoutes(app);
+registerCounselorPushRoutes(app, getUserIdFromAuth);
 
 /** AI 호출은 ANTHROPIC_API_KEY + AI_ENABLED=true 일 때만 (기본 꺼짐) */
 function isAiAvailable() {

@@ -4,6 +4,7 @@
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="manifest" href="/manifest.json">
   <title>상담사 허브 — 팔자연구소 8CODE</title>
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
@@ -358,6 +359,36 @@
     .dash-upcoming .up-empty { font-size: 12px; color: var(--muted); padding: 4px 2px; }
     @media (max-width: 640px) { .dash-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 
+    /* 일정 캘린더 */
+    .cal-panel { background: #fff; border: 1px solid var(--border); border-radius: 12px; padding: 16px 18px; box-shadow: 0 6px 18px rgba(44,31,14,.05); }
+    .cal-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 12px; flex-wrap: wrap; }
+    .cal-head h3 { font-family: var(--font-serif); font-size: 17px; color: var(--deep); }
+    .cal-nav { display: flex; align-items: center; gap: 8px; }
+    .cal-nav button { background: var(--parchment); border: 1px solid var(--border); border-radius: 8px; padding: 6px 12px; font-size: 12px; cursor: pointer; color: var(--deep); font-family: var(--font-body); }
+    .cal-nav .cal-ym { font-size: 14px; font-weight: 700; color: var(--deep); min-width: 110px; text-align: center; }
+    .cal-weekdays { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; margin-bottom: 4px; }
+    .cal-weekdays span { font-size: 10px; text-align: center; color: var(--muted); font-weight: 600; }
+    .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
+    .cal-day { min-height: 44px; border: 1px solid transparent; border-radius: 8px; padding: 4px 2px; text-align: center; font-size: 12px; color: var(--ink); background: rgba(245,240,232,.35); position: relative; cursor: default; }
+    .cal-day.other { opacity: .35; }
+    .cal-day.today { border-color: var(--accent); font-weight: 700; }
+    .cal-day.has-appt { background: rgba(200,169,110,.22); border-color: rgba(200,169,110,.45); cursor: pointer; }
+    .cal-day.has-appt:hover { background: rgba(200,169,110,.35); }
+    .cal-day .dot { width: 5px; height: 5px; border-radius: 50%; background: var(--teal); margin: 3px auto 0; }
+    .cal-day.selected { outline: 2px solid var(--teal); outline-offset: -1px; }
+    .cal-detail { margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--border); }
+    .cal-detail h4 { font-size: 12px; color: var(--muted); margin-bottom: 8px; font-weight: 600; }
+    .cal-detail .cal-item { display: flex; align-items: center; gap: 8px; font-size: 12.5px; padding: 6px 0; }
+    .cal-detail .cal-empty { font-size: 12px; color: var(--muted); }
+
+    /* 오전 알림 */
+    .push-panel { background: #fff; border: 1px solid var(--border); border-radius: 12px; padding: 16px 18px; box-shadow: 0 6px 18px rgba(44,31,14,.05); display: flex; flex-wrap: wrap; align-items: center; gap: 12px; justify-content: space-between; }
+    .push-panel p { font-size: 12.5px; color: var(--muted); line-height: 1.55; max-width: 520px; }
+    .push-panel p strong { color: var(--deep); }
+    .push-status { font-size: 11px; color: var(--teal); font-weight: 600; }
+    .push-status.off { color: var(--muted); }
+    .push-status.err { color: #8b3a3a; }
+
     /* 상담사 브랜드 */
     .brand-panel { background: #fff; border: 1px solid var(--border); border-radius: 12px; padding: 18px 20px; box-shadow: 0 6px 18px rgba(44,31,14,.05); }
     .brand-row { display: grid; gap: 12px; }
@@ -447,6 +478,39 @@
       <div class="dash-card"><div class="dash-num" id="dashRepeat">0<small>%</small></div><div class="dash-label">재방문율(2회+)</div></div>
     </div>
     <div class="dash-upcoming" id="dashUpcomingList"></div>
+
+    <div class="section-title cal-head" style="margin-top:28px">
+      <span>일정 캘린더</span>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;">
+        <button type="button" class="btn-sm outline" id="exportIcsBtn">캘린더 파일(.ics)</button>
+      </div>
+    </div>
+    <div class="cal-panel">
+      <div class="cal-head">
+        <h3>약속 일정</h3>
+        <div class="cal-nav">
+          <button type="button" id="calPrevBtn" aria-label="이전 달">◀</button>
+          <span class="cal-ym" id="calYmLabel">—</span>
+          <button type="button" id="calNextBtn" aria-label="다음 달">▶</button>
+          <button type="button" id="calTodayBtn">오늘</button>
+        </div>
+      </div>
+      <div class="cal-weekdays" id="calWeekdays"></div>
+      <div class="cal-grid" id="calGrid"></div>
+      <div class="cal-detail" id="calDetail">
+        <h4 id="calDetailTitle">날짜를 선택하세요</h4>
+        <div id="calDetailList"></div>
+      </div>
+    </div>
+
+    <div class="section-title" style="margin-top:28px">오전 일정 알림</div>
+    <div class="push-panel">
+      <p><strong>매일 오전 9시</strong>(한국 시간)에 오늘 예정된 상담이 있으면 이 기기로 알려 드립니다. 앱(Play) 또는 브라우저에서 알림을 허용해 주세요.</p>
+      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:8px;">
+        <button type="button" class="btn-sm" id="pushToggleBtn">알림 켜기</button>
+        <span class="push-status off" id="pushStatus">확인 중…</span>
+      </div>
+    </div>
 
     <div class="section-title">상담사 브랜드 (리포트 머리글)</div>
     <div class="brand-panel">
@@ -684,6 +748,7 @@
     let sessionsAvailable = true;
     let activeClientId = null;
     const uid = session.user.id;
+    const accessToken = session.access_token;
 
     function setMsg(text, isErr) {
       msgEl.textContent = text || '';
@@ -992,6 +1057,7 @@
       document.getElementById('dashMonthSessions').textContent = String(monthSessions);
       document.getElementById('dashRepeat').innerHTML = String(repeatRate) + '<small>%</small>';
       renderUpcomingList(todayStr, horizonStr);
+      renderCalendar();
     }
 
     function renderUpcomingList(todayStr, horizonStr) {
@@ -1016,6 +1082,269 @@
       ).join('');
       host.querySelectorAll('button[data-act]').forEach((btn) => btn.addEventListener('click', onRowAction));
     }
+
+    // ── 일정 캘린더 ──
+    let calView = new Date();
+    calView.setDate(1);
+    let calSelectedDate = null;
+
+    function collectAppointments() {
+      const map = {};
+      const today = ymd(new Date());
+      function add(dateStr, clientId, name) {
+        if (!dateStr || dateStr < today) return;
+        if (!map[dateStr]) map[dateStr] = [];
+        if (!map[dateStr].some((x) => x.clientId === clientId)) {
+          map[dateStr].push({ clientId, name: name || '고객' });
+        }
+      }
+      clientRows.forEach((c) => {
+        add(c.next_appointment, c.id, c.display_name || c.legal_name);
+      });
+      sessionRows.forEach((s) => {
+        if (!s.next_appointment) return;
+        const c = clientRows.find((x) => x.id === s.client_id);
+        add(s.next_appointment, s.client_id, c ? (c.display_name || c.legal_name) : '고객');
+      });
+      return map;
+    }
+
+    function renderCalendar() {
+      const grid = document.getElementById('calGrid');
+      const wdHost = document.getElementById('calWeekdays');
+      const ymLabel = document.getElementById('calYmLabel');
+      if (!grid || !wdHost) return;
+
+      const apptMap = collectAppointments();
+      const y = calView.getFullYear();
+      const m = calView.getMonth();
+      ymLabel.textContent = y + '년 ' + (m + 1) + '월';
+
+      const weekdays = ['일', '월', '화', '수', '목', '금', '토'];
+      wdHost.innerHTML = weekdays.map((w) => '<span>' + w + '</span>').join('');
+
+      const firstDow = new Date(y, m, 1).getDay();
+      const daysInMonth = new Date(y, m + 1, 0).getDate();
+      const todayStr = ymd(new Date());
+      let html = '';
+
+      for (let i = 0; i < firstDow; i++) {
+        const d = new Date(y, m, 1 - (firstDow - i));
+        html += '<div class="cal-day other"><span>' + d.getDate() + '</span></div>';
+      }
+      for (let day = 1; day <= daysInMonth; day++) {
+        const ds = y + '-' + String(m + 1).padStart(2, '0') + '-' + String(day).padStart(2, '0');
+        const has = apptMap[ds];
+        const cls = ['cal-day'];
+        if (ds === todayStr) cls.push('today');
+        if (has) cls.push('has-appt');
+        if (ds === calSelectedDate) cls.push('selected');
+        html += '<div class="' + cls.join(' ') + '" data-date="' + ds + '">' +
+          '<span>' + day + '</span>' +
+          (has ? '<div class="dot"></div>' : '') +
+          '</div>';
+      }
+      const totalCells = firstDow + daysInMonth;
+      const trailing = totalCells % 7 === 0 ? 0 : 7 - (totalCells % 7);
+      for (let i = 1; i <= trailing; i++) {
+        html += '<div class="cal-day other"><span>' + i + '</span></div>';
+      }
+      grid.innerHTML = html;
+      grid.querySelectorAll('.cal-day.has-appt').forEach((el) => {
+        el.addEventListener('click', () => {
+          calSelectedDate = el.getAttribute('data-date');
+          renderCalendarDetail(apptMap);
+          renderCalendar();
+        });
+      });
+      if (calSelectedDate) renderCalendarDetail(apptMap);
+    }
+
+    function renderCalendarDetail(apptMap) {
+      const title = document.getElementById('calDetailTitle');
+      const list = document.getElementById('calDetailList');
+      if (!title || !list) return;
+      const map = apptMap || collectAppointments();
+      if (!calSelectedDate) {
+        title.textContent = '날짜를 선택하세요';
+        list.innerHTML = '<div class="cal-empty">약속이 있는 날을 누르면 고객 목록이 보입니다.</div>';
+        return;
+      }
+      title.textContent = calSelectedDate + ' 약속';
+      const items = map[calSelectedDate] || [];
+      if (!items.length) {
+        list.innerHTML = '<div class="cal-empty">이 날 예정된 약속이 없습니다.</div>';
+        return;
+      }
+      list.innerHTML = items.map((it) =>
+        '<div class="cal-item"><span>' + escapeHtml(it.name) + '</span>' +
+        '<button type="button" class="btn-sm outline" data-act="sessions" data-id="' + it.clientId + '" style="margin-left:auto;font-size:11px;padding:4px 10px;">상담 기록</button></div>'
+      ).join('');
+      list.querySelectorAll('button[data-act]').forEach((btn) => btn.addEventListener('click', onRowAction));
+    }
+
+    document.getElementById('calPrevBtn')?.addEventListener('click', () => {
+      calView.setMonth(calView.getMonth() - 1);
+      renderCalendar();
+    });
+    document.getElementById('calNextBtn')?.addEventListener('click', () => {
+      calView.setMonth(calView.getMonth() + 1);
+      renderCalendar();
+    });
+    document.getElementById('calTodayBtn')?.addEventListener('click', () => {
+      calView = new Date();
+      calView.setDate(1);
+      calSelectedDate = ymd(new Date());
+      renderCalendar();
+    });
+
+    document.getElementById('exportIcsBtn')?.addEventListener('click', () => {
+      const map = collectAppointments();
+      const dates = Object.keys(map).filter((d) => d >= ymd(new Date())).sort();
+      if (!dates.length) {
+        alert('보낼 예정 약속이 없습니다.');
+        return;
+      }
+      const lines = [
+        'BEGIN:VCALENDAR',
+        'VERSION:2.0',
+        'PRODID:-//8CODE//Counselor//KO',
+        'CALSCALE:GREGORIAN',
+        'METHOD:PUBLISH',
+      ];
+      dates.forEach((dateStr) => {
+        map[dateStr].forEach((it) => {
+          const compact = dateStr.replace(/-/g, '');
+          lines.push('BEGIN:VEVENT');
+          lines.push('UID:' + it.clientId + '-' + compact + '@8code.kr');
+          lines.push('DTSTART;VALUE=DATE:' + compact);
+          lines.push('DTEND;VALUE=DATE:' + compact);
+          lines.push('SUMMARY:상담 — ' + (it.name || '고객').replace(/[,;\\]/g, ' '));
+          lines.push('DESCRIPTION:팔자연구소 상담사 허브');
+          lines.push('END:VEVENT');
+        });
+      });
+      lines.push('END:VCALENDAR');
+      const blob = new Blob([lines.join('\r\n')], { type: 'text/calendar;charset=utf-8' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = 'palja-appointments.ics';
+      a.click();
+      URL.revokeObjectURL(a.href);
+    });
+
+    // ── 오전 푸시 알림 ──
+    let pushSubscription = null;
+
+    function urlBase64ToUint8Array(base64String) {
+      const padding = '='.repeat((4 - (base64String.length % 4)) % 4);
+      const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
+      const raw = atob(base64);
+      const out = new Uint8Array(raw.length);
+      for (let i = 0; i < raw.length; i++) out[i] = raw.charCodeAt(i);
+      return out;
+    }
+
+    function setPushStatus(text, mode) {
+      const el = document.getElementById('pushStatus');
+      const btn = document.getElementById('pushToggleBtn');
+      if (!el) return;
+      el.textContent = text;
+      el.className = 'push-status' + (mode ? ' ' + mode : '');
+      if (btn) {
+        btn.textContent = mode === 'on' ? '알림 끄기' : '알림 켜기';
+        btn.disabled = mode === 'err' && text.includes('지원');
+      }
+    }
+
+    async function initPush() {
+      const btn = document.getElementById('pushToggleBtn');
+      if (!btn) return;
+      if (!('serviceWorker' in navigator) || !('PushManager' in window) || !('Notification' in window)) {
+        setPushStatus('이 브라우저는 푸시 알림을 지원하지 않습니다.', 'err');
+        btn.disabled = true;
+        return;
+      }
+      try {
+        const reg = await navigator.serviceWorker.register('/sw.js');
+        await navigator.serviceWorker.ready;
+        let vapidRes;
+        try {
+          vapidRes = await fetch('/api/counselor/push/vapid-public');
+        } catch {
+          setPushStatus('서버에 연결할 수 없습니다.', 'err');
+          return;
+        }
+        const vapid = await vapidRes.json();
+        if (!vapid.enabled || !vapid.publicKey) {
+          setPushStatus('서버 푸시 설정이 아직 완료되지 않았습니다.', 'off');
+          btn.disabled = true;
+          return;
+        }
+        pushSubscription = await reg.pushManager.getSubscription();
+        if (pushSubscription) {
+          setPushStatus('오전 9시 일정 알림이 켜져 있습니다.', 'on');
+        } else {
+          setPushStatus('알림이 꺼져 있습니다.', 'off');
+        }
+        btn.addEventListener('click', () => togglePush(reg, vapid.publicKey));
+      } catch (e) {
+        console.warn('[push init]', e);
+        setPushStatus('알림 초기화에 실패했습니다.', 'err');
+      }
+    }
+
+    async function togglePush(reg, publicKey) {
+      const btn = document.getElementById('pushToggleBtn');
+      if (btn) btn.disabled = true;
+      try {
+        if (pushSubscription) {
+          const endpoint = pushSubscription.endpoint;
+          await pushSubscription.unsubscribe();
+          await fetch('/api/counselor/push/unsubscribe', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + accessToken },
+            body: JSON.stringify({ endpoint }),
+          });
+          pushSubscription = null;
+          setPushStatus('알림이 꺼져 있습니다.', 'off');
+        } else {
+          const perm = await Notification.requestPermission();
+          if (perm !== 'granted') {
+            setPushStatus('알림 권한이 거부되었습니다. 기기 설정에서 허용해 주세요.', 'err');
+            return;
+          }
+          pushSubscription = await reg.pushManager.subscribe({
+            userVisibleOnly: true,
+            applicationServerKey: urlBase64ToUint8Array(publicKey),
+          });
+          const sub = pushSubscription.toJSON();
+          const res = await fetch('/api/counselor/push/subscribe', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + accessToken },
+            body: JSON.stringify({
+              endpoint: sub.endpoint,
+              keys: sub.keys,
+              morning_enabled: true,
+            }),
+          });
+          if (!res.ok) {
+            await pushSubscription.unsubscribe();
+            pushSubscription = null;
+            setPushStatus('구독 저장에 실패했습니다.', 'err');
+            return;
+          }
+          setPushStatus('오전 9시 일정 알림이 켜져 있습니다.', 'on');
+        }
+      } catch (e) {
+        console.warn('[push toggle]', e);
+        setPushStatus('알림 설정 중 오류가 났습니다.', 'err');
+      } finally {
+        if (btn) btn.disabled = false;
+      }
+    }
+
+    initPush();
 
     // ── 관계 분석(고객 간 궁합) ──
     function populateRelSelects() {
