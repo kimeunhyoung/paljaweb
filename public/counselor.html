@@ -1537,6 +1537,21 @@
     // ── 일정 푸시 알림 ──
     let pushSubscription = null;
     let pushReg = null;
+    const PUSH_HOUR_LS_KEY = 'palja_counselor_push_hour_v1';
+
+    function readPushHourLocal() {
+      try {
+        const n = Number(localStorage.getItem(PUSH_HOUR_LS_KEY));
+        if (Number.isInteger(n) && n >= 6 && n <= 22) return n;
+      } catch (_) { /* ignore */ }
+      return null;
+    }
+
+    function writePushHourLocal(hour) {
+      try {
+        localStorage.setItem(PUSH_HOUR_LS_KEY, String(hour));
+      } catch (_) { /* ignore */ }
+    }
 
     function formatPushHourLabel(h) {
       const n = Number(h);
@@ -1573,13 +1588,28 @@
     }
 
     async function loadPushHourFromDb() {
-      if (!pushSubscription) return 9;
-      const { data } = await sb
+      if (pushSubscription) {
+        const { data } = await sb
+          .from('counselor_push_subscriptions')
+          .select('morning_hour')
+          .eq('endpoint', pushSubscription.endpoint)
+          .maybeSingle();
+        if (data?.morning_hour != null) return data.morning_hour;
+      }
+      const { data: rows } = await sb
         .from('counselor_push_subscriptions')
         .select('morning_hour')
-        .eq('endpoint', pushSubscription.endpoint)
-        .maybeSingle();
-      return data?.morning_hour ?? 9;
+        .eq('counselor_id', uid)
+        .order('created_at', { ascending: false })
+        .limit(1);
+      if (rows?.[0]?.morning_hour != null) return rows[0].morning_hour;
+      return readPushHourLocal() ?? 9;
+    }
+
+    async function resolvePreferredPushHour() {
+      const fromDb = await loadPushHourFromDb();
+      writePushHourLocal(fromDb);
+      return fromDb;
     }
 
     function urlBase64ToUint8Array(base64String) {
@@ -1616,12 +1646,22 @@
         alert('알림 시간을 저장하지 못했습니다.');
         return;
       }
+      writePushHourLocal(hour);
       setPushStatus(pushStatusOnText(), 'on');
+    }
+
+    async function onPushHourSelectChange() {
+      const hour = getSelectedPushHour();
+      writePushHourLocal(hour);
+      if (!pushSubscription) return;
+      await savePushHour();
     }
 
     async function initPush() {
       const btn = document.getElementById('pushToggleBtn');
-      fillPushHourSelect(9);
+      const hourSel = document.getElementById('pushHourSelect');
+      fillPushHourSelect(readPushHourLocal() ?? 9);
+      hourSel?.addEventListener('change', onPushHourSelectChange);
       document.getElementById('pushSaveHourBtn')?.addEventListener('click', savePushHour);
       if (!btn) return;
       if (!('serviceWorker' in navigator) || !('PushManager' in window) || !('Notification' in window)) {
@@ -1646,12 +1686,18 @@
           return;
         }
         pushSubscription = await pushReg.pushManager.getSubscription();
+        const hour = await resolvePreferredPushHour();
+        fillPushHourSelect(hour);
         if (pushSubscription) {
-          const hour = await loadPushHourFromDb();
-          fillPushHourSelect(hour);
           setPushStatus(pushStatusOnText(), 'on');
         } else {
-          setPushStatus('알림이 꺼져 있습니다.', 'off');
+          const hadHour = hour !== 9 || readPushHourLocal() != null;
+          setPushStatus(
+            hadHour
+              ? formatPushHourLabel(hour) + '로 설정해 두었지만, 이 기기에서는 알림이 꺼져 있습니다. 「알림 켜기」를 눌러 주세요.'
+              : '알림이 꺼져 있습니다.',
+            'off'
+          );
         }
         btn.addEventListener('click', () => togglePush(vapid.publicKey));
       } catch (e) {
@@ -1702,6 +1748,7 @@
             setPushStatus('구독 저장에 실패했습니다.', 'err');
             return;
           }
+          writePushHourLocal(hour);
           setPushStatus(pushStatusOnText(), 'on');
         }
       } catch (e) {
