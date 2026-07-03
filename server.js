@@ -260,11 +260,19 @@ const checkoutStore = {
 
 // 정식 도메인(8code.kr)으로 통일 — onrender 등으로 들어온 브라우저 페이지 요청은 301 리다이렉트
 // (SEO 중복 콘텐츠 방지). 헬스체크/API/에셋 요청은 건드리지 않도록 GET + text/html 만 대상.
+// AdSense·AdsBot은 등록 URL(paljaweb.onrender.com)에서 실제 HTML을 읽을 수 있게 리다이렉트 제외.
 const CANONICAL_HOST = '8code.kr';
+
+function isGoogleAdsCrawler(userAgent) {
+  const ua = String(userAgent || '');
+  return /AdsBot-Google|Mediapartners-Google|Google-Ads/i.test(ua);
+}
+
 app.use((req, res, next) => {
   if (req.method !== 'GET') return next();
   const host = (req.headers.host || '').toLowerCase();
   if (!host.endsWith('.onrender.com')) return next();
+  if (isGoogleAdsCrawler(req.headers['user-agent'])) return next();
   const accept = req.headers.accept || '';
   if (!accept.includes('text/html')) return next();
   return res.redirect(301, `https://${CANONICAL_HOST}${req.originalUrl}`);
