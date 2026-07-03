@@ -1078,6 +1078,112 @@ function getPurposePromptExtra(scoringKey, displayLabel) {
   return map[scoringKey] || map.general;
 }
 
+function isPersonalNamePurpose(scoringKey) {
+  return scoringKey === 'general';
+}
+
+/** AI 추천 결과를 수비학 계산용 전체 문자열로 */
+function formatFullRecommendName(scoringKey, surname, namePart) {
+  const n = String(namePart || '').trim();
+  if (!n) return '';
+  if (!isPersonalNamePurpose(scoringKey)) return n;
+  return surname ? surname + n : n;
+}
+
+function recommendResultNoun(scoringKey) {
+  if (scoringKey === 'biz') return '브랜드명';
+  if (scoringKey === 'nick_online') return '닉네임';
+  if (scoringKey === 'general') return '이름';
+  return '활동명';
+}
+
+function buildRecommendPrompt(opts) {
+  const {
+    purposeCtx, surname, gender, syllable, lp, missingStr, excessStr, energyDesc, extra,
+  } = opts;
+  const key = purposeCtx.scoringKey;
+  const contextBlock = [
+    `목적: ${purposeCtx.label}`,
+    PURPOSE_SCORING[key]?.desc ? `에너지 방향: ${PURPOSE_SCORING[key].desc}` : '',
+    lp ? `인생여정수: ${lp.val}번(${tr(lp.val).name}) — ${tr(lp.val).key}` : '',
+    missingStr || '',
+    excessStr || '',
+    energyDesc || '',
+    extra ? `추가 요청: ${extra}` : '',
+  ].filter(Boolean).join('\n');
+
+  const jsonTail = `반드시 아래 JSON 형식으로만 응답하세요 (다른 텍스트 없이):
+{"names":["후보1","후보2","후보3","후보4","후보5","후보6","후보7","후보8","후보9","후보10"]}`;
+
+  if (key === 'biz') {
+    return `당신은 한국 사업명·브랜드·상호 네이밍 전문가입니다.
+아래 조건에 맞는 **상호·브랜드명** 10개를 추천하세요.
+
+**절대 금지:** 일반 사람 이름·실명 스타일 (예: 한결, 민수, 현숙, 서연, ${surname || '김'}한결, ${surname || '김'}현숙)
+**금지:** 성씨+흔한 이름 2~3음절 조합
+
+${contextBlock}
+${surname ? `참고(선택): 대표 성씨 「${surname}」 — 상호에 자연스럽게 녹일 **브랜드 1~2개**만 가능. ${surname}+인명 형태 금지.` : ''}
+
+브랜드명 가이드:
+- 카페·스튜디오·샵·브랜드에 쓸 **2~5음절** 한글 상호 (예: 달빛공방, 브라운핸즈, 한결상회, 팔자랩, 별숲스튜디오)
+- names 배열에는 **완성된 브랜드명 전체**를 넣으세요 (성+이름 분리 없음)
+- 숫자 계산은 하지 마세요
+
+${jsonTail}`;
+  }
+
+  if (key === 'nick_online') {
+    return `당신은 온라인 닉네임·핸들·활동명 네이밍 전문가입니다.
+**${purposeCtx.label}** 맥락의 닉네임 10개를 추천하세요.
+
+**절대 금지:** 실명·일반 인명 (김민수, 은혜, 준호, ${surname || ''}한결 등 성+이름)
+**금지:** 출생신고용 이름처럼 보이는 2~3음절 인명
+
+${contextBlock}
+- 성별 참고: ${gender} (닉네임에 성씨+이름 조합 쓰지 마세요)
+${surname ? `- 성(姓) 「${surname}」 필드는 무시하거나 별칭 일부로만 자연스럽게` : ''}
+
+가이드:
+- 2~6글자, 검색·태그·반복 호명에 유리
+- 한글·영문·숫자 조합 가능 (예: 별빛탐험가, codefox, 달토끼77, 라이트핸즈)
+- names에는 **닉네임 전체**만
+
+${jsonTail}`;
+  }
+
+  if (key === 'creative' || key === 'mystic' || key === 'athlete' || key === 'educator') {
+    return `당신은 활동명·예명·필명 네이밍 전문가입니다.
+출생신고용 **실명이 아닌** ${purposeCtx.label} 용 **활동명** 10개를 추천하세요.
+
+**금지:** 민수, 지영, 현숙 같은 일반 실명만 나열
+**금지:** ${surname ? `${surname}+흔한이름` : '성+흔한이름'} 형태
+
+${contextBlock}
+- 성별 참고: ${gender}
+
+가이드:
+- 무대·채널·상담실·팀에 쓸 예명·필명
+- 2~5음절, 개성과 신뢰가 느껴지는 조합
+- names에는 **활동명 전체**
+
+${jsonTail}`;
+  }
+
+  return `당신은 한국 **일반 사람 이름** 전문가입니다. 아래 조건에 맞는 이름 10개를 추천하세요. 이름 텍스트만 주세요.
+
+${contextBlock}
+- 성(姓): ${surname || '미정 (성 없이 이름만)'}
+- 성별: ${gender}
+- 음절 수: ${syllable === 'any' ? '무관' : syllable + '음절 (이름만, 성 제외)'}
+
+${jsonTail}
+
+주의:
+- 성이 있으면 **이름 부분만** 반환 (성 제외)
+- 실제 한국에서 사용되는 사람 이름`;
+}
+
 // ── 이름 종합 평가 ──
 function evaluateName(r, dist, purposeInput) {
   const pCtx = normalizePurposeArg(purposeInput);
@@ -1742,7 +1848,7 @@ async function runRecommend(){
   document.getElementById('recResultWrap').innerHTML = `
     <div class="rec-loading">
       <div class="ai-spinner" style="margin:0 auto 12px;width:20px;height:20px;"></div>
-      AI가 이름을 추천하고 있어요...
+      AI가 ${recommendResultNoun(purposeCtx.scoringKey)}을 추천하고 있어요...
     </div>`;
   document.getElementById('recResultArea').scrollIntoView({behavior:'smooth'});
 
@@ -1754,34 +1860,17 @@ async function runRecommend(){
     ? `원하는 에너지(운명수 기준): ${chips.map(v=>`${v}번(${tr(Number(v)).name})`).join(', ')}`
     : missingStr ? `부족한 수를 채우는 방향으로 추천` : '';
 
-  // AI에게 이름 텍스트만 요청 (숫자 계산은 로컬에서)
-  const prompt = `당신은 한국 이름 전문가입니다. 아래 조건에 맞는 한국 이름을 10개 추천해주세요. 이름 텍스트만 주세요. 숫자 계산은 하지 않아도 됩니다.
-
-조건:
-- 이름 목적: ${purposeCtx.label} (${PURPOSE_SCORING[purposeCtx.scoringKey]?.desc || ''})
-- 성(姓): ${surname || '미정 (성 없이 이름만)'}
-- 성별: ${gender}
-- 음절 수: ${syllable === 'any' ? '무관' : syllable + '음절 (이름만, 성 제외)'}
-${lp ? `- 인생여정수: ${lp.val}번(${tr(lp.val).name}) — ${tr(lp.val).key}` : ''}
-${missingStr ? `- ${missingStr}` : ''}
-${excessStr ? `- ${excessStr}` : ''}
-${energyDesc ? `- ${energyDesc}` : ''}
-${extra ? `- 추가 요청: ${extra}` : ''}
-
-반드시 아래 JSON 형식으로만 응답하세요 (다른 텍스트 없이):
-{"names":["이름1","이름2","이름3","이름4","이름5","이름6","이름7","이름8","이름9","이름10"]}
-
-주의: 
-- 성이 있으면 이름만 반환 (성 제외)
-- 실제 한국에서 사용되는 이름이어야 함
-- 다양한 에너지의 이름을 골고루 추천`;
+  // AI에게 목적별 이름·브랜드·닉네임 추천 (숫자 계산은 로컬)
+  const prompt = buildRecommendPrompt({
+    purposeCtx, surname, gender, syllable, lp, missingStr, excessStr, energyDesc, extra,
+  });
 
   try {
     if (!window.PaljaAiQuota) throw new Error('no_quota_client');
     const { text, quota } = await PaljaAiQuota.callAi({
       feature: 'name_recommend',
-      cacheKey: PaljaAiQuota.hashKey(prompt),
-      max_tokens: 400,
+      cacheKey: PaljaAiQuota.hashKey('v2:' + prompt),
+      max_tokens: 500,
       messages: [{ role: 'user', content: prompt }],
     });
     const raw = text || '';
@@ -1801,7 +1890,7 @@ ${extra ? `- 추가 요청: ${extra}` : ''}
       </div>`;
 
     const results = nameList.map((name, i) => {
-      const fullName = surname ? surname + name : name;
+      const fullName = formatFullRecommendName(purposeCtx.scoringKey, surname, name);
       const nums = calcName(fullName);
       const mat  = lp ? calcMaturity(nums.expression.raw, lp.raw) : null;
       const compatLp   = lp ? compat(nums.expression.val, lp.val) : null;
@@ -1840,7 +1929,8 @@ function renderRecResultFull(sorted, dist, lp, birth, surname, purposeInput) {
   const bestScore = Math.min(best.totalScore, 99);
   const missingFill = dist?.missing.includes(best.nums.expression.val);
 
-  let summaryText = `<strong class="best-name">${best.name}</strong>이 가장 좋은 이름입니다. `;
+  const noun = recommendResultNoun(pCtx.scoringKey);
+  let summaryText = `<strong class="best-name">${best.name}</strong>이 가장 좋은 ${noun}입니다. `;
   if(lp) {
     summaryText += `인생여정수(${lp.val})와 ${compatLabel(best.totalCompat)}(${best.totalCompat}점)`;
     if(missingFill) summaryText += `이며, 생년월일의 부족한 에너지를 채워주는 이상적인 조합`;
@@ -1885,7 +1975,7 @@ function renderRecResultFull(sorted, dist, lp, birth, surname, purposeInput) {
     ${birthPanelHtml}
     <div class="rank-header" style="margin-bottom:16px;">
       <div class="rank-header-top">
-        <div class="rank-header-title">AI 추천 이름 ${sorted.length}개 · 네임코드 분석 완료</div>
+        <div class="rank-header-title">AI 추천 ${recommendResultNoun(pCtx.scoringKey)} ${sorted.length}개 · 네임코드 분석 완료</div>
         <div class="rank-count">10개 후보 → 상위 ${sorted.length}개 선별</div>
       </div>
       <div class="rank-summary">${summaryText}</div>
