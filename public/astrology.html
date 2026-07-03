@@ -1283,10 +1283,12 @@ body.export-capturing #wheelCard .note{display:none !important;}
     }
 
     L.push('');
+    L.push('[작성 형식 — 반드시 지키세요]');
+    L.push('1) ## 제목만 사용(### 소제목·이모지 남발 금지). 섹션: 성격 요약 → 강점 → 과제 → 연애·관계 → 일·적성 → 지금~올해 조언(트랜짓·올해 운세 반영 시).');
+    L.push('2) 각 섹션 3~5문장. 전체 분량은 A4 1장 안쪽으로 핵심만.');
+    L.push('3) 반드시 마지막 「지금~올해 조언」까지 완성하고 끊지 마세요.');
     if (LAST_TRANSIT || LAST_YEAR_FORECAST) {
-      L.push('위 출생 차트로 타고난 성향을 해석하고, 트랜짓·올해 운세(프로그레션·솔라 리턴)를 바탕으로 지금~올해 무엇을 주의하고 어떤 기회를 살리면 좋을지 구체적인 조언을 더해 주세요. 성격·강점·과제·연애/관계·일/적성 순으로, 단정적이지 않게 다정하게 설명해 주세요.');
-    } else {
-      L.push('위 정보를 종합해 이 사람의 타고난 성향과 삶의 흐름을 풍부하게 해석해 주세요.');
+      L.push('4) 출생 차트 성향 + 트랜짓·올해 운세를 한 흐름으로 연결해 주세요.');
     }
     return L.join('\n');
   }
@@ -1562,16 +1564,20 @@ body.export-capturing #wheelCard .note{display:none !important;}
     box.className = 'ai-result';
     box.textContent = '해석을 생성하고 있어요…';
     const prompt = buildAiPrompt(LAST_CTX, LAST_ASPECTS, LAST_KNOWN);
-    const cacheKey = window.PaljaAiQuota ? PaljaAiQuota.hashKey(prompt) : prompt.slice(0, 200);
+    const cacheKey = window.PaljaAiQuota ? PaljaAiQuota.hashKey('v2:' + prompt) : prompt.slice(0, 200);
     try {
       if (!window.PaljaAiQuota) throw new Error('no_quota_client');
-      const { text, quota } = await PaljaAiQuota.callAi({
+      const { text, quota, data } = await PaljaAiQuota.callAi({
         feature: 'astro',
         cacheKey,
-        max_tokens: 1200,
+        max_tokens: 2400,
         messages: [{ role: 'user', content: prompt }],
       });
-      box.textContent = text || '해석을 생성하지 못했어요.';
+      let out = text || '해석을 생성하지 못했어요.';
+      if (data?.stop_reason === 'max_tokens') {
+        out += '\n\n(※ 응답 길이 한도로 끝부분이 잘렸을 수 있어요. 프롬프트 복사로 이어서 보실 수도 있어요.)';
+      }
+      box.textContent = out;
       if (quota) {
         LAST_AI_QUOTA = quota;
         PaljaAiQuota.applyQuotaBadge($('aiQuotaBadge'), quota);

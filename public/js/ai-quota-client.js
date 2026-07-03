@@ -112,6 +112,7 @@
       text: extractText(data),
       quota: quotaFromResponse(data),
       cached: !!data?._palja?.cached,
+      stopReason: data?.stop_reason || null,
     };
   }
 
