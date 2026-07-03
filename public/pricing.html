@@ -871,6 +871,7 @@
         <li><div class="feature-check">✓</div>타로코드</li>
         <li><div class="feature-check">✓</div>점성학 출생 차트 · 빅3 (기본)</li>
         <li class="no"><div class="feature-x">×</div>점성학 트랜짓 · 커플 차트 · AI 해석</li>
+        <li class="no"><div class="feature-x">×</div>수비학 달력 · AI 운세</li>
         <li class="no"><div class="feature-x">×</div>나머지 숫자 해설 · 통합 스토리</li>
         <li class="no"><div class="feature-x">×</div>현재 흐름 · 7일 · 월간 흐름</li>
         <li class="no"><div class="feature-x">×</div>스토리 · 별자리 상세 · 48주기</li>
@@ -898,8 +899,10 @@
         <li><div class="feature-check">✓</div>향후 7일 에너지 흐름</li>
         <li><div class="feature-check">✓</div>10년 차트 (수비학·타로)</li>
         <li><div class="feature-check">✓</div>대주기 · 인생 4단계</li>
-        <li><div class="feature-check">✓</div>수비학 달력</li>
-        <li><div class="feature-check">✓</div><strong>점성학 심화</strong> (트랜짓·커플 차트·AI 해석)</li>
+        <li><div class="feature-check">✓</div>수비학 달력 · AI 오늘·이번 달 운세</li>
+        <li><div class="feature-check">✓</div><strong>점성학 심화</strong> (트랜짓·커플 차트)</li>
+        <li><div class="feature-check">✓</div>AI 맞춤 해석 (점성학 차트·트랜짓 운세)</li>
+        <li><div class="feature-check">✓</div>월 AI 크레딧 <strong>10회</strong></li>
         <li class="no"><div class="feature-x">×</div>네임코드 · 소울하모니 · 48궁합</li>
         <li class="no"><div class="feature-x">×</div>인생전반표</li>
         <li class="no"><div class="feature-x">×</div>인생전반표 · Growth Map</li>
@@ -916,7 +919,8 @@
       <div class="plan-divider"></div>
       <ul class="feature-list">
         <li><div class="feature-check">✓</div>Basic 모든 기능</li>
-        <li><div class="feature-check">✓</div>네임코드 · 소울하모니 · 48궁합</li>
+        <li><div class="feature-check">✓</div>네임코드 · 소울하모니 · 48궁합 · AI 이름 추천</li>
+        <li><div class="feature-check">✓</div>월 AI 크레딧 <strong>30회</strong></li>
         <li><div class="feature-check">✓</div>인생전반표 (0~100세)</li>
         <li><div class="feature-check">✓</div>Growth Map · 피라미드 리듬</li>
         <li><div class="feature-check">✓</div>로슈 격자 · 순차 격자 심층 분석</li>
@@ -942,6 +946,7 @@
         <li><div class="feature-check">✓</div>고객용 브랜디드 리포트 PDF</li>
         <li><div class="feature-check">✓</div>상담 준비 요약 카드 · 고객 간 궁합</li>
         <li><div class="feature-check">✓</div>고객·상담 기록 CSV 내보내기(백업)</li>
+        <li><div class="feature-check">✓</div>월 AI 크레딧 <strong>120회</strong></li>
       </ul>
       <button class="plan-btn plan-btn-dark" onclick="handleSubscribe('professional')">시작하기</button>
       <a href="for-counselors.html" class="plan-btn plan-btn-outline" style="margin-top:10px;display:block;text-align:center;text-decoration:none;">상담사 기능 자세히 보기 →</a>
@@ -1116,21 +1121,35 @@
         <td><span class="check">✓</span></td>
       </tr>
       <tr>
-        <td>점성학 트랜짓 · 커플 차트 · AI 해석</td>
+        <td>점성학 트랜짓 · 커플 차트</td>
         <td><span class="cross">—</span></td>
         <td class="featured-col"><span class="check">✓</span></td>
         <td><span class="check">✓</span></td>
         <td><span class="check">✓</span></td>
       </tr>
       <tr>
-        <td>수비학달력</td>
+        <td>수비학 달력</td>
         <td><span class="cross">—</span></td>
         <td class="featured-col"><span class="check">✓</span></td>
         <td><span class="check">✓</span></td>
         <td><span class="check">✓</span></td>
       </tr>
       <tr>
-        <td>소울하모니 · 네임코드 · 48궁합</td>
+        <td>AI 맞춤 해석 (점성학·수비학 달력)</td>
+        <td><span class="cross">—</span></td>
+        <td class="featured-col"><span class="check">✓</span></td>
+        <td><span class="check">✓</span></td>
+        <td><span class="check">✓</span></td>
+      </tr>
+      <tr>
+        <td>월 AI 크레딧 (공통 풀)</td>
+        <td><span class="cross">—</span></td>
+        <td class="featured-col">10회</td>
+        <td>30회</td>
+        <td>120회</td>
+      </tr>
+      <tr>
+        <td>소울하모니 · 네임코드 · 48궁합 · AI 이름</td>
         <td><span class="cross">—</span></td>
         <td class="featured-col"><span class="cross">—</span></td>
         <td><span class="check">✓</span></td>
@@ -1238,6 +1257,10 @@
   <div class="faq-item" onclick="this.classList.toggle('open')">
     <div class="faq-q">라이프코드 건별 이용권은 여러 기기에서 쓸 수 있나요? <span class="faq-arrow">▼</span></div>
     <div class="faq-a">아니요. 접속 코드는 <strong>처음 등록한 기기 1대</strong>에만 연결됩니다. 다른 휴대폰·PC·브라우저에서는 사용할 수 없으니, 평소 쓰는 기기에서 결제 후 바로 등록해 주세요. 기기 변경이 필요하면 고객센터로 문의해 주세요.</div>
+  </div>
+  <div class="faq-item" onclick="this.classList.toggle('open')">
+    <div class="faq-q">AI 맞춤 해석은 어떻게 쓰나요? <span class="faq-arrow">▼</span></div>
+    <div class="faq-a">Basic 이상에서 <strong>월 AI 크레딧</strong>으로 점성학·수비학 달력 AI를 이용할 수 있어요. 점성학 <strong>차트 해석 2크레딧</strong>, 트랜짓·수비학 달력 운세는 <strong>각 1크레딧</strong>입니다. 같은 날짜·내용은 24시간 캐시되어 크레딧이 다시 차감되지 않아요. Pro에서는 네임코드 AI 이름 추천도 이용할 수 있습니다.</div>
   </div>
   <div class="faq-item" onclick="this.classList.toggle('open')">
     <div class="faq-q">플랜 업그레이드는 언제 적용되나요? <span class="faq-arrow">▼</span></div>
