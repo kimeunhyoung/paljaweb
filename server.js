@@ -6,7 +6,7 @@ const fs = require('fs');
 const jwt = require('jsonwebtoken');
 const { registerLifecodeRoutes } = require('./lib/lifecode-api');
 const { registerNaverAuthRoutes } = require('./lib/naver-auth');
-const { registerCounselorPushRoutes } = require('./lib/counselor-push');
+const { registerCounselorPushRoutes, startCounselorPushScheduler } = require('./lib/counselor-push');
 const { registerCounselorTrialRoutes } = require('./lib/counselor-trial');
 
 const app = express();
@@ -626,4 +626,5 @@ app.listen(PORT, () => {
   console.log(`paljaweb static server — http://localhost:${PORT}`);
   console.log('[palja] PortOne webhook URL: .../api/portone/webhook');
   console.log('[lifecode] Entry: /lifecode/  Admin: /lifecode/admin.html');
+  startCounselorPushScheduler();
 });
