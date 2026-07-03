@@ -8,6 +8,7 @@ create table if not exists public.counselor_push_subscriptions (
   p256dh text not null,
   auth_key text not null,
   morning_enabled boolean not null default true,
+  morning_hour smallint not null default 9 check (morning_hour >= 0 and morning_hour <= 23),
   created_at timestamptz not null default now(),
   unique (counselor_id, endpoint)
 );
