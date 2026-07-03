@@ -244,6 +244,8 @@ table.astro-table td .glyph{font-size:16px;margin-right:4px;color:var(--accent);
 .counselor-report{white-space:pre-wrap;font-size:13px;line-height:1.7;background:rgba(255,255,255,.6);border:1px solid #e8ddcb;border-radius:12px;padding:14px 16px;max-height:420px;overflow:auto;}
 .ai-result{margin-top:14px;padding:14px 16px;background:rgba(255,255,255,.65);border:1px solid #e8ddcb;border-radius:12px;font-size:13.5px;line-height:1.75;white-space:pre-wrap;}
 .ai-result.empty{color:var(--muted);font-size:13px;}
+.ai-time-hint{font-size:11.5px;line-height:1.55;color:var(--muted);margin:8px 0 0;}
+.ai-time-hint.is-loading{color:var(--warm-brown);}
 .ai-prompt-details{margin-top:12px;}
 .ai-prompt-details summary{font-size:12.5px;font-weight:600;color:var(--muted);cursor:pointer;}
 .capture-off{display:none !important;}
@@ -541,6 +543,7 @@ body.export-capturing #wheelCard .note{display:none !important;}
         <a class="rt-btn" id="btnOpenGemini" href="https://gemini.google.com/app" target="_blank" rel="noopener">Gemini ↗</a>
       </div>
       <div id="aiResult" class="ai-result">차트를 계산한 뒤 <strong>AI 해석</strong> 버튼을 눌러 주세요.</div>
+      <p class="ai-time-hint" id="aiTimeHint">해석 생성에 보통 30초~1분 정도 걸릴 수 있어요. 섹션이 많을수록 조금 더 걸립니다. 창을 닫지 말고 잠시만 기다려 주세요.</p>
       <details class="ai-prompt-details no-print">
         <summary>고급: 프롬프트 직접 보기</summary>
         <textarea id="aiPrompt" class="ai-prompt-box" readonly rows="6" style="margin-top:8px;"></textarea>
@@ -1358,9 +1361,9 @@ body.export-capturing #wheelCard .note{display:none !important;}
       sections.push('## 올해 운세·테마 — 프로그레션·솔라 리턴 근거로 올해 큰 방향');
     }
     sections.forEach((s, i) => L.push(`   ${i + 1}. ${s}`));
-    L.push('2) 각 섹션 **4~6문장**. 차트 근거(행성·별자리·하우스·어스펙트)를 최소 1개 이상 언급하세요.');
+    L.push('2) 각 섹션 **3~4문장**. 차트 근거(행성·별자리·하우스·어스펙트)를 최소 1개 이상 언급하세요. 같은 내용 반복 금지.');
     L.push('3) 트랜짓 섹션은 빠른/느린 흐름을 **섞지 말고** 해당 ## 아래에만 쓰세요. 금전 조언은 「금전·재물운」과 트랜짓(해당 시)에 나눠 쓰세요.');
-    L.push('4) 반드시 마지막 섹션까지 완성하고 중간에 끊지 마세요.');
+    L.push('4) 반드시 마지막 섹션까지 완성하고 중간에 끊지 마세요. 섹션 수가 많으면 문장을 짧게 써도 됩니다.');
     if (hasTransit || hasYear) {
       L.push('5) 출생 차트 성향과 트랜짓·올해 운세는 서로 모순 없이 연결하되, 섹션은 위 순서를 유지하세요.');
     }
@@ -1637,19 +1640,21 @@ body.export-capturing #wheelCard .note{display:none !important;}
     btn.textContent = '⏳ 해석 중…'; btn.disabled = true;
     box.className = 'ai-result';
     box.textContent = '해석을 생성하고 있어요…';
+    const timeHint = $('aiTimeHint');
+    if (timeHint) timeHint.classList.add('is-loading');
     const prompt = buildAiPrompt(LAST_CTX, LAST_ASPECTS, LAST_KNOWN);
-    const cacheKey = window.PaljaAiQuota ? PaljaAiQuota.hashKey('v3:' + prompt) : prompt.slice(0, 200);
+    const cacheKey = window.PaljaAiQuota ? PaljaAiQuota.hashKey('v4:' + prompt) : prompt.slice(0, 200);
     try {
       if (!window.PaljaAiQuota) throw new Error('no_quota_client');
       const { text, quota, data } = await PaljaAiQuota.callAi({
         feature: 'astro',
         cacheKey,
-        max_tokens: 3200,
+        max_tokens: 8192,
         messages: [{ role: 'user', content: prompt }],
       });
       let out = text || '해석을 생성하지 못했어요.';
       if (data?.stop_reason === 'max_tokens') {
-        out += '\n\n(※ 응답 길이 한도로 끝부분이 잘렸을 수 있어요. 프롬프트 복사로 이어서 보실 수도 있어요.)';
+        out += '\n\n(※ 일부 내용이 여전히 잘렸을 수 있어요. 프롬프트 복사로 이어서 보실 수도 있어요.)';
       }
       box.textContent = out;
       if (quota) {
@@ -1671,6 +1676,8 @@ body.export-capturing #wheelCard .note{display:none !important;}
       }
     } finally {
       btn.textContent = prev; btn.disabled = false;
+      const timeHint = $('aiTimeHint');
+      if (timeHint) timeHint.classList.remove('is-loading');
     }
   }
 
