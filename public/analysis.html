@@ -4248,8 +4248,7 @@ function collectExportUnits() {
       [
         ['tlBlockClassic', '수비학 개인연도 (10년)'],
         ['tlClassicLifeChart', '수비학 개인연도 (100년)'],
-        ['tlBlockTarot', '타로 올해의 수 (10년)'],
-        ['tlBlockLife', '타로 인생 전반 (100년)'],
+        ['tlBlockTarot', '10년 타임라인 · 타로'],
       ].forEach(([id, label]) => {
         const sub = document.getElementById(id);
         if (!sub) return;
@@ -4654,7 +4653,7 @@ function gateHTML(planRequired, title, desc) {
     return `<div class="feature-gate">
     <div class="gate-icon">🔒</div>
     <div class="gate-title">${title}</div>
-    <div class="gate-desc">${desc}<br><br><strong>스페셜(Professional2)</strong> 플랜 이상에서 이용할 수 있어요. 초대 전용 기능입니다.</div>
+    <div class="gate-desc">${desc}<br><br><strong>스페셜(Professional2)</strong> 초대 전용입니다. 결제하는 <strong>Professional(상담사)</strong> 플랜과는 별개예요.</div>
   </div>`;
   }
   // 구독 부담을 줄이기 위한 건별(1회) 이용권 대안 — 잠금 등급에 맞는 단품 연결
@@ -5402,7 +5401,7 @@ window.NUMEROLOGY_DATA = (() => {
         loshuStrategyWith5:"생일에 <strong>5번</strong>이 있습니다. 중심 칸으로, 변화 속에서도 방향을 잡는 축으로 읽는 경우가 많아요. 흔들릴 땐 짧은 루틴이나 한 줄 기록만으로도 중심이 돌아옵니다.",
         loshuStrategyWithout5:"생일에 <strong>5번</strong>이 없습니다. 불리하다는 뜻은 아니에요. 바깥 일정에 끌리기 쉬운 때는 호흡·몸의 리듬·짧은 일기처럼 <strong>고정 루틴 하나</strong>가 큰 도움이 됩니다.",
         seqArrowBridgeHtml:"<p><strong>풀 애로우 · 순차 격자</strong>는 1~9를 <strong>3·6·9 / 2·5·8 / 1·4·7</strong> 순으로 배치한 <em>서양식</em> 격자입니다. 위의 로슈 마방진과 <strong>칸 위치·화살 줄이 다릅니다.</strong> 가로·세로·대각 8줄 중 해당 숫자가 <strong>모두 있으면 풀 화살</strong>, <strong>모두 없으면 빈 화살</strong>입니다. 아래 해설은 각 줄의 숫자가 어떻게 이어지는지, 일상에서 어떻게 읽으면 되는지를 덧붙입니다.</p>",
-        pyramidBridgeHtml:"<p><strong>인생리듬</strong>은 생년월일 숫자를 바탕으로 만든 <strong>팔자연구소 자체 시각화</strong>입니다. 인생여정수는 <strong>생년월일 전체 자릿수 합</strong>을 환원한 수(표기 <strong>11/2</strong>에서는 뒤 숫자)를 사용하며, 4단계(출발기·발전기·충실기·완성기)로 흐름을 나눕니다. 1차 출발기 시작은 <strong>36 − 보정값</strong>(1→10, 2→20, 그 외 숫자 그대로)으로 계산하고, 단계는 9년씩 진행되어 한 바퀴 36년 패턴이 <strong>100세</strong>까지 반복됩니다.</p>",
+        pyramidBridgeHtml:"<p><strong>인생리듬</strong>은 생년월일 숫자를 바탕으로 만든 <strong>팔자연구소 자체 시각화</strong>입니다. 인생여정수는 <strong>생년월일 전체 자릿수 합</strong>을 환원한 수(표기 <strong>11/2</strong>에서는 뒤 숫자)를 사용하며, 네 구간으로 흐름을 나눕니다. 첫 순환 시작은 <strong>36 − 보정값</strong>(1→10, 2→20, 그 외 숫자 그대로)으로 계산하고, 각 구간은 9년씩 진행되어 한 바퀴 36년 패턴이 <strong>100세</strong>까지 반복됩니다.</p>",
         seqArrowFootNote:"로슈 격자와 동일하게 출생일 자릿수만 반영합니다. 두 격자를 나란히 보면 강점이 다른 각도에서 드러납니다."
     };
     const SEQ_ARROW_STRENGTH_RULES = [
@@ -7251,7 +7250,7 @@ function lcGuideTierPrefix(required) {
   if (required === 'basic' && hasAccess('basic')) return '';
   if (required === 'special' && hasSpecialAccess()) return '';
   const label = required === 'pro' ? 'P' : (required === 'special' ? 'S' : 'B');
-  const title = required === 'pro' ? 'Pro' : (required === 'special' ? '스페셜' : 'Basic');
+  const title = required === 'pro' ? 'Pro·Professional' : (required === 'special' ? '스페셜(Pro2)' : 'Basic');
   return `<strong class="lc-guide-tier-needed" title="${title} 필요">${label} 필요</strong> · `;
 }
 
@@ -7293,19 +7292,15 @@ function buildReadingGuideCatalogInnerHtml() {
       )}
       ${lcReadingGuideCatalogRow(
         lcModuleNav('#pyramidRhythmSection', '인생리듬', 'special'),
-        `인생여정수 기준 4단계(출발기·발전기·충실기·완성기)·활동/정비 구간과 36년 순환 리듬.`,
+        `인생여정수 기준 네 구간·활동/정비 리듬과 36년 순환.`,
       )}
       ${lcReadingGuideCatalogRow(
         lcModuleNav('#timelineSection', '10년 타임라인 · 수비학', 'basic'),
-        `수비학 개인연도 10년 차트. <strong>Pro</strong>는 수비학 인생전반표(100년) 포함.`,
+        `수비학 개인연도 10년 차트. <strong>Pro·Professional</strong>은 수비학 인생전반표(100년) 포함.`,
       )}
       ${lcReadingGuideCatalogRow(
-        lcModuleNav('#tlBlockTarot', '타로 올해의 수 (10년)', 'special'),
-        `연도 자릿수합+문 넘버로 읽는 타로 올해의 수 10년 차트.`,
-      )}
-      ${lcReadingGuideCatalogRow(
-        lcModuleNav('#tlBlockLife', '타로 인생 전반 (100년)', 'special'),
-        `0~99세 매년의 타로 올해의 수 리본·표.`,
+        lcModuleNav('#tlBlockTarot', '10년 타임라인 · 타로', 'special'),
+        `타로 올해의 수 10년 차트와 100년 인생전반표.`,
       )}
       ${lcReadingGuideCatalogRow(
         lcModuleNav('#monthlySection', '월간 흐름', 'basic'),
@@ -7382,12 +7377,12 @@ function computeCurrentCycleGlance(lp, birthY, curY, mr_r, dr_r, yr_r) {
   };
 }
 
-const PYRAMID_STAGE_LABELS = ['① 출발기', '② 발전기', '③ 충실기', '④ 완성기(후하강기)'];
+const PYRAMID_STAGE_LABELS = ['① 1구간', '② 2구간', '③ 3구간', '④ 4구간'];
 const PYRAMID_STAGE_DESC = [
   '새 출발과 방향을 잡는 시기. 기반과 리듬을 익히는 단계입니다.',
   '밖으로 나가 성과와 경험을 키우는 확장기입니다.',
   '지식·재능·기술을 충실히 쌓고 활용하는 시기입니다.',
-  '정리·완성 후 에너지가 하강하며, 다음 출발기를 준비하는 단계입니다.',
+  '정리·완성 후 에너지가 하강하며, 다음 순환을 준비하는 단계입니다.',
 ];
 const PYRAMID_RHYTHM_HINTS = {
   active: '활동성이 올라가는 구간입니다. 새 시도·관계·일에서 실행력을 내기 좋은 시기예요.',
@@ -7469,7 +7464,7 @@ function locatePyramidRhythmPosition(timeline, age) {
     return {
       phase: 'before',
       stage: cycles[0]?.stages[0],
-      message: `아직 ① 출발기(${s1}세) 이전입니다. 첫 삼각형 순환 전 준비·씨앗기로 읽을 수 있어요.`,
+      message: `아직 첫 순환(${s1}세) 이전입니다. 삼각형 리듬이 시작되기 전 준비·씨앗기로 읽을 수 있어요.`,
     };
   }
   for (const cycle of cycles) {
@@ -7658,10 +7653,10 @@ function renderPyramidTriangleSvg(pos) {
   const descentMid = pyramidPointOnEdge(peak, start, 0.52);
   const descentLbl = pyramidOffsetPoint(descentMid, leftOut.nx, leftOut.ny, 14);
   const verts = [
-    { idx: 0, cx: start.x, cy: start.y, lx: start.x, ly: start.y + 30, name: '출발기', anchor: 'middle' },
-    { idx: 1, cx: develop.x, cy: develop.y, lx: develop.x, ly: develop.y + 30, name: '발전기', anchor: 'middle' },
-    { idx: 2, cx: faithful.x, cy: faithful.y, lx: faithfulLbl.x, ly: faithfulLbl.y, name: '충실기', anchor: 'start', cls: 'pyramid-v-label--out' },
-    { idx: 3, cx: peak.x, cy: peak.y, lx: peak.x, ly: peak.y - 32, name: '완성기', anchor: 'middle', cls: 'pyramid-v-label--out' },
+    { idx: 0, cx: start.x, cy: start.y, lx: start.x, ly: start.y + 30, name: '1구간', anchor: 'middle' },
+    { idx: 1, cx: develop.x, cy: develop.y, lx: develop.x, ly: develop.y + 30, name: '2구간', anchor: 'middle' },
+    { idx: 2, cx: faithful.x, cy: faithful.y, lx: faithfulLbl.x, ly: faithfulLbl.y, name: '3구간', anchor: 'start', cls: 'pyramid-v-label--out' },
+    { idx: 3, cx: peak.x, cy: peak.y, lx: peak.x, ly: peak.y - 32, name: '4구간', anchor: 'middle', cls: 'pyramid-v-label--out' },
   ];
   const edges = renderPyramidEdgeRhythm(start.x, start.y, develop.x, develop.y, 0, pos)
     + renderPyramidEdgeRhythm(develop.x, develop.y, faithful.x, faithful.y, 1, pos)
@@ -7731,7 +7726,7 @@ function renderPyramidRhythmHTML(lifePathSingle, userAge) {
       <div class="pyramid-top-row">
         <div class="pyramid-tri-col">${renderPyramidTriangleSvg(pos)}</div>
         <div class="pyramid-status-col">
-          <p class="loshu-snapshot" style="margin-bottom:12px">전체 자릿수 합 인생여정수 <strong>${lifePathSingle}</strong>번 · 1차 출발기 <strong>${s1}세</strong> (${formulaNote}) · 현재 <strong>${userAge}세</strong> · 표 기준 <strong>${maxAge}세</strong>까지 ${cycles.length}차 순환</p>
+          <p class="loshu-snapshot" style="margin-bottom:12px">전체 자릿수 합 인생여정수 <strong>${lifePathSingle}</strong>번 · 첫 순환 시작 <strong>${s1}세</strong> (${formulaNote}) · 현재 <strong>${userAge}세</strong> · 표 기준 <strong>${maxAge}세</strong>까지 ${cycles.length}차 순환</p>
           ${nowHtml}
         </div>
       </div>
@@ -7742,7 +7737,7 @@ function renderPyramidRhythmHTML(lifePathSingle, userAge) {
         </table>
       </div>
       <div class="pyramid-foot">
-        <p style="margin:0 0 8px">삼각형 한 바퀴(①→②→③→④)는 <strong>36년</strong>입니다. ④ 완성기 뒤 하강·재출발로 같은 패턴이 반복되며, 이 표는 <strong>${maxAge}세</strong>까지 펼쳤습니다.</p>
+        <p style="margin:0 0 8px">삼각형 한 바퀴(①→②→③→④)는 <strong>36년</strong>입니다. 마지막 구간 뒤 하강·재출발로 같은 패턴이 반복되며, 이 표는 <strong>${maxAge}세</strong>까지 펼쳤습니다.</p>
         <p style="margin:0">인생리듬은 인생여정수 <strong>전체 자릿수 합</strong>(11/2 표기의 <strong>뒤 숫자</strong>) 기준입니다. 대주기·절정수와 계산 방식이 다릅니다.</p>
       </div>
     </div>
@@ -8727,11 +8722,9 @@ async function runAnalysis() {
         ${classicLifeBlock.html}
       </section>
       <section class="timeline-block" id="tlBlockTarot">
-        <h3 class="timeline-block-title">타로 올해의 수 ${lcTierBadge('special')}</h3>
-        <p class="timeline-block-bridge">연도 자릿수합+문 넘버(전합)을 더해 메이저 아르카나 0~21로 읽습니다. 아래 <strong>현재 흐름</strong>의 올해의 수와 같습니다.</p>
+        <h3 class="timeline-block-title">10년 타임라인 · 타로 ${lcTierBadge('special')}</h3>
+        <p class="timeline-block-bridge">연도 자릿수합+문 넘버(전합)을 더해 메이저 아르카나 0~21로 읽습니다. 아래 <strong>현재 흐름</strong>의 올해의 수와 같으며, 스페셜에서는 100년 인생전반표가 이어집니다.</p>
         ${tarotTL.html}
-      </section>
-      <section class="timeline-block" id="tlBlockLife">
         ${tarotLifeBlock.html}
       </section>
     </div>`;
@@ -9049,7 +9042,7 @@ async function runAnalysis() {
     document.getElementById('pyramidRhythmContent').innerHTML = gateHTML(
       'special',
       '인생리듬',
-      '인생여정수 기준 4단계·활동/정비 구간과 36년 순환 리듬을 시각화합니다.',
+      '인생여정수 기준 네 구간·활동/정비 리듬과 36년 순환을 시각화합니다.',
     );
     if (pyramidBridgeHost) pyramidBridgeHost.innerHTML = '';
   }

@@ -125,10 +125,10 @@
     if (tier === 'free') return '';
     var labels = { basic: 'B', pro: 'P', special: 'S', professional2: 'S' };
     var titles = {
-      basic: 'Basic',
-      pro: 'Pro',
-      special: 'S: 스페셜 이상',
-      professional2: 'S: 스페셜 이상',
+      basic: 'B: Basic 이상',
+      pro: 'P: Pro·Professional 이상',
+      special: 'S: 스페셜(Professional2) 초대 — Professional과 별도',
+      professional2: 'S: 스페셜(Professional2) 초대 — Professional과 별도',
     };
     var t = tier === 'professional2' ? 'special' : labels[tier] ? tier : 'pro';
     var css = t === 'professional2' ? 'special' : t;
@@ -152,9 +152,9 @@
   function tierLegendHtml() {
     return (
       '<p class="lc-guide-tier-legend">' +
-      '<span class="lc-guide-tier-badge lc-guide-tier-badge--basic" title="Basic 플랜">B</span> 베이직 이상 · ' +
-      '<span class="lc-guide-tier-badge lc-guide-tier-badge--pro" title="Pro 플랜">P</span> 프로 이상 · ' +
-      '<span class="lc-guide-tier-badge lc-guide-tier-badge--special" title="S: 스페셜 이상">S</span> 스페셜 이상' +
+      '<span class="lc-guide-tier-badge lc-guide-tier-badge--basic" title="B: Basic 이상">B</span> 베이직 이상 · ' +
+      '<span class="lc-guide-tier-badge lc-guide-tier-badge--pro" title="P: Pro·Professional 이상">P</span> 프로·Professional 이상 · ' +
+      '<span class="lc-guide-tier-badge lc-guide-tier-badge--special" title="S: 스페셜(Professional2) 초대 — Professional과 별도">S</span> 스페셜(Professional2) 초대' +
       '</p>'
     );
   }
