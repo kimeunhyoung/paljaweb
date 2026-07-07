@@ -51,7 +51,7 @@ export const LIFECODE_PRODUCT = {
       href: '#pyramidRhythmSection',
       title: '피라미드 리듬',
       tier: 'pro',
-      desc: '전체 자릿수 합 인생여정수(표의 뒤 숫자) 기준 4단계·적극/소극 구간과 삼각형 순환 리듬.',
+      desc: '전체 자릿수 합 인생여정수(표의 뒤 숫자) 기준 4단계·활동/정비 구간과 삼각형 순환 리듬.',
     },
     { href: '#timelineSection', title: '10년 타임라인', tier: 'basic', desc: '수비학·타로 10년 차트. 인생전반표(0~100세)는 Pro.' },
     { href: '#monthlySection', title: '월간 흐름', tier: 'basic', desc: '선택 연도의 월별 리듬.' },

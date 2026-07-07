@@ -7128,7 +7128,7 @@ function buildReadingGuideCatalogInnerHtml() {
       )}
       ${lcReadingGuideCatalogRow(
         lcModuleNav('#pyramidRhythmSection', '피라미드 리듬', 'pro'),
-        `전체 자릿수 합 인생여정수(표의 뒤 숫자) 기준 4단계·적극/소극 구간과 삼각형 순환 리듬.`,
+        `전체 자릿수 합 인생여정수(표의 뒤 숫자) 기준 4단계·활동/정비 구간과 삼각형 순환 리듬.`,
       )}
       ${lcReadingGuideCatalogRow(
         lcModuleNav('#timelineSection', '10년 타임라인', 'basic'),
@@ -7233,9 +7233,9 @@ function getPyramidRhythmSubtract(lifePathSingle) {
 function buildPyramidStagePeriods(stageStart, maxAge) {
   const raw = [
     { kind: 'active', label: '시작', start: stageStart, end: stageStart },
-    { kind: 'active', label: '적극기 2년', start: stageStart + 1, end: stageStart + 2 },
-    { kind: 'passive', label: '소극기 3년', start: stageStart + 3, end: stageStart + 5 },
-    { kind: 'active', label: '적극기 3년', start: stageStart + 6, end: stageStart + 8 },
+    { kind: 'active', label: '활동기 2년', start: stageStart + 1, end: stageStart + 2 },
+    { kind: 'passive', label: '정비기 3년', start: stageStart + 3, end: stageStart + 5 },
+    { kind: 'active', label: '활동기 3년', start: stageStart + 6, end: stageStart + 8 },
   ];
   return raw
     .map((p) => ({ ...p, start: p.start, end: Math.min(p.end, maxAge) }))
@@ -7472,7 +7472,7 @@ function renderPyramidTriangleLegend(pos) {
       const cur = i === curSeg ? ' pyramid-leg--cur' : '';
       return `<span><i class="pyramid-leg--${seg.kind}${cur}"></i>${seg.label}</span>`;
     }).join('')}
-    <span>각 변·하강선 = 적극·소극·적극</span>
+    <span>각 변·하강선 = 활동·정비·활동</span>
   </div>`;
 }
 
@@ -7500,7 +7500,7 @@ function renderPyramidTriangleSvg(pos) {
     return `<g class="pyramid-v${cur}"><circle cx="${v.cx}" cy="${v.cy}" r="16"/><text x="${v.cx}" y="${v.cy}">${v.idx + 1}</text><text class="${labelCls}" x="${v.lx}" y="${v.ly}" text-anchor="${v.anchor}">${v.name}</text></g>`;
   }).join('');
   return `<div class="pyramid-tri-wrap">
-    <svg viewBox="0 -14 300 262" class="pyramid-tri-svg" role="img" aria-label="피라미드 4단계와 각 변의 적극·소극 리듬">
+    <svg viewBox="0 -14 300 262" class="pyramid-tri-svg" role="img" aria-label="피라미드 4단계와 각 변의 활동·정비 리듬">
       <polygon points="${peak.x},${peak.y} ${develop.x},${develop.y} ${start.x},${start.y}" fill="rgba(46,139,122,.04)" stroke="none"/>
       ${edges}
       <text class="pyramid-descent-label" x="${descentLbl.x}" y="${descentLbl.y}">하강</text>
@@ -7522,7 +7522,7 @@ function renderPyramidRhythmHTML(lifePathSingle, userAge) {
   let nowHtml = '';
   if (pos.phase === 'in') {
     const badgeCls = pos.period.kind === 'passive' ? 'pyramid-rhythm-badge--passive' : 'pyramid-rhythm-badge--active';
-    const badgeTxt = pos.period.kind === 'passive' ? '소극기' : '적극기';
+    const badgeTxt = pos.period.kind === 'passive' ? '정비기' : '활동기';
     const cycleLabel = pos.cycle.cycleNum > 1 ? `<span class="pyramid-rhythm-badge pyramid-rhythm-badge--active">${pos.cycle.cycleNum}차 순환</span>` : '';
     nowHtml = `<div class="pyramid-now-card">
       <div class="pyramid-now-kicker">지금 이 순간</div>
@@ -7564,7 +7564,7 @@ function renderPyramidRhythmHTML(lifePathSingle, userAge) {
       </div>
       <div class="pyramid-table-wrap">
         <table class="pyramid-table">
-          <thead><tr><th class="pyramid-stage-head">단계</th><th>시작</th><th>적극 2년</th><th>소극 3년</th><th>적극 3년</th></tr></thead>
+          <thead><tr><th class="pyramid-stage-head">단계</th><th>시작</th><th>활동 2년</th><th>정비 3년</th><th>활동 3년</th></tr></thead>
           <tbody>${tableRows}</tbody>
         </table>
       </div>
@@ -8861,7 +8861,7 @@ async function runAnalysis() {
   if (hasDeepAnalysisAccess()) {
     document.getElementById('pyramidRhythmContent').innerHTML = renderPyramidRhythmHTML(lpAlt, userAgePyramid);
   } else {
-    document.getElementById('pyramidRhythmContent').innerHTML = gateHTML('pro', '피라미드 리듬', '전체 자릿수 합 인생여정수 기준 출발기·발전기·충실기·완성기 4단계와 적극/소극 구간, 삼각형 순환 리듬을 안내합니다.');
+    document.getElementById('pyramidRhythmContent').innerHTML = gateHTML('pro', '피라미드 리듬', '전체 자릿수 합 인생여정수 기준 출발기·발전기·충실기·완성기 4단계와 활동/정비 구간, 삼각형 순환 리듬을 안내합니다.');
   }
 
   const pmPre = py + curM;
