@@ -510,7 +510,7 @@
       html, body { background: #fff !important; }
       #resultArea { display: block !important; }
       .export-print-hide { display: none !important; }
-      #tlBlockLife, .tarot-life-chart, .tarot-life-table-wrap, .tarot-life-table { break-inside: avoid; page-break-inside: avoid; }
+      #tlBlockLife, #classicLifeChart, #tarotLifeChart, .tarot-life-chart, .tarot-life-table-wrap, .tarot-life-table { break-inside: avoid; page-break-inside: avoid; }
     }
 
     .pdf-export-target {
@@ -3850,7 +3850,7 @@
       <div class="section-line"></div>
     </div>
     <div class="timeline-bridge">
-      <p>아래 <strong>두 가지</strong>로 앞으로 10년을 봅니다. 막대·연도 카드를 누르면 그 해 해석이 펼쳐집니다. <strong>타로</strong> 타임라인 아래에는 <strong>올해의 카드</strong>와 <strong>인생 전반(100년)</strong> 표가 이어집니다.</p>
+      <p>아래 <strong>두 가지</strong>로 앞으로 10년을 봅니다. 막대·연도 카드를 누르면 그 해 해석이 펼쳐집니다. <strong>Pro</strong>에서는 수비학·타로 각각 <strong>인생 전반(100년)</strong> 표도 이어집니다.</p>
       <p><strong>수비학 개인연도</strong> — 연·월·일을 각각 환원(1~9, 11, 22)한 뒤 더합니다. 9년 주기의 완성·새 출발을 읽습니다.</p>
       <p><strong>타로 올해의 수</strong> — 연도 자릿수합+문 넘버(전합)을 더해 메이저 아르카나 0~21로 읽습니다. 현재 흐름의 올해의 수와 같습니다.</p>
     </div>
@@ -4075,10 +4075,12 @@ function collectExportUnits() {
     if (node.id === 'timelineSection') {
       [
         ['tlBlockClassic', '수비학 개인연도 (10년)'],
+        ['tlClassicLifeChart', '수비학 개인연도 (100년)'],
         ['tlBlockTarot', '타로 올해의 수 (10년)'],
-        ['tlBlockLife', '인생 전반 (100년)'],
+        ['tlBlockLife', '타로 인생 전반 (100년)'],
       ].forEach(([id, label]) => {
         const sub = document.getElementById(id);
+        if (!sub) return;
         if (!exportUnitVisible(sub)) return;
         if (sub.querySelector('.feature-gate, .timeline-life-gate')) return; // 미개방 인생전반 제외
         units.push({ id, label, group: '10년 타임라인' });
@@ -6003,6 +6005,128 @@ function createTarotLifeYearChart(ctx) {
       const yd = series.find((row) => row.year === year);
       if (!yd) return;
       if (banner) banner.innerHTML = tarotLifeYearBannerHtml(yd);
+      wrap.querySelectorAll('.life-year-cell, .life-tbl-cell').forEach((el) => {
+        el.classList.toggle('is-selected', Number(el.dataset.year) === year);
+      });
+      const cell = wrap.querySelector(`.life-year-cell[data-year="${year}"]`);
+      if (cell && ribbonScroll) {
+        const scrollLeft = cell.offsetLeft - ribbonScroll.clientWidth / 2 + cell.offsetWidth / 2;
+        ribbonScroll.scrollTo({ left: Math.max(0, scrollLeft), behavior: 'smooth' });
+      }
+    };
+
+    wrap.querySelectorAll('.life-year-cell, .life-tbl-cell').forEach((el) => {
+      const yr = Number(el.dataset.year);
+      el.addEventListener('click', () => selectYear(yr));
+      el.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); selectYear(yr); }
+      });
+    });
+
+    if (curData) {
+      setTimeout(() => selectYear(curData.year), 80);
+    }
+  }
+
+  return { html, bind, series };
+}
+
+function buildClassicLifeYearSeries(birthY, mr_r, dr_r, maxAge = 100) {
+  const series = [];
+  for (let age = 0; age <= maxAge; age++) {
+    const year = birthY + age;
+    const pyParts = calcPersonalYearClassic(year, mr_r, dr_r);
+    const num = pyParts.single;
+    series.push({
+      age,
+      year,
+      num,
+      pre: pyParts.pre,
+      kw: classicTimelineKeyword(num),
+      desc: classicTimelineDesc(num),
+    });
+  }
+  return series;
+}
+
+function classicLifeYearBannerHtml(yd) {
+  if (!yd) return '연도를 선택하면 그 해의 수비학 개인연도가 표시됩니다.';
+  const title = TITLE_SHORT[yd.num] ? ` · ${TITLE_SHORT[yd.num]}` : '';
+  return `<strong>${yd.year}년</strong> · <strong>${yd.age}세</strong> · 개인연도 <strong>${yd.num}</strong>번${title} · ${yd.kw}${yd.desc ? ` — ${yd.desc}` : ''}`;
+}
+
+function createClassicLifeYearChart(ctx) {
+  const { y: birthY, mr_r, dr_r, curY } = ctx;
+  const series = buildClassicLifeYearSeries(birthY, mr_r, dr_r, 99);
+  const curAge = curY - birthY;
+  const curData = series.find((row) => row.year === curY) || series[Math.max(0, Math.min(series.length - 1, curAge))];
+
+  const ribbonCells = series.map((row) => {
+    const isCurrent = row.year === curY;
+    const isSelected = row.year === curData.year;
+    const isCycleEnd = row.num === 9;
+    const h = classicTimelineBarHeight(row.num);
+    const color = TL_COLOR[row.num] || '#8b6f47';
+    const ageMark = row.age % 10 === 0 ? `<span class="life-year-age-mark">${row.age}</span>` : '';
+    const cls = [
+      isCurrent ? 'is-current' : '',
+      isSelected ? 'is-selected' : '',
+      isCycleEnd ? 'is-cycle-end' : '',
+    ].filter(Boolean).join(' ');
+    const title = `${row.year}년 (${row.age}세) · ${row.num}번 ${row.kw}`;
+    return `<div class="life-year-cell ${cls}" tabindex="0" data-year="${row.year}" data-age="${row.age}" data-num="${row.num}" title="${title}" aria-label="${title}">
+      <div class="life-year-bar" style="height:${h}px;background:${color}"></div>
+      ${ageMark}
+    </div>`;
+  }).join('');
+
+  let tableRows = '';
+  for (let decade = 0; decade <= 9; decade++) {
+    const startAge = decade * 10;
+    const endAge = startAge + 9;
+    tableRows += `<tr><th class="life-decade-th">${startAge}~${endAge}세</th>`;
+    for (let age = startAge; age <= endAge; age++) {
+      const row = series[age];
+      if (!row) continue;
+      const isCurrent = row.year === curY;
+      const isSelected = row.year === curData.year;
+      const cls = `${isCurrent ? 'is-current' : ''} ${isSelected ? 'is-selected' : ''}`.trim();
+      const cellColor = TL_COLOR[row.num] || 'var(--accent)';
+      tableRows += `<td class="life-tbl-cell ${cls}" tabindex="0" data-year="${row.year}" data-age="${row.age}" data-num="${row.num}" title="${row.year}년 ${row.age}세">
+        <div class="life-tbl-num" style="color:${cellColor}">${row.num}</div>
+        <div class="life-tbl-kw">${row.kw}</div>
+        <div class="life-tbl-age">${row.age}세</div>
+        <div class="life-tbl-year">${row.year}</div>
+      </td>`;
+    }
+    tableRows += '</tr>';
+  }
+
+  const html = `<div class="tarot-life-chart" id="classicLifeChart" data-birth-year="${birthY}">
+    <h4 class="tarot-life-chart-title">인생 전반 · 수비학 개인연도 (100년)</h4>
+    <p class="tarot-life-chart-bridge">태어난 해(<strong>${birthY}년</strong>)부터 <strong>100년간</strong>(0~99세) 매년의 수비학 개인연도입니다. 위 10년 차트는 앞으로의 흐름, 아래는 인생 전체를 한눈에 봅니다. 막대·칸을 누르면 그 해 정보가 표시됩니다.</p>
+    <div class="tarot-life-ribbon-scroll" id="classicLifeRibbonScroll">
+      <div class="tarot-life-ribbon" id="classicLifeRibbon">${ribbonCells}</div>
+    </div>
+    <div class="tarot-life-banner" id="classicLifeBanner">${classicLifeYearBannerHtml(curData)}</div>
+    <div class="tarot-life-table-wrap">
+      <table class="tarot-life-table" aria-label="수비학 개인연도 인생 표">
+        <colgroup><col class="life-decade-col"><col span="10"></colgroup>
+        <tbody>${tableRows}</tbody>
+      </table>
+    </div>
+  </div>`;
+
+  function bind(root) {
+    const wrap = root || document.getElementById('classicLifeChart');
+    if (!wrap) return;
+    const banner = wrap.querySelector('#classicLifeBanner');
+    const ribbonScroll = wrap.querySelector('#classicLifeRibbonScroll');
+
+    const selectYear = (year) => {
+      const yd = series.find((row) => row.year === year);
+      if (!yd) return;
+      if (banner) banner.innerHTML = classicLifeYearBannerHtml(yd);
       wrap.querySelectorAll('.life-year-cell, .life-tbl-cell').forEach((el) => {
         el.classList.toggle('is-selected', Number(el.dataset.year) === year);
       });
@@ -7986,17 +8110,24 @@ async function runAnalysis() {
   if (hasBasicYearTimelineAccess()) {
     const classicTL = createTenYearTimeline('classic', tlCtx);
     const tarotTL = createTenYearTimeline('tarot', tlCtx);
+    const classicLifeBlock = hasFullTimelineAccess()
+      ? (() => {
+          const classicLife = createClassicLifeYearChart({ y, mr_r, dr_r, curY });
+          return { html: classicLife.html, bind: () => classicLife.bind(document.getElementById('classicLifeChart')) };
+        })()
+      : { html: '<div class="timeline-life-gate"><p class="timeline-life-gate-note">수비학 인생전반표(100년)는 <strong>Pro</strong> 플랜에서 열립니다.</p></div>', bind: () => {} };
     const tarotLifeBlock = hasFullTimelineAccess()
       ? (() => {
           const tarotLife = createTarotLifeYearChart({ y, mnPre, curY });
           return { html: tarotLife.html, bind: () => tarotLife.bind(document.getElementById('tarotLifeChart')) };
         })()
-      : { html: '<div class="timeline-life-gate"><p class="timeline-life-gate-note">인생전반표(100년)는 <strong>Pro</strong> 플랜에서 열립니다.</p></div>', bind: () => {} };
+      : { html: '<div class="timeline-life-gate"><p class="timeline-life-gate-note">타로 인생전반표(100년)는 <strong>Pro</strong> 플랜에서 열립니다.</p></div>', bind: () => {} };
     document.getElementById('timelineContent').innerHTML = `<div class="timeline-dual">
       <section class="timeline-block" id="tlBlockClassic">
         <h3 class="timeline-block-title">수비학 개인연도</h3>
         <p class="timeline-block-bridge">연·월·일을 각각 1~9(11, 22)로 환원한 뒤 더합니다. 9년 주기의 완성(9번)과 새 출발을 읽는 수비학 개인연도입니다.</p>
         ${classicTL.html}
+        ${classicLifeBlock.html}
       </section>
       <section class="timeline-block" id="tlBlockTarot">
         <h3 class="timeline-block-title">타로 올해의 수</h3>
@@ -8010,6 +8141,7 @@ async function runAnalysis() {
     setTimeout(() => {
       classicTL.bind(document.querySelector('[data-timeline-mode="classic"]'));
       tarotTL.bind(document.querySelector('[data-timeline-mode="tarot"]'));
+      classicLifeBlock.bind();
       tarotLifeBlock.bind();
     }, 50);
   } else {
