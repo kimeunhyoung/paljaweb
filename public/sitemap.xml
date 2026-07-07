@@ -2,7 +2,7 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://8code.kr/</loc>
-    <lastmod>2026-06-17</lastmod>
+    <lastmod>2026-07-07</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
   </url>
@@ -92,7 +92,7 @@
   </url>
   <url>
     <loc>https://8code.kr/guide/what-is-numerology.html</loc>
-    <lastmod>2026-06-29</lastmod>
+    <lastmod>2026-07-07</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
   </url>
@@ -110,7 +110,7 @@
   </url>
   <url>
     <loc>https://8code.kr/analysis.html</loc>
-    <lastmod>2026-06-17</lastmod>
+    <lastmod>2026-07-07</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
@@ -139,8 +139,14 @@
     <priority>0.9</priority>
   </url>
   <url>
+    <loc>https://8code.kr/guide/what-is-astrology.html</loc>
+    <lastmod>2026-07-07</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
     <loc>https://8code.kr/astrology.html</loc>
-    <lastmod>2026-07-01</lastmod>
+    <lastmod>2026-07-07</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
@@ -152,13 +158,13 @@
   </url>
   <url>
     <loc>https://8code.kr/guide/astrology.html</loc>
-    <lastmod>2026-07-01</lastmod>
+    <lastmod>2026-07-07</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.75</priority>
   </url>
   <url>
     <loc>https://8code.kr/numerology-calendar.html</loc>
-    <lastmod>2026-06-17</lastmod>
+    <lastmod>2026-07-07</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
