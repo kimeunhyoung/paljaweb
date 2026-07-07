@@ -390,9 +390,13 @@
     .cal-day.today { border-color: var(--accent); font-weight: 700; }
     .cal-day.has-appt { background: rgba(200,169,110,.22); border-color: rgba(200,169,110,.45); cursor: pointer; }
     .cal-day.has-appt:hover { background: rgba(200,169,110,.35); }
+    .cal-day.has-appt.past { background: rgba(154,133,112,.14); border-color: rgba(154,133,112,.32); }
+    .cal-day.has-appt.past:hover { background: rgba(154,133,112,.22); }
+    .cal-day.has-appt.past .dot { opacity: .75; }
     .cal-day .dot { width: 5px; height: 5px; border-radius: 50%; margin: 0; }
     .cal-dots { display: flex; gap: 3px; justify-content: center; margin-top: 3px; min-height: 5px; }
     .cal-day .dot-client { background: var(--teal); }
+    .cal-day .dot-session { background: #9b5f72; }
     .cal-day .dot-event { background: var(--accent); }
     .cal-day.selected { outline: 2px solid var(--teal); outline-offset: -1px; }
     .cal-detail { margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--border); }
@@ -550,7 +554,7 @@
         </div>
       </div>
       <div class="cal-weekdays" id="calWeekdays"></div>
-      <p class="event-hint" style="margin-bottom:8px;">● 청록 = 상담 약속 · ● 금색 = 중요 일정</p>
+      <p class="event-hint" style="margin-bottom:8px;">● 장미 = 상담 완료(기록) · ● 청록 = 상담 약속 · ● 금색 = 중요 일정 · 지난 날짜도 남아 있어요</p>
       <div class="cal-grid" id="calGrid"></div>
       <div class="cal-detail" id="calDetail">
         <h4 id="calDetailTitle">날짜를 선택하세요</h4>
@@ -1244,14 +1248,13 @@
     }
 
     function collectSchedule() {
-      const today = ymd(new Date());
       const byDate = {};
       function ensure(dateStr) {
-        if (!byDate[dateStr]) byDate[dateStr] = { clients: [], events: [] };
+        if (!byDate[dateStr]) byDate[dateStr] = { clients: [], sessions: [], events: [] };
         return byDate[dateStr];
       }
       function addClient(dateStr, clientId, name) {
-        if (!dateStr || dateStr < today) return;
+        if (!dateStr) return;
         const bucket = ensure(dateStr);
         if (!bucket.clients.some((x) => x.clientId === clientId)) {
           bucket.clients.push({ clientId, name: name || '고객' });
@@ -1261,13 +1264,26 @@
         addClient(c.next_appointment, c.id, c.display_name || c.legal_name);
       });
       sessionRows.forEach((s) => {
-        if (!s.next_appointment) return;
+        if (s.next_appointment) {
+          const c = clientRows.find((x) => x.id === s.client_id);
+          addClient(s.next_appointment, s.client_id, c ? (c.display_name || c.legal_name) : '고객');
+        }
+        const sessionDate = s.session_date ? String(s.session_date).slice(0, 10) : '';
+        if (!sessionDate) return;
         const c = clientRows.find((x) => x.id === s.client_id);
-        addClient(s.next_appointment, s.client_id, c ? (c.display_name || c.legal_name) : '고객');
+        const bucket = ensure(sessionDate);
+        if (!bucket.sessions.some((x) => x.sessionId === s.id)) {
+          bucket.sessions.push({
+            sessionId: s.id,
+            clientId: s.client_id,
+            name: c ? (c.display_name || c.legal_name) : '고객',
+            summary: (s.summary || '').trim(),
+          });
+        }
       });
       eventRows.forEach((ev) => {
         const d = ev.event_date;
-        if (!d || d < today) return;
+        if (!d) return;
         ensure(d).events.push({
           id: ev.id,
           title: ev.title || '일정',
@@ -1305,14 +1321,17 @@
         const ds = y + '-' + String(m + 1).padStart(2, '0') + '-' + String(day).padStart(2, '0');
         const dayData = scheduleMap[ds];
         const hasClient = dayData && dayData.clients.length;
+        const hasSession = dayData && dayData.sessions.length;
         const hasEvent = dayData && dayData.events.length;
         const cls = ['cal-day'];
         if (ds === todayStr) cls.push('today');
-        if (hasClient || hasEvent) cls.push('has-appt');
+        if (hasClient || hasSession || hasEvent) cls.push('has-appt');
+        if (ds < todayStr && (hasClient || hasSession || hasEvent)) cls.push('past');
         if (ds === calSelectedDate) cls.push('selected');
         let dots = '';
-        if (hasClient || hasEvent) {
+        if (hasClient || hasSession || hasEvent) {
           dots = '<div class="cal-dots">';
+          if (hasSession) dots += '<div class="dot dot-session"></div>';
           if (hasClient) dots += '<div class="dot dot-client"></div>';
           if (hasEvent) dots += '<div class="dot dot-event"></div>';
           dots += '</div>';
@@ -1348,13 +1367,22 @@
         list.innerHTML = '<div class="cal-empty">약속·일정이 있는 날을 누르면 상세가 보입니다.</div>';
         return;
       }
-      title.textContent = calSelectedDate;
-      const dayData = scheduleMap[calSelectedDate] || { clients: [], events: [] };
-      if (!dayData.clients.length && !dayData.events.length) {
-        list.innerHTML = '<div class="cal-empty">이 날 예정된 상담·일정이 없습니다. 아래에서 중요 일정을 추가할 수 있습니다.</div>';
+      title.textContent = calSelectedDate + (calSelectedDate < ymd(new Date()) ? ' · 지난 일정' : '');
+      const dayData = scheduleMap[calSelectedDate] || { clients: [], sessions: [], events: [] };
+      if (!dayData.clients.length && !dayData.sessions.length && !dayData.events.length) {
+        list.innerHTML = '<div class="cal-empty">이 날 상담·일정이 없습니다. 아래에서 중요 일정을 추가할 수 있습니다.</div>';
         return;
       }
       let html = '';
+      if (dayData.sessions.length) {
+        html += '<div class="cal-section"><h5>상담 완료 (기록)</h5>';
+        html += dayData.sessions.map((it) => {
+          const sum = it.summary ? '<br><span style="font-size:11px;color:var(--muted)">' + escapeHtml(it.summary.slice(0, 80)) + (it.summary.length > 80 ? '…' : '') + '</span>' : '';
+          return '<div class="cal-item"><span>' + escapeHtml(it.name) + sum + '</span>' +
+            '<button type="button" class="btn-sm outline" data-act="sessions" data-id="' + it.clientId + '" style="margin-left:auto;font-size:11px;padding:4px 10px;">상담 기록</button></div>';
+        }).join('');
+        html += '</div>';
+      }
       if (dayData.clients.length) {
         html += '<div class="cal-section"><h5>상담 약속</h5>';
         html += dayData.clients.map((it) =>
@@ -1411,7 +1439,7 @@
       const scheduleMap = collectSchedule();
       const dates = Object.keys(scheduleMap).sort();
       if (!dates.length) {
-        alert('보낼 예정 일정이 없습니다.');
+        alert('보낼 일정이 없습니다.');
         return;
       }
       const lines = [
@@ -1429,8 +1457,17 @@
           lines.push('UID:client-' + it.clientId + '-' + compact + '@8code.kr');
           lines.push('DTSTART;VALUE=DATE:' + compact);
           lines.push('DTEND;VALUE=DATE:' + compact);
-          lines.push('SUMMARY:상담 — ' + (it.name || '고객').replace(/[,;\\]/g, ' '));
+          lines.push('SUMMARY:상담 약속 — ' + (it.name || '고객').replace(/[,;\\]/g, ' '));
           lines.push('DESCRIPTION:팔자연구소 상담사 허브');
+          lines.push('END:VEVENT');
+        });
+        (dayData.sessions || []).forEach((it) => {
+          lines.push('BEGIN:VEVENT');
+          lines.push('UID:session-' + it.sessionId + '-' + compact + '@8code.kr');
+          lines.push('DTSTART;VALUE=DATE:' + compact);
+          lines.push('DTEND;VALUE=DATE:' + compact);
+          lines.push('SUMMARY:상담 완료 — ' + (it.name || '고객').replace(/[,;\\]/g, ' '));
+          if (it.summary) lines.push('DESCRIPTION:' + String(it.summary).replace(/[,;\\]/g, ' ').slice(0, 200));
           lines.push('END:VEVENT');
         });
         dayData.events.forEach((it) => {
