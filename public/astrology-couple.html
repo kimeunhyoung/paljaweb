@@ -21,6 +21,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="js/plan-access.js?v=8"></script>
+<script src="js/ai-quota-client.js?v=1"></script>
 <script src="js/product-plan-bootstrap.js?v=1"></script>
 <script src="js/site-topbar.js?v=5" defer></script>
 <script src="js/topbar-session.js?v=6" defer></script>
@@ -125,6 +126,12 @@ body{font-family:var(--font-body);background:var(--cream);color:var(--ink);min-h
 .note{font-size:12px;color:var(--muted);line-height:1.7;margin-top:12px;background:var(--cream);border-radius:10px;padding:12px 14px;}
 .ai-prompt-box{width:100%;border:1px solid var(--border);border-radius:10px;background:var(--cream);padding:13px 15px;font-family:inherit;font-size:12.5px;line-height:1.7;color:var(--ink);resize:vertical;}
 .ai-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px;}
+.ai-result{margin-top:14px;padding:14px 16px;background:rgba(255,255,255,.65);border:1px solid #e8ddcb;border-radius:12px;font-size:13.5px;line-height:1.75;white-space:pre-wrap;}
+.ai-result.empty{color:var(--muted);font-size:13px;}
+.ai-quota-badge{display:inline-block;font-size:11px;font-weight:600;color:var(--warm-brown);background:var(--accent-lt);border:1px solid var(--accent);border-radius:999px;padding:4px 10px;margin:0 0 10px;}
+.ai-time-hint{font-size:12px;color:var(--muted);margin-top:8px;line-height:1.6;}
+.ai-time-hint.is-loading{color:var(--rose);}
+.ai-prompt-details summary{cursor:pointer;font-size:12.5px;color:var(--warm-brown);font-weight:600;}
 .intro{font-size:13px;line-height:1.7;color:var(--muted);margin-bottom:14px;}
 
 .site-legal-footer{max-width:1000px;margin:40px auto 0;padding:20px;border-top:1px solid var(--border);font-size:12px;color:var(--muted);line-height:1.8;text-align:center;}
@@ -220,14 +227,21 @@ body{font-family:var(--font-body);background:var(--cream);color:var(--ink);min-h
     </div>
 
     <div class="card" id="aiCard">
-      <div class="card-title">✦ AI 궁합 해석 프롬프트</div>
-      <p class="intro">아래 프롬프트를 복사해 ChatGPT·Gemini에 붙여넣으면 두 사람의 관계에 대한 심층 해석을 받을 수 있어요.</p>
-      <textarea id="aiPrompt" class="ai-prompt-box" readonly rows="8"></textarea>
-      <div class="ai-actions">
-        <button type="button" class="rt-btn rt-btn--share" id="btnAiCopy">⧉ 프롬프트 복사</button>
-        <a class="rt-btn" href="https://chatgpt.com/" target="_blank" rel="noopener">ChatGPT 열기 ↗</a>
-        <a class="rt-btn" href="https://gemini.google.com/app" target="_blank" rel="noopener">Gemini 열기 ↗</a>
+      <div class="card-title">✦ AI 궁합 해석</div>
+      <span class="ai-quota-badge" id="aiQuotaBadge" hidden></span>
+      <p class="intro">궁합 분석 후 <strong>AI 궁합 해석</strong>으로 끌림·소통·연애·일·금전·건강·학업까지 풀어 볼 수 있어요. 서버가 응답하지 않으면 프롬프트 복사로 ChatGPT·Gemini를 이용해 주세요.</p>
+      <div class="ai-actions no-print">
+        <button type="button" class="rt-btn rt-btn--share" id="btnAiRun" disabled>✨ AI 궁합 해석 (2크레딧)</button>
+        <button type="button" class="rt-btn" id="btnAiCopy">⧉ 프롬프트 복사</button>
+        <a class="rt-btn" href="https://chatgpt.com/" target="_blank" rel="noopener">ChatGPT ↗</a>
+        <a class="rt-btn" href="https://gemini.google.com/app" target="_blank" rel="noopener">Gemini ↗</a>
       </div>
+      <div id="aiResult" class="ai-result empty">궁합 분석 후 <strong>AI 궁합 해석</strong> 버튼을 눌러 주세요.</div>
+      <p class="ai-time-hint" id="aiTimeHint">궁합 해석은 보통 30초~1분 정도 걸려요. 창을 닫지 말고 잠시만 기다려 주세요.</p>
+      <details class="ai-prompt-details no-print">
+        <summary>고급: 프롬프트 직접 보기</summary>
+        <textarea id="aiPrompt" class="ai-prompt-box" readonly rows="8" style="margin-top:8px;"></textarea>
+      </details>
     </div>
 
     <div class="note">
@@ -270,7 +284,113 @@ body{font-family:var(--font-body);background:var(--cream);color:var(--ink);min-h
       const { data: profile } = await sbClient.from('profiles').select('plan, plan_active_until').eq('id', session.user.id).single();
       HAS_BASIC = window.PaljaPlan ? window.PaljaPlan.isPlanAtLeast(profile || {}, 'basic') : false;
     } catch (e) {}
+    if (ASTRO_AI_API_ENABLED) await checkAiServer();
+    else refreshAiUi();
   })();
+
+  let LAST_AI_PROMPT = '';
+  let AI_SERVER_OK = false;
+  const ASTRO_AI_API_ENABLED = true;
+
+  async function loadAiQuota() {
+    if (!window.PaljaAiQuota || !HAS_BASIC) return;
+    const q = await PaljaAiQuota.fetchQuota();
+    PaljaAiQuota.applyQuotaBadge($('aiQuotaBadge'), q);
+  }
+
+  function refreshAiUi() {
+    const btn = $('btnAiRun');
+    const box = $('aiResult');
+    if (!btn || !box) return;
+    if (!HAS_BASIC) {
+      btn.hidden = true;
+      return;
+    }
+    if (!ASTRO_AI_API_ENABLED) {
+      btn.hidden = true;
+      btn.disabled = true;
+      box.className = 'ai-result';
+      box.innerHTML = 'AI 자동 해석은 <strong>준비 중</strong>이에요. <strong>프롬프트 복사</strong> 후 ChatGPT·Gemini에서 이용해 주세요.';
+      return;
+    }
+    btn.hidden = false;
+    const canRun = !!LAST_AI_PROMPT;
+    btn.disabled = !canRun;
+    if (!canRun) return;
+    const busy = box.textContent.includes('생성하고') || box.textContent.includes('해석 중');
+    if (busy) return;
+    box.className = 'ai-result';
+    if (AI_SERVER_OK) {
+      box.innerHTML = '<strong>✨ AI 궁합 해석</strong>을 누르면 두 사람의 시너스트리를 풀어 드려요. 서버가 응답하지 않으면 <strong>프롬프트 복사</strong>를 이용해 주세요.';
+    } else {
+      box.innerHTML = 'AI 서버가 아직 설정되지 않았어요. <strong>프롬프트 복사</strong> 후 ChatGPT·Gemini에서 이용해 주세요.';
+    }
+  }
+
+  async function checkAiServer() {
+    if (!ASTRO_AI_API_ENABLED) return;
+    try {
+      const j = window.PaljaAiQuota
+        ? await PaljaAiQuota.fetchStatus()
+        : await fetch('/api/ai/status').then((r) => r.json());
+      AI_SERVER_OK = !!j.available;
+      if (j.quota) {
+        if (window.PaljaAiQuota) PaljaAiQuota.applyQuotaBadge($('aiQuotaBadge'), j.quota);
+      } else {
+        await loadAiQuota();
+      }
+    } catch (e) { AI_SERVER_OK = false; }
+    refreshAiUi();
+  }
+
+  async function callCoupleAi() {
+    if (!ASTRO_AI_API_ENABLED) { refreshAiUi(); return; }
+    if (!HAS_BASIC) { showStatus('AI 해석은 Basic 이상 요금제에서 이용할 수 있어요.', 'err'); return; }
+    if (!LAST_AI_PROMPT) return;
+    const btn = $('btnAiRun');
+    const box = $('aiResult');
+    if (!AI_SERVER_OK) {
+      box.className = 'ai-result';
+      box.innerHTML = 'AI 서버가 아직 설정되지 않았어요. 아래 <strong>프롬프트 복사</strong>로 ChatGPT·Gemini를 이용해 주세요.';
+      return;
+    }
+    const prev = btn.textContent;
+    btn.textContent = '⏳ 해석 중…'; btn.disabled = true;
+    box.className = 'ai-result';
+    box.textContent = '궁합 해석을 생성하고 있어요…';
+    const timeHint = $('aiTimeHint');
+    if (timeHint) timeHint.classList.add('is-loading');
+    const prompt = LAST_AI_PROMPT;
+    const cacheKey = window.PaljaAiQuota ? PaljaAiQuota.hashKey('v1:couple:' + prompt) : prompt.slice(0, 200);
+    try {
+      if (!window.PaljaAiQuota) throw new Error('no_quota_client');
+      const { text, quota, data } = await PaljaAiQuota.callAi({
+        feature: 'astro_couple',
+        cacheKey,
+        max_tokens: 8192,
+        messages: [{ role: 'user', content: prompt }],
+      });
+      let out = text || '해석을 생성하지 못했어요.';
+      if (data?.stop_reason === 'max_tokens') {
+        out += '\n\n(※ 아주 긴 해석이라 일부가 잘렸을 수 있어요. 프롬프트 복사로 이어서 보실 수도 있어요.)';
+      }
+      box.textContent = out;
+      if (quota) PaljaAiQuota.applyQuotaBadge($('aiQuotaBadge'), quota);
+    } catch (e) {
+      console.error(e);
+      if (e.code === 'quota_exceeded' || e.status === 429) {
+        box.innerHTML = '이번 달 AI 크레딧을 모두 사용했어요. <strong>프롬프트 복사</strong>로 ChatGPT·Gemini를 이용해 주세요.';
+        if (e.quota) PaljaAiQuota.applyQuotaBadge($('aiQuotaBadge'), e.quota);
+      } else if (e.message === 'login_required') {
+        box.textContent = 'AI 해석은 로그인 후 이용할 수 있어요.';
+      } else {
+        box.textContent = 'AI 해석을 일시적으로 사용할 수 없어요. 프롬프트 복사를 이용해 주세요.';
+      }
+    } finally {
+      btn.textContent = prev; btn.disabled = false;
+      if (timeHint) timeHint.classList.remove('is-loading');
+    }
+  }
 
   function fillCity(selId, manualId) {
     const sel = $(selId);
@@ -442,7 +562,11 @@ body{font-family:var(--font-body);background:var(--cream);color:var(--ink);min-h
     $('scoreDetail').innerHTML = `조화로운 각 <strong>${easy + strong}</strong> · 긴장의 각 <strong>${tense}</strong><br>긴장의 각은 ‘나쁨’이 아니라 서로를 성장시키는 마찰이에요.`;
 
     // AI 프롬프트
-    $('aiPrompt').value = buildAiPrompt(nameA, nameB, ha, hb, A, B, hits, labelKo);
+    LAST_AI_PROMPT = buildAiPrompt(nameA, nameB, ha, hb, A, B, hits, labelKo);
+    $('aiPrompt').value = LAST_AI_PROMPT;
+    $('aiResult').className = 'ai-result empty';
+    $('aiResult').innerHTML = '<strong>✨ AI 궁합 해석</strong>을 누르면 두 사람의 시너스트리를 풀어 드려요.';
+    refreshAiUi();
 
     // 요약
     const sa = bigSign(ha, 'sun'), sb = bigSign(hb, 'sun');
@@ -454,7 +578,7 @@ body{font-family:var(--font-body);background:var(--cream);color:var(--ink);min-h
 
   function buildAiPrompt(nameA, nameB, ha, hb, A, B, hits, labelKo) {
     const L = [];
-    L.push('당신은 따뜻하고 통찰력 있는 전문 점성가입니다. 아래 두 사람의 출생 차트 궁합(시너스트리)을 한국어로 다정하게 해석해 주세요. 끌림·정서적 케미·소통·갈등 요소·장기적 관계 조언 순으로, 단정적이지 않게 설명해 주세요.');
+    L.push('당신은 따뜻하고 통찰력 있는 전문 점성가입니다. 아래 두 사람의 출생 차트 궁합(시너스트리)을 한국어로 다정하게 해석해 주세요. 단정적 예언·공포 조장은 금지하고, 참고용 톤으로 써 주세요. 건강은 의학적 진단이 아닌 생활·에너지·스트레스 관리 관점으로만 다루세요.');
     L.push('');
     function pdesc(name, h, unknown) {
       const sun = bigSign(h, 'sun'), moon = bigSign(h, 'moon'), ven = bigSign(h, 'venus'), mar = bigSign(h, 'mars');
@@ -471,11 +595,25 @@ body{font-family:var(--font-body);background:var(--cream);color:var(--ink);min-h
       });
     }
     L.push('');
-    L.push('위 정보를 종합해 두 사람의 관계 케미와 장단점을 풍부하게 해석해 주세요.');
+    L.push('[작성 형식 — 반드시 지키세요]');
+    L.push('1) ## 제목만 사용. 아래 순서대로 **모든 섹션**을 빠짐없이 작성하세요.');
+    [
+      '## 끌림·케미 — 태양·금성·화성·달 시너스트리로 두 사람의 끌림과 정서적 반응',
+      '## 소통·갈등 — 수성·화성·토성 각으로 대화 스타일·마찰·화해 포인트',
+      '## 연애·관계 — 장기 관계·친밀감·신뢰·경계',
+      '## 일·커리어 — 함께 일할 때·서로의 야망·역할 분담',
+      '## 금전·재물 — 돈·소비·가치관·재정 협력',
+      '## 건강·에너지 — 서로의 스트레스·회복·생활 리듬 맞춤 (의학 진단 아님)',
+      '## 학업·성장 — 함께 배우고 성장할 때·서로의 학습 스타일',
+      '## 장기 조언 — 관계를 건강하게 키우는 실천 팁 2~3가지',
+    ].forEach((s, i) => L.push(`   ${i + 1}. ${s}`));
+    L.push('2) 각 섹션 3~4문장. 시너스트리 각·행성 근거를 최소 1개 이상 언급하세요.');
+    L.push('3) 반드시 마지막 섹션까지 완성하세요.');
     return L.join('\n');
   }
 
   $('calcBtn').addEventListener('click', calculate);
+  $('btnAiRun').addEventListener('click', callCoupleAi);
 
   function flashBtn(btn, msg) { const p = btn.textContent; btn.textContent = msg; btn.disabled = true; setTimeout(() => { btn.textContent = p; btn.disabled = false; }, 1400); }
   async function copyText(txt, btn) {

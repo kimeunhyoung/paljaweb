@@ -526,7 +526,7 @@ body.export-capturing #wheelCard .note{display:none !important;}
       <p class="transit-intro">2차 프로그레션(하루=1년)과 솔라 리턴(태양이 돌아오는 날의 차트)으로 <strong>올해 1년의 큰 테마</strong>를 봅니다. 출생 시간이 있을 때 더 정확해요.</p>
       <div id="yearForecast" class="transit-result"><div class="transit-empty">차트 계산 후 자동으로 표시됩니다.</div></div>
       <div class="transit-ai-block no-print" id="yearAiBlock" hidden>
-        <p class="transit-ai-intro">위 올해 운세를 본 뒤 <strong>AI 올해 운세</strong>로 연애·일·금전 테마를 풀어 볼 수 있어요. <span class="ai-quota-cost">(1크레딧)</span></p>
+        <p class="transit-ai-intro">위 올해 운세를 본 뒤 <strong>AI 올해 운세</strong>로 연애·일·금전·건강·학업 테마를 풀어 볼 수 있어요. <span class="ai-quota-cost">(1크레딧)</span></p>
         <div class="transit-ai-row">
           <button type="button" class="rt-btn rt-btn--share" id="btnYearAi" disabled>✨ AI 올해 운세 (1크레딧)</button>
         </div>
@@ -1228,7 +1228,7 @@ body.export-capturing #wheelCard .note{display:none !important;}
   }
 
   function bucketTransitHits(hits, plainItem) {
-    const buckets = { love: [], career: [], money: [], general: [] };
+    const buckets = { love: [], career: [], money: [], health: [], study: [], general: [] };
     const push = (key, line) => { if (line && !buckets[key].includes(line)) buckets[key].push(line); };
     hits.forEach((h) => {
       const line = plainItem(h);
@@ -1238,6 +1238,8 @@ body.export-capturing #wheelCard .note{display:none !important;}
       if (['venus', 'moon'].includes(tk) || ['venus', 'moon', 'mars'].includes(nk)) { push('love', line); tagged = true; }
       if (['sun', 'mars', 'mercury', 'saturn'].includes(tk) || ['sun', 'mars', 'mercury', 'saturn', 'mc'].includes(nk)) { push('career', line); tagged = true; }
       if (['venus', 'jupiter', 'saturn'].includes(tk) || ['venus', 'jupiter', 'saturn', 'pluto', 'fortune'].includes(nk)) { push('money', line); tagged = true; }
+      if (['mars', 'moon', 'sun'].includes(tk) || ['mars', 'moon', 'sun', 'chiron'].includes(nk)) { push('health', line); tagged = true; }
+      if (['mercury', 'jupiter'].includes(tk) || ['mercury', 'jupiter', 'sun', 'saturn'].includes(nk)) { push('study', line); tagged = true; }
       if (!tagged) push('general', line);
     });
     return buckets;
@@ -1245,8 +1247,8 @@ body.export-capturing #wheelCard .note{display:none !important;}
 
   function appendTransitBucketLines(L, title, buckets) {
     if (!buckets) return;
-    const labels = { love: '연애·관계', career: '일·적성·커리어', money: '금전·재물', general: '기타' };
-    ['love', 'career', 'money', 'general'].forEach((k) => {
+    const labels = { love: '연애·관계', career: '일·적성·커리어', money: '금전·재물', health: '건강·에너지', study: '학업·성장', general: '기타' };
+    ['love', 'career', 'money', 'health', 'study', 'general'].forEach((k) => {
       if (!buckets[k] || !buckets[k].length) return;
       L.push(`${title} — ${labels[k]}:`);
       buckets[k].forEach((s) => L.push(' - ' + s));
@@ -1314,7 +1316,7 @@ body.export-capturing #wheelCard .note{display:none !important;}
     } else {
       html += '<div class="transit-guide">읽는 법 · <strong>트랜짓 행성</strong>(요즘 들어온 기운) → <strong>본명 천체</strong>(내 삶의 영역)에 <span class="asp-tag asp-easy">조화</span>면 순조롭게, <span class="asp-tag asp-tense">긴장</span>이면 시험·마찰로 작용해요.</div>';
       if (fastHits.length) {
-        html += '<div class="transit-sub-h">🌙 지금·이번 주 흐름 <span>빠른 행성 — 연애·일·금전 등 단기 운세</span></div>';
+        html += '<div class="transit-sub-h">🌙 지금·이번 주 흐름 <span>빠른 행성 — 연애·일·금전·건강·학업 등 단기 운세</span></div>';
         html += `<div class="aspect-read-list">${fastHits.map(itemHtml).join('')}</div>`;
       }
       if (slowHits.length) {
@@ -1419,7 +1421,7 @@ body.export-capturing #wheelCard .note{display:none !important;}
   function buildYearAiPrompt() {
     const yf = LAST_YEAR_FORECAST;
     const L = [];
-    L.push('당신은 따뜻하고 통찰력 있는 전문 점성가입니다. 아래 출생 차트와 올해 프로그레션·솔라 리턴을 바탕으로 **올해 1년** 운세를 한국어로 써 주세요. 트랜짓·이번 주 운세는 제외하세요. 단정적 예언·공포 조장은 금지하고, 참고용 톤으로 다정하게 써 주세요.');
+    L.push('당신은 따뜻하고 통찰력 있는 전문 점성가입니다. 아래 출생 차트와 올해 프로그레션·솔라 리턴을 바탕으로 **올해 1년** 운세를 한국어로 써 주세요. 트랜짓·이번 주 운세는 제외하세요. 단정적 예언·공포 조장은 금지하고, 참고용 톤으로 다정하게 써 주세요. 건강은 의학적 진단이 아닌 생활·에너지·스트레스 관리 관점으로만 다루세요.');
     L.push('');
     appendChartContextLines(L, LAST_CTX, LAST_ASPECTS, LAST_KNOWN);
     L.push('');
@@ -1434,6 +1436,8 @@ body.export-capturing #wheelCard .note{display:none !important;}
       '## 연애·관계 — 올해 관계·가족 테마',
       '## 일·적성·커리어 — 올해 업무·커리어 방향',
       '## 금전·재물 — 올해 재정·자원 흐름',
+      '## 건강·에너지 관리 — 올해 스트레스·회복·생활 리듬 (의학 진단 아님)',
+      '## 학업·성장 — 올해 배움·시험·자격·집중·깊이 있는 공부',
       '## 올해 실천 포인트 — 구체적 행동 2~3가지',
     ].forEach((s, i) => L.push(`   ${i + 1}. ${s}`));
     L.push('2) 각 섹션 3~4문장. 프로그레션·솔라 리턴 근거를 최소 1개 이상 언급하세요.');
@@ -1450,7 +1454,7 @@ body.export-capturing #wheelCard .note{display:none !important;}
     const lines = isFast ? LAST_TRANSIT.fast : LAST_TRANSIT.slow;
     const periodLabel = isFast ? '지금·이번 주 (빠른 행성 — 며칠~2주)' : '요즘의 큰 흐름 (느린 행성 — 수주~수년)';
 
-    L.push('당신은 따뜻하고 통찰력 있는 전문 점성가입니다. 아래 출생 차트와 ' + (isFast ? '이번 주' : '요즘 큰') + ' 트랜짓을 바탕으로 오늘의 운세처럼 실전 조언을 한국어로 써 주세요. 단정적 예언·공포 조장은 금지하고, 참고용 톤으로 다정하게 써 주세요.');
+    L.push('당신은 따뜻하고 통찰력 있는 전문 점성가입니다. 아래 출생 차트와 ' + (isFast ? '이번 주' : '요즘 큰') + ' 트랜짓을 바탕으로 오늘의 운세처럼 실전 조언을 한국어로 써 주세요. 단정적 예언·공포 조장은 금지하고, 참고용 톤으로 다정하게 써 주세요. 건강은 의학적 진단이 아닌 생활·에너지·스트레스 관리 관점으로만 다루세요.');
     L.push('');
     appendChartContextLines(L, LAST_CTX, LAST_ASPECTS, LAST_KNOWN);
     L.push('');
@@ -1472,6 +1476,8 @@ body.export-capturing #wheelCard .note{display:none !important;}
         '## 연애·관계 — 이번 주 대인·연애 실전 조언(기회·주의·행동 팁). 트랜짓 인용',
         '## 일·적성·커리어 — 이번 주 업무·일정·커리어 단기 흐름',
         '## 금전·재물 — 이번 주 수입·지출·소비·투자 주의·기회',
+        '## 건강·에너지 관리 — 이번 주 스트레스·회복·생활 리듬 (의학 진단 아님)',
+        '## 학업·성장 — 이번 주 공부·시험·자격·집중·배움 리듬',
         '## 오늘의 한 줄 조언 — 짧고 기억하기 쉬운 한 문장',
       ]
       : [
@@ -1479,6 +1485,8 @@ body.export-capturing #wheelCard .note{display:none !important;}
         '## 연애·관계 — 몇 달 단위 관계·가족 테마',
         '## 일·적성·커리어 — 몇 달~수년 커리어·책임 테마',
         '## 금전·재물 — 몇 달~수년 재정·자원 테마',
+        '## 건강·에너지 관리 — 몇 달~수년 스트레스·회복·생활 리듬 (의학 진단 아님)',
+        '## 학업·성장 — 몇 달~수년 배움·시험·자격·성장 테마',
       ];
     sections.forEach((s, i) => L.push(`   ${i + 1}. ${s}`));
     L.push('2) 각 섹션 **3~4문장**(마지막 한 줄 조언은 1문장). 트랜짓·차트 근거를 최소 1개 이상 언급하세요.');
@@ -1612,8 +1620,10 @@ body.export-capturing #wheelCard .note{display:none !important;}
     L.push('— 상담 포인트 —');
     L.push('1) 빅3로 성격·정서·대인 첫인상 확인');
     L.push('2) 긴장 어스펙트 = 성장 과제, 조화 어스펙트 = 자연스러운 강점');
-    if (LAST_TRANSIT) L.push('3) 트랜짓으로 지금·이번 주 주의/기회 논의');
-    if (LAST_YEAR_FORECAST) L.push('4) 프로그레션·솔라 리턴으로 올해 큰 테마 연결');
+    L.push('3) 6하우스·화성·달 = 건강·에너지·생활 리듬 (의학 진단 아님)');
+    L.push('4) 3·9하우스·수성·목성 = 학업·배움·성장 스타일');
+    if (LAST_TRANSIT) L.push('5) 트랜짓으로 지금·이번 주 주의/기회 논의');
+    if (LAST_YEAR_FORECAST) L.push((LAST_TRANSIT ? '6' : '5') + ') 프로그레션·솔라 리턴으로 올해 큰 테마 연결');
     L.push('— 팔자연구소 점성학 —');
     return L.join('\n');
   }
