@@ -13,12 +13,12 @@ export const LIFECODE_PRODUCT = {
 
   waitNote: '접속 코드로 열린 <strong>라이프코드 단품</strong> 리포트입니다. 분석하기를 누르면 아래에 결과가 펼쳐집니다.',
 
-  /** DOM id — 단품에서 제외 (pyramidRhythmSection은 professional2 초대 시에만 표시) */
+  /** DOM id — 단품에서 제외 (pyramidRhythmSection은 스페셜 시에만 표시) */
   hiddenSections: ['aiSummarySection', 'aiTodaySection', 'pyramidRhythmSection'],
 
   readingGuideKicker: '라이프코드 단품에 포함된 모듈입니다.',
   readingGuideFootnote:
-    '제목 옆 <strong>B</strong>·<strong>P</strong>·<strong>S</strong> — B=베이직, P=Pro·Professional(결제), S=스페셜(Professional2·초대, Professional과 다름).',
+    '제목 옆 <strong>B</strong>·<strong>P</strong>·<strong>S</strong> — B=베이직, P=Pro·Professional(결제), S=스페셜(Professional과 별도).',
 
   pdfFilenamePrefix: '라이프코드',
 
@@ -51,7 +51,7 @@ export const LIFECODE_PRODUCT = {
       href: '#pyramidRhythmSection',
       title: '인생리듬',
       tier: 'special',
-      desc: '인생여정수 기준 네 구간·활동/정비 리듬과 36년 순환.',
+      desc: '인생여정수 기준 네 구간·활동/정비 리듬과 36년 순환표.',
     },
     { href: '#timelineSection', title: '10년 타임라인 · 수비학', tier: 'basic', desc: '수비학 개인연도 10년. 100년 인생전반표는 Pro·Professional.' },
     { href: '#tlBlockTarot', title: '10년 타임라인 · 타로', tier: 'special', desc: '타로 올해의 수 10년 차트와 100년 인생전반표.' },
@@ -139,7 +139,7 @@ export function applyLifecodeProductShell() {
 
 export function buildLifecodeProductReadingGuideInner() {
   const plan = (typeof window !== 'undefined' && window.USER_PLAN) || 'basic';
-  const isFullTier = plan === 'pro' || plan === 'professional' || plan === 'professional2';
+  const isFullTier = plan === 'pro' || plan === 'professional' || plan === 'special' || plan === 'professional2';
   const allowed = new Set(LIFECODE_PRODUCT.basicGuideHrefs || []);
   const modules = (isFullTier ? LIFECODE_PRODUCT.guideModules : LIFECODE_PRODUCT.guideModules.filter((m) => allowed.has(m.href)))
     .filter((m) => {
@@ -153,7 +153,7 @@ export function buildLifecodeProductReadingGuideInner() {
     const labels = { basic: 'B', pro: 'P', special: 'S' };
     const t = tier === 'professional2' ? 'special' : (labels[tier] ? tier : 'pro');
     const css = t === 'professional2' ? 'special' : t;
-    const title = t === 'special' ? 'S: 스페셜(Professional2) 초대' : (t === 'basic' ? 'B: Basic 이상' : 'P: Pro·Professional 이상');
+    const title = t === 'special' ? 'S: 스페셜' : (t === 'basic' ? 'B: Basic 이상' : 'P: Pro·Professional 이상');
     return `<span class="lc-guide-tier-badge lc-guide-tier-badge--${css}" title="${title} 플랜">${labels[tier] || labels[t] || 'P'}</span>`;
   };
   const legend =

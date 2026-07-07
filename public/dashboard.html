@@ -1023,7 +1023,7 @@
 
   function onPlanActionClick() {
     const tier = (document.querySelector('.plan-tier')?.textContent || '').toLowerCase();
-    if (tier === 'professional' || tier === 'professional2') {
+    if (tier === 'professional' || tier === 'special' || tier === 'professional2') {
       alert('이미 최고 플랜(Professional)을 이용 중입니다.');
       return;
     }
@@ -1139,11 +1139,12 @@
         (!profileRow?.plan_active_until || new Date(profileRow.plan_active_until) > new Date());
       const displayPlan = planActive ? plan : 'free';
       const isCounselorPlan =
-        displayPlan === 'professional' || displayPlan === 'professional2';
+        displayPlan === 'professional' || displayPlan === 'special' || displayPlan === 'professional2';
       const planLabels = {
         pro: 'Pro',
         professional: 'Professional',
-        professional2: 'Professional2',
+        special: '스페셜',
+        professional2: '스페셜',
         basic: 'Basic',
         free: 'Free',
       };
@@ -1174,7 +1175,7 @@
       }
       if (isCounselorPlan && profileRow?.plan_active_until) {
         const until = new Date(profileRow.plan_active_until);
-        const planName = displayPlan === 'professional2' ? 'Professional2' : 'Professional';
+        const planName = displayPlan === 'special' || displayPlan === 'professional2' ? '스페셜' : 'Professional';
         const expText = planActive
           ? `${planName} 이용 만료: ${until.toLocaleDateString('ko-KR')}`
           : `${planName} 기간이 지났습니다. 요금제에서 갱신할 수 있어요.`;

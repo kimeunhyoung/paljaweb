@@ -4408,7 +4408,7 @@ function hasSpecialAccess() {
   if (window.PaljaPlan && typeof window.PaljaPlan.hasSpecialAccess === 'function') {
     return window.PaljaPlan.hasSpecialAccess(USER_PLAN, DEV_UNLOCK_PAID);
   }
-  return USER_PLAN === 'professional2';
+  return USER_PLAN === 'special' || USER_PLAN === 'professional2';
 }
 
 function hasPyramidRhythmAccess() {
@@ -4440,7 +4440,7 @@ function gateHTML(planRequired, title, desc) {
     return `<div class="feature-gate">
       <div class="gate-icon">🔒</div>
       <div class="gate-title">${title}</div>
-      <div class="gate-desc">${desc}<br><br><strong>스페셜(Professional2)</strong> 초대 전용입니다. 결제하는 <strong>Professional(상담사)</strong> 플랜과는 별개예요.</div>
+      <div class="gate-desc">${desc}<br><br><strong>스페셜</strong> 플랜 전용입니다. 결제하는 <strong>Professional(상담사)</strong> 플랜과는 별개예요.</div>
     </div>`;
   }
   if (isLifecodeStandalone()) {
@@ -5096,7 +5096,7 @@ window.NUMEROLOGY_DATA = (() => {
         loshuStrategyWith5:"생일에 <strong>5번</strong>이 있습니다. 중심 칸으로, 변화 속에서도 방향을 잡는 축으로 읽는 경우가 많아요. 흔들릴 땐 짧은 루틴이나 한 줄 기록만으로도 중심이 돌아옵니다.",
         loshuStrategyWithout5:"생일에 <strong>5번</strong>이 없습니다. 불리하다는 뜻은 아니에요. 바깥 일정에 끌리기 쉬운 때는 호흡·몸의 리듬·짧은 일기처럼 <strong>고정 루틴 하나</strong>가 큰 도움이 됩니다.",
         seqArrowBridgeHtml:"<p><strong>풀 애로우 · 순차 격자</strong>는 1~9를 <strong>3·6·9 / 2·5·8 / 1·4·7</strong> 순으로 배치한 <em>서양식</em> 격자입니다. 위의 로슈 마방진과 <strong>칸 위치·화살 줄이 다릅니다.</strong> 같은 생일 숫자를 올리되, 가로·세로·대각 8줄에서 모두 있으면 <strong>풀 화살</strong>, 모두 없으면 <strong>빈 화살</strong>로 읽습니다.</p>",
-        pyramidBridgeHtml:"<p><strong>인생리듬</strong>은 생년월일 숫자를 바탕으로 만든 <strong>팔자연구소 자체 시각화</strong>입니다. 인생여정수는 <strong>생년월일 전체 자릿수 합</strong>을 환원한 수(표기 <strong>11/2</strong>에서는 뒤 숫자)를 사용하며, 네 구간으로 흐름을 나눕니다. 첫 순환 시작은 <strong>36 − 보정값</strong>(1→10, 2→20, 그 외 숫자 그대로)으로 계산하고, 각 구간은 9년씩 진행되어 한 바퀴 36년 패턴이 <strong>100세</strong>까지 반복됩니다.</p>",
+        pyramidBridgeHtml:"<p><strong>인생리듬</strong>은 생년월일 숫자를 바탕으로 만든 <strong>팔자연구소 자체 시각화</strong>입니다. 인생여정수는 <strong>생년월일 전체 자릿수 합</strong>을 환원한 수(표기 <strong>11/2</strong>에서는 뒤 숫자)를 사용하며, 네 구간마다 <strong>활동·정비 리듬</strong>이 이어집니다. 첫 <strong>36년 순환표</strong> 시작은 <strong>36 − 보정값</strong>(1→10, 2→20, 그 외 숫자 그대로)이고, 각 구간은 9년씩 진행되어 같은 패턴이 <strong>100세</strong>까지 반복됩니다.</p>",
         seqArrowFootNote:"로슈 격자와 동일하게 출생일 자릿수만 반영합니다. 두 격자를 나란히 보면 강점이 다른 각도에서 드러납니다."
     };
     const SEQ_ARROW_STRENGTH_RULES = [
@@ -6754,7 +6754,7 @@ function lcGuideTierPrefix(required) {
   if (required === 'basic' && hasAccess('basic')) return '';
   if (required === 'special' && hasSpecialAccess()) return '';
   const label = required === 'pro' ? 'P' : (required === 'special' ? 'S' : 'B');
-  const title = required === 'pro' ? 'Pro·Professional' : (required === 'special' ? '스페셜(Pro2)' : 'Basic');
+  const title = required === 'pro' ? 'Pro·Professional' : (required === 'special' ? '스페셜' : 'Basic');
   return `<strong class="lc-guide-tier-needed" title="${title} 필요">${label} 필요</strong> · `;
 }
 
@@ -6792,7 +6792,7 @@ function buildReadingGuideCatalogInnerHtml() {
       )}
       ${lcReadingGuideCatalogRow(
         lcModuleNav('#pyramidRhythmSection', '인생리듬', 'special'),
-        `인생여정수 기준 네 구간·활동/정비 리듬과 36년 순환.`,
+        `인생여정수 기준 네 구간·활동/정비 리듬과 36년 순환표.`,
       )}
       ${lcReadingGuideCatalogRow(
         lcModuleNav('#timelineSection', '10년 타임라인 · 수비학', 'basic'),
@@ -6882,7 +6882,7 @@ const PYRAMID_STAGE_DESC = [
   '새 출발과 방향을 잡는 시기. 기반과 리듬을 익히는 단계입니다.',
   '밖으로 나가 성과와 경험을 키우는 확장기입니다.',
   '지식·재능·기술을 충실히 쌓고 활용하는 시기입니다.',
-  '정리·완성 후 에너지가 하강하며, 다음 순환을 준비하는 단계입니다.',
+  '정리·완성 후 에너지가 하강하며, 다음 36년 순환표를 준비하는 단계입니다.',
 ];
 const PYRAMID_RHYTHM_HINTS = {
   active: '활동성이 올라가는 구간입니다. 새 시도·관계·일에서 실행력을 내기 좋은 시기예요.',
@@ -6964,7 +6964,7 @@ function locatePyramidRhythmPosition(timeline, age) {
     return {
       phase: 'before',
       stage: cycles[0]?.stages[0],
-      message: `아직 첫 순환(${s1}세) 이전입니다. 삼각형 리듬이 시작되기 전 준비·씨앗기로 읽을 수 있어요.`,
+      message: `아직 첫 36년 순환표(${s1}세) 이전입니다. 인생리듬이 시작되기 전 준비·씨앗기로 읽을 수 있어요.`,
     };
   }
   for (const cycle of cycles) {
@@ -6983,7 +6983,7 @@ function locatePyramidRhythmPosition(timeline, age) {
       phase: 'after',
       cycle: lastCycle,
       stage: lastStage,
-      message: `${maxAge}세 이후 구간입니다. 표는 <strong>${maxAge}세</strong>까지의 순환만 펼쳐 두었습니다. 그 이후도 36년 주기로 같은 리듬이 이어집니다.`,
+      message: `${maxAge}세 이후 구간입니다. 표는 <strong>${maxAge}세</strong>까지의 36년 순환표만 펼쳐 두었습니다. 그 이후도 같은 활동/정비 리듬이 이어집니다.`,
     };
   }
   return { phase: 'unknown' };
@@ -7115,7 +7115,7 @@ function renderPyramidStageZoomBar(pos) {
   const ages = pyramidStageRhythmAges(pos.stage);
   if (!ages) return '';
   const curSeg = pyramidRhythmSegmentIndex(pos.period, pos.stage.start);
-  const cycleNote = pos.cycle?.cycleNum > 1 ? ` · ${pos.cycle.cycleNum}차 순환` : '';
+  const cycleNote = pos.cycle?.cycleNum > 1 ? ` · ${pos.cycle.cycleNum}차 36년 순환표` : '';
   const segs = ages.map((a, i) => {
     if (!a) return '';
     const sign = a.kind === 'passive' ? '−' : '+';
@@ -7191,7 +7191,7 @@ function renderPyramidRhythmHTML(lifePathSingle, userAge) {
   if (pos.phase === 'in') {
     const badgeCls = pos.period.kind === 'passive' ? 'pyramid-rhythm-badge--passive' : 'pyramid-rhythm-badge--active';
     const badgeTxt = pos.period.kind === 'passive' ? '정비기' : '활동기';
-    const cycleLabel = pos.cycle.cycleNum > 1 ? `<span class="pyramid-rhythm-badge pyramid-rhythm-badge--active">${pos.cycle.cycleNum}차 순환</span>` : '';
+    const cycleLabel = pos.cycle.cycleNum > 1 ? `<span class="pyramid-rhythm-badge pyramid-rhythm-badge--active">${pos.cycle.cycleNum}차 36년 순환표</span>` : '';
     nowHtml = `<div class="pyramid-now-card">
       <div class="pyramid-now-kicker">지금 이 순간</div>
       <p style="margin:0 0 8px">${cycleLabel}<strong>${pos.stage.label}</strong><span class="pyramid-rhythm-badge ${badgeCls}">${badgeTxt}</span> · ${formatPyramidAgeRange(pos.period.start, pos.period.end)}</p>
@@ -7203,7 +7203,7 @@ function renderPyramidRhythmHTML(lifePathSingle, userAge) {
   }
 
   const tableRows = cycles.map((cycle) => {
-    const cycleHead = `<tr class="pyramid-cycle-head"><th colspan="5">${cycle.cycleNum}차 순환 · ${cycle.cycleStart}~${cycle.cycleEnd}세</th></tr>`;
+    const cycleHead = `<tr class="pyramid-cycle-head"><th colspan="5">${cycle.cycleNum}차 36년 순환표 · ${cycle.cycleStart}~${cycle.cycleEnd}세</th></tr>`;
     const stageRows = cycle.stages.map((stage) => {
       const stageCur = pos.phase === 'in' && pos.cycle?.cycleNum === cycle.cycleNum && pos.stage.index === stage.index;
       const cells = stage.periods.map((p) => {
@@ -7226,7 +7226,7 @@ function renderPyramidRhythmHTML(lifePathSingle, userAge) {
       <div class="pyramid-top-row">
         <div class="pyramid-tri-col">${renderPyramidTriangleSvg(pos)}</div>
         <div class="pyramid-status-col">
-          <p class="loshu-snapshot" style="margin-bottom:12px">전체 자릿수 합 인생여정수 <strong>${lifePathSingle}</strong>번 · 첫 순환 시작 <strong>${s1}세</strong> (${formulaNote}) · 현재 <strong>${userAge}세</strong> · 표 기준 <strong>${maxAge}세</strong>까지 ${cycles.length}차 순환</p>
+          <p class="loshu-snapshot" style="margin-bottom:12px">전체 자릿수 합 인생여정수 <strong>${lifePathSingle}</strong>번 · 첫 36년 순환표 시작 <strong>${s1}세</strong> (${formulaNote}) · 현재 <strong>${userAge}세</strong> · 표 기준 <strong>${maxAge}세</strong>까지 36년 순환표 <strong>${cycles.length}</strong>회</p>
           ${nowHtml}
         </div>
       </div>
@@ -7237,7 +7237,7 @@ function renderPyramidRhythmHTML(lifePathSingle, userAge) {
         </table>
       </div>
       <div class="pyramid-foot">
-        <p style="margin:0 0 8px">삼각형 한 바퀴(①→②→③→④)는 <strong>36년</strong>입니다. 마지막 구간 뒤 하강·재출발로 같은 패턴이 반복되며, 이 표는 <strong>${maxAge}세</strong>까지 펼쳤습니다.</p>
+        <p style="margin:0 0 8px">네 구간 한 바퀴(①→②→③→④)가 <strong>36년 순환표</strong> 하나입니다. 마지막 구간 뒤 하강·재출발로 같은 활동/정비 리듬이 반복되며, 이 표는 <strong>${maxAge}세</strong>까지 펼쳤습니다.</p>
         <p style="margin:0">인생리듬은 인생여정수 <strong>전체 자릿수 합</strong>(11/2 표기의 <strong>뒤 숫자</strong>) 기준입니다. 대주기·절정수와 계산 방식이 다릅니다.</p>
       </div>
     </div>
@@ -8498,7 +8498,7 @@ async function runAnalysis() {
     }
   }
 
-  // ── 11. 인생리듬 (스페셜 / professional2 초대 전용) ──
+  // ── 11. 인생리듬 (스페셜 전용) ──
   const userAgePyramid = curY - y;
   if (lcSection('pyramidRhythmSection')) {
     if (hasSpecialAccess()) {
@@ -8510,7 +8510,7 @@ async function runAnalysis() {
       document.getElementById('pyramidRhythmContent').innerHTML = gateHTML(
         'special',
         '인생리듬',
-        '인생여정수 기준 네 구간·활동/정비 리듬과 36년 순환을 시각화합니다.',
+        '인생여정수 기준 네 구간·활동/정비 리듬과 36년 순환표를 시각화합니다.',
       );
       if (pyramidBridgeHost) pyramidBridgeHost.innerHTML = '';
     }

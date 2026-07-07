@@ -1039,7 +1039,7 @@
         const c = clientRows.find((x) => x.id === id);
         const qs = new URLSearchParams({
           name: ((c && (c.display_name || c.legal_name)) || '').trim(),
-          date: (c && c.birth_date) || '',
+          date: c && c.birth_date ? String(c.birth_date).slice(0, 10) : '',
         });
         if (c && c.birth_time) qs.set('time', c.birth_time);
         if (c && c.birth_city) qs.set('city', c.birth_city);

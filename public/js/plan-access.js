@@ -3,8 +3,14 @@
  * 만료 시 한 단계가 아니라 free
  */
 (function (global) {
+  /** DB plan 값 정규화 — professional2는 special 별칭 */
+  function normalizeDbPlan(dbPlan) {
+    if (dbPlan === 'professional2') return 'special';
+    return dbPlan || 'free';
+  }
+
   function effectivePlan(profile) {
-    var dbPlan = (profile && profile.plan) || 'free';
+    var dbPlan = normalizeDbPlan(profile && profile.plan);
     if (dbPlan === 'free') return 'free';
     if (
       profile &&
@@ -16,29 +22,30 @@
     return dbPlan;
   }
 
-  var PLAN_RANKS = { free: 0, basic: 1, pro: 2, professional: 3, professional2: 4 };
+  var PLAN_RANKS = { free: 0, basic: 1, pro: 2, professional: 3, special: 4, professional2: 4 };
 
   function isPlanAtLeast(profile, required) {
-    return (PLAN_RANKS[effectivePlan(profile)] || 0) >= (PLAN_RANKS[required] || 0);
+    var req = normalizeDbPlan(required);
+    return (PLAN_RANKS[effectivePlan(profile)] || 0) >= (PLAN_RANKS[req] || 0);
   }
 
-  /** 상담사(Professional) 또는 초대 전용 professional2(상담사+스페셜) */
+  /** 상담사(Professional) 또는 스페셜(special) */
   function isCounselorPlan(planOrProfile) {
     var p =
       typeof planOrProfile === 'string'
-        ? planOrProfile
+        ? normalizeDbPlan(planOrProfile)
         : effectivePlan(planOrProfile);
-    return p === 'professional' || p === 'professional2';
+    return p === 'professional' || p === 'special';
   }
 
   function hasCounselorAccess(profile) {
     return isCounselorPlan(profile);
   }
 
-  /** 스페셜(Professional2) 초대 전용 — 인생리듬·타로 타임라인 */
+  /** 스페셜(special) — 인생리듬·타로 타임라인 */
   function hasSpecialAccess(plan, devUnlock) {
     if (devUnlock) return false;
-    return effectivePlan({ plan: plan }) === 'professional2';
+    return effectivePlan({ plan: plan }) === 'special';
   }
 
   /** @deprecated use hasSpecialAccess */
@@ -92,7 +99,7 @@
     return hasDeepAnalysisAccess(plan, devUnlock);
   }
 
-  /** 타로 10년·100년 타임라인 — 스페셜(Professional2) 이상 */
+  /** 타로 10년·100년 타임라인 — 스페셜 이상 */
   function hasTarotTimelineAccess(plan, devUnlock) {
     return hasSpecialAccess(plan, devUnlock);
   }
@@ -127,8 +134,8 @@
     var titles = {
       basic: 'B: Basic 이상',
       pro: 'P: Pro·Professional 이상',
-      special: 'S: 스페셜(Professional2) 초대 — Professional과 별도',
-      professional2: 'S: 스페셜(Professional2) 초대 — Professional과 별도',
+      special: 'S: 스페셜',
+      professional2: 'S: 스페셜',
     };
     var t = tier === 'professional2' ? 'special' : labels[tier] ? tier : 'pro';
     var css = t === 'professional2' ? 'special' : t;
@@ -154,7 +161,7 @@
       '<p class="lc-guide-tier-legend">' +
       '<span class="lc-guide-tier-badge lc-guide-tier-badge--basic" title="B: Basic 이상">B</span> 베이직 이상 · ' +
       '<span class="lc-guide-tier-badge lc-guide-tier-badge--pro" title="P: Pro·Professional 이상">P</span> 프로·Professional 이상 · ' +
-      '<span class="lc-guide-tier-badge lc-guide-tier-badge--special" title="S: 스페셜(Professional2) 초대 — Professional과 별도">S</span> 스페셜(Professional2) 초대' +
+      '<span class="lc-guide-tier-badge lc-guide-tier-badge--special" title="S: 스페셜">S</span> 스페셜' +
       '</p>'
     );
   }
@@ -178,7 +185,7 @@
   function planKoLabel(plan) {
     if (plan === 'pro') return 'Pro';
     if (plan === 'professional') return 'Professional';
-    if (plan === 'professional2') return 'Professional2';
+    if (plan === 'special' || plan === 'professional2') return '스페셜';
     return 'Basic';
   }
 
@@ -221,6 +228,7 @@
   }
 
   global.PaljaPlan = {
+    normalizeDbPlan: normalizeDbPlan,
     PLAN_RANKS: PLAN_RANKS,
     effectivePlan: effectivePlan,
     isPlanAtLeast: isPlanAtLeast,

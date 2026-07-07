@@ -813,6 +813,8 @@ body.export-capturing #wheelCard .note{display:none !important;}
     refreshTransitAiUi();
     refreshYearAiUi();
   }
+
+  function updateReportHeader(opts) {
     const birth = fmtBirthLine(LAST_BIRTH, opts.unknownTime);
     const city = opts.coordLabel || '';
     const nameEl = $('reportHeaderName');
@@ -2412,33 +2414,103 @@ body.export-capturing #wheelCard .note{display:none !important;}
     }
   });
 
-  // 상담사 허브 등에서 URL 파라미터로 이름·생년월일 미리 채우기
-  (function prefillFromQuery() {
+  function normalizeIsoDate(raw) {
+    if (!raw) return '';
+    const s = String(raw).trim();
+    const m = s.match(/^(\d{4})-(\d{2})-(\d{2})/);
+    return m ? `${m[1]}-${m[2]}-${m[3]}` : '';
+  }
+
+  function normalizeTimeHm(raw) {
+    if (!raw) return '';
+    const s = String(raw).trim();
+    const m = s.match(/^(\d{1,2}):(\d{2})/);
+    if (!m) return '';
+    return `${String(m[1]).padStart(2, '0')}:${m[2]}`;
+  }
+
+  function applyCityPrefill(cityName) {
+    if (!cityName) return false;
+    const idx = CITIES.findIndex((c) => c.ko === cityName);
+    if (idx < 0) return false;
+    $('inCity').value = String(idx);
+    $('manualCoords').classList.remove('show');
+    return true;
+  }
+
+  function applyBirthPrefill(data) {
+    const nm = (data.name || '').trim();
+    const dt = normalizeIsoDate(data.date);
+    const tm = normalizeTimeHm(data.time);
+    const city = (data.city || '').trim();
+    if (nm) $('inName').value = nm;
+    if (tm) $('inTime').value = tm;
+    if (dt) $('inDate').value = dt;
+    if (city) applyCityPrefill(city);
+    return { nm, dt, tm, city };
+  }
+
+  function counselorPrefillStatus({ dt, tm, city }) {
+    if (!dt) return '고객 생년월일을 불러오지 못했어요. 직접 입력해 주세요.';
+    if (tm && city) {
+      return '상담사 허브에서 <strong>이름·생년월일·출생 시간·출생지</strong>를 불러왔어요. 확인 후 차트를 계산합니다.';
+    }
+    if (tm) {
+      return '이름·생년월일·출생 시간을 불러왔어요. <strong>출생지</strong>를 확인한 뒤 “차트 계산하기”를 눌러주세요.';
+    }
+    return '생년월일을 불러왔어요. 정확한 차트를 위해 <strong>출생 시간</strong>과 <strong>출생지</strong>를 입력한 뒤 “차트 계산하기”를 눌러주세요. (시간을 모르면 “시간 모름”을 체크)';
+  }
+
+  async function prefillFromCounselorHub() {
     try {
       const qs = new URLSearchParams(location.search);
-      const nm = qs.get('name'), dt = qs.get('date'), tm = qs.get('time'), city = qs.get('city');
-      if (nm) $('inName').value = nm;
-      if (tm && /^\d{1,2}:\d{2}/.test(tm)) {
-        $('inTime').value = tm.slice(0, 5);
-      }
-      if (city) {
-        const idx = CITIES.findIndex((c) => c.ko === city);
-        if (idx >= 0) {
-          $('inCity').value = String(idx);
-          $('manualCoords').classList.remove('show');
+      const fromQs = applyBirthPrefill({
+        name: qs.get('name'),
+        date: qs.get('date'),
+        time: qs.get('time'),
+        city: qs.get('city'),
+      });
+
+      const clientId = CLIENT_ID || qs.get('client') || '';
+      let merged = fromQs;
+
+      if (clientId && sbClient) {
+        const { data: { session } } = await sbClient.auth.getSession();
+        if (session) {
+          const { data: row } = await sbClient
+            .from('counselor_clients')
+            .select('display_name,legal_name,birth_date,birth_time,birth_city')
+            .eq('id', clientId)
+            .eq('counselor_id', session.user.id)
+            .maybeSingle();
+          if (row) {
+            merged = applyBirthPrefill({
+              name: (row.display_name || row.legal_name || fromQs.nm || '').trim(),
+              date: row.birth_date || fromQs.dt,
+              time: row.birth_time || fromQs.tm,
+              city: row.birth_city || fromQs.city,
+            });
+          }
         }
       }
-      if (dt) {
-        $('inDate').value = dt;
-        if (tm) {
-          showStatus('이름·생년월일·출생 시간을 불러왔어요. <strong>출생지</strong>를 확인한 뒤 “차트 계산하기”를 눌러주세요.', 'info');
-        } else {
-          showStatus('생년월일을 불러왔어요. 정확한 차트를 위해 <strong>출생 시간</strong>과 <strong>출생지</strong>를 입력한 뒤 “차트 계산하기”를 눌러주세요. (시간을 모르면 “시간 모름”을 체크)', 'info');
-          const t = $('inTime'); if (t) t.focus();
-        }
+
+      if (!merged.dt && !merged.nm) return;
+
+      const msg = counselorPrefillStatus(merged);
+      showStatus(msg, 'info');
+
+      if (merged.dt && merged.tm && merged.city) {
+        await calculate();
+      } else if (merged.dt && !merged.tm) {
+        const t = $('inTime');
+        if (t) t.focus();
       }
-    } catch (e) { /* ignore */ }
-  })();
+    } catch (e) {
+      console.error('counselor prefill failed', e);
+    }
+  }
+
+  prefillFromCounselorHub();
 </script>
 
 </body>

@@ -286,14 +286,14 @@
 
     /* ── PRICING GRID ── */
     .pricing-wrap {
-      max-width: 1100px;
+      max-width: 1320px;
       margin: 0 auto;
       padding: 0 40px 80px;
     }
     .pricing-grid {
       display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 16px;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 12px;
       align-items: stretch;
     }
 
@@ -329,6 +329,24 @@
       background: var(--parchment);
       border-color: var(--accent);
     }
+    .plan-card.special {
+      scroll-margin-top: 100px;
+      background: white;
+      border-color: var(--teal);
+      box-shadow: 0 4px 20px rgba(46, 139, 122, .08);
+    }
+    .plan-card.special .plan-name { color: var(--teal); }
+    .plan-price-note {
+      font-family: var(--font-body);
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--teal);
+      line-height: 1.4;
+      margin-bottom: 8px;
+      min-height: 44px;
+      display: flex;
+      align-items: flex-end;
+    }
 
     @keyframes fadeUp {
       from { opacity: 0; transform: translateY(16px); }
@@ -338,6 +356,7 @@
     .plan-card:nth-child(2) { animation-delay: .2s; }
     .plan-card:nth-child(3) { animation-delay: .3s; }
     .plan-card:nth-child(4) { animation-delay: .4s; }
+    .plan-card:nth-child(5) { animation-delay: .5s; }
     .plan-card.featured { animation-delay: .2s; }
 
     .popular-badge {
@@ -490,6 +509,7 @@
 
     /* ── COMPARE TABLE ── */
     .compare-section {
+      overflow-x: auto;
       max-width: 900px;
       margin: 0 auto;
       padding: 0 40px 80px;
@@ -827,6 +847,9 @@
     }
 
     /* ── RESPONSIVE ── */
+    @media (max-width: 1200px) {
+      .pricing-grid { grid-template-columns: repeat(3, 1fr); }
+    }
     @media (max-width: 900px) {
       .pricing-grid { grid-template-columns: 1fr 1fr; }
       .plan-card.featured { transform: none; }
@@ -897,7 +920,9 @@
         <li><div class="feature-check">✓</div>현재 흐름 (올해·이번 달·오늘)</li>
         <li><div class="feature-check">✓</div>월간 흐름 12개월</li>
         <li><div class="feature-check">✓</div>향후 7일 에너지 흐름</li>
-        <li><div class="feature-check">✓</div>10년 차트 (수비학·타로)</li>
+        <li><div class="feature-check">✓</div>10년 차트 (수비학)</li>
+        <li class="no"><div class="feature-x">×</div>타로 10년·100년 타임라인</li>
+        <li class="no"><div class="feature-x">×</div>인생리듬</li>
         <li><div class="feature-check">✓</div>대주기 · 인생 4단계</li>
         <li><div class="feature-check">✓</div>수비학 달력 · AI 오늘·이번 달 운세</li>
         <li><div class="feature-check">✓</div><strong>점성학 심화</strong> (트랜짓·커플 차트)</li>
@@ -921,7 +946,9 @@
         <li><div class="feature-check">✓</div>Basic 모든 기능</li>
         <li><div class="feature-check">✓</div>네임코드 · 소울하모니 · 48궁합 · AI 이름 추천</li>
         <li><div class="feature-check">✓</div>월 AI 크레딧 <strong>30회</strong></li>
-        <li><div class="feature-check">✓</div>인생전반표 (0~100세)</li>
+        <li><div class="feature-check">✓</div>인생전반표 (수비학 0~100세)</li>
+        <li class="no"><div class="feature-x">×</div>타로 10년·100년 타임라인</li>
+        <li class="no"><div class="feature-x">×</div>인생리듬</li>
         <li><div class="feature-check">✓</div>Growth Map · 성장 지도</li>
         <li><div class="feature-check">✓</div>로슈 격자 · 순차 격자 심층 분석</li>
         <li><div class="feature-check">✓</div>PDF 저장 · 공유</li>
@@ -946,10 +973,28 @@
         <li><div class="feature-check">✓</div>고객용 브랜디드 리포트 PDF</li>
         <li><div class="feature-check">✓</div>상담 준비 요약 카드 · 고객 간 궁합</li>
         <li><div class="feature-check">✓</div>고객·상담 기록 CSV 내보내기(백업)</li>
+        <li class="no"><div class="feature-x">×</div>타로 10년·100년 타임라인</li>
+        <li class="no"><div class="feature-x">×</div>인생리듬</li>
         <li><div class="feature-check">✓</div>월 AI 크레딧 <strong>120회</strong></li>
       </ul>
       <button class="plan-btn plan-btn-dark" onclick="handleSubscribe('professional')">시작하기</button>
       <a href="for-counselors.html" class="plan-btn plan-btn-outline" style="margin-top:10px;display:block;text-align:center;text-decoration:none;">상담사 기능 자세히 보기 →</a>
+    </div>
+
+    <!-- SPECIAL -->
+    <div class="plan-card special" id="special">
+      <div class="plan-name">스페셜</div>
+      <p class="plan-price-note">공개 결제 없음</p>
+      <p class="plan-tagline">인생리듬·타로 타임라인.<br>상담사 허브 포함.</p>
+      <div class="plan-divider"></div>
+      <ul class="feature-list">
+        <li><div class="feature-check">✓</div>Professional 모든 기능</li>
+        <li><div class="feature-check">✓</div>타로 10년·100년 타임라인</li>
+        <li><div class="feature-check">✓</div>인생리듬 (활동/정비 · 36년 순환표)</li>
+        <li><div class="feature-check">✓</div>수비학 인생전반표 (0~100세)</li>
+        <li><div class="feature-check">✓</div>상담사 허브 · CRM · 캘린더 · 푸시</li>
+        <li><div class="feature-check">✓</div>월 AI 크레딧 <strong>120회</strong></li>
+      </ul>
     </div>
 
   </div>
@@ -998,14 +1043,16 @@
         <th class="featured-col">Basic</th>
         <th>Pro</th>
         <th>Professional</th>
+        <th>스페셜</th>
       </tr>
     </thead>
     <tbody>
-      <tr class="category-row"><td colspan="5">핵심 프로필</td></tr>
+      <tr class="category-row"><td colspan="6">핵심 프로필</td></tr>
       <tr>
         <td>인생여정수 · 문 넘버 (숫자 카드)</td>
         <td><span class="check">✓</span></td>
         <td class="featured-col"><span class="check">✓</span></td>
+        <td><span class="check">✓</span></td>
         <td><span class="check">✓</span></td>
         <td><span class="check">✓</span></td>
       </tr>
@@ -1015,6 +1062,7 @@
         <td class="featured-col"><span class="check">✓</span></td>
         <td><span class="check">✓</span></td>
         <td><span class="check">✓</span></td>
+        <td><span class="check">✓</span></td>
       </tr>
       <tr>
         <td>별자리 상세 · 48주기 성격학</td>
@@ -1022,13 +1070,15 @@
         <td class="featured-col"><span class="check">✓</span></td>
         <td><span class="check">✓</span></td>
         <td><span class="check">✓</span></td>
+        <td><span class="check">✓</span></td>
       </tr>
 
-      <tr class="category-row"><td colspan="5">흐름 · 타임라인</td></tr>
+      <tr class="category-row"><td colspan="6">흐름 · 타임라인</td></tr>
       <tr>
         <td>수비학 개인연도 · 타로 올해의 수</td>
         <td><span class="cross">—</span></td>
         <td class="featured-col"><span class="check">✓</span></td>
+        <td><span class="check">✓</span></td>
         <td><span class="check">✓</span></td>
         <td><span class="check">✓</span></td>
       </tr>
@@ -1038,11 +1088,13 @@
         <td class="featured-col"><span class="check">✓</span></td>
         <td><span class="check">✓</span></td>
         <td><span class="check">✓</span></td>
+        <td><span class="check">✓</span></td>
       </tr>
       <tr>
         <td>향후 7일 에너지 흐름</td>
         <td><span class="cross">—</span></td>
         <td class="featured-col"><span class="check">✓</span></td>
+        <td><span class="check">✓</span></td>
         <td><span class="check">✓</span></td>
         <td><span class="check">✓</span></td>
       </tr>
@@ -1052,20 +1104,31 @@
         <td class="featured-col"><span class="check">✓</span></td>
         <td><span class="check">✓</span></td>
         <td><span class="check">✓</span></td>
+        <td><span class="check">✓</span></td>
       </tr>
       <tr>
-        <td>10년 차트 (수비학·타로)</td>
+        <td>10년 차트 (수비학)</td>
         <td><span class="cross">—</span></td>
         <td class="featured-col"><span class="check">✓</span></td>
         <td><span class="check">✓</span></td>
         <td><span class="check">✓</span></td>
+        <td><span class="check">✓</span></td>
+      </tr>
+      <tr>
+        <td>타로 10년·100년 타임라인</td>
+        <td><span class="cross">—</span></td>
+        <td class="featured-col"><span class="cross">—</span></td>
+        <td><span class="cross">—</span></td>
+        <td><span class="cross">—</span></td>
+        <td><span class="check">✓</span></td>
       </tr>
 
-      <tr class="category-row"><td colspan="5">장기 분석</td></tr>
+      <tr class="category-row"><td colspan="6">장기 분석</td></tr>
       <tr>
         <td>대주기 분석</td>
         <td><span class="cross">—</span></td>
         <td class="featured-col"><span class="check">✓</span></td>
+        <td><span class="check">✓</span></td>
         <td><span class="check">✓</span></td>
         <td><span class="check">✓</span></td>
       </tr>
@@ -1075,11 +1138,21 @@
         <td class="featured-col"><span class="check">✓</span></td>
         <td><span class="check">✓</span></td>
         <td><span class="check">✓</span></td>
+        <td><span class="check">✓</span></td>
       </tr>
       <tr>
-        <td>인생전반표 (0~100세)</td>
+        <td>인생리듬 (활동/정비 · 36년 순환표)</td>
         <td><span class="cross">—</span></td>
         <td class="featured-col"><span class="cross">—</span></td>
+        <td><span class="cross">—</span></td>
+        <td><span class="cross">—</span></td>
+        <td><span class="check">✓</span></td>
+      </tr>
+      <tr>
+        <td>수비학 인생전반표 (0~100세)</td>
+        <td><span class="cross">—</span></td>
+        <td class="featured-col"><span class="cross">—</span></td>
+        <td><span class="check">✓</span></td>
         <td><span class="check">✓</span></td>
         <td><span class="check">✓</span></td>
       </tr>
@@ -1089,6 +1162,7 @@
         <td class="featured-col"><span class="cross">—</span></td>
         <td><span class="check">✓</span></td>
         <td><span class="check">✓</span></td>
+        <td><span class="check">✓</span></td>
       </tr>
       <tr>
         <td>로슈 격자 분석</td>
@@ -1096,13 +1170,15 @@
         <td class="featured-col"><span class="cross">—</span></td>
         <td><span class="check">✓</span></td>
         <td><span class="check">✓</span></td>
+        <td><span class="check">✓</span></td>
       </tr>
 
-      <tr class="category-row"><td colspan="5">프로그램</td></tr>
+      <tr class="category-row"><td colspan="6">프로그램</td></tr>
       <tr>
         <td>타로코드</td>
         <td><span class="check">✓</span></td>
         <td class="featured-col"><span class="check">✓</span></td>
+        <td><span class="check">✓</span></td>
         <td><span class="check">✓</span></td>
         <td><span class="check">✓</span></td>
       </tr>
@@ -1112,11 +1188,13 @@
         <td class="featured-col"><span class="check">✓</span></td>
         <td><span class="check">✓</span></td>
         <td><span class="check">✓</span></td>
+        <td><span class="check">✓</span></td>
       </tr>
       <tr>
         <td>점성학 트랜짓 · 커플 차트</td>
         <td><span class="cross">—</span></td>
         <td class="featured-col"><span class="check">✓</span></td>
+        <td><span class="check">✓</span></td>
         <td><span class="check">✓</span></td>
         <td><span class="check">✓</span></td>
       </tr>
@@ -1126,11 +1204,13 @@
         <td class="featured-col"><span class="check">✓</span></td>
         <td><span class="check">✓</span></td>
         <td><span class="check">✓</span></td>
+        <td><span class="check">✓</span></td>
       </tr>
       <tr>
         <td>AI 맞춤 해석 (점성학·수비학 달력)</td>
         <td><span class="cross">—</span></td>
         <td class="featured-col"><span class="check">✓</span></td>
+        <td><span class="check">✓</span></td>
         <td><span class="check">✓</span></td>
         <td><span class="check">✓</span></td>
       </tr>
@@ -1140,6 +1220,7 @@
         <td class="featured-col">10회</td>
         <td>30회</td>
         <td>120회</td>
+        <td>120회</td>
       </tr>
       <tr>
         <td>소울하모니 · 네임코드 · 48궁합 · AI 이름</td>
@@ -1147,13 +1228,15 @@
         <td class="featured-col"><span class="cross">—</span></td>
         <td><span class="check">✓</span></td>
         <td><span class="check">✓</span></td>
+        <td><span class="check">✓</span></td>
       </tr>
 
-      <tr class="category-row"><td colspan="5">저장 · 공유</td></tr>
+      <tr class="category-row"><td colspan="6">저장 · 공유</td></tr>
       <tr>
         <td>PDF 저장</td>
         <td><span class="cross">—</span></td>
         <td class="featured-col"><span class="cross">—</span></td>
+        <td><span class="check">✓</span></td>
         <td><span class="check">✓</span></td>
         <td><span class="check">✓</span></td>
       </tr>
@@ -1163,14 +1246,16 @@
         <td class="featured-col"><span class="cross">—</span></td>
         <td><span class="check">✓</span></td>
         <td><span class="check">✓</span></td>
+        <td><span class="check">✓</span></td>
       </tr>
 
-      <tr class="category-row"><td colspan="5">상담사 전용</td></tr>
+      <tr class="category-row"><td colspan="6">상담사 전용</td></tr>
       <tr>
         <td>상담사 허브 · 대시보드</td>
         <td><span class="cross">—</span></td>
         <td class="featured-col"><span class="cross">—</span></td>
         <td><span class="cross">—</span></td>
+        <td><span class="check">✓</span></td>
         <td><span class="check">✓</span></td>
       </tr>
       <tr>
@@ -1179,12 +1264,14 @@
         <td class="featured-col"><span class="cross">—</span></td>
         <td><span class="cross">—</span></td>
         <td><span class="check">✓</span></td>
+        <td><span class="check">✓</span></td>
       </tr>
       <tr>
         <td>고객용 브랜디드 리포트 PDF</td>
         <td><span class="cross">—</span></td>
         <td class="featured-col"><span class="cross">—</span></td>
         <td><span class="cross">—</span></td>
+        <td><span class="check">✓</span></td>
         <td><span class="check">✓</span></td>
       </tr>
       <tr>
@@ -1193,12 +1280,14 @@
         <td class="featured-col"><span class="cross">—</span></td>
         <td><span class="cross">—</span></td>
         <td><span class="check">✓</span></td>
+        <td><span class="check">✓</span></td>
       </tr>
       <tr>
         <td>고객 간 궁합 분석</td>
         <td><span class="cross">—</span></td>
         <td class="featured-col"><span class="cross">—</span></td>
         <td><span class="cross">—</span></td>
+        <td><span class="check">✓</span></td>
         <td><span class="check">✓</span></td>
       </tr>
       <tr>
@@ -1207,12 +1296,14 @@
         <td class="featured-col"><span class="cross">—</span></td>
         <td><span class="cross">—</span></td>
         <td><span class="check">✓</span></td>
+        <td><span class="check">✓</span></td>
       </tr>
       <tr>
         <td>웹 푸시 · 오늘 일정 요약 알림</td>
         <td><span class="cross">—</span></td>
         <td class="featured-col"><span class="cross">—</span></td>
         <td><span class="cross">—</span></td>
+        <td><span class="check">✓</span></td>
         <td><span class="check">✓</span></td>
       </tr>
       <tr>
@@ -1221,12 +1312,14 @@
         <td class="featured-col"><span class="cross">—</span></td>
         <td><span class="cross">—</span></td>
         <td><span class="check">✓</span></td>
+        <td><span class="check">✓</span></td>
       </tr>
       <tr>
         <td>고객·상담 기록 CSV 내보내기</td>
         <td><span class="cross">—</span></td>
         <td class="featured-col"><span class="cross">—</span></td>
         <td><span class="cross">—</span></td>
+        <td><span class="check">✓</span></td>
         <td><span class="check">✓</span></td>
       </tr>
     </tbody>
