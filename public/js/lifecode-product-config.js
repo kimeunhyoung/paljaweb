@@ -13,8 +13,8 @@ export const LIFECODE_PRODUCT = {
 
   waitNote: '접속 코드로 열린 <strong>라이프코드 단품</strong> 리포트입니다. 분석하기를 누르면 아래에 결과가 펼쳐집니다.',
 
-  /** DOM id — 단품에서 제외 */
-  hiddenSections: ['aiSummarySection', 'aiTodaySection'],
+  /** DOM id — 단품에서 제외 (pyramidRhythmSection은 professional2 초대 시에만 표시) */
+  hiddenSections: ['aiSummarySection', 'aiTodaySection', 'pyramidRhythmSection'],
 
   readingGuideKicker: '라이프코드 단품에 포함된 모듈입니다.',
   readingGuideFootnote:
@@ -50,7 +50,7 @@ export const LIFECODE_PRODUCT = {
     {
       href: '#pyramidRhythmSection',
       title: '피라미드 리듬',
-      tier: 'pro',
+      tier: 'professional2',
       desc: '전체 자릿수 합 인생여정수(표의 뒤 숫자) 기준 4단계·활동/정비 구간과 삼각형 순환 리듬.',
     },
     { href: '#timelineSection', title: '10년 타임라인', tier: 'basic', desc: '수비학·타로 10년 차트. 인생전반표(0~100세)는 Pro.' },
@@ -138,11 +138,13 @@ export function applyLifecodeProductShell() {
 
 export function buildLifecodeProductReadingGuideInner() {
   const plan = (typeof window !== 'undefined' && window.USER_PLAN) || 'basic';
-  const isFullTier = plan === 'pro' || plan === 'professional';
+  const isFullTier = plan === 'pro' || plan === 'professional' || plan === 'professional2';
   const allowed = new Set(LIFECODE_PRODUCT.basicGuideHrefs || []);
-  const modules = isFullTier
-    ? LIFECODE_PRODUCT.guideModules
-    : LIFECODE_PRODUCT.guideModules.filter((m) => allowed.has(m.href));
+  const modules = (isFullTier ? LIFECODE_PRODUCT.guideModules : LIFECODE_PRODUCT.guideModules.filter((m) => allowed.has(m.href)))
+    .filter((m) => {
+      if (m.href !== '#pyramidRhythmSection') return true;
+      return typeof window !== 'undefined' && window.PaljaPlan?.hasPyramidRhythmAccess?.(plan, false);
+    });
   const badge = (tier) => {
     const g = typeof window !== 'undefined' ? window.PaljaPlan : null;
     if (g && g.tierBadgeHtml) return g.tierBadgeHtml(tier);

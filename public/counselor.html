@@ -823,7 +823,7 @@
 
     const proOk = !error && profile &&
       window.PaljaPlan &&
-      PaljaPlan.isPlanAtLeast(profile, 'professional');
+      PaljaPlan.hasCounselorAccess(profile);
 
     if (!proOk) {
       gate.style.display = 'block';

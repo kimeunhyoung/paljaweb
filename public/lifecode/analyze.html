@@ -3832,7 +3832,7 @@
   </div>
 
   <!-- ⑤ 피라미드 리듬 -->
-  <div class="section" style="animation-delay:.2s" id="pyramidRhythmSection">
+  <div class="section lc-product-off" style="animation-delay:.2s;display:none" id="pyramidRhythmSection" aria-hidden="true">
     <div class="section-header">
       <div class="section-line"></div>
       <span class="section-label">피라미드 리듬</span>
@@ -4392,6 +4392,13 @@ function hasDeepAnalysisAccess() {
     return window.PaljaPlan.hasDeepAnalysisAccess(USER_PLAN, DEV_UNLOCK_PAID);
   }
   return hasAccess('pro');
+}
+
+function hasPyramidRhythmAccess() {
+  if (window.PaljaPlan && typeof window.PaljaPlan.hasPyramidRhythmAccess === 'function') {
+    return window.PaljaPlan.hasPyramidRhythmAccess(USER_PLAN, DEV_UNLOCK_PAID);
+  }
+  return USER_PLAN === 'professional2';
 }
 function hasBasicYearTimelineAccess() {
   if (window.PaljaPlan && typeof window.PaljaPlan.hasBasicYearTimelineAccess === 'function') {
@@ -6615,10 +6622,10 @@ function buildReadingGuideCatalogInnerHtml() {
         `<a href="#nav-life-four" class="lc-guide-link"><strong>인생 4단계</strong></a>`,
         `${lcGuideTierPrefix('basic')}네 구간별 절정수(환경)·도전수(내적 과제) 번호 산출·표·심층 해석.`,
       )}
-      ${lcReadingGuideCatalogRow(
+      ${hasPyramidRhythmAccess() ? lcReadingGuideCatalogRow(
         `<a href="#pyramidRhythmSection" class="lc-guide-link"><strong>피라미드 리듬</strong></a>`,
-        `${lcGuideTierPrefix('basic')}전체 자릿수 합 인생여정수(표의 뒤 숫자) 기준 4단계·활동/정비 구간과 삼각형 순환 리듬.`,
-      )}
+        `전체 자릿수 합 인생여정수(표의 뒤 숫자) 기준 4단계·활동/정비 구간과 삼각형 순환 리듬.`,
+      ) : ''}
       ${lcReadingGuideCatalogRow(
         `<a href="#timelineSection" class="lc-guide-link"><strong>10년 타임라인</strong></a>`,
         `${lcGuideTierPrefix('basic')}개인년도(Personal Year) 시퀀스 기준 약 10년 연도별 에너지 카드.`,
@@ -8214,7 +8221,7 @@ async function runAnalysis() {
     seqBridgeHost.innerHTML = (INTERPRETATION_TEXTS && INTERPRETATION_TEXTS.seqArrowBridgeHtml) || '';
   }
   const pyramidBridgeHost = document.getElementById('pyramidRhythmSectionBridge');
-  if (pyramidBridgeHost) {
+  if (pyramidBridgeHost && hasPyramidRhythmAccess()) {
     pyramidBridgeHost.innerHTML = (INTERPRETATION_TEXTS && INTERPRETATION_TEXTS.pyramidBridgeHtml) || '';
   }
 
@@ -8312,13 +8319,14 @@ async function runAnalysis() {
     }
   }
 
-  // ── 11. 피라미드 리듬 (Basic+, 전체 자릿수 합 인생여정수 = lpAlt) ──
+  // ── 11. 피라미드 리듬 (professional2 초대 전용) ──
   const userAgePyramid = curY - y;
   if (lcSection('pyramidRhythmSection')) {
-    if (hasDeepAnalysisAccess()) {
+    if (hasPyramidRhythmAccess()) {
       document.getElementById('pyramidRhythmContent').innerHTML = renderPyramidRhythmHTML(lpAlt, userAgePyramid);
-    } else {
-      document.getElementById('pyramidRhythmContent').innerHTML = gateHTML('pro', '피라미드 리듬', '전체 자릿수 합 인생여정수 기준 출발기·발전기·충실기·완성기 4단계와 활동/정비 구간, 삼각형 순환 리듬을 안내합니다.');
+    }
+    if (window.PaljaPlan && typeof window.PaljaPlan.syncPyramidRhythmSectionVisibility === 'function') {
+      window.PaljaPlan.syncPyramidRhythmSectionVisibility(USER_PLAN, DEV_UNLOCK_PAID);
     }
   }
 

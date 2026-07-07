@@ -640,7 +640,7 @@ body.export-capturing #wheelCard .note{display:none !important;}
       if (!session) return;
       const { data: profile } = await sbClient.from('profiles').select('plan, plan_active_until').eq('id', session.user.id).single();
       HAS_BASIC = window.PaljaPlan ? window.PaljaPlan.isPlanAtLeast(profile || {}, 'basic') : false;
-      HAS_PROFESSIONAL = window.PaljaPlan ? window.PaljaPlan.isPlanAtLeast(profile || {}, 'professional') : false;
+      HAS_PROFESSIONAL = window.PaljaPlan ? window.PaljaPlan.hasCounselorAccess(profile || {}) : false;
       applyCounselorAccessUi();
       if (ASTRO_AI_API_ENABLED) await checkAiServer();
       else await loadAiQuota();

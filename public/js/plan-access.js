@@ -16,9 +16,59 @@
     return dbPlan;
   }
 
+  var PLAN_RANKS = { free: 0, basic: 1, pro: 2, professional: 3, professional2: 4 };
+
   function isPlanAtLeast(profile, required) {
-    var ranks = { free: 0, basic: 1, pro: 2, professional: 3 };
-    return (ranks[effectivePlan(profile)] || 0) >= (ranks[required] || 0);
+    return (PLAN_RANKS[effectivePlan(profile)] || 0) >= (PLAN_RANKS[required] || 0);
+  }
+
+  /** 상담사(Professional) 또는 초대 전용 professional2(상담사+피라미드) */
+  function isCounselorPlan(planOrProfile) {
+    var p =
+      typeof planOrProfile === 'string'
+        ? planOrProfile
+        : effectivePlan(planOrProfile);
+    return p === 'professional' || p === 'professional2';
+  }
+
+  function hasCounselorAccess(profile) {
+    return isCounselorPlan(profile);
+  }
+
+  /** 피라미드 리듬 — 초대 전용 professional2만 (공개 요금제·Pro 미포함) */
+  function hasPyramidRhythmAccess(plan, devUnlock) {
+    if (devUnlock) return false;
+    return effectivePlan({ plan: plan }) === 'professional2';
+  }
+
+  function syncPyramidRhythmSectionVisibility(plan, devUnlock) {
+    if (typeof document === 'undefined') return;
+    var can = hasPyramidRhythmAccess(plan, devUnlock);
+    var el = document.getElementById('pyramidRhythmSection');
+    if (el) {
+      if (can) {
+        el.classList.remove('lc-product-off');
+        el.style.display = '';
+        el.removeAttribute('aria-hidden');
+      } else {
+        el.classList.add('lc-product-off');
+        el.style.display = 'none';
+        el.setAttribute('aria-hidden', 'true');
+      }
+    }
+    document.querySelectorAll('a[href="#pyramidRhythmSection"]').forEach(function (a) {
+      var row = a.closest('.lc-guide-row, li, .analysis-jump-item');
+      var target = row || a;
+      if (can) {
+        target.classList.remove('lc-product-off');
+        if (row) row.style.display = '';
+        else a.style.display = '';
+      } else {
+        target.classList.add('lc-product-off');
+        if (row) row.style.display = 'none';
+        else a.style.display = 'none';
+      }
+    });
   }
 
   /** 무료: 핵심수 카드(숫자)만 · Basic+: 아코디언·스토리·별자리 상세·48주기 */
@@ -32,7 +82,7 @@
     return hasBasicProfileDetailAccess(plan, devUnlock);
   }
 
-  /** 인생전반표·피라미드·성장지도·로슈 등 — Pro 이상 */
+  /** 인생전반표·성장지도·로슈 등 — Pro 이상 (피라미드 리듬은 professional2 전용) */
   function hasDeepAnalysisAccess(plan, devUnlock) {
     if (devUnlock) return true;
     return isPlanAtLeast({ plan: plan }, 'pro');
@@ -60,7 +110,7 @@
     '#weeklyForecastSection': 'basic',
     '#nav-major-cycle': 'basic',
     '#nav-life-four': 'basic',
-    '#pyramidRhythmSection': 'pro',
+    '#pyramidRhythmSection': 'professional2',
     '#timelineSection': 'basic',
     '#growthSection': 'pro',
     '#aiSummarySection': 'pro',
@@ -123,6 +173,7 @@
   function planKoLabel(plan) {
     if (plan === 'pro') return 'Pro';
     if (plan === 'professional') return 'Professional';
+    if (plan === 'professional2') return 'Professional2';
     return 'Basic';
   }
 
@@ -165,8 +216,14 @@
   }
 
   global.PaljaPlan = {
+    PLAN_RANKS: PLAN_RANKS,
     effectivePlan: effectivePlan,
     isPlanAtLeast: isPlanAtLeast,
+    planKoLabel: planKoLabel,
+    isCounselorPlan: isCounselorPlan,
+    hasCounselorAccess: hasCounselorAccess,
+    hasPyramidRhythmAccess: hasPyramidRhythmAccess,
+    syncPyramidRhythmSectionVisibility: syncPyramidRhythmSectionVisibility,
     hasCoreProfileAccess: hasCoreProfileAccess,
     hasBasicProfileDetailAccess: hasBasicProfileDetailAccess,
     hasDeepAnalysisAccess: hasDeepAnalysisAccess,

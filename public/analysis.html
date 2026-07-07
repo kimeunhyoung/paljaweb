@@ -3965,7 +3965,7 @@
   </div>
 
   <!-- ⑤ 피라미드 리듬 -->
-  <div class="section" style="animation-delay:.2s" id="pyramidRhythmSection">
+  <div class="section lc-product-off" style="animation-delay:.2s;display:none" id="pyramidRhythmSection" aria-hidden="true">
     <div class="section-header">
       <div class="section-line"></div>
       <span class="section-label">피라미드 리듬</span>
@@ -4523,7 +4523,7 @@ async function initAuth() {
         : dbPlan);
     // 개발 모드: Basic 이하만 Pro로 끌어올림. Professional은 상담사 기능 유지
     if (DEV_UNLOCK_PAID) {
-      const _r = { free: 0, basic: 1, pro: 2, professional: 3 };
+      const _r = { free: 0, basic: 1, pro: 2, professional: 3, professional2: 4 };
       if ((_r[USER_PLAN] ?? 0) < _r.pro) USER_PLAN = 'pro';
     }
     const badge = document.getElementById('plan-badge');
@@ -4533,8 +4533,8 @@ async function initAuth() {
     }
   }
 
-  // 상담사 고객 입력 필드 표시 (DB Professional + 이용 기간 유효)
-  if (USER_PLAN === 'professional') {
+  // 상담사 고객 입력 필드 표시 (Professional / professional2 + 이용 기간 유효)
+  if (window.PaljaPlan && PaljaPlan.hasCounselorAccess({ plan: USER_PLAN })) {
   document.getElementById('clientGroup').style.display = 'flex';
   const bar = document.getElementById('counselorBar');
   if (bar) bar.style.display = 'block';
@@ -4542,7 +4542,7 @@ async function initAuth() {
   if (cluster) cluster.classList.add('is-visible');
 }
 
-  if (dbPlan === 'professional' && USER_PLAN === 'professional') {
+  if (window.PaljaPlan && PaljaPlan.hasCounselorAccess({ plan: USER_PLAN })) {
     await loadPrefilledCounselorClient(session);
   }
 }
@@ -4605,6 +4605,13 @@ function hasDeepAnalysisAccess() {
     return window.PaljaPlan.hasDeepAnalysisAccess(USER_PLAN, DEV_UNLOCK_PAID);
   }
   return hasAccess('pro');
+}
+
+function hasPyramidRhythmAccess() {
+  if (window.PaljaPlan && typeof window.PaljaPlan.hasPyramidRhythmAccess === 'function') {
+    return window.PaljaPlan.hasPyramidRhythmAccess(USER_PLAN, DEV_UNLOCK_PAID);
+  }
+  return USER_PLAN === 'professional2';
 }
 function hasBasicYearTimelineAccess() {
   if (window.PaljaPlan && typeof window.PaljaPlan.hasBasicYearTimelineAccess === 'function') {
@@ -7126,10 +7133,10 @@ function buildReadingGuideCatalogInnerHtml() {
         lcModuleNav('#nav-life-four', '인생 4단계', 'basic'),
         `네 구간별 절정수(환경)·도전수(내적 과제) 번호 산출·표·심층 해석.`,
       )}
-      ${lcReadingGuideCatalogRow(
-        lcModuleNav('#pyramidRhythmSection', '피라미드 리듬', 'pro'),
+      ${hasPyramidRhythmAccess() ? lcReadingGuideCatalogRow(
+        lcModuleNav('#pyramidRhythmSection', '피라미드 리듬', 'professional2'),
         `전체 자릿수 합 인생여정수(표의 뒤 숫자) 기준 4단계·활동/정비 구간과 삼각형 순환 리듬.`,
-      )}
+      ) : ''}
       ${lcReadingGuideCatalogRow(
         lcModuleNav('#timelineSection', '10년 타임라인', 'basic'),
         `개인년도(Personal Year) 시퀀스. <strong>Basic</strong>은 10년 차트, <strong>Pro</strong>는 인생전반표(100년) 포함.`,
@@ -8767,7 +8774,7 @@ async function runAnalysis() {
     seqBridgeHost.innerHTML = (INTERPRETATION_TEXTS && INTERPRETATION_TEXTS.seqArrowBridgeHtml) || '';
   }
   const pyramidBridgeHost = document.getElementById('pyramidRhythmSectionBridge');
-  if (pyramidBridgeHost) {
+  if (pyramidBridgeHost && hasPyramidRhythmAccess()) {
     pyramidBridgeHost.innerHTML = (INTERPRETATION_TEXTS && INTERPRETATION_TEXTS.pyramidBridgeHtml) || '';
   }
 
@@ -8856,12 +8863,13 @@ async function runAnalysis() {
     document.getElementById('seqArrowContent').innerHTML=gateHTML('pro','풀 애로우 · 순차 격자','3·6·9 / 2·5·8 / 1·4·7 순차 격자에서 8가지 풀·빈 화살(결단력·질서·영성·실용·감정·지적·독립·창의)을 읽습니다.');
   }
 
-  // ── 11. 피라미드 리듬 (Pro+, 전체 자릿수 합 인생여정수 = lpAlt) ──
+  // ── 11. 피라미드 리듬 (professional2 초대 전용) ──
   const userAgePyramid = curY - y;
-  if (hasDeepAnalysisAccess()) {
+  if (hasPyramidRhythmAccess()) {
     document.getElementById('pyramidRhythmContent').innerHTML = renderPyramidRhythmHTML(lpAlt, userAgePyramid);
-  } else {
-    document.getElementById('pyramidRhythmContent').innerHTML = gateHTML('pro', '피라미드 리듬', '전체 자릿수 합 인생여정수 기준 출발기·발전기·충실기·완성기 4단계와 활동/정비 구간, 삼각형 순환 리듬을 안내합니다.');
+  }
+  if (window.PaljaPlan && typeof window.PaljaPlan.syncPyramidRhythmSectionVisibility === 'function') {
+    window.PaljaPlan.syncPyramidRhythmSectionVisibility(USER_PLAN, DEV_UNLOCK_PAID);
   }
 
   const pmPre = py + curM;

@@ -1023,7 +1023,7 @@
 
   function onPlanActionClick() {
     const tier = (document.querySelector('.plan-tier')?.textContent || '').toLowerCase();
-    if (tier === 'professional') {
+    if (tier === 'professional' || tier === 'professional2') {
       alert('이미 최고 플랜(Professional)을 이용 중입니다.');
       return;
     }
@@ -1138,7 +1138,17 @@
         plan !== 'free' &&
         (!profileRow?.plan_active_until || new Date(profileRow.plan_active_until) > new Date());
       const displayPlan = planActive ? plan : 'free';
-      const planLabel = displayPlan.charAt(0).toUpperCase() + displayPlan.slice(1);
+      const isCounselorPlan =
+        displayPlan === 'professional' || displayPlan === 'professional2';
+      const planLabels = {
+        pro: 'Pro',
+        professional: 'Professional',
+        professional2: 'Professional2',
+        basic: 'Basic',
+        free: 'Free',
+      };
+      const planLabel = planLabels[displayPlan] ||
+        displayPlan.charAt(0).toUpperCase() + displayPlan.slice(1);
       document.getElementById('user-plan').textContent = planLabel;
       const statPlan = document.getElementById('stat-plan-tier');
       if (statPlan) statPlan.textContent = planLabel;
@@ -1150,7 +1160,7 @@
       }
       if (tierEl) tierEl.textContent = planLabel;
       if (upgradeBtn) {
-        if (displayPlan === 'professional') {
+        if (isCounselorPlan) {
           upgradeBtn.textContent = '현재 최고 플랜 사용 중';
           upgradeBtn.disabled = true;
           upgradeBtn.style.opacity = '.7';
@@ -1162,11 +1172,12 @@
           upgradeBtn.style.cursor = '';
         }
       }
-      if (displayPlan === 'professional' && profileRow?.plan_active_until) {
+      if (isCounselorPlan && profileRow?.plan_active_until) {
         const until = new Date(profileRow.plan_active_until);
+        const planName = displayPlan === 'professional2' ? 'Professional2' : 'Professional';
         const expText = planActive
-          ? `Professional 이용 만료: ${until.toLocaleDateString('ko-KR')}`
-          : `Professional 기간이 지났습니다. 요금제에서 갱신할 수 있어요.`;
+          ? `${planName} 이용 만료: ${until.toLocaleDateString('ko-KR')}`
+          : `${planName} 기간이 지났습니다. 요금제에서 갱신할 수 있어요.`;
         if (descEl) {
           descEl.innerHTML = descEl.dataset.baseHtml + '<br><br><span style="font-size:12px;color:var(--accent)">' + expText + '</span>';
         }
@@ -1180,7 +1191,7 @@
       } else if (descEl && descEl.dataset.baseHtml) {
         descEl.innerHTML = descEl.dataset.baseHtml;
       }
-      if (displayPlan === 'professional' && planActive) {
+      if (isCounselorPlan && planActive) {
         const nl = document.getElementById('navCounselorLabel');
         const nv = document.getElementById('navCounselor');
         if (nl) nl.style.display = 'block';
