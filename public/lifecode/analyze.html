@@ -1341,7 +1341,9 @@
     }
     .tarot-life-ribbon-scroll {
       overflow-x: auto;
+      overflow-y: visible;
       -webkit-overflow-scrolling: touch;
+      padding-top: 8px;
       padding-bottom: 6px;
       margin-bottom: 10px;
     }
@@ -1350,9 +1352,11 @@
       align-items: flex-end;
       gap: 2px;
       min-width: max-content;
-      height: 72px;
-      padding: 0 2px 18px;
+      min-height: 72px;
+      height: auto;
+      padding: 4px 2px 18px;
       position: relative;
+      box-sizing: border-box;
     }
     .life-year-cell {
       width: 14px;
@@ -5660,6 +5664,12 @@ function classicTimelineBarHeight(n) {
   return Math.round((displayNum / 11) * 100) + 12;
 }
 
+/** 100년 리본용 — 컨테이너 높이에 맞게 축소 (10년 차트용 classicTimelineBarHeight와 분리) */
+function classicLifeBarHeight(n) {
+  const displayNum = n > 9 ? (n === 11 ? 8 : 9) : n;
+  return Math.round((displayNum / 9) * 40) + 8;
+}
+
 function classicYearDeepHtml(v) {
   if (TIMELINE_YEAR_DEEP_MAP && TIMELINE_YEAR_DEEP_MAP[v]) return TIMELINE_YEAR_DEEP_MAP[v];
   if (DEEP_MAP[v]) return DEEP_MAP[v];
@@ -6065,7 +6075,7 @@ function createClassicLifeYearChart(ctx) {
     const isCurrent = row.year === curY;
     const isSelected = row.year === curData.year;
     const isCycleEnd = row.num === 9;
-    const h = classicTimelineBarHeight(row.num);
+    const h = classicLifeBarHeight(row.num);
     const color = TL_COLOR[row.num] || '#8b6f47';
     const ageMark = row.age % 10 === 0 ? `<span class="life-year-age-mark">${row.age}</span>` : '';
     const cls = [
