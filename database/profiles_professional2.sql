@@ -1,4 +1,4 @@
--- Professional2: 상담사(Professional) 전체 + 피라미드 리듬 초대 전용 플랜
+-- Professional2(스페셜): 상담사(Professional) 전체 + 인생리듬 + 타로 타임라인
 -- 공개 결제·요금제 페이지 없음. Supabase에서 plan을 수동 부여합니다.
 -- professional2 = 상담사 허브·CRM·AI 120/월 + 피라미드 리듬 (Pro·일반 Professional에는 피라미드 미노출)
 

@@ -22,7 +22,7 @@
     return (PLAN_RANKS[effectivePlan(profile)] || 0) >= (PLAN_RANKS[required] || 0);
   }
 
-  /** 상담사(Professional) 또는 초대 전용 professional2(상담사+피라미드) */
+  /** 상담사(Professional) 또는 초대 전용 professional2(상담사+스페셜) */
   function isCounselorPlan(planOrProfile) {
     var p =
       typeof planOrProfile === 'string'
@@ -35,39 +35,32 @@
     return isCounselorPlan(profile);
   }
 
-  /** 피라미드 리듬 — 초대 전용 professional2만 (공개 요금제·Pro 미포함) */
-  function hasPyramidRhythmAccess(plan, devUnlock) {
+  /** 스페셜(Professional2) 초대 전용 — 인생리듬·타로 타임라인 */
+  function hasSpecialAccess(plan, devUnlock) {
     if (devUnlock) return false;
     return effectivePlan({ plan: plan }) === 'professional2';
   }
 
+  /** @deprecated use hasSpecialAccess */
+  function hasPyramidRhythmAccess(plan, devUnlock) {
+    return hasSpecialAccess(plan, devUnlock);
+  }
+
   function syncPyramidRhythmSectionVisibility(plan, devUnlock) {
     if (typeof document === 'undefined') return;
-    var can = hasPyramidRhythmAccess(plan, devUnlock);
+    var can = hasSpecialAccess(plan, devUnlock);
     var el = document.getElementById('pyramidRhythmSection');
     if (el) {
-      if (can) {
-        el.classList.remove('lc-product-off');
-        el.style.display = '';
-        el.removeAttribute('aria-hidden');
-      } else {
-        el.classList.add('lc-product-off');
-        el.style.display = 'none';
-        el.setAttribute('aria-hidden', 'true');
-      }
+      el.classList.remove('lc-product-off');
+      el.style.display = '';
+      el.removeAttribute('aria-hidden');
     }
     document.querySelectorAll('a[href="#pyramidRhythmSection"]').forEach(function (a) {
       var row = a.closest('.lc-guide-row, li, .analysis-jump-item');
       var target = row || a;
-      if (can) {
-        target.classList.remove('lc-product-off');
-        if (row) row.style.display = '';
-        else a.style.display = '';
-      } else {
-        target.classList.add('lc-product-off');
-        if (row) row.style.display = 'none';
-        else a.style.display = 'none';
-      }
+      target.classList.remove('lc-product-off');
+      if (row) row.style.display = '';
+      else a.style.display = '';
     });
   }
 
@@ -82,21 +75,26 @@
     return hasBasicProfileDetailAccess(plan, devUnlock);
   }
 
-  /** 인생전반표·성장지도·로슈 등 — Pro 이상 (피라미드 리듬은 professional2 전용) */
+  /** 인생전반표(수비학)·성장지도·로슈 등 — Pro 이상 · 인생리듬·타로 타임라인은 스페셜+ */
   function hasDeepAnalysisAccess(plan, devUnlock) {
     if (devUnlock) return true;
     return isPlanAtLeast({ plan: plan }, 'pro');
   }
 
-  /** Basic+: 10년 차트(수비학·타로) · Pro+: 인생전반표(0~100세) */
+  /** Basic+: 수비학 10년 차트 · Pro+: 수비학 인생전반표(0~100세) · 타로는 스페셜+ */
   function hasBasicYearTimelineAccess(plan, devUnlock) {
     if (devUnlock) return true;
     return isPlanAtLeast({ plan: plan }, 'basic');
   }
 
-  /** 인생전반표(0~100세) — Pro 이상 */
+  /** 수비학 인생전반표(0~100세) — Pro 이상 */
   function hasFullTimelineAccess(plan, devUnlock) {
     return hasDeepAnalysisAccess(plan, devUnlock);
+  }
+
+  /** 타로 10년·100년 타임라인 — 스페셜(Professional2) 이상 */
+  function hasTarotTimelineAccess(plan, devUnlock) {
+    return hasSpecialAccess(plan, devUnlock);
   }
 
   /** 분석 모듈 최소 플랜 (목차 배지용) */
@@ -110,7 +108,7 @@
     '#weeklyForecastSection': 'basic',
     '#nav-major-cycle': 'basic',
     '#nav-life-four': 'basic',
-    '#pyramidRhythmSection': 'professional2',
+    '#pyramidRhythmSection': 'special',
     '#timelineSection': 'basic',
     '#growthSection': 'pro',
     '#aiSummarySection': 'pro',
@@ -125,14 +123,20 @@
 
   function tierBadgeHtml(tier) {
     if (tier === 'free') return '';
-    var labels = { basic: 'B', pro: 'P' };
-    var titles = { basic: 'Basic', pro: 'Pro' };
-    var t = labels[tier] ? tier : 'pro';
-    var label = labels[t] || 'P';
-    var title = (titles[t] || 'Pro') + ' 플랜';
+    var labels = { basic: 'B', pro: 'P', special: 'S', professional2: 'S' };
+    var titles = {
+      basic: 'Basic',
+      pro: 'Pro',
+      special: 'S: 스페셜 이상',
+      professional2: 'S: 스페셜 이상',
+    };
+    var t = tier === 'professional2' ? 'special' : labels[tier] ? tier : 'pro';
+    var css = t === 'professional2' ? 'special' : t;
+    var label = labels[tier] || labels[t] || 'P';
+    var title = titles[tier] || titles[t] || 'Pro 플랜';
     return (
       '<span class="lc-guide-tier-badge lc-guide-tier-badge--' +
-      t +
+      css +
       '" title="' +
       title +
       '">' +
@@ -149,7 +153,8 @@
     return (
       '<p class="lc-guide-tier-legend">' +
       '<span class="lc-guide-tier-badge lc-guide-tier-badge--basic" title="Basic 플랜">B</span> 베이직 이상 · ' +
-      '<span class="lc-guide-tier-badge lc-guide-tier-badge--pro" title="Pro 플랜">P</span> 프로 이상' +
+      '<span class="lc-guide-tier-badge lc-guide-tier-badge--pro" title="Pro 플랜">P</span> 프로 이상 · ' +
+      '<span class="lc-guide-tier-badge lc-guide-tier-badge--special" title="S: 스페셜 이상">S</span> 스페셜 이상' +
       '</p>'
     );
   }
@@ -222,6 +227,7 @@
     planKoLabel: planKoLabel,
     isCounselorPlan: isCounselorPlan,
     hasCounselorAccess: hasCounselorAccess,
+    hasSpecialAccess: hasSpecialAccess,
     hasPyramidRhythmAccess: hasPyramidRhythmAccess,
     syncPyramidRhythmSectionVisibility: syncPyramidRhythmSectionVisibility,
     hasCoreProfileAccess: hasCoreProfileAccess,
@@ -229,6 +235,7 @@
     hasDeepAnalysisAccess: hasDeepAnalysisAccess,
     hasBasicYearTimelineAccess: hasBasicYearTimelineAccess,
     hasFullTimelineAccess: hasFullTimelineAccess,
+    hasTarotTimelineAccess: hasTarotTimelineAccess,
     moduleMinTier: moduleMinTier,
     tierBadgeHtml: tierBadgeHtml,
     tierBadgeForHref: tierBadgeForHref,

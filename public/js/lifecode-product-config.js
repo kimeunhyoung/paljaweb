@@ -18,7 +18,7 @@ export const LIFECODE_PRODUCT = {
 
   readingGuideKicker: '라이프코드 단품에 포함된 모듈입니다.',
   readingGuideFootnote:
-    '제목 옆 <strong>B</strong>·<strong>P</strong>는 Basic·Pro 전용 모듈입니다.',
+    '제목 옆 <strong>B</strong>·<strong>P</strong>·<strong>S</strong>는 Basic·Pro·스페셜 이상 전용 모듈입니다. 스페셜 = Professional2 초대 플랜.',
 
   pdfFilenamePrefix: '라이프코드',
 
@@ -49,11 +49,13 @@ export const LIFECODE_PRODUCT = {
     { href: '#nav-life-four', title: '인생 4단계', tier: 'basic', desc: '절정수·도전수 네 구간.' },
     {
       href: '#pyramidRhythmSection',
-      title: '피라미드 리듬',
-      tier: 'professional2',
-      desc: '전체 자릿수 합 인생여정수(표의 뒤 숫자) 기준 4단계·활동/정비 구간과 삼각형 순환 리듬.',
+      title: '인생리듬',
+      tier: 'special',
+      desc: '인생여정수 기준 4단계·활동/정비 구간과 36년 순환 리듬.',
     },
-    { href: '#timelineSection', title: '10년 타임라인', tier: 'basic', desc: '수비학·타로 10년 차트. 인생전반표(0~100세)는 Pro.' },
+    { href: '#timelineSection', title: '10년 타임라인 · 수비학', tier: 'basic', desc: '수비학 개인연도 10년. 100년 인생전반표는 Pro.' },
+    { href: '#tlBlockTarot', title: '타로 올해의 수 (10년)', tier: 'special', desc: '연도 자릿수합+문 넘버 타로 10년 차트.' },
+    { href: '#tlBlockLife', title: '타로 인생 전반 (100년)', tier: 'special', desc: '0~99세 타로 올해의 수 리본·표.' },
     { href: '#monthlySection', title: '월간 흐름', tier: 'basic', desc: '선택 연도의 월별 리듬.' },
     { href: '#nav-flow', title: '지금의 흐름', tier: 'basic', desc: '수비학 개인연도·타로 올해의 수, 이번 달·오늘.' },
     {
@@ -143,15 +145,17 @@ export function buildLifecodeProductReadingGuideInner() {
   const modules = (isFullTier ? LIFECODE_PRODUCT.guideModules : LIFECODE_PRODUCT.guideModules.filter((m) => allowed.has(m.href)))
     .filter((m) => {
       if (m.href !== '#pyramidRhythmSection') return true;
-      return typeof window !== 'undefined' && window.PaljaPlan?.hasPyramidRhythmAccess?.(plan, false);
+      return typeof window !== 'undefined' && window.PaljaPlan?.hasSpecialAccess?.(plan, false);
     });
   const badge = (tier) => {
     const g = typeof window !== 'undefined' ? window.PaljaPlan : null;
     if (g && g.tierBadgeHtml) return g.tierBadgeHtml(tier);
     if (tier === 'free') return '';
-    const labels = { basic: 'B', pro: 'P' };
-    const t = labels[tier] ? tier : 'pro';
-    return `<span class="lc-guide-tier-badge lc-guide-tier-badge--${t}" title="${t === 'basic' ? 'Basic' : 'Pro'} 플랜">${labels[t] || 'P'}</span>`;
+    const labels = { basic: 'B', pro: 'P', special: 'S' };
+    const t = tier === 'professional2' ? 'special' : (labels[tier] ? tier : 'pro');
+    const css = t === 'professional2' ? 'special' : t;
+    const title = t === 'special' ? 'S: 스페셜 이상' : (t === 'basic' ? 'Basic' : 'Pro');
+    return `<span class="lc-guide-tier-badge lc-guide-tier-badge--${css}" title="${title} 플랜">${labels[tier] || labels[t] || 'P'}</span>`;
   };
   const legend =
     typeof window !== 'undefined' && window.PaljaPlan && window.PaljaPlan.tierLegendHtml
