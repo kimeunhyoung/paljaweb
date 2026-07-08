@@ -28,7 +28,7 @@
 <body>
   <div class="wrap">
     <h1>AI 월 크레딧 관리자</h1>
-    <p class="sub">사용자별 <strong>used(사용량)</strong>를 증감합니다. 값이 작아질수록 남은 크레딧이 늘어납니다.</p>
+    <p class="sub">사용자별 <strong>used(사용량)</strong>를 증감합니다. used가 줄면 <strong>remaining(남은 크레딧)</strong>이 늘어납니다.</p>
     <div class="toolbar">
       <label>기간(YYYY-MM) <input id="period" placeholder="2026-07" /></label>
       <label>검색(이메일/이름) <input id="q" placeholder="user@example.com" /></label>
@@ -43,7 +43,9 @@
           <th>이메일</th>
           <th>이름</th>
           <th>플랜</th>
-          <th>현재 used</th>
+          <th>한도</th>
+          <th>used</th>
+          <th>remaining</th>
           <th>조정</th>
         </tr>
       </thead>
@@ -87,11 +89,13 @@
 
       function rowHtml(u) {
         return `
-          <tr data-id="${u.userId}" data-used="${u.used}">
+          <tr data-id="${u.userId}" data-used="${u.used}" data-limit="${u.limit ?? 0}">
             <td class="mono">${u.email || '-'}</td>
             <td>${u.fullName || '-'}</td>
             <td>${u.plan || 'free'}</td>
+            <td class="limit">${u.limit ?? 0}</td>
             <td class="used">${u.used}</td>
+            <td class="remaining">${u.remaining ?? 0}</td>
             <td>
               <div class="row-actions">
                 <button type="button" data-delta="-10">-10</button>
@@ -107,7 +111,7 @@
       }
 
       async function loadUsers() {
-        rowsEl.innerHTML = '<tr><td colspan="5">불러오는 중...</td></tr>';
+        rowsEl.innerHTML = '<tr><td colspan="7">불러오는 중...</td></tr>';
         msgEl.style.display = 'none';
         try {
           const token = await getToken();
@@ -118,10 +122,10 @@
           });
           const j = await res.json().catch(() => ({}));
           if (!res.ok) throw new Error(j.error || '목록 조회 실패');
-          rowsEl.innerHTML = (j.users || []).map(rowHtml).join('') || '<tr><td colspan="5">사용자가 없습니다.</td></tr>';
+          rowsEl.innerHTML = (j.users || []).map(rowHtml).join('') || '<tr><td colspan="7">사용자가 없습니다.</td></tr>';
           countLine.textContent = `기간 ${j.period} · ${j.count}명`;
         } catch (e) {
-          rowsEl.innerHTML = '<tr><td colspan="5">불러오지 못했습니다.</td></tr>';
+          rowsEl.innerHTML = '<tr><td colspan="7">불러오지 못했습니다.</td></tr>';
           showMsg(e.message || '오류가 발생했습니다.', false);
         }
       }
@@ -144,7 +148,15 @@
           if (!res.ok) throw new Error(j.error || '조정 실패');
           row.querySelector('.used').textContent = j.nextUsed;
           row.setAttribute('data-used', String(j.nextUsed));
-          showMsg(`조정 완료: ${userId} (${j.previousUsed} -> ${j.nextUsed}, delta ${delta > 0 ? '+' : ''}${delta})`, true);
+          if (j.limit != null) {
+            row.querySelector('.limit').textContent = j.limit;
+            row.setAttribute('data-limit', String(j.limit));
+          }
+          const remaining = j.remaining != null
+            ? j.remaining
+            : Math.max(0, Number(row.getAttribute('data-limit') || 0) - j.nextUsed);
+          row.querySelector('.remaining').textContent = remaining;
+          showMsg(`조정 완료: ${userId} (used ${j.previousUsed} → ${j.nextUsed}, remaining ${remaining}, delta ${delta > 0 ? '+' : ''}${delta})`, true);
         } catch (e) {
           showMsg(e.message || '조정 실패', false);
         }

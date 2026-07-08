@@ -8,7 +8,8 @@ const { registerLifecodeRoutes } = require('./lib/lifecode-api');
 const { registerNaverAuthRoutes } = require('./lib/naver-auth');
 const { registerCounselorPushRoutes, startCounselorPushScheduler } = require('./lib/counselor-push');
 const { registerCounselorTrialRoutes } = require('./lib/counselor-trial');
-const { registerAiUsageRoutes, isAiUpstreamAvailable, kstPeriod } = require('./lib/ai-usage');
+const { registerAiUsageRoutes, isAiUpstreamAvailable, kstPeriod, aiCreditLimit } = require('./lib/ai-usage');
+const { registerSignupNotifyRoutes } = require('./lib/signup-notify');
 
 const app = express();
 
@@ -207,7 +208,7 @@ async function listProfilesBasic() {
   const base = process.env.SUPABASE_URL?.replace(/\/$/, '');
   const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
   if (!base || !key) return [];
-  const url = `${base}/rest/v1/profiles?select=id,full_name,plan,plan_active_until`;
+  const url = `${base}/rest/v1/profiles?select=id,full_name,plan,plan_active_until,counselor_trial_license_id`;
   const res = await fetch(url, { headers: supabaseHeaders(key) });
   if (!res.ok) return [];
   const rows = await res.json();
@@ -600,13 +601,17 @@ app.get('/api/admin/ai-credits/users', async (req, res) => {
     const emailByUser = new Map(authUsers.map((u) => [u.id, (u.email || '').toLowerCase()]));
     const merged = profiles.map((p) => {
       const email = emailByUser.get(p.id) || '';
+      const used = usageByUser.get(p.id) || 0;
+      const limit = aiCreditLimit(p);
       return {
         userId: p.id,
         email,
         fullName: p.full_name || '',
         plan: p.plan || 'free',
         planActiveUntil: p.plan_active_until || null,
-        used: usageByUser.get(p.id) || 0,
+        used,
+        limit,
+        remaining: Math.max(0, limit - used),
       };
     });
     const filtered = q
@@ -644,6 +649,8 @@ app.post('/api/admin/ai-credits/adjust', async (req, res) => {
     const prev = await getAiMonthlyUsed(userId, period);
     const next = Math.max(0, prev + delta);
     const saved = await upsertAiMonthlyUsed(userId, period, next);
+    const profile = await getProfile(userId);
+    const limit = aiCreditLimit(profile || {});
     res.json({
       ok: true,
       userId,
@@ -651,6 +658,8 @@ app.post('/api/admin/ai-credits/adjust', async (req, res) => {
       previousUsed: prev,
       delta,
       nextUsed: saved,
+      limit,
+      remaining: Math.max(0, limit - saved),
       adjustedBy: admin.email,
     });
   } catch (e) {
@@ -694,6 +703,7 @@ registerPortOneRoutes(app, planBilling, getUserIdFromAuth, checkoutStore);
 
 registerLifecodeRoutes(app, { portoneConfigured, portonePublicConfig, portoneOneTimePublicConfig });
 registerNaverAuthRoutes(app);
+registerSignupNotifyRoutes(app);
 registerCounselorPushRoutes(app, getUserIdFromAuth);
 registerCounselorTrialRoutes(app, { getUserIdFromAuth, getProfile, patchProfileFields });
 

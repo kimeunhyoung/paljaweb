@@ -1,0 +1,25 @@
+-- ============================================================
+-- 신규 회원가입 관리자 알림 — Supabase Database Webhook 설정
+-- (SQL 실행 불필요. Dashboard에서 웹훅만 등록하면 됩니다.)
+-- ============================================================
+--
+-- 1) Render 환경변수 설정
+--    SIGNUP_WEBHOOK_SECRET        = 임의의 긴 문자열 (예: openssl rand -hex 32)
+--    SIGNUP_NOTIFY_WEBHOOK_URL    = Discord 또는 Slack Incoming Webhook URL
+--      (또는 Telegram: SIGNUP_NOTIFY_TELEGRAM_BOT_TOKEN + SIGNUP_NOTIFY_TELEGRAM_CHAT_ID)
+--
+-- 2) Supabase Dashboard → Database → Webhooks → Create a new hook
+--    Name        : signup-notify
+--    Table       : profiles
+--    Events      : INSERT
+--    Type        : HTTP Request
+--    Method      : POST
+--    URL         : https://8code.kr/api/webhooks/signup
+--    HTTP Headers:
+--      Content-Type: application/json
+--      Authorization: Bearer <SIGNUP_WEBHOOK_SECRET과 동일>
+--
+-- 3) 저장 후 테스트: 테스트 계정으로 회원가입 → Discord/Slack/Telegram 알림 확인
+--
+-- profiles 행은 auth.users INSERT 트리거(handle_new_user)로 자동 생성됩니다.
+-- 이메일·OAuth·네이버 가입 모두 동일하게 알림이 갑니다.
