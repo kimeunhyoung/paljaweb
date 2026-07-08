@@ -33,11 +33,12 @@
 --   Dashboard → Database → Webhooks → Create hook
 --   Table   : profiles
 --   Events  : INSERT
---   URL     : https://8code.kr/api/webhooks/signup
+--   URL     : https://8code.kr/api/webhooks/signup?secret=<SIGNUP_WEBHOOK_SECRET>
 --   Method  : POST
 --   Headers :
 --     Content-Type: application/json
---     Authorization: Bearer <SIGNUP_WEBHOOK_SECRET>
+--   ※ Supabase Database Webhook은 커스텀 Authorization/x-signup-secret 헤더가
+--     서버까지 전달되지 않는 경우가 많아 URL 쿼리 secret 방식을 사용합니다.
 --
 -- ── 4) 테스트 ──
 --   테스트 계정으로 가입 → Telegram 또는 본인 메일 수신 확인
