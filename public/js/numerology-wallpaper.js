@@ -56,12 +56,12 @@ const NAME_MODES = new Set(["name_missing", "destiny", "soul", "personality"]);
 
 const LAYOUT = {
   phone: {
-    titleY: 0.16, modeY: 0.19, numY: 0.44, keyY: 0.58, subY: 0.62, lineY: 0.66,
-    extrasY: 0.73, ctxY: 0.78, disclaimerY: 0.9, brandY: 0.935, numSize: 520, gridY: 0.72, gridCell: 96,
+    titleY: 0.16, modeY: 0.19, numY: 0.42, keyY: 0.61, subY: 0.65, lineY: 0.695,
+    disclaimerY: 0.9, brandY: 0.935, numSize: 460, gridY: 0.72, gridCell: 96,
   },
   square: {
-    titleY: 0.1, modeY: 0.13, numY: 0.4, keyY: 0.58, subY: 0.62, lineY: 0.66,
-    extrasY: 0.72, ctxY: 0.76, disclaimerY: 0.88, brandY: 0.93, numSize: 360, gridY: 0.78, gridCell: 72,
+    titleY: 0.1, modeY: 0.13, numY: 0.38, keyY: 0.61, subY: 0.65, lineY: 0.70,
+    disclaimerY: 0.88, brandY: 0.93, numSize: 320, gridY: 0.78, gridCell: 72,
   },
 };
 
@@ -458,6 +458,9 @@ function updateMeta(resolved) {
   const nameMissingText = resolved.nameMissing?.length
     ? resolved.nameMissing.map((n) => `${n}(${NUMBER_META[n].key})`).join(" · ")
     : resolved.nameNums ? "없음" : "—";
+  const extrasText = resolved.extras?.length
+    ? resolved.extras.map((n) => `${n}(${NUMBER_META[n].key})`).join(" · ")
+    : "";
 
   let nameCard = "";
   if (resolved.nameNums) {
@@ -475,6 +478,7 @@ function updateMeta(resolved) {
       <div class="meta-label">선택된 에너지</div>
       <div class="meta-value">${resolved.primary} <span class="meta-key">${meta.key}</span></div>
       <p class="meta-line">${meta.line}</p>
+      ${extrasText ? `<p class="meta-note">함께 채울 숫자: ${extrasText}</p>` : ""}
     </div>
     <div class="meta-card meta-card--soft">
       <div class="meta-label">로슈 빈 칸 (생일)</div>
@@ -583,18 +587,6 @@ function drawWallpaper(canvas, resolved) {
     ctx, meta.line, W / 2, H * layout.lineY, W * 0.72, state.aspect === "square" ? 38 : 46,
     `400 ${state.aspect === "square" ? 28 : 32}px "Noto Sans KR", sans-serif`, "#ffffffbb",
   );
-
-  if (resolved.extras.length) {
-    const chips = resolved.extras.map((n) => `${n}`).join("  ·  ");
-    ctx.fillStyle = `${theme.accent}aa`;
-    ctx.font = `400 ${state.aspect === "square" ? 22 : 26}px "Noto Sans KR", sans-serif`;
-    ctx.fillText(`함께 채울 숫자  ${chips}`, W / 2, H * layout.extrasY);
-  }
-
-  ctx.fillStyle = `${theme.accent}88`;
-  ctx.font = `400 ${state.aspect === "square" ? 20 : 24}px "Noto Sans KR", sans-serif`;
-  ctx.textAlign = "center";
-  ctx.fillText(resolved.context, W / 2, H * layout.ctxY);
 
   ctx.fillStyle = "#ffffff66";
   ctx.font = '400 22px "Noto Sans KR", sans-serif';
