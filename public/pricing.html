@@ -502,6 +502,26 @@
       opacity: .5;
       cursor: not-allowed;
     }
+    .professional-actions {
+      margin-top: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .professional-actions .plan-btn {
+      margin-top: 0;
+    }
+    .plan-sub-link {
+      display: block;
+      text-align: center;
+      font-size: 12px;
+      color: var(--warm-brown);
+      text-decoration: underline;
+      text-underline-offset: 2px;
+    }
+    .plan-sub-link:hover {
+      color: var(--deep-brown);
+    }
 
     /* ── COMPARE TABLE ── */
     .compare-section {
@@ -973,8 +993,10 @@
         <li class="no"><div class="feature-x">×</div>인생리듬</li>
         <li><div class="feature-check">✓</div>월 AI 크레딧 <strong>120회</strong></li>
       </ul>
-      <button class="plan-btn plan-btn-dark" onclick="handleSubscribe('professional')">시작하기</button>
-      <a href="for-counselors.html" class="plan-btn plan-btn-outline" style="margin-top:10px;display:block;text-align:center;text-decoration:none;">상담사 기능 자세히 보기 →</a>
+      <div class="professional-actions">
+        <a href="for-counselors.html" class="plan-sub-link">상담사 기능 자세히 보기 →</a>
+        <button class="plan-btn plan-btn-dark" onclick="handleSubscribe('professional')">시작하기</button>
+      </div>
     </div>
 
     <!-- SPECIAL -->
