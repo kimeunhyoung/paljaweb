@@ -1,4 +1,4 @@
--- Supabase SQL Editor — profiles.plan 에 스페셜(special) 등급 허용
+-- Supabase SQL Editor — profiles.plan 에 Private(special) 등급 허용
 -- professional2 는 하위 호환 별칭 (코드에서 special 로 읽음)
 
 -- 기존 제약이 있으면 제거 (이름이 다를 수 있어 information_schema 로도 확인 가능)
@@ -14,9 +14,9 @@ alter table public.profiles
   check (plan in ('free', 'basic', 'pro', 'professional', 'special'));
 
 comment on column public.profiles.plan is
-  'free | basic | pro | professional | special(스페셜·수동부여·인생리듬·타로 타임라인·상담사허브)';
+  'free | basic | pro | professional | special(Private·수동부여·인생리듬·타로 타임라인·상담사허브)';
 
--- 예: 스페셜 부여
+-- 예: Private 부여
 -- update public.profiles
 -- set
 --   plan = 'special',

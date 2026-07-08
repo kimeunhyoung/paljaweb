@@ -77,7 +77,7 @@ new_top = """<!-- 라이프코드 단품 상단 -->
       <button type="button" class="counselor-bar-btn" id="topbarPdfBtn" onclick="topbarPdfClick()">⬇ PDF</button>
     </div>
     <a class="lc-product-link" href="counselor.html">상담사 허브</a>
-    <span class="plan-badge free" id="plan-badge" hidden aria-hidden="true">Pro</span>
+    <span class="plan-badge free" id="plan-badge" hidden aria-hidden="true">Plus</span>
   </div>
 </header>
 </div>"""

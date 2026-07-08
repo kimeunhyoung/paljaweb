@@ -1416,16 +1416,17 @@ function showToast(msg) {
 }
 
 async function handleSubscribe(plan) {
+  const checkoutPlan = plan === 'plus' ? 'pro' : plan;
   const { data: { session } } = await sb.auth.getSession();
 
   if (!session) {
-    const checkoutNext = `checkout.html?plan=${plan}&cycle=monthly`;
+    const checkoutNext = `checkout.html?plan=${checkoutPlan}&cycle=monthly`;
     window.location.href = `login.html?next=${encodeURIComponent(checkoutNext)}`;
     return;
   }
 
-  if (plan === 'professional' || plan === 'basic' || plan === 'pro') {
-    window.location.href = `checkout.html?plan=${plan}&cycle=monthly`;
+  if (checkoutPlan === 'professional' || checkoutPlan === 'basic' || checkoutPlan === 'pro') {
+    window.location.href = `checkout.html?plan=${checkoutPlan}&cycle=monthly`;
     return;
   }
 

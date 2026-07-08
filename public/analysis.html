@@ -3993,7 +3993,7 @@
       <div class="section-line"></div>
     </div>
     <div class="timeline-bridge">
-      <p>아래 <strong>수비학</strong>과 <strong>타로</strong>로 앞으로 10년을 봅니다. 막대·연도 카드를 누르면 그 해 해석이 펼쳐집니다. <strong>Pro</strong>에서는 수비학 <strong>인생 전반(100년)</strong> 표가, <strong>스페셜</strong>에서는 타로 10년·100년과 인생리듬이 열립니다.</p>
+      <p>아래 <strong>수비학</strong>과 <strong>타로</strong>로 앞으로 10년을 봅니다. 막대·연도 카드를 누르면 그 해 해석이 펼쳐집니다. <strong>Plus</strong>에서는 수비학 <strong>인생 전반(100년)</strong> 표가, <strong>Private</strong>에서는 타로 10년·100년과 인생리듬이 열립니다.</p>
       <p><strong>수비학 개인연도</strong> — 연·월·일을 각각 환원(1~9, 11, 22)한 뒤 더합니다. 9년 주기의 완성·새 출발을 읽습니다.</p>
       <p><strong>타로 올해의 수</strong> — 연도 자릿수합+문 넘버(전합)을 더해 메이저 아르카나 0~21로 읽습니다. 현재 흐름의 올해의 수와 같습니다.</p>
     </div>
@@ -4544,7 +4544,7 @@ async function initAuth() {
     }
   }
 
-  // 상담사 고객 입력 필드 표시 (Professional / 스페셜 + 이용 기간 유효)
+  // 상담사 고객 입력 필드 표시 (Professional / Private + 이용 기간 유효)
   if (window.PaljaPlan && PaljaPlan.hasCounselorAccess({ plan: USER_PLAN })) {
   document.getElementById('clientGroup').style.display = 'flex';
   const bar = document.getElementById('counselorBar');
@@ -4622,7 +4622,7 @@ function hasSpecialAccess() {
   if (window.PaljaPlan && typeof window.PaljaPlan.hasSpecialAccess === 'function') {
     return window.PaljaPlan.hasSpecialAccess(USER_PLAN, DEV_UNLOCK_PAID);
   }
-  return USER_PLAN === 'special' || USER_PLAN === 'professional2';
+  return USER_PLAN === 'special' || USER_PLAN === 'private' || USER_PLAN === 'professional2';
 }
 
 function hasPyramidRhythmAccess() {
@@ -4649,12 +4649,12 @@ function hasFullTimelineAccess() {
 }
 
 function gateHTML(planRequired, title, desc) {
-  const labels = { basic: 'Basic', pro: 'Pro', special: '스페셜', professional: 'Professional' };
+  const labels = { basic: 'Basic', pro: 'Plus', special: 'Private', professional: 'Professional' };
   if (planRequired === 'special') {
     return `<div class="feature-gate">
     <div class="gate-icon">🔒</div>
     <div class="gate-title">${title}</div>
-    <div class="gate-desc">${desc}<br><br><strong>스페셜</strong> 플랜 전용입니다. 결제하는 <strong>Professional(상담사)</strong> 플랜과는 별개예요.</div>
+    <div class="gate-desc">${desc}<br><br><strong>Private</strong> 플랜 전용입니다. 결제하는 <strong>Professional(상담사)</strong> 플랜과는 별개예요.</div>
   </div>`;
   }
   // 구독 부담을 줄이기 위한 건별(1회) 이용권 대안 — 잠금 등급에 맞는 단품 연결
@@ -4996,17 +4996,17 @@ function pdfSplitCaptureRoots(el, maxCssPx, depth) {
 /** 무료/베이직 사용자가 PDF 저장 버튼을 눌렀을 때 업그레이드 유도 */
 function promptPdfUpgrade() {
   if (CURRENT_USER_ID === 'guest') {
-    if (confirm('PDF 저장은 Pro 플랜 기능이에요. 로그인 후 요금제를 확인하시겠어요?')) {
+    if (confirm('PDF 저장은 Plus 플랜 기능이에요. 로그인 후 요금제를 확인하시겠어요?')) {
       location.href = 'login.html?next=pricing.html';
     }
     return;
   }
-  if (confirm('PDF 저장·인쇄는 Pro 플랜부터 이용할 수 있어요. 요금제를 확인하시겠어요?')) {
+  if (confirm('PDF 저장·인쇄는 Plus 플랜부터 이용할 수 있어요. 요금제를 확인하시겠어요?')) {
     location.href = 'pricing.html';
   }
 }
 
-/** Pro+ · 분석 결과 영역을 PDF로 저장 (브라우저 클라이언트 생성) · hiddenIds 지정 시 해당 항목 제외 */
+/** Plus+ · 분석 결과 영역을 PDF로 저장 (브라우저 클라이언트 생성) · hiddenIds 지정 시 해당 항목 제외 */
 async function downloadAnalysisPdf(hiddenIds) {
   if (typeof html2pdf === 'undefined') {
     alert('PDF 도구를 불러오지 못했습니다. 네트워크를 확인한 뒤 새로고침해 주세요.');
@@ -6267,7 +6267,7 @@ function createTenYearTimeline(mode, ctx, options) {
     ? `<div class="timeline-wrap timeline-wrap--preview" data-timeline-mode="${mode}">
     <div class="current-year-banner"><strong>${curY}년</strong> · ${getKw(curYData.num)} · ${getDesc(curYData.num)}</div>
     <div class="timeline-detail">${buildDetail(curYData)}</div>
-    <p class="timeline-preview-note">인생전반표(100년)는 <strong>Pro</strong> 플랜에서 열립니다.</p>
+    <p class="timeline-preview-note">인생전반표(100년)는 <strong>Plus</strong> 플랜에서 열립니다.</p>
   </div>`
     : `<div class="timeline-wrap" data-timeline-mode="${mode}">
     <div class="current-year-banner"><strong>${curY}년</strong> · ${getKw(curYData.num)} · ${getDesc(curYData.num)}</div>
@@ -7251,7 +7251,7 @@ function lcGuideTierPrefix(required) {
   if (required === 'basic' && hasAccess('basic')) return '';
   if (required === 'special' && hasSpecialAccess()) return '';
   const label = required === 'pro' ? 'P' : (required === 'special' ? 'S' : 'B');
-  const title = required === 'pro' ? 'Pro·Professional' : (required === 'special' ? '스페셜' : 'Basic');
+  const title = required === 'pro' ? 'Plus·Professional' : (required === 'special' ? 'Private' : 'Basic');
   return `<strong class="lc-guide-tier-needed" title="${title} 필요">${label} 필요</strong> · `;
 }
 
@@ -7297,7 +7297,7 @@ function buildReadingGuideCatalogInnerHtml() {
       )}
       ${lcReadingGuideCatalogRow(
         lcModuleNav('#timelineSection', '10년 타임라인 · 수비학', 'basic'),
-        `수비학 개인연도 10년 차트. <strong>Pro·Professional</strong>은 수비학 인생전반표(100년) 포함.`,
+        `수비학 개인연도 10년 차트. <strong>Plus·Professional</strong>은 수비학 인생전반표(100년) 포함.`,
       )}
       ${lcReadingGuideCatalogRow(
         lcModuleNav('#tlBlockTarot', '10년 타임라인 · 타로', 'special'),
@@ -8510,7 +8510,7 @@ async function runAnalysis() {
     }, { includeDetail: coreDetail });
   }
 
-  // ── 2. AI 종합 요약 (Pro+) — 기본 비노출, ?ai=on 일 때만
+  // ── 2. AI 종합 요약 (Plus+) — 기본 비노출, ?ai=on 일 때만
   if (window.PaljaAnalysisAi && PaljaAnalysisAi.publicAiSectionsEnabled()) {
   const aiServerOn = !isAIRequestDisabled() && (await fetchAiAvailable());
   if(hasDeepAnalysisAccess()) {
@@ -8673,7 +8673,7 @@ async function runAnalysis() {
     }
   }
 
-  // ── 4. AI 오늘의 메시지 (Pro+) — 기본 비노출, ?ai=on 일 때만
+  // ── 4. AI 오늘의 메시지 (Plus+) — 기본 비노출, ?ai=on 일 때만
   if (window.PaljaAnalysisAi && PaljaAnalysisAi.publicAiSectionsEnabled()) {
   const aiServerOnToday = !isAIRequestDisabled() && (await fetchAiAvailable());
   if(hasAccess('pro')) {
@@ -8696,7 +8696,7 @@ async function runAnalysis() {
   }
   }
 
-  // ── 5. 10년 타임라인 (Basic: 10년 차트 · Pro: 인생전반표) ──
+  // ── 5. 10년 타임라인 (Basic: 10년 차트 · Plus: 인생전반표) ──
   const tlCtx = { curY, mnPre, m, d, mr_r, dr_r, yr_r, lp, y };
   if (hasBasicYearTimelineAccess()) {
     const classicTL = createTenYearTimeline('classic', tlCtx);
@@ -8708,13 +8708,13 @@ async function runAnalysis() {
           const classicLife = createClassicLifeYearChart({ y, mr_r, dr_r, curY });
           return { html: classicLife.html, bind: () => classicLife.bind(document.getElementById('classicLifeChart')) };
         })()
-      : { html: '<div class="timeline-life-gate"><p class="timeline-life-gate-note">수비학 인생전반표(100년)는 <strong>Pro</strong> 플랜에서 열립니다.</p></div>', bind: () => {} };
+      : { html: '<div class="timeline-life-gate"><p class="timeline-life-gate-note">수비학 인생전반표(100년)는 <strong>Plus</strong> 플랜에서 열립니다.</p></div>', bind: () => {} };
     const tarotLifeBlock = hasTarotTimelineAccess()
       ? (() => {
           const tarotLife = createTarotLifeYearChart({ y, mnPre, curY });
           return { html: tarotLife.html, bind: () => tarotLife.bind(document.getElementById('tarotLifeChart')) };
         })()
-      : { html: '<div class="timeline-life-gate"><p class="timeline-life-gate-note">타로 인생전반표(100년)는 <strong>스페셜</strong> 플랜에서 열립니다.</p></div>', bind: () => {} };
+      : { html: '<div class="timeline-life-gate"><p class="timeline-life-gate-note">타로 인생전반표(100년)는 <strong>Private</strong> 플랜에서 열립니다.</p></div>', bind: () => {} };
     document.getElementById('timelineContent').innerHTML = `<div class="timeline-dual">
       <section class="timeline-block" id="tlBlockClassic">
         <h3 class="timeline-block-title">수비학 개인연도</h3>
@@ -8724,7 +8724,7 @@ async function runAnalysis() {
       </section>
       <section class="timeline-block" id="tlBlockTarot">
         <h3 class="timeline-block-title">10년 타임라인 · 타로 ${lcTierBadge('special')}</h3>
-        <p class="timeline-block-bridge">연도 자릿수합+문 넘버(전합)을 더해 메이저 아르카나 0~21로 읽습니다. 아래 <strong>현재 흐름</strong>의 올해의 수와 같으며, 스페셜에서는 100년 인생전반표가 이어집니다.</p>
+        <p class="timeline-block-bridge">연도 자릿수합+문 넘버(전합)을 더해 메이저 아르카나 0~21로 읽습니다. 아래 <strong>현재 흐름</strong>의 올해의 수와 같으며, Private에서는 100년 인생전반표가 이어집니다.</p>
         ${tarotTL.html}
         ${tarotLifeBlock.html}
       </section>
@@ -8847,7 +8847,7 @@ async function runAnalysis() {
       gateHTML('basic', '인생 4단계 요약', '절정수·도전수 네 구간별 해석을 확인할 수 있습니다.');
   }
 
-  // ── 9. 성장 지도 (Pro+) ──
+  // ── 9. 성장 지도 (Plus+) ──
   if(hasDeepAnalysisAccess()) {
     const birthDigits = new Set((String(y)+String(m)+String(d)).split('').map(Number).filter(n=>n!==0));
     const karmicLessons = [1,2,3,4,5,6,7,8,9].filter(n=>!birthDigits.has(n));
@@ -8947,7 +8947,7 @@ async function runAnalysis() {
   }
   const pyramidBridgeHost = document.getElementById('pyramidRhythmSectionBridge');
 
-  // ── 10. 로슈 격자 + 순차 풀 애로우 (Pro+) ──
+  // ── 10. 로슈 격자 + 순차 풀 애로우 (Plus+) ──
   if(hasAccess('pro')) {
     const birthStr=y.toString()+m.toString().padStart(2,'0')+d.toString().padStart(2,'0');
     const counts=Array(10).fill(0);
@@ -9032,7 +9032,7 @@ async function runAnalysis() {
     document.getElementById('seqArrowContent').innerHTML=gateHTML('pro','풀 애로우 · 순차 격자','3·6·9 / 2·5·8 / 1·4·7 순차 격자에서 8가지 풀·빈 화살(결단력·질서·영성·실용·감정·지적·독립·창의)을 읽습니다.');
   }
 
-  // ── 11. 인생리듬 (스페셜 전용) ──
+  // ── 11. 인생리듬 (Private 전용) ──
   const userAgePyramid = curY - y;
   if (hasSpecialAccess()) {
     document.getElementById('pyramidRhythmContent').innerHTML = renderPyramidRhythmHTML(lpAlt, userAgePyramid);
@@ -9087,15 +9087,15 @@ async function runAnalysis() {
     flowLocked: !hasBasicFlowAccess(),
   });
 
-  // ── 12. PDF (Pro+) ──
+  // ── 12. PDF (Plus+) ──
   if (hasAccess('pro')) {
     document.getElementById('pdfSection').innerHTML = `
       <button type="button" class="gate-btn" style="background:var(--warm-brown)" onclick="openExportPicker('pdf')">PDF로 저장하기</button>`;
   } else {
     // 무료/베이직: 기능 발견용 잠금 버튼 (클릭 시 업그레이드 유도)
     document.getElementById('pdfSection').innerHTML = `
-      <button type="button" class="gate-btn" style="background:#cbb9a3;cursor:pointer" onclick="promptPdfUpgrade()">🔒 PDF로 저장하기 (Pro 전용)</button>
-      <div style="margin-top:8px;font-size:12px;color:var(--muted)">분석 결과를 PDF로 저장·인쇄하는 기능은 Pro 플랜부터 이용할 수 있어요.</div>`;
+      <button type="button" class="gate-btn" style="background:#cbb9a3;cursor:pointer" onclick="promptPdfUpgrade()">🔒 PDF로 저장하기 (Plus 전용)</button>
+      <div style="margin-top:8px;font-size:12px;color:var(--muted)">분석 결과를 PDF로 저장·인쇄하는 기능은 Plus 플랜부터 이용할 수 있어요.</div>`;
   }
 
   if (hasBasicProfileDetailAccess()) {

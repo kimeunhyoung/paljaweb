@@ -5,8 +5,10 @@
 (function (global) {
   /** DB plan 값 정규화 — professional2는 special 별칭 */
   function normalizeDbPlan(dbPlan) {
-    if (dbPlan === 'professional2') return 'special';
-    return dbPlan || 'free';
+    var p = String(dbPlan || 'free').toLowerCase();
+    if (p === 'professional2' || p === 'private') return 'special';
+    if (p === 'plus') return 'pro';
+    return p;
   }
 
   function effectivePlan(profile) {
@@ -22,14 +24,14 @@
     return dbPlan;
   }
 
-  var PLAN_RANKS = { free: 0, basic: 1, pro: 2, professional: 3, special: 4, professional2: 4 };
+  var PLAN_RANKS = { free: 0, basic: 1, pro: 2, plus: 2, professional: 3, special: 4, private: 4, professional2: 4 };
 
   function isPlanAtLeast(profile, required) {
     var req = normalizeDbPlan(required);
     return (PLAN_RANKS[effectivePlan(profile)] || 0) >= (PLAN_RANKS[req] || 0);
   }
 
-  /** 상담사(Professional) 또는 스페셜(special) */
+  /** 상담사(Professional) 또는 Private(special) */
   function isCounselorPlan(planOrProfile) {
     var p =
       typeof planOrProfile === 'string'
@@ -42,7 +44,7 @@
     return isCounselorPlan(profile);
   }
 
-  /** 스페셜(special) — 인생리듬·타로 타임라인 */
+  /** Private(special) — 인생리듬·타로 타임라인 */
   function hasSpecialAccess(plan, devUnlock) {
     if (devUnlock) return false;
     return effectivePlan({ plan: plan }) === 'special';
@@ -82,24 +84,24 @@
     return hasBasicProfileDetailAccess(plan, devUnlock);
   }
 
-  /** 인생전반표(수비학)·성장지도·로슈 등 — Pro 이상 · 인생리듬·타로 타임라인은 스페셜+ */
+  /** 인생전반표(수비학)·성장지도·로슈 등 — Plus 이상 · 인생리듬·타로 타임라인은 Private+ */
   function hasDeepAnalysisAccess(plan, devUnlock) {
     if (devUnlock) return true;
     return isPlanAtLeast({ plan: plan }, 'pro');
   }
 
-  /** Basic+: 수비학 10년 차트 · Pro+: 수비학 인생전반표(0~100세) · 타로는 스페셜+ */
+  /** Basic+: 수비학 10년 차트 · Plus+: 수비학 인생전반표(0~100세) · 타로는 Private+ */
   function hasBasicYearTimelineAccess(plan, devUnlock) {
     if (devUnlock) return true;
     return isPlanAtLeast({ plan: plan }, 'basic');
   }
 
-  /** 수비학 인생전반표(0~100세) — Pro 이상 */
+  /** 수비학 인생전반표(0~100세) — Plus 이상 */
   function hasFullTimelineAccess(plan, devUnlock) {
     return hasDeepAnalysisAccess(plan, devUnlock);
   }
 
-  /** 타로 10년·100년 타임라인 — 스페셜 이상 */
+  /** 타로 10년·100년 타임라인 — Private 이상 */
   function hasTarotTimelineAccess(plan, devUnlock) {
     return hasSpecialAccess(plan, devUnlock);
   }
@@ -133,14 +135,14 @@
     var labels = { basic: 'B', pro: 'P', special: 'S', professional2: 'S' };
     var titles = {
       basic: 'B: Basic 이상',
-      pro: 'P: Pro·Professional 이상',
-      special: 'S: 스페셜',
-      professional2: 'S: 스페셜',
+      pro: 'P: Plus·Professional 이상',
+      special: 'S: Private',
+      professional2: 'S: Private',
     };
     var t = tier === 'professional2' ? 'special' : labels[tier] ? tier : 'pro';
     var css = t === 'professional2' ? 'special' : t;
     var label = labels[tier] || labels[t] || 'P';
-    var title = titles[tier] || titles[t] || 'Pro 플랜';
+    var title = titles[tier] || titles[t] || 'Plus 플랜';
     return (
       '<span class="lc-guide-tier-badge lc-guide-tier-badge--' +
       css +
@@ -160,13 +162,13 @@
     return (
       '<p class="lc-guide-tier-legend">' +
       '<span class="lc-guide-tier-badge lc-guide-tier-badge--basic" title="B: Basic 이상">B</span> 베이직 이상 · ' +
-      '<span class="lc-guide-tier-badge lc-guide-tier-badge--pro" title="P: Pro·Professional 이상">P</span> 프로·Professional 이상 · ' +
-      '<span class="lc-guide-tier-badge lc-guide-tier-badge--special" title="S: 스페셜">S</span> 스페셜' +
+      '<span class="lc-guide-tier-badge lc-guide-tier-badge--pro" title="P: Plus·Professional 이상">P</span> Plus·Professional 이상 · ' +
+      '<span class="lc-guide-tier-badge lc-guide-tier-badge--special" title="S: Private">S</span> Private' +
       '</p>'
     );
   }
 
-  /** 팔자연구소 프로그램별 최소 플랜 — 타로코드·라이프코드 무료, 수비학달력 Basic+, 네임·소울하모니·48궁합 Pro+ */
+  /** 팔자연구소 프로그램별 최소 플랜 — 타로코드·라이프코드 무료, 수비학달력 Basic+, 네임·소울하모니·48궁합 Plus+ */
   var PRODUCT_MIN_PLAN = {
     tarot: 'free',
     lifecode: 'free',
@@ -183,9 +185,9 @@
   }
 
   function planKoLabel(plan) {
-    if (plan === 'pro') return 'Pro';
+    if (plan === 'pro' || plan === 'plus') return 'Plus';
     if (plan === 'professional') return 'Professional';
-    if (plan === 'special' || plan === 'professional2') return '스페셜';
+    if (plan === 'special' || plan === 'private' || plan === 'professional2') return 'Private';
     return 'Basic';
   }
 
