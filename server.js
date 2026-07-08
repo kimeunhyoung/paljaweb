@@ -8,7 +8,7 @@ const { registerLifecodeRoutes } = require('./lib/lifecode-api');
 const { registerNaverAuthRoutes } = require('./lib/naver-auth');
 const { registerCounselorPushRoutes, startCounselorPushScheduler } = require('./lib/counselor-push');
 const { registerCounselorTrialRoutes } = require('./lib/counselor-trial');
-const { registerAiUsageRoutes, isAiUpstreamAvailable } = require('./lib/ai-usage');
+const { registerAiUsageRoutes, isAiUpstreamAvailable, kstPeriod } = require('./lib/ai-usage');
 
 const app = express();
 
@@ -161,6 +161,105 @@ async function getUserEmail(userId) {
   } catch {
     return null;
   }
+}
+
+function parseAdminEmails() {
+  return new Set(
+    String(process.env.AI_CREDIT_ADMIN_EMAILS || '')
+      .split(',')
+      .map((s) => s.trim().toLowerCase())
+      .filter(Boolean),
+  );
+}
+
+async function isAiCreditAdmin(authHeader) {
+  const userId = await getUserIdFromAuth(authHeader);
+  if (!userId) return { ok: false };
+  const email = (await getUserEmail(userId) || '').toLowerCase();
+  const allowlist = parseAdminEmails();
+  return { ok: allowlist.has(email), userId, email };
+}
+
+async function listAuthUsers() {
+  const base = process.env.SUPABASE_URL?.replace(/\/$/, '');
+  const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  if (!base || !key) return [];
+  const all = [];
+  let page = 1;
+  const perPage = 200;
+  while (true) {
+    const res = await fetch(`${base}/auth/v1/admin/users?page=${page}&per_page=${perPage}`, {
+      headers: { apikey: key, Authorization: `Bearer ${key}` },
+    });
+    if (!res.ok) break;
+    const data = await res.json();
+    const users = Array.isArray(data?.users) ? data.users : [];
+    if (!users.length) break;
+    all.push(...users);
+    if (users.length < perPage) break;
+    page += 1;
+    if (page > 50) break;
+  }
+  return all;
+}
+
+async function listProfilesBasic() {
+  const base = process.env.SUPABASE_URL?.replace(/\/$/, '');
+  const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  if (!base || !key) return [];
+  const url = `${base}/rest/v1/profiles?select=id,full_name,plan,plan_active_until`;
+  const res = await fetch(url, { headers: supabaseHeaders(key) });
+  if (!res.ok) return [];
+  const rows = await res.json();
+  return Array.isArray(rows) ? rows : [];
+}
+
+async function listAiUsageMonthly(period) {
+  const base = process.env.SUPABASE_URL?.replace(/\/$/, '');
+  const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  if (!base || !key) return [];
+  const url =
+    `${base}/rest/v1/ai_usage_monthly?period=eq.${encodeURIComponent(period)}` +
+    '&select=user_id,credits_used,updated_at';
+  const res = await fetch(url, { headers: supabaseHeaders(key) });
+  if (!res.ok) return [];
+  const rows = await res.json();
+  return Array.isArray(rows) ? rows : [];
+}
+
+async function getAiMonthlyUsed(userId, period) {
+  const base = process.env.SUPABASE_URL?.replace(/\/$/, '');
+  const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  if (!base || !key) return 0;
+  const url =
+    `${base}/rest/v1/ai_usage_monthly?user_id=eq.${encodeURIComponent(userId)}` +
+    `&period=eq.${encodeURIComponent(period)}&select=credits_used`;
+  const res = await fetch(url, { headers: supabaseHeaders(key) });
+  if (!res.ok) return 0;
+  const rows = await res.json();
+  return Number(rows?.[0]?.credits_used) || 0;
+}
+
+async function upsertAiMonthlyUsed(userId, period, creditsUsed) {
+  const base = process.env.SUPABASE_URL?.replace(/\/$/, '');
+  const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  if (!base || !key) throw new Error('Missing Supabase config');
+  const res = await fetch(`${base}/rest/v1/ai_usage_monthly`, {
+    method: 'POST',
+    headers: supabaseHeaders(key, { Prefer: 'resolution=merge-duplicates,return=representation' }),
+    body: JSON.stringify({
+      user_id: userId,
+      period,
+      credits_used: creditsUsed,
+      updated_at: new Date().toISOString(),
+    }),
+  });
+  if (!res.ok) {
+    const t = await res.text();
+    throw new Error(`ai_usage_monthly upsert ${res.status}: ${t}`);
+  }
+  const rows = await res.json();
+  return Number(rows?.[0]?.credits_used) || creditsUsed;
 }
 
 const subscriptionService = createSubscriptionService({
@@ -480,6 +579,83 @@ app.post('/api/subscription/upgrade', async (req, res) => {
     }
     console.error('[subscription/upgrade]', e);
     res.status(502).json({ error: '업그레이드 결제에 실패했습니다. 잠시 후 다시 시도해 주세요.' });
+  }
+});
+
+app.get('/api/admin/ai-credits/users', async (req, res) => {
+  const admin = await isAiCreditAdmin(req.headers.authorization);
+  if (!admin.ok) {
+    res.status(403).json({ error: '관리자 권한이 필요합니다. (AI_CREDIT_ADMIN_EMAILS 확인)' });
+    return;
+  }
+  const period = String(req.query.period || '').trim() || kstPeriod();
+  const q = String(req.query.q || '').trim().toLowerCase();
+  try {
+    const [profiles, authUsers, usageRows] = await Promise.all([
+      listProfilesBasic(),
+      listAuthUsers(),
+      listAiUsageMonthly(period),
+    ]);
+    const usageByUser = new Map(usageRows.map((r) => [r.user_id, Number(r.credits_used) || 0]));
+    const emailByUser = new Map(authUsers.map((u) => [u.id, (u.email || '').toLowerCase()]));
+    const merged = profiles.map((p) => {
+      const email = emailByUser.get(p.id) || '';
+      return {
+        userId: p.id,
+        email,
+        fullName: p.full_name || '',
+        plan: p.plan || 'free',
+        planActiveUntil: p.plan_active_until || null,
+        used: usageByUser.get(p.id) || 0,
+      };
+    });
+    const filtered = q
+      ? merged.filter((u) =>
+        u.email.includes(q) ||
+        u.fullName.toLowerCase().includes(q) ||
+        String(u.userId).toLowerCase().includes(q))
+      : merged;
+    filtered.sort((a, b) => (b.used - a.used) || a.email.localeCompare(b.email));
+    res.json({ period, count: filtered.length, users: filtered });
+  } catch (e) {
+    console.error('[admin/ai-credits/users]', e);
+    res.status(500).json({ error: '사용자/크레딧 목록 조회에 실패했습니다.' });
+  }
+});
+
+app.post('/api/admin/ai-credits/adjust', async (req, res) => {
+  const admin = await isAiCreditAdmin(req.headers.authorization);
+  if (!admin.ok) {
+    res.status(403).json({ error: '관리자 권한이 필요합니다. (AI_CREDIT_ADMIN_EMAILS 확인)' });
+    return;
+  }
+  const userId = String(req.body?.userId || '').trim();
+  const period = String(req.body?.period || '').trim() || kstPeriod();
+  const delta = Number(req.body?.delta);
+  if (!userId || !Number.isInteger(delta) || delta === 0) {
+    res.status(400).json({ error: 'userId와 정수 delta(0 제외)가 필요합니다.' });
+    return;
+  }
+  if (Math.abs(delta) > 500) {
+    res.status(400).json({ error: '한 번에 조정 가능한 delta는 ±500 입니다.' });
+    return;
+  }
+  try {
+    const prev = await getAiMonthlyUsed(userId, period);
+    const next = Math.max(0, prev + delta);
+    const saved = await upsertAiMonthlyUsed(userId, period, next);
+    res.json({
+      ok: true,
+      userId,
+      period,
+      previousUsed: prev,
+      delta,
+      nextUsed: saved,
+      adjustedBy: admin.email,
+    });
+  } catch (e) {
+    console.error('[admin/ai-credits/adjust]', e);
+    res.status(500).json({ error: '크레딧 조정에 실패했습니다.' });
   }
 });
 
