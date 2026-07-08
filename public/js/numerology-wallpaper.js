@@ -307,6 +307,34 @@ function getTheme(num) {
   };
 }
 
+function hexToRgb(hex) {
+  const m = String(hex || "").trim().match(/^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i);
+  if (!m) return null;
+  return { r: parseInt(m[1], 16), g: parseInt(m[2], 16), b: parseInt(m[3], 16) };
+}
+
+function blendHex(fromHex, toHex, ratio) {
+  const a = hexToRgb(fromHex);
+  const b = hexToRgb(toHex);
+  if (!a || !b) return toHex;
+  const t = Math.max(0, Math.min(1, Number(ratio) || 0));
+  const r = Math.round(a.r + (b.r - a.r) * t);
+  const g = Math.round(a.g + (b.g - a.g) * t);
+  const b2 = Math.round(a.b + (b.b - a.b) * t);
+  return `rgb(${r}, ${g}, ${b2})`;
+}
+
+function drawGrainOverlay(ctx, W, H, alpha = 0.07) {
+  const step = 2;
+  for (let y = 0; y < H; y += step) {
+    for (let x = 0; x < W; x += step) {
+      const v = Math.floor(Math.random() * 255);
+      ctx.fillStyle = `rgba(${v}, ${v}, ${v}, ${alpha})`;
+      ctx.fillRect(x, y, step, step);
+    }
+  }
+}
+
 function resolveMissingPick(missing) {
   if (!missing.length) return null;
   return state.pickNum && missing.includes(Number(state.pickNum))
@@ -507,14 +535,15 @@ function drawWallpaper(canvas, resolved) {
   const mood = state.mood;
   const isPaper = mood === "paper";
   const isNeon = mood === "neon";
-  const isDeep = mood === "deep";
+  const isGrain = mood === "grain";
 
   canvas.width = W;
   canvas.height = H;
 
-  const paperBg0 = "#f7f2e9";
-  const paperBg1 = "#ece3d3";
-  const paperAccent = "#4a3520";
+  // 페이퍼도 선택한 색 테마를 따르되, 밝은 종이톤으로 보정
+  const paperBg0 = blendHex(theme.bg0, "#f7f2e9", 0.9);
+  const paperBg1 = blendHex(theme.bg1, "#ece3d3", 0.84);
+  const paperAccent = blendHex(theme.accent, "#4a3520", 0.58);
   const grad = ctx.createLinearGradient(0, 0, W * 0.2, H);
   grad.addColorStop(0, isPaper ? paperBg0 : theme.bg0);
   grad.addColorStop(0.55, isPaper ? paperBg1 : theme.bg1);
@@ -528,6 +557,10 @@ function drawWallpaper(canvas, resolved) {
     glow.addColorStop(1, "transparent");
     ctx.fillStyle = glow;
     ctx.fillRect(0, 0, W, H);
+  }
+
+  if (isGrain) {
+    drawGrainOverlay(ctx, W, H, 0.055);
   }
 
   ctx.strokeStyle = isPaper ? "rgba(74,53,32,0.14)" : `${theme.accent}${isNeon ? "2d" : "18"}`;
@@ -578,7 +611,7 @@ function drawWallpaper(canvas, resolved) {
   ctx.textAlign = "center";
   ctx.textBaseline = "middle";
   ctx.shadowColor = isPaper ? "transparent" : `${theme.glow}${isNeon ? "ff" : "88"}`;
-  ctx.shadowBlur = isPaper ? 0 : (isNeon ? 90 : (isDeep ? 56 : 18));
+  ctx.shadowBlur = isPaper ? 0 : (isNeon ? 90 : (isGrain ? 22 : 18));
   ctx.fillText(String(num), W / 2, H * layout.numY);
   if (isNeon) {
     ctx.shadowColor = `${theme.glow}b8`;
