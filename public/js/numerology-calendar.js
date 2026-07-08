@@ -515,7 +515,16 @@ function applyCalendarPlanGate() {
   detailPanel.innerHTML = `
     <h2>Basic 이상에서 이용 가능</h2>
     <p class="detail-date">수비학 달력은 Basic 플랜 이상에서 열립니다. 타로코드는 무료로 이용할 수 있어요.</p>
-    <p class="detail-date"><a href="pricing.html">요금제 보기</a></p>
+    <div class="text-card" style="margin-top:12px;">
+      <strong style="display:block;margin-bottom:8px;">여기서 확인할 수 있는 것</strong>
+      <ul style="margin:0;padding-left:18px;color:var(--muted);line-height:1.7;">
+        <li>월간 수비학 달력 · 개인연수/월수/일수</li>
+        <li>날짜별 에너지 가이드 (DO / DON'T)</li>
+        <li><strong style="color:var(--ink);">오늘의 운세</strong> — AI 맞춤 해석 (연애·일·금전)</li>
+        <li>AI 이번 달 흐름</li>
+      </ul>
+    </div>
+    <p class="detail-date" style="margin-top:14px;"><a href="pricing.html">요금제 보기</a></p>
   `;
 }
 
