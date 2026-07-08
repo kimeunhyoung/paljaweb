@@ -505,24 +505,32 @@ function drawWallpaper(canvas, resolved) {
   const meta = NUMBER_META[num] || NUMBER_META[1];
   const theme = getTheme(num);
   const mood = state.mood;
+  const isPaper = mood === "paper";
+  const isNeon = mood === "neon";
+  const isDeep = mood === "deep";
 
   canvas.width = W;
   canvas.height = H;
 
+  const paperBg0 = "#f7f2e9";
+  const paperBg1 = "#ece3d3";
+  const paperAccent = "#4a3520";
   const grad = ctx.createLinearGradient(0, 0, W * 0.2, H);
-  grad.addColorStop(0, theme.bg0);
-  grad.addColorStop(0.55, theme.bg1);
-  grad.addColorStop(1, theme.bg0);
+  grad.addColorStop(0, isPaper ? paperBg0 : theme.bg0);
+  grad.addColorStop(0.55, isPaper ? paperBg1 : theme.bg1);
+  grad.addColorStop(1, isPaper ? paperBg0 : theme.bg0);
   ctx.fillStyle = grad;
   ctx.fillRect(0, 0, W, H);
 
-  const glow = ctx.createRadialGradient(W * 0.5, H * layout.numY, 40, W * 0.5, H * layout.numY, W * 0.55);
-  glow.addColorStop(0, `${theme.glow}33`);
-  glow.addColorStop(1, "transparent");
-  ctx.fillStyle = glow;
-  ctx.fillRect(0, 0, W, H);
+  if (!isPaper) {
+    const glow = ctx.createRadialGradient(W * 0.5, H * layout.numY, 40, W * 0.5, H * layout.numY, W * 0.55);
+    glow.addColorStop(0, `${theme.glow}${isNeon ? "66" : "33"}`);
+    glow.addColorStop(1, "transparent");
+    ctx.fillStyle = glow;
+    ctx.fillRect(0, 0, W, H);
+  }
 
-  ctx.strokeStyle = `${theme.accent}18`;
+  ctx.strokeStyle = isPaper ? "rgba(74,53,32,0.14)" : `${theme.accent}${isNeon ? "2d" : "18"}`;
   ctx.lineWidth = 2;
   const ringCount = state.aspect === "square" ? 4 : 6;
   for (let i = 0; i < ringCount; i += 1) {
@@ -542,11 +550,11 @@ function drawWallpaper(canvas, resolved) {
         const x = ox + ci * cell;
         const y = oy + ri * cell;
         const active = digit === num || resolved.extras.includes(digit);
-        ctx.fillStyle = `${theme.accent}12`;
+        ctx.fillStyle = isPaper ? "rgba(74,53,32,0.08)" : `${theme.accent}12`;
         ctx.globalAlpha = active ? 0.55 : 0.2;
         ctx.fillRect(x + 8, y + 8, cell - 16, cell - 16);
         ctx.globalAlpha = 1;
-        ctx.fillStyle = active ? theme.accent : `${theme.accent}55`;
+        ctx.fillStyle = active ? (isPaper ? paperAccent : theme.accent) : (isPaper ? "rgba(74,53,32,0.45)" : `${theme.accent}55`);
         ctx.font = `500 ${Math.round(cell * 0.29)}px "Cormorant Garamond", serif`;
         ctx.textAlign = "center";
         ctx.textBaseline = "middle";
@@ -556,39 +564,46 @@ function drawWallpaper(canvas, resolved) {
   }
 
   const titleSize = state.aspect === "square" ? 28 : 34;
-  ctx.fillStyle = `${theme.accent}cc`;
+  ctx.fillStyle = isPaper ? "rgba(74,53,32,0.82)" : `${theme.accent}cc`;
   ctx.font = `500 ${titleSize}px "Noto Sans KR", sans-serif`;
   ctx.textAlign = "center";
   ctx.fillText("나의 에너지 넘버", W / 2, H * layout.titleY);
 
-  ctx.fillStyle = `${theme.accent}99`;
+  ctx.fillStyle = isPaper ? "rgba(74,53,32,0.65)" : `${theme.accent}99`;
   ctx.font = `400 ${titleSize - 6}px "Noto Sans KR", sans-serif`;
   ctx.fillText(resolved.modeLabel, W / 2, H * layout.modeY);
 
-  ctx.fillStyle = theme.accent;
+  ctx.fillStyle = isPaper ? paperAccent : theme.accent;
   ctx.font = `600 ${layout.numSize}px "Cormorant Garamond", serif`;
   ctx.textAlign = "center";
   ctx.textBaseline = "middle";
-  ctx.shadowColor = `${theme.glow}88`;
-  ctx.shadowBlur = mood === "deep" ? 48 : 24;
+  ctx.shadowColor = isPaper ? "transparent" : `${theme.glow}${isNeon ? "ff" : "88"}`;
+  ctx.shadowBlur = isPaper ? 0 : (isNeon ? 90 : (isDeep ? 56 : 18));
   ctx.fillText(String(num), W / 2, H * layout.numY);
+  if (isNeon) {
+    ctx.shadowColor = `${theme.glow}b8`;
+    ctx.shadowBlur = 28;
+    ctx.strokeStyle = `${theme.accent}c8`;
+    ctx.lineWidth = 1.4;
+    ctx.strokeText(String(num), W / 2, H * layout.numY);
+  }
   ctx.shadowBlur = 0;
 
   const keySize = state.aspect === "square" ? 44 : 56;
-  ctx.fillStyle = "#ffffffdd";
+  ctx.fillStyle = isPaper ? "#2c1f0ecc" : "#ffffffdd";
   ctx.font = `700 ${keySize}px "Noto Sans KR", sans-serif`;
   ctx.fillText(meta.key, W / 2, H * layout.keyY);
 
-  ctx.fillStyle = `${theme.accent}ee`;
+  ctx.fillStyle = isPaper ? "rgba(74,53,32,0.82)" : `${theme.accent}ee`;
   ctx.font = `400 ${keySize - 22}px "Noto Sans KR", sans-serif`;
   ctx.fillText(meta.sub, W / 2, H * layout.subY);
 
   wrapText(
     ctx, meta.line, W / 2, H * layout.lineY, W * 0.72, state.aspect === "square" ? 38 : 46,
-    `400 ${state.aspect === "square" ? 28 : 32}px "Noto Sans KR", sans-serif`, "#ffffffbb",
+    `400 ${state.aspect === "square" ? 28 : 32}px "Noto Sans KR", sans-serif`, isPaper ? "rgba(44,31,14,0.8)" : "#ffffffbb",
   );
 
-  ctx.fillStyle = "#ffffff88";
+  ctx.fillStyle = isPaper ? "rgba(74,53,32,0.72)" : "#ffffff88";
   ctx.font = '500 26px "Noto Sans KR", sans-serif';
   ctx.fillText("팔자연구소 · 8code.kr", W / 2, H * layout.brandY);
 }
