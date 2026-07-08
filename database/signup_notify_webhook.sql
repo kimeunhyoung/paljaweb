@@ -1,25 +1,46 @@
 -- ============================================================
--- 신규 회원가입 관리자 알림 — Supabase Database Webhook 설정
--- (SQL 실행 불필요. Dashboard에서 웹훅만 등록하면 됩니다.)
+-- 신규 회원가입 → 관리자(본인) 전용 알림
+-- 고객(가입자)에게는 어떤 알림도 가지 않습니다.
+-- SQL 실행 불필요. Render 환경변수 + Supabase 웹훅만 설정하면 됩니다.
 -- ============================================================
 --
--- 1) Render 환경변수 설정
---    SIGNUP_WEBHOOK_SECRET        = 임의의 긴 문자열 (예: openssl rand -hex 32)
---    SIGNUP_NOTIFY_WEBHOOK_URL    = Discord 또는 Slack Incoming Webhook URL
---      (또는 Telegram: SIGNUP_NOTIFY_TELEGRAM_BOT_TOKEN + SIGNUP_NOTIFY_TELEGRAM_CHAT_ID)
+-- ── 1) Render 환경변수 (공통) ──
+--   SIGNUP_WEBHOOK_SECRET = 임의의 긴 문자열
 --
--- 2) Supabase Dashboard → Database → Webhooks → Create a new hook
---    Name        : signup-notify
---    Table       : profiles
---    Events      : INSERT
---    Type        : HTTP Request
---    Method      : POST
---    URL         : https://8code.kr/api/webhooks/signup
---    HTTP Headers:
---      Content-Type: application/json
---      Authorization: Bearer <SIGNUP_WEBHOOK_SECRET과 동일>
+-- ── 2-A) Telegram (폰 알림 추천) ──
+--   1. @BotFather 에서 봇 생성 → 토큰 복사
+--   2. 봇에게 아무 메시지 보낸 뒤 chat_id 확인:
+--      https://api.telegram.org/bot<TOKEN>/getUpdates
+--   3. Render:
+--      SIGNUP_NOTIFY_TELEGRAM_BOT_TOKEN = 봇 토큰
+--      SIGNUP_NOTIFY_TELEGRAM_CHAT_ID   = 본인 chat_id (숫자)
 --
--- 3) 저장 후 테스트: 테스트 계정으로 회원가입 → Discord/Slack/Telegram 알림 확인
+-- ── 2-B) Email (본인 메일로만) ──
+--   SIGNUP_NOTIFY_EMAIL_TO = 본인 이메일 (쉼표로 여러 개 가능)
 --
--- profiles 행은 auth.users INSERT 트리거(handle_new_user)로 자동 생성됩니다.
--- 이메일·OAuth·네이버 가입 모두 동일하게 알림이 갑니다.
+--   방법 1 — Gmail SMTP:
+--      SMTP_HOST=smtp.gmail.com
+--      SMTP_PORT=587
+--      SMTP_USER=본인@gmail.com
+--      SMTP_PASS=Gmail 앱 비밀번호 (2단계인증 후 생성)
+--      SIGNUP_NOTIFY_EMAIL_FROM=팔자연구소 <본인@gmail.com>
+--
+--   방법 2 — Resend (resend.com):
+--      RESEND_API_KEY=re_...
+--      SIGNUP_NOTIFY_EMAIL_FROM=팔자연구소 <verified@도메인>
+--
+-- ── 3) Supabase Database Webhook ──
+--   Dashboard → Database → Webhooks → Create hook
+--   Table   : profiles
+--   Events  : INSERT
+--   URL     : https://8code.kr/api/webhooks/signup
+--   Method  : POST
+--   Headers :
+--     Content-Type: application/json
+--     Authorization: Bearer <SIGNUP_WEBHOOK_SECRET>
+--
+-- ── 4) 테스트 ──
+--   테스트 계정으로 가입 → Telegram 또는 본인 메일 수신 확인
+--
+-- profiles 는 auth.users 가입 시 handle_new_user 트리거로 자동 생성됩니다.
+-- 이메일·구글·카카오·네이버 가입 모두 동일하게 관리자에게만 알림이 갑니다.
