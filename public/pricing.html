@@ -970,7 +970,7 @@
         <li><div class="feature-check">✓</div>PDF 저장 · 공유</li>
         <li><div class="feature-check">✓</div>분석 히스토리 저장</li>
       </ul>
-      <button class="plan-btn plan-btn-accent" onclick="handleSubscribe('pro')">시작하기</button>
+      <button class="plan-btn plan-btn-accent" onclick="handleSubscribe('plus')">시작하기</button>
     </div>
 
     <!-- PROFESSIONAL -->
@@ -1406,7 +1406,7 @@ const { createClient } = supabase;
 const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 // ── 요금 데이터 (월간만) ──
-const PRICES = { basic: '9,900', pro: '29,900', professional: '49,900' };
+const PRICES = { basic: '9,900', plus: '29,900', professional: '49,900' };
 
 function showToast(msg) {
   const t = document.getElementById('toast');
@@ -1416,7 +1416,7 @@ function showToast(msg) {
 }
 
 async function handleSubscribe(plan) {
-  const checkoutPlan = plan === 'plus' ? 'pro' : plan;
+  const checkoutPlan = plan;
   const { data: { session } } = await sb.auth.getSession();
 
   if (!session) {
@@ -1425,7 +1425,7 @@ async function handleSubscribe(plan) {
     return;
   }
 
-  if (checkoutPlan === 'professional' || checkoutPlan === 'basic' || checkoutPlan === 'pro') {
+  if (checkoutPlan === 'professional' || checkoutPlan === 'basic' || checkoutPlan === 'plus') {
     window.location.href = `checkout.html?plan=${checkoutPlan}&cycle=monthly`;
     return;
   }
@@ -1462,7 +1462,7 @@ initAuth();
 
 (function () {
   const checkoutPlan = new URLSearchParams(location.search).get('checkout');
-  if (checkoutPlan === 'basic' || checkoutPlan === 'pro' || checkoutPlan === 'professional') {
+  if (checkoutPlan === 'basic' || checkoutPlan === 'plus' || checkoutPlan === 'professional') {
     handleSubscribe(checkoutPlan);
   }
 })();

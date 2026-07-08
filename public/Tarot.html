@@ -1754,7 +1754,7 @@ try {
 } catch (e) {}
 
 let USER_PLAN = 'free';
-const PLANS = { free: 0, basic: 1, pro: 2, professional: 3 };
+const PLANS = { free: 0, basic: 1, plus: 2, professional: 3, private: 4 };
 function hasAccess(required) { return PLANS[USER_PLAN] >= PLANS[required]; }
 
 async function initAuth() {
@@ -3571,7 +3571,7 @@ function startReading() {
 
   let gateHtml = '';
   if (!TAROT_STANDALONE) {
-    if (hasAccess('pro')) {
+    if (hasAccess('plus')) {
       gateHtml = `<div class="reading-section" style="border-left-color:var(--teal);margin-bottom:24px;">
       <div class="reading-tag">Plus · AI 종합 해석</div>
       <div class="reading-text" style="color:var(--muted);line-height:1.85;">종합 AI 해석은 API를 서버에 두고 안전하게 연동한 뒤 제공할 예정입니다. 지금은 수비학 맥락과 카드 문구를 함께 읽어 보세요.</div>

@@ -3,12 +3,9 @@
  * 만료 시 한 단계가 아니라 free
  */
 (function (global) {
-  /** DB plan 값 정규화 — professional2는 special 별칭 */
+  /** DB plan 값 정규화 — legacy 값은 새 키로 변환 */
   function normalizeDbPlan(dbPlan) {
-    var p = String(dbPlan || 'free').toLowerCase();
-    if (p === 'professional2' || p === 'private') return 'special';
-    if (p === 'plus') return 'pro';
-    return p;
+    return String(dbPlan || 'free').toLowerCase();
   }
 
   function effectivePlan(profile) {
@@ -24,30 +21,30 @@
     return dbPlan;
   }
 
-  var PLAN_RANKS = { free: 0, basic: 1, pro: 2, plus: 2, professional: 3, special: 4, private: 4, professional2: 4 };
+  var PLAN_RANKS = { free: 0, basic: 1, plus: 2, professional: 3, private: 4 };
 
   function isPlanAtLeast(profile, required) {
     var req = normalizeDbPlan(required);
     return (PLAN_RANKS[effectivePlan(profile)] || 0) >= (PLAN_RANKS[req] || 0);
   }
 
-  /** 상담사(Professional) 또는 Private(special) */
+  /** 상담사(Professional) 또는 Private */
   function isCounselorPlan(planOrProfile) {
     var p =
       typeof planOrProfile === 'string'
         ? normalizeDbPlan(planOrProfile)
         : effectivePlan(planOrProfile);
-    return p === 'professional' || p === 'special';
+    return p === 'professional' || p === 'private';
   }
 
   function hasCounselorAccess(profile) {
     return isCounselorPlan(profile);
   }
 
-  /** Private(special) — 인생리듬·타로 타임라인 */
+  /** Private — 인생리듬·타로 타임라인 */
   function hasSpecialAccess(plan, devUnlock) {
     if (devUnlock) return false;
-    return effectivePlan({ plan: plan }) === 'special';
+    return effectivePlan({ plan: plan }) === 'private';
   }
 
   /** @deprecated use hasSpecialAccess */
@@ -87,7 +84,7 @@
   /** 인생전반표(수비학)·성장지도·로슈 등 — Plus 이상 · 인생리듬·타로 타임라인은 Private+ */
   function hasDeepAnalysisAccess(plan, devUnlock) {
     if (devUnlock) return true;
-    return isPlanAtLeast({ plan: plan }, 'pro');
+    return isPlanAtLeast({ plan: plan }, 'plus');
   }
 
   /** Basic+: 수비학 10년 차트 · Plus+: 수비학 인생전반표(0~100세) · 타로는 Private+ */
@@ -117,30 +114,29 @@
     '#weeklyForecastSection': 'basic',
     '#nav-major-cycle': 'basic',
     '#nav-life-four': 'basic',
-    '#pyramidRhythmSection': 'special',
+    '#pyramidRhythmSection': 'private',
     '#timelineSection': 'basic',
-    '#growthSection': 'pro',
-    '#aiSummarySection': 'pro',
-    '#aiTodaySection': 'pro',
-    '#loshuSection': 'pro',
-    '#seqArrowSection': 'pro',
+    '#growthSection': 'plus',
+    '#aiSummarySection': 'plus',
+    '#aiTodaySection': 'plus',
+    '#loshuSection': 'plus',
+    '#seqArrowSection': 'plus',
   };
 
   function moduleMinTier(href) {
-    return ANALYSIS_MODULE_TIER[href] || 'pro';
+    return ANALYSIS_MODULE_TIER[href] || 'plus';
   }
 
   function tierBadgeHtml(tier) {
     if (tier === 'free') return '';
-    var labels = { basic: 'B', pro: 'P', special: 'S', professional2: 'S' };
+    var labels = { basic: 'B', plus: 'P', private: 'S' };
     var titles = {
       basic: 'B: Basic 이상',
-      pro: 'P: Plus·Professional 이상',
-      special: 'S: Private',
-      professional2: 'S: Private',
+      plus: 'P: Plus·Professional 이상',
+      private: 'S: Private',
     };
-    var t = tier === 'professional2' ? 'special' : labels[tier] ? tier : 'pro';
-    var css = t === 'professional2' ? 'special' : t;
+    var t = labels[tier] ? tier : 'plus';
+    var css = t === 'plus' ? 'pro' : (t === 'private' ? 'special' : t);
     var label = labels[tier] || labels[t] || 'P';
     var title = titles[tier] || titles[t] || 'Plus 플랜';
     return (
@@ -172,9 +168,9 @@
   var PRODUCT_MIN_PLAN = {
     tarot: 'free',
     lifecode: 'free',
-    name: 'pro',
-    harmony: 'pro',
-    p48: 'pro',
+    name: 'plus',
+    harmony: 'plus',
+    p48: 'plus',
     calendar: 'basic',
   };
 
@@ -185,9 +181,9 @@
   }
 
   function planKoLabel(plan) {
-    if (plan === 'pro' || plan === 'plus') return 'Plus';
+    if (plan === 'plus') return 'Plus';
     if (plan === 'professional') return 'Professional';
-    if (plan === 'special' || plan === 'private' || plan === 'professional2') return 'Private';
+    if (plan === 'private') return 'Private';
     return 'Basic';
   }
 

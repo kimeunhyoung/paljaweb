@@ -78,7 +78,7 @@
       prefix: 'pbas',
       successHref: 'analysis.html',
     },
-    pro: {
+    plus: {
       title: 'Plus 플랜',
       desc: 'PDF 저장, 로슈 격자, 인생전반표 등 Plus 기능을 이용할 수 있어요.',
       orderName: 'Plus 플랜',
@@ -96,7 +96,7 @@
 
   const PRICES = {
     basic: 9900,
-    pro: 29900,
+    plus: 29900,
     professional: 49900,
   };
 
@@ -130,7 +130,7 @@
 
     const { data: profile } = await sb.from('profiles').select('plan, plan_active_until').eq('id', session.user.id).single();
     const activePlan = window.PaljaPlan ? PaljaPlan.effectivePlan(profile) : (profile?.plan || 'free');
-    const ranks = { free: 0, basic: 1, pro: 2, professional: 3 };
+    const ranks = { free: 0, basic: 1, plus: 2, professional: 3, private: 4 };
     if ((ranks[activePlan] || 0) >= (ranks[plan] || 0) && activePlan !== 'free') {
       showMsg('이미 ' + activePlan.charAt(0).toUpperCase() + activePlan.slice(1) + ' 이용 중입니다.', 'info');
       document.getElementById('pay-ui').innerHTML =

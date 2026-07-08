@@ -107,8 +107,7 @@
       var next = params.get('next');
       if (!next) {
         var plan = params.get('plan');
-        if (plan === 'plus') plan = 'pro';
-        if (plan === 'basic' || plan === 'pro' || plan === 'plus' || plan === 'professional') {
+        if (plan === 'basic' || plan === 'plus' || plan === 'professional') {
           next = 'checkout.html?plan=' + plan + '&cycle=monthly';
         }
       }

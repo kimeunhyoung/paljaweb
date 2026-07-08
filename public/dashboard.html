@@ -1023,18 +1023,16 @@
 
   function onPlanActionClick() {
     const tierText = (document.querySelector('.plan-tier')?.textContent || '').toLowerCase();
-    const tier =
-      tierText === 'private' || tierText === 'professional2' ? 'special' :
-      (tierText === 'plus' ? 'pro' : tierText);
-    if (tier === 'professional' || tier === 'special') {
+    const tier = tierText;
+    if (tier === 'professional' || tier === 'private') {
       alert('이미 최고 플랜(Professional)을 이용 중입니다.');
       return;
     }
     window.location.href = 'pricing.html';
   }
 
-  const UPGRADE_PLAN_LABEL = { basic: 'Basic', pro: 'Plus', professional: 'Professional(상담사)' };
-  const UPGRADE_TIER_ORDER = ['basic', 'pro', 'professional'];
+  const UPGRADE_PLAN_LABEL = { basic: 'Basic', plus: 'Plus', professional: 'Professional(상담사)' };
+  const UPGRADE_TIER_ORDER = ['basic', 'plus', 'professional'];
 
   async function renderUpgradeOptions(currentPlan, session) {
     const box = document.getElementById('upgradeBox');
@@ -1141,18 +1139,13 @@
         plan !== 'free' &&
         (!profileRow?.plan_active_until || new Date(profileRow.plan_active_until) > new Date());
       const displayPlan = planActive ? plan : 'free';
-      const normalizedDisplayPlan =
-        displayPlan === 'private' || displayPlan === 'professional2' ? 'special' :
-        (displayPlan === 'plus' ? 'pro' : displayPlan);
+      const normalizedDisplayPlan = displayPlan;
       const isCounselorPlan =
-        normalizedDisplayPlan === 'professional' || normalizedDisplayPlan === 'special';
+        normalizedDisplayPlan === 'professional' || normalizedDisplayPlan === 'private';
       const planLabels = {
-        pro: 'Plus',
         plus: 'Plus',
         professional: 'Professional',
-        special: 'Private',
         private: 'Private',
-        professional2: 'Private',
         basic: 'Basic',
         free: 'Free',
       };
@@ -1183,7 +1176,7 @@
       }
       if (isCounselorPlan && profileRow?.plan_active_until) {
         const until = new Date(profileRow.plan_active_until);
-        const planName = normalizedDisplayPlan === 'special' ? 'Private' : 'Professional';
+        const planName = normalizedDisplayPlan === 'private' ? 'Private' : 'Professional';
         const expText = planActive
           ? `${planName} 이용 만료: ${until.toLocaleDateString('ko-KR')}`
           : `${planName} 기간이 지났습니다. 요금제에서 갱신할 수 있어요.`;

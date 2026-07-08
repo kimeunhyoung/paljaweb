@@ -50,11 +50,11 @@ export const LIFECODE_PRODUCT = {
     {
       href: '#pyramidRhythmSection',
       title: '인생리듬',
-      tier: 'special',
+      tier: 'private',
       desc: '인생여정수 기준 네 구간·활동/정비 리듬과 36년 순환표.',
     },
     { href: '#timelineSection', title: '10년 타임라인 · 수비학', tier: 'basic', desc: '수비학 개인연도 10년. 100년 인생전반표는 Plus·Professional.' },
-    { href: '#tlBlockTarot', title: '10년 타임라인 · 타로', tier: 'special', desc: '타로 올해의 수 10년 차트와 100년 인생전반표.' },
+    { href: '#tlBlockTarot', title: '10년 타임라인 · 타로', tier: 'private', desc: '타로 올해의 수 10년 차트와 100년 인생전반표.' },
     { href: '#monthlySection', title: '월간 흐름', tier: 'basic', desc: '선택 연도의 월별 리듬.' },
     { href: '#nav-flow', title: '지금의 흐름', tier: 'basic', desc: '수비학 개인연도·타로 올해의 수, 이번 달·오늘.' },
     {
@@ -63,17 +63,17 @@ export const LIFECODE_PRODUCT = {
       tier: 'basic',
       desc: '오늘부터 7일간 일간 수·에너지 가이드 표.',
     },
-    { href: '#growthSection', title: '성장 지도', tier: 'pro', desc: '비어 있는 숫자·보완 포인트.' },
+    { href: '#growthSection', title: '성장 지도', tier: 'plus', desc: '비어 있는 숫자·보완 포인트.' },
     {
       href: '#loshuSection',
       title: '로슈 격자',
-      tier: 'pro',
+      tier: 'plus',
       desc: '생일 숫자를 마방진에 올려 화살·결손·반복 패턴을 읽습니다.',
     },
     {
       href: '#seqArrowSection',
       title: '풀 애로우 · 순차 격자',
-      tier: 'pro',
+      tier: 'plus',
       desc: '서양식 3·6·9 / 2·5·8 / 1·4·7 순차 격자의 8가지 풀·빈 화살 해석.',
     },
   ],
@@ -142,8 +142,8 @@ export function buildLifecodeProductReadingGuideInner() {
   const normalizedPlan =
     typeof window !== 'undefined' && window.PaljaPlan?.normalizeDbPlan
       ? window.PaljaPlan.normalizeDbPlan(plan)
-      : (plan === 'plus' ? 'pro' : (plan === 'private' || plan === 'professional2' ? 'special' : plan));
-  const isFullTier = normalizedPlan === 'pro' || normalizedPlan === 'professional' || normalizedPlan === 'special';
+      : plan;
+  const isFullTier = normalizedPlan === 'plus' || normalizedPlan === 'professional' || normalizedPlan === 'private';
   const allowed = new Set(LIFECODE_PRODUCT.basicGuideHrefs || []);
   const modules = (isFullTier ? LIFECODE_PRODUCT.guideModules : LIFECODE_PRODUCT.guideModules.filter((m) => allowed.has(m.href)))
     .filter((m) => {
@@ -154,10 +154,10 @@ export function buildLifecodeProductReadingGuideInner() {
     const g = typeof window !== 'undefined' ? window.PaljaPlan : null;
     if (g && g.tierBadgeHtml) return g.tierBadgeHtml(tier);
     if (tier === 'free') return '';
-    const labels = { basic: 'B', pro: 'P', special: 'S' };
-    const t = tier === 'professional2' ? 'special' : (labels[tier] ? tier : 'pro');
-    const css = t === 'professional2' ? 'special' : t;
-    const title = t === 'special' ? 'S: Private' : (t === 'basic' ? 'B: Basic 이상' : 'P: Plus·Professional 이상');
+    const labels = { basic: 'B', plus: 'P', private: 'S' };
+    const t = labels[tier] ? tier : 'plus';
+    const css = t === 'plus' ? 'pro' : (t === 'private' ? 'special' : t);
+    const title = t === 'private' ? 'S: Private' : (t === 'basic' ? 'B: Basic 이상' : 'P: Plus·Professional 이상');
     return `<span class="lc-guide-tier-badge lc-guide-tier-badge--${css}" title="${title} 플랜">${labels[tier] || labels[t] || 'P'}</span>`;
   };
   const legend =

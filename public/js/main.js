@@ -82,9 +82,8 @@ function initScrollAnimations() {
 
 function isProfessionalAccess(profile) {
   if (!profile) return false
-  const raw = String(profile.plan || 'free').toLowerCase()
-  const p = raw === 'professional2' || raw === 'private' ? 'special' : raw
-  if (p !== 'professional' && p !== 'special') return false
+  const p = String(profile.plan || 'free').toLowerCase()
+  if (p !== 'professional' && p !== 'private') return false
   if (!profile.plan_active_until) return true
   return new Date(profile.plan_active_until) > new Date()
 }

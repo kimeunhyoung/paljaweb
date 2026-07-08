@@ -241,6 +241,8 @@
     }
     .plan-badge.basic { border-color: var(--accent); color: var(--warm-brown); background: var(--accent-lt); }
     .plan-badge.pro { border-color: var(--teal); color: var(--teal); background: var(--teal-lt); }
+    .plan-badge.plus { border-color: var(--teal); color: var(--teal); background: var(--teal-lt); }
+    .plan-badge.private { border-color: var(--deep-brown); color: var(--deep-brown); background: var(--parchment); }
     .plan-badge.professional { border-color: var(--deep-brown); color: var(--deep-brown); background: var(--parchment); }
     .back-btn {
       font-family: var(--font-body);
@@ -4158,7 +4160,7 @@ try {
 }
 
 // ── PLAN CHECK ──
-let USER_PLAN = 'free'; // free | basic | pro | professional
+let USER_PLAN = 'free'; // free | basic | plus | professional | private
 let CURRENT_USER_ID = 'guest';
 // 개발/테스트 시 유료 기능을 임시로 해제하려면 아래 플래그를 true로 변경하세요.
 // 주의: 운영 환경에선 반드시 false로 두세요.
@@ -4534,8 +4536,8 @@ async function initAuth() {
         : dbPlan);
     // 개발 모드: Basic 이하만 Pro로 끌어올림. Professional은 상담사 기능 유지
     if (DEV_UNLOCK_PAID) {
-      const _r = { free: 0, basic: 1, pro: 2, professional: 3, special: 4, professional2: 4 };
-      if ((_r[USER_PLAN] ?? 0) < _r.pro) USER_PLAN = 'pro';
+      const _r = { free: 0, basic: 1, plus: 2, professional: 3, private: 4 };
+      if ((_r[USER_PLAN] ?? 0) < _r.plus) USER_PLAN = 'plus';
     }
     const badge = document.getElementById('plan-badge');
     if (badge) {
@@ -4589,7 +4591,7 @@ async function loadPrefilledCounselorClient(session) {
   } catch (e) { /* ignore */ }
 }
 
-const PLANS = { free: 0, basic: 1, pro: 2, professional: 3 };
+const PLANS = { free: 0, basic: 1, plus: 2, professional: 3, private: 4 };
 function hasAccess(required) {
   // 개발 플래그가 켜져 있으면 모든 권한 허용
   if (DEV_UNLOCK_PAID) return true;
@@ -4615,14 +4617,14 @@ function hasDeepAnalysisAccess() {
   if (window.PaljaPlan && typeof window.PaljaPlan.hasDeepAnalysisAccess === 'function') {
     return window.PaljaPlan.hasDeepAnalysisAccess(USER_PLAN, DEV_UNLOCK_PAID);
   }
-  return hasAccess('pro');
+  return hasAccess('plus');
 }
 
 function hasSpecialAccess() {
   if (window.PaljaPlan && typeof window.PaljaPlan.hasSpecialAccess === 'function') {
     return window.PaljaPlan.hasSpecialAccess(USER_PLAN, DEV_UNLOCK_PAID);
   }
-  return USER_PLAN === 'special' || USER_PLAN === 'private' || USER_PLAN === 'professional2';
+  return USER_PLAN === 'private';
 }
 
 function hasPyramidRhythmAccess() {
@@ -4649,8 +4651,8 @@ function hasFullTimelineAccess() {
 }
 
 function gateHTML(planRequired, title, desc) {
-  const labels = { basic: 'Basic', pro: 'Plus', special: 'Private', professional: 'Professional' };
-  if (planRequired === 'special') {
+  const labels = { basic: 'Basic', plus: 'Plus', private: 'Private', professional: 'Professional' };
+  if (planRequired === 'private') {
     return `<div class="feature-gate">
     <div class="gate-icon">🔒</div>
     <div class="gate-title">${title}</div>
@@ -7247,11 +7249,11 @@ function lcModuleNav(href, title, tier) {
 /** 목차 줄 앞머리: 현재 플랜으로 열 수 없으면 필요 티어 표시 (호출 시점에 USER_PLAN·hasAccess 반영) */
 function lcGuideTierPrefix(required) {
   if (DEV_UNLOCK_PAID) return '';
-  if (required === 'pro' && hasDeepAnalysisAccess()) return '';
+  if (required === 'plus' && hasDeepAnalysisAccess()) return '';
   if (required === 'basic' && hasAccess('basic')) return '';
-  if (required === 'special' && hasSpecialAccess()) return '';
-  const label = required === 'pro' ? 'P' : (required === 'special' ? 'S' : 'B');
-  const title = required === 'pro' ? 'Plus·Professional' : (required === 'special' ? 'Private' : 'Basic');
+  if (required === 'private' && hasSpecialAccess()) return '';
+  const label = required === 'plus' ? 'P' : (required === 'private' ? 'S' : 'B');
+  const title = required === 'plus' ? 'Plus·Professional' : (required === 'private' ? 'Private' : 'Basic');
   return `<strong class="lc-guide-tier-needed" title="${title} 필요">${label} 필요</strong> · `;
 }
 
@@ -7280,7 +7282,7 @@ function buildReadingGuideCatalogInnerHtml() {
         `생월·생일을 48세그먼트로 나눈 세부 기질·역할 패턴 분류.`,
       )}
       ${(window.PaljaAnalysisAi && PaljaAnalysisAi.publicAiSectionsEnabled()) ? lcReadingGuideCatalogRow(
-        lcModuleNav('#aiSummarySection', 'AI 종합 요약', 'pro'),
+        lcModuleNav('#aiSummarySection', 'AI 종합 요약', 'plus'),
         `상위 수비학·보조 레이어를 한 단락으로 재구성한 생성형 요약(참고용 서술 레이어).`,
       ) : ''}
       ${lcReadingGuideCatalogRow(
@@ -7292,7 +7294,7 @@ function buildReadingGuideCatalogInnerHtml() {
         `네 구간별 절정수(환경)·도전수(내적 과제) 번호 산출·표·심층 해석.`,
       )}
       ${lcReadingGuideCatalogRow(
-        lcModuleNav('#pyramidRhythmSection', '인생리듬', 'special'),
+        lcModuleNav('#pyramidRhythmSection', '인생리듬', 'private'),
         `인생여정수 기준 네 구간·활동/정비 리듬과 36년 순환표.`,
       )}
       ${lcReadingGuideCatalogRow(
@@ -7300,7 +7302,7 @@ function buildReadingGuideCatalogInnerHtml() {
         `수비학 개인연도 10년 차트. <strong>Plus·Professional</strong>은 수비학 인생전반표(100년) 포함.`,
       )}
       ${lcReadingGuideCatalogRow(
-        lcModuleNav('#tlBlockTarot', '10년 타임라인 · 타로', 'special'),
+        lcModuleNav('#tlBlockTarot', '10년 타임라인 · 타로', 'private'),
         `타로 올해의 수 10년 차트와 100년 인생전반표.`,
       )}
       ${lcReadingGuideCatalogRow(
@@ -7312,7 +7314,7 @@ function buildReadingGuideCatalogInnerHtml() {
         `수비학 개인연도·타로 올해의 수·연령진동수와 이번 달·오늘의 수 카드.`,
       )}
       ${(window.PaljaAnalysisAi && PaljaAnalysisAi.publicAiSectionsEnabled()) ? lcReadingGuideCatalogRow(
-        lcModuleNav('#aiTodaySection', 'AI 오늘의 메시지', 'pro'),
+        lcModuleNav('#aiTodaySection', 'AI 오늘의 메시지', 'plus'),
         `당일 맥락을 한 줄로 압축한 언어 모델 브리프.`,
       ) : ''}
       ${lcReadingGuideCatalogRow(
@@ -7320,15 +7322,15 @@ function buildReadingGuideCatalogInnerHtml() {
         `일별 일간 수·가이드를 표 형태로 표시.`,
       )}
       ${lcReadingGuideCatalogRow(
-        lcModuleNav('#loshuSection', '로슈 격자 분석', 'pro'),
+        lcModuleNav('#loshuSection', '로슈 격자 분석', 'plus'),
         `로슈 매직 스퀘어(九宫) 패턴으로 보는 균형·강약 분포.`,
       )}
       ${lcReadingGuideCatalogRow(
-        lcModuleNav('#seqArrowSection', '풀 애로우 · 순차 격자', 'pro'),
+        lcModuleNav('#seqArrowSection', '풀 애로우 · 순차 격자', 'plus'),
         `서양식 3·6·9 / 2·5·8 / 1·4·7 순차 격자의 8가지 풀·빈 화살 해석.`,
       )}
       ${lcReadingGuideCatalogRow(
-        lcModuleNav('#growthSection', '성장 지도', 'pro'),
+        lcModuleNav('#growthSection', '성장 지도', 'plus'),
         `생년월일 자리 분포의 결손·과다 숫자로 보는 보완·성장 초점.`,
       )}
       <p class="lc-guide-catalog-footnote">제목 옆 <strong>B</strong>·<strong>P</strong>는 Basic·Pro부터 열리는 모듈입니다. 무료 모듈은 배지 없이 표시됩니다.</p>
@@ -8526,7 +8528,7 @@ async function runAnalysis() {
       callAISummary(lp, mn, py, nameRaw, destinyNum, soulNum, personalityNum, maturityNum, y, m, d);
     }
   } else {
-    document.getElementById('aiSummaryContent').innerHTML = gateHTML('pro','AI 종합 요약','핵심 수들을 종합한 당신만의 성격·잠재력 분석 한 단락을 AI가 생성합니다.');
+    document.getElementById('aiSummaryContent').innerHTML = gateHTML('plus','AI 종합 요약','핵심 수들을 종합한 당신만의 성격·잠재력 분석 한 단락을 AI가 생성합니다.');
   }
   }
 
@@ -8676,7 +8678,7 @@ async function runAnalysis() {
   // ── 4. AI 오늘의 메시지 (Plus+) — 기본 비노출, ?ai=on 일 때만
   if (window.PaljaAnalysisAi && PaljaAnalysisAi.publicAiSectionsEnabled()) {
   const aiServerOnToday = !isAIRequestDisabled() && (await fetchAiAvailable());
-  if(hasAccess('pro')) {
+  if(hasAccess('plus')) {
     const aiTodayBody = (isAIRequestDisabled())
       ? `<div class="ai-text" style="color:var(--muted)">AI 점검 모드로 요청이 비활성화되어 있습니다. URL에 <strong>?ai=on</strong>을 붙이면 다시 활성화됩니다.</div>`
       : (!aiServerOnToday)
@@ -8692,7 +8694,7 @@ async function runAnalysis() {
   } else {
     document.getElementById('aiTodaySection').innerHTML = `
       <div class="section-header"><div class="section-line"></div><span class="section-label">AI 오늘의 메시지</span><div class="section-line"></div></div>
-      ${gateHTML('pro','AI 오늘의 메시지','날짜 에너지를 기반으로 오늘 당신에게 필요한 맞춤 메시지를 AI가 생성합니다.')}`;
+      ${gateHTML('plus','AI 오늘의 메시지','날짜 에너지를 기반으로 오늘 당신에게 필요한 맞춤 메시지를 AI가 생성합니다.')}`;
   }
   }
 
@@ -8702,7 +8704,7 @@ async function runAnalysis() {
     const classicTL = createTenYearTimeline('classic', tlCtx);
     const tarotTL = hasTarotTimelineAccess()
       ? createTenYearTimeline('tarot', tlCtx)
-      : { html: gateHTML('special', '타로 올해의 수', '연도 자릿수합+문 넘버로 읽는 타로 10년 차트입니다.'), bind: () => {} };
+      : { html: gateHTML('private', '타로 올해의 수', '연도 자릿수합+문 넘버로 읽는 타로 10년 차트입니다.'), bind: () => {} };
     const classicLifeBlock = hasFullTimelineAccess()
       ? (() => {
           const classicLife = createClassicLifeYearChart({ y, mr_r, dr_r, curY });
@@ -8723,7 +8725,7 @@ async function runAnalysis() {
         ${classicLifeBlock.html}
       </section>
       <section class="timeline-block" id="tlBlockTarot">
-        <h3 class="timeline-block-title">10년 타임라인 · 타로 ${lcTierBadge('special')}</h3>
+        <h3 class="timeline-block-title">10년 타임라인 · 타로 ${lcTierBadge('private')}</h3>
         <p class="timeline-block-bridge">연도 자릿수합+문 넘버(전합)을 더해 메이저 아르카나 0~21로 읽습니다. 아래 <strong>현재 흐름</strong>의 올해의 수와 같으며, Private에서는 100년 인생전반표가 이어집니다.</p>
         ${tarotTL.html}
         ${tarotLifeBlock.html}
@@ -8934,7 +8936,7 @@ async function runAnalysis() {
         </div>`;
     }
   } else {
-    document.getElementById('growthContent').innerHTML=gateHTML('pro','Growth Map · 성장 지도','선천적으로 미개발된 역량과 구체적인 실천 방향을 분석합니다.');
+    document.getElementById('growthContent').innerHTML=gateHTML('plus','Growth Map · 성장 지도','선천적으로 미개발된 역량과 구체적인 실천 방향을 분석합니다.');
   }
 
   const loshuBridgeHost = document.getElementById('loshuSectionBridge');
@@ -8948,7 +8950,7 @@ async function runAnalysis() {
   const pyramidBridgeHost = document.getElementById('pyramidRhythmSectionBridge');
 
   // ── 10. 로슈 격자 + 순차 풀 애로우 (Plus+) ──
-  if(hasAccess('pro')) {
+  if(hasAccess('plus')) {
     const birthStr=y.toString()+m.toString().padStart(2,'0')+d.toString().padStart(2,'0');
     const counts=Array(10).fill(0);
     for(const n of birthStr) if(n!=='0') counts[Number(n)]++;
@@ -9028,8 +9030,8 @@ async function runAnalysis() {
         </div>
       </div>`;
   } else {
-    document.getElementById('loshuContent').innerHTML=gateHTML('pro','로슈 격자 분석','고전 마방진에 생일 숫자를 올려 8개 풀·빈 화살, 개별 칸 부재, 반복 패턴을 읽습니다.');
-    document.getElementById('seqArrowContent').innerHTML=gateHTML('pro','풀 애로우 · 순차 격자','3·6·9 / 2·5·8 / 1·4·7 순차 격자에서 8가지 풀·빈 화살(결단력·질서·영성·실용·감정·지적·독립·창의)을 읽습니다.');
+    document.getElementById('loshuContent').innerHTML=gateHTML('plus','로슈 격자 분석','고전 마방진에 생일 숫자를 올려 8개 풀·빈 화살, 개별 칸 부재, 반복 패턴을 읽습니다.');
+    document.getElementById('seqArrowContent').innerHTML=gateHTML('plus','풀 애로우 · 순차 격자','3·6·9 / 2·5·8 / 1·4·7 순차 격자에서 8가지 풀·빈 화살(결단력·질서·영성·실용·감정·지적·독립·창의)을 읽습니다.');
   }
 
   // ── 11. 인생리듬 (Private 전용) ──
@@ -9041,7 +9043,7 @@ async function runAnalysis() {
     }
   } else {
     document.getElementById('pyramidRhythmContent').innerHTML = gateHTML(
-      'special',
+      'private',
       '인생리듬',
       '인생여정수 기준 네 구간·활동/정비 리듬과 36년 순환표를 시각화합니다.',
     );
@@ -9088,7 +9090,7 @@ async function runAnalysis() {
   });
 
   // ── 12. PDF (Plus+) ──
-  if (hasAccess('pro')) {
+  if (hasAccess('plus')) {
     document.getElementById('pdfSection').innerHTML = `
       <button type="button" class="gate-btn" style="background:var(--warm-brown)" onclick="openExportPicker('pdf')">PDF로 저장하기</button>`;
   } else {
