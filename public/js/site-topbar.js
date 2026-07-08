@@ -10,7 +10,7 @@
     { id: 'p48', href: 'period48-compat.html', label: '48궁합' },
     { id: 'name', href: 'name.html', label: '네임코드' },
     { id: 'calendar', href: 'numerology-calendar.html', label: '수비학달력' },
-    { id: 'wallpaper', href: 'numerology-wallpaper.html', label: '에너지배경' },
+    { id: 'wallpaper', href: 'numerology-wallpaper.html', label: '에너지 배경' },
     { id: 'tarot', href: 'Tarot.html', label: '타로코드' },
     { id: 'counselor', href: 'counselor.html', label: '상담사허브' },
     { id: 'pricing', href: 'pricing.html', label: '요금제' }
