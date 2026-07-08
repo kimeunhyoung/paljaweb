@@ -1030,7 +1030,7 @@
     window.location.href = 'pricing.html';
   }
 
-  const UPGRADE_PLAN_LABEL = { basic: 'Basic', pro: 'Pro', professional: 'Professional(상담사)' };
+  const UPGRADE_PLAN_LABEL = { basic: 'Basic', pro: 'Plus', professional: 'Professional(상담사)' };
   const UPGRADE_TIER_ORDER = ['basic', 'pro', 'professional'];
 
   async function renderUpgradeOptions(currentPlan, session) {
@@ -1141,7 +1141,7 @@
       const isCounselorPlan =
         displayPlan === 'professional' || displayPlan === 'special' || displayPlan === 'professional2';
       const planLabels = {
-        pro: 'Pro',
+        pro: 'Plus',
         professional: 'Professional',
         special: '스페셜',
         professional2: '스페셜',

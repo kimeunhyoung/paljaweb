@@ -32,11 +32,11 @@
   const { createClient } = supabase;
   const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-  const labels = { basic: 'Basic', pro: 'Pro', professional: 'Professional' };
+  const labels = { basic: 'Basic', pro: 'Plus', professional: 'Professional' };
   const hrefs = { basic: 'analysis.html', pro: 'dashboard.html', professional: 'counselor.html' };
   const descs = {
     basic: 'Basic 기능을 바로 이용해 보세요.',
-    pro: 'Pro 기능을 바로 이용해 보세요.',
+    pro: 'Plus 기능을 바로 이용해 보세요.',
     professional: '상담사 허브에서 고객·일정을 관리하고 분석을 이어가세요.',
   };
 
