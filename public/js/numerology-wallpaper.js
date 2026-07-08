@@ -57,11 +57,11 @@ const NAME_MODES = new Set(["name_missing", "destiny", "soul", "personality"]);
 const LAYOUT = {
   phone: {
     titleY: 0.16, modeY: 0.19, numY: 0.42, keyY: 0.61, subY: 0.65, lineY: 0.695,
-    disclaimerY: 0.9, brandY: 0.935, numSize: 460, gridY: 0.72, gridCell: 96,
+    brandY: 0.935, numSize: 460, gridY: 0.72, gridCell: 96,
   },
   square: {
     titleY: 0.1, modeY: 0.13, numY: 0.38, keyY: 0.61, subY: 0.65, lineY: 0.70,
-    disclaimerY: 0.88, brandY: 0.93, numSize: 320, gridY: 0.78, gridCell: 72,
+    brandY: 0.93, numSize: 320, gridY: 0.78, gridCell: 72,
   },
 };
 
@@ -587,10 +587,6 @@ function drawWallpaper(canvas, resolved) {
     ctx, meta.line, W / 2, H * layout.lineY, W * 0.72, state.aspect === "square" ? 38 : 46,
     `400 ${state.aspect === "square" ? 28 : 32}px "Noto Sans KR", sans-serif`, "#ffffffbb",
   );
-
-  ctx.fillStyle = "#ffffff66";
-  ctx.font = '400 22px "Noto Sans KR", sans-serif';
-  ctx.fillText("참고용 · 기분 전환용 배경", W / 2, H * layout.disclaimerY);
 
   ctx.fillStyle = "#ffffff88";
   ctx.font = '500 26px "Noto Sans KR", sans-serif';
