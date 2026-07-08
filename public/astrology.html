@@ -659,7 +659,7 @@ body.export-capturing #wheelCard .note{display:none !important;}
       refreshAiUi();
     } catch (e) { /* 게스트/오류 시 무료 권한 */ }
   })();
-  const LOCK_HTML = '<div class="astro-lock"><span class="lock-emoji">🔒</span><div><strong>Basic 이상 플랜</strong>에서 볼 수 있는 심화 분석이에요. 트랜짓(오늘의 운세)·행성 상세 해석·AI 프롬프트가 열립니다.</div><a href="pricing.html">요금제 보기 →</a></div>';
+  const LOCK_HTML = '<div class="astro-lock"><span class="lock-emoji">🔒</span><div><strong>Basic 이상 플랜</strong>에서 볼 수 있는 심화 분석이에요. 어스펙트 해설·트랜짓(오늘의 운세)·행성 상세 해석·AI 프롬프트가 열립니다.</div><a href="pricing.html">요금제 보기 →</a></div>';
 
   // ── 도시 셀렉트 채우기 ──
   (function fillCities() {
@@ -1023,15 +1023,15 @@ body.export-capturing #wheelCard .note{display:none !important;}
     result.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
 
-  // 무료 사용자: 심화 카드(행성해석·어스펙트·트랜짓·AI)를 잠금 안내로 대체
+  // 무료 사용자: 심화 카드(행성해석·어스펙트 해설·트랜짓·AI)를 잠금 — 어스펙트 그리드는 무료 공개
   function applyAstroGate() {
     $('planetReadList').innerHTML = LOCK_HTML;
     $('aspectCard').style.display = '';
     $('aspectList').innerHTML = LOCK_HTML;
-    const arGrid = $('wheelAspectGrid');
-    if (arGrid) arGrid.innerHTML = LOCK_HTML;
-    const tc = $('transitDataBlock') || document.querySelector('#transitCard .transit-controls');
-    if (tc) tc.style.display = 'none';
+    const transitBlock = $('transitDataBlock');
+    if (transitBlock) transitBlock.style.display = '';
+    const controls = document.querySelector('#transitCard .transit-controls');
+    if (controls) controls.style.display = 'none';
     $('transitResult').innerHTML = LOCK_HTML;
     $('yearForecast').innerHTML = LOCK_HTML;
     const yBlock = $('yearAiBlock');
