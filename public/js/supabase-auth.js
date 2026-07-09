@@ -86,7 +86,13 @@ if (signupForm) {
     btn.textContent = '가입 중...'
     btn.disabled = true
 
-    const { error } = await supabase.auth.signUp({ email, password })
+    const { error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: window.PaljaAttribution?.read?.()
+        ? { data: { palja_attribution: window.PaljaAttribution.read() } }
+        : undefined,
+    })
 
     if (error) {
       showMsg('가입 실패: ' + error.message, true)
@@ -203,6 +209,9 @@ async function handleOAuthReturn() {
   }
 
   if (session) {
+    if (window.PaljaAttribution?.syncWithToken) {
+      await window.PaljaAttribution.syncWithToken(session.access_token);
+    }
     const next = readSafeNextUrl()
     window.location.replace(next || '/dashboard.html')
     return true

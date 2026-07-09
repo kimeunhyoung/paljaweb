@@ -10,6 +10,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
 
   <!-- Supabase CDN -->
+  <script src="js/attribution.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
   <style>
@@ -1108,6 +1109,10 @@
     if (!session) {
       window.location.replace('login.html');
       return;
+    }
+
+    if (window.PaljaAttribution?.syncWithToken) {
+      window.PaljaAttribution.syncWithToken(session.access_token);
     }
 
     const user = session.user;

@@ -1,6 +1,26 @@
 -- Supabase Dashboard → SQL Editor 에서 한 번 실행
--- 가입(auth.users) 시 public.profiles 행 자동 생성 + 기존 유저 백필
+-- 회원 가입 유입 경로(첫 방문 페이지·referrer·UTM) 저장
 
+alter table public.profiles
+  add column if not exists signup_landing_page text,
+  add column if not exists signup_referrer text,
+  add column if not exists utm_source text,
+  add column if not exists utm_medium text,
+  add column if not exists utm_campaign text,
+  add column if not exists utm_term text,
+  add column if not exists utm_content text,
+  add column if not exists signup_attribution_at timestamptz;
+
+comment on column public.profiles.signup_landing_page is '가입 전 첫 방문 페이지 경로 (예: /numerology-calendar.html)';
+comment on column public.profiles.signup_referrer is '가입 전 첫 방문 시 document.referrer';
+comment on column public.profiles.utm_source is 'UTM source (예: google, naver, instagram)';
+comment on column public.profiles.utm_medium is 'UTM medium (예: cpc, organic, social)';
+comment on column public.profiles.utm_campaign is 'UTM campaign';
+comment on column public.profiles.utm_term is 'UTM term (광고 키워드 등)';
+comment on column public.profiles.utm_content is 'UTM content';
+comment on column public.profiles.signup_attribution_at is '유입 정보 최초 캡처 시각';
+
+-- auth.users INSERT 시 user_metadata.palja_attribution → profiles 복사
 create or replace function public.handle_new_user()
 returns trigger
 language plpgsql
@@ -51,27 +71,3 @@ begin
   return new;
 end;
 $$;
-
-drop trigger if exists on_auth_user_created on auth.users;
-
-create trigger on_auth_user_created
-  after insert on auth.users
-  for each row
-  execute function public.handle_new_user();
-
--- 이미 가입했지만 profiles 가 없는 유저 (Authentication 6명 vs profiles 2명 등)
-insert into public.profiles (id, full_name, plan)
-select
-  u.id,
-  coalesce(
-    nullif(trim(u.raw_user_meta_data->>'full_name'), ''),
-    nullif(trim(u.raw_user_meta_data->>'name'), ''),
-    nullif(split_part(coalesce(u.email, ''), '@', 1), ''),
-    '사용자'
-  ),
-  'free'
-from auth.users u
-left join public.profiles p on p.id = u.id
-where p.id is null;
-
-comment on function public.handle_new_user() is 'auth.users INSERT 시 profiles 행 자동 생성 (plan=free)';

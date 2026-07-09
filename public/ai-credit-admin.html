@@ -7,7 +7,7 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     body { font-family: "Noto Serif KR", serif; background:#f5f0e8; color:#2c1f0e; margin:0; }
-    .wrap { max-width:1100px; margin:0 auto; padding:24px; }
+    .wrap { max-width:1400px; margin:0 auto; padding:24px; overflow-x:auto; }
     h1 { margin:0 0 8px; font-size:28px; }
     .sub { margin:0 0 16px; color:#7d6b56; font-size:14px; }
     .toolbar { display:flex; gap:10px; flex-wrap:wrap; margin-bottom:14px; }
@@ -33,10 +33,10 @@
 <body>
   <div class="wrap">
     <h1>AI 월 크레딧 관리자</h1>
-    <p class="sub">사용자별 <strong>used(사용량)</strong>를 증감하고, <strong>가입 경로</strong>(이메일·구글·카카오·네이버)와 가입일을 확인할 수 있습니다.</p>
+    <p class="sub">사용자별 크레딧 조정과 함께 <strong>가입 경로</strong>, <strong>유입 페이지</strong>, <strong>UTM/검색어</strong>를 확인할 수 있습니다.</p>
     <div class="toolbar">
       <label>기간(YYYY-MM) <input id="period" placeholder="2026-07" /></label>
-      <label>검색(이메일/이름/경로) <input id="q" placeholder="user@example.com 또는 google" /></label>
+      <label>검색 <input id="q" placeholder="이메일, google, numerology-calendar 등" /></label>
       <button id="loadBtn" type="button">불러오기</button>
       <button id="logoutBtn" class="light" type="button">로그아웃</button>
     </div>
@@ -49,6 +49,9 @@
           <th>이름</th>
           <th>가입 경로</th>
           <th>가입일</th>
+          <th>유입 페이지</th>
+          <th>유입 사이트</th>
+          <th>UTM/키워드</th>
           <th>플랜</th>
           <th>한도</th>
           <th>used</th>
@@ -114,6 +117,30 @@
         return d.toLocaleString('ko-KR', { timeZone: 'Asia/Seoul', year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' });
       }
 
+      function referrerHost(url) {
+        if (!url) return '-';
+        try {
+          return new URL(url).hostname.replace(/^www\./, '');
+        } catch {
+          return String(url).slice(0, 40);
+        }
+      }
+
+      function utmSummary(u) {
+        const parts = [];
+        if (u.utmSource) parts.push(u.utmSource);
+        if (u.utmMedium) parts.push(u.utmMedium);
+        if (u.utmCampaign) parts.push(u.utmCampaign);
+        if (u.utmTerm) parts.push('키워드:' + u.utmTerm);
+        return parts.length ? parts.join(' · ') : '-';
+      }
+
+      function shortPath(path) {
+        if (!path) return '-';
+        const s = String(path);
+        return s.length > 48 ? s.slice(0, 45) + '...' : s;
+      }
+
       function rowHtml(u) {
         return `
           <tr data-id="${u.userId}" data-used="${u.used}" data-limit="${u.limit ?? 0}">
@@ -121,6 +148,9 @@
             <td>${u.fullName || '-'}</td>
             <td>${providerHtml(u.signupProvider)}</td>
             <td class="small">${formatJoinedAt(u.joinedAt)}</td>
+            <td class="mono small" title="${u.landingPage || ''}">${shortPath(u.landingPage)}</td>
+            <td class="small" title="${u.referrer || ''}">${referrerHost(u.referrer)}</td>
+            <td class="small" title="${utmSummary(u)}">${utmSummary(u)}</td>
             <td>${u.plan || 'free'}</td>
             <td class="limit">${u.limit ?? 0}</td>
             <td class="used">${u.used}</td>
@@ -140,7 +170,7 @@
       }
 
       async function loadUsers() {
-        rowsEl.innerHTML = '<tr><td colspan="9">불러오는 중...</td></tr>';
+        rowsEl.innerHTML = '<tr><td colspan="12">불러오는 중...</td></tr>';
         msgEl.style.display = 'none';
         try {
           const token = await getToken();
@@ -151,10 +181,10 @@
           });
           const j = await res.json().catch(() => ({}));
           if (!res.ok) throw new Error(j.error || '목록 조회 실패');
-          rowsEl.innerHTML = (j.users || []).map(rowHtml).join('') || '<tr><td colspan="9">사용자가 없습니다.</td></tr>';
+          rowsEl.innerHTML = (j.users || []).map(rowHtml).join('') || '<tr><td colspan="12">사용자가 없습니다.</td></tr>';
           countLine.textContent = `기간 ${j.period} · ${j.count}명`;
         } catch (e) {
-          rowsEl.innerHTML = '<tr><td colspan="9">불러오지 못했습니다.</td></tr>';
+          rowsEl.innerHTML = '<tr><td colspan="12">불러오지 못했습니다.</td></tr>';
           showMsg(e.message || '오류가 발생했습니다.', false);
         }
       }

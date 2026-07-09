@@ -94,7 +94,12 @@
       syncPlanBadge(sb);
       syncSlots(sb);
     });
-    sb.auth.onAuthStateChange(function () {
+    sb.auth.onAuthStateChange(function (event, session) {
+      if (session?.access_token && (event === 'SIGNED_IN' || event === 'INITIAL_SESSION')) {
+        if (window.PaljaAttribution?.syncWithToken) {
+          window.PaljaAttribution.syncWithToken(session.access_token);
+        }
+      }
       syncPlanBadge(sb);
       syncSlots(sb);
     });

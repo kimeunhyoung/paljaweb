@@ -101,11 +101,36 @@ async function getProfile(userId) {
   if (!base || !key) return null;
   const url =
     `${base.replace(/\/$/, '')}/rest/v1/profiles?id=eq.${encodeURIComponent(userId)}` +
-    '&select=id,full_name,plan,plan_active_until,professional_payment_key,toss_billing_key,subscription_cycle,subscription_cancel_at_period_end,counselor_trial_license_id,counselor_trial_device_id';
+    '&select=id,full_name,plan,plan_active_until,professional_payment_key,toss_billing_key,subscription_cycle,subscription_cancel_at_period_end,counselor_trial_license_id,counselor_trial_device_id,signup_landing_page,signup_referrer,utm_source,utm_medium,utm_campaign,utm_term,utm_content,signup_attribution_at';
   const res = await fetch(url, { headers: supabaseHeaders(key) });
   if (!res.ok) return null;
   const rows = await res.json();
   return rows[0] || null;
+}
+
+function truncateText(value, max) {
+  const s = String(value || '').trim();
+  if (!s) return null;
+  return s.length > max ? s.slice(0, max) : s;
+}
+
+function buildAttributionFields(body) {
+  const capturedAt = truncateText(body?.capturedAt, 40);
+  let attributionAt = null;
+  if (capturedAt) {
+    const parsed = Date.parse(capturedAt);
+    attributionAt = Number.isNaN(parsed) ? new Date().toISOString() : new Date(parsed).toISOString();
+  }
+  return {
+    signup_landing_page: truncateText(body?.landingPage, 300),
+    signup_referrer: truncateText(body?.referrer, 500),
+    utm_source: truncateText(body?.utmSource, 120),
+    utm_medium: truncateText(body?.utmMedium, 120),
+    utm_campaign: truncateText(body?.utmCampaign, 200),
+    utm_term: truncateText(body?.utmTerm, 200),
+    utm_content: truncateText(body?.utmContent, 200),
+    signup_attribution_at: attributionAt || new Date().toISOString(),
+  };
 }
 
 /** @returns {Promise<boolean>} true = 새로 기록됨(이어서 플랜 적용), false = 이미 처리된 payment */
@@ -208,7 +233,7 @@ async function listProfilesBasic() {
   const base = process.env.SUPABASE_URL?.replace(/\/$/, '');
   const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
   if (!base || !key) return [];
-  const url = `${base}/rest/v1/profiles?select=id,full_name,plan,plan_active_until,counselor_trial_license_id`;
+  const url = `${base}/rest/v1/profiles?select=id,full_name,plan,plan_active_until,counselor_trial_license_id,signup_landing_page,signup_referrer,utm_source,utm_medium,utm_campaign,utm_term,utm_content`;
   const res = await fetch(url, { headers: supabaseHeaders(key) });
   if (!res.ok) return [];
   const rows = await res.json();
@@ -612,6 +637,12 @@ app.get('/api/admin/ai-credits/users', async (req, res) => {
         planActiveUntil: p.plan_active_until || null,
         signupProvider: providerLabel(authUser),
         joinedAt: authUser?.created_at || null,
+        landingPage: p.signup_landing_page || '',
+        referrer: p.signup_referrer || '',
+        utmSource: p.utm_source || '',
+        utmMedium: p.utm_medium || '',
+        utmCampaign: p.utm_campaign || '',
+        utmTerm: p.utm_term || '',
         used,
         limit,
         remaining: Math.max(0, limit - used),
@@ -622,7 +653,12 @@ app.get('/api/admin/ai-credits/users', async (req, res) => {
         u.email.includes(q) ||
         u.fullName.toLowerCase().includes(q) ||
         String(u.userId).toLowerCase().includes(q) ||
-        String(u.signupProvider || '').toLowerCase().includes(q))
+        String(u.signupProvider || '').toLowerCase().includes(q) ||
+        String(u.landingPage || '').toLowerCase().includes(q) ||
+        String(u.referrer || '').toLowerCase().includes(q) ||
+        String(u.utmSource || '').toLowerCase().includes(q) ||
+        String(u.utmCampaign || '').toLowerCase().includes(q) ||
+        String(u.utmTerm || '').toLowerCase().includes(q))
       : merged;
     filtered.sort((a, b) => {
       const aJoined = a.joinedAt ? Date.parse(a.joinedAt) : 0;
@@ -704,6 +740,44 @@ app.post('/api/cron/renew-subscriptions', async (req, res) => {
   } catch (e) {
     console.error('[cron/renew-subscriptions]', e);
     res.status(500).json({ error: 'Renewal job failed' });
+  }
+});
+
+app.post('/api/profile/signup-attribution', async (req, res) => {
+  const userId = await getUserIdFromAuth(req.headers.authorization);
+  if (!userId) {
+    res.status(401).json({ error: '로그인이 필요합니다.' });
+    return;
+  }
+  try {
+    const profile = await getProfile(userId);
+    if (!profile) {
+      res.status(404).json({ error: '프로필을 찾을 수 없습니다.' });
+      return;
+    }
+    if (profile.signup_landing_page) {
+      res.json({ ok: true, skipped: true });
+      return;
+    }
+    const fields = buildAttributionFields(req.body || {});
+    const hasData = !!(
+      fields.signup_landing_page ||
+      fields.signup_referrer ||
+      fields.utm_source ||
+      fields.utm_medium ||
+      fields.utm_campaign ||
+      fields.utm_term ||
+      fields.utm_content
+    );
+    if (!hasData) {
+      res.json({ ok: true, skipped: true, reason: 'empty' });
+      return;
+    }
+    await patchProfileFields(userId, fields);
+    res.json({ ok: true, saved: true });
+  } catch (e) {
+    console.error('[profile/signup-attribution]', e);
+    res.status(500).json({ error: '유입 정보 저장 실패' });
   }
 });
 
