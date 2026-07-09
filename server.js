@@ -9,7 +9,7 @@ const { registerNaverAuthRoutes } = require('./lib/naver-auth');
 const { registerCounselorPushRoutes, startCounselorPushScheduler } = require('./lib/counselor-push');
 const { registerCounselorTrialRoutes } = require('./lib/counselor-trial');
 const { registerAiUsageRoutes, isAiUpstreamAvailable, kstPeriod, aiCreditLimit } = require('./lib/ai-usage');
-const { registerSignupNotifyRoutes } = require('./lib/signup-notify');
+const { registerSignupNotifyRoutes, providerLabel } = require('./lib/signup-notify');
 
 const app = express();
 
@@ -598,9 +598,10 @@ app.get('/api/admin/ai-credits/users', async (req, res) => {
       listAiUsageMonthly(period),
     ]);
     const usageByUser = new Map(usageRows.map((r) => [r.user_id, Number(r.credits_used) || 0]));
-    const emailByUser = new Map(authUsers.map((u) => [u.id, (u.email || '').toLowerCase()]));
+    const authByUser = new Map(authUsers.map((u) => [u.id, u]));
     const merged = profiles.map((p) => {
-      const email = emailByUser.get(p.id) || '';
+      const authUser = authByUser.get(p.id);
+      const email = (authUser?.email || '').toLowerCase();
       const used = usageByUser.get(p.id) || 0;
       const limit = aiCreditLimit(p);
       return {
@@ -609,6 +610,8 @@ app.get('/api/admin/ai-credits/users', async (req, res) => {
         fullName: p.full_name || '',
         plan: p.plan || 'free',
         planActiveUntil: p.plan_active_until || null,
+        signupProvider: providerLabel(authUser),
+        joinedAt: authUser?.created_at || null,
         used,
         limit,
         remaining: Math.max(0, limit - used),
@@ -618,9 +621,14 @@ app.get('/api/admin/ai-credits/users', async (req, res) => {
       ? merged.filter((u) =>
         u.email.includes(q) ||
         u.fullName.toLowerCase().includes(q) ||
-        String(u.userId).toLowerCase().includes(q))
+        String(u.userId).toLowerCase().includes(q) ||
+        String(u.signupProvider || '').toLowerCase().includes(q))
       : merged;
-    filtered.sort((a, b) => (b.used - a.used) || a.email.localeCompare(b.email));
+    filtered.sort((a, b) => {
+      const aJoined = a.joinedAt ? Date.parse(a.joinedAt) : 0;
+      const bJoined = b.joinedAt ? Date.parse(b.joinedAt) : 0;
+      return (bJoined - aJoined) || (b.used - a.used) || a.email.localeCompare(b.email);
+    });
     res.json({ period, count: filtered.length, users: filtered });
   } catch (e) {
     console.error('[admin/ai-credits/users]', e);
