@@ -1103,6 +1103,7 @@
       margin-top: -105px;
       transform: translate(var(--hx, 0px), var(--hy, 0px));
       z-index: 1;
+      gap: 0;
     }
     .spread-board--year .tarot-card-wrap--house-center {
       transform: none;
@@ -1111,6 +1112,7 @@
       margin-left: -74px;
       margin-top: -118px;
     }
+    .spread-board--year .tarot-card-pos { display: none !important; }
     .auto-draw-btn {
       display: block;
       width: 100%;
@@ -2018,17 +2020,18 @@
         width: 100%;
         max-width: 100%;
         min-height: 0;
-        aspect-ratio: 1 / 1;
+        /* 세로로 긴 타원 → 카드 더 키울 여유 */
+        aspect-ratio: 0.78;
       }
       .spread-board--year .tarot-card-wrap {
-        width: 78px;
-        margin-left: -39px;
-        margin-top: -62px;
-      }
-      .spread-board--year .tarot-card-wrap--house-center {
         width: 92px;
         margin-left: -46px;
         margin-top: -74px;
+      }
+      .spread-board--year .tarot-card-wrap--house-center {
+        width: 108px;
+        margin-left: -54px;
+        margin-top: -86px;
         transform: none;
       }
       .tarot-card-pos { font-size: 10px; }
@@ -3758,8 +3761,8 @@ function makeDrawCardWrap(i, positions, hideNames, extraClass) {
   const bgColor = CARD_COLORS[card.suit] || '#f5f0e8';
   const imgSrc = getTarotCardImageSrc(card);
   const label = positions[i] || '';
-  // 드로우 모드: 일반 번호 숨김. 12궁(1궁·총운)만 표시
-  const showPos = !hideNames && !!label;
+  // 드로우 모드: 자리 글자(1번·1궁·총운) 전부 없음 — 카드만
+  const showPos = curMode !== 'draw' && !hideNames && !!label;
   const metaHtml = hideNames
     ? ''
     : `<div class="tarot-card-front-meta">
@@ -3888,30 +3891,42 @@ function showDrawnCards() {
       const place = () => {
         const w = board.clientWidth || 360;
         const isNarrow = w < 520;
-        // 라벨 제거 + 살짝 겹침 → 카드 키움
+        if (isNarrow) {
+          board.style.aspectRatio = '0.78';
+          board.style.minHeight = Math.round(w / 0.78) + 'px';
+        }
+        const h = board.clientHeight || (isNarrow ? w / 0.78 : w);
+        // 모바일: 세로로 길게 + 더 큰 카드(겹침 허용). 궁 라벨 없음
         const cardW = isNarrow
-          ? Math.max(72, Math.min(88, Math.floor(w * 0.24)))
+          ? Math.max(88, Math.min(104, Math.floor(w * 0.30)))
           : Math.max(124, Math.min(142, Math.floor(w * 0.225)));
         const cardH = cardW * (3.2 / 2);
         const halfH = cardH / 2;
         wraps.forEach((wrap) => {
+          const stale = wrap.querySelector('.tarot-card-pos');
+          if (stale) stale.remove();
           wrap.style.width = cardW + 'px';
           wrap.style.marginLeft = (-cardW / 2) + 'px';
           wrap.style.marginTop = (-halfH) + 'px';
+          wrap.style.gap = '0';
         });
         if (center) {
-          const cw = Math.round(cardW * 1.18);
+          const stale = center.querySelector('.tarot-card-pos');
+          if (stale) stale.remove();
+          const cw = Math.round(cardW * 1.16);
           const ch = cw * (3.2 / 2);
           center.style.width = cw + 'px';
           center.style.marginLeft = (-cw / 2) + 'px';
           center.style.marginTop = (-ch / 2) + 'px';
         }
-        // 완전 비겹침보다 작게 → 가장자리만 살짝 겹침
         const noOverlapR = cardW / (2 * Math.sin(Math.PI / 12));
-        const tightR = noOverlapR * 0.78;
-        const maxR = w * 0.5 - halfH * 0.72;
-        const rx2 = Math.max(48, Math.min(maxR, Math.max(tightR, w * 0.33)));
-        const ry2 = rx2 * 0.98;
+        const tightR = noOverlapR * (isNarrow ? 0.70 : 0.78);
+        const maxRx = w * 0.5 - cardW * 0.32;
+        const maxRy = h * 0.5 - halfH * 0.55;
+        const rx2 = Math.max(48, Math.min(maxRx, Math.max(tightR, w * (isNarrow ? 0.36 : 0.33))));
+        const ry2 = isNarrow
+          ? Math.max(rx2 * 1.18, Math.min(maxRy, rx2 * 1.28))
+          : rx2 * 0.98;
         wraps.forEach((wrap, i) => {
           const deg = 270 - i * 30;
           const rad = (deg * Math.PI) / 180;
