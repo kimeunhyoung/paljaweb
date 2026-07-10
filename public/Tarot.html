@@ -3888,28 +3888,29 @@ function showDrawnCards() {
       const place = () => {
         const w = board.clientWidth || 360;
         const isNarrow = w < 520;
+        // 라벨 제거 + 살짝 겹침 → 카드 키움
         const cardW = isNarrow
-          ? Math.max(52, Math.min(64, Math.floor(w * 0.155)))
-          : Math.max(96, Math.min(108, Math.floor(w * 0.17)));
+          ? Math.max(72, Math.min(88, Math.floor(w * 0.24)))
+          : Math.max(124, Math.min(142, Math.floor(w * 0.225)));
         const cardH = cardW * (3.2 / 2);
-        const labelH = isNarrow ? 14 : 18;
-        const halfH = (cardH + labelH) / 2;
+        const halfH = cardH / 2;
         wraps.forEach((wrap) => {
           wrap.style.width = cardW + 'px';
           wrap.style.marginLeft = (-cardW / 2) + 'px';
           wrap.style.marginTop = (-halfH) + 'px';
         });
         if (center) {
-          const cw = Math.round(cardW * 1.22);
-          const ch = cw * (3.2 / 2) + labelH;
+          const cw = Math.round(cardW * 1.18);
+          const ch = cw * (3.2 / 2);
           center.style.width = cw + 'px';
           center.style.marginLeft = (-cw / 2) + 'px';
           center.style.marginTop = (-ch / 2) + 'px';
         }
-        // 안 겹치면서 보드 안에 들어오게 반지름 계산
-        const minR = cardW / (2 * Math.sin(Math.PI / 12)) + 6;
-        const maxR = w * 0.5 - halfH - 4;
-        const rx2 = Math.max(40, Math.min(maxR, Math.max(minR, w * 0.37)));
+        // 완전 비겹침보다 작게 → 가장자리만 살짝 겹침
+        const noOverlapR = cardW / (2 * Math.sin(Math.PI / 12));
+        const tightR = noOverlapR * 0.78;
+        const maxR = w * 0.5 - halfH * 0.72;
+        const rx2 = Math.max(48, Math.min(maxR, Math.max(tightR, w * 0.33)));
         const ry2 = rx2 * 0.98;
         wraps.forEach((wrap, i) => {
           const deg = 270 - i * 30;
