@@ -1094,12 +1094,12 @@
     .spread-board--seven-arc [data-slot="5"] { grid-column: 6; grid-row: 3; }
     .spread-board--seven-arc [data-slot="6"] { grid-column: 7; grid-row: 4; }
 
-    /* 12궁: 세로로 긴 타원 · 라벨 없이 카드 크게 */
+    /* 12궁: 가로·세로로 넓게 펼친 타원 */
     .spread-board--year {
       position: relative;
-      width: min(600px, 100%);
-      aspect-ratio: 0.72;
-      min-height: 640px;
+      width: min(720px, 100%);
+      aspect-ratio: 0.65;
+      min-height: 720px;
       margin: 0 auto;
     }
     .spread-board--year .tarot-card-wrap {
@@ -3900,14 +3900,14 @@ function showDrawnCards() {
       const place = () => {
         const w = board.clientWidth || 360;
         const isNarrow = w < 520;
-        // 세로로 더 긴 타원 → 위·아래 간격 확보, 겹침 완화
-        const aspect = isNarrow ? 0.68 : 0.72;
+        // 가로 넓게 + 세로 길게 → 가운데 몰림 해소
+        const aspect = isNarrow ? 0.62 : 0.65;
         board.style.aspectRatio = String(aspect);
         board.style.minHeight = Math.round(w / aspect) + 'px';
         const h = board.clientHeight || w / aspect;
         const cardW = isNarrow
-          ? Math.max(86, Math.min(100, Math.floor(w * 0.28)))
-          : Math.max(118, Math.min(134, Math.floor(w * 0.21)));
+          ? Math.max(82, Math.min(96, Math.floor(w * 0.26)))
+          : Math.max(112, Math.min(128, Math.floor(w * 0.175)));
         const cardH = cardW * (3.2 / 2);
         const halfH = cardH / 2;
         wraps.forEach((wrap) => {
@@ -3921,19 +3921,17 @@ function showDrawnCards() {
         if (center) {
           const stale = center.querySelector('.tarot-card-pos');
           if (stale) stale.remove();
-          const cw = Math.round(cardW * 1.14);
+          const cw = Math.round(cardW * 1.12);
           const ch = cw * (3.2 / 2);
           center.style.width = cw + 'px';
           center.style.marginLeft = (-cw / 2) + 'px';
           center.style.marginTop = (-ch / 2) + 'px';
         }
-        const noOverlapR = cardW / (2 * Math.sin(Math.PI / 12));
-        const tightR = noOverlapR * (isNarrow ? 0.76 : 0.84);
-        const maxRx = w * 0.5 - cardW * 0.36;
-        const maxRy = h * 0.5 - halfH * 0.48;
-        const rx2 = Math.max(48, Math.min(maxRx, Math.max(tightR * 0.92, w * (isNarrow ? 0.34 : 0.31))));
-        // 세로 반지름을 더 키워 위·아래·대각 카드 간격 확보
-        const ry2 = Math.max(rx2 * (isNarrow ? 1.28 : 1.24), Math.min(maxRy, rx2 * (isNarrow ? 1.36 : 1.32)));
+        // 보드 가장자리까지 펼침 (중간 몰림 방지)
+        const maxRx = w * 0.5 - cardW * 0.30;
+        const maxRy = h * 0.5 - halfH * 0.32;
+        const rx2 = Math.max(56, Math.min(maxRx, w * (isNarrow ? 0.42 : 0.41)));
+        const ry2 = Math.max(rx2 * 1.35, Math.min(maxRy, h * (isNarrow ? 0.43 : 0.42)));
         wraps.forEach((wrap, i) => {
           const deg = 270 - i * 30;
           const rad = (deg * Math.PI) / 180;
