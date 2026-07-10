@@ -1092,20 +1092,20 @@
     }
     .spread-board--year .tarot-card-wrap {
       position: absolute;
-      width: 58px;
+      width: 72px;
       left: 50%;
       top: 50%;
-      margin-left: -29px;
-      margin-top: -48px;
+      margin-left: -36px;
+      margin-top: -58px;
       transform: translate(var(--hx, 0px), var(--hy, 0px));
       z-index: 1;
     }
     .spread-board--year .tarot-card-wrap--house-center {
       transform: none;
       z-index: 3;
-      width: 78px;
-      margin-left: -39px;
-      margin-top: -64px;
+      width: 92px;
+      margin-left: -46px;
+      margin-top: -74px;
     }
     .spread-board--year .tarot-card-pos {
       font-size: 10px;
@@ -1119,6 +1119,36 @@
       position: relative;
       z-index: 4;
       white-space: nowrap;
+    }
+    /* 모바일 12궁: 원형 대신 격자 — 크게, 안 겹침, 한 화면에 */
+    .spread-board--year-mobile {
+      position: static;
+      aspect-ratio: auto;
+      min-height: 0;
+      width: 100%;
+      max-width: 420px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px 8px;
+      justify-items: center;
+      align-items: start;
+    }
+    .spread-board--year-mobile .tarot-card-wrap {
+      position: static;
+      width: 100%;
+      max-width: 112px;
+      margin: 0;
+      transform: none !important;
+      left: auto;
+      top: auto;
+    }
+    .spread-board--year-mobile .tarot-card-wrap--house-center {
+      grid-column: 1 / -1;
+      max-width: 132px;
+      width: 42%;
+      margin: 0 auto 4px;
+      z-index: 1;
     }
     .auto-draw-btn {
       display: block;
@@ -1286,13 +1316,21 @@
       line-height: 1.35;
       max-width: 100%;
     }
-    /* 카드만 뽑기: 자리 숫자 라벨 강제 숨김 */
+    /* 카드만 뽑기: 자리 숫자 라벨 강제 숨김 (12궁 제외) */
     .drawn-cards-v2.is-draw-only .tarot-card-pos {
       display: none !important;
       height: 0 !important;
       margin: 0 !important;
       padding: 0 !important;
       overflow: hidden !important;
+    }
+    .drawn-cards-v2.is-draw-only .spread-board--year .tarot-card-pos,
+    .drawn-cards-v2.is-draw-only .spread-board--year-mobile .tarot-card-pos {
+      display: flex !important;
+      height: auto !important;
+      margin-bottom: 4px !important;
+      padding: 2px 5px !important;
+      overflow: visible !important;
     }
 
     .tarot-card {
@@ -1989,59 +2027,80 @@
       .drawn-row { gap: 12px; }
       .drawn-row.drawn-row--narrow .tarot-card-wrap { width: 120px; }
       .tarot-card-wrap { width: 132px; }
-      .spread-board .tarot-card-wrap { width: 128px; }
+      .spread-board .tarot-card-wrap { width: min(120px, 30vw); }
       .spread-board .tarot-card-pos { font-size: 11px; min-height: 2.4em; }
-      /* 말발굽 5·7: 크게 + 가로 스크롤 */
-      .spread-board--horseshoe,
+      /* 말발굽: 화면 안에 U자 전부 보이게 압축 */
       .spread-board--horseshoe5 {
-        width: max-content;
-        max-width: none;
-        min-width: 100%;
-        column-gap: 8px;
-        row-gap: 16px;
-        padding: 0 4px;
+        width: 100%;
+        max-width: 100%;
+        min-width: 0;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        column-gap: 6px;
+        row-gap: 12px;
+        padding: 0;
       }
-      .spread-board--horseshoe .tarot-card-wrap { width: 100px; }
-      .spread-board--horseshoe5 .tarot-card-wrap { width: 112px; }
-      .spread-board--horseshoe .tarot-card-pos,
-      .spread-board--horseshoe5 .tarot-card-pos { font-size: 10px; min-height: 2.4em; }
-      .celtic-cross .tarot-card-wrap,
-      .celtic-staff .tarot-card-wrap { width: 120px; }
+      .spread-board--horseshoe5 .tarot-card-wrap { width: min(110px, 28vw); }
+      .spread-board--horseshoe5 [data-slot="0"] { grid-column: 1; grid-row: 3; }
+      .spread-board--horseshoe5 [data-slot="1"] { grid-column: 1; grid-row: 2; }
+      .spread-board--horseshoe5 [data-slot="2"] { grid-column: 2; grid-row: 1; }
+      .spread-board--horseshoe5 [data-slot="3"] { grid-column: 3; grid-row: 2; }
+      .spread-board--horseshoe5 [data-slot="4"] { grid-column: 3; grid-row: 3; }
+      .spread-board--horseshoe {
+        width: 100%;
+        max-width: 100%;
+        min-width: 0;
+        grid-template-columns: repeat(5, minmax(0, 1fr));
+        column-gap: 4px;
+        row-gap: 10px;
+        padding: 0;
+      }
+      .spread-board--horseshoe .tarot-card-wrap { width: 100%; max-width: 72px; }
+      .spread-board--horseshoe [data-slot="0"] { grid-column: 1; grid-row: 4; }
+      .spread-board--horseshoe [data-slot="1"] { grid-column: 1; grid-row: 3; }
+      .spread-board--horseshoe [data-slot="2"] { grid-column: 2; grid-row: 2; }
+      .spread-board--horseshoe [data-slot="3"] { grid-column: 3; grid-row: 1; }
+      .spread-board--horseshoe [data-slot="4"] { grid-column: 4; grid-row: 2; }
+      .spread-board--horseshoe [data-slot="5"] { grid-column: 5; grid-row: 3; }
+      .spread-board--horseshoe [data-slot="6"] { grid-column: 5; grid-row: 4; }
+      .spread-board--celtic {
+        flex-direction: column;
+        align-items: center;
+        gap: 18px;
+        max-width: 100%;
+      }
+      .celtic-cross,
+      .mini-celtic-cross { gap: 6px 8px; max-width: 100%; }
       .celtic-cross__center,
-      .mini-celtic-cross__center { width: 180px; height: 180px; }
+      .mini-celtic-cross__center { width: min(168px, 44vw); height: min(168px, 44vw); }
       .celtic-cross__center .tarot-card-wrap--present,
       .celtic-cross__center .tarot-card-wrap--challenge,
       .mini-celtic-cross__center .tarot-card-wrap--present,
-      .mini-celtic-cross__center .tarot-card-wrap--challenge { width: 120px; }
-      .spread-board--celtic { gap: 16px 24px; }
+      .mini-celtic-cross__center .tarot-card-wrap--challenge,
+      .celtic-cross .tarot-card-wrap,
+      .celtic-staff .tarot-card-wrap,
+      .mini-celtic-cross .tarot-card-wrap,
       .spread-board--cross .tarot-card-wrap,
       .spread-board--diamond .tarot-card-wrap,
-      .spread-board--choice .tarot-card-wrap,
-      .mini-celtic-cross .tarot-card-wrap,
-      .celtic-cross .tarot-card-wrap,
-      .celtic-staff .tarot-card-wrap { width: 120px; }
-      .spread-board--magic-seven {
-        max-width: 100%;
-        gap: 14px 10px;
+      .spread-board--choice .tarot-card-wrap { width: min(108px, 28vw); }
+      .spread-board--magic-seven { max-width: 100%; gap: 12px 8px; }
+      .spread-board--magic-seven .tarot-card-wrap { width: min(108px, 28vw); }
+      .spread-board--year:not(.spread-board--year-mobile) {
+        width: 100%;
+        min-height: 420px;
       }
-      .spread-board--magic-seven .tarot-card-wrap { width: 120px; }
-      .spread-board--year {
-        width: min(100%, 100%);
-        aspect-ratio: 1 / 1.05;
-        min-height: 480px;
+      .spread-board--year:not(.spread-board--year-mobile) .tarot-card-wrap {
+        width: 64px;
+        margin-left: -32px;
+        margin-top: -52px;
       }
-      .spread-board--year .tarot-card-wrap {
-        width: 58px;
-        margin-left: -29px;
-        margin-top: -48px;
-      }
-      .spread-board--year .tarot-card-wrap--house-center {
-        width: 72px;
-        margin-left: -36px;
-        margin-top: -60px;
+      .spread-board--year:not(.spread-board--year-mobile) .tarot-card-wrap--house-center {
+        width: 80px;
+        margin-left: -40px;
+        margin-top: -64px;
         transform: none;
       }
-      .spread-board--year .tarot-card-pos { font-size: 10px; padding: 2px 4px; }
+      .spread-board--year-mobile .tarot-card-wrap { max-width: 118px; }
+      .spread-board--year-mobile .tarot-card-wrap--house-center { max-width: 140px; width: 44%; }
       .tarot-card-pos { font-size: 10px; }
       .card-name-ko { font-size: 12px; }
       .card-name-en { font-size: 8px; }
@@ -2506,7 +2565,11 @@ function resolveDrawCount() {
 }
 
 function buildDrawPositions(count) {
-  // 드로우 모드: 자리 숫자·의미 라벨 없음 (카드만)
+  const sp = getDrawSpread();
+  // 12궁만 자리 이름 유지(모바일 격자에서 구분). 나머지는 카드만
+  if (sp.id === 'houses') {
+    return (sp.positions || []).slice(0, count);
+  }
   return Array.from({ length: count }, () => '');
 }
 
@@ -3769,8 +3832,8 @@ function makeDrawCardWrap(i, positions, hideNames, extraClass) {
   const bgColor = CARD_COLORS[card.suit] || '#f5f0e8';
   const imgSrc = getTarotCardImageSrc(card);
   const label = positions[i] || '';
-  // 드로우 모드: 자리 숫자·라벨 전부 숨김 — 카드만
-  const showPos = !hideNames && curMode !== 'draw' && !!label;
+  // 드로우 모드: 일반 번호 숨김. 12궁(1궁·총운)만 표시
+  const showPos = (!hideNames && !!label) || (curMode === 'draw' && /궁|총운/.test(String(label)));
   const metaHtml = hideNames
     ? ''
     : `<div class="tarot-card-front-meta">
@@ -3881,8 +3944,17 @@ function showDrawnCards() {
       for (let i = 0; i < 7; i++) board.appendChild(makeCardWrap(i));
     });
   } else if (curMode === 'draw' && (layout === 'houses' || layout === 'year')) {
-    mountBoard('spread-board--year', (board) => {
-      // 1궁=왼쪽(9시) → 반시계 / 4궁=아래 · 7궁=오른쪽 · 10궁=위 · 13=총운 중앙
+    const isMobile = window.matchMedia('(max-width: 600px)').matches;
+    mountBoard(isMobile ? 'spread-board--year spread-board--year-mobile' : 'spread-board--year', (board) => {
+      if (isMobile) {
+        // 모바일: 총운 위 + 1~12궁 3열 격자 (크게·안 겹침·한 화면)
+        if (drawnCards.length >= 13) {
+          board.appendChild(makeCardWrap(12, 'tarot-card-wrap--house-center'));
+        }
+        for (let i = 0; i < 12; i++) board.appendChild(makeCardWrap(i));
+        return;
+      }
+      // 데스크톱: 1궁=왼쪽(9시) → 반시계 / 4궁=아래 · 7궁=오른쪽 · 10궁=위 · 13=총운 중앙
       const wraps = [];
       for (let i = 0; i < 12; i++) {
         const wrap = makeCardWrap(i);
@@ -3896,14 +3968,13 @@ function showDrawnCards() {
       }
       requestAnimationFrame(() => {
         const w = board.clientWidth || 640;
-        const rx2 = w * 0.44;
-        const ry2 = w * 0.42;
+        const rx2 = w * 0.40;
+        const ry2 = w * 0.38;
         wraps.forEach((wrap, i) => {
           const deg = 270 - i * 30;
           const rad = (deg * Math.PI) / 180;
           wrap.style.setProperty('--hx', (Math.sin(rad) * rx2).toFixed(1) + 'px');
           wrap.style.setProperty('--hy', (-Math.cos(rad) * ry2).toFixed(1) + 'px');
-          // 아래쪽 카드가 위 카드 라벨을 덜 가리도록: 화면 아래일수록 위에 그림
           const hy = -Math.cos(rad) * ry2;
           wrap.style.zIndex = String(10 + Math.round(hy + ry2));
         });
