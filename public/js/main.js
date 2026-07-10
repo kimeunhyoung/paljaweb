@@ -9,10 +9,11 @@ const supabase = createClient(
 
 // 네비게이션 스크롤 효과
 window.addEventListener('scroll', () => {
+  const chrome = document.getElementById('siteChrome')
   const navbar = document.getElementById('navbar')
-  if (navbar) {
-    navbar.classList.toggle('scrolled', window.scrollY > 50)
-  }
+  const on = window.scrollY > 50
+  if (chrome) chrome.classList.toggle('scrolled', on)
+  if (navbar) navbar.classList.toggle('scrolled', on)
 })
 
 function initMobileMenu() {

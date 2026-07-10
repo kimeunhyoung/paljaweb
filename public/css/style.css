@@ -47,18 +47,73 @@ ul { list-style: none; }
 .link-inline { text-decoration: none; display: inline-block; }
 
 /* ===== 네비게이션 ===== */
-.navbar {
+.site-chrome {
   position: fixed;
-  top: 0; left: 0; right: 0;
+  top: 0;
+  left: 0;
+  right: 0;
   z-index: 100;
-  padding: 20px 0;
-  transition: all 0.3s;
 }
+.navbar {
+  position: relative;
+  top: auto;
+  left: auto;
+  right: auto;
+  z-index: 1;
+  padding: 16px 0 12px;
+  transition: all 0.3s;
+  background: transparent;
+}
+.site-chrome.scrolled .navbar,
 .navbar.scrolled {
   background: rgba(250,247,242,0.95);
   backdrop-filter: blur(20px);
+  padding: 12px 0 10px;
+}
+.site-chrome.scrolled {
+  border-bottom: none;
+  box-shadow: 0 8px 24px rgba(45, 38, 28, 0.06);
+}
+.home-program-nav {
   border-bottom: 1px solid var(--border);
-  padding: 14px 0;
+  background: rgba(255, 255, 255, 0.72);
+  backdrop-filter: blur(12px);
+  padding: 0 32px;
+  scroll-margin-top: 8px;
+}
+.site-chrome.scrolled .home-program-nav {
+  background: rgba(255, 255, 255, 0.92);
+}
+.home-program-nav-inner {
+  max-width: 1140px;
+  margin: 0 auto;
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: center;
+  gap: 6px 14px;
+  padding: 8px 0 10px;
+  font-size: 12px;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+.home-program-nav-inner::-webkit-scrollbar { display: none; }
+.home-program-nav-inner a {
+  color: var(--text3, #8a7a68);
+  text-decoration: none;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+  transition: color 0.15s;
+}
+.home-program-nav-inner a:hover {
+  color: var(--brown, #4a3520);
+}
+.hero-program-note {
+  margin: 10px 0 0;
+  font-size: 13px;
+  color: var(--text3, #8a7a68);
+  line-height: 1.5;
 }
 .nav-inner {
   max-width: 1140px;
@@ -208,7 +263,7 @@ ul { list-style: none; }
   min-height: 100vh;
   display: grid;
   grid-template-columns: 1fr 1fr;
-  padding-top: 80px;
+  padding-top: 128px;
   max-width: 1140px;
   margin: 0 auto;
   padding-left: 32px;
@@ -839,6 +894,8 @@ section { padding: 100px 0; }
 @media (max-width: 900px) {
   .navbar { padding: 12px 0; }
   .nav-inner { padding: 0 16px; }
+  .home-program-nav { padding: 0 16px; }
+  .home-program-nav-inner { gap: 6px 12px; font-size: 11px; padding: 7px 0 9px; }
   .nav-links { display: none; }
   .nav-actions { display: none; }
   .nav-menu-btn { display: inline-flex; margin-left: auto; }
@@ -849,7 +906,8 @@ section { padding: 100px 0; }
   }
   .logo-mark { width: 30px; height: 30px; font-size: 17px; }
   .logo-text { font-size: 16px; }
-  .hero { grid-template-columns: 1fr; padding-top: 100px; }
+  .hero { grid-template-columns: 1fr; padding-top: 120px; }
+  .hero-program-note { font-size: 12px; }
   /* Keep hero-right visible on small screens; stack below hero-left */
   .hero-right { display: block; margin-top: 20px; }
   .hero-card-small { display: none; }

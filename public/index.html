@@ -47,11 +47,12 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,400&family=Noto+Sans+KR:wght@300;400;500;700&family=Noto+Serif+KR:wght@400;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css" crossorigin>
-  <link rel="stylesheet" href="css/style.css?v=20260610a">
+  <link rel="stylesheet" href="css/style.css?v=20260711a">
 </head>
 <body>
 
-  <!-- 네비게이션 -->
+  <!-- 네비게이션 + 프로그램 바로가기 -->
+  <header class="site-chrome" id="siteChrome">
   <nav class="navbar" id="navbar">
     <div class="nav-inner">
       <a href="index.html" class="nav-logo">
@@ -59,7 +60,8 @@
         <span class="logo-text">팔자연구소</span>
       </a>
       <ul class="nav-links">
-        <li><a href="#services">서비스</a></li>
+        <li><a href="#programs">프로그램</a></li>
+        <li><a href="#services">서비스 소개</a></li>
         <li><a href="guide/index.html">가이드</a></li>
         <li><a href="pricing.html">요금제</a></li>
         <li><a href="about.html">소개</a></li>
@@ -74,7 +76,17 @@
     </div>
     <div class="mobile-nav-panel" id="mobileNavPanel" hidden>
       <ul class="mobile-nav-links">
-        <li><a href="#services">서비스</a></li>
+        <li><a href="#programs">프로그램 바로가기</a></li>
+        <li><a href="analysis.html">라이프코드</a></li>
+        <li><a href="astrology.html">점성학</a></li>
+        <li><a href="compatibility.html">소울하모니</a></li>
+        <li><a href="period48-compat.html">48궁합</a></li>
+        <li><a href="name.html">네임코드</a></li>
+        <li><a href="numerology-calendar.html">수비학달력</a></li>
+        <li><a href="numerology-wallpaper.html">에너지배경</a></li>
+        <li><a href="Tarot.html">타로코드</a></li>
+        <li><a href="counselor.html">상담사허브</a></li>
+        <li><a href="#services">서비스 소개</a></li>
         <li><a href="guide/index.html">가이드</a></li>
         <li><a href="pricing.html">요금제</a></li>
         <li><a href="about.html">소개</a></li>
@@ -82,6 +94,21 @@
       <div class="mobile-nav-actions"></div>
     </div>
   </nav>
+  <nav class="home-program-nav" id="programs" aria-label="프로그램 바로가기">
+    <div class="home-program-nav-inner">
+      <a href="analysis.html">라이프코드</a>
+      <a href="astrology.html">점성학</a>
+      <a href="compatibility.html">소울하모니</a>
+      <a href="period48-compat.html">48궁합</a>
+      <a href="name.html">네임코드</a>
+      <a href="numerology-calendar.html">수비학달력</a>
+      <a href="numerology-wallpaper.html">에너지배경</a>
+      <a href="Tarot.html">타로코드</a>
+      <a href="counselor.html">상담사허브</a>
+      <a href="pricing.html">요금제</a>
+    </div>
+  </nav>
+  </header>
 
   <!-- 히어로 -->
   <div class="hero">
@@ -100,8 +127,9 @@
       </p>
       <div class="hero-cta">
        <a href="analysis.html" class="btn-fill" id="heroCta">무료로 시작하기</a>
-        <a href="#services" class="btn-text-link">서비스 보기 →</a>
+        <a href="#programs" class="btn-text-link">프로그램 바로가기 →</a>
       </div>
+      <p class="hero-program-note">상단에서 라이프코드·점성학·타로 등 원하는 프로그램으로 바로 이동할 수 있어요.</p>
       <div id="heroCounselorRow" class="hero-counselor-row">
         <a href="counselor.html" class="btn-fill link-inline">상담사 허브</a>
         <a href="for-counselors.html" class="btn-text-link" style="margin-left:12px;">Professional 안내 →</a>
