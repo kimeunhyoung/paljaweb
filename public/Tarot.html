@@ -832,13 +832,15 @@
       display: grid;
       grid-template-columns: repeat(7, minmax(0, 1fr));
       grid-template-rows: auto auto auto auto;
-      column-gap: 4px;
-      row-gap: 6px;
+      column-gap: 10px;
+      row-gap: 14px;
       align-items: start;
       justify-items: center;
-      max-width: 680px;
+      max-width: 720px;
+      width: 100%;
+      margin: 0 auto;
     }
-    .spread-board--horseshoe .tarot-card-wrap { width: 88px; }
+    .spread-board--horseshoe .tarot-card-wrap { width: 96px; }
     .spread-board--horseshoe [data-slot="0"] { grid-column: 1; grid-row: 4; }
     .spread-board--horseshoe [data-slot="1"] { grid-column: 2; grid-row: 3; }
     .spread-board--horseshoe [data-slot="2"] { grid-column: 3; grid-row: 2; }
@@ -1019,44 +1021,54 @@
     .spread-board--diamond [data-slot="2"] { grid-column: 3; grid-row: 2; }
     .spread-board--diamond [data-slot="3"] { grid-column: 2; grid-row: 3; }
 
-    /* 매직 세븐: 중심=현재, 위부터 시계방향 */
+    /* 매직 세븐: 육각 형태 · 겹침 없이 간격 확보 */
     .spread-board--magic-seven {
-      position: relative;
-      width: min(420px, 100%);
-      aspect-ratio: 1;
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      grid-template-rows: auto auto auto auto;
+      gap: 16px 18px;
+      justify-items: center;
+      align-items: start;
+      width: 100%;
+      max-width: 440px;
       margin: 0 auto;
     }
     .spread-board--magic-seven .tarot-card-wrap {
-      position: absolute;
-      width: 86px;
-      left: 50%;
-      top: 50%;
-      margin-left: -43px;
-      margin-top: -70px;
+      position: static;
+      width: 112px;
+      left: auto;
+      top: auto;
+      margin: 0;
+      transform: none;
     }
-    .spread-board--magic-seven [data-slot="0"] {
-      transform: translate(0, 0);
-      z-index: 2;
+    .spread-board--magic-seven [data-slot="1"] { grid-column: 2; grid-row: 1; } /* 목표 */
+    .spread-board--magic-seven [data-slot="6"] { grid-column: 1; grid-row: 2; } /* 조언 */
+    .spread-board--magic-seven [data-slot="0"] { grid-column: 2; grid-row: 2; } /* 현재 */
+    .spread-board--magic-seven [data-slot="2"] { grid-column: 3; grid-row: 2; } /* 미래 */
+    .spread-board--magic-seven [data-slot="5"] { grid-column: 1; grid-row: 3; } /* 장애 */
+    .spread-board--magic-seven [data-slot="3"] { grid-column: 3; grid-row: 3; } /* 기반 */
+    .spread-board--magic-seven [data-slot="4"] { grid-column: 2; grid-row: 4; } /* 과거 */
+
+    .drawn-cards-v2 {
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      padding-bottom: 4px;
     }
-    .spread-board--magic-seven [data-slot="1"] { transform: translate(0, -132px); }
-    .spread-board--magic-seven [data-slot="2"] { transform: translate(114px, -66px); }
-    .spread-board--magic-seven [data-slot="3"] { transform: translate(114px, 66px); }
-    .spread-board--magic-seven [data-slot="4"] { transform: translate(0, 132px); }
-    .spread-board--magic-seven [data-slot="5"] { transform: translate(-114px, 66px); }
-    .spread-board--magic-seven [data-slot="6"] { transform: translate(-114px, -66px); }
 
     /* 7카드: 말발굽과 동일 (열림 아래) */
     .spread-board--seven-arc {
       display: grid;
       grid-template-columns: repeat(7, minmax(0, 1fr));
       grid-template-rows: auto auto auto auto;
-      column-gap: 4px;
-      row-gap: 6px;
+      column-gap: 10px;
+      row-gap: 14px;
       align-items: start;
       justify-items: center;
-      max-width: 680px;
+      max-width: 720px;
+      width: 100%;
+      margin: 0 auto;
     }
-    .spread-board--seven-arc .tarot-card-wrap { width: 88px; }
+    .spread-board--seven-arc .tarot-card-wrap { width: 96px; }
     .spread-board--seven-arc [data-slot="0"] { grid-column: 1; grid-row: 4; }
     .spread-board--seven-arc [data-slot="1"] { grid-column: 2; grid-row: 3; }
     .spread-board--seven-arc [data-slot="2"] { grid-column: 3; grid-row: 2; }
@@ -1961,47 +1973,58 @@
       .draw-spread-grid { gap: 6px; }
       .draw-spread-btn { font-size: 12px; padding: 10px 8px; }
       .deck-grid { grid-template-columns: repeat(auto-fill, minmax(42px, 1fr)); gap: 4px; }
-      .drawn-row { gap: 10px; }
-      .drawn-row.drawn-row--narrow .tarot-card-wrap { width: 96px; }
-      .tarot-card-wrap { width: 110px; }
-      .spread-board .tarot-card-wrap { width: 78px; }
-      .spread-board--horseshoe .tarot-card-wrap { width: 44px; }
-      .spread-board--horseshoe { column-gap: 2px; row-gap: 4px; max-width: 100%; }
-      .spread-board--horseshoe .tarot-card-pos { font-size: 8px; min-height: 2.2em; }
+      .drawn-row { gap: 12px; }
+      .drawn-row.drawn-row--narrow .tarot-card-wrap { width: 120px; }
+      .tarot-card-wrap { width: 132px; }
+      .spread-board .tarot-card-wrap { width: 108px; }
+      .spread-board .tarot-card-pos { font-size: 11px; min-height: 2.4em; }
+      /* 말발굽·7카드: 크게 + 가로 스크롤 */
+      .spread-board--horseshoe,
+      .spread-board--seven-arc {
+        width: max-content;
+        max-width: none;
+        min-width: 100%;
+        column-gap: 8px;
+        row-gap: 16px;
+        padding: 0 4px;
+      }
+      .spread-board--horseshoe .tarot-card-wrap,
+      .spread-board--seven-arc .tarot-card-wrap { width: 78px; }
+      .spread-board--horseshoe .tarot-card-pos,
+      .spread-board--seven-arc .tarot-card-pos { font-size: 10px; min-height: 2.4em; }
       .celtic-cross .tarot-card-wrap,
-      .celtic-staff .tarot-card-wrap { width: 72px; }
+      .celtic-staff .tarot-card-wrap { width: 100px; }
       .celtic-cross__center { width: auto; height: auto; }
       .celtic-cross__center .tarot-card-wrap--present,
-      .celtic-cross__center .tarot-card-wrap--challenge { width: 72px; }
-      .spread-board--celtic { gap: 14px 12px; }
+      .celtic-cross__center .tarot-card-wrap--challenge { width: 100px; }
+      .spread-board--celtic { gap: 16px 14px; }
       .spread-board--cross .tarot-card-wrap,
       .spread-board--diamond .tarot-card-wrap,
       .spread-board--choice .tarot-card-wrap,
       .mini-celtic-cross .tarot-card-wrap,
-      .mini-celtic-staff .tarot-card-wrap { width: 86px; }
-      .spread-board--seven-arc .tarot-card-wrap { width: 44px; }
-      .spread-board--magic-seven { width: min(340px, 100%); }
-      .spread-board--magic-seven .tarot-card-wrap { width: 64px; margin-left: -32px; margin-top: -52px; }
-      .spread-board--magic-seven [data-slot="1"] { transform: translate(0, -100px); }
-      .spread-board--magic-seven [data-slot="2"] { transform: translate(86px, -50px); }
-      .spread-board--magic-seven [data-slot="3"] { transform: translate(86px, 50px); }
-      .spread-board--magic-seven [data-slot="4"] { transform: translate(0, 100px); }
-      .spread-board--magic-seven [data-slot="5"] { transform: translate(-86px, 50px); }
-      .spread-board--magic-seven [data-slot="6"] { transform: translate(-86px, -50px); }
-      .spread-board--year { width: min(100%, 420px); aspect-ratio: 1.05 / 1; min-height: 420px; }
-      .spread-board--year .tarot-card-wrap {
-        width: 46px;
-        margin-left: -23px;
-        margin-top: -40px;
+      .mini-celtic-staff .tarot-card-wrap { width: 108px; }
+      .spread-board--magic-seven {
+        max-width: 100%;
+        gap: 14px 10px;
       }
-      .spread-board--year .tarot-card-wrap--house-center {
+      .spread-board--magic-seven .tarot-card-wrap { width: 100px; }
+      .spread-board--year {
+        width: min(100%, 100%);
+        aspect-ratio: 1 / 1.05;
+        min-height: 480px;
+      }
+      .spread-board--year .tarot-card-wrap {
         width: 58px;
         margin-left: -29px;
-        margin-top: -50px;
+        margin-top: -48px;
+      }
+      .spread-board--year .tarot-card-wrap--house-center {
+        width: 72px;
+        margin-left: -36px;
+        margin-top: -60px;
         transform: none;
       }
-      .spread-board--year .tarot-card-pos { font-size: 9px; padding: 1px 3px; }
-      .spread-board--seven-arc .tarot-card-wrap { width: 44px; }
+      .spread-board--year .tarot-card-pos { font-size: 10px; padding: 2px 4px; }
       .tarot-card-pos { font-size: 10px; }
       .card-name-ko { font-size: 12px; }
       .card-name-en { font-size: 8px; }
@@ -3872,8 +3895,8 @@ function showDrawnCards() {
       }
       requestAnimationFrame(() => {
         const w = board.clientWidth || 640;
-        const rx2 = w * 0.46;
-        const ry2 = w * 0.40;
+        const rx2 = w * 0.44;
+        const ry2 = w * 0.42;
         wraps.forEach((wrap, i) => {
           const deg = 270 - i * 30;
           const rad = (deg * Math.PI) / 180;
