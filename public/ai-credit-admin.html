@@ -51,6 +51,8 @@
       <div class="toolbar" style="margin-bottom:10px;">
         <label>집계 기간(일) <input id="statsDays" type="number" min="1" max="365" value="30" style="width:80px" /></label>
         <button id="statsBtn" type="button">통계 새로고침</button>
+        <button id="csvUsersBtn" class="light" type="button">회원 CSV</button>
+        <button id="csvStatsBtn" class="light" type="button">통계 CSV</button>
       </div>
       <div class="stats-cards" id="statsCards">
         <div class="stat-card"><div class="label">가입 (기간 내)</div><div class="value" id="statTotal">—</div></div>
@@ -99,6 +101,8 @@
       const rowsEl = document.getElementById('rows');
       const msgEl = document.getElementById('msg');
       const countLine = document.getElementById('countLine');
+      let lastUsers = [];
+      let lastStats = null;
 
       function currentPeriod() {
         const d = new Date();
@@ -195,6 +199,23 @@
         `;
       }
 
+      function csvEscape(v) {
+        const s = String(v == null ? '' : v);
+        if (/[",\n\r]/.test(s)) return '"' + s.replace(/"/g, '""') + '"';
+        return s;
+      }
+
+      function downloadCsv(filename, headers, rows) {
+        const lines = [headers.map(csvEscape).join(',')];
+        rows.forEach((row) => lines.push(row.map(csvEscape).join(',')));
+        const blob = new Blob(['\uFEFF' + lines.join('\n')], { type: 'text/csv;charset=utf-8' });
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = filename;
+        a.click();
+        URL.revokeObjectURL(a.href);
+      }
+
       function miniTable(title, rows) {
         if (!rows || !rows.length) {
           return `<div class="stats-box"><h3>${title}</h3><p class="small">데이터 없음</p></div>`;
@@ -214,6 +235,7 @@
           });
           const j = await res.json().catch(() => ({}));
           if (!res.ok) throw new Error(j.error || '통계 조회 실패');
+          lastStats = j;
           document.getElementById('statTotal').textContent = j.totalSignups ?? '0';
           document.getElementById('statPaid').textContent = j.paidSignups ?? '0';
           document.getElementById('statRate').textContent = (j.conversionRate ?? 0) + '%';
@@ -242,7 +264,8 @@
           });
           const j = await res.json().catch(() => ({}));
           if (!res.ok) throw new Error(j.error || '목록 조회 실패');
-          rowsEl.innerHTML = (j.users || []).map(rowHtml).join('') || '<tr><td colspan="12">사용자가 없습니다.</td></tr>';
+          lastUsers = j.users || [];
+          rowsEl.innerHTML = lastUsers.map(rowHtml).join('') || '<tr><td colspan="12">사용자가 없습니다.</td></tr>';
           countLine.textContent = `기간 ${j.period} · ${j.count}명`;
         } catch (e) {
           rowsEl.innerHTML = '<tr><td colspan="12">불러오지 못했습니다.</td></tr>';
@@ -304,6 +327,36 @@
 
       document.getElementById('loadBtn').addEventListener('click', loadUsers);
       document.getElementById('statsBtn').addEventListener('click', loadStats);
+      document.getElementById('csvUsersBtn').addEventListener('click', () => {
+        if (!lastUsers.length) {
+          showMsg('먼저 회원 목록을 불러오세요.', false);
+          return;
+        }
+        const headers = ['email', 'fullName', 'signupProvider', 'joinedAt', 'landingPage', 'referrer', 'utmSource', 'utmMedium', 'utmCampaign', 'utmTerm', 'plan', 'limit', 'used', 'remaining', 'userId'];
+        const rows = lastUsers.map((u) => [
+          u.email, u.fullName, u.signupProvider, u.joinedAt, u.landingPage, u.referrer,
+          u.utmSource, u.utmMedium, u.utmCampaign, u.utmTerm, u.plan, u.limit, u.used, u.remaining, u.userId,
+        ]);
+        downloadCsv('palja-users-' + (periodEl.value.trim() || currentPeriod()) + '.csv', headers, rows);
+      });
+      document.getElementById('csvStatsBtn').addEventListener('click', () => {
+        if (!lastStats) {
+          showMsg('먼저 통계를 불러오세요.', false);
+          return;
+        }
+        const headers = ['section', 'key', 'count'];
+        const rows = [];
+        rows.push(['summary', 'totalSignups', lastStats.totalSignups]);
+        rows.push(['summary', 'paidSignups', lastStats.paidSignups]);
+        rows.push(['summary', 'freeSignups', lastStats.freeSignups]);
+        rows.push(['summary', 'conversionRate', lastStats.conversionRate]);
+        (lastStats.byProvider || []).forEach((r) => rows.push(['provider', r.key, r.count]));
+        (lastStats.byLanding || []).forEach((r) => rows.push(['landing', r.key, r.count]));
+        (lastStats.byUtmSource || []).forEach((r) => rows.push(['utm_source', r.key, r.count]));
+        (lastStats.byPlan || []).forEach((r) => rows.push(['plan', r.key, r.count]));
+        (lastStats.byDay || []).forEach((r) => rows.push(['day', r.key, r.count]));
+        downloadCsv('palja-signup-stats-' + (lastStats.days || 30) + 'd.csv', headers, rows);
+      });
       qEl.addEventListener('keydown', (e) => { if (e.key === 'Enter') loadUsers(); });
       document.getElementById('logoutBtn').addEventListener('click', async () => {
         await sb.auth.signOut();

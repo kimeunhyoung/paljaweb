@@ -2439,6 +2439,36 @@
       font-family: var(--font-body);
     }
     .gate-btn:hover { background: var(--warm-brown); }
+
+    .guest-signup-modal {
+      position: fixed; inset: 0; z-index: 12000;
+      display: none; align-items: center; justify-content: center;
+      padding: 20px; background: rgba(44, 31, 14, 0.45);
+    }
+    .guest-signup-modal.open { display: flex; }
+    .guest-signup-card {
+      max-width: 420px; width: 100%;
+      background: var(--cream, #f5f0e8);
+      border-radius: 16px;
+      padding: 28px 24px 22px;
+      box-shadow: 0 20px 50px rgba(44, 31, 14, 0.25);
+      text-align: center;
+    }
+    .guest-signup-card h3 {
+      margin: 0 0 10px; font-size: 20px; color: var(--deep-brown, #4a3520);
+    }
+    .guest-signup-card p {
+      margin: 0 0 18px; font-size: 14px; line-height: 1.65; color: var(--muted, #9a8570);
+    }
+    .guest-signup-actions { display: flex; flex-direction: column; gap: 10px; }
+    .guest-signup-actions a, .guest-signup-actions button {
+      display: block; width: 100%; padding: 12px 16px; border-radius: 8px;
+      font-size: 14px; font-weight: 600; text-decoration: none; cursor: pointer;
+      font-family: inherit; border: none;
+    }
+    .guest-signup-primary { background: var(--deep-brown, #4a3520); color: #f5f0e8; }
+    .guest-signup-secondary { background: #fff; color: var(--deep-brown, #4a3520); border: 1px solid rgba(139,111,71,.35) !important; }
+    .guest-signup-dismiss { background: transparent; color: var(--muted, #9a8570); font-weight: 500 !important; }
     .gate-onetime {
       display: block;
       margin-top: 14px;
@@ -9164,6 +9194,7 @@ async function runAnalysis() {
   showAnalysisJumpNav(true);
   await trackUsage('analysis');
   if (window.PaljaAnalytics?.track) window.PaljaAnalytics.track('analysis_complete');
+  maybeShowGuestSignupModal();
   } catch (err) {
     console.error(err);
     if (err && err.stack) console.error(err.stack);
@@ -9171,6 +9202,25 @@ async function runAnalysis() {
     showAnalysisJumpNav(false);
     const _waitRecover = document.getElementById('analysisWait');
     if (_waitRecover) _waitRecover.style.display = '';
+  }
+}
+
+function maybeShowGuestSignupModal() {
+  if (CURRENT_USER_ID !== 'guest') return;
+  try {
+    if (sessionStorage.getItem('palja:guestSignupModal') === '1') return;
+  } catch (_) {}
+  const modal = document.getElementById('guestSignupModal');
+  if (!modal) return;
+  modal.classList.add('open');
+  if (window.PaljaAnalytics?.track) window.PaljaAnalytics.track('guest_signup_prompt');
+}
+
+function closeGuestSignupModal(persist) {
+  const modal = document.getElementById('guestSignupModal');
+  if (modal) modal.classList.remove('open');
+  if (persist) {
+    try { sessionStorage.setItem('palja:guestSignupModal', '1'); } catch (_) {}
   }
 }
 
@@ -9408,5 +9458,17 @@ PaljaBirthDatePicker.init({ inputId: 'inputBirth', yearMin: 1900 });
   }
 </script>
 <script src="js/pwa-install.js?v=1" defer></script>
+
+<div id="guestSignupModal" class="guest-signup-modal" role="dialog" aria-modal="true" aria-labelledby="guestSignupTitle">
+  <div class="guest-signup-card">
+    <h3 id="guestSignupTitle">분석이 완료됐어요</h3>
+    <p>무료 가입하면 결과를 저장하고,<br>수비학 달력·소울하모니·AI 해석까지 이어갈 수 있어요.</p>
+    <div class="guest-signup-actions">
+      <a class="guest-signup-primary" href="signup.html?next=analysis.html" onclick="closeGuestSignupModal(true)">무료 가입하기</a>
+      <a class="guest-signup-secondary" href="login.html?next=analysis.html" onclick="closeGuestSignupModal(true)">로그인</a>
+      <button type="button" class="guest-signup-dismiss" onclick="closeGuestSignupModal(true)">나중에 할게요</button>
+    </div>
+  </div>
+</div>
 </body>
 </html>

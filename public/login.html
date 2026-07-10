@@ -121,6 +121,17 @@
       </form>
     </div>
 
+    <div id="resend-panel" style="margin-top:16px;padding-top:16px;border-top:1px solid var(--border);">
+      <p class="auth-lead" style="margin-bottom:12px;">인증 메일을 못 받으셨나요?</p>
+      <form id="resend-verify-form" class="auth-form">
+        <label>
+          이메일
+          <input type="email" id="resend-email" required />
+        </label>
+        <button type="submit" class="btn-cta" style="width:100%;">인증 메일 다시 보내기</button>
+      </form>
+    </div>
+
     <div class="auth-divider">또는</div>
 
     <div class="auth-oauth">
@@ -150,6 +161,6 @@
     })();
   </script>
 
-  <script type="module" src="js/supabase-auth.js?v=20260710"></script>
+  <script type="module" src="js/supabase-auth.js?v=20260710b"></script>
 </body>
 </html>

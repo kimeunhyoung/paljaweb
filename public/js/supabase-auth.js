@@ -73,7 +73,18 @@ if (loginForm) {
     const { error } = await supabase.auth.signInWithPassword({ email, password })
 
     if (error) {
-      showMsg('로그인 실패: ' + (error.message === 'Invalid login credentials' ? '이메일 또는 비밀번호가 틀렸어요.' : error.message), true)
+      const msg = String(error.message || '')
+      const needsVerify = /confirm|verified|not confirmed/i.test(msg)
+      if (needsVerify) {
+        showMsg(
+          '이메일 인증이 아직 완료되지 않았어요. 받은편지함을 확인하거나 아래에서 인증 메일을 다시 보내주세요.' +
+          '<div style="margin-top:10px;"><button type="button" id="resend-verify-btn" class="btn-cta" style="width:100%;">인증 메일 다시 보내기</button></div>',
+          true,
+        )
+        bindResendVerify(email)
+      } else {
+        showMsg('로그인 실패: ' + (msg === 'Invalid login credentials' ? '이메일 또는 비밀번호가 틀렸어요.' : msg), true)
+      }
       btn.textContent = '로그인'
       btn.disabled = false
     } else {
@@ -137,9 +148,69 @@ if (signupForm) {
       btn.disabled = false
     } else {
       trackAuthEvent('signup_complete', { method: 'email' })
-      showMsg('✅ 가입 완료! 이메일을 확인해서 인증을 완료해주세요.')
+      showMsg(
+        '✅ 가입 완료! 이메일을 확인해서 인증을 완료해주세요.' +
+        '<div style="margin-top:10px;"><button type="button" id="resend-verify-btn" class="btn-cta" style="width:100%;">인증 메일 다시 보내기</button></div>',
+      )
       btn.textContent = '회원가입'
       btn.disabled = false
+      bindResendVerify(email)
+    }
+  })
+}
+
+function bindResendVerify(defaultEmail) {
+  const btn = document.getElementById('resend-verify-btn')
+  if (!btn) return
+  btn.onclick = async () => {
+    const email =
+      defaultEmail ||
+      document.getElementById('signup-email')?.value?.trim() ||
+      document.getElementById('login-email')?.value?.trim() ||
+      document.getElementById('resend-email')?.value?.trim()
+    if (!email) {
+      showMsg('이메일을 입력해주세요.', true)
+      return
+    }
+    btn.disabled = true
+    btn.textContent = '전송 중...'
+    const { error } = await supabase.auth.resend({
+      type: 'signup',
+      email,
+      options: { emailRedirectTo: window.location.origin + '/login.html' },
+    })
+    if (error) {
+      showMsg('재전송 실패: ' + error.message, true)
+      btn.disabled = false
+      btn.textContent = '인증 메일 다시 보내기'
+    } else {
+      showMsg('✅ 인증 메일을 다시 보냈습니다. 받은편지함·스팸함을 확인해주세요.')
+    }
+  }
+}
+
+const resendVerifyForm = document.getElementById('resend-verify-form')
+if (resendVerifyForm) {
+  resendVerifyForm.addEventListener('submit', async (e) => {
+    e.preventDefault()
+    const email = document.getElementById('resend-email')?.value?.trim()
+    const btn = resendVerifyForm.querySelector('button[type="submit"]')
+    if (!email) return
+    btn.disabled = true
+    btn.textContent = '전송 중...'
+    const { error } = await supabase.auth.resend({
+      type: 'signup',
+      email,
+      options: { emailRedirectTo: window.location.origin + '/login.html' },
+    })
+    if (error) {
+      showMsg('재전송 실패: ' + error.message, true)
+      btn.disabled = false
+      btn.textContent = '인증 메일 다시 보내기'
+    } else {
+      showMsg('✅ 인증 메일을 다시 보냈습니다. 받은편지함·스팸함을 확인해주세요.')
+      btn.disabled = false
+      btn.textContent = '인증 메일 다시 보내기'
     }
   })
 }
