@@ -4133,25 +4133,68 @@ function enableFreeDrawDrag(tray, canvas) {
     syncCanvasFlag();
   }
 
-  /** 트레이 클릭 시: 겹치지 않게 차례로 배치 */
-  function autoPlaceFromTray(wrap) {
-    const baseW = Math.min(110, Math.max(88, Math.round(canvas.clientWidth * 0.26)));
-    const cw = baseW;
-    const ch = cw * (3.2 / 2);
-    const gap = 12;
-    const pad = 14;
-    const cols = Math.max(1, Math.floor((canvas.clientWidth - pad * 2 + gap) / (cw + gap)));
-    const i = placeIndex++;
-    const col = i % cols;
-    const row = Math.floor(i / cols);
-    let left = pad + col * (cw + gap);
-    let top = pad + row * (ch + gap);
-    if (top + ch > canvas.clientHeight - 10) {
-      // 칸이 부족하면 살짝 어긋나게 쌓기
-      left = pad + (i % 5) * 22;
-      top = pad + (i % 4) * 28;
+  /** 트레이 클릭 시: 이미 놓인 카드와 안 겹치는 칸에 배치 */
+  function rectsOverlap(a, b, pad) {
+    return !(
+      a.left + a.width + pad <= b.left ||
+      b.left + b.width + pad <= a.left ||
+      a.top + a.height + pad <= b.top ||
+      b.top + b.height + pad <= a.top
+    );
+  }
+
+  function getOccupiedRects(exclude) {
+    return Array.from(canvas.querySelectorAll('.tarot-card-wrap'))
+      .filter((el) => el !== exclude)
+      .map((el) => {
+        const left = parseFloat(el.style.left);
+        const top = parseFloat(el.style.top);
+        const width = el.offsetWidth || 120;
+        const height = el.offsetHeight || width * (3.2 / 2);
+        return {
+          left: Number.isFinite(left) ? left : 0,
+          top: Number.isFinite(top) ? top : 0,
+          width,
+          height,
+        };
+      });
+  }
+
+  function findFreeSlot(cw, ch, gap, pad) {
+    const occupied = getOccupiedRects(null);
+    const stepX = cw + gap;
+    const stepY = ch + gap;
+    const maxCols = Math.max(1, Math.floor((canvas.clientWidth - pad * 2 + gap) / stepX));
+    const needH = Math.max(canvas.clientHeight, pad + stepY * 8);
+    const maxRows = Math.max(8, Math.ceil((needH - pad) / stepY) + 2);
+
+    for (let row = 0; row < maxRows; row++) {
+      for (let col = 0; col < maxCols; col++) {
+        const left = pad + col * stepX;
+        const top = pad + row * stepY;
+        const candidate = { left, top, width: cw, height: ch };
+        const hit = occupied.some((o) => rectsOverlap(candidate, o, Math.max(4, gap - 4)));
+        if (!hit) {
+          if (top + ch + pad > canvas.clientHeight) {
+            canvas.style.minHeight = Math.ceil(top + ch + pad + 8) + 'px';
+          }
+          return { left, top };
+        }
+      }
     }
-    placeOnCanvas(wrap, left, top, cw);
+    const top = pad + maxRows * stepY;
+    canvas.style.minHeight = Math.ceil(top + ch + pad + 8) + 'px';
+    return { left: pad, top };
+  }
+
+  function autoPlaceFromTray(wrap) {
+    const cw = Math.min(132, Math.max(112, Math.round(canvas.clientWidth * 0.3)));
+    const ch = cw * (3.2 / 2);
+    const gap = 16;
+    const pad = 14;
+    const slot = findFreeSlot(cw, ch, gap, pad);
+    placeIndex++;
+    placeOnCanvas(wrap, slot.left, slot.top, cw);
   }
 
   function returnToTray(wrap) {
