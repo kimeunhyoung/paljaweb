@@ -2031,44 +2031,44 @@
       .deck-grid { grid-template-columns: repeat(auto-fill, minmax(42px, 1fr)); gap: 4px; }
       .drawn-row { gap: 12px; }
       .drawn-row.drawn-row--narrow .tarot-card-wrap { width: 120px; }
-      .tarot-card-wrap { width: 132px; }
-      .spread-board .tarot-card-wrap { width: min(120px, 30vw); }
+      .tarot-card-wrap { width: 140px; }
+      .spread-board .tarot-card-wrap { width: min(136px, 38vw); }
       .spread-board .tarot-card-pos { font-size: 11px; min-height: 2.4em; }
-      /* 말발굽: 안쪽으로 모아 스크롤 없이 + 카드 키움 */
+      /* 말발굽 모바일: 가로는 좁게(2열), 세로는 길게 → 카드 크게 */
       .spread-board--horseshoe5 {
         width: fit-content;
         max-width: 100%;
         min-width: 0;
-        grid-template-columns: repeat(3, auto);
-        column-gap: 10px;
-        row-gap: 12px;
+        grid-template-columns: auto auto;
+        column-gap: 14px;
+        row-gap: 14px;
         padding: 0;
         margin: 0 auto;
       }
-      .spread-board--horseshoe5 .tarot-card-wrap { width: min(128px, 30vw); }
-      .spread-board--horseshoe5 [data-slot="0"] { grid-column: 1; grid-row: 3; }
+      .spread-board--horseshoe5 .tarot-card-wrap { width: min(150px, 42vw); }
+      .spread-board--horseshoe5 [data-slot="2"] { grid-column: 1 / -1; grid-row: 1; justify-self: center; }
       .spread-board--horseshoe5 [data-slot="1"] { grid-column: 1; grid-row: 2; }
-      .spread-board--horseshoe5 [data-slot="2"] { grid-column: 2; grid-row: 1; }
-      .spread-board--horseshoe5 [data-slot="3"] { grid-column: 3; grid-row: 2; }
-      .spread-board--horseshoe5 [data-slot="4"] { grid-column: 3; grid-row: 3; }
+      .spread-board--horseshoe5 [data-slot="3"] { grid-column: 2; grid-row: 2; }
+      .spread-board--horseshoe5 [data-slot="0"] { grid-column: 1; grid-row: 3; }
+      .spread-board--horseshoe5 [data-slot="4"] { grid-column: 2; grid-row: 3; }
       .spread-board--horseshoe {
         width: fit-content;
         max-width: 100%;
         min-width: 0;
-        grid-template-columns: repeat(5, auto);
-        column-gap: 6px;
-        row-gap: 10px;
+        grid-template-columns: auto auto;
+        column-gap: 14px;
+        row-gap: 12px;
         padding: 0;
         margin: 0 auto;
       }
-      .spread-board--horseshoe .tarot-card-wrap { width: min(96px, 17vw); }
-      .spread-board--horseshoe [data-slot="0"] { grid-column: 1; grid-row: 4; }
+      .spread-board--horseshoe .tarot-card-wrap { width: min(150px, 42vw); }
+      .spread-board--horseshoe [data-slot="3"] { grid-column: 1 / -1; grid-row: 1; justify-self: center; }
+      .spread-board--horseshoe [data-slot="2"] { grid-column: 1; grid-row: 2; }
+      .spread-board--horseshoe [data-slot="4"] { grid-column: 2; grid-row: 2; }
       .spread-board--horseshoe [data-slot="1"] { grid-column: 1; grid-row: 3; }
-      .spread-board--horseshoe [data-slot="2"] { grid-column: 2; grid-row: 2; }
-      .spread-board--horseshoe [data-slot="3"] { grid-column: 3; grid-row: 1; }
-      .spread-board--horseshoe [data-slot="4"] { grid-column: 4; grid-row: 2; }
-      .spread-board--horseshoe [data-slot="5"] { grid-column: 5; grid-row: 3; }
-      .spread-board--horseshoe [data-slot="6"] { grid-column: 5; grid-row: 4; }
+      .spread-board--horseshoe [data-slot="5"] { grid-column: 2; grid-row: 3; }
+      .spread-board--horseshoe [data-slot="0"] { grid-column: 1; grid-row: 4; }
+      .spread-board--horseshoe [data-slot="6"] { grid-column: 2; grid-row: 4; }
       .spread-board--celtic {
         flex-direction: column;
         align-items: center;
@@ -2076,9 +2076,9 @@
         max-width: 100%;
       }
       .celtic-cross,
-      .mini-celtic-cross { gap: 6px 8px; max-width: 100%; }
+      .mini-celtic-cross { gap: 8px 10px; max-width: 100%; }
       .celtic-cross__center,
-      .mini-celtic-cross__center { width: min(168px, 44vw); height: min(168px, 44vw); }
+      .mini-celtic-cross__center { width: min(200px, 56vw); height: min(200px, 56vw); }
       .celtic-cross__center .tarot-card-wrap--present,
       .celtic-cross__center .tarot-card-wrap--challenge,
       .mini-celtic-cross__center .tarot-card-wrap--present,
@@ -2088,9 +2088,9 @@
       .mini-celtic-cross .tarot-card-wrap,
       .spread-board--cross .tarot-card-wrap,
       .spread-board--diamond .tarot-card-wrap,
-      .spread-board--choice .tarot-card-wrap { width: min(108px, 28vw); }
-      .spread-board--magic-seven { max-width: 100%; gap: 12px 8px; }
-      .spread-board--magic-seven .tarot-card-wrap { width: min(108px, 28vw); }
+      .spread-board--choice .tarot-card-wrap { width: min(132px, 36vw); }
+      .spread-board--magic-seven { max-width: 100%; gap: 14px 10px; }
+      .spread-board--magic-seven .tarot-card-wrap { width: min(132px, 36vw); }
       .spread-board--year:not(.spread-board--year-mobile) {
         width: 100%;
         min-height: 420px;
@@ -2106,8 +2106,8 @@
         margin-top: -64px;
         transform: none;
       }
-      .spread-board--year-mobile .tarot-card-wrap { max-width: 118px; }
-      .spread-board--year-mobile .tarot-card-wrap--house-center { max-width: 140px; width: 44%; }
+      .spread-board--year-mobile .tarot-card-wrap { max-width: 132px; }
+      .spread-board--year-mobile .tarot-card-wrap--house-center { max-width: 152px; width: 46%; }
       .tarot-card-pos { font-size: 10px; }
       .card-name-ko { font-size: 12px; }
       .card-name-en { font-size: 8px; }
