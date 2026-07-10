@@ -1055,11 +1055,11 @@
     .spread-board--seven-arc [data-slot="5"] { grid-column: 6; grid-row: 2; }
     .spread-board--seven-arc [data-slot="6"] { grid-column: 7; grid-row: 1; }
 
-    /* 1년 운세: 12개월 원형 */
+    /* 12궁 배열: 가로로 넓은 타원, 1궁=왼쪽 */
     .spread-board--year {
       position: relative;
-      width: min(560px, 100%);
-      aspect-ratio: 1;
+      width: min(620px, 100%);
+      aspect-ratio: 1.25 / 1;
       margin: 0 auto;
     }
     .spread-board--year .tarot-card-wrap {
@@ -1069,7 +1069,7 @@
       top: 50%;
       margin-left: -35px;
       margin-top: -58px;
-      transform: rotate(var(--a)) translateY(-210px) rotate(calc(-1 * var(--a)));
+      transform: translate(var(--hx, 0px), var(--hy, 0px));
     }
     .spread-board--year .tarot-card-wrap--house-center {
       transform: none;
@@ -1963,12 +1963,11 @@
       .spread-board--magic-seven [data-slot="4"] { transform: translate(0, 100px); }
       .spread-board--magic-seven [data-slot="5"] { transform: translate(-86px, 50px); }
       .spread-board--magic-seven [data-slot="6"] { transform: translate(-86px, -50px); }
-      .spread-board--year { width: min(360px, 100%); }
+      .spread-board--year { width: min(100%, 400px); aspect-ratio: 1.15 / 1; }
       .spread-board--year .tarot-card-wrap {
         width: 52px;
         margin-left: -26px;
         margin-top: -44px;
-        transform: rotate(var(--a)) translateY(-140px) rotate(calc(-1 * var(--a)));
       }
       .spread-board--year .tarot-card-wrap--house-center {
         width: 68px;
@@ -3835,14 +3834,27 @@ function showDrawnCards() {
     });
   } else if (curMode === 'draw' && (layout === 'houses' || layout === 'year')) {
     mountBoard('spread-board--year', (board) => {
+      // 1궁=왼쪽(9시) → 반시계 / 4궁=아래 · 7궁=오른쪽 · 10궁=위 · 13=총운 중앙
+      const wraps = [];
       for (let i = 0; i < 12; i++) {
         const wrap = makeCardWrap(i);
-        wrap.style.setProperty('--a', (i * 30) + 'deg');
+        wraps.push(wrap);
         board.appendChild(wrap);
       }
       if (drawnCards.length >= 13) {
         board.appendChild(makeCardWrap(12, 'tarot-card-wrap--house-center'));
       }
+      requestAnimationFrame(() => {
+        const w = board.clientWidth || 560;
+        const rx2 = w * 0.38;
+        const ry2 = w * 0.28;
+        wraps.forEach((wrap, i) => {
+          const deg = 270 - i * 30;
+          const rad = (deg * Math.PI) / 180;
+          wrap.style.setProperty('--hx', (Math.sin(rad) * rx2).toFixed(1) + 'px');
+          wrap.style.setProperty('--hy', (-Math.cos(rad) * ry2).toFixed(1) + 'px');
+        });
+      });
     });
   } else if (curMode === 'draw' && layout === 'mini_celtic') {
     mountBoard('spread-board--mini-celtic', (board) => {
