@@ -2367,9 +2367,9 @@ const DRAW_SPREADS = {
   three: {
     id: 'three',
     label: '3카드',
-    sub: '과거·현재·미래',
+    sub: '3장',
     count: 3,
-    positions: ['과거', '현재', '미래'],
+    positions: null,
     layout: 'rows',
     rows: [[0, 1, 2]],
   },
@@ -2378,7 +2378,7 @@ const DRAW_SPREADS = {
     label: '4카드',
     sub: '다이아몬드',
     count: 4,
-    positions: ['상황', '도전', '기반', '결과'],
+    positions: null,
     layout: 'diamond',
   },
   five: {
@@ -2386,7 +2386,7 @@ const DRAW_SPREADS = {
     label: '5카드',
     sub: '십자형',
     count: 5,
-    positions: ['상황', '현재', '과거', '미래', '조언'],
+    positions: null,
     layout: 'cross',
   },
   seven: {
@@ -2394,7 +2394,7 @@ const DRAW_SPREADS = {
     label: '7카드',
     sub: '말발굽형',
     count: 7,
-    positions: ['과거', '현재', '숨은 영향', '장애', '환경', '조언', '결과'],
+    positions: null,
     layout: 'seven_arc',
   },
   choice: {
@@ -2402,7 +2402,7 @@ const DRAW_SPREADS = {
     label: '양자택일',
     sub: 'A/B 두 갈래',
     count: 5,
-    positions: ['선택 A', '선택 B', 'A의 전개', 'B의 전개', '조언'],
+    positions: null,
     layout: 'choice',
   },
   cross: {
@@ -2410,7 +2410,7 @@ const DRAW_SPREADS = {
     label: '십자',
     sub: '5장',
     count: 5,
-    positions: ['상황', '도전', '과거', '미래', '조언'],
+    positions: null,
     layout: 'cross',
   },
   horseshoe: {
@@ -2418,7 +2418,7 @@ const DRAW_SPREADS = {
     label: '말발굽',
     sub: '7장 · U자',
     count: 7,
-    positions: ['과거', '현재', '숨은 영향', '장애', '환경', '조언', '결과'],
+    positions: null,
     layout: 'horseshoe',
   },
   magic_seven: {
@@ -2426,8 +2426,7 @@ const DRAW_SPREADS = {
     label: '매직 세븐',
     sub: '7장 · 육각+중심',
     count: 7,
-    // 중심=현재, 위부터 시계방향
-    positions: ['현재', '목표', '미래', '기반', '과거', '장애', '조언'],
+    positions: null,
     layout: 'magic_seven',
   },
   mini_celtic: {
@@ -2435,7 +2434,7 @@ const DRAW_SPREADS = {
     label: '미니 켈틱',
     sub: '6장 · 십자+스태프',
     count: 6,
-    positions: ['현재', '도전', '과거', '미래', '자신', '결과'],
+    positions: null,
     layout: 'mini_celtic',
   },
   celtic: {
@@ -2443,18 +2442,7 @@ const DRAW_SPREADS = {
     label: '켈틱 크로스',
     sub: '10장 · 십자+스태프',
     count: 10,
-    positions: [
-      '현재',
-      '도전',
-      '기반',
-      '가까운 과거',
-      '가능한 결과',
-      '가까운 미래',
-      '자신',
-      '환경',
-      '희망·두려움',
-      '최종 결과',
-    ],
+    positions: null,
     layout: 'celtic',
   },
   houses: {
@@ -2491,10 +2479,11 @@ function resolveDrawCount() {
 
 function buildDrawPositions(count) {
   const sp = getDrawSpread();
-  if (sp.id === 'free' || !sp.positions) {
-    return Array.from({ length: count }, (_, i) => (i + 1) + '번');
+  // 12궁만 구조 이름 유지. 나머지는 의미 라벨 없이 번호만 (상담사가 해석)
+  if (sp.id === 'houses') {
+    return (sp.positions || []).slice(0, count);
   }
-  return sp.positions.slice(0, count);
+  return Array.from({ length: count }, (_, i) => (i + 1) + '번');
 }
 
 function buildDrawRows(count) {
