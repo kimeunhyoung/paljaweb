@@ -1069,7 +1069,7 @@
       padding-bottom: 4px;
     }
     .drawn-cards-v2.is-draw-only {
-      overflow-x: hidden;
+      overflow: hidden;
     }
 
     /* 7카드: 말발굽과 동일 (열림 아래) */
@@ -1094,13 +1094,14 @@
     .spread-board--seven-arc [data-slot="5"] { grid-column: 6; grid-row: 3; }
     .spread-board--seven-arc [data-slot="6"] { grid-column: 7; grid-row: 4; }
 
-    /* 12궁: 가로·세로로 넓게 펼친 타원 */
+    /* 12궁: 원에 가깝게, 보드 높이는 카드에 맞춤 */
     .spread-board--year {
       position: relative;
       width: min(720px, 100%);
-      aspect-ratio: 0.65;
-      min-height: 720px;
+      aspect-ratio: auto;
+      min-height: 0;
       margin: 0 auto;
+      overflow: hidden;
     }
     .spread-board--year .tarot-card-wrap {
       position: absolute;
@@ -2033,8 +2034,8 @@
         width: 100%;
         max-width: 100%;
         min-height: 0;
-        /* 모바일: 세로로 더 길게 → 좌우 겹침 완화 */
-        aspect-ratio: 0.50;
+        aspect-ratio: auto;
+        overflow: hidden;
       }
       .spread-board--year .tarot-card-wrap {
         width: 92px;
@@ -3905,16 +3906,19 @@ function showDrawnCards() {
       const place = () => {
         const w = board.clientWidth || 360;
         const isNarrow = w < 520;
-        // 모바일은 세로로 더 긴 타원 → 옆 카드 겹침 완화
-        const aspect = isNarrow ? 0.50 : 0.65;
-        board.style.aspectRatio = String(aspect);
-        board.style.minHeight = Math.round(w / aspect) + 'px';
-        const h = board.clientHeight || w / aspect;
+        // 카드 크기: 살짝만 줄여 옆 겹침 완화 (세로로 과도하게 늘리지 않음)
         const cardW = isNarrow
-          ? Math.max(78, Math.min(92, Math.floor(w * 0.24)))
-          : Math.max(112, Math.min(128, Math.floor(w * 0.175)));
+          ? Math.max(76, Math.min(90, Math.floor(w * 0.235)))
+          : Math.max(108, Math.min(124, Math.floor(w * 0.168)));
         const cardH = cardW * (3.2 / 2);
         const halfH = cardH / 2;
+        // 가로로 가장자리까지, 세로는 원에 가깝게(공백·스크롤 방지)
+        const rx2 = Math.max(52, w * 0.5 - cardW * (isNarrow ? 0.32 : 0.34));
+        const ry2 = rx2 * (isNarrow ? 1.12 : 1.06);
+        const h = Math.ceil(ry2 * 2 + cardH * 0.92);
+        board.style.aspectRatio = 'auto';
+        board.style.minHeight = '0';
+        board.style.height = h + 'px';
         wraps.forEach((wrap) => {
           const stale = wrap.querySelector('.tarot-card-pos');
           if (stale) stale.remove();
@@ -3926,17 +3930,12 @@ function showDrawnCards() {
         if (center) {
           const stale = center.querySelector('.tarot-card-pos');
           if (stale) stale.remove();
-          const cw = Math.round(cardW * 1.12);
+          const cw = Math.round(cardW * 1.1);
           const ch = cw * (3.2 / 2);
           center.style.width = cw + 'px';
           center.style.marginLeft = (-cw / 2) + 'px';
           center.style.marginTop = (-ch / 2) + 'px';
         }
-        // 보드 가장자리까지 펼침 (중간 몰림 방지)
-        const maxRx = w * 0.5 - cardW * 0.28;
-        const maxRy = h * 0.5 - halfH * 0.28;
-        const rx2 = Math.max(56, Math.min(maxRx, w * (isNarrow ? 0.43 : 0.41)));
-        const ry2 = Math.max(rx2 * (isNarrow ? 1.65 : 1.35), Math.min(maxRy, h * (isNarrow ? 0.46 : 0.42)));
         wraps.forEach((wrap, i) => {
           const deg = 270 - i * 30;
           const rad = (deg * Math.PI) / 180;
