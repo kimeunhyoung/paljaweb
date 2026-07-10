@@ -756,14 +756,14 @@
       color: var(--muted);
       line-height: 1.7;
       margin: 0 0 14px;
-      max-width: 520px;
+      max-width: none;
     }
     .lifecode-onetime-lede strong {
       color: var(--deep-brown);
       font-weight: 600;
     }
     .lifecode-onetime-warn {
-      max-width: 640px;
+      max-width: none;
       margin-bottom: 18px;
       padding: 14px 16px 14px 40px;
       background: linear-gradient(135deg, #fff7ed, #ffedd5);
@@ -793,10 +793,21 @@
     }
     .lifecode-onetime-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-      gap: 14px;
-      max-width: 640px;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      max-width: none;
+      width: 100%;
       align-items: stretch;
+    }
+    @media (max-width: 1100px) {
+      .lifecode-onetime-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+    @media (max-width: 640px) {
+      .lifecode-onetime-grid {
+        grid-template-columns: 1fr;
+      }
     }
     .lifecode-onetime-card {
       display: flex;
@@ -1051,8 +1062,8 @@
       </div>
       <div class="lifecode-onetime-card">
         <div class="lifecode-onetime-card-label">AI 운세 체험팩</div>
-        <div class="lifecode-onetime-card-price">2,900<span>원 · 6크레딧 · 1회</span></div>
-        <p class="lifecode-onetime-card-desc"><strong>포함</strong>: AI 6크레딧(단건 1,000원×3보다 이득). 예) 차트(2)+올해(1)+이번 주(1)+오늘 운세(1)+여유 1.</p>
+        <div class="lifecode-onetime-card-price">2,500<span>원 · 6크레딧 · 1회</span></div>
+        <p class="lifecode-onetime-card-desc"><strong>포함</strong>: AI 6크레딧 · 2,500원(단건 3,000원분보다 이득). 예) 차트(2)+올해(1)+이번 주(1)+오늘 운세(1)+여유 1.</p>
         <a href="/ai-buy.html?product=ai_fortune" class="plan-btn plan-btn-outline">운세팩 구매</a>
       </div>
       <div class="lifecode-onetime-card lifecode-onetime-card--featured">

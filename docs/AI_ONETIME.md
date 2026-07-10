@@ -4,7 +4,7 @@
 | key | 가격 | 크레딧 | 설명 |
 |---|---|---|---|
 | `ai_chart` | 1,000원 | 2 | AI 차트 해석 1회 |
-| `ai_fortune` | 2,900원 | 6 | 차트·트랜짓·올해·오늘 운세 등 체험(단건보다 이득) |
+| `ai_fortune` | 2,500원 | 6 | 차트·트랜짓·올해·오늘 운세 등 체험(단건보다 이득) |
 
 ## 배포 전 체크
 1. Supabase SQL Editor에서 `database/ai_credit_orders.sql` 실행
