@@ -52,11 +52,12 @@ Supabase SQL Editor에서 실행.
 `status = 'revoked'` → 거절  
 `expires_at IS NOT NULL AND expires_at < now()` → 거절 (DB status는 그대로 `active` 가능)
 
-**1코드 1기기:**
+**계정당 기기 최대 4대 (단품·체험):**
 
-- `device_id IS NULL` → 첫 성공 `activate` 시 `device_id` 저장
-- `device_id`가 있고 요청 `deviceId`와 다름 → `activate_denied_device`
-- 관리자 `reset-device` → `device_id`, `device_bound_at` null
+- 로그인 계정에 코드 연결 (`linked_user_id`)
+- `account_devices`에 기기 등록 (최대 4) — SQL: `database/account_devices.sql`
+- 레거시 `device_id`는 기록용이며 접근 판정에 사용하지 않음
+- 관리자 `reset-device` → 라이선스 레거시 필드 초기화
 
 ### 2.2 `lifecode_access_log`
 
