@@ -1307,7 +1307,7 @@
       touch-action: none;
     }
     .free-draw-canvas::before {
-      content: '카드를 여기로 끌어다 배치';
+      content: '위 카드를 눌러 여기로 배치';
       position: absolute;
       inset: 0;
       display: flex;
@@ -1326,10 +1326,14 @@
       user-select: none;
       -webkit-user-select: none;
     }
-    .free-draw-tray .tarot-card-wrap.is-draggable { width: min(100px, 26vw); }
+    .free-draw-tray .tarot-card-wrap.is-draggable {
+      width: min(100px, 26vw);
+      cursor: pointer;
+    }
     .free-draw-canvas .tarot-card-wrap.is-draggable {
       width: min(110px, 28vw);
       z-index: 2;
+      cursor: grab;
     }
     .tarot-card-wrap.is-dragging {
       cursor: grabbing;
@@ -4259,7 +4263,7 @@ function showDrawnCards() {
       if (spNote.id === 'free') {
         drawNote.innerHTML =
           '<div class="step-label">드로우만 · Rider–Waite–Smith</div>' +
-          '<p style="margin:0;font-size:14px;color:var(--muted);line-height:1.7;">해석은 제공하지 않습니다. 위 트레이에서 카드를 끌어 아래 배치판에 원하는 대로 놓아 보세요. (짧게 누르면 공개)</p>';
+          '<p style="margin:0;font-size:14px;color:var(--muted);line-height:1.7;">해석은 제공하지 않습니다. 위 카드를 누르면 아래 배치판으로 내려갑니다. 배치판에서는 드래그로 위치를 옮기고, 짧게 누르면 공개됩니다.</p>';
       } else {
         drawNote.innerHTML =
           '<div class="step-label">드로우만 · Rider–Waite–Smith</div>' +
@@ -4307,7 +4311,7 @@ function showDrawnCards() {
   if (curMode === 'draw' && (layout === 'freeform' || (drawSp && drawSp.id === 'free'))) {
     const hint = document.createElement('p');
     hint.className = 'free-draw-hint';
-    hint.textContent = '뽑은 카드가 위에 있어요. 손가락·마우스로 아래 배치판에 원하는 대로 옮겨 보세요. (짧게 누르면 공개)';
+    hint.textContent = '위 카드를 누르면 아래 배치판으로 내려갑니다. 배치판에서는 드래그로 위치를 조정하고, 짧게 누르면 공개됩니다.';
 
     const tray = document.createElement('div');
     tray.className = 'free-draw-tray';
