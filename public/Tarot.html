@@ -1621,7 +1621,7 @@
         <div class="mode-card" data-mode="draw" onclick="selectMode('draw', this)">
           <div class="mode-icon">✦</div>
           <div class="mode-title">카드만 뽑기</div>
-          <div class="mode-desc">해석 없이 장수만 골라 배열합니다. 실물 덱 대신 상담·셀프 드로우용.</div>
+          <div class="mode-desc">해석 없이 장수만 골라 배열합니다. 라이더–웨이트(PD) · 상담·셀프 드로우용.</div>
         </div>
       </div>
 
@@ -1662,7 +1662,7 @@
 
       <div id="drawOpts" class="draw-opts mode-follow">
         <div class="step-title">몇 장을 뽑을까요?</div>
-        <p class="step-note" style="margin-top:-8px;margin-bottom:14px;font-size:13px;">해석·수비학 연동 없이 카드 이름·정/역·배열만 보여 줍니다. 상담 중 실물 덱 대신 사용하세요.</p>
+        <p class="step-note" style="margin-top:-8px;margin-bottom:14px;font-size:13px;">해석·수비학 연동 없이 <strong>라이더–웨이트</strong> 카드 이름·정/역·배열만 보여 줍니다. 상담 중 실물 덱 대신 사용하세요.</p>
         <div class="topic-grid" style="grid-template-columns:repeat(4,1fr);">
           <div class="topic-btn" data-draw-n="1" onclick="selectDrawCount(1, this)">1장</div>
           <div class="topic-btn selected" data-draw-n="3" onclick="selectDrawCount(3, this)">3장</div>
@@ -1714,8 +1714,8 @@
     </div>
 
     <div id="drawOnlyNote" class="step-card" style="display:none;margin-bottom:24px;padding:18px 20px;">
-      <div class="step-label">드로우만</div>
-      <p style="margin:0;font-size:14px;color:var(--muted);line-height:1.7;">해석은 제공하지 않습니다. 카드 이름·정/역·배열만 확인한 뒤, 상담이나 셀프 리딩에 활용하세요.</p>
+      <div class="step-label">드로우만 · Rider–Waite–Smith</div>
+      <p style="margin:0;font-size:14px;color:var(--muted);line-height:1.7;">해석은 제공하지 않습니다. 상담사에게 익숙한 <strong>라이더–웨이트</strong> 이미지로 이름·정/역·배열만 보여 줍니다. (퍼블릭 도메인 · Wikimedia Commons)</p>
     </div>
 
     <div id="readingArea"></div>
@@ -2762,7 +2762,7 @@ function escapeHtmlAttr(s) {
     .replace(/</g, '&lt;');
 }
 
-/** 저장소 `public/tarot/` 파일명: major (0~21).jpg, {suit} (1~14).jpg */
+/** 저장소 파일명: major (0~21).jpg, {suit} (1~14).jpg — 드로우 모드는 RWS(PD) */
 function getTarotCardImageSrc(card) {
   let file;
   if (card.suit === 'major') {
@@ -2773,7 +2773,8 @@ function getTarotCardImageSrc(card) {
     const rank = card.id - base;
     file = `${card.suit} (${rank}).jpg`;
   }
-  return 'tarot/' + encodeURIComponent(file);
+  const folder = curMode === 'draw' ? 'tarot-rws' : 'tarot';
+  return folder + '/' + encodeURIComponent(file);
 }
 
 function scrollTarotFocus(el, smooth) {
