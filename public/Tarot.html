@@ -827,7 +827,7 @@
       justify-content: center;
     }
 
-    /* 말발굽: U자 (열림이 위) */
+    /* 말발굽: U자 — 열림이 아래(상담사 쪽), 장애가 위 */
     .spread-board--horseshoe {
       display: grid;
       grid-template-columns: repeat(7, minmax(0, 1fr));
@@ -839,15 +839,15 @@
       max-width: 680px;
     }
     .spread-board--horseshoe .tarot-card-wrap { width: 88px; }
-    .spread-board--horseshoe [data-slot="0"] { grid-column: 1; grid-row: 1; }
-    .spread-board--horseshoe [data-slot="1"] { grid-column: 2; grid-row: 2; }
-    .spread-board--horseshoe [data-slot="2"] { grid-column: 3; grid-row: 3; }
-    .spread-board--horseshoe [data-slot="3"] { grid-column: 4; grid-row: 4; }
-    .spread-board--horseshoe [data-slot="4"] { grid-column: 5; grid-row: 3; }
-    .spread-board--horseshoe [data-slot="5"] { grid-column: 6; grid-row: 2; }
-    .spread-board--horseshoe [data-slot="6"] { grid-column: 7; grid-row: 1; }
+    .spread-board--horseshoe [data-slot="0"] { grid-column: 1; grid-row: 4; }
+    .spread-board--horseshoe [data-slot="1"] { grid-column: 2; grid-row: 3; }
+    .spread-board--horseshoe [data-slot="2"] { grid-column: 3; grid-row: 2; }
+    .spread-board--horseshoe [data-slot="3"] { grid-column: 4; grid-row: 1; }
+    .spread-board--horseshoe [data-slot="4"] { grid-column: 5; grid-row: 2; }
+    .spread-board--horseshoe [data-slot="5"] { grid-column: 6; grid-row: 3; }
+    .spread-board--horseshoe [data-slot="6"] { grid-column: 7; grid-row: 4; }
 
-    /* 십자 (5장) */
+    /* 십자 / 5카드 공통 */
     .spread-board--cross {
       display: grid;
       grid-template-columns: repeat(3, auto);
@@ -863,23 +863,48 @@
     .spread-board--cross [data-slot="3"] { grid-column: 3; grid-row: 2; }
     .spread-board--cross [data-slot="4"] { grid-column: 2; grid-row: 3; }
 
-    /* 미니 켈틱 (6장): 작은 십자 + 오른쪽 스태프 */
+    /* 미니 켈틱: 작은 십자 + 오른쪽 스태프 2장 */
     .spread-board--mini-celtic {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      align-items: flex-start;
+      gap: 16px 24px;
+    }
+    .mini-celtic-cross {
       display: grid;
-      grid-template-columns: auto auto auto auto auto;
+      grid-template-columns: auto auto auto;
       grid-template-rows: auto auto;
       gap: 10px 12px;
-      justify-content: center;
       justify-items: center;
-      align-items: start;
+      align-items: center;
     }
-    .spread-board--mini-celtic [data-slot="0"] { grid-column: 2; grid-row: 1; }
-    .spread-board--mini-celtic [data-slot="1"] { grid-column: 3; grid-row: 1; }
-    .spread-board--mini-celtic [data-slot="1"] .tarot-card { transform: rotate(90deg); }
-    .spread-board--mini-celtic [data-slot="2"] { grid-column: 1; grid-row: 1 / span 2; align-self: center; }
-    .spread-board--mini-celtic [data-slot="3"] { grid-column: 4; grid-row: 1 / span 2; align-self: center; }
-    .spread-board--mini-celtic [data-slot="4"] { grid-column: 5; grid-row: 1; }
-    .spread-board--mini-celtic [data-slot="5"] { grid-column: 5; grid-row: 2; }
+    .mini-celtic-cross .tarot-card-wrap { width: 100px; }
+    .mini-celtic-cross__center {
+      grid-column: 2;
+      grid-row: 1;
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      gap: 12px;
+    }
+    .mini-celtic-cross__center .tarot-card-wrap--challenge .tarot-card {
+      transform: rotate(90deg);
+    }
+    .mini-celtic-cross__left { grid-column: 1; grid-row: 1; align-self: center; }
+    .mini-celtic-cross__right { grid-column: 3; grid-row: 1; align-self: center; }
+    .mini-celtic-staff {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      align-items: center;
+    }
+    .mini-celtic-staff .tarot-card-wrap { width: 100px; }
+    .mini-celtic-staff-label {
+      font-size: 10px;
+      color: var(--muted);
+      letter-spacing: .04em;
+    }
 
     /* 켈틱 크로스: 왼쪽 십자 + 오른쪽 스태프 */
     .spread-board--celtic {
@@ -980,7 +1005,7 @@
     .spread-board--choice [data-slot="3"] { grid-column: 3; grid-row: 3; } /* B의 전개 */
     .spread-board--choice [data-slot="4"] { grid-column: 1 / span 3; grid-row: 4; } /* 조언 */
 
-    /* 4카드 다이아몬드 */
+    /* 4카드 다이아몬드: 위=상황 · 좌=도전 · 우=기반 · 아래=결과 */
     .spread-board--diamond {
       display: grid;
       grid-template-columns: auto auto auto;
@@ -994,22 +1019,7 @@
     .spread-board--diamond [data-slot="2"] { grid-column: 3; grid-row: 2; }
     .spread-board--diamond [data-slot="3"] { grid-column: 2; grid-row: 3; }
 
-    /* 5카드 오각형에 가까운 배치 */
-    .spread-board--five {
-      display: grid;
-      grid-template-columns: auto auto auto;
-      grid-template-rows: auto auto auto;
-      gap: 10px 12px;
-      justify-content: center;
-      justify-items: center;
-    }
-    .spread-board--five [data-slot="0"] { grid-column: 2; grid-row: 1; }
-    .spread-board--five [data-slot="1"] { grid-column: 1; grid-row: 2; }
-    .spread-board--five [data-slot="2"] { grid-column: 3; grid-row: 2; }
-    .spread-board--five [data-slot="3"] { grid-column: 1; grid-row: 3; }
-    .spread-board--five [data-slot="4"] { grid-column: 3; grid-row: 3; }
-
-    /* 매직 세븐: 육각 + 중심 */
+    /* 매직 세븐: 중심=현재, 위부터 시계방향 */
     .spread-board--magic-seven {
       position: relative;
       width: min(420px, 100%);
@@ -1035,7 +1045,7 @@
     .spread-board--magic-seven [data-slot="5"] { transform: translate(-114px, 66px); }
     .spread-board--magic-seven [data-slot="6"] { transform: translate(-114px, -66px); }
 
-    /* 7카드 자유: 말발굽과 동일 U자 */
+    /* 7카드: 말발굽과 동일 (열림 아래) */
     .spread-board--seven-arc {
       display: grid;
       grid-template-columns: repeat(7, minmax(0, 1fr));
@@ -1047,13 +1057,13 @@
       max-width: 680px;
     }
     .spread-board--seven-arc .tarot-card-wrap { width: 88px; }
-    .spread-board--seven-arc [data-slot="0"] { grid-column: 1; grid-row: 1; }
-    .spread-board--seven-arc [data-slot="1"] { grid-column: 2; grid-row: 2; }
-    .spread-board--seven-arc [data-slot="2"] { grid-column: 3; grid-row: 3; }
-    .spread-board--seven-arc [data-slot="3"] { grid-column: 4; grid-row: 4; }
-    .spread-board--seven-arc [data-slot="4"] { grid-column: 5; grid-row: 3; }
-    .spread-board--seven-arc [data-slot="5"] { grid-column: 6; grid-row: 2; }
-    .spread-board--seven-arc [data-slot="6"] { grid-column: 7; grid-row: 1; }
+    .spread-board--seven-arc [data-slot="0"] { grid-column: 1; grid-row: 4; }
+    .spread-board--seven-arc [data-slot="1"] { grid-column: 2; grid-row: 3; }
+    .spread-board--seven-arc [data-slot="2"] { grid-column: 3; grid-row: 2; }
+    .spread-board--seven-arc [data-slot="3"] { grid-column: 4; grid-row: 1; }
+    .spread-board--seven-arc [data-slot="4"] { grid-column: 5; grid-row: 2; }
+    .spread-board--seven-arc [data-slot="5"] { grid-column: 6; grid-row: 3; }
+    .spread-board--seven-arc [data-slot="6"] { grid-column: 7; grid-row: 4; }
 
     /* 12궁 배열: 가로로 넓은 타원, 1궁=왼쪽 */
     .spread-board--year {
@@ -1951,10 +1961,11 @@
       .celtic-cross__center .tarot-card-wrap--challenge { width: 72px; }
       .spread-board--celtic { gap: 14px 12px; }
       .spread-board--cross .tarot-card-wrap,
-      .spread-board--mini-celtic .tarot-card-wrap,
       .spread-board--diamond .tarot-card-wrap,
-      .spread-board--five .tarot-card-wrap,
-      .spread-board--choice .tarot-card-wrap { width: 86px; }
+      .spread-board--choice .tarot-card-wrap,
+      .mini-celtic-cross .tarot-card-wrap,
+      .mini-celtic-staff .tarot-card-wrap { width: 86px; }
+      .spread-board--seven-arc .tarot-card-wrap { width: 44px; }
       .spread-board--magic-seven { width: min(340px, 100%); }
       .spread-board--magic-seven .tarot-card-wrap { width: 64px; margin-left: -32px; margin-top: -52px; }
       .spread-board--magic-seven [data-slot="1"] { transform: translate(0, -100px); }
@@ -2334,17 +2345,17 @@ const DRAW_SPREADS = {
   five: {
     id: 'five',
     label: '5카드',
-    sub: '오각 배치',
+    sub: '십자형',
     count: 5,
-    positions: ['중심', '과거', '미래', '장애', '조언'],
-    layout: 'five',
+    positions: ['상황', '현재', '과거', '미래', '조언'],
+    layout: 'cross',
   },
   seven: {
     id: 'seven',
     label: '7카드',
-    sub: 'U자 배열',
+    sub: '말발굽형',
     count: 7,
-    positions: ['1번', '2번', '3번', '4번', '5번', '6번', '7번'],
+    positions: ['과거', '현재', '숨은 영향', '장애', '환경', '조언', '결과'],
     layout: 'seven_arc',
   },
   choice: {
@@ -2376,13 +2387,14 @@ const DRAW_SPREADS = {
     label: '매직 세븐',
     sub: '7장 · 육각+중심',
     count: 7,
-    positions: ['핵심', '과거', '현재', '미래', '장애', '조언', '결과'],
+    // 중심=현재, 위부터 시계방향
+    positions: ['현재', '목표', '미래', '기반', '과거', '장애', '조언'],
     layout: 'magic_seven',
   },
   mini_celtic: {
     id: 'mini_celtic',
     label: '미니 켈틱',
-    sub: '6장',
+    sub: '6장 · 십자+스태프',
     count: 6,
     positions: ['현재', '도전', '과거', '미래', '자신', '결과'],
     layout: 'mini_celtic',
@@ -3808,10 +3820,6 @@ function showDrawnCards() {
     mountBoard('spread-board--diamond', (board) => {
       for (let i = 0; i < 4; i++) board.appendChild(makeCardWrap(i));
     });
-  } else if (curMode === 'draw' && layout === 'five') {
-    mountBoard('spread-board--five', (board) => {
-      for (let i = 0; i < 5; i++) board.appendChild(makeCardWrap(i));
-    });
   } else if (curMode === 'draw' && layout === 'choice') {
     mountBoard('spread-board--choice', (board) => {
       const la = document.createElement('div');
@@ -3858,7 +3866,38 @@ function showDrawnCards() {
     });
   } else if (curMode === 'draw' && layout === 'mini_celtic') {
     mountBoard('spread-board--mini-celtic', (board) => {
-      for (let i = 0; i < 6; i++) board.appendChild(makeCardWrap(i));
+      const cross = document.createElement('div');
+      cross.className = 'mini-celtic-cross';
+
+      const left = document.createElement('div');
+      left.className = 'mini-celtic-cross__left';
+      left.appendChild(makeCardWrap(2));
+
+      const center = document.createElement('div');
+      center.className = 'mini-celtic-cross__center';
+      center.appendChild(makeCardWrap(0, 'tarot-card-wrap--present'));
+      center.appendChild(makeCardWrap(1, 'tarot-card-wrap--challenge'));
+
+      const right = document.createElement('div');
+      right.className = 'mini-celtic-cross__right';
+      right.appendChild(makeCardWrap(3));
+
+      cross.appendChild(left);
+      cross.appendChild(center);
+      cross.appendChild(right);
+
+      const staff = document.createElement('div');
+      staff.className = 'mini-celtic-staff';
+      const hint = document.createElement('div');
+      hint.className = 'mini-celtic-staff-label';
+      hint.textContent = '스태프';
+      staff.appendChild(hint);
+      // 위=결과, 아래=자신(상담사 쪽)
+      staff.appendChild(makeCardWrap(5));
+      staff.appendChild(makeCardWrap(4));
+
+      board.appendChild(cross);
+      board.appendChild(staff);
     });
   } else if (curMode === 'draw' && layout === 'celtic') {
     mountBoard('spread-board--celtic', (board) => {
