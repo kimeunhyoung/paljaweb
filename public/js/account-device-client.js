@@ -41,7 +41,8 @@
       '이 계정은 이미 <strong>기기 ' +
       MAX +
       '대</strong>까지 등록되어 이 브라우저에서는 유료 기능을 열 수 없습니다. ' +
-      '다른 기기 사용을 줄이거나 고객센터로 문의해 주세요.';
+      '<a href="dashboard.html#devices" style="color:#9a3412;font-weight:700;text-decoration:underline">마이페이지에서 기기 해제</a> ' +
+      '후 다시 시도하거나 고객센터로 문의해 주세요.';
     var top = document.querySelector('.site-top');
     if (top && top.parentNode) top.parentNode.insertBefore(el, top.nextSibling);
     else document.body.insertBefore(el, document.body.firstChild);

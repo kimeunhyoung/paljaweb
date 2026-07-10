@@ -12,6 +12,7 @@
   <!-- Supabase CDN -->
   <script src="js/attribution.js"></script>
   <script src="js/analytics.js?v=1" defer></script>
+  <script src="js/account-device-client.js?v=1"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
   <style>
@@ -590,6 +591,73 @@
       line-height: 1.6;
       margin-bottom: 14px;
     }
+
+    .device-panel {
+      margin-top: 24px;
+      opacity: 0;
+      animation: fadeUp .6s ease .6s forwards;
+    }
+    .device-list { padding: 8px 0; }
+    .device-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 14px 24px;
+      border-bottom: 1px solid var(--border);
+    }
+    .device-row:last-child { border-bottom: none; }
+    .device-meta { min-width: 0; flex: 1; }
+    .device-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--deep-brown);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .device-chip {
+      font-size: 11px;
+      font-weight: 600;
+      padding: 2px 8px;
+      border-radius: 999px;
+      background: rgba(200,169,110,.28);
+      color: var(--deep-brown);
+    }
+    .device-sub {
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 4px;
+      line-height: 1.45;
+    }
+    .device-remove {
+      flex-shrink: 0;
+      border: 1px solid var(--border);
+      background: #fff;
+      color: var(--deep-brown);
+      border-radius: 8px;
+      padding: 8px 12px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: inherit;
+    }
+    .device-remove:hover { border-color: rgba(192,57,43,.35); color: #c0392b; }
+    .device-remove:disabled { opacity: .5; cursor: wait; }
+    .device-empty, .device-hint {
+      padding: 18px 24px;
+      font-size: 13px;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+    .device-msg {
+      padding: 0 24px 14px;
+      font-size: 13px;
+      color: #9a3412;
+      display: none;
+    }
+    .device-msg.is-visible { display: block; }
     .upgrade-btn {
       display: block;
       width: 100%;
@@ -812,6 +880,12 @@
         <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.6" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
         상담사 허브
       </a>
+
+      <div class="nav-label">계정</div>
+      <a class="nav-link" href="#devices">
+        <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.6" viewBox="0 0 24 24"><rect x="5" y="2" width="14" height="20" rx="2"/><path d="M12 18h.01"/></svg>
+        등록 기기
+      </a>
     </nav>
 
     <div class="sidebar-footer">
@@ -1018,6 +1092,19 @@
         </div>
       </div>
 
+      <!-- 등록 기기 -->
+      <div class="panel device-panel" id="devices">
+        <div class="panel-header">
+          <span class="panel-title">등록 기기</span>
+          <span class="panel-action" id="deviceCountLabel">최대 4대</span>
+        </div>
+        <p class="device-hint">유료·체험·단품은 계정당 최대 4대까지 등록됩니다. 쓰지 않는 기기는 아래에서 해제할 수 있어요.</p>
+        <div class="device-msg" id="deviceMsg" role="alert"></div>
+        <div class="device-list" id="deviceList">
+          <div class="device-empty">불러오는 중…</div>
+        </div>
+      </div>
+
     </main>
   </div>
 </div>
@@ -1135,6 +1222,133 @@
       btn.disabled = false;
     }
   }
+
+  function getLocalDeviceId() {
+    if (window.PaljaDevice && typeof window.PaljaDevice.getDeviceId === 'function') {
+      return window.PaljaDevice.getDeviceId();
+    }
+    try {
+      let id = localStorage.getItem('lifecode_device_id');
+      if (!id) {
+        id = crypto.randomUUID();
+        localStorage.setItem('lifecode_device_id', id);
+      }
+      return id;
+    } catch (_) {
+      return '';
+    }
+  }
+
+  function formatDeviceWhen(iso) {
+    if (!iso) return '—';
+    try {
+      return new Date(iso).toLocaleString('ko-KR', {
+        year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit',
+      });
+    } catch (_) {
+      return iso;
+    }
+  }
+
+  function shortDeviceId(id) {
+    const s = String(id || '');
+    if (s.length <= 12) return s;
+    return s.slice(0, 8) + '…' + s.slice(-4);
+  }
+
+  function showDeviceMsg(text) {
+    const el = document.getElementById('deviceMsg');
+    if (!el) return;
+    if (!text) {
+      el.textContent = '';
+      el.classList.remove('is-visible');
+      return;
+    }
+    el.textContent = text;
+    el.classList.add('is-visible');
+  }
+
+  async function loadRegisteredDevices(session) {
+    const list = document.getElementById('deviceList');
+    const countLabel = document.getElementById('deviceCountLabel');
+    if (!list || !session) return;
+    showDeviceMsg('');
+    list.innerHTML = '<div class="device-empty">불러오는 중…</div>';
+    try {
+      const deviceId = getLocalDeviceId();
+      const res = await fetch('/api/account/devices', {
+        headers: {
+          Authorization: 'Bearer ' + session.access_token,
+          'X-Device-Id': deviceId,
+        },
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        list.innerHTML = '<div class="device-empty">기기 목록을 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.</div>';
+        return;
+      }
+      const devices = data.devices || [];
+      const max = data.max || 4;
+      if (countLabel) countLabel.textContent = devices.length + ' / ' + max + '대';
+      if (!devices.length) {
+        list.innerHTML = '<div class="device-empty">아직 등록된 기기가 없습니다. 유료 기능을 쓰면 이 기기가 자동 등록됩니다.</div>';
+        return;
+      }
+      list.innerHTML = devices.map((d) => {
+        const current = d.isCurrent ? '<span class="device-chip">이 기기</span>' : '';
+        const title = d.isCurrent ? '지금 사용 중' : '등록된 기기';
+        return (
+          '<div class="device-row" data-device-id="' + String(d.deviceId).replace(/"/g, '') + '">' +
+            '<div class="device-meta">' +
+              '<div class="device-title">' + title + ' ' + current + '</div>' +
+              '<div class="device-sub">ID ' + shortDeviceId(d.deviceId) +
+                ' · 최근 사용 ' + formatDeviceWhen(d.lastSeenAt) +
+                ' · 등록 ' + formatDeviceWhen(d.createdAt) + '</div>' +
+            '</div>' +
+            '<button type="button" class="device-remove" data-remove-device="' +
+              encodeURIComponent(d.deviceId) + '">해제</button>' +
+          '</div>'
+        );
+      }).join('');
+    } catch (_) {
+      list.innerHTML = '<div class="device-empty">기기 목록을 불러오지 못했습니다.</div>';
+    }
+  }
+
+  document.getElementById('deviceList')?.addEventListener('click', async (e) => {
+    const btn = e.target && e.target.closest && e.target.closest('[data-remove-device]');
+    if (!btn) return;
+    const deviceId = decodeURIComponent(btn.getAttribute('data-remove-device') || '');
+    if (!deviceId) return;
+    const isCurrent = getLocalDeviceId() === deviceId;
+    const msg = isCurrent
+      ? '지금 쓰는 기기를 해제할까요? 해제 후 이 기기에서 유료 기능을 다시 쓰려면 슬롯이 남아 있어야 합니다.'
+      : '이 기기 등록을 해제할까요? 해당 기기에서는 유료 기능을 다시 열 때 슬롯이 필요합니다.';
+    if (!confirm(msg)) return;
+    btn.disabled = true;
+    try {
+      const { data: { session } } = await sb.auth.getSession();
+      if (!session) {
+        window.location.replace('login.html?next=' + encodeURIComponent('dashboard.html#devices'));
+        return;
+      }
+      const res = await fetch('/api/account/devices/' + encodeURIComponent(deviceId), {
+        method: 'DELETE',
+        headers: { Authorization: 'Bearer ' + session.access_token },
+      });
+      const j = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        showDeviceMsg(j.error || '해제에 실패했습니다.');
+        btn.disabled = false;
+        return;
+      }
+      showDeviceMsg('');
+      await loadRegisteredDevices(session);
+    } catch (_) {
+      showDeviceMsg('해제 요청에 실패했습니다.');
+      btn.disabled = false;
+    }
+  });
 
   // ── CONFIG ── (replace with your actual values)
   const SUPABASE_URL = 'https://sghsryumnrnftyjoqmwf.supabase.co';
@@ -1280,6 +1494,12 @@
         } catch (_) {}
       }
     } catch (e) { /* ignore */ }
+
+    const { data: { session: sess2 } } = await sb.auth.getSession();
+    await loadRegisteredDevices(sess2 || session);
+    if (location.hash === '#devices') {
+      document.getElementById('devices')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
 
     // Show app
     document.getElementById('auth-guard').style.display = 'none';
