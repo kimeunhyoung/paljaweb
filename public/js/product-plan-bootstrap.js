@@ -30,6 +30,7 @@
     var requireLogin = options.requireLogin !== false;
     global.PALJA_PRODUCT = product;
     global.PALJA_USER_PLAN = 'free';
+    global.PALJA_LOGGED_IN = false;
 
     var sb = getClient();
     if (!sb) return global.PALJA_USER_PLAN;
@@ -38,10 +39,16 @@
     var session = res.data && res.data.session;
     if (!session) {
       if (requireLogin) {
-        global.location.replace('login.html?next=' + encodeURIComponent(loginNext()));
+        var next = loginNext();
+        var url = global.PaljaPlan && global.PaljaPlan.signupUrl
+          ? global.PaljaPlan.signupUrl(next)
+          : 'signup.html?next=' + encodeURIComponent(next);
+        global.location.replace(url);
       }
       return global.PALJA_USER_PLAN;
     }
+
+    global.PALJA_LOGGED_IN = true;
 
     var pres = await sb
       .from('profiles')

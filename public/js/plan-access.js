@@ -191,16 +191,72 @@
     return planKoLabel(productMinPlan(product)) + ' 이상 플랜에서 이용할 수 있습니다.';
   }
 
+  function pageNextUrl() {
+    if (typeof global.location === 'undefined') return 'index.html';
+    var p = global.location.pathname.split('/').pop() || 'index.html';
+    return p + global.location.search + global.location.hash;
+  }
+
+  function signupUrl(next) {
+    var n = next || pageNextUrl();
+    return 'signup.html?next=' + encodeURIComponent(n);
+  }
+
+  function loginUrl(next) {
+    var n = next || pageNextUrl();
+    return 'login.html?next=' + encodeURIComponent(n);
+  }
+
+  function isLoggedInFlag() {
+    return !!global.PALJA_LOGGED_IN;
+  }
+
+  function productGateLinksHtml(product, options) {
+    options = options || {};
+    var next = options.next || pageNextUrl();
+    var loggedIn = options.loggedIn;
+    if (loggedIn === undefined) loggedIn = isLoggedInFlag();
+    var btn =
+      'display:inline-block;padding:10px 18px;border-radius:8px;text-decoration:none;font-size:14px;font-weight:600;margin:4px 8px 4px 0;';
+    if (!loggedIn) {
+      return (
+        '<div style="margin-top:14px;">' +
+        '<a href="' + signupUrl(next) + '" style="' + btn + 'background:#4a3520;color:#f5f0e8;">무료 가입하기</a>' +
+        '<a href="' + loginUrl(next) + '" style="' + btn + 'background:#fff;color:#4a3520;border:1px solid rgba(139,111,71,.35);">로그인</a>' +
+        '<a href="pricing.html" style="font-size:13px;color:var(--accent,#c4603a);text-decoration:underline;">요금제 보기</a>' +
+        '</div>'
+      );
+    }
+    return (
+      '<div style="margin-top:14px;">' +
+      '<a href="pricing.html" style="' + btn + 'background:#4a3520;color:#f5f0e8;">' +
+      planKoLabel(productMinPlan(product)) + ' 업그레이드</a>' +
+      '</div>'
+    );
+  }
+
+  function productGatePanelHtml(product, options) {
+    options = options || {};
+    var title = options.title || planKoLabel(productMinPlan(product)) + ' 이상에서 이용 가능';
+    var desc = options.desc || productGateMsg(product);
+    var extras = options.extrasHtml || '';
+    return (
+      '<div class="palja-gate-panel">' +
+      '<h2 style="margin:0 0 8px;font-size:20px;color:var(--ink,#2c1f0e);">' + title + '</h2>' +
+      '<p class="palja-gate-desc" style="margin:0;color:var(--muted,#9a8570);line-height:1.7;">' + desc + '</p>' +
+      extras +
+      productGateLinksHtml(product, options) +
+      '</div>'
+    );
+  }
+
   function hasProductAccess(product, plan, devUnlock) {
     if (devUnlock) return true;
     return isPlanAtLeast({ plan: plan }, productMinPlan(product));
   }
 
-  function productGateHtml(product) {
-    return (
-      productGateMsg(product) +
-      ' <a href="pricing.html" style="color:var(--accent);text-decoration:underline">요금제 보기</a>'
-    );
+  function productGateHtml(product, options) {
+    return productGatePanelHtml(product, options);
   }
 
   /** @deprecated use productGateHtml(product) */
@@ -213,14 +269,13 @@
 
   function checkBasicProductAccess(product, plan, errEl, devUnlock) {
     if (hasProductAccess(product, plan, devUnlock)) return true;
-    var msg = productGateMsg(product);
     if (errEl) {
-      errEl.innerHTML = productGateHtml(product);
+      errEl.innerHTML = productGatePanelHtml(product, { loggedIn: isLoggedInFlag() });
       if (errEl.scrollIntoView) {
         errEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
       }
     } else {
-      alert(msg);
+      alert(productGateMsg(product));
     }
     return false;
   }
@@ -250,6 +305,12 @@
     productMinPlan: productMinPlan,
     hasProductAccess: hasProductAccess,
     productGateMsg: productGateMsg,
+    pageNextUrl: pageNextUrl,
+    signupUrl: signupUrl,
+    loginUrl: loginUrl,
+    isLoggedInFlag: isLoggedInFlag,
+    productGateLinksHtml: productGateLinksHtml,
+    productGatePanelHtml: productGatePanelHtml,
     productGateHtml: productGateHtml,
     BASIC_PRODUCT_GATE_MSG: BASIC_PRODUCT_GATE_MSG,
     basicProductGateHtml: basicProductGateHtml,

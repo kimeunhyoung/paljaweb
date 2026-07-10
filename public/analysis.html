@@ -3882,7 +3882,7 @@
         <button type="button" class="analyze-btn" id="btnAnalyze" onclick="runAnalysis()">분석하기</button>
       </div>
       <div id="guestHint" hidden style="margin-top:14px;padding:10px 14px;border:1px solid var(--border);border-radius:10px;background:rgba(46,139,122,.06);font-size:13px;color:var(--muted);line-height:1.5;">
-        로그인 없이 무료로 바로 분석해 볼 수 있어요. <a href="login.html?next=analysis.html" style="color:var(--accent);text-decoration:underline;font-weight:600;">로그인</a>하면 결과 저장·심화 분석·구독 기능을 이용할 수 있어요.
+        로그인 없이 무료로 바로 분석해 볼 수 있어요. <a href="signup.html?next=analysis.html" style="color:var(--accent);text-decoration:underline;font-weight:600;">무료 가입</a>하면 결과 저장·심화 분석·구독 기능을 이용할 수 있어요.
       </div>
     </div>
   </div>
@@ -4654,6 +4654,10 @@ function hasFullTimelineAccess() {
 
 function gateHTML(planRequired, title, desc) {
   const labels = { basic: 'Basic', plus: 'Plus', private: 'Private', professional: 'Professional' };
+  const nextEnc = encodeURIComponent('analysis.html' + (window.location.hash || ''));
+  const guestCta = CURRENT_USER_ID === 'guest'
+    ? `<a class="gate-btn" style="margin-top:10px;background:#fff;color:var(--deep-brown);border:1px solid rgba(139,111,71,.35);" href="signup.html?next=${nextEnc}">무료 가입 · 결과 저장</a>`
+    : '';
   if (planRequired === 'private') {
     return `<div class="feature-gate">
     <div class="gate-icon">🔒</div>
@@ -4670,6 +4674,7 @@ function gateHTML(planRequired, title, desc) {
     <div class="gate-title">${title}</div>
     <div class="gate-desc">${desc}<br><br><strong>${labels[planRequired]} 플랜</strong> 이상에서 이용할 수 있어요.</div>
     <button class="gate-btn" onclick="location.href='pricing.html'">플랜 업그레이드 →</button>
+    ${guestCta}
     <a class="gate-onetime" href="${onetime.href}">${onetime.label} · 자동결제 없음</a>
   </div>`;
 }
@@ -5000,8 +5005,8 @@ function pdfSplitCaptureRoots(el, maxCssPx, depth) {
 /** 무료/베이직 사용자가 PDF 저장 버튼을 눌렀을 때 업그레이드 유도 */
 function promptPdfUpgrade() {
   if (CURRENT_USER_ID === 'guest') {
-    if (confirm('PDF 저장은 Plus 플랜 기능이에요. 로그인 후 요금제를 확인하시겠어요?')) {
-      location.href = 'login.html?next=pricing.html';
+    if (confirm('PDF 저장은 Plus 플랜 기능이에요. 무료 가입 후 요금제를 확인하시겠어요?')) {
+      location.href = 'signup.html?next=' + encodeURIComponent('pricing.html');
     }
     return;
   }

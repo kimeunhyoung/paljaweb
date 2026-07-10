@@ -11,6 +11,7 @@
 
   <!-- Supabase CDN -->
   <script src="js/attribution.js"></script>
+  <script src="js/analytics.js?v=1" defer></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
   <style>
@@ -605,6 +606,37 @@
     }
     .upgrade-btn:hover { background: var(--warm-brown); }
 
+    .profile-edit-card--onboarding {
+      border-color: var(--accent);
+      box-shadow: 0 8px 28px rgba(200, 169, 110, 0.25);
+    }
+    .onboarding-banner {
+      max-width: 900px;
+      margin: 0 auto 14px;
+      padding: 16px 18px;
+      border-radius: 14px;
+      background: linear-gradient(135deg, #f8f1e6 0%, #efe6d7 100%);
+      border: 1px solid rgba(200, 169, 110, 0.45);
+    }
+    .onboarding-banner h2 {
+      margin: 0 0 6px;
+      font-size: 18px;
+      color: var(--deep-brown);
+    }
+    .onboarding-banner p {
+      margin: 0;
+      font-size: 14px;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+    .onboarding-steps {
+      margin: 10px 0 0;
+      padding-left: 18px;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.7;
+    }
+
     .profile-edit-card {
       max-width: 900px;
       margin: 18px auto;
@@ -816,6 +848,16 @@
       <div class="greeting">
         <div class="greeting-sub">Welcome back</div>
         <h1 class="greeting-main">안녕하세요, <em id="greeting-name">게스트</em>님.<br>오늘도 당신의 코드를 탐색해보세요.</h1>
+      </div>
+
+      <div id="onboardingBanner" class="onboarding-banner" hidden>
+        <h2>👋 처음 오셨네요! 3단계로 시작해요</h2>
+        <p>생년월일을 저장하면 라이프코드 분석이 자동으로 맞춰집니다.</p>
+        <ol class="onboarding-steps">
+          <li>아래에서 이름·생년월일 입력</li>
+          <li>저장하기 클릭</li>
+          <li>첫 라이프코드 분석 바로 실행</li>
+        </ol>
       </div>
 
       <!-- Profile edit (moved to top for visibility) -->
@@ -1327,6 +1369,17 @@
       return;
     }
     const { data: profile } = await sb.from('profiles').select('full_name,birth').eq('id', session.user.id).single();
+    const onboardingBanner = document.getElementById('onboardingBanner');
+    const profileEdit = document.getElementById('profileEdit');
+    const needsOnboarding = !profile?.birth;
+    if (needsOnboarding) {
+      if (onboardingBanner) onboardingBanner.hidden = false;
+      if (profileEdit) profileEdit.classList.add('profile-edit-card--onboarding');
+      if (profileEdit) {
+        const title = profileEdit.querySelector('.profile-edit-title');
+        if (title) title.textContent = '1단계 · 프로필 입력 (분석에 사용됩니다)';
+      }
+    }
     if (profile) {
       document.getElementById('profile_full_name').value = profile.full_name || '';
       document.getElementById('profile_birth').value = profile.birth || '';
@@ -1335,10 +1388,15 @@
       const full_name = document.getElementById('profile_full_name').value.trim();
       const birth = document.getElementById('profile_birth').value;
       const msgEl = document.getElementById('profileMsg');
+      const isOnboarding = needsOnboarding;
 
       // Simple validation
       if (!full_name && !birth) {
         msgEl.textContent = '이름 또는 생년월일 중 하나 이상 입력해 주세요.';
+        return;
+      }
+      if (isOnboarding && !birth) {
+        msgEl.textContent = '첫 분석을 위해 생년월일을 입력해 주세요.';
         return;
       }
       if (birth && !/^\d{4}-\d{2}-\d{2}$/.test(birth)) {
@@ -1366,7 +1424,22 @@
           return;
         }
 
-        msgEl.textContent = '저장되었습니다 — 메인 페이지로 이동합니다...';
+        msgEl.textContent = '저장되었습니다 — 첫 분석으로 이동합니다...';
+        if (isOnboarding && birth) {
+          try {
+            localStorage.setItem('palja:analysisQuickStart', JSON.stringify({
+              name: full_name,
+              birth,
+              autoRun: true,
+              at: Date.now(),
+            }));
+          } catch {}
+          if (window.PaljaAnalytics?.track) {
+            window.PaljaAnalytics.track('onboarding_complete');
+          }
+          setTimeout(() => { window.location.href = 'analysis.html'; }, 900);
+          return;
+        }
         setTimeout(() => { window.location.href = 'index.html'; }, 900);
       } catch (e) {
         console.error(e);
