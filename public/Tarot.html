@@ -827,7 +827,27 @@
       justify-content: center;
     }
 
-    /* 말발굽: U자 — 열림이 아래(상담사 쪽), 장애가 위 */
+    /* 말발굽 5장: U자 — 열림이 아래 */
+    .spread-board--horseshoe5 {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      grid-template-rows: auto auto auto;
+      column-gap: 12px;
+      row-gap: 14px;
+      align-items: start;
+      justify-items: center;
+      max-width: 560px;
+      width: 100%;
+      margin: 0 auto;
+    }
+    .spread-board--horseshoe5 .tarot-card-wrap { width: 100px; }
+    .spread-board--horseshoe5 [data-slot="0"] { grid-column: 1; grid-row: 3; }
+    .spread-board--horseshoe5 [data-slot="1"] { grid-column: 2; grid-row: 2; }
+    .spread-board--horseshoe5 [data-slot="2"] { grid-column: 3; grid-row: 1; }
+    .spread-board--horseshoe5 [data-slot="3"] { grid-column: 4; grid-row: 2; }
+    .spread-board--horseshoe5 [data-slot="4"] { grid-column: 5; grid-row: 3; }
+
+    /* 말발굽 7장: U자 — 열림이 아래(상담사 쪽), 정점이 위 */
     .spread-board--horseshoe {
       display: grid;
       grid-template-columns: repeat(7, minmax(0, 1fr));
@@ -865,63 +885,61 @@
     .spread-board--cross [data-slot="3"] { grid-column: 3; grid-row: 2; }
     .spread-board--cross [data-slot="4"] { grid-column: 2; grid-row: 3; }
 
-    /* 미니 켈틱: 작은 십자 + 오른쪽 스태프 2장 */
+    /* 미니 켈틱: 6장 십자만 (위·아래·좌·우 + 중앙 교차) — 스태프 없음 */
     .spread-board--mini-celtic {
       display: flex;
-      flex-wrap: wrap;
       justify-content: center;
-      align-items: flex-start;
-      gap: 16px 24px;
+      align-items: center;
     }
     .mini-celtic-cross {
       display: grid;
       grid-template-columns: auto auto auto;
-      grid-template-rows: auto auto;
-      gap: 10px 12px;
+      grid-template-rows: auto auto auto;
+      gap: 6px 10px;
       justify-items: center;
       align-items: center;
     }
     .mini-celtic-cross .tarot-card-wrap { width: 100px; }
+    .mini-celtic-cross__above { grid-column: 2; grid-row: 1; }
+    .mini-celtic-cross__left { grid-column: 1; grid-row: 2; }
     .mini-celtic-cross__center {
       grid-column: 2;
-      grid-row: 1;
-      display: flex;
-      flex-direction: row;
-      align-items: center;
-      gap: 12px;
+      grid-row: 2;
+      position: relative;
+      width: 148px;
+      height: 148px;
     }
+    .mini-celtic-cross__center .tarot-card-wrap--present,
+    .mini-celtic-cross__center .tarot-card-wrap--challenge {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      width: 100px;
+      margin: 0;
+    }
+    .mini-celtic-cross__center .tarot-card-wrap--present { z-index: 1; }
+    .mini-celtic-cross__center .tarot-card-wrap--challenge { z-index: 2; }
     .mini-celtic-cross__center .tarot-card-wrap--challenge .tarot-card {
       transform: rotate(90deg);
     }
-    .mini-celtic-cross__left { grid-column: 1; grid-row: 1; align-self: center; }
-    .mini-celtic-cross__right { grid-column: 3; grid-row: 1; align-self: center; }
-    .mini-celtic-staff {
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      align-items: center;
-    }
-    .mini-celtic-staff .tarot-card-wrap { width: 100px; }
-    .mini-celtic-staff-label {
-      font-size: 10px;
-      color: var(--muted);
-      letter-spacing: .04em;
-    }
+    .mini-celtic-cross__right { grid-column: 3; grid-row: 2; }
+    .mini-celtic-cross__below { grid-column: 2; grid-row: 3; }
 
-    /* 켈틱 크로스: 왼쪽 십자 + 오른쪽 스태프 */
+    /* 켈틱 크로스: 왼쪽 십자 6장 + 오른쪽 스태프 4장 */
     .spread-board--celtic {
       display: flex;
       flex-wrap: wrap;
       justify-content: center;
-      align-items: flex-start;
-      gap: 20px 28px;
+      align-items: center;
+      gap: 18px 32px;
       max-width: 780px;
     }
     .celtic-cross {
       display: grid;
       grid-template-columns: auto auto auto;
       grid-template-rows: auto auto auto;
-      gap: 8px 12px;
+      gap: 6px 10px;
       justify-items: center;
       align-items: center;
     }
@@ -931,47 +949,33 @@
     .celtic-cross__center {
       grid-column: 2;
       grid-row: 2;
-      display: flex;
-      flex-direction: row;
-      align-items: center;
-      justify-content: center;
-      gap: 14px;
-      width: auto;
-      height: auto;
       position: relative;
+      width: 148px;
+      height: 148px;
     }
-    .celtic-cross__center .tarot-card-wrap--present {
-      position: static;
-      width: 100px;
-    }
-    /* 도전: 현재 옆에 가로로 (겹침·라벨 혼동 방지) */
+    .celtic-cross__center .tarot-card-wrap--present,
     .celtic-cross__center .tarot-card-wrap--challenge {
-      position: static;
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
       width: 100px;
-      flex-shrink: 0;
+      margin: 0;
     }
+    .celtic-cross__center .tarot-card-wrap--present { z-index: 1; }
+    .celtic-cross__center .tarot-card-wrap--challenge { z-index: 2; }
     .celtic-cross__center .tarot-card-wrap--challenge .tarot-card {
       transform: rotate(90deg);
-    }
-    .celtic-cross__center .tarot-card-wrap--challenge .tarot-card-pos {
-      white-space: nowrap;
     }
     .celtic-cross__right { grid-column: 3; grid-row: 2; }
     .celtic-cross__below { grid-column: 2; grid-row: 3; }
     .celtic-staff {
       display: flex;
       flex-direction: column;
-      gap: 10px;
+      gap: 8px;
       align-items: center;
-      padding-top: 4px;
     }
     .celtic-staff .tarot-card-wrap { width: 100px; }
-    .celtic-staff-label {
-      font-size: 10px;
-      color: var(--muted);
-      letter-spacing: .04em;
-      margin-bottom: 2px;
-    }
 
     /* 양자택일: 왼쪽 A 갈래 / 오른쪽 B 갈래 / 아래 조언 */
     .spread-board--choice {
@@ -1978,9 +1982,9 @@
       .tarot-card-wrap { width: 132px; }
       .spread-board .tarot-card-wrap { width: 108px; }
       .spread-board .tarot-card-pos { font-size: 11px; min-height: 2.4em; }
-      /* 말발굽·7카드: 크게 + 가로 스크롤 */
+      /* 말발굽 5·7: 크게 + 가로 스크롤 */
       .spread-board--horseshoe,
-      .spread-board--seven-arc {
+      .spread-board--horseshoe5 {
         width: max-content;
         max-width: none;
         min-width: 100%;
@@ -1989,20 +1993,24 @@
         padding: 0 4px;
       }
       .spread-board--horseshoe .tarot-card-wrap,
-      .spread-board--seven-arc .tarot-card-wrap { width: 78px; }
+      .spread-board--horseshoe5 .tarot-card-wrap { width: 78px; }
       .spread-board--horseshoe .tarot-card-pos,
-      .spread-board--seven-arc .tarot-card-pos { font-size: 10px; min-height: 2.4em; }
+      .spread-board--horseshoe5 .tarot-card-pos { font-size: 10px; min-height: 2.4em; }
       .celtic-cross .tarot-card-wrap,
       .celtic-staff .tarot-card-wrap { width: 100px; }
-      .celtic-cross__center { width: auto; height: auto; }
+      .celtic-cross__center,
+      .mini-celtic-cross__center { width: 160px; height: 160px; }
       .celtic-cross__center .tarot-card-wrap--present,
-      .celtic-cross__center .tarot-card-wrap--challenge { width: 100px; }
-      .spread-board--celtic { gap: 16px 14px; }
+      .celtic-cross__center .tarot-card-wrap--challenge,
+      .mini-celtic-cross__center .tarot-card-wrap--present,
+      .mini-celtic-cross__center .tarot-card-wrap--challenge { width: 108px; }
+      .spread-board--celtic { gap: 16px 24px; }
       .spread-board--cross .tarot-card-wrap,
       .spread-board--diamond .tarot-card-wrap,
       .spread-board--choice .tarot-card-wrap,
       .mini-celtic-cross .tarot-card-wrap,
-      .mini-celtic-staff .tarot-card-wrap { width: 108px; }
+      .celtic-cross .tarot-card-wrap,
+      .celtic-staff .tarot-card-wrap { width: 108px; }
       .spread-board--magic-seven {
         max-width: 100%;
         gap: 14px 10px;
@@ -2358,9 +2366,9 @@ const DRAW_SPREADS = {
   two: {
     id: 'two',
     label: '2카드',
-    sub: '상황 · 조언',
+    sub: '2장',
     count: 2,
-    positions: ['상황', '조언'],
+    positions: null,
     layout: 'rows',
     rows: [[0, 1]],
   },
@@ -2376,26 +2384,29 @@ const DRAW_SPREADS = {
   four: {
     id: 'four',
     label: '4카드',
-    sub: '다이아몬드',
+    sub: '2줄',
     count: 4,
     positions: null,
-    layout: 'diamond',
+    layout: 'rows',
+    rows: [[0, 1], [2, 3]],
   },
   five: {
     id: 'five',
     label: '5카드',
-    sub: '십자형',
+    sub: '2줄',
     count: 5,
     positions: null,
-    layout: 'cross',
+    layout: 'rows',
+    rows: [[0, 1, 2], [3, 4]],
   },
   seven: {
     id: 'seven',
     label: '7카드',
-    sub: '말발굽형',
+    sub: '2줄',
     count: 7,
     positions: null,
-    layout: 'seven_arc',
+    layout: 'rows',
+    rows: [[0, 1, 2, 3], [4, 5, 6]],
   },
   choice: {
     id: 'choice',
@@ -2413,8 +2424,16 @@ const DRAW_SPREADS = {
     positions: null,
     layout: 'cross',
   },
-  horseshoe: {
-    id: 'horseshoe',
+  horseshoe5: {
+    id: 'horseshoe5',
+    label: '말발굽',
+    sub: '5장 · U자',
+    count: 5,
+    positions: null,
+    layout: 'horseshoe',
+  },
+  horseshoe7: {
+    id: 'horseshoe7',
     label: '말발굽',
     sub: '7장 · U자',
     count: 7,
@@ -2432,7 +2451,7 @@ const DRAW_SPREADS = {
   mini_celtic: {
     id: 'mini_celtic',
     label: '미니 켈틱',
-    sub: '6장 · 십자+스태프',
+    sub: '6장 · 십자',
     count: 6,
     positions: null,
     layout: 'mini_celtic',
@@ -2460,7 +2479,7 @@ const DRAW_SPREADS = {
 };
 const DRAW_SPREAD_ORDER = [
   'free', 'one', 'two', 'three', 'four', 'five', 'seven',
-  'choice', 'cross', 'horseshoe', 'magic_seven', 'mini_celtic', 'celtic', 'houses',
+  'choice', 'cross', 'horseshoe5', 'horseshoe7', 'magic_seven', 'mini_celtic', 'celtic', 'houses',
 ];
 
 function getDrawSpread() {
@@ -3745,6 +3764,8 @@ function makeDrawCardWrap(i, positions, hideNames, extraClass) {
   const bgColor = CARD_COLORS[card.suit] || '#f5f0e8';
   const imgSrc = getTarotCardImageSrc(card);
   const label = positions[i] || ('추가 ' + (i - baseSpreadCount + 1));
+  // 드로우 모드: 자리 숫자·라벨 전부 숨김 — 카드만
+  const showPos = !hideNames;
   const metaHtml = hideNames
     ? ''
     : `<div class="tarot-card-front-meta">
@@ -3752,7 +3773,7 @@ function makeDrawCardWrap(i, positions, hideNames, extraClass) {
           <div class="card-name-en">${card.en}</div>
         </div>`;
   wrap.innerHTML = `
-    <div class="tarot-card-pos">${label}</div>
+    ${showPos ? `<div class="tarot-card-pos">${label}</div>` : ''}
     <div class="tarot-card" id="card-${i}" onclick="flipCard(${i})">
       <div class="tarot-card-inner">
         <div class="tarot-card-back">
@@ -3833,12 +3854,10 @@ function showDrawnCards() {
   const layout = drawSp && drawSp.layout;
 
   if (curMode === 'draw' && layout === 'horseshoe') {
-    mountBoard('spread-board--horseshoe', (board) => {
-      for (let i = 0; i < 7; i++) board.appendChild(makeCardWrap(i));
-    });
-  } else if (curMode === 'draw' && layout === 'seven_arc') {
-    mountBoard('spread-board--seven-arc', (board) => {
-      for (let i = 0; i < 7; i++) board.appendChild(makeCardWrap(i));
+    const n = drawSp.count === 5 ? 5 : 7;
+    const boardClass = n === 5 ? 'spread-board--horseshoe5' : 'spread-board--horseshoe';
+    mountBoard(boardClass, (board) => {
+      for (let i = 0; i < n; i++) board.appendChild(makeCardWrap(i));
     });
   } else if (curMode === 'draw' && layout === 'cross') {
     mountBoard('spread-board--cross', (board) => {
@@ -3850,18 +3869,6 @@ function showDrawnCards() {
     });
   } else if (curMode === 'draw' && layout === 'choice') {
     mountBoard('spread-board--choice', (board) => {
-      const la = document.createElement('div');
-      la.className = 'choice-col-label choice-col-label--a';
-      la.textContent = '선택 A';
-      const lb = document.createElement('div');
-      lb.className = 'choice-col-label choice-col-label--b';
-      lb.textContent = '선택 B';
-      const vs = document.createElement('div');
-      vs.className = 'choice-vs';
-      vs.textContent = 'vs';
-      board.appendChild(la);
-      board.appendChild(lb);
-      board.appendChild(vs);
       for (let i = 0; i < 5; i++) board.appendChild(makeCardWrap(i));
     });
   } else if (curMode === 'draw' && layout === 'magic_seven') {
@@ -3902,9 +3909,13 @@ function showDrawnCards() {
       const cross = document.createElement('div');
       cross.className = 'mini-celtic-cross';
 
+      const above = document.createElement('div');
+      above.className = 'mini-celtic-cross__above';
+      above.appendChild(makeCardWrap(4));
+
       const left = document.createElement('div');
       left.className = 'mini-celtic-cross__left';
-      left.appendChild(makeCardWrap(2));
+      left.appendChild(makeCardWrap(3));
 
       const center = document.createElement('div');
       center.className = 'mini-celtic-cross__center';
@@ -3913,24 +3924,18 @@ function showDrawnCards() {
 
       const right = document.createElement('div');
       right.className = 'mini-celtic-cross__right';
-      right.appendChild(makeCardWrap(3));
+      right.appendChild(makeCardWrap(5));
 
+      const below = document.createElement('div');
+      below.className = 'mini-celtic-cross__below';
+      below.appendChild(makeCardWrap(2));
+
+      cross.appendChild(above);
       cross.appendChild(left);
       cross.appendChild(center);
       cross.appendChild(right);
-
-      const staff = document.createElement('div');
-      staff.className = 'mini-celtic-staff';
-      const hint = document.createElement('div');
-      hint.className = 'mini-celtic-staff-label';
-      hint.textContent = '스태프';
-      staff.appendChild(hint);
-      // 위=결과, 아래=자신(상담사 쪽)
-      staff.appendChild(makeCardWrap(5));
-      staff.appendChild(makeCardWrap(4));
-
+      cross.appendChild(below);
       board.appendChild(cross);
-      board.appendChild(staff);
     });
   } else if (curMode === 'draw' && layout === 'celtic') {
     mountBoard('spread-board--celtic', (board) => {
@@ -3966,10 +3971,6 @@ function showDrawnCards() {
 
       const staff = document.createElement('div');
       staff.className = 'celtic-staff';
-      const staffHint = document.createElement('div');
-      staffHint.className = 'celtic-staff-label';
-      staffHint.textContent = '스태프';
-      staff.appendChild(staffHint);
       [9, 8, 7, 6].forEach((i) => staff.appendChild(makeCardWrap(i)));
 
       board.appendChild(cross);
