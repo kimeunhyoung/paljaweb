@@ -4265,6 +4265,25 @@ function enableFreeDrawDrag(tray, canvas) {
     if (state.moved) e.preventDefault();
   }
 
+  function blockGhostFlip() {
+    // 모바일: 트레이 탭 후 같은 좌표의 ghost click이 아래 배치판 카드를 열어버림
+    window.__freeDrawSuppressFlipUntil = Date.now() + 550;
+    canvas.querySelectorAll('.tarot-card-wrap').forEach((el) => {
+      el.style.pointerEvents = 'none';
+    });
+    const blockClick = (ev) => {
+      ev.preventDefault();
+      ev.stopPropagation();
+    };
+    document.addEventListener('click', blockClick, true);
+    setTimeout(() => {
+      document.removeEventListener('click', blockClick, true);
+      canvas.querySelectorAll('.tarot-card-wrap').forEach((el) => {
+        el.style.pointerEvents = '';
+      });
+    }, 500);
+  }
+
   function onUp(e) {
     if (!state || state.pointerId !== e.pointerId) return;
     const wrap = state.wrap;
@@ -4274,9 +4293,11 @@ function enableFreeDrawDrag(tray, canvas) {
 
     if (!moved && fromTray) {
       // 트레이에서 클릭만 하면 배치판으로 이동
+      if (e.cancelable) e.preventDefault();
       autoPlaceFromTray(wrap);
       wrap.dataset.suppressFlip = '1';
-      setTimeout(() => { delete wrap.dataset.suppressFlip; }, 50);
+      blockGhostFlip();
+      setTimeout(() => { delete wrap.dataset.suppressFlip; }, 550);
     } else if (moved) {
       const trayRect = tray.getBoundingClientRect();
       const overTray =
@@ -4286,7 +4307,8 @@ function enableFreeDrawDrag(tray, canvas) {
         e.clientY <= trayRect.bottom;
       if (overTray) returnToTray(wrap);
       wrap.dataset.suppressFlip = '1';
-      setTimeout(() => { delete wrap.dataset.suppressFlip; }, 50);
+      window.__freeDrawSuppressFlipUntil = Date.now() + 350;
+      setTimeout(() => { delete wrap.dataset.suppressFlip; }, 350);
     }
     try { wrap.releasePointerCapture(e.pointerId); } catch (_) {}
     state = null;
@@ -4622,6 +4644,7 @@ function onAllCardsFlipped() {
 }
 
 function flipCard(i) {
+  if (Date.now() < (window.__freeDrawSuppressFlipUntil || 0)) return;
   const wrap = document.querySelector('.tarot-card-wrap[data-slot="' + i + '"]');
   if (wrap && wrap.dataset.suppressFlip === '1') return;
   const cardEl = document.getElementById('card-' + i);
