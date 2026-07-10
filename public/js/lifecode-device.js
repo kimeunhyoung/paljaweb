@@ -1,4 +1,4 @@
-/** 라이프코드 단품 — 기기 ID (localStorage, 1코드 1기기) */
+/** 라이프코드·체험 — 브라우저 기기 ID (localStorage, 계정당 최대 4대) */
 export const LIFECODE_DEVICE_KEY = 'lifecode_device_id';
 
 export function getLifecodeDeviceId() {

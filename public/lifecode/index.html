@@ -12,6 +12,7 @@
   <link rel="icon" href="/lifecode/icon-192.png" type="image/png"/>
   <link rel="apple-touch-icon" href="/lifecode/apple-touch-icon.png"/>
   <script src="/js/lifecode-pwa.js" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@400;600&display=swap" rel="stylesheet"/>
   <style>
     :root {
@@ -77,35 +78,61 @@
       line-height: 1.6;
       text-align: center;
     }
+    .hint a { color: var(--accent); }
     .loading { text-align: center; color: var(--muted); }
+    .auth-links { margin-top: 12px; display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+    .auth-links a {
+      display: inline-block;
+      padding: 8px 14px;
+      border-radius: 8px;
+      text-decoration: none;
+      font-size: 0.85rem;
+      font-weight: 600;
+    }
+    .auth-links .primary { background: var(--deep); color: var(--cream); }
+    .auth-links .secondary { background: #fff; color: var(--deep); border: 1px solid rgba(74,53,32,.25); }
   </style>
 </head>
 <body>
   <div class="card" id="card">
     <h1>라이프코드</h1>
-    <p class="sub">구매 시 안내받은 접속 코드를 입력하세요.<br>코드는 등록된 <strong>한 대의 기기</strong>에서만 사용됩니다.</p>
-    <form id="form">
+    <p class="sub" id="subText">로그인 후 접속 코드를 입력하세요.<br>같은 계정에서 <strong>기기 최대 4대</strong>까지 이용할 수 있습니다.</p>
+    <div id="loginGate" hidden>
+      <p class="sub" style="margin-bottom:16px">단품 이용권은 <strong>로그인 계정</strong>에 연결됩니다.</p>
+      <div class="auth-links">
+        <a class="primary" id="signupLink" href="/signup.html">무료 가입</a>
+        <a class="secondary" id="loginLink" href="/login.html">로그인</a>
+      </div>
+    </div>
+    <form id="form" hidden>
       <label for="code">접속 코드</label>
       <input id="code" name="code" autocomplete="off" autocapitalize="characters" placeholder="LC-XXXX-XXXX" required/>
       <button type="submit" id="submitBtn">접속하기</button>
       <p class="msg" id="msg" role="alert"></p>
     </form>
-    <p class="hint">코드가 없으신가요? <a href="buy.html" style="color:var(--accent)">이용권 구매(건별 결제)</a><br>
+    <p class="hint">코드가 없으신가요? <a href="buy.html">이용권 구매(건별 결제)</a><br>
       iPhone: Safari → <strong>공유 → 홈 화면에 추가</strong><br>
-      Android: Chrome에서 <strong>이 주소(/lifecode/)</strong> 연 뒤 메뉴(⋮) → <strong>앱 설치</strong> 또는 <strong>홈 화면에 추가</strong><br>
-      <span style="font-size:0.7rem;">예전에 만든 회색 Chrome 아이콘은 삭제 후 다시 추가하세요.</span></p>
+      Android: Chrome에서 <strong>이 주소(/lifecode/)</strong> 연 뒤 메뉴(⋮) → <strong>앱 설치</strong> 또는 <strong>홈 화면에 추가</strong></p>
   </div>
   <div class="card loading" id="checking" hidden>접속 확인 중…</div>
 
   <script type="module">
     import { getLifecodeDeviceId } from '/js/lifecode-device.js';
 
+    const SUPABASE_URL = 'https://sghsryumnrnftyjoqmwf.supabase.co';
+    const SUPABASE_ANON_KEY = 'sb_publishable_6S3W_oWrzG-Nv8wLK98gmg_q_KcB2I1';
+    const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
     const ERRORS = {
       invalid_request: '입력값을 확인해 주세요.',
       invalid_code: '접속 코드가 올바르지 않습니다.',
       revoked: '사용이 중지된 코드입니다. 판매처에 문의하세요.',
       expired: '만료된 코드입니다.',
-      device_mismatch: '이 코드는 이미 다른 기기에서 사용 중입니다.',
+      login_required: '로그인 후 이용해 주세요.',
+      license_linked_other: '이 코드는 다른 계정에 연결되어 있습니다.',
+      device_limit: '이 계정은 이미 기기 4대까지 등록되어 있습니다. 다른 기기에서 로그아웃·해제가 필요하면 고객센터로 문의해 주세요.',
+      use_counselor_link: '상담사 체험권은 계정 연결 페이지에서 등록해 주세요.',
+      devices_table_missing: '서버 설정이 아직 반영되지 않았습니다. 잠시 후 다시 시도해 주세요.',
       too_many_attempts: '잠시 후 다시 시도해 주세요.',
       server_not_configured: '서버 설정이 완료되지 않았습니다.',
       server_error: '일시적인 오류입니다. 잠시 후 다시 시도해 주세요.',
@@ -114,8 +141,25 @@
     const card = document.getElementById('card');
     const checking = document.getElementById('checking');
     const form = document.getElementById('form');
+    const loginGate = document.getElementById('loginGate');
     const msg = document.getElementById('msg');
     const submitBtn = document.getElementById('submitBtn');
+
+    function nextUrl() {
+      return encodeURIComponent('/lifecode/');
+    }
+
+    document.getElementById('signupLink').href = '/signup.html?next=' + nextUrl();
+    document.getElementById('loginLink').href = '/login.html?next=' + nextUrl();
+
+    async function authHeaders() {
+      const { data: { session } } = await sb.auth.getSession();
+      if (!session) return null;
+      return {
+        Authorization: 'Bearer ' + session.access_token,
+        'Content-Type': 'application/json',
+      };
+    }
 
     async function tryExistingSession() {
       card.hidden = true;
@@ -128,11 +172,26 @@
         const data = await r.json();
         if (data.ok) {
           window.location.href = 'analyze.html';
-          return;
+          return true;
         }
       } catch (_) { /* ignore */ }
-      card.hidden = false;
+      return false;
+    }
+
+    async function init() {
+      const ok = await tryExistingSession();
+      if (ok) return;
       checking.hidden = true;
+      card.hidden = false;
+
+      const headers = await authHeaders();
+      if (!headers) {
+        loginGate.hidden = false;
+        form.hidden = true;
+        return;
+      }
+      loginGate.hidden = true;
+      form.hidden = false;
     }
 
     form.addEventListener('submit', async (e) => {
@@ -140,10 +199,17 @@
       msg.textContent = '';
       submitBtn.disabled = true;
       try {
+        const headers = await authHeaders();
+        if (!headers) {
+          msg.textContent = ERRORS.login_required;
+          loginGate.hidden = false;
+          form.hidden = true;
+          return;
+        }
         const r = await fetch('/api/lifecode/activate', {
           method: 'POST',
           credentials: 'include',
-          headers: { 'Content-Type': 'application/json' },
+          headers,
           body: JSON.stringify({
             code: document.getElementById('code').value,
             deviceId: getLifecodeDeviceId(),
@@ -154,7 +220,11 @@
           window.location.href = 'analyze.html';
           return;
         }
-        msg.textContent = ERRORS[data.error] || '접속에 실패했습니다.';
+        if (data.error === 'use_counselor_link') {
+          window.location.href = '/counselor-trial-link.html?code=' + encodeURIComponent(document.getElementById('code').value.trim());
+          return;
+        }
+        msg.textContent = ERRORS[data.error] || data.message || '접속에 실패했습니다.';
       } catch (_) {
         msg.textContent = ERRORS.server_error;
       } finally {
@@ -162,7 +232,7 @@
       }
     });
 
-    tryExistingSession();
+    init();
   </script>
 </body>
 </html>

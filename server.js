@@ -817,7 +817,14 @@ app.post('/api/profile/signup-attribution', async (req, res) => {
 
 registerPortOneRoutes(app, planBilling, getUserIdFromAuth, checkoutStore);
 
-registerLifecodeRoutes(app, { portoneConfigured, portonePublicConfig, portoneOneTimePublicConfig });
+registerLifecodeRoutes(app, {
+  portoneConfigured,
+  portonePublicConfig,
+  portoneOneTimePublicConfig,
+  getUserIdFromAuth,
+});
+const { registerAccountDeviceRoutes } = require('./lib/account-devices');
+registerAccountDeviceRoutes(app, { getUserIdFromAuth });
 registerNaverAuthRoutes(app);
 registerSignupNotifyRoutes(app);
 registerVerifyRemindRoutes(app);
