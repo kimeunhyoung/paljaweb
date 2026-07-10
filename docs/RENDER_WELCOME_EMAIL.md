@@ -74,4 +74,4 @@ OAuth(구글/카카오/네이버)만으로 가입한 경우, 실제 이메일이
 | `SIGNUP_NOTIFY_TELEGRAM_BOT_TOKEN` / `CHAT_ID` | 관리자 텔레그램 (고객 X) |
 | `SIGNUP_WEBHOOK_SECRET` | Supabase 가입 웹훅 인증 |
 | `AI_CREDIT_ADMIN_EMAILS` | 크레딧·통계 관리자 |
-| `GA_MEASUREMENT_ID` | GA4 (선택) |
+| `GA_MEASUREMENT_ID` | GA4 (선택) — [`RENDER_GA4.md`](./RENDER_GA4.md) |

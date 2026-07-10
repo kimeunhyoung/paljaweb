@@ -88,6 +88,7 @@ if (loginForm) {
       btn.textContent = '로그인'
       btn.disabled = false
     } else {
+      clearPendingVerifyBanner()
       showMsg('로그인 성공! 이동 중...')
       const next = readSafeNextUrl()
       setTimeout(() => { window.location.href = next || 'dashboard.html' }, 1000)
@@ -148,6 +149,10 @@ if (signupForm) {
       btn.disabled = false
     } else {
       trackAuthEvent('signup_complete', { method: 'email' })
+      try {
+        sessionStorage.setItem('palja:pendingVerifyEmail', email)
+      } catch (_) {}
+      showPendingVerifyBanner(email)
       showMsg(
         '✅ 가입 완료! 이메일을 확인해서 인증을 완료해주세요.' +
         '<div style="margin-top:10px;"><button type="button" id="resend-verify-btn" class="btn-cta" style="width:100%;">인증 메일 다시 보내기</button></div>',
@@ -157,6 +162,36 @@ if (signupForm) {
       bindResendVerify(email)
     }
   })
+}
+
+function showPendingVerifyBanner(email) {
+  let bar = document.getElementById('pending-verify-banner')
+  if (!bar) {
+    bar = document.createElement('div')
+    bar.id = 'pending-verify-banner'
+    bar.style.cssText =
+      'margin:0 0 16px;padding:12px 14px;border-radius:10px;background:#fff7ed;border:1px solid #fdba74;color:#9a3412;font-size:14px;line-height:1.55;'
+    const msg = document.getElementById('auth-msg')
+    if (msg && msg.parentNode) msg.parentNode.insertBefore(bar, msg)
+    else document.querySelector('.auth-main')?.prepend(bar)
+  }
+  const safe = String(email || '').replace(/</g, '')
+  bar.innerHTML =
+    '<strong>이메일 인증 대기 중</strong><br>' +
+    (safe ? safe + ' 으로 보낸 인증 링크를 눌러주세요. ' : '') +
+    '메일이 없다면 스팸함을 확인하거나 아래에서 다시 보내세요.'
+  const resendInput = document.getElementById('resend-email')
+  if (resendInput && safe) resendInput.value = safe
+  const loginEmail = document.getElementById('login-email')
+  if (loginEmail && safe && !loginEmail.value) loginEmail.value = safe
+  const signupEmail = document.getElementById('signup-email')
+  if (signupEmail && safe) signupEmail.value = safe
+}
+
+function clearPendingVerifyBanner() {
+  try { sessionStorage.removeItem('palja:pendingVerifyEmail') } catch (_) {}
+  const bar = document.getElementById('pending-verify-banner')
+  if (bar) bar.remove()
 }
 
 function bindResendVerify(defaultEmail) {
@@ -185,6 +220,12 @@ function bindResendVerify(defaultEmail) {
       btn.textContent = '인증 메일 다시 보내기'
     } else {
       showMsg('✅ 인증 메일을 다시 보냈습니다. 받은편지함·스팸함을 확인해주세요.')
+      try {
+        if (email) sessionStorage.setItem('palja:pendingVerifyEmail', email)
+      } catch (_) {}
+      showPendingVerifyBanner(email)
+      btn.disabled = false
+      btn.textContent = '인증 메일 다시 보내기'
     }
   }
 }
@@ -209,6 +250,8 @@ if (resendVerifyForm) {
       btn.textContent = '인증 메일 다시 보내기'
     } else {
       showMsg('✅ 인증 메일을 다시 보냈습니다. 받은편지함·스팸함을 확인해주세요.')
+      try { sessionStorage.setItem('palja:pendingVerifyEmail', email) } catch (_) {}
+      showPendingVerifyBanner(email)
       btn.disabled = false
       btn.textContent = '인증 메일 다시 보내기'
     }
@@ -323,6 +366,7 @@ async function handleOAuthReturn() {
     if (window.PaljaAttribution?.syncWithToken) {
       await window.PaljaAttribution.syncWithToken(session.access_token);
     }
+    clearPendingVerifyBanner()
     if (isSignupPage()) trackAuthEvent('signup_complete', { method: 'oauth' })
     const next = readSafeNextUrl()
     window.location.replace(next || '/dashboard.html')
@@ -346,8 +390,14 @@ if (isAuthPage && authParams.get('code')) {
     cleanAuthQuery()
   }
 
+  try {
+    const pending = sessionStorage.getItem('palja:pendingVerifyEmail')
+    if (pending && isAuthPage) showPendingVerifyBanner(pending)
+  } catch (_) {}
+
   supabase.auth.getSession().then(({ data: { session } }) => {
     if (session && isAuthPage) {
+      clearPendingVerifyBanner()
       const next = readSafeNextUrl()
       window.location.href = next || 'dashboard.html'
     }
