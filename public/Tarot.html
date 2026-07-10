@@ -997,7 +997,7 @@
       gap: 10px;
       align-items: center;
     }
-    .celtic-staff .tarot-card-wrap { width: 140px; }
+    .celtic-staff .tarot-card-wrap { width: 148px; }
 
     /* 양자택일: 왼쪽 A 갈래 / 오른쪽 B 갈래 / 아래 조언 */
     .spread-board--choice {
@@ -4096,35 +4096,58 @@ function fitMagicSevenBoard(board) {
   });
 }
 
-/** 자유 드로우: 위 트레이 → 아래 배치판 드래그 */
+/** 자유 드로우: 트레이 클릭으로 배치 + 배치판에서 드래그 이동 */
 function enableFreeDrawDrag(tray, canvas) {
   if (!tray || !canvas) return;
   const THRESH = 8;
   let state = null;
+  let placeIndex = 0;
 
   function syncCanvasFlag() {
     canvas.classList.toggle('has-cards', canvas.querySelectorAll('.tarot-card-wrap').length > 0);
   }
 
-  function placeOnCanvas(wrap, clientX, clientY, offsetX, offsetY) {
-    const rect = canvas.getBoundingClientRect();
-    const cw = wrap.offsetWidth || 100;
-    const ch = wrap.offsetHeight || 160;
-    let left = clientX - rect.left - offsetX;
-    let top = clientY - rect.top - offsetY;
-    left = Math.max(-cw * 0.35, Math.min(left, canvas.clientWidth - cw * 0.35));
-    top = Math.max(-ch * 0.2, Math.min(top, canvas.clientHeight - ch * 0.35));
+  function cardSize(wrap) {
+    const w = wrap.offsetWidth || wrap.getBoundingClientRect().width || 100;
+    return { cw: w, ch: w * (3.2 / 2) };
+  }
+
+  function placeOnCanvas(wrap, left, top, widthPx) {
     if (wrap.parentElement !== canvas) {
-      const w = wrap.getBoundingClientRect().width;
+      const w = widthPx || wrap.getBoundingClientRect().width;
       canvas.appendChild(wrap);
       wrap.style.width = Math.round(w) + 'px';
     }
+    const { cw, ch } = cardSize(wrap);
+    left = Math.max(-cw * 0.2, Math.min(left, canvas.clientWidth - cw * 0.4));
+    top = Math.max(4, Math.min(top, canvas.clientHeight - ch * 0.4));
     wrap.style.position = 'absolute';
     wrap.style.left = left + 'px';
     wrap.style.top = top + 'px';
     wrap.style.zIndex = String(20 + (Date.now() % 1000));
     wrap.style.margin = '0';
     syncCanvasFlag();
+  }
+
+  /** 트레이 클릭 시: 겹치지 않게 차례로 배치 */
+  function autoPlaceFromTray(wrap) {
+    const baseW = Math.min(110, Math.max(88, Math.round(canvas.clientWidth * 0.26)));
+    const cw = baseW;
+    const ch = cw * (3.2 / 2);
+    const gap = 12;
+    const pad = 14;
+    const cols = Math.max(1, Math.floor((canvas.clientWidth - pad * 2 + gap) / (cw + gap)));
+    const i = placeIndex++;
+    const col = i % cols;
+    const row = Math.floor(i / cols);
+    let left = pad + col * (cw + gap);
+    let top = pad + row * (ch + gap);
+    if (top + ch > canvas.clientHeight - 10) {
+      // 칸이 부족하면 살짝 어긋나게 쌓기
+      left = pad + (i % 5) * 22;
+      top = pad + (i % 4) * 28;
+    }
+    placeOnCanvas(wrap, left, top, cw);
   }
 
   function returnToTray(wrap) {
@@ -4164,9 +4187,13 @@ function enableFreeDrawDrag(tray, canvas) {
     if (!state.moved && (Math.abs(dx) > THRESH || Math.abs(dy) > THRESH)) {
       state.moved = true;
       state.wrap.classList.add('is-dragging');
-      placeOnCanvas(state.wrap, e.clientX, e.clientY, state.offsetX, state.offsetY);
+      const left = e.clientX - canvas.getBoundingClientRect().left - state.offsetX;
+      const top = e.clientY - canvas.getBoundingClientRect().top - state.offsetY;
+      placeOnCanvas(state.wrap, left, top);
     } else if (state.moved) {
-      placeOnCanvas(state.wrap, e.clientX, e.clientY, state.offsetX, state.offsetY);
+      const left = e.clientX - canvas.getBoundingClientRect().left - state.offsetX;
+      const top = e.clientY - canvas.getBoundingClientRect().top - state.offsetY;
+      placeOnCanvas(state.wrap, left, top);
     }
     if (state.moved) e.preventDefault();
   }
@@ -4175,8 +4202,15 @@ function enableFreeDrawDrag(tray, canvas) {
     if (!state || state.pointerId !== e.pointerId) return;
     const wrap = state.wrap;
     const moved = state.moved;
+    const fromTray = state.fromTray;
     wrap.classList.remove('is-dragging');
-    if (moved) {
+
+    if (!moved && fromTray) {
+      // 트레이에서 클릭만 하면 배치판으로 이동
+      autoPlaceFromTray(wrap);
+      wrap.dataset.suppressFlip = '1';
+      setTimeout(() => { delete wrap.dataset.suppressFlip; }, 50);
+    } else if (moved) {
       const trayRect = tray.getBoundingClientRect();
       const overTray =
         e.clientX >= trayRect.left &&
