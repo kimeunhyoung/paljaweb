@@ -1304,7 +1304,8 @@
         radial-gradient(circle at 50% 40%, rgba(200, 169, 110, 0.08), transparent 55%),
         #faf7f2;
       overflow: visible;
-      touch-action: none;
+      /* 빈 영역·카드 위에서도 페이지 세로 스크롤 가능 (드래그는 JS에서 임계값 후 처리) */
+      touch-action: pan-y;
     }
     .free-draw-canvas::before {
       content: '위 카드를 눌러 여기로 배치';
@@ -1322,9 +1323,12 @@
     .free-draw-tray .tarot-card-wrap.is-draggable,
     .free-draw-canvas .tarot-card-wrap.is-draggable {
       cursor: grab;
-      touch-action: none;
+      touch-action: pan-y;
       user-select: none;
       -webkit-user-select: none;
+    }
+    .free-draw-canvas .tarot-card-wrap.is-dragging {
+      touch-action: none;
     }
     .free-draw-tray .tarot-card-wrap.is-draggable {
       width: min(64px, 16vw);
@@ -4233,6 +4237,20 @@ function enableFreeDrawDrag(tray, canvas) {
     if (!wrap) return;
     if (!tray.contains(wrap) && !canvas.contains(wrap)) return;
     if (e.pointerType === 'mouse' && e.button !== 0) return;
+    // 트레이는 탭으로 배치 — 캡처/드래그 시작하지 않음 (세로 스크롤 유지)
+    if (tray.contains(wrap)) {
+      state = {
+        wrap,
+        startX: e.clientX,
+        startY: e.clientY,
+        offsetX: 0,
+        offsetY: 0,
+        fromTray: true,
+        moved: false,
+        pointerId: e.pointerId,
+      };
+      return;
+    }
     const rect = wrap.getBoundingClientRect();
     state = {
       wrap,
@@ -4240,20 +4258,30 @@ function enableFreeDrawDrag(tray, canvas) {
       startY: e.clientY,
       offsetX: e.clientX - rect.left,
       offsetY: e.clientY - rect.top,
-      fromTray: tray.contains(wrap),
+      fromTray: false,
       moved: false,
       pointerId: e.pointerId,
     };
-    try { wrap.setPointerCapture(e.pointerId); } catch (_) {}
+    // setPointerCapture는 드래그 확정 후에만 — 미리 잡으면 페이지 스크롤이 막힘
   }
 
   function onMove(e) {
     if (!state || state.pointerId !== e.pointerId) return;
+    // 트레이 카드는 드래그하지 않음 (탭 배치만)
+    if (state.fromTray) return;
     const dx = e.clientX - state.startX;
     const dy = e.clientY - state.startY;
-    if (!state.moved && (Math.abs(dx) > THRESH || Math.abs(dy) > THRESH)) {
+    const adx = Math.abs(dx);
+    const ady = Math.abs(dy);
+    if (!state.moved && (adx > THRESH || ady > THRESH)) {
+      // 세로 스크롤 제스처면 드래그로 잡지 않음
+      if (ady > adx * 1.15) {
+        state = null;
+        return;
+      }
       state.moved = true;
       state.wrap.classList.add('is-dragging');
+      try { state.wrap.setPointerCapture(e.pointerId); } catch (_) {}
       const left = e.clientX - canvas.getBoundingClientRect().left - state.offsetX;
       const top = e.clientY - canvas.getBoundingClientRect().top - state.offsetY;
       placeOnCanvas(state.wrap, left, top);
@@ -4262,7 +4290,7 @@ function enableFreeDrawDrag(tray, canvas) {
       const top = e.clientY - canvas.getBoundingClientRect().top - state.offsetY;
       placeOnCanvas(state.wrap, left, top);
     }
-    if (state.moved) e.preventDefault();
+    if (state.moved && e.cancelable) e.preventDefault();
   }
 
   function blockGhostFlip() {
@@ -4310,7 +4338,9 @@ function enableFreeDrawDrag(tray, canvas) {
       window.__freeDrawSuppressFlipUntil = Date.now() + 350;
       setTimeout(() => { delete wrap.dataset.suppressFlip; }, 350);
     }
-    try { wrap.releasePointerCapture(e.pointerId); } catch (_) {}
+    try {
+      if (moved && wrap.hasPointerCapture?.(e.pointerId)) wrap.releasePointerCapture(e.pointerId);
+    } catch (_) {}
     state = null;
   }
 
