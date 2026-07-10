@@ -11,7 +11,7 @@ export const LIFECODE_PRODUCT = {
     desc: '생년월일과 이름으로 핵심 수·인생 주기·지금의 흐름을 한 화면에 정리합니다. 팔자연구소 전체 메뉴 없이, 라이프코드 단품만 담았습니다.',
   },
 
-  waitNote: '접속 코드로 열린 <strong>라이프코드 단품</strong> 리포트입니다. 분석하기를 누르면 아래에 결과가 펼쳐집니다.',
+  waitNote: '로그인 계정에 연결된 <strong>라이프코드 단품</strong> 리포트입니다. 분석하기를 누르면 아래에 결과가 펼쳐집니다.',
 
   /** DOM id — 단품에서 제외 (pyramidRhythmSection은 Private 시에만 표시) */
   hiddenSections: ['aiSummarySection', 'aiTodaySection', 'pyramidRhythmSection'],

@@ -232,22 +232,22 @@
 <div class="wrap">
   <a class="back" href="/pricing.html">← 요금제</a>
   <h1>라이프코드 건별 이용권</h1>
-  <p class="lede">정기 구독 없이 <strong>한 번 결제</strong>합니다. 결제 후 <strong>접속 코드</strong>가 발급되며, 로그인 계정에 연결해 사용합니다.</p>
+  <p class="lede">정기 구독 없이 <strong>한 번 결제</strong>하면 <strong>로그인 계정에 바로 연결</strong>됩니다. 접속 코드 입력은 필요 없습니다.</p>
 
   <div class="device-notice" role="note">
     <div class="device-notice-title">로그인 계정 · 기기 최대 4대</div>
-    <p>단품 이용권은 <strong>로그인 계정</strong>에 연결됩니다. 같은 계정에서 휴대폰·PC 등 <strong>최대 4대</strong>까지 이용할 수 있습니다. (OTT와 비슷한 방식)</p>
+    <p>결제 전 로그인해 주세요. 같은 계정에서 휴대폰·PC 등 <strong>최대 4대</strong>까지 이용할 수 있습니다.</p>
   </div>
 
   <div id="shop">
     <div class="auth-gate" id="authGate">
-      <p><strong>Professional 15일 체험</strong>은 로그인 계정에 연결해야 상담사 허브를 쓸 수 있어요. 결제 전에 계정을 만들어 주세요.</p>
+      <p><strong>로그인이 필요합니다.</strong> 결제 후 이용권이 이 계정에 바로 연결됩니다.</p>
       <div class="auth-gate-actions">
         <a class="link-primary" id="authSignupLink" href="/signup.html">무료 가입하기</a>
         <a class="link-secondary" id="authLoginLink" href="/login.html">로그인</a>
       </div>
     </div>
-    <p class="auth-ok" id="authOk">로그인됨 — 결제 후 이 계정에 체험을 연결할 수 있습니다.</p>
+    <p class="auth-ok" id="authOk">로그인됨 — 결제 후 이 계정에 바로 연결됩니다.</p>
     <div class="product-list" id="productList"></div>
     <div class="field">
       <label for="email">이메일 (선택 · 영수증·문의용)</label>
@@ -255,30 +255,21 @@
     </div>
     <div id="msg" class="msg" role="alert"></div>
     <div class="device-notice device-notice--pay" role="note">
-      <div class="device-notice-title">결제 후 로그인 계정에 연결</div>
-      <p>결제 완료 후 접속 코드를 입력하면 <strong>지금 로그인한 계정</strong>에 연결되고, 이 기기가 등록됩니다(계정당 최대 4대).</p>
+      <div class="device-notice-title">결제 즉시 계정 연결</div>
+      <p>결제 완료와 동시에 이용권이 열립니다. 코드 복사·입력 단계는 없습니다.</p>
     </div>
     <button type="button" class="btn" id="payBtn" disabled>결제하기</button>
-    <p class="fine">카드 1회 결제입니다. 자동 갱신·빌링키 등록 없음. 결제 완료 후 접속 코드를 반드시 저장해 두세요.</p>
+    <p class="fine">카드 1회 결제입니다. 자동 갱신·빌링키 등록 없음.</p>
   </div>
 
   <div class="success" id="successPanel">
     <div class="success-kicker">결제 완료</div>
     <div class="success-device" role="note">
-      <strong>로그인 계정에 연결하세요.</strong> 아래 <strong>접속하기</strong>에서 코드를 입력하면 이 계정·기기에 등록됩니다(최대 4대).
+      <strong>계정에 연결되었습니다.</strong> 아래 버튼으로 바로 이용하세요. (기기 최대 4대)
     </div>
-    <p class="success-note">아래 접속 코드를 복사해 두세요. 이 화면을 닫으면 코드를 다시 볼 수 없습니다.</p>
-    <div class="code-box" id="accessCode">—</div>
     <p class="success-note" id="expiresLine"></p>
-    <div id="counselorLinkPanel" class="success-device" style="display:none" role="note">
-      <strong>Professional 15일 체험</strong> — 팔자연구소 <strong>로그인 계정</strong>에 코드를 연결하면 상담사 허브 전 기능(CRM·캘린더·푸시·PDF)을 씁니다. 같은 계정에서 기기 최대 4대.
-      <div style="margin-top:10px">
-        <a class="link-primary" href="/counselor-trial-link.html" id="counselorLinkBtn">체험 계정 연결 →</a>
-      </div>
-    </div>
-    <div class="success-actions">
-      <button type="button" class="link-secondary" id="copyBtn">코드 복사</button>
-      <a class="link-primary" href="/lifecode/">접속하기 →</a>
+    <div class="success-actions" id="successActions">
+      <a class="link-primary" href="/lifecode/" id="successPrimary">이용 시작 →</a>
     </div>
   </div>
 </div>
@@ -314,14 +305,7 @@
   }
 
   function updateAuthUi() {
-    const needsAuth = selectedKey === 'counselor30';
     syncAuthLinks();
-    if (!needsAuth) {
-      authGate.classList.remove('is-visible');
-      authOk.classList.remove('is-visible');
-      if (cfg && cfg.portoneConfigured && cfg.oneTimeEnabled !== false) payBtn.disabled = false;
-      return;
-    }
     if (sessionUser) {
       authGate.classList.remove('is-visible');
       authOk.classList.add('is-visible');
@@ -364,6 +348,15 @@
     });
   }
 
+  async function authHeaders() {
+    const { data: { session } } = await sb.auth.getSession();
+    if (!session) return null;
+    return {
+      Authorization: 'Bearer ' + session.access_token,
+      'Content-Type': 'application/json',
+    };
+  }
+
   async function loadSession() {
     try {
       const { data: { session } } = await sb.auth.getSession();
@@ -402,42 +395,25 @@
   function showSuccess(result) {
     shop.style.display = 'none';
     successPanel.classList.add('is-visible');
-    const code = result.code || '—';
-    document.getElementById('accessCode').textContent = code;
     const exp = result.expiresAt ? new Date(result.expiresAt) : null;
     document.getElementById('expiresLine').textContent = exp
-      ? `이용 기한: ${exp.getFullYear()}년 ${exp.getMonth() + 1}월 ${exp.getDate()}일까지`
-      : '';
-    const linkPanel = document.getElementById('counselorLinkPanel');
+      ? `이용 기한: ${exp.getFullYear()}년 ${exp.getMonth() + 1}월 ${exp.getDate()}일까지 · 로그인 계정에 연결됨`
+      : '로그인 계정에 연결되었습니다.';
+    const primary = document.getElementById('successPrimary');
     const isCounselor = selectedKey === 'counselor30' || result.productTier === 'counselor' || result.counselorHub;
-    if (linkPanel) {
-      linkPanel.style.display = isCounselor ? 'block' : 'none';
-    }
-    if (isCounselor && code && code !== '—') {
-      try { sessionStorage.setItem('counselor_trial_code', code); } catch (_) {}
-      const linkBtn = document.getElementById('counselorLinkBtn');
-      if (linkBtn) linkBtn.href = '/counselor-trial-link.html?code=' + encodeURIComponent(code);
+    if (primary) {
+      primary.href = isCounselor ? '/counselor.html' : '/lifecode/';
+      primary.textContent = isCounselor ? '상담사 허브 열기 →' : '라이프코드 시작 →';
     }
     if (window.PaljaAnalytics?.track) {
       window.PaljaAnalytics.track('lifecode_purchase_success', { product: selectedKey });
     }
   }
 
-  document.getElementById('copyBtn').addEventListener('click', async () => {
-    const code = document.getElementById('accessCode').textContent;
-    try {
-      await navigator.clipboard.writeText(code);
-      document.getElementById('copyBtn').textContent = '복사됨';
-      setTimeout(() => { document.getElementById('copyBtn').textContent = '코드 복사'; }, 2000);
-    } catch (_) {
-      alert('복사에 실패했습니다. 코드를 직접 선택해 복사해 주세요.');
-    }
-  });
-
   payBtn.addEventListener('click', async () => {
     clearMsg();
-    if (selectedKey === 'counselor30' && !sessionUser) {
-      showMsg('체험권은 로그인 후 결제할 수 있어요.', 'info');
+    if (!sessionUser) {
+      showMsg('로그인 후 결제할 수 있어요.', 'info');
       updateAuthUi();
       return;
     }
@@ -450,16 +426,27 @@
       window.PaljaAnalytics.track('lifecode_checkout_start', { product: selectedKey });
     }
     try {
+      const headers = await authHeaders();
+      if (!headers) {
+        showMsg('로그인이 만료됐어요. 다시 로그인해 주세요.', 'err');
+        payBtn.disabled = false;
+        return;
+      }
       const email = document.getElementById('email').value.trim();
       const prep = await fetch('/api/lifecode/checkout/prepare', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers,
         body: JSON.stringify({ productKey: selectedKey, email: email || undefined }),
       });
       const prepJson = await prep.json().catch(() => ({}));
       if (!prep.ok) {
         if (prepJson.error === 'one_time_disabled') {
           showMsg('단건(1회) 구매는 현재 준비 중입니다. 지금은 월 구독으로 이용하실 수 있어요.', 'info');
+          return;
+        }
+        if (prep.status === 401) {
+          showMsg('로그인이 필요합니다.', 'info');
+          updateAuthUi();
           return;
         }
         showMsg(prepJson.error || '결제 준비에 실패했습니다.', 'err');
@@ -487,17 +474,12 @@
       showMsg('결제 확인 중…', 'info');
       const conf = await fetch('/api/lifecode/checkout/confirm', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: await authHeaders(),
         body: JSON.stringify({ paymentId: prepJson.paymentId }),
       });
       const confJson = await conf.json().catch(() => ({}));
       if (!conf.ok) {
         showMsg(confJson.error || '결제 확인에 실패했습니다. 문의해 주세요.', 'err');
-        payBtn.disabled = false;
-        return;
-      }
-      if (confJson.alreadyFulfilled && !confJson.code) {
-        showMsg('이미 처리된 결제입니다. 접속 코드는 최초 발급 시에만 표시됩니다. ' + (confJson.codeHint ? '(' + confJson.codeHint + ')' : ''), 'info');
         payBtn.disabled = false;
         return;
       }

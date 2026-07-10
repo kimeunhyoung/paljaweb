@@ -815,13 +815,18 @@ app.post('/api/profile/signup-attribution', async (req, res) => {
   }
 });
 
-registerPortOneRoutes(app, planBilling, getUserIdFromAuth, checkoutStore);
+registerPortOneRoutes(app, planBilling, getUserIdFromAuth, checkoutStore, {
+  getProfile,
+  patchProfileFields,
+});
 
 registerLifecodeRoutes(app, {
   portoneConfigured,
   portonePublicConfig,
   portoneOneTimePublicConfig,
   getUserIdFromAuth,
+  getProfile,
+  patchProfileFields,
 });
 const { registerAccountDeviceRoutes } = require('./lib/account-devices');
 registerAccountDeviceRoutes(app, { getUserIdFromAuth });

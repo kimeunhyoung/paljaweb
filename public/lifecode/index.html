@@ -96,21 +96,28 @@
 <body>
   <div class="card" id="card">
     <h1>라이프코드</h1>
-    <p class="sub" id="subText">로그인 후 접속 코드를 입력하세요.<br>같은 계정에서 <strong>기기 최대 4대</strong>까지 이용할 수 있습니다.</p>
+    <p class="sub" id="subText">로그인하면 구매한 이용권이 바로 열립니다.<br>같은 계정에서 <strong>기기 최대 4대</strong>까지 이용할 수 있습니다.</p>
     <div id="loginGate" hidden>
-      <p class="sub" style="margin-bottom:16px">단품 이용권은 <strong>로그인 계정</strong>에 연결됩니다.</p>
+      <p class="sub" style="margin-bottom:16px">건별 이용권은 <strong>로그인 계정</strong>에 연결됩니다.</p>
       <div class="auth-links">
         <a class="primary" id="signupLink" href="/signup.html">무료 가입</a>
         <a class="secondary" id="loginLink" href="/login.html">로그인</a>
       </div>
     </div>
-    <form id="form" hidden>
-      <label for="code">접속 코드</label>
-      <input id="code" name="code" autocomplete="off" autocapitalize="characters" placeholder="LC-XXXX-XXXX" required/>
-      <button type="submit" id="submitBtn">접속하기</button>
-      <p class="msg" id="msg" role="alert"></p>
-    </form>
-    <p class="hint">코드가 없으신가요? <a href="buy.html">이용권 구매(건별 결제)</a><br>
+    <div id="openPanel" hidden>
+      <button type="button" id="openBtn" style="width:100%;padding:14px;font-size:1rem;font-family:inherit;font-weight:600;background:var(--deep);color:var(--cream);border:none;border-radius:12px;cursor:pointer;">이용권 열기</button>
+      <p class="msg" id="openMsg" role="alert"></p>
+    </div>
+    <details id="legacyCode" hidden style="margin-top:18px;">
+      <summary style="cursor:pointer;color:var(--muted);font-size:0.8rem;">예전에 받은 접속 코드가 있나요?</summary>
+      <form id="form" style="margin-top:12px;">
+        <label for="code">접속 코드</label>
+        <input id="code" name="code" autocomplete="off" autocapitalize="characters" placeholder="LC-XXXX-XXXX"/>
+        <button type="submit" id="submitBtn">코드로 접속</button>
+        <p class="msg" id="msg" role="alert"></p>
+      </form>
+    </details>
+    <p class="hint">이용권이 없으신가요? <a href="buy.html">이용권 구매(건별 결제)</a><br>
       iPhone: Safari → <strong>공유 → 홈 화면에 추가</strong><br>
       Android: Chrome에서 <strong>이 주소(/lifecode/)</strong> 연 뒤 메뉴(⋮) → <strong>앱 설치</strong> 또는 <strong>홈 화면에 추가</strong></p>
   </div>
@@ -129,9 +136,10 @@
       revoked: '사용이 중지된 코드입니다. 판매처에 문의하세요.',
       expired: '만료된 코드입니다.',
       login_required: '로그인 후 이용해 주세요.',
+      no_license: '이 계정에 연결된 라이프코드 이용권이 없습니다. 먼저 구매해 주세요.',
       license_linked_other: '이 코드는 다른 계정에 연결되어 있습니다.',
-      device_limit: '이 계정은 이미 기기 4대까지 등록되어 있습니다. 다른 기기에서 로그아웃·해제가 필요하면 고객센터로 문의해 주세요.',
-      use_counselor_link: '상담사 체험권은 계정 연결 페이지에서 등록해 주세요.',
+      device_limit: '이 계정은 이미 기기 4대까지 등록되어 있습니다. 마이페이지에서 기기를 해제한 뒤 다시 시도해 주세요.',
+      use_counselor_link: '상담사 체험권은 상담사 허브에서 이용해 주세요.',
       devices_table_missing: '서버 설정이 아직 반영되지 않았습니다. 잠시 후 다시 시도해 주세요.',
       too_many_attempts: '잠시 후 다시 시도해 주세요.',
       server_not_configured: '서버 설정이 완료되지 않았습니다.',
@@ -142,8 +150,12 @@
     const checking = document.getElementById('checking');
     const form = document.getElementById('form');
     const loginGate = document.getElementById('loginGate');
+    const openPanel = document.getElementById('openPanel');
+    const legacyCode = document.getElementById('legacyCode');
     const msg = document.getElementById('msg');
+    const openMsg = document.getElementById('openMsg');
     const submitBtn = document.getElementById('submitBtn');
+    const openBtn = document.getElementById('openBtn');
 
     function nextUrl() {
       return encodeURIComponent('/lifecode/');
@@ -178,6 +190,37 @@
       return false;
     }
 
+    async function openAccountLicense() {
+      openMsg.textContent = '';
+      openBtn.disabled = true;
+      try {
+        const headers = await authHeaders();
+        if (!headers) {
+          openMsg.textContent = ERRORS.login_required;
+          return;
+        }
+        const r = await fetch('/api/lifecode/account-session', {
+          method: 'POST',
+          credentials: 'include',
+          headers,
+          body: JSON.stringify({ deviceId: getLifecodeDeviceId() }),
+        });
+        const data = await r.json().catch(() => ({}));
+        if (r.ok && data.ok) {
+          window.location.href = 'analyze.html';
+          return;
+        }
+        openMsg.textContent = ERRORS[data.error] || data.message || '이용권을 열지 못했습니다.';
+        if (data.error === 'no_license') {
+          openMsg.innerHTML = ERRORS.no_license + ' <a href="buy.html" style="color:var(--accent)">구매하기</a>';
+        }
+      } catch (_) {
+        openMsg.textContent = ERRORS.server_error;
+      } finally {
+        openBtn.disabled = false;
+      }
+    }
+
     async function init() {
       const ok = await tryExistingSession();
       if (ok) return;
@@ -187,12 +230,18 @@
       const headers = await authHeaders();
       if (!headers) {
         loginGate.hidden = false;
-        form.hidden = true;
+        openPanel.hidden = true;
+        legacyCode.hidden = true;
         return;
       }
       loginGate.hidden = true;
-      form.hidden = false;
+      openPanel.hidden = false;
+      legacyCode.hidden = false;
+      // 자동으로 계정 이용권 열기 시도
+      await openAccountLicense();
     }
+
+    openBtn.addEventListener('click', openAccountLicense);
 
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
@@ -203,7 +252,6 @@
         if (!headers) {
           msg.textContent = ERRORS.login_required;
           loginGate.hidden = false;
-          form.hidden = true;
           return;
         }
         const r = await fetch('/api/lifecode/activate', {
@@ -221,7 +269,7 @@
           return;
         }
         if (data.error === 'use_counselor_link') {
-          window.location.href = '/counselor-trial-link.html?code=' + encodeURIComponent(document.getElementById('code').value.trim());
+          window.location.href = '/counselor.html';
           return;
         }
         msg.textContent = ERRORS[data.error] || data.message || '접속에 실패했습니다.';
