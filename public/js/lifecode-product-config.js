@@ -1,28 +1,28 @@
 /**
- * 라이프코드 단품(/lifecode/analyze.html) 전용 — 팔자 analysis.html 과 콘텐츠 구성 분리
+ * ?�이?�코???�품(/lifecode/analyze.html) ?�용 ???�자 analysis.html �?콘텐�?구성 분리
  */
 export const LIFECODE_PRODUCT = {
   enabled: true,
-  brand: '라이프코드',
+  brand: '?�이?�코??,
 
   hero: {
-    tag: 'Life Code · 개인용 수비학 리포트',
-    titleHtml: '숫자로 읽는<br><em>나의 리듬과 패턴</em>',
-    desc: '생년월일과 이름으로 핵심 수·인생 주기·지금의 흐름을 한 화면에 정리합니다. 팔자연구소 전체 메뉴 없이, 라이프코드 단품만 담았습니다.',
+    tag: 'Life Code · 개인???�비??리포??,
+    titleHtml: '?�자�??�는<br><em>?�의 리듬�??�턴</em>',
+    desc: '?�년?�일�??�름?�로 ?�심 ?�·인??주기·지금의 ?�름?????�면???�리?�니?? ?�자?�구???�체 메뉴 ?�이, ?�이?�코???�품�??�았?�니??',
   },
 
-  waitNote: '접속 코드로 열린 <strong>라이프코드 단품</strong> 리포트입니다. 분석하기를 누르면 아래에 결과가 펼쳐집니다.',
+  waitNote: '?�속 코드�??�린 <strong>?�이?�코???�품</strong> 리포?�입?�다. 분석?�기�??�르�??�래??결과가 ?�쳐집니??',
 
-  /** DOM id — 단품에서 제외 (pyramidRhythmSection은 Private 시에만 표시) */
+  /** DOM id ???�품?�서 ?�외 (pyramidRhythmSection?� Private ?�에�??�시) */
   hiddenSections: ['aiSummarySection', 'aiTodaySection', 'pyramidRhythmSection'],
 
-  readingGuideKicker: '라이프코드 단품에 포함된 모듈입니다.',
+  readingGuideKicker: '?�이?�코???�품???�함??모듈?�니??',
   readingGuideFootnote:
-    '제목 옆 <strong>B</strong>·<strong>P</strong>·<strong>S</strong> — B=베이직, P=Plus·Professional(결제), S=Private(Professional과 별도).',
+    '?�목 ??<strong>B</strong>·<strong>P</strong>·<strong>S</strong> ??B=베이�? P=Plus·Professional(결제), S=Private(Professional�?별도).',
 
-  pdfFilenamePrefix: '라이프코드',
+  pdfFilenamePrefix: '?�이?�코??,
 
-  /** 단품 Basic(30일) 목차 — 무료 레이어 + 리듬 묶음 */
+  /** ?�품 Basic(30?? 목차 ??무료 ?�이??+ 리듬 묶음 */
   basicGuideHrefs: [
     '#nav-at-a-glance',
     '#nav-core',
@@ -34,47 +34,47 @@ export const LIFECODE_PRODUCT = {
     '#timelineSection',
   ],
 
-  /** 단품 목차에 노출할 앵커 (hidden 제외) */
+  /** ?�품 목차???�출???�커 (hidden ?�외) */
   guideModules: [
     {
       href: '#nav-at-a-glance',
-      title: '먼저 보는 수',
+      title: '먼�? 보는 ??,
       tier: 'free',
-      desc: '별자리·핵심 수·이름 수·올해·이번 달 요약 그리드.',
+      desc: '별자�?�핵???�·이�??�·올?�·이�????�약 그리??',
     },
-    { href: '#nav-core', title: '핵심 수', tier: 'free', desc: '생년월일·이름에서 뽑은 대표 수비학 숫자와 해석.' },
-    { href: '#zodiacInsightSection', title: '별자리', tier: 'free', desc: '생일 기준 별자리 요약. 상세 해석은 Basic 이상.' },
-    { href: '#period48Section', title: '48주기 성격', tier: 'basic', desc: '생일 구간별 성격·역할 패턴(48 세그먼트).' },
-    { href: '#nav-major-cycle', title: '대주기', tier: 'basic', desc: '인생을 세 구간으로 나눈 장기 흐름.' },
-    { href: '#nav-life-four', title: '인생 4단계', tier: 'basic', desc: '절정수·도전수 네 구간.' },
+    { href: '#nav-core', title: '?�심 ??, tier: 'free', desc: '?�년?�일·?�름?�서 뽑�? ?�???�비???�자?� ?�석.' },
+    { href: '#zodiacInsightSection', title: '별자�?, tier: 'free', desc: '?�일 기�? 별자�??�약. ?�세 ?�석?� Basic ?�상.' },
+    { href: '#period48Section', title: '48주기 ?�격', tier: 'basic', desc: '?�일 구간�??�격·??�� ?�턴(48 ?�그먼트).' },
+    { href: '#nav-major-cycle', title: '?�주기', tier: 'basic', desc: '?�생????구간?�로 ?�눈 ?�기 ?�름.' },
+    { href: '#nav-life-four', title: '?�생 4?�계', tier: 'basic', desc: '?�정?�·도?�수 ??구간.' },
     {
       href: '#pyramidRhythmSection',
-      title: '인생리듬',
+      title: '?�생리듬',
       tier: 'private',
-      desc: '인생여정수 기준 네 구간·활동/정비 리듬과 36년 순환표.',
+      desc: '?�생?�정??기�? ??구간·?�동/?�비 리듬�?36???�환??',
     },
-    { href: '#timelineSection', title: '10년 타임라인 · 수비학', tier: 'basic', desc: '수비학 개인연도 10년. 100년 인생전반표는 Plus·Professional.' },
-    { href: '#tlBlockTarot', title: '10년 타임라인 · 타로', tier: 'private', desc: '타로 올해의 수 10년 차트와 100년 인생전반표.' },
-    { href: '#monthlySection', title: '월간 흐름', tier: 'basic', desc: '선택 연도의 월별 리듬.' },
-    { href: '#nav-flow', title: '지금의 흐름', tier: 'basic', desc: '수비학 개인연도·타로 올해의 수, 이번 달·오늘.' },
+    { href: '#timelineSection', title: '10???�?�라??· ?�비??, tier: 'basic', desc: '?�비??개인?�도 10?? 100???�생?�반?�는 Plus·Professional.' },
+    { href: '#tlBlockTarot', title: '10???�?�라??· ?��?, tier: 'private', desc: '?��??�해????10??차트?� 100???�생?�반??' },
+    { href: '#monthlySection', title: '?�간 ?�름', tier: 'basic', desc: '?�택 ?�도???�별 리듬.' },
+    { href: '#nav-flow', title: '지금의 ?�름', tier: 'basic', desc: '?�비??개인?�도·?��??�해???? ?�번 ??�오??' },
     {
       href: '#weeklyForecastSection',
-      title: '향후 7일',
+      title: '?�후 7??,
       tier: 'basic',
-      desc: '오늘부터 7일간 일간 수·에너지 가이드 표.',
+      desc: '?�늘부??7?�간 ?�간 ?�·에?��? 가?�드 ??',
     },
-    { href: '#growthSection', title: '성장 지도', tier: 'plus', desc: '비어 있는 숫자·보완 포인트.' },
+    { href: '#growthSection', title: '?�장 지??, tier: 'plus', desc: '비어 ?�는 ?�자·보완 ?�인??' },
     {
       href: '#loshuSection',
       title: '로슈 격자',
       tier: 'plus',
-      desc: '생일 숫자를 마방진에 올려 화살·결손·반복 패턴을 읽습니다.',
+      desc: '?�일 ?�자�?마방진에 ?�려 ?�살·결손·반복 ?�턴???�습?�다.',
     },
     {
       href: '#seqArrowSection',
-      title: '풀 애로우 · 순차 격자',
+      title: '?� ?�로??· ?�차 격자',
       tier: 'plus',
-      desc: '서양식 3·6·9 / 2·5·8 / 1·4·7 순차 격자의 8가지 풀·빈 화살 해석.',
+      desc: '?�양??3·6·9 / 2·5·8 / 1·4·7 ?�차 격자??8가지 ?�·�??�살 ?�석.',
     },
   ],
 };
@@ -124,14 +124,14 @@ export function applyLifecodeProductShell() {
   if (footer) {
     footer.innerHTML =
       '<span class="site-legal-business">' +
-      '8코드(8CODE) · 대표 김태훈 · 사업자등록번호 624-55-00806 · 통신판매업 신고번호 제 2026-부산수영-0361 호<br>' +
-      '부산광역시 수영구 수영로 632-1, 602호 · 유선번호 <a href="tel:0519250441">051-925-0441</a> · 휴대폰 <a href="tel:01052802300">010-5280-2300</a>' +
+      '8코드(8CODE) · ?�??김?�훈 · ?�업?�등록번??624-55-00806 · ?�신?�매???�고번호 ??2026-부?�수??0361 ??br>' +
+      '부?�광??�� ?�영�??�영�?632-1, 602??· ?�선번호 <a href="tel:0519250441">051-925-0441</a> · ?��???<a href="tel:01086748481">010-8674-8481</a>' +
       '</span>' +
-      '<span class="lifecode-product-footer-label">라이프코드 단품</span>' +
+      '<span class="lifecode-product-footer-label">?�이?�코???�품</span>' +
       '<span aria-hidden="true"> · </span>' +
-      '<a href="../terms.html">이용약관</a>' +
+      '<a href="../terms.html">?�용?��?</a>' +
       '<span aria-hidden="true"> · </span>' +
-      '<a href="../privacy.html">개인정보처리방침</a>' +
+      '<a href="../privacy.html">개인?�보처리방침</a>' +
       '<span aria-hidden="true"> · </span>' +
       '<a href="mailto:ohayou989@gmail.com">문의</a>';
   }
@@ -157,13 +157,13 @@ export function buildLifecodeProductReadingGuideInner() {
     const labels = { basic: 'B', plus: 'P', private: 'S' };
     const t = labels[tier] ? tier : 'plus';
     const css = t === 'plus' ? 'pro' : (t === 'private' ? 'special' : t);
-    const title = t === 'private' ? 'S: Private' : (t === 'basic' ? 'B: Basic 이상' : 'P: Plus·Professional 이상');
-    return `<span class="lc-guide-tier-badge lc-guide-tier-badge--${css}" title="${title} 플랜">${labels[tier] || labels[t] || 'P'}</span>`;
+    const title = t === 'private' ? 'S: Private' : (t === 'basic' ? 'B: Basic ?�상' : 'P: Plus·Professional ?�상');
+    return `<span class="lc-guide-tier-badge lc-guide-tier-badge--${css}" title="${title} ?�랜">${labels[tier] || labels[t] || 'P'}</span>`;
   };
   const legend =
     typeof window !== 'undefined' && window.PaljaPlan && window.PaljaPlan.tierLegendHtml
       ? window.PaljaPlan.tierLegendHtml()
-      : '<p class="lc-guide-tier-legend"><span class="lc-guide-tier-badge lc-guide-tier-badge--basic" title="Basic 플랜">B</span> 30일 단품 · <span class="lc-guide-tier-badge lc-guide-tier-badge--pro" title="Plus 플랜">P</span> 상담사 이용권</p>';
+      : '<p class="lc-guide-tier-legend"><span class="lc-guide-tier-badge lc-guide-tier-badge--basic" title="Basic ?�랜">B</span> 30???�품 · <span class="lc-guide-tier-badge lc-guide-tier-badge--pro" title="Plus ?�랜">P</span> ?�담???�용�?/p>';
   const rows = modules
     .map(
       (m) => `
