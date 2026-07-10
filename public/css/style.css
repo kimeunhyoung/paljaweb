@@ -109,6 +109,11 @@ ul { list-style: none; }
 .home-program-nav-inner a:hover {
   color: var(--brown, #4a3520);
 }
+.home-program-nav.is-pulse {
+  box-shadow: inset 0 -3px 0 var(--terracotta, #c4603a);
+  background: rgba(255, 248, 240, 0.95);
+  transition: box-shadow 0.2s, background 0.2s;
+}
 .hero-program-note {
   margin: 10px 0 0;
   font-size: 13px;

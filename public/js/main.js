@@ -16,6 +16,16 @@ window.addEventListener('scroll', () => {
   if (navbar) navbar.classList.toggle('scrolled', on)
 })
 
+// 히어로 '프로그램 바로가기' → 상단 프로그램 바 강조
+document.getElementById('heroProgramsLink')?.addEventListener('click', (e) => {
+  e.preventDefault()
+  const nav = document.getElementById('programs')
+  if (!nav) return
+  nav.classList.add('is-pulse')
+  window.scrollTo({ top: 0, behavior: 'smooth' })
+  setTimeout(() => nav.classList.remove('is-pulse'), 1400)
+})
+
 function initMobileMenu() {
   const btn = document.getElementById('navMenuBtn')
   const panel = document.getElementById('mobileNavPanel')
