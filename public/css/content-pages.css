@@ -48,6 +48,19 @@
   text-decoration: underline;
   text-underline-offset: 2px;
 }
+.content-card,
+.content-card:link,
+.content-card:visited,
+.content-card:hover,
+.content-card:active,
+.content-section a.content-card,
+.content-section a.content-card * {
+  text-decoration: none !important;
+  color: inherit;
+}
+.content-section a.content-card .content-card-more {
+  color: #8b6f47;
+}
 .content-note {
   font-size: 0.85rem;
   color: #7a6b58;
