@@ -1015,13 +1015,19 @@ body.export-capturing #wheelCard .note{display:none !important;}
     }
     $('transitResult').innerHTML = '<div class="transit-empty">위 “오늘의 트랜짓 보기”를 누르면 현재 흐름이 표시됩니다.</div>';
 
-    if (!opts.unknownTime && hasAiAccess()) computeYearForecast();
-    else if (opts.unknownTime) $('yearForecast').innerHTML = '<div class="transit-empty">출생 시간이 있어야 프로그레션·솔라 리턴을 계산할 수 있어요.</div>';
+    if (opts.unknownTime) {
+      $('yearForecast').innerHTML = '<div class="transit-empty">출생 시간이 있어야 프로그레션·솔라 리턴을 계산할 수 있어요.</div>';
+    }
+
     renderCounselorReport();
 
     if (!HAS_BASIC) {
-      loadAiQuota().then(() => applyAstroGate());
+      loadAiQuota().then(() => {
+        if (!opts.unknownTime && hasAiAccess()) computeYearForecast();
+        applyAstroGate();
+      });
     } else {
+      if (!opts.unknownTime) computeYearForecast();
       refreshAiUi();
       loadAiQuota();
     }
