@@ -933,7 +933,11 @@
       margin: 0;
     }
     .mini-celtic-cross__center .tarot-card-wrap--present { z-index: 1; }
-    .mini-celtic-cross__center .tarot-card-wrap--challenge { z-index: 2; }
+    .mini-celtic-cross__center .tarot-card-wrap--challenge {
+      z-index: 2;
+      /* 가로 카드를 살짝 아래로 → 세로 카드 윗부분이 보이게 */
+      transform: translate(-50%, calc(-50% + 14px));
+    }
     .mini-celtic-cross__center .tarot-card-wrap--challenge .tarot-card {
       transform: rotate(90deg);
     }
@@ -977,7 +981,11 @@
       margin: 0;
     }
     .celtic-cross__center .tarot-card-wrap--present { z-index: 1; }
-    .celtic-cross__center .tarot-card-wrap--challenge { z-index: 2; }
+    .celtic-cross__center .tarot-card-wrap--challenge {
+      z-index: 2;
+      /* 가로 카드를 살짝 아래로 → 세로 카드 윗부분이 보이게 */
+      transform: translate(-50%, calc(-50% + 16px));
+    }
     .celtic-cross__center .tarot-card-wrap--challenge .tarot-card {
       transform: rotate(90deg);
     }
