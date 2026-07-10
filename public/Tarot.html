@@ -1039,38 +1039,22 @@
     .spread-board--diamond [data-slot="2"] { grid-column: 3; grid-row: 2; }
     .spread-board--diamond [data-slot="3"] { grid-column: 2; grid-row: 3; }
 
-    /* 매직 세븐: 육각 — 현재(0)가 세로·가로 정중앙 */
+    /* 매직 세븐: 참고 이미지와 같은 육각 (JS가 좌표 배치) */
     .spread-board--magic-seven {
-      display: grid;
-      grid-template-columns: 1fr 1fr 1fr;
-      grid-template-rows: auto auto auto auto auto;
-      gap: 12px 16px;
-      justify-items: center;
-      align-items: center;
-      width: 100%;
-      max-width: 560px;
+      position: relative;
+      display: block;
+      width: fit-content;
+      max-width: 100%;
       margin: 0 auto;
     }
     .spread-board--magic-seven .tarot-card-wrap {
-      position: static;
-      width: 148px;
-      left: auto;
-      top: auto;
+      position: absolute;
+      left: 0;
+      top: 0;
       margin: 0;
       transform: none;
+      width: 140px;
     }
-    /*       [1]
-         [6]       [2]
-             [0]
-         [5]       [3]
-             [4]  */
-    .spread-board--magic-seven [data-slot="1"] { grid-column: 2; grid-row: 1; } /* 목표 */
-    .spread-board--magic-seven [data-slot="6"] { grid-column: 1; grid-row: 2; } /* 조언 */
-    .spread-board--magic-seven [data-slot="2"] { grid-column: 3; grid-row: 2; } /* 미래 */
-    .spread-board--magic-seven [data-slot="0"] { grid-column: 2; grid-row: 3; } /* 현재 — 정중앙 */
-    .spread-board--magic-seven [data-slot="5"] { grid-column: 1; grid-row: 4; } /* 장애 */
-    .spread-board--magic-seven [data-slot="3"] { grid-column: 3; grid-row: 4; } /* 기반 */
-    .spread-board--magic-seven [data-slot="4"] { grid-column: 2; grid-row: 5; } /* 과거 */
 
     .drawn-cards-v2 {
       overflow: visible;
@@ -2081,13 +2065,16 @@
       .celtic-staff { gap: 6px; }
       .spread-board--cross,
       .spread-board--diamond,
-      .spread-board--choice,
-      .spread-board--magic-seven {
+      .spread-board--choice {
         width: 100%;
         max-width: 100%;
         justify-content: center;
       }
-      .spread-board--magic-seven { max-width: 100%; gap: 10px 8px; }
+      .spread-board--magic-seven {
+        width: fit-content;
+        max-width: 100%;
+        margin: 0 auto;
+      }
       .spread-board--magic-seven .tarot-card-wrap { width: min(110px, 28vw); }
       .spread-board--year {
         width: 100%;
@@ -3939,6 +3926,55 @@ function fitCelticBoard(board, withStaff) {
   });
 }
 
+/**
+ * 매직세븐 — 참고 이미지와 동일:
+ *       [1]
+ *   [6]       [2]
+ *       [0]
+ *   [5]       [3]
+ *       [4]
+ * 양옆은 가운데 열 사이 간격의 정중앙
+ */
+function fitMagicSevenBoard(board) {
+  if (!board) return;
+  const host = board.parentElement || board;
+  const avail = Math.max(280, (host.clientWidth || 320) - 8);
+  let cw = Math.floor(avail / 3.35);
+  cw = Math.max(88, Math.min(140, cw));
+  const ch = cw * (3.2 / 2);
+  const gapX = Math.max(10, Math.round(cw * 0.1));
+  const gapY = Math.max(8, Math.round(ch * 0.07));
+  const step = ch + gapY;
+  const col = cw + gapX;
+  // slot → {x,y}  (1=목표, 0=현재, 4=과거, 6/2=상단 양옆, 5/3=하단 양옆)
+  const pos = {
+    1: { x: col, y: 0 },
+    6: { x: 0, y: step * 0.5 },
+    2: { x: col * 2, y: step * 0.5 },
+    0: { x: col, y: step },
+    5: { x: 0, y: step * 1.5 },
+    3: { x: col * 2, y: step * 1.5 },
+    4: { x: col, y: step * 2 },
+  };
+  board.style.position = 'relative';
+  board.style.display = 'block';
+  board.style.width = (col * 2 + cw) + 'px';
+  board.style.height = (step * 2 + ch) + 'px';
+  board.style.maxWidth = '100%';
+  board.style.margin = '0 auto';
+  board.querySelectorAll('.tarot-card-wrap').forEach((wrap) => {
+    const slot = wrap.dataset.slot;
+    const p = pos[slot];
+    if (!p) return;
+    wrap.style.position = 'absolute';
+    wrap.style.width = cw + 'px';
+    wrap.style.left = p.x + 'px';
+    wrap.style.top = p.y + 'px';
+    wrap.style.margin = '0';
+    wrap.style.transform = 'none';
+  });
+}
+
 function showDrawnCards() {
   document.getElementById('step2').style.display = 'none';
   document.getElementById('step3').style.display = 'block';
@@ -4027,6 +4063,12 @@ function showDrawnCards() {
   } else if (curMode === 'draw' && layout === 'magic_seven') {
     mountBoard('spread-board--magic-seven', (board) => {
       for (let i = 0; i < 7; i++) board.appendChild(makeCardWrap(i));
+      const fit = () => fitMagicSevenBoard(board);
+      requestAnimationFrame(fit);
+      if (!board._msFitBound) {
+        board._msFitBound = true;
+        window.addEventListener('resize', fit);
+      }
     });
   } else if (curMode === 'draw' && (layout === 'houses' || layout === 'year')) {
     mountBoard('spread-board--year', (board) => {
