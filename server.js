@@ -11,6 +11,7 @@ const { registerCounselorTrialRoutes } = require('./lib/counselor-trial');
 const { registerAiUsageRoutes, isAiUpstreamAvailable, kstPeriod, aiCreditLimit } = require('./lib/ai-usage');
 const { registerSignupNotifyRoutes, providerLabel } = require('./lib/signup-notify');
 const { buildSignupStats } = require('./lib/admin-signup-stats');
+const { registerVerifyRemindRoutes } = require('./lib/verify-remind');
 
 const app = express();
 
@@ -818,6 +819,7 @@ registerPortOneRoutes(app, planBilling, getUserIdFromAuth, checkoutStore);
 registerLifecodeRoutes(app, { portoneConfigured, portonePublicConfig, portoneOneTimePublicConfig });
 registerNaverAuthRoutes(app);
 registerSignupNotifyRoutes(app);
+registerVerifyRemindRoutes(app);
 registerCounselorPushRoutes(app, getUserIdFromAuth);
 registerCounselorTrialRoutes(app, { getUserIdFromAuth, getProfile, patchProfileFields });
 

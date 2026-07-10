@@ -8,6 +8,9 @@
   <link rel="icon" href="/favicon.svg" type="image/svg+xml">
   <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@400;600&family=DM+Mono:wght@400&display=swap" rel="stylesheet"/>
   <script src="https://cdn.portone.io/v2/browser-sdk.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="/js/attribution.js"></script>
+  <script src="/js/analytics.js?v=1" defer></script>
   <style>
     :root {
       --cream: #f5f0e8;
@@ -199,8 +202,30 @@
       color: #9a3412;
       line-height: 1.6;
     }
-    .success-device strong { color: #c2410c; }
-  </style>
+    .auth-gate {
+      display: none;
+      margin-bottom: 16px;
+      padding: 16px;
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+    }
+    .auth-gate.is-visible { display: block; }
+    .auth-gate p { font-size: 0.88rem; color: var(--muted); line-height: 1.6; margin-bottom: 12px; }
+    .auth-gate-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+    .auth-gate-actions a {
+      flex: 1; min-width: 120px; text-align: center; padding: 11px 14px;
+      border-radius: 10px; font-size: 0.85rem; text-decoration: none; font-weight: 600;
+    }
+    .auth-gate .link-primary { background: var(--deep); color: var(--cream); }
+    .auth-gate .link-secondary { background: #fff; color: var(--deep); border: 1px solid var(--border); }
+    .auth-ok {
+      display: none;
+      margin-bottom: 12px;
+      font-size: 0.8rem;
+      color: var(--teal);
+    }
+    .auth-ok.is-visible { display: block; }
 </head>
 <body>
 <div class="wrap">
@@ -214,6 +239,14 @@
   </div>
 
   <div id="shop">
+    <div class="auth-gate" id="authGate">
+      <p><strong>Professional 15일 체험</strong>은 로그인 계정에 연결해야 상담사 허브를 쓸 수 있어요. 결제 전에 계정을 만들어 주세요.</p>
+      <div class="auth-gate-actions">
+        <a class="link-primary" id="authSignupLink" href="/signup.html">무료 가입하기</a>
+        <a class="link-secondary" id="authLoginLink" href="/login.html">로그인</a>
+      </div>
+    </div>
+    <p class="auth-ok" id="authOk">로그인됨 — 결제 후 이 계정에 체험을 연결할 수 있습니다.</p>
     <div class="product-list" id="productList"></div>
     <div class="field">
       <label for="email">이메일 (선택 · 영수증·문의용)</label>
@@ -251,14 +284,55 @@
 
 <script>
 (function () {
+  const SUPABASE_URL = 'https://sghsryumnrnftyjoqmwf.supabase.co';
+  const SUPABASE_ANON_KEY = 'sb_publishable_6S3W_oWrzG-Nv8wLK98gmg_q_KcB2I1';
+  const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
   const productList = document.getElementById('productList');
   const payBtn = document.getElementById('payBtn');
   const msgEl = document.getElementById('msg');
   const successPanel = document.getElementById('successPanel');
   const shop = document.getElementById('shop');
+  const authGate = document.getElementById('authGate');
+  const authOk = document.getElementById('authOk');
   let products = [];
   let selectedKey = 'basic30';
   let cfg = null;
+  let sessionUser = null;
+
+  function buyNextUrl() {
+    return '/lifecode/buy.html?product=' + encodeURIComponent(selectedKey || 'counselor30');
+  }
+
+  function syncAuthLinks() {
+    const next = encodeURIComponent(buyNextUrl().replace(/^\//, ''));
+    const signup = document.getElementById('authSignupLink');
+    const login = document.getElementById('authLoginLink');
+    if (signup) signup.href = '/signup.html?next=' + next;
+    if (login) login.href = '/login.html?next=' + next;
+  }
+
+  function updateAuthUi() {
+    const needsAuth = selectedKey === 'counselor30';
+    syncAuthLinks();
+    if (!needsAuth) {
+      authGate.classList.remove('is-visible');
+      authOk.classList.remove('is-visible');
+      if (cfg && cfg.portoneConfigured && cfg.oneTimeEnabled !== false) payBtn.disabled = false;
+      return;
+    }
+    if (sessionUser) {
+      authGate.classList.remove('is-visible');
+      authOk.classList.add('is-visible');
+      const emailEl = document.getElementById('email');
+      if (emailEl && !emailEl.value && sessionUser.email) emailEl.value = sessionUser.email;
+      if (cfg && cfg.portoneConfigured && cfg.oneTimeEnabled !== false) payBtn.disabled = false;
+    } else {
+      authGate.classList.add('is-visible');
+      authOk.classList.remove('is-visible');
+      payBtn.disabled = true;
+    }
+  }
 
   function showMsg(text, kind) {
     msgEl.textContent = text;
@@ -284,8 +358,19 @@
       btn.addEventListener('click', () => {
         selectedKey = btn.dataset.key;
         renderProducts();
+        updateAuthUi();
       });
     });
+  }
+
+  async function loadSession() {
+    try {
+      const { data: { session } } = await sb.auth.getSession();
+      sessionUser = session?.user || null;
+    } catch (_) {
+      sessionUser = null;
+    }
+    updateAuthUi();
   }
 
   async function init() {
@@ -307,7 +392,7 @@
         selectedKey = products[0].key;
       }
       renderProducts();
-      payBtn.disabled = false;
+      await loadSession();
     } catch (_) {
       showMsg('서버에 연결할 수 없습니다.', 'err');
     }
@@ -332,6 +417,9 @@
       const linkBtn = document.getElementById('counselorLinkBtn');
       if (linkBtn) linkBtn.href = '/counselor-trial-link.html?code=' + encodeURIComponent(code);
     }
+    if (window.PaljaAnalytics?.track) {
+      window.PaljaAnalytics.track('lifecode_purchase_success', { product: selectedKey });
+    }
   }
 
   document.getElementById('copyBtn').addEventListener('click', async () => {
@@ -347,11 +435,19 @@
 
   payBtn.addEventListener('click', async () => {
     clearMsg();
+    if (selectedKey === 'counselor30' && !sessionUser) {
+      showMsg('체험권은 로그인 후 결제할 수 있어요.', 'info');
+      updateAuthUi();
+      return;
+    }
     if (typeof PortOne === 'undefined') {
       showMsg('결제 모듈을 불러오지 못했습니다.', 'err');
       return;
     }
     payBtn.disabled = true;
+    if (window.PaljaAnalytics?.track) {
+      window.PaljaAnalytics.track('lifecode_checkout_start', { product: selectedKey });
+    }
     try {
       const email = document.getElementById('email').value.trim();
       const prep = await fetch('/api/lifecode/checkout/prepare', {

@@ -55,6 +55,8 @@
         <button id="csvStatsBtn" class="light" type="button">통계 CSV</button>
       </div>
       <div class="stats-cards" id="statsCards">
+        <div class="stat-card"><div class="label">오늘 가입</div><div class="value" id="statToday">—</div></div>
+        <div class="stat-card"><div class="label">오늘 유료(가입일 기준)</div><div class="value" id="statTodayPaid">—</div></div>
         <div class="stat-card"><div class="label">가입 (기간 내)</div><div class="value" id="statTotal">—</div></div>
         <div class="stat-card"><div class="label">유료 전환</div><div class="value" id="statPaid">—</div></div>
         <div class="stat-card"><div class="label">전환율</div><div class="value" id="statRate">—</div></div>
@@ -236,6 +238,8 @@
           const j = await res.json().catch(() => ({}));
           if (!res.ok) throw new Error(j.error || '통계 조회 실패');
           lastStats = j;
+          document.getElementById('statToday').textContent = j.todaySignups ?? '0';
+          document.getElementById('statTodayPaid').textContent = j.todayPaid ?? '0';
           document.getElementById('statTotal').textContent = j.totalSignups ?? '0';
           document.getElementById('statPaid').textContent = j.paidSignups ?? '0';
           document.getElementById('statRate').textContent = (j.conversionRate ?? 0) + '%';
