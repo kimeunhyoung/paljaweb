@@ -946,28 +946,39 @@
       margin-bottom: 2px;
     }
 
-    /* 양자택일 */
+    /* 양자택일: 왼쪽 A 갈래 / 오른쪽 B 갈래 / 아래 조언 */
     .spread-board--choice {
       display: grid;
-      grid-template-columns: auto auto auto;
-      grid-template-rows: auto auto auto;
-      gap: 12px 28px;
+      grid-template-columns: 1fr auto 1fr;
+      grid-template-rows: auto auto auto auto;
+      gap: 10px 24px;
       justify-content: center;
       justify-items: center;
       align-items: start;
+      max-width: 420px;
+      margin: 0 auto;
     }
-    .spread-board--choice [data-slot="0"] { grid-column: 1; grid-row: 1; }
-    .spread-board--choice [data-slot="1"] { grid-column: 3; grid-row: 1; }
-    .spread-board--choice [data-slot="2"] { grid-column: 2; grid-row: 2; }
-    .spread-board--choice [data-slot="3"] { grid-column: 1; grid-row: 3; }
-    .spread-board--choice [data-slot="4"] { grid-column: 3; grid-row: 3; }
+    .spread-board--choice .choice-col-label {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--deep-brown);
+      letter-spacing: .02em;
+    }
+    .spread-board--choice .choice-col-label--a { grid-column: 1; grid-row: 1; }
+    .spread-board--choice .choice-col-label--b { grid-column: 3; grid-row: 1; }
     .spread-board--choice .choice-vs {
-      grid-column: 2; grid-row: 1;
+      grid-column: 2;
+      grid-row: 1 / span 2;
       align-self: center;
       font-family: var(--font-serif);
-      font-size: 18px;
+      font-size: 16px;
       color: var(--muted);
     }
+    .spread-board--choice [data-slot="0"] { grid-column: 1; grid-row: 2; } /* 선택 A */
+    .spread-board--choice [data-slot="1"] { grid-column: 3; grid-row: 2; } /* 선택 B */
+    .spread-board--choice [data-slot="2"] { grid-column: 1; grid-row: 3; } /* A의 전개 */
+    .spread-board--choice [data-slot="3"] { grid-column: 3; grid-row: 3; } /* B의 전개 */
+    .spread-board--choice [data-slot="4"] { grid-column: 1 / span 3; grid-row: 4; } /* 조언 */
 
     /* 4카드 다이아몬드 */
     .spread-board--diamond {
@@ -1086,8 +1097,9 @@
 
     .draw-clarify-bar {
       display: none;
-      margin-bottom: 24px;
-      padding: 18px 20px;
+      margin-top: 20px;
+      padding-top: 16px;
+      border-top: 1px dashed var(--border);
     }
     .draw-clarify-bar.on { display: block; }
     .draw-clarify-actions {
@@ -2161,31 +2173,31 @@
         <button type="button" class="reveal-all-btn" id="revealAllBtn" onclick="revealAllCards()">전체 공개</button>
       </div>
       <div class="drawn-cards-v2" id="drawnCards"></div>
+
+      <div id="drawClarifyBar" class="draw-clarify-bar">
+        <div class="step-label">추가 드로우</div>
+        <p style="margin:0;font-size:14px;color:var(--muted);line-height:1.7;">궁금한 점이 더 있으면 남은 덱에서 카드를 더 뽑아 보세요.</p>
+        <div class="draw-clarify-actions" id="drawClarifyActions">
+          <button type="button" onclick="startClarify(1)">+1장</button>
+          <button type="button" onclick="startClarify(2)">+2장</button>
+          <button type="button" onclick="startClarify(3)">+3장</button>
+          <button type="button" onclick="autoClarify(1)">자동 +1</button>
+          <button type="button" onclick="autoClarify(3)">자동 +3</button>
+        </div>
+        <div class="clarify-deck-wrap" id="clarifyDeckWrap">
+          <p class="step-note" style="margin:0 0 10px;font-size:13px;">추가로 뽑을 카드를 골라 주세요. (<span id="clarifyRemainText">0</span>장)</p>
+          <div class="deck-grid" id="clarifyDeckGrid"></div>
+        </div>
+        <div class="draw-extra-section" id="drawExtraSection">
+          <div class="draw-extra-label">추가 카드</div>
+          <div class="drawn-row" id="drawExtraCards"></div>
+        </div>
+      </div>
     </div>
 
     <div id="drawOnlyNote" class="step-card" style="display:none;margin-bottom:24px;padding:18px 20px;">
       <div class="step-label">드로우만 · Rider–Waite–Smith</div>
       <p style="margin:0;font-size:14px;color:var(--muted);line-height:1.7;">해석은 제공하지 않습니다. 카드 그림·자리만 확인하세요. (정방향 · 퍼블릭 도메인 · Wikimedia Commons)</p>
-    </div>
-
-    <div id="drawClarifyBar" class="step-card draw-clarify-bar">
-      <div class="step-label">추가 드로우</div>
-      <p style="margin:0;font-size:14px;color:var(--muted);line-height:1.7;">궁금한 점이 더 있으면 남은 덱에서 카드를 더 뽑아 보세요. (클라리파이어)</p>
-      <div class="draw-clarify-actions" id="drawClarifyActions">
-        <button type="button" onclick="startClarify(1)">+1장</button>
-        <button type="button" onclick="startClarify(2)">+2장</button>
-        <button type="button" onclick="startClarify(3)">+3장</button>
-        <button type="button" onclick="autoClarify(1)">자동 +1</button>
-        <button type="button" onclick="autoClarify(3)">자동 +3</button>
-      </div>
-      <div class="clarify-deck-wrap" id="clarifyDeckWrap">
-        <p class="step-note" style="margin:0 0 10px;font-size:13px;">추가로 뽑을 카드를 골라 주세요. (<span id="clarifyRemainText">0</span>장)</p>
-        <div class="deck-grid" id="clarifyDeckGrid"></div>
-      </div>
-      <div class="draw-extra-section" id="drawExtraSection">
-        <div class="draw-extra-label">추가 카드</div>
-        <div class="drawn-row" id="drawExtraCards"></div>
-      </div>
     </div>
 
     <div id="readingArea"></div>
@@ -2339,9 +2351,9 @@ const DRAW_SPREADS = {
   choice: {
     id: 'choice',
     label: '양자택일',
-    sub: 'A / B',
+    sub: 'A/B 두 갈래',
     count: 5,
-    positions: ['선택 A', '선택 B', '공통 기반', '숨은 영향', '조언'],
+    positions: ['선택 A', '선택 B', 'A의 전개', 'B의 전개', '조언'],
     layout: 'choice',
   },
   cross: {
@@ -3803,11 +3815,19 @@ function showDrawnCards() {
     });
   } else if (curMode === 'draw' && layout === 'choice') {
     mountBoard('spread-board--choice', (board) => {
-      for (let i = 0; i < 5; i++) board.appendChild(makeCardWrap(i));
+      const la = document.createElement('div');
+      la.className = 'choice-col-label choice-col-label--a';
+      la.textContent = '선택 A';
+      const lb = document.createElement('div');
+      lb.className = 'choice-col-label choice-col-label--b';
+      lb.textContent = '선택 B';
       const vs = document.createElement('div');
       vs.className = 'choice-vs';
       vs.textContent = 'vs';
+      board.appendChild(la);
+      board.appendChild(lb);
       board.appendChild(vs);
+      for (let i = 0; i < 5; i++) board.appendChild(makeCardWrap(i));
     });
   } else if (curMode === 'draw' && layout === 'magic_seven') {
     mountBoard('spread-board--magic-seven', (board) => {
