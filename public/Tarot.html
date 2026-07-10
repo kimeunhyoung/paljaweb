@@ -2033,8 +2033,8 @@
         width: 100%;
         max-width: 100%;
         min-height: 0;
-        /* 가로·세로로 넓게 */
-        aspect-ratio: 0.62;
+        /* 모바일: 세로로 더 길게 → 좌우 겹침 완화 */
+        aspect-ratio: 0.50;
       }
       .spread-board--year .tarot-card-wrap {
         width: 92px;
@@ -3905,13 +3905,13 @@ function showDrawnCards() {
       const place = () => {
         const w = board.clientWidth || 360;
         const isNarrow = w < 520;
-        // 가로 넓게 + 세로 길게 → 가운데 몰림 해소
-        const aspect = isNarrow ? 0.62 : 0.65;
+        // 모바일은 세로로 더 긴 타원 → 옆 카드 겹침 완화
+        const aspect = isNarrow ? 0.50 : 0.65;
         board.style.aspectRatio = String(aspect);
         board.style.minHeight = Math.round(w / aspect) + 'px';
         const h = board.clientHeight || w / aspect;
         const cardW = isNarrow
-          ? Math.max(82, Math.min(96, Math.floor(w * 0.26)))
+          ? Math.max(78, Math.min(92, Math.floor(w * 0.24)))
           : Math.max(112, Math.min(128, Math.floor(w * 0.175)));
         const cardH = cardW * (3.2 / 2);
         const halfH = cardH / 2;
@@ -3933,10 +3933,10 @@ function showDrawnCards() {
           center.style.marginTop = (-ch / 2) + 'px';
         }
         // 보드 가장자리까지 펼침 (중간 몰림 방지)
-        const maxRx = w * 0.5 - cardW * 0.30;
-        const maxRy = h * 0.5 - halfH * 0.32;
-        const rx2 = Math.max(56, Math.min(maxRx, w * (isNarrow ? 0.42 : 0.41)));
-        const ry2 = Math.max(rx2 * 1.35, Math.min(maxRy, h * (isNarrow ? 0.43 : 0.42)));
+        const maxRx = w * 0.5 - cardW * 0.28;
+        const maxRy = h * 0.5 - halfH * 0.28;
+        const rx2 = Math.max(56, Math.min(maxRx, w * (isNarrow ? 0.43 : 0.41)));
+        const ry2 = Math.max(rx2 * (isNarrow ? 1.65 : 1.35), Math.min(maxRy, h * (isNarrow ? 0.46 : 0.42)));
         wraps.forEach((wrap, i) => {
           const deg = 270 - i * 30;
           const rad = (deg * Math.PI) / 180;
