@@ -879,9 +879,9 @@
              [2] [4]
            [1]     [5]
          [0]         [6]  — 가운데 간격만 단계적으로 */
-    .spread-board--horseshoe .hs-row--2 { gap: 28px; }
-    .spread-board--horseshoe .hs-row--3 { gap: 64px; }
-    .spread-board--horseshoe .hs-row--4 { gap: 100px; }
+    .spread-board--horseshoe .hs-row--2 { gap: 36px; }
+    .spread-board--horseshoe .hs-row--3 { gap: 80px; }
+    .spread-board--horseshoe .hs-row--4 { gap: 128px; }
 
     /* 십자 / 5카드 공통 */
     .spread-board--cross {
@@ -1039,12 +1039,12 @@
     .spread-board--diamond [data-slot="2"] { grid-column: 3; grid-row: 2; }
     .spread-board--diamond [data-slot="3"] { grid-column: 2; grid-row: 3; }
 
-    /* 매직 세븐: 육각 형태 · 겹침 없이 간격 확보 */
+    /* 매직 세븐: 세로 3장(목표·현재·과거)이 가운데 열로 정렬 */
     .spread-board--magic-seven {
       display: grid;
       grid-template-columns: 1fr 1fr 1fr;
       grid-template-rows: auto auto auto auto;
-      gap: 18px 20px;
+      gap: 14px 16px;
       justify-items: center;
       align-items: start;
       width: 100%;
@@ -1061,9 +1061,9 @@
     }
     .spread-board--magic-seven [data-slot="1"] { grid-column: 2; grid-row: 1; } /* 목표 */
     .spread-board--magic-seven [data-slot="6"] { grid-column: 1; grid-row: 2; } /* 조언 */
-    .spread-board--magic-seven [data-slot="0"] { grid-column: 2; grid-row: 2; } /* 현재 */
     .spread-board--magic-seven [data-slot="2"] { grid-column: 3; grid-row: 2; } /* 미래 */
     .spread-board--magic-seven [data-slot="5"] { grid-column: 1; grid-row: 3; } /* 장애 */
+    .spread-board--magic-seven [data-slot="0"] { grid-column: 2; grid-row: 3; } /* 현재 — 세로 중앙 */
     .spread-board--magic-seven [data-slot="3"] { grid-column: 3; grid-row: 3; } /* 기반 */
     .spread-board--magic-seven [data-slot="4"] { grid-column: 2; grid-row: 4; } /* 과거 */
 
@@ -2045,22 +2045,24 @@
       }
       .spread-board--horseshoe5 .tarot-card-wrap,
       .spread-board--horseshoe .tarot-card-wrap { width: min(118px, 30vw); }
-      .spread-board--horseshoe5 .hs-row--2 { gap: 20px; }
-      .spread-board--horseshoe5 .hs-row--3 { gap: 44px; }
-      .spread-board--horseshoe .hs-row--2 { gap: 14px; }
-      .spread-board--horseshoe .hs-row--3 { gap: 32px; }
-      .spread-board--horseshoe .hs-row--4 { gap: 52px; }
+      .spread-board--horseshoe5 .hs-row--2 { gap: 24px; }
+      .spread-board--horseshoe5 .hs-row--3 { gap: 56px; }
+      .spread-board--horseshoe .hs-row--2 { gap: 18px; }
+      .spread-board--horseshoe .hs-row--3 { gap: 42px; }
+      .spread-board--horseshoe .hs-row--4 { gap: 68px; }
       .spread-board--celtic {
-        flex-direction: column;
+        flex-direction: row;
+        flex-wrap: nowrap;
         align-items: center;
-        gap: 14px;
+        justify-content: center;
+        gap: 10px;
         max-width: 100%;
         width: 100%;
       }
       .celtic-cross,
-      .mini-celtic-cross { gap: 6px 8px; max-width: 100%; }
+      .mini-celtic-cross { gap: 4px 6px; max-width: 100%; }
       .celtic-cross__center,
-      .mini-celtic-cross__center { width: min(180px, 48vw); height: min(180px, 48vw); }
+      .mini-celtic-cross__center { width: min(120px, 32vw); height: min(120px, 32vw); }
       .celtic-cross__center .tarot-card-wrap--present,
       .celtic-cross__center .tarot-card-wrap--challenge,
       .mini-celtic-cross__center .tarot-card-wrap--present,
@@ -2070,7 +2072,8 @@
       .mini-celtic-cross .tarot-card-wrap,
       .spread-board--cross .tarot-card-wrap,
       .spread-board--diamond .tarot-card-wrap,
-      .spread-board--choice .tarot-card-wrap { width: min(110px, 28vw); }
+      .spread-board--choice .tarot-card-wrap { width: min(78px, 20vw); }
+      .celtic-staff { gap: 6px; }
       .spread-board--cross,
       .spread-board--diamond,
       .spread-board--choice,
@@ -3892,6 +3895,45 @@ function fitHorseshoeBoard(board, n) {
   });
 }
 
+/** 켈틱/미니켈틱: 폭에 맞춰 축소해 잘림·세로 스택 방지 */
+function fitCelticBoard(board, withStaff) {
+  if (!board) return;
+  board.style.width = '100%';
+  board.style.maxWidth = '100%';
+  board.style.flexDirection = 'row';
+  board.style.flexWrap = 'nowrap';
+  board.style.justifyContent = 'center';
+  board.style.alignItems = 'center';
+  const host = board.parentElement || board;
+  const avail = Math.max(260, (host.clientWidth || 320) - 4);
+  // 십자(~3.2카드) + (스태프 1카드) + 간격
+  const units = withStaff ? 4.35 : 3.25;
+  let cw = Math.floor((avail - 16) / units);
+  cw = Math.max(62, Math.min(withStaff ? 96 : 120, cw));
+  const box = Math.round(cw * 1.4);
+  board.style.gap = withStaff ? '8px' : '0';
+  board.querySelectorAll('.celtic-cross, .mini-celtic-cross').forEach((el) => {
+    el.style.gap = '4px 5px';
+  });
+  board.querySelectorAll('.celtic-staff').forEach((el) => {
+    el.style.gap = '5px';
+  });
+  board.querySelectorAll(
+    '.celtic-cross .tarot-card-wrap, .celtic-staff .tarot-card-wrap, .mini-celtic-cross .tarot-card-wrap'
+  ).forEach((wrap) => {
+    wrap.style.width = cw + 'px';
+  });
+  board.querySelectorAll('.celtic-cross__center, .mini-celtic-cross__center').forEach((el) => {
+    el.style.width = box + 'px';
+    el.style.height = box + 'px';
+  });
+  board.querySelectorAll(
+    '.celtic-cross__center .tarot-card-wrap--present, .celtic-cross__center .tarot-card-wrap--challenge, .mini-celtic-cross__center .tarot-card-wrap--present, .mini-celtic-cross__center .tarot-card-wrap--challenge'
+  ).forEach((wrap) => {
+    wrap.style.width = cw + 'px';
+  });
+}
+
 function showDrawnCards() {
   document.getElementById('step2').style.display = 'none';
   document.getElementById('step3').style.display = 'block';
@@ -4009,9 +4051,9 @@ function showDrawnCards() {
         const edgePad = isNarrow ? 4 : 8;
         // 좌우는 안 잘리게, 세로는 원보다 조금 길게 → 다닥다닥 완화
         const rx2 = Math.max(52, w * 0.5 - cardW * 0.48 - edgePad);
-        const ry2 = rx2 * (isNarrow ? 1.22 : 1.12);
-        // 카드 전체가 보드 안에 들어오게 → 제목과 겹침 방지
-        const h = Math.ceil(ry2 * 2 + cardH + 12);
+        // 세로로 더 긴 타원 (다닥다닥·제목 겹침 완화)
+        const ry2 = rx2 * (isNarrow ? 1.42 : 1.25);
+        const h = Math.ceil(ry2 * 2 + cardH + 16);
         board.style.aspectRatio = 'auto';
         board.style.minHeight = '0';
         board.style.width = '100%';
@@ -4078,6 +4120,12 @@ function showDrawnCards() {
       cross.appendChild(right);
       cross.appendChild(below);
       board.appendChild(cross);
+      const fit = () => fitCelticBoard(board, false);
+      requestAnimationFrame(fit);
+      if (!board._celticFitBound) {
+        board._celticFitBound = true;
+        window.addEventListener('resize', fit);
+      }
     });
   } else if (curMode === 'draw' && layout === 'celtic') {
     mountBoard('spread-board--celtic', (board) => {
@@ -4117,6 +4165,12 @@ function showDrawnCards() {
 
       board.appendChild(cross);
       board.appendChild(staff);
+      const fit = () => fitCelticBoard(board, true);
+      requestAnimationFrame(fit);
+      if (!board._celticFitBound) {
+        board._celticFitBound = true;
+        window.addEventListener('resize', fit);
+      }
     });
   } else if (curMode === 'draw') {
     const rows = buildDrawRows(spreadCount);
