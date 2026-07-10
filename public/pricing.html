@@ -793,13 +793,18 @@
     }
     .lifecode-onetime-grid {
       display: grid;
-      grid-template-columns: repeat(4, 1fr);
+      grid-template-columns: repeat(5, 1fr);
       gap: 12px;
       max-width: none;
       width: 100%;
       align-items: stretch;
     }
-    @media (max-width: 1100px) {
+    @media (max-width: 1200px) {
+      .lifecode-onetime-grid {
+        grid-template-columns: repeat(3, 1fr);
+      }
+    }
+    @media (max-width: 900px) {
       .lifecode-onetime-grid {
         grid-template-columns: repeat(2, 1fr);
       }
@@ -1055,16 +1060,22 @@
         <a href="/lifecode/buy.html?product=basic30" class="plan-btn plan-btn-outline">구매하기</a>
       </div>
       <div class="lifecode-onetime-card">
-        <div class="lifecode-onetime-card-label">AI 차트 해석 1회</div>
+        <div class="lifecode-onetime-card-label">점성학 AI 차트 해석 1회</div>
         <div class="lifecode-onetime-card-price">1,000<span>원 · 2크레딧 · 1회</span></div>
-        <p class="lifecode-onetime-card-desc"><strong>포함</strong>: 점성학 AI 차트 해석 버튼 1회. 올해·이번 주 운세 AI는 별도(운세팩 또는 구독).</p>
+        <p class="lifecode-onetime-card-desc"><strong>점성학 전용</strong>. 「AI 차트 해석」 버튼 1회. 올해·이번 주 운세 AI는 별도(운세팩 또는 구독).</p>
         <a href="/ai-buy.html?product=ai_chart" class="plan-btn plan-btn-outline">1회 체험하기</a>
       </div>
       <div class="lifecode-onetime-card">
-        <div class="lifecode-onetime-card-label">AI 운세 체험팩</div>
+        <div class="lifecode-onetime-card-label">점성학 AI 운세 체험팩</div>
         <div class="lifecode-onetime-card-price">2,500<span>원 · 6크레딧 · 1회</span></div>
-        <p class="lifecode-onetime-card-desc"><strong>포함</strong>: AI 6크레딧 · 2,500원(단건 3,000원분보다 이득). 예) 차트(2)+올해(1)+이번 주(1)+오늘 운세(1)+여유 1.</p>
+        <p class="lifecode-onetime-card-desc"><strong>점성학 전용</strong> AI 6크레딧 · 2,500원(단건 3,000원분보다 이득). 예) 차트(2)+올해(1)+이번 주(1)+오늘 운세(1)+여유 1.</p>
         <a href="/ai-buy.html?product=ai_fortune" class="plan-btn plan-btn-outline">운세팩 구매</a>
+      </div>
+      <div class="lifecode-onetime-card">
+        <div class="lifecode-onetime-card-label">수비학 달력 3일 체험</div>
+        <div class="lifecode-onetime-card-price">1,900<span>원 · 3일 · AI 3크레딧</span></div>
+        <p class="lifecode-onetime-card-desc"><strong>수비학 달력 전용</strong>. 3일간 달력·일별 가이드 열람 + AI 오늘 운세/이번 달 흐름용 3크레딧. 계속 쓰면 Basic 월 9,900원이 이득.</p>
+        <a href="/ai-buy.html?product=cal_pass_3d" class="plan-btn plan-btn-outline">3일 체험하기</a>
       </div>
       <div class="lifecode-onetime-card lifecode-onetime-card--featured">
         <div class="lifecode-onetime-card-label lifecode-onetime-card-label--accent">상담사 15일 체험권</div>

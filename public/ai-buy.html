@@ -4,8 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="icon" href="/favicon.svg" type="image/svg+xml">
-  <title>AI 해석 1회 체험 — 팔자연구소</title>
-  <meta name="description" content="점성학 AI 차트 해석·운세 체험. 1회 1,000원부터. 마음에 들면 월 구독으로 이어가세요.">
+  <title>1회 체험 결제 — 팔자연구소</title>
+  <meta name="description" content="점성학 AI·수비학 달력 3일 체험. 1회 결제, 자동갱신 없음.">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="https://cdn.portone.io/v2/browser-sdk.js"></script>
   <style>
@@ -81,11 +81,11 @@
 </head>
 <body>
   <div class="wrap">
-    <a class="back" href="/astrology.html">← 점성학</a>
-    <h1>AI 해석 1회 체험</h1>
-    <p class="lede">구독 전에 AI를 먼저 써 보세요. 크레딧은 계정에 바로 들어갑니다.<br>
-      <strong>1,000원</strong> = 차트 AI 해석 1회 &nbsp;·&nbsp;
-      <strong>2,500원 운세팩</strong> = 6크레딧(단건 3,000원분보다 이득 · 차트·올해·이번 주·오늘 운세 등)</p>
+    <a class="back" href="/pricing.html" id="backLink">← 요금제</a>
+    <h1 id="pageTitle">1회 체험 결제</h1>
+    <p class="lede" id="pageLede">구독 전에 짧게 써 보세요. 결제 후 계정에 바로 반영됩니다.<br>
+      <strong>점성학</strong> AI 차트 1,000원 · 운세팩 2,500원 &nbsp;·&nbsp;
+      <strong>수비학 달력</strong> 3일 체험 1,900원(AI 3크레딧)</p>
 
     <div id="shop">
       <div class="auth-gate" id="authGate">
@@ -105,7 +105,7 @@
     <div class="success" id="successPanel">
       <strong>결제 완료</strong>
       <p id="successText" style="margin:8px 0 0;color:var(--muted)"></p>
-      <div class="links">
+      <div class="links" id="successLinks">
         <a href="/astrology.html">점성학에서 AI 해석하기 →</a>
         <a href="/pricing.html">요금제 보기</a>
       </div>
@@ -166,24 +166,59 @@
       }
     }
 
+    function productMeta(p) {
+      if (!p) return { priceExtra: '', successHref: '/astrology.html', successLabel: '점성학에서 AI 해석하기 →' };
+      if (p.passDays) {
+        return {
+          priceExtra: p.passDays + '일 + AI ' + p.credits + '크레딧',
+          successHref: '/numerology-calendar.html',
+          successLabel: '수비학 달력 열기 →',
+        };
+      }
+      return {
+        priceExtra: 'AI ' + p.credits + '크레딧',
+        successHref: '/astrology.html',
+        successLabel: '점성학에서 AI 해석하기 →',
+      };
+    }
+
+    function syncBackLink() {
+      const back = document.getElementById('backLink');
+      const p = products.find((x) => x.key === selectedKey);
+      if (!back) return;
+      if (p && p.scope === 'calendar') {
+        back.href = '/numerology-calendar.html';
+        back.textContent = '← 수비학 달력';
+      } else if (p && p.scope === 'astrology') {
+        back.href = '/astrology.html';
+        back.textContent = '← 점성학';
+      } else {
+        back.href = '/pricing.html';
+        back.textContent = '← 요금제';
+      }
+    }
+
     function renderProducts() {
       productList.innerHTML = '';
       products.forEach((p) => {
+        const meta = productMeta(p);
         const btn = document.createElement('button');
         btn.type = 'button';
         btn.className = 'product' + (p.key === selectedKey ? ' is-selected' : '');
         btn.innerHTML =
           '<div class="product-title">' + p.title + '</div>' +
           '<div class="product-price">' + p.amount.toLocaleString('ko-KR') + '원' +
-          '<span>AI ' + p.credits + '크레딧</span></div>' +
+          '<span>' + meta.priceExtra + '</span></div>' +
           '<div class="product-desc">' + p.desc + '</div>';
         btn.addEventListener('click', () => {
           selectedKey = p.key;
           renderProducts();
           syncAuthLinks();
+          syncBackLink();
         });
         productList.appendChild(btn);
       });
+      syncBackLink();
     }
 
     async function authHeaders() {
@@ -287,9 +322,22 @@
 
         shop.style.display = 'none';
         successPanel.classList.add('is-visible');
-        document.getElementById('successText').textContent =
-          (confJson.title || 'AI 크레딧') + ' ' + (confJson.credits || '') +
-          '크레딧이 계정에 지급되었습니다. 점성학 페이지에서 AI 해석을 눌러 보세요.';
+        const bought = products.find((p) => p.key === (confJson.productKey || selectedKey)) || {};
+        const meta = productMeta(bought);
+        let msg = (confJson.title || '결제') + ' 완료.';
+        if (confJson.passDays) {
+          msg += ' 수비학 달력 ' + confJson.passDays + '일 이용권이 열렸고, AI ' +
+            (confJson.credits || '') + '크레딧이 지급되었습니다.';
+        } else {
+          msg += ' AI ' + (confJson.credits || '') + '크레딧이 계정에 지급되었습니다.';
+        }
+        document.getElementById('successText').textContent = msg;
+        const links = document.getElementById('successLinks');
+        if (links) {
+          links.innerHTML =
+            '<a href="' + meta.successHref + '">' + meta.successLabel + '</a>' +
+            '<a href="/pricing.html">요금제 보기</a>';
+        }
       } catch (e) {
         console.error(e);
         showMsg('결제 중 오류가 발생했습니다.', 'err');

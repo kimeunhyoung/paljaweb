@@ -40,6 +40,7 @@ const state = {
   viewDate: new Date(),
   selectedDate: null,
   userPlan: "free",
+  calendarPassUntil: null,
   calendarLocked: false,
   aiServerOk: false,
   aiCache: { daily: {}, monthly: {} },
@@ -496,7 +497,9 @@ function renderCalendar() {
 function applyCalendarPlanGate() {
   const planApi = window.PaljaPlan;
   const allowed = planApi
-    ? planApi.hasProductAccess("calendar", state.userPlan)
+    ? planApi.hasProductAccess("calendar", state.userPlan, false, {
+        calendarPassUntil: state.calendarPassUntil,
+      })
     : state.userPlan !== "free";
   state.calendarLocked = !allowed;
   if (allowed) return;
@@ -511,11 +514,16 @@ function applyCalendarPlanGate() {
         <li><strong style="color:var(--ink);">오늘의 운세</strong> — AI 맞춤 해석 (연애·일·금전)</li>
         <li>AI 이번 달 흐름</li>
       </ul>
-    </div>`;
+    </div>
+    <div style="margin-top:14px;display:flex;flex-wrap:wrap;gap:8px;">
+      <a href="ai-buy.html?product=cal_pass_3d" style="display:inline-block;padding:10px 16px;border-radius:8px;background:#4a3520;color:#f5f0e8;text-decoration:none;font-size:14px;font-weight:600;">3일 체험 · 1,900원</a>
+      <a href="pricing.html" style="display:inline-block;padding:10px 16px;border-radius:8px;background:#fff;color:#4a3520;border:1px solid rgba(139,111,71,.35);text-decoration:none;font-size:14px;font-weight:600;">요금제 보기</a>
+    </div>
+    <p style="margin:10px 0 0;font-size:12.5px;color:var(--muted);line-height:1.55;">3일 체험 = 달력 열람 + AI 3크레딧. 자주 쓰면 Basic 월 9,900원이 더 이득이에요.</p>`;
   const panel = planApi?.productGatePanelHtml
     ? planApi.productGatePanelHtml("calendar", {
         title: "Basic 이상에서 이용 가능",
-        desc: "수비학 달력은 Basic 플랜 이상에서 열립니다. 타로코드는 무료로 이용할 수 있어요.",
+        desc: "수비학 달력은 Basic 플랜 이상에서 열립니다. 짧게 써 보려면 아래 3일 체험을 이용해 보세요.",
         extrasHtml: extras,
         loggedIn,
       })
@@ -542,20 +550,24 @@ async function loadUserPlan() {
     window.PALJA_LOGGED_IN = state.loggedIn;
     if (!session?.user?.id) {
       state.userPlan = "free";
+      state.calendarPassUntil = null;
       return;
     }
     const { data: profile, error } = await supabase
       .from("profiles")
-      .select("plan, plan_active_until")
+      .select("plan, plan_active_until, calendar_pass_until")
       .eq("id", session.user.id)
       .maybeSingle();
     if (error || !profile) {
       state.userPlan = "free";
+      state.calendarPassUntil = null;
       return;
     }
     state.userPlan = window.PaljaPlan?.effectivePlan(profile) || profile.plan || "free";
+    state.calendarPassUntil = profile.calendar_pass_until || null;
   } catch {
     state.userPlan = "free";
+    state.calendarPassUntil = null;
   }
 }
 

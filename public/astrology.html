@@ -662,7 +662,7 @@ body.export-capturing #wheelCard .note{display:none !important;}
     } catch (e) { /* 게스트/오류 시 무료 권한 */ }
   })();
   const LOCK_HTML = '<div class="astro-lock"><span class="lock-emoji">🔒</span><div><strong>Basic 이상 플랜</strong>에서 볼 수 있는 심화 분석이에요. 어스펙트 해설·트랜짓(오늘의 운세)·행성 상세 해석·AI 프롬프트가 열립니다.</div><a href="pricing.html">요금제 보기 →</a></div>';
-  const AI_LOCK_HTML = '<div class="astro-lock"><span class="lock-emoji">🔒</span><div><strong>AI 해석</strong>은 Basic 이상에서 이용하거나, 아래 1회 체험으로 먼저 써 볼 수 있어요.<br><span style="display:block;margin-top:8px;font-size:12.5px;line-height:1.55;color:#7a6b58"><strong>1,000원</strong> = 차트 AI 해석 1회(2크레딧) &nbsp;·&nbsp; <strong>2,500원 운세팩</strong> = 6크레딧(단건보다 이득 · 차트+올해+이번 주+오늘 운세 등)</span></div><div style="display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:12px"><a href="ai-buy.html?product=ai_chart" class="astro-lock-cta" style="display:inline-block;padding:10px 14px;border-radius:8px;background:#4a3520;color:#fff;text-decoration:none;font-weight:600;font-size:13px">차트 해석 1회 · 1,000원</a><a href="ai-buy.html?product=ai_fortune" class="astro-lock-cta" style="display:inline-block;padding:10px 14px;border-radius:8px;background:rgba(74,53,32,.12);color:#4a3520;text-decoration:none;font-weight:600;font-size:13px">운세팩 6회 · 2,500원</a><a href="pricing.html" style="display:inline-block;padding:10px 14px;border-radius:8px;border:1px solid rgba(74,53,32,.25);color:#4a3520;text-decoration:none;font-weight:600;font-size:13px">요금제 보기</a></div></div>';
+  const AI_LOCK_HTML = '<div class="astro-lock"><span class="lock-emoji">🔒</span><div><strong>AI 해석</strong>은 Basic 이상에서 이용하거나, 아래 1회 체험으로 먼저 써 볼 수 있어요.<br><span style="display:block;margin-top:8px;font-size:12.5px;line-height:1.55;color:#7a6b58"><strong>1,000원</strong> = 점성학 차트 AI 해석 1회(2크레딧) &nbsp;·&nbsp; <strong>2,500원 점성학 운세팩</strong> = 6크레딧(단건보다 이득 · 차트+올해+이번 주+오늘 운세 등)</span></div><div style="display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:12px"><a href="ai-buy.html?product=ai_chart" class="astro-lock-cta" style="display:inline-block;padding:10px 14px;border-radius:8px;background:#4a3520;color:#fff;text-decoration:none;font-weight:600;font-size:13px">점성학 차트 1회 · 1,000원</a><a href="ai-buy.html?product=ai_fortune" class="astro-lock-cta" style="display:inline-block;padding:10px 14px;border-radius:8px;background:rgba(74,53,32,.12);color:#4a3520;text-decoration:none;font-weight:600;font-size:13px">점성학 운세팩 · 2,500원</a><a href="pricing.html" style="display:inline-block;padding:10px 14px;border-radius:8px;border:1px solid rgba(74,53,32,.25);color:#4a3520;text-decoration:none;font-weight:600;font-size:13px">요금제 보기</a></div></div>';
 
   function hasAiAccess() {
     if (HAS_BASIC) return true;
@@ -1066,15 +1066,30 @@ body.export-capturing #wheelCard .note{display:none !important;}
       return;
     }
 
-    // AI 체험 크레딧 보유: 정적 심화는 잠그되 AI 버튼은 연다
+    // AI 체험 크레딧 보유: 정적 심화(행성·어스펙트 해설)는 잠그되, 올해·트랜짓·AI 버튼은 연다
     if (controls) controls.style.display = '';
     $('btnAiRun').hidden = false;
     $('btnAiRun').disabled = !LAST_CTX;
+    $('btnYearAi').hidden = false;
+    const tBlock = $('transitAiBlock');
+    if (tBlock) tBlock.hidden = false;
+    $('btnTransitAiFast').hidden = false;
+    $('btnTransitAiSlow').hidden = false;
+    const yBlock = $('yearAiBlock');
+    if (yBlock) yBlock.hidden = false;
+
     const det2 = document.querySelector('#aiCard .ai-prompt-details');
     if (det2) det2.style.display = '';
-    if ($('aiResult') && $("aiResult").querySelector('.astro-lock')) {
+    if ($('aiResult') && $('aiResult').querySelector('.astro-lock')) {
       $('aiResult').className = 'ai-result';
-      $('aiResult').innerHTML = '구매한 AI 크레딧으로 <strong>AI 차트 해석</strong>을 이용할 수 있어요. 버튼을 눌러 주세요.';
+      $('aiResult').innerHTML = '구매한 AI 크레딧으로 <strong>AI 차트 해석</strong>·<strong>올해 운세</strong>·<strong>이번 주 운세</strong>를 이용할 수 있어요.';
+    }
+    if ($('transitResult') && $('transitResult').querySelector('.astro-lock')) {
+      $('transitResult').innerHTML = '<div class="transit-empty">위 “오늘의 트랜짓 보기”를 누른 뒤, 「AI 이번 주 운세」를 사용할 수 있어요.</div>';
+    }
+    if ($('yearForecast') && $('yearForecast').querySelector('.astro-lock')) {
+      if (LAST_BIRTH && !LAST_BIRTH.unknownTime) computeYearForecast();
+      else $('yearForecast').innerHTML = '<div class="transit-empty">출생 시간이 있어야 올해 운세를 계산할 수 있어요.</div>';
     }
     refreshAiUi();
   }

@@ -8,6 +8,12 @@ alter table public.profiles
 comment on column public.profiles.ai_credits_bonus is
   '구매한 AI 크레딧(선불). 플랜 한도와 합산되며, 사용 시 차감.';
 
+alter table public.profiles
+  add column if not exists calendar_pass_until timestamptz;
+
+comment on column public.profiles.calendar_pass_until is
+  '수비학 달력 단건 이용권 만료 시각. Basic 미만이어도 만료 전까지 달력만 이용.';
+
 create table if not exists public.ai_credit_orders (
   payment_id text primary key,
   user_id uuid not null references auth.users (id) on delete cascade,

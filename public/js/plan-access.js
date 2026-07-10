@@ -250,8 +250,25 @@
     );
   }
 
-  function hasProductAccess(product, plan, devUnlock) {
+  function hasActiveCalendarPass(profileOrUntil) {
+    var until =
+      profileOrUntil && typeof profileOrUntil === 'object'
+        ? profileOrUntil.calendar_pass_until || profileOrUntil.calendarPassUntil
+        : profileOrUntil;
+    if (!until) return false;
+    var t = new Date(until).getTime();
+    return Number.isFinite(t) && t > Date.now();
+  }
+
+  function hasProductAccess(product, plan, devUnlock, extras) {
     if (devUnlock) return true;
+    extras = extras || {};
+    if (
+      product === 'calendar' &&
+      (hasActiveCalendarPass(extras) || hasActiveCalendarPass(extras.profile))
+    ) {
+      return true;
+    }
     return isPlanAtLeast({ plan: plan }, productMinPlan(product));
   }
 
@@ -303,6 +320,7 @@
     tierLegendHtml: tierLegendHtml,
     PRODUCT_MIN_PLAN: PRODUCT_MIN_PLAN,
     productMinPlan: productMinPlan,
+    hasActiveCalendarPass: hasActiveCalendarPass,
     hasProductAccess: hasProductAccess,
     productGateMsg: productGateMsg,
     pageNextUrl: pageNextUrl,
