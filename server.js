@@ -9,6 +9,7 @@ const { registerNaverAuthRoutes } = require('./lib/naver-auth');
 const { registerCounselorPushRoutes, startCounselorPushScheduler } = require('./lib/counselor-push');
 const { registerCounselorTrialRoutes } = require('./lib/counselor-trial');
 const { registerAiUsageRoutes, isAiUpstreamAvailable, kstPeriod, aiCreditLimit } = require('./lib/ai-usage');
+const { registerAiOneTimeRoutes } = require('./lib/ai-one-time');
 const { registerSignupNotifyRoutes, providerLabel } = require('./lib/signup-notify');
 const { buildSignupStats } = require('./lib/admin-signup-stats');
 const { registerVerifyRemindRoutes } = require('./lib/verify-remind');
@@ -103,7 +104,7 @@ async function getProfile(userId) {
   if (!base || !key) return null;
   const url =
     `${base.replace(/\/$/, '')}/rest/v1/profiles?id=eq.${encodeURIComponent(userId)}` +
-    '&select=id,full_name,plan,plan_active_until,professional_payment_key,toss_billing_key,subscription_cycle,subscription_cancel_at_period_end,counselor_trial_license_id,counselor_trial_device_id,signup_landing_page,signup_referrer,utm_source,utm_medium,utm_campaign,utm_term,utm_content,signup_attribution_at';
+    '&select=id,full_name,plan,plan_active_until,professional_payment_key,toss_billing_key,subscription_cycle,subscription_cancel_at_period_end,counselor_trial_license_id,counselor_trial_device_id,ai_credits_bonus,signup_landing_page,signup_referrer,utm_source,utm_medium,utm_campaign,utm_term,utm_content,signup_attribution_at';
   const res = await fetch(url, { headers: supabaseHeaders(key) });
   if (!res.ok) return null;
   const rows = await res.json();
@@ -827,6 +828,13 @@ registerAiUsageRoutes(app, {
   getUserIdFromAuth,
   getProfile,
   isAiAvailable: isAiUpstreamAvailable,
+});
+
+registerAiOneTimeRoutes(app, {
+  portoneConfigured,
+  portonePublicConfig,
+  portoneOneTimePublicConfig,
+  getUserIdFromAuth,
 });
 
 app.get('/favicon.ico', (req, res) => {
