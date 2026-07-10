@@ -866,7 +866,7 @@
     /* 미니 켈틱 (6장): 작은 십자 + 오른쪽 스태프 */
     .spread-board--mini-celtic {
       display: grid;
-      grid-template-columns: auto auto auto auto;
+      grid-template-columns: auto auto auto auto auto;
       grid-template-rows: auto auto;
       gap: 10px 12px;
       justify-content: center;
@@ -874,11 +874,12 @@
       align-items: start;
     }
     .spread-board--mini-celtic [data-slot="0"] { grid-column: 2; grid-row: 1; }
-    .spread-board--mini-celtic [data-slot="1"] { grid-column: 2; grid-row: 1; margin-top: 28px; z-index: 1; }
+    .spread-board--mini-celtic [data-slot="1"] { grid-column: 3; grid-row: 1; }
+    .spread-board--mini-celtic [data-slot="1"] .tarot-card { transform: rotate(90deg); }
     .spread-board--mini-celtic [data-slot="2"] { grid-column: 1; grid-row: 1 / span 2; align-self: center; }
-    .spread-board--mini-celtic [data-slot="3"] { grid-column: 3; grid-row: 1 / span 2; align-self: center; }
-    .spread-board--mini-celtic [data-slot="4"] { grid-column: 4; grid-row: 1; }
-    .spread-board--mini-celtic [data-slot="5"] { grid-column: 4; grid-row: 2; }
+    .spread-board--mini-celtic [data-slot="3"] { grid-column: 4; grid-row: 1 / span 2; align-self: center; }
+    .spread-board--mini-celtic [data-slot="4"] { grid-column: 5; grid-row: 1; }
+    .spread-board--mini-celtic [data-slot="5"] { grid-column: 5; grid-row: 2; }
 
     /* 켈틱 크로스: 왼쪽 십자 + 오른쪽 스태프 */
     .spread-board--celtic {
@@ -903,25 +904,29 @@
     .celtic-cross__center {
       grid-column: 2;
       grid-row: 2;
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      justify-content: center;
+      gap: 14px;
+      width: auto;
+      height: auto;
       position: relative;
-      width: 100px;
-      height: 168px;
     }
     .celtic-cross__center .tarot-card-wrap--present {
-      position: absolute;
-      inset: 0;
+      position: static;
       width: 100px;
     }
+    /* 도전: 현재 옆에 가로로 (겹침·라벨 혼동 방지) */
     .celtic-cross__center .tarot-card-wrap--challenge {
-      position: absolute;
-      left: 50%;
-      top: 50%;
+      position: static;
       width: 100px;
-      transform: translate(-50%, -50%) rotate(90deg);
-      z-index: 2;
+      flex-shrink: 0;
+    }
+    .celtic-cross__center .tarot-card-wrap--challenge .tarot-card {
+      transform: rotate(90deg);
     }
     .celtic-cross__center .tarot-card-wrap--challenge .tarot-card-pos {
-      transform: rotate(-90deg);
       white-space: nowrap;
     }
     .celtic-cross__right { grid-column: 3; grid-row: 2; }
@@ -1160,9 +1165,30 @@
       font-size: 14px;
       font-family: var(--font-body);
     }
-    .tarot-card-front.draw-art-only {
-      padding: 4px;
+    .reveal-all-btn {
+      display: none;
+      margin: 0 0 16px;
+      padding: 10px 18px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: rgba(200,169,110,.16);
+      color: var(--deep-brown);
+      font-family: var(--font-body);
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
     }
+    .reveal-all-btn.on { display: inline-block; }
+    .reveal-all-btn:hover { background: rgba(200,169,110,.28); }
+    .step3-head {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 4px;
+    }
+    .step3-head .step-title { margin-bottom: 0; }
     .tarot-card-front.draw-art-only .tarot-card-art {
       border-radius: 8px;
     }
@@ -1886,7 +1912,7 @@
       .spread-board--horseshoe .tarot-card-pos { font-size: 8px; min-height: 2.2em; }
       .celtic-cross .tarot-card-wrap,
       .celtic-staff .tarot-card-wrap { width: 72px; }
-      .celtic-cross__center { width: 72px; height: 122px; }
+      .celtic-cross__center { width: auto; height: auto; }
       .celtic-cross__center .tarot-card-wrap--present,
       .celtic-cross__center .tarot-card-wrap--challenge { width: 72px; }
       .spread-board--celtic { gap: 14px 12px; }
@@ -2101,7 +2127,10 @@
   <div id="step3" style="display:none;">
     <div class="step-card" style="margin-bottom:24px;">
       <div class="step-label">Step 03</div>
-      <div class="step-title" id="step3Title">카드를 클릭해서 펼쳐보세요</div>
+      <div class="step3-head">
+        <div class="step-title" id="step3Title">카드를 클릭해서 펼쳐보세요</div>
+        <button type="button" class="reveal-all-btn" id="revealAllBtn" onclick="revealAllCards()">전체 공개</button>
+      </div>
       <div class="drawn-cards-v2" id="drawnCards"></div>
     </div>
 
@@ -3498,6 +3527,8 @@ function drawCard(index, el) {
       if (wrap) wrap.classList.remove('on');
       const actions = document.getElementById('drawClarifyActions');
       if (actions) actions.style.display = '';
+      const revealBtn = document.getElementById('revealAllBtn');
+      if (revealBtn && flippedCount < drawnCards.length) revealBtn.classList.add('on');
     }
     return;
   }
@@ -3630,6 +3661,8 @@ function showDrawnCards() {
   if (resetBtn) {
     resetBtn.textContent = curMode === 'draw' ? '↺ 다시 뽑기' : '↺ 새로운 리딩 시작하기';
   }
+  const revealBtn = document.getElementById('revealAllBtn');
+  if (revealBtn) revealBtn.classList.add('on');
   document.getElementById('readingArea').innerHTML = '';
   hideClarifyUi();
 
@@ -3768,6 +3801,23 @@ function showDrawnCards() {
   });
 }
 
+function onAllCardsFlipped() {
+  const revealBtn = document.getElementById('revealAllBtn');
+  if (revealBtn) revealBtn.classList.remove('on');
+  if (curMode === 'draw') {
+    if (window.PaljaAnalytics?.track) {
+      window.PaljaAnalytics.track('tarot_draw_only_complete', {
+        count: drawnCards.length,
+        spread: drawSpreadId,
+        base: baseSpreadCount,
+      });
+    }
+    showClarifyBar();
+    return;
+  }
+  setTimeout(startReading, 600);
+}
+
 function flipCard(i) {
   const cardEl = document.getElementById('card-' + i);
   if (!cardEl || cardEl.classList.contains('flipped')) return;
@@ -3775,19 +3825,35 @@ function flipCard(i) {
   flippedCount++;
 
   if (flippedCount === drawnCards.length) {
-    if (curMode === 'draw') {
-      if (window.PaljaAnalytics?.track) {
-        window.PaljaAnalytics.track('tarot_draw_only_complete', {
-          count: drawnCards.length,
-          spread: drawSpreadId,
-          base: baseSpreadCount,
-        });
-      }
-      showClarifyBar();
-      return;
-    }
-    setTimeout(startReading, 600);
+    onAllCardsFlipped();
   }
+}
+
+function revealAllCards() {
+  const total = drawnCards.length;
+  if (!total) return;
+  const revealBtn = document.getElementById('revealAllBtn');
+  if (revealBtn) revealBtn.classList.remove('on');
+
+  let i = 0;
+  function step() {
+    while (i < total) {
+      const el = document.getElementById('card-' + i);
+      i++;
+      if (el && !el.classList.contains('flipped')) {
+        el.classList.add('flipped');
+        flippedCount++;
+        if (i < total) {
+          setTimeout(step, 70);
+          return;
+        }
+        break;
+      }
+    }
+    flippedCount = total;
+    onAllCardsFlipped();
+  }
+  step();
 }
 
 function positiveSublimation(card) {
@@ -4581,6 +4647,8 @@ function resetAll() {
   if (step3Title) step3Title.textContent = '카드를 클릭해서 펼쳐보세요';
   const resetBtn = document.getElementById('resetReadingBtn');
   if (resetBtn) resetBtn.textContent = '↺ 새로운 리딩 시작하기';
+  const revealBtn = document.getElementById('revealAllBtn');
+  if (revealBtn) revealBtn.classList.remove('on');
   syncShuffleBtn();
 
   document.getElementById('step1').style.display = 'block';
