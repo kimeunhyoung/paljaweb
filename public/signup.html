@@ -13,6 +13,7 @@
   <link rel="stylesheet" href="css/site-header.css?v=8" />
   <link rel="stylesheet" href="css/style.css?v=20260610a">
   <script src="js/attribution.js"></script>
+  <script src="js/analytics.js?v=1" defer></script>
   <script src="js/site-topbar.js?v=5" defer></script>
   <style>
     body { background: #f5f0e8; }
@@ -113,12 +114,16 @@
         }
       }
       if (!next) return;
+      if (!params.get('next')) {
+        params.set('next', next);
+        history.replaceState(null, '', location.pathname + '?' + params.toString());
+      }
       var q = 'next=' + encodeURIComponent(next);
       var i = document.getElementById('inline-login-link');
       if (i) i.href = 'login.html?' + q;
     })();
   </script>
 
-  <script type="module" src="js/supabase-auth.js?v=20260614"></script>
+  <script type="module" src="js/supabase-auth.js?v=20260710"></script>
 </body>
 </html>

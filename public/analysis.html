@@ -25,6 +25,7 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="js/plan-access.js?v=7" defer></script>
   <script src="js/attribution.js"></script>
+  <script src="js/analytics.js?v=1" defer></script>
   <script src="js/site-topbar.js?v=5" defer></script>
   <script src="js/topbar-session.js?v=6" defer></script>
   <!-- PDF: jsPDF 전역 → html2pdf 번들 → html2canvas(전역 API는 마지막 로드가 우선) -->
@@ -9146,6 +9147,7 @@ async function runAnalysis() {
   document.getElementById('resultArea').scrollIntoView({behavior:'smooth'});
   showAnalysisJumpNav(true);
   await trackUsage('analysis');
+  if (window.PaljaAnalytics?.track) window.PaljaAnalytics.track('analysis_complete');
   } catch (err) {
     console.error(err);
     if (err && err.stack) console.error(err.stack);

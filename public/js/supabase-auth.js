@@ -48,6 +48,16 @@ function showMsg(msg, isError = false) {
   `
 }
 
+function trackAuthEvent(name, params) {
+  if (window.PaljaAnalytics?.track) {
+    window.PaljaAnalytics.track(name, params || {});
+  }
+}
+
+function isSignupPage() {
+  return window.location.pathname.includes('signup');
+}
+
 // ===== 로그인 페이지 =====
 const loginForm = document.getElementById('login-form')
 if (loginForm) {
@@ -74,6 +84,32 @@ if (loginForm) {
   })
 }
 
+const forgotForm = document.getElementById('forgot-form')
+if (forgotForm) {
+  forgotForm.addEventListener('submit', async (e) => {
+    e.preventDefault()
+    const email = document.getElementById('forgot-email')?.value?.trim()
+    const btn = forgotForm.querySelector('button[type="submit"]')
+    if (!email) return
+
+    btn.textContent = '전송 중...'
+    btn.disabled = true
+
+    const redirectTo = window.location.origin + '/login.html'
+    const { error } = await supabase.auth.resetPasswordForEmail(email, { redirectTo })
+
+    if (error) {
+      showMsg('전송 실패: ' + error.message, true)
+      btn.textContent = '재설정 링크 보내기'
+      btn.disabled = false
+    } else {
+      showMsg('✅ 재설정 링크를 이메일로 보냈습니다. 받은편지함을 확인해주세요.')
+      btn.textContent = '재설정 링크 보내기'
+      btn.disabled = false
+    }
+  })
+}
+
 // ===== 회원가입 페이지 =====
 const signupForm = document.getElementById('signup-form')
 if (signupForm) {
@@ -85,6 +121,7 @@ if (signupForm) {
 
     btn.textContent = '가입 중...'
     btn.disabled = true
+    trackAuthEvent('signup_start', { method: 'email' })
 
     const { error } = await supabase.auth.signUp({
       email,
@@ -99,6 +136,7 @@ if (signupForm) {
       btn.textContent = '회원가입'
       btn.disabled = false
     } else {
+      trackAuthEvent('signup_complete', { method: 'email' })
       showMsg('✅ 가입 완료! 이메일을 확인해서 인증을 완료해주세요.')
       btn.textContent = '회원가입'
       btn.disabled = false
@@ -114,6 +152,7 @@ function bindOAuthButton(selector, loadingText, failLabel, extraOptions = {}, oa
       const label = btn.textContent
       btn.disabled = true
       btn.textContent = loadingText
+      if (isSignupPage()) trackAuthEvent('signup_start', { method: selector })
 
       const { error } = await supabase.auth.signInWithOAuth({
         provider,
@@ -142,6 +181,7 @@ document.querySelectorAll('[data-provider="naver"]').forEach(btn => {
   btn.addEventListener('click', () => {
     btn.disabled = true
     btn.textContent = '네이버로 이동 중...'
+    if (isSignupPage()) trackAuthEvent('signup_start', { method: 'naver' })
     const next = readSafeNextUrl()
     let url = '/api/auth/naver'
     if (next) url += '?next=' + encodeURIComponent(next)
@@ -212,6 +252,7 @@ async function handleOAuthReturn() {
     if (window.PaljaAttribution?.syncWithToken) {
       await window.PaljaAttribution.syncWithToken(session.access_token);
     }
+    if (isSignupPage()) trackAuthEvent('signup_complete', { method: 'oauth' })
     const next = readSafeNextUrl()
     window.location.replace(next || '/dashboard.html')
     return true

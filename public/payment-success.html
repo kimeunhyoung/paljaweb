@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <link rel="icon" href="/favicon.svg" type="image/svg+xml">
   <title>결제 완료 — 팔자연구소</title>
+  <script src="js/analytics.js?v=1" defer></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     body { font-family: 'Noto Serif KR', serif; background: #f5f0e8; color: #2c1f0e; min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 24px; text-align: center; }
@@ -41,6 +42,9 @@
   };
 
   function showSuccess(plan) {
+    if (window.PaljaAnalytics?.track) {
+      window.PaljaAnalytics.track('subscribe_success', { plan: plan || 'unknown' });
+    }
     document.getElementById('loading').style.display = 'none';
     const label = labels[plan] || plan;
     document.getElementById('title').textContent = label + ' 정기구독이 시작되었습니다';

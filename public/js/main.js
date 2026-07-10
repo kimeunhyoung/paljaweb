@@ -403,7 +403,7 @@ function syncHeroCtas(session, profile) {
   if (!session) {
     heroCta.style.display = ''
     heroCta.textContent = '무료로 시작하기'
-    heroCta.href = 'login.html'
+    heroCta.href = 'analysis.html'
     if (counselorRow) counselorRow.style.display = 'none'
     return
   }

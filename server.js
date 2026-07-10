@@ -416,6 +416,12 @@ app.get('/api/checkout-config', (req, res) => {
   });
 });
 
+app.get('/api/site-config', (req, res) => {
+  res.json({
+    gaMeasurementId: String(process.env.GA_MEASUREMENT_ID || '').trim(),
+  });
+});
+
 app.post('/api/checkout/prepare', async (req, res) => {
   if (!process.env.SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) {
     res.status(503).json({ error: 'Supabase server config missing' });

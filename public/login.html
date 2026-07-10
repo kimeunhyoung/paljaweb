@@ -13,6 +13,7 @@
   <link rel="stylesheet" href="css/site-header.css?v=8" />
   <link rel="stylesheet" href="css/style.css?v=20260610a">
   <script src="js/attribution.js"></script>
+  <script src="js/analytics.js?v=1" defer></script>
   <script src="js/site-topbar.js?v=5" defer></script>
   <style>
     body { background: #f5f0e8; }
@@ -63,6 +64,22 @@
       margin-top: 18px;
       color: var(--text2);
     }
+    .auth-forgot {
+      text-align: right;
+      margin-top: -4px;
+    }
+    .auth-forgot a {
+      font-size: 13px;
+      color: var(--text3);
+      text-decoration: underline;
+    }
+    #forgot-panel {
+      display: none;
+      margin-top: 16px;
+      padding-top: 16px;
+      border-top: 1px solid var(--border);
+    }
+    #forgot-panel.open { display: block; }
   </style>
 </head>
 <body>
@@ -89,8 +106,20 @@
         비밀번호
         <input type="password" id="login-password" required />
       </label>
+      <p class="auth-forgot"><a href="#" id="forgot-toggle">비밀번호를 잊으셨나요?</a></p>
       <button type="submit" class="btn-fill" style="width:100%;">로그인</button>
     </form>
+
+    <div id="forgot-panel">
+      <p class="auth-lead" style="margin-bottom:12px;">가입한 이메일로 비밀번호 재설정 링크를 보내드립니다.</p>
+      <form id="forgot-form" class="auth-form">
+        <label>
+          이메일
+          <input type="email" id="forgot-email" required />
+        </label>
+        <button type="submit" class="btn-cta" style="width:100%;">재설정 링크 보내기</button>
+      </form>
+    </div>
 
     <div class="auth-divider">또는</div>
 
@@ -110,9 +139,17 @@
       var q = 'next=' + encodeURIComponent(n);
       var i = document.getElementById('inline-signup-link');
       if (i) i.href = 'signup.html?' + q;
+      var ft = document.getElementById('forgot-toggle');
+      if (ft) {
+        ft.addEventListener('click', function (e) {
+          e.preventDefault();
+          var panel = document.getElementById('forgot-panel');
+          if (panel) panel.classList.toggle('open');
+        });
+      }
     })();
   </script>
 
-  <script type="module" src="js/supabase-auth.js?v=20260614"></script>
+  <script type="module" src="js/supabase-auth.js?v=20260710"></script>
 </body>
 </html>

@@ -11,6 +11,7 @@
   <script src="https://cdn.portone.io/v2/browser-sdk.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="js/plan-access.js"></script>
+  <script src="js/analytics.js?v=1" defer></script>
   <style>
     :root {
       --cream: #f5f0e8;
@@ -126,6 +127,11 @@
     if (!session) {
       window.location.replace('login.html?next=' + encodeURIComponent(location.pathname + location.search));
       return;
+    }
+
+    if (window.PaljaAnalytics?.track) {
+      const planQ = new URLSearchParams(location.search).get('plan') || '';
+      window.PaljaAnalytics.track('checkout_start', { plan: planQ });
     }
 
     const { data: profile } = await sb.from('profiles').select('plan, plan_active_until').eq('id', session.user.id).single();

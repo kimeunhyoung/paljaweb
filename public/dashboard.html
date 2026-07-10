@@ -1107,7 +1107,7 @@
     const { data: { session } } = await sb.auth.getSession();
 
     if (!session) {
-      window.location.replace('login.html');
+      window.location.replace('login.html?next=' + encodeURIComponent('dashboard.html'));
       return;
     }
 

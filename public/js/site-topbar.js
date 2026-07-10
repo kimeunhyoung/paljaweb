@@ -3,6 +3,14 @@
  * topbar-session.js보다 먼저 로드하세요.
  */
 (function () {
+  if (!document.querySelector('script[data-palja-analytics]')) {
+    var a = document.createElement('script');
+    a.src = 'js/analytics.js?v=1';
+    a.defer = true;
+    a.setAttribute('data-palja-analytics', '1');
+    document.head.appendChild(a);
+  }
+
   var NAV = [
     { id: 'lifecode', href: 'analysis.html', label: '라이프코드' },
     { id: 'astro', href: 'astrology.html', label: '점성학' },
