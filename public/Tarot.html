@@ -1060,7 +1060,29 @@
       margin-top: -58px;
       transform: rotate(var(--a)) translateY(-210px) rotate(calc(-1 * var(--a)));
     }
+    .spread-board--year .tarot-card-wrap--house-center {
+      transform: none;
+      z-index: 2;
+      width: 92px;
+      margin-left: -46px;
+      margin-top: -74px;
+    }
     .spread-board--year .tarot-card-pos { font-size: 9px; min-height: 1.8em; }
+    .auto-draw-btn {
+      display: block;
+      width: 100%;
+      margin: 0 0 14px;
+      padding: 12px 16px;
+      border-radius: 8px;
+      border: 1px solid rgba(200,169,110,.55);
+      background: rgba(200,169,110,.18);
+      color: var(--deep-brown);
+      font-family: var(--font-body);
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .auto-draw-btn:hover { background: rgba(200,169,110,.3); }
 
     .draw-clarify-bar {
       display: none;
@@ -1936,6 +1958,12 @@
         margin-top: -44px;
         transform: rotate(var(--a)) translateY(-140px) rotate(calc(-1 * var(--a)));
       }
+      .spread-board--year .tarot-card-wrap--house-center {
+        width: 68px;
+        margin-left: -34px;
+        margin-top: -56px;
+        transform: none;
+      }
       .spread-board--seven-arc .tarot-card-wrap { width: 44px; }
       .tarot-card-pos { font-size: 10px; }
       .card-name-ko { font-size: 12px; }
@@ -2084,8 +2112,8 @@
         <p class="step-note" style="margin-top:-8px;margin-bottom:14px;font-size:13px;">해석·수비학 없이 <strong>라이더–웨이트</strong> 그림·자리 이름만 보여 줍니다. (정방향만) 상담 중 실물 덱 대신 사용하세요.</p>
         <div class="draw-spread-grid" id="drawSpreadGrid"></div>
         <div class="draw-free-wrap" id="drawFreeWrap">
-          <label for="drawFreeCount">장수 (1~15)</label>
-          <input type="number" id="drawFreeCount" min="1" max="15" value="3" inputmode="numeric" onchange="onDrawFreeCountChange()" oninput="onDrawFreeCountChange()" />
+          <label for="drawFreeCount">장수 (1~22)</label>
+          <input type="number" id="drawFreeCount" min="1" max="22" value="3" inputmode="numeric" onchange="onDrawFreeCountChange()" oninput="onDrawFreeCountChange()" />
         </div>
       </div>
 
@@ -2119,6 +2147,7 @@
         <p>눈을 감고 오늘의 에너지나 질문을 마음에 두세요.<br>
         직관이 이끄는 카드를 <strong id="drawCountText">5장</strong> 골라주세요.</p>
       </div>
+      <button type="button" class="auto-draw-btn" id="autoDrawBtn" onclick="autoDrawCards()">✦ 자동으로 뽑기</button>
       <div class="deck-grid" id="deckGrid"></div>
     </div>
   </div>
@@ -2146,6 +2175,8 @@
         <button type="button" onclick="startClarify(1)">+1장</button>
         <button type="button" onclick="startClarify(2)">+2장</button>
         <button type="button" onclick="startClarify(3)">+3장</button>
+        <button type="button" onclick="autoClarify(1)">자동 +1</button>
+        <button type="button" onclick="autoClarify(3)">자동 +3</button>
       </div>
       <div class="clarify-deck-wrap" id="clarifyDeckWrap">
         <p class="step-note" style="margin:0 0 10px;font-size:13px;">추가로 뽑을 카드를 골라 주세요. (<span id="clarifyRemainText">0</span>장)</p>
@@ -2364,18 +2395,22 @@ const DRAW_SPREADS = {
     ],
     layout: 'celtic',
   },
-  year: {
-    id: 'year',
-    label: '1년 운세',
-    sub: '12개월 · 원형',
-    count: 12,
-    positions: ['1월', '2월', '3월', '4월', '5월', '6월', '7월', '8월', '9월', '10월', '11월', '12월'],
-    layout: 'year',
+  houses: {
+    id: 'houses',
+    label: '12궁 배열',
+    sub: '13장 · 원형+총운',
+    count: 13,
+    positions: [
+      '1궁', '2궁', '3궁', '4궁', '5궁', '6궁',
+      '7궁', '8궁', '9궁', '10궁', '11궁', '12궁',
+      '총운',
+    ],
+    layout: 'houses',
   },
 };
 const DRAW_SPREAD_ORDER = [
   'free', 'one', 'two', 'three', 'four', 'five', 'seven',
-  'choice', 'cross', 'horseshoe', 'magic_seven', 'mini_celtic', 'celtic', 'year',
+  'choice', 'cross', 'horseshoe', 'magic_seven', 'mini_celtic', 'celtic', 'houses',
 ];
 
 function getDrawSpread() {
@@ -2385,7 +2420,7 @@ function getDrawSpread() {
 function resolveDrawCount() {
   const sp = getDrawSpread();
   if (sp.id === 'free') {
-    const n = Math.max(1, Math.min(15, Number(drawFreeCount) || 3));
+    const n = Math.max(1, Math.min(22, Number(drawFreeCount) || 3));
     drawFreeCount = n;
     return n;
   }
@@ -2451,7 +2486,7 @@ function selectDrawSpread(id, el) {
 
 function onDrawFreeCountChange() {
   const input = document.getElementById('drawFreeCount');
-  drawFreeCount = Math.max(1, Math.min(15, Number(input && input.value) || 3));
+  drawFreeCount = Math.max(1, Math.min(22, Number(input && input.value) || 3));
   if (input) input.value = String(drawFreeCount);
   applySpreadCountFromMode();
   syncShuffleBtn();
@@ -3466,9 +3501,9 @@ function startSpread() {
   const instr = document.querySelector('#step2 .deck-instruction p');
   if (instr) {
     if (curMode === 'draw') {
-      instr.innerHTML = '실물 덱처럼 직관으로 골라 주세요.<br>카드를 <strong id="drawCountText">' + spreadCount + '장</strong> 선택하면 배열만 보여 드립니다. (해석 없음)';
+      instr.innerHTML = '실물 덱처럼 직관으로 골라 주세요.<br>카드를 <strong id="drawCountText">' + spreadCount + '장</strong> 선택하거나, 아래에서 자동으로 뽑을 수 있습니다. (해석 없음)';
     } else {
-      instr.innerHTML = '눈을 감고 오늘의 에너지나 질문을 마음에 두세요.<br>직관이 이끄는 카드를 <strong id="drawCountText">' + spreadCount + '장</strong> 골라주세요.';
+      instr.innerHTML = '눈을 감고 오늘의 에너지나 질문을 마음에 두세요.<br>직관이 이끄는 카드를 <strong id="drawCountText">' + spreadCount + '장</strong> 골라주세요. 자동 뽑기도 가능합니다.';
     }
   }
 
@@ -3497,6 +3532,26 @@ function startSpread() {
 
   requestAnimationFrame(() => {
     scrollTarotFocus(document.getElementById('step2'), true);
+  });
+}
+
+function autoDrawCards() {
+  if (clarifyMode) return;
+  const need = spreadCount - drawnCards.length;
+  if (need <= 0) return;
+  const grid = document.getElementById('deckGrid');
+  if (!grid) return;
+  const left = Array.from(grid.querySelectorAll('.deck-card:not(.drawn)'));
+  for (let i = left.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    const tmp = left[i];
+    left[i] = left[j];
+    left[j] = tmp;
+  }
+  const pick = left.slice(0, need);
+  pick.forEach((el) => {
+    const idx = Number(el.dataset.index);
+    if (!Number.isNaN(idx)) drawCard(idx, el);
   });
 }
 
@@ -3598,6 +3653,37 @@ function startClarify(n) {
   });
   wrap.classList.add('on');
   wrap.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+function autoClarify(n) {
+  if (curMode !== 'draw') return;
+  const leftCount = shuffledDeck.length - drawnDeckIndexes.length;
+  if (leftCount <= 0) {
+    tarotAppAlert('남은 카드가 없습니다.');
+    return;
+  }
+  const need = Math.max(1, Math.min(3, Math.min(Number(n) || 1, leftCount)));
+  const pool = [];
+  for (let i = 0; i < shuffledDeck.length; i++) {
+    if (!drawnDeckIndexes.includes(i)) pool.push(i);
+  }
+  for (let i = pool.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    const t = pool[i];
+    pool[i] = pool[j];
+    pool[j] = t;
+  }
+  clarifyMode = true;
+  clarifyNeed = need;
+  clarifyPicked = 0;
+  const actions = document.getElementById('drawClarifyActions');
+  if (actions) actions.style.display = 'none';
+  pool.slice(0, need).forEach((idx) => {
+    const fake = document.createElement('div');
+    fake.className = 'deck-card';
+    fake.dataset.index = String(idx);
+    drawCard(idx, fake);
+  });
 }
 
 function makeDrawCardWrap(i, positions, hideNames, extraClass) {
@@ -3727,12 +3813,15 @@ function showDrawnCards() {
     mountBoard('spread-board--magic-seven', (board) => {
       for (let i = 0; i < 7; i++) board.appendChild(makeCardWrap(i));
     });
-  } else if (curMode === 'draw' && layout === 'year') {
+  } else if (curMode === 'draw' && (layout === 'houses' || layout === 'year')) {
     mountBoard('spread-board--year', (board) => {
       for (let i = 0; i < 12; i++) {
         const wrap = makeCardWrap(i);
         wrap.style.setProperty('--a', (i * 30) + 'deg');
         board.appendChild(wrap);
+      }
+      if (drawnCards.length >= 13) {
+        board.appendChild(makeCardWrap(12, 'tarot-card-wrap--house-center'));
       }
     });
   } else if (curMode === 'draw' && layout === 'mini_celtic') {
