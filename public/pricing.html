@@ -271,7 +271,15 @@
       color: var(--muted);
       line-height: 1.8;
       max-width: 480px;
+      margin: 0 auto 12px;
+    }
+    .hero-note {
+      font-size: 12.5px;
+      color: var(--muted);
+      line-height: 1.6;
+      max-width: 520px;
       margin: 0 auto 20px;
+      opacity: 0.9;
     }
     .hero-counselor-link {
       font-size: 14px;
@@ -756,41 +764,12 @@
       font-size: 13px;
       color: var(--muted);
       line-height: 1.7;
-      margin: 0 0 14px;
+      margin: 0 0 18px;
       max-width: none;
     }
     .lifecode-onetime-lede strong {
       color: var(--deep-brown);
       font-weight: 600;
-    }
-    .lifecode-onetime-warn {
-      max-width: none;
-      margin-bottom: 18px;
-      padding: 14px 16px 14px 40px;
-      background: linear-gradient(135deg, #fff7ed, #ffedd5);
-      border: 2px solid #ea580c;
-      border-radius: 12px;
-      position: relative;
-      box-shadow: 0 2px 8px rgba(234, 88, 12, .1);
-    }
-    .lifecode-onetime-warn-icon {
-      position: absolute;
-      left: 14px;
-      top: 14px;
-      font-size: 1.1rem;
-      line-height: 1;
-    }
-    .lifecode-onetime-warn-title {
-      font-size: 13px;
-      font-weight: 600;
-      color: #9a3412;
-      margin-bottom: 5px;
-    }
-    .lifecode-onetime-warn p {
-      font-size: 12px;
-      color: #7c2d12;
-      line-height: 1.65;
-      margin: 0;
     }
     .lifecode-onetime-grid {
       display: grid;
@@ -917,6 +896,7 @@
   <div class="hero-tag">Pricing · 요금제</div>
   <h1 class="hero-title">나에게 맞는<br><em>플랜을 선택하세요</em></h1>
   <p class="hero-desc">언제든지 업그레이드하거나 취소할 수 있어요.<br>모든 유료 플랜은 <strong>월간 정기결제</strong>로 제공됩니다.</p>
+  <p class="hero-note">참고: 월 구독·단품·체험 모두 계정당 기기 최대 4대까지 이용할 수 있습니다.</p>
   <p class="hero-counselor-link"><a href="for-counselors.html">수비학·타로 상담사이신가요? Professional 도입 안내 →</a></p>
 </section>
 
@@ -1047,19 +1027,14 @@
   <div class="lifecode-onetime" id="onetime">
     <div class="lifecode-onetime-kicker">라이프코드 단품</div>
     <h3 class="lifecode-onetime-title">건별 결제</h3>
-    <p class="lifecode-onetime-lede">정기 결제·자동 갱신 없이 한 번만 결제합니다. <strong>로그인 계정에 바로 연결</strong>되며, 접속 코드 입력은 필요 없습니다.</p>
-    <div class="lifecode-onetime-warn">
-      <span class="lifecode-onetime-warn-icon" aria-hidden="true">⚠</span>
-      <div class="lifecode-onetime-warn-title">로그인 계정 · 기기 최대 4대</div>
-      <p>단품·체험·<strong style="color:#c2410c;">월 구독</strong> 모두 같은 계정에서 <strong style="color:#c2410c;">최대 4대</strong>까지 이용할 수 있습니다.</p>
-    </div>
+    <p class="lifecode-onetime-lede">정기 결제·자동 갱신 없이 한 번만 결제합니다.</p>
     <div class="lifecode-onetime-grid">
       <div class="lifecode-onetime-card">
         <div class="lifecode-onetime-card-label">
           <span>베이직 15일 이용권</span>
         </div>
         <div class="lifecode-onetime-card-price">7,900<span>원 · 15일 · 1회</span></div>
-        <p class="lifecode-onetime-card-desc">베이직 플랜과 동일 · 해설·흐름·10년·대주기·인생4단계. <strong>로그인 계정 · 기기 최대 4대</strong>. 계속 이용하실 때는 월 9,900원 구독을 추천합니다.</p>
+        <p class="lifecode-onetime-card-desc">베이직 플랜과 동일 · 해설·흐름·10년·대주기·인생4단계. 계속 이용하실 때는 월 9,900원 구독을 추천합니다.</p>
         <a href="/lifecode/buy.html?product=basic30" class="plan-btn plan-btn-outline">구매하기</a>
       </div>
       <div class="lifecode-onetime-card">
@@ -1083,9 +1058,9 @@
       <div class="lifecode-onetime-card lifecode-onetime-card--featured">
         <div class="lifecode-onetime-card-label lifecode-onetime-card-label--accent">상담사 15일 체험권</div>
         <div class="lifecode-onetime-card-price">29,900<span>원 · 15일 · 1회</span></div>
-        <p class="lifecode-onetime-card-desc"><strong>체험 포함</strong>: Professional 전 기능 15일(상담사 허브·CRM·캘린더·푸시·PDF) · 팔자연구소 로그인 연동 · 기기 최대 4대</p>
+        <p class="lifecode-onetime-card-desc"><strong>체험 포함</strong>: Professional 전 기능 15일(상담사 허브·CRM·캘린더·푸시·PDF)</p>
         <p class="lifecode-onetime-card-note"><strong>AI 크레딧</strong>: 체험 기간 <strong>월 25회</strong> (정식 Professional 월 120회와 다름). 점성학·수비학 달력·네임코드 AI 공통 풀.</p>
-        <p class="lifecode-onetime-card-note">월 구독과의 차이: <strong>1회 결제</strong>. 계속 이용하실 때는 Professional 월 구독(49,900원)을 추천합니다. 구독·체험 모두 기기 최대 4대.</p>
+        <p class="lifecode-onetime-card-note">월 구독과의 차이: <strong>1회 결제</strong>. 계속 이용하실 때는 Professional 월 구독(49,900원)을 추천합니다.</p>
         <a href="/lifecode/buy.html?product=counselor30" class="plan-btn plan-btn-accent">15일 체험하기</a>
       </div>
     </div>
@@ -1409,7 +1384,7 @@
   </div>
   <div class="faq-item" onclick="this.classList.toggle('open')">
     <div class="faq-q">라이프코드만 따로 쓸 수 있나요? <span class="faq-arrow">▼</span></div>
-    <div class="faq-a">네. <a href="/lifecode/buy.html">라이프코드 건별 이용권</a>·상담사 체험을 1회 결제하면 <strong>로그인 계정에 바로 연결</strong>됩니다(접속 코드 입력 없음). 월 구독과 별개·자동 갱신 없음입니다. AI·달력 체험도 동일하게 계정에 바로 반영됩니다.</div>
+    <div class="faq-a">네. <a href="/lifecode/buy.html">라이프코드 건별 이용권</a>·상담사 체험·AI·달력 체험을 1회 결제하면 바로 이용할 수 있습니다. 월 구독과 별개이며 자동 갱신은 없습니다.</div>
   </div>
   <div class="faq-item" onclick="this.classList.toggle('open')">
     <div class="faq-q">등록 기기는 어디서 해제하나요? <span class="faq-arrow">▼</span></div>
@@ -1417,7 +1392,7 @@
   </div>
   <div class="faq-item" onclick="this.classList.toggle('open')">
     <div class="faq-q">라이프코드 건별 이용권은 여러 기기에서 쓸 수 있나요? <span class="faq-arrow">▼</span></div>
-    <div class="faq-a">단품·체험·월 구독 모두 <strong>로그인 계정</strong> 기준 <strong>기기 최대 4대</strong>까지 이용할 수 있습니다. 가득 차면 <a href="dashboard.html#devices">마이페이지</a>에서 다른 기기를 해제한 뒤 새 기기에서 이용해 주세요.</div>
+    <div class="faq-a">단품·체험·월 구독 모두 <strong>기기 최대 4대</strong>까지 이용할 수 있습니다. 가득 차면 <a href="dashboard.html#devices">마이페이지</a>에서 다른 기기를 해제한 뒤 새 기기에서 이용해 주세요.</div>
   </div>
   <div class="faq-item" onclick="this.classList.toggle('open')">
     <div class="faq-q">AI 맞춤 해석은 어떻게 쓰나요? <span class="faq-arrow">▼</span></div>

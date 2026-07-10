@@ -232,22 +232,22 @@
 <div class="wrap">
   <a class="back" href="/pricing.html">← 요금제</a>
   <h1>라이프코드 건별 이용권</h1>
-  <p class="lede">정기 구독 없이 <strong>한 번 결제</strong>하면 <strong>로그인 계정에 바로 연결</strong>됩니다. 접속 코드 입력은 필요 없습니다.</p>
+  <p class="lede">정기 구독 없이 <strong>한 번만</strong> 결제합니다. 자동 갱신은 없습니다.</p>
 
   <div class="device-notice" role="note">
-    <div class="device-notice-title">로그인 계정 · 기기 최대 4대</div>
-    <p>결제 전 로그인해 주세요. 같은 계정에서 휴대폰·PC 등 <strong>최대 4대</strong>까지 이용할 수 있습니다.</p>
+    <div class="device-notice-title">기기 최대 4대</div>
+    <p>같은 계정에서 휴대폰·PC 등 <strong>최대 4대</strong>까지 이용할 수 있습니다.</p>
   </div>
 
   <div id="shop">
     <div class="auth-gate" id="authGate">
-      <p><strong>로그인이 필요합니다.</strong> 결제 후 이용권이 이 계정에 바로 연결됩니다.</p>
+      <p><strong>로그인이 필요합니다.</strong> 로그인 후 결제해 주세요.</p>
       <div class="auth-gate-actions">
         <a class="link-primary" id="authSignupLink" href="/signup.html">무료 가입하기</a>
         <a class="link-secondary" id="authLoginLink" href="/login.html">로그인</a>
       </div>
     </div>
-    <p class="auth-ok" id="authOk">로그인됨 — 결제 후 이 계정에 바로 연결됩니다.</p>
+    <p class="auth-ok" id="authOk">로그인됨 — 결제할 수 있습니다.</p>
     <div class="product-list" id="productList"></div>
     <div class="field">
       <label for="email">이메일 (선택 · 영수증·문의용)</label>
@@ -255,8 +255,8 @@
     </div>
     <div id="msg" class="msg" role="alert"></div>
     <div class="device-notice device-notice--pay" role="note">
-      <div class="device-notice-title">결제 즉시 계정 연결</div>
-      <p>결제 완료와 동시에 이용권이 열립니다. 코드 복사·입력 단계는 없습니다.</p>
+      <div class="device-notice-title">결제 후 바로 이용</div>
+      <p>결제 완료와 동시에 이용권이 열립니다.</p>
     </div>
     <button type="button" class="btn" id="payBtn" disabled>결제하기</button>
     <p class="fine">카드 1회 결제입니다. 자동 갱신·빌링키 등록 없음.</p>
@@ -265,7 +265,7 @@
   <div class="success" id="successPanel">
     <div class="success-kicker">결제 완료</div>
     <div class="success-device" role="note">
-      <strong>계정에 연결되었습니다.</strong> 아래 버튼으로 바로 이용하세요. (기기 최대 4대)
+      <strong>결제가 완료되었습니다.</strong> 아래 버튼으로 바로 이용하세요. (기기 최대 4대)
     </div>
     <p class="success-note" id="expiresLine"></p>
     <div class="success-actions" id="successActions">
@@ -397,8 +397,8 @@
     successPanel.classList.add('is-visible');
     const exp = result.expiresAt ? new Date(result.expiresAt) : null;
     document.getElementById('expiresLine').textContent = exp
-      ? `이용 기한: ${exp.getFullYear()}년 ${exp.getMonth() + 1}월 ${exp.getDate()}일까지 · 로그인 계정에 연결됨`
-      : '로그인 계정에 연결되었습니다.';
+      ? `이용 기한: ${exp.getFullYear()}년 ${exp.getMonth() + 1}월 ${exp.getDate()}일까지`
+      : '이용권이 활성화되었습니다.';
     const primary = document.getElementById('successPrimary');
     const isCounselor = selectedKey === 'counselor30' || result.productTier === 'counselor' || result.counselorHub;
     if (primary) {
