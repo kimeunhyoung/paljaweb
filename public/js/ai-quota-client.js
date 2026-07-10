@@ -18,10 +18,23 @@
     const { data } = await sb.auth.getSession();
     const token = data?.session?.access_token;
     if (!token) throw new Error('login_required');
-    return {
+    const headers = {
       'Content-Type': 'application/json',
       Authorization: `Bearer ${token}`,
     };
+    if (global.PaljaDevice && typeof global.PaljaDevice.getDeviceId === 'function') {
+      headers['X-Device-Id'] = global.PaljaDevice.getDeviceId();
+    } else {
+      try {
+        let id = localStorage.getItem('lifecode_device_id');
+        if (!id) {
+          id = crypto.randomUUID();
+          localStorage.setItem('lifecode_device_id', id);
+        }
+        headers['X-Device-Id'] = id;
+      } catch (_) {}
+    }
+    return headers;
   }
 
   function hashKey(text) {

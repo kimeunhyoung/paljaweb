@@ -519,7 +519,7 @@ function applyCalendarPlanGate() {
       <a href="ai-buy.html?product=cal_pass_3d" style="display:inline-block;padding:10px 16px;border-radius:8px;background:#4a3520;color:#f5f0e8;text-decoration:none;font-size:14px;font-weight:600;">3일 체험 · 1,900원</a>
       <a href="pricing.html" style="display:inline-block;padding:10px 16px;border-radius:8px;background:#fff;color:#4a3520;border:1px solid rgba(139,111,71,.35);text-decoration:none;font-size:14px;font-weight:600;">요금제 보기</a>
     </div>
-    <p style="margin:10px 0 0;font-size:12.5px;color:var(--muted);line-height:1.55;">3일 체험 = 달력 열람 + AI 3크레딧. 자주 쓰면 Basic 월 9,900원이 더 이득이에요.</p>`;
+    <p style="margin:10px 0 0;font-size:12.5px;color:var(--muted);line-height:1.55;">3일 체험 = 달력 열람 + AI 3크레딧. 계속 이용하실 때는 Basic 월 9,900원 구독을 추천합니다.</p>`;
   const panel = planApi?.productGatePanelHtml
     ? planApi.productGatePanelHtml("calendar", {
         title: "Basic 이상에서 이용 가능",

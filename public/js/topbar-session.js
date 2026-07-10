@@ -49,17 +49,39 @@
       if (!session) {
         badge.textContent = 'Free';
         badge.className = 'plan-badge free';
+        if (window.PaljaDevice && window.PaljaDevice.ensurePaidAccess) {
+          window.PaljaDevice.ensurePaidAccess(null, null);
+        }
         return Promise.resolve(null);
       }
-      return sb.from('profiles').select('plan, plan_active_until').eq('id', session.user.id).maybeSingle();
-    }).then(function (pres) {
+      return sb
+        .from('profiles')
+        .select('plan, plan_active_until, calendar_pass_until')
+        .eq('id', session.user.id)
+        .maybeSingle()
+        .then(function (pres) {
+          return { session: session, pres: pres };
+        });
+    }).then(function (pack) {
       if (!badge) return;
-      if (!pres || pres.error || !pres.data) {
+      if (!pack || !pack.pres || pack.pres.error || !pack.pres.data) {
+        if (pack && pack.session) {
+          /* keep going */
+        } else {
+          badge.textContent = 'Free';
+          badge.className = 'plan-badge free';
+          return;
+        }
+      }
+      var profile = pack && pack.pres && pack.pres.data ? pack.pres.data : null;
+      if (profile) applyPlanToBadge(badge, profile);
+      else {
         badge.textContent = 'Free';
         badge.className = 'plan-badge free';
-        return;
       }
-      applyPlanToBadge(badge, pres.data);
+      if (window.PaljaDevice && pack && pack.session) {
+        return window.PaljaDevice.ensurePaidAccess(pack.session.access_token, profile || { plan: 'free' });
+      }
     });
   }
 
@@ -81,18 +103,48 @@
     });
   }
 
+  function ensureDeviceScript() {
+    if (window.PaljaDevice) return;
+    if (document.querySelector('script[data-palja-device]')) return;
+    var s = document.createElement('script');
+    s.src = 'js/account-device-client.js?v=1';
+    s.setAttribute('data-palja-device', '1');
+    document.head.appendChild(s);
+  }
+
+  function withPaljaDevice(cb) {
+    if (window.PaljaDevice) {
+      cb();
+      return;
+    }
+    ensureDeviceScript();
+    var n = 0;
+    var t = setInterval(function () {
+      n += 1;
+      if (window.PaljaDevice || n > 40) {
+        clearInterval(t);
+        cb();
+      }
+    }, 50);
+  }
+
   function init() {
     if (document.documentElement && document.documentElement.classList.contains('tarot-standalone')) {
       return;
     }
     injectCss();
+    ensureDeviceScript();
     var sb = getClient();
     if (!sb) return;
-    syncPlanBadge(sb);
-    syncSlots(sb);
-    requestAnimationFrame(function () {
+    withPaljaDevice(function () {
       syncPlanBadge(sb);
       syncSlots(sb);
+    });
+    requestAnimationFrame(function () {
+      withPaljaDevice(function () {
+        syncPlanBadge(sb);
+        syncSlots(sb);
+      });
     });
     sb.auth.onAuthStateChange(function (event, session) {
       if (session?.access_token && (event === 'SIGNED_IN' || event === 'INITIAL_SESSION')) {
@@ -100,8 +152,10 @@
           window.PaljaAttribution.syncWithToken(session.access_token);
         }
       }
-      syncPlanBadge(sb);
-      syncSlots(sb);
+      withPaljaDevice(function () {
+        syncPlanBadge(sb);
+        syncSlots(sb);
+      });
     });
     document.addEventListener('click', function (e) {
       var t = e.target && e.target.closest && e.target.closest('[data-topbar-auth-signout]');

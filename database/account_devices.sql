@@ -16,7 +16,7 @@ create index if not exists account_devices_user_idx
   on public.account_devices (user_id, last_seen_at desc);
 
 comment on table public.account_devices is
-  '로그인 계정에 등록된 브라우저/기기. 단품·체험은 계정당 최대 4대.';
+  '로그인 계정에 등록된 브라우저/기기. 단품·체험·월 구독 공통, 계정당 최대 4대.';
 
 alter table public.account_devices enable row level security;
 

@@ -25,7 +25,11 @@
 
   function isPlanAtLeast(profile, required) {
     var req = normalizeDbPlan(required);
-    return (PLAN_RANKS[effectivePlan(profile)] || 0) >= (PLAN_RANKS[req] || 0);
+    var ok = (PLAN_RANKS[effectivePlan(profile)] || 0) >= (PLAN_RANKS[req] || 0);
+    if (!ok) return false;
+    // 유료 플랜 권한이 있어도 기기 한도 초과 시 잠금
+    if (req !== 'free' && global.PALJA_DEVICE_LIMIT_HIT === true) return false;
+    return true;
   }
 
   /** 상담사(Professional) 또는 Private */
@@ -262,6 +266,7 @@
 
   function hasProductAccess(product, plan, devUnlock, extras) {
     if (devUnlock) return true;
+    if (global.PALJA_DEVICE_LIMIT_HIT === true) return false;
     extras = extras || {};
     if (
       product === 'calendar' &&

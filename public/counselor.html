@@ -519,7 +519,7 @@
 
   <div id="trialDeviceGate" style="display:none">
     <h2>등록 기기 한도 초과</h2>
-    <p>이 계정은 이미 <strong>기기 4대</strong>까지 등록되어 있어 이 브라우저에서는 체험권을 열 수 없습니다.<br>다른 기기 사용을 줄이거나 고객센터로 문의해 주세요. 월 구독은 기기 수 제한이 없습니다.</p>
+    <p>이 계정은 이미 <strong>기기 4대</strong>까지 등록되어 이 브라우저에서는 상담사 허브를 열 수 없습니다.<br>다른 기기 사용을 줄이거나 고객센터로 문의해 주세요.</p>
     <a class="cta" href="for-counselors.html">체험·구독 안내</a>
     <a class="cta secondary" href="pricing.html?checkout=professional" style="margin-left:8px;background:transparent;border:1.5px solid var(--border);color:var(--deep);">Professional 구독</a>
   </div>
@@ -835,32 +835,44 @@
       return null;
     }
 
-    if (profile.counselor_trial_license_id) {
+    // 구독·체험 모두 계정당 기기 최대 4대
+    {
       const deviceId = getLifecodeDeviceId();
       let deviceOk = true;
       try {
         const { data: { session: s2 } } = await sb.auth.getSession();
-        const st = await fetch(
-          '/api/counselor-trial/status?deviceId=' + encodeURIComponent(deviceId),
-          { headers: { Authorization: 'Bearer ' + s2.access_token } },
-        );
-        const stJson = await st.json().catch(() => ({}));
-        if (st.ok && stJson.deviceOk === false) deviceOk = false;
-      } catch (_) { /* ignore — allow through if status API fails */ }
+        if (window.PaljaDevice && s2) {
+          const gate = await window.PaljaDevice.ensurePaidAccess(s2.access_token, profile);
+          deviceOk = !!gate.ok;
+        } else if (s2) {
+          const st = await fetch('/api/account/devices/register', {
+            method: 'POST',
+            headers: {
+              Authorization: 'Bearer ' + s2.access_token,
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ deviceId }),
+          });
+          const stJson = await st.json().catch(() => ({}));
+          if (st.status === 403 || stJson.error === 'device_limit') deviceOk = false;
+        }
+      } catch (_) { /* ignore */ }
       if (!deviceOk) {
         trialDeviceGate.style.display = 'block';
         return null;
       }
-      const badge = document.getElementById('trialBadge');
-      if (badge && profile.plan_active_until) {
-        const exp = new Date(profile.plan_active_until);
-        const expStr = exp.getFullYear() + '년 ' + (exp.getMonth() + 1) + '월 ' + exp.getDate() + '일';
-        badge.textContent = '15일 체험 이용 중 · ' + expStr + '까지 (기기 최대 4대)';
-        badge.style.display = 'inline-block';
+      if (profile.counselor_trial_license_id) {
+        const badge = document.getElementById('trialBadge');
+        if (badge && profile.plan_active_until) {
+          const exp = new Date(profile.plan_active_until);
+          const expStr = exp.getFullYear() + '년 ' + (exp.getMonth() + 1) + '월 ' + exp.getDate() + '일';
+          badge.textContent = '15일 체험 이용 중 · ' + expStr + '까지 (기기 최대 4대)';
+          badge.style.display = 'inline-block';
+        }
+      } else {
+        const badge = document.getElementById('trialBadge');
+        if (badge) badge.style.display = 'none';
       }
-    } else {
-      const badge = document.getElementById('trialBadge');
-      if (badge) badge.style.display = 'none';
     }
 
     workspace.style.display = 'block';
