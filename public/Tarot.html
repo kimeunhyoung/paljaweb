@@ -1175,8 +1175,9 @@
     }
     .draw-extra-section {
       display: none;
-      margin-top: 18px;
-      padding-top: 14px;
+      margin-top: 12px;
+      margin-bottom: 8px;
+      padding-top: 12px;
       border-top: 1px dashed var(--border);
     }
     .draw-extra-section.on { display: block; }
@@ -1184,6 +1185,9 @@
       font-size: 12px;
       color: var(--muted);
       margin-bottom: 10px;
+    }
+    .draw-extra-section .drawn-row {
+      justify-content: center;
     }
 
     .draw-spread-grid {
@@ -2029,8 +2033,8 @@
         width: 100%;
         max-width: 100%;
         min-height: 0;
-        /* 세로로 긴 타원 → 겹침 완화 */
-        aspect-ratio: 0.68;
+        /* 가로·세로로 넓게 */
+        aspect-ratio: 0.62;
       }
       .spread-board--year .tarot-card-wrap {
         width: 92px;
@@ -2240,6 +2244,11 @@
       </div>
       <div class="drawn-cards-v2" id="drawnCards"></div>
 
+      <div class="draw-extra-section" id="drawExtraSection">
+        <div class="draw-extra-label">추가 카드</div>
+        <div class="drawn-row" id="drawExtraCards"></div>
+      </div>
+
       <div id="drawClarifyBar" class="draw-clarify-bar">
         <div class="step-label">추가 드로우</div>
         <p style="margin:0;font-size:14px;color:var(--muted);line-height:1.7;">궁금한 점이 더 있으면 남은 덱에서 카드를 더 뽑아 보세요.</p>
@@ -2254,10 +2263,6 @@
         <div class="clarify-deck-wrap" id="clarifyDeckWrap">
           <p class="step-note" style="margin:0 0 10px;font-size:13px;">추가로 뽑을 카드를 골라 주세요. (<span id="clarifyRemainText">0</span>장)</p>
           <div class="deck-grid" id="clarifyDeckGrid"></div>
-        </div>
-        <div class="draw-extra-section" id="drawExtraSection">
-          <div class="draw-extra-label">추가 카드</div>
-          <div class="drawn-row" id="drawExtraCards"></div>
         </div>
       </div>
     </div>
