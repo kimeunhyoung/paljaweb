@@ -1285,6 +1285,14 @@
       line-height: 1.35;
       max-width: 100%;
     }
+    /* 카드만 뽑기: 자리 숫자 라벨 강제 숨김 */
+    .drawn-cards-v2.is-draw-only .tarot-card-pos {
+      display: none !important;
+      height: 0 !important;
+      margin: 0 !important;
+      padding: 0 !important;
+      overflow: hidden !important;
+    }
 
     .tarot-card {
       width: 100%;
@@ -2497,12 +2505,8 @@ function resolveDrawCount() {
 }
 
 function buildDrawPositions(count) {
-  const sp = getDrawSpread();
-  // 12궁만 구조 이름 유지. 나머지는 의미 라벨 없이 번호만 (상담사가 해석)
-  if (sp.id === 'houses') {
-    return (sp.positions || []).slice(0, count);
-  }
-  return Array.from({ length: count }, (_, i) => (i + 1) + '번');
+  // 드로우 모드: 자리 숫자·의미 라벨 없음 (카드만)
+  return Array.from({ length: count }, () => '');
 }
 
 function buildDrawRows(count) {
@@ -3763,9 +3767,9 @@ function makeDrawCardWrap(i, positions, hideNames, extraClass) {
   wrap.dataset.slot = String(i);
   const bgColor = CARD_COLORS[card.suit] || '#f5f0e8';
   const imgSrc = getTarotCardImageSrc(card);
-  const label = positions[i] || ('추가 ' + (i - baseSpreadCount + 1));
+  const label = positions[i] || '';
   // 드로우 모드: 자리 숫자·라벨 전부 숨김 — 카드만
-  const showPos = !hideNames;
+  const showPos = !hideNames && curMode !== 'draw' && !!label;
   const metaHtml = hideNames
     ? ''
     : `<div class="tarot-card-front-meta">
@@ -3826,7 +3830,7 @@ function showDrawnCards() {
 
   const positions = getPositions();
   const container = document.getElementById('drawnCards');
-  container.className = 'drawn-cards-v2';
+  container.className = 'drawn-cards-v2' + (curMode === 'draw' ? ' is-draw-only' : '');
   container.innerHTML = '';
   flippedCount = 0;
   const hideNames = curMode === 'draw';
