@@ -229,7 +229,7 @@
     }
     return (
       '<div style="margin-top:14px;">' +
-      '<a href="pricing.html" style="' + btn + 'background:#4a3520;color:#f5f0e8;">' +
+      '<a href="pricing.html?highlight=' + encodeURIComponent(productMinPlan(product)) + '" style="' + btn + 'background:#4a3520;color:#f5f0e8;">' +
       planKoLabel(productMinPlan(product)) + ' 업그레이드</a>' +
       '</div>'
     );

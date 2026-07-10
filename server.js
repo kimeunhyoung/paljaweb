@@ -10,6 +10,7 @@ const { registerCounselorPushRoutes, startCounselorPushScheduler } = require('./
 const { registerCounselorTrialRoutes } = require('./lib/counselor-trial');
 const { registerAiUsageRoutes, isAiUpstreamAvailable, kstPeriod, aiCreditLimit } = require('./lib/ai-usage');
 const { registerSignupNotifyRoutes, providerLabel } = require('./lib/signup-notify');
+const { buildSignupStats } = require('./lib/admin-signup-stats');
 
 const app = express();
 
@@ -675,6 +676,31 @@ app.get('/api/admin/ai-credits/users', async (req, res) => {
   } catch (e) {
     console.error('[admin/ai-credits/users]', e);
     res.status(500).json({ error: '사용자/크레딧 목록 조회에 실패했습니다.' });
+  }
+});
+
+app.get('/api/admin/signup-stats', async (req, res) => {
+  const admin = await isAiCreditAdmin(req.headers.authorization);
+  if (!admin.ok) {
+    res.status(403).json({ error: '관리자 권한이 필요합니다. (AI_CREDIT_ADMIN_EMAILS 확인)' });
+    return;
+  }
+  const days = Number(req.query.days) || 30;
+  try {
+    const [profiles, authUsers] = await Promise.all([
+      listProfilesBasic(),
+      listAuthUsers(),
+    ]);
+    const stats = buildSignupStats({
+      profiles,
+      authUsers,
+      providerLabel,
+      days,
+    });
+    res.json(stats);
+  } catch (e) {
+    console.error('[admin/signup-stats]', e);
+    res.status(500).json({ error: '가입 통계 조회에 실패했습니다.' });
   }
 });
 

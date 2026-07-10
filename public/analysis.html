@@ -4520,7 +4520,7 @@ async function initAuth() {
   CURRENT_USER_ID = session.user?.id || 'guest';
 
   const { data: profile } = await sb.from('profiles')
-    .select('plan, plan_active_until')
+    .select('plan, plan_active_until, full_name, birth')
     .eq('id', session.user.id)
     .single();
 
@@ -4559,6 +4559,17 @@ async function initAuth() {
 
   if (window.PaljaPlan && PaljaPlan.hasCounselorAccess({ plan: USER_PLAN })) {
     await loadPrefilledCounselorClient(session);
+  }
+
+  const nameEl = document.getElementById('inputName');
+  const birthEl = document.getElementById('inputBirth');
+  if (profile) {
+    if (nameEl && !nameEl.value.trim() && profile.full_name) {
+      nameEl.value = profile.full_name;
+    }
+    if (birthEl && !birthEl.value.trim() && profile.birth) {
+      birthEl.value = profile.birth;
+    }
   }
 }
 
@@ -4673,7 +4684,7 @@ function gateHTML(planRequired, title, desc) {
     <div class="gate-icon">🔒</div>
     <div class="gate-title">${title}</div>
     <div class="gate-desc">${desc}<br><br><strong>${labels[planRequired]} 플랜</strong> 이상에서 이용할 수 있어요.</div>
-    <button class="gate-btn" onclick="location.href='pricing.html'">플랜 업그레이드 →</button>
+    <button class="gate-btn" onclick="location.href='pricing.html?highlight=${planRequired}'">플랜 업그레이드 →</button>
     ${guestCta}
     <a class="gate-onetime" href="${onetime.href}">${onetime.label} · 자동결제 없음</a>
   </div>`;

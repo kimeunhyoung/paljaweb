@@ -333,6 +333,12 @@
     .plan-card.special {
       scroll-margin-top: 100px;
     }
+    .plan-card.plan-highlight {
+      outline: 3px solid var(--accent);
+      outline-offset: 2px;
+      transform: translateY(-4px);
+      box-shadow: 0 12px 40px rgba(200, 169, 110, 0.35);
+    }
     .plan-price-note {
       font-family: var(--font-body);
       font-size: 14px;
@@ -900,7 +906,7 @@
   <div class="pricing-grid">
 
     <!-- FREE -->
-    <div class="plan-card">
+    <div class="plan-card" data-plan="free">
       <div class="plan-name">Free</div>
       <div class="plan-price">0<span class="plan-price-unit">원</span></div>
       <p class="plan-tagline">처음 만나는 수비학.<br>핵심 수만 무료로.</p>
@@ -925,7 +931,7 @@
     </div>
 
     <!-- BASIC -->
-    <div class="plan-card featured">
+    <div class="plan-card featured" data-plan="basic">
       <div class="popular-badge">가장 인기</div>
       <div class="plan-name">Basic</div>
       <div class="plan-price" id="basic-price">9,900<span class="plan-price-unit">원/월</span></div>
@@ -955,7 +961,7 @@
     </div>
 
     <!-- PRO -->
-    <div class="plan-card">
+    <div class="plan-card" data-plan="plus">
       <div class="plan-name">Plus</div>
       <div class="plan-price" id="pro-price">29,900<span class="plan-price-unit">원/월</span></div>
       <p class="plan-tagline">깊이 있는 분석이 필요한 분.<br>타임라인·로슈·PDF 포함.</p>
@@ -976,7 +982,7 @@
     </div>
 
     <!-- PROFESSIONAL -->
-    <div class="plan-card professional" id="professional">
+    <div class="plan-card professional" id="professional" data-plan="professional">
       <div class="plan-name">Professional</div>
       <div class="plan-price" id="pro2-price">49,900<span class="plan-price-unit">원/월</span></div>
       <p class="plan-tagline">수비학 상담사를 위한 플랜.<br>고객 관리·상담 도구 포함.</p>
@@ -1003,7 +1009,7 @@
     </div>
 
     <!-- SPECIAL -->
-    <div class="plan-card special" id="special">
+    <div class="plan-card special" id="special" data-plan="private">
       <div class="plan-name">Private</div>
       <p class="plan-price-note">공개 결제 없음</p>
       <p class="plan-tagline">Professional 기반 + 추가 확장.<br>인생리듬·타로 타임라인 제공.</p>
@@ -1474,6 +1480,14 @@ initAuth();
   const checkoutPlan = new URLSearchParams(location.search).get('checkout');
   if (checkoutPlan === 'basic' || checkoutPlan === 'plus' || checkoutPlan === 'professional') {
     handleSubscribe(checkoutPlan);
+  }
+  const highlight = (new URLSearchParams(location.search).get('highlight') || '').toLowerCase();
+  if (highlight) {
+    const card = document.querySelector('.plan-card[data-plan="' + highlight + '"]');
+    if (card) {
+      card.classList.add('plan-highlight');
+      setTimeout(() => card.scrollIntoView({ behavior: 'smooth', block: 'center' }), 300);
+    }
   }
 })();
 </script>

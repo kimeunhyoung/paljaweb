@@ -28,12 +28,38 @@
     .provider.kakao { background:#fef3c7; color:#854d0e; }
     .provider.naver { background:#dcfce7; color:#166534; }
     .provider.email { background:#f3f4f6; color:#374151; }
+    .stats-section { margin-bottom: 22px; padding: 16px; background: #fbf7f1; border: 1px solid #e7dccd; border-radius: 12px; }
+    .stats-section h2 { margin: 0 0 12px; font-size: 18px; }
+    .stats-cards { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 14px; }
+    .stat-card { flex: 1; min-width: 140px; background: white; border: 1px solid #e7dccd; border-radius: 10px; padding: 12px 14px; }
+    .stat-card .label { font-size: 12px; color: #7d6b56; margin-bottom: 4px; }
+    .stat-card .value { font-size: 24px; font-weight: 700; color: #4a3520; }
+    .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; }
+    .stats-box { background: white; border: 1px solid #e7dccd; border-radius: 10px; padding: 10px 12px; }
+    .stats-box h3 { margin: 0 0 8px; font-size: 13px; color: #7d6b56; }
+    .stats-box table { width: 100%; border: none; background: transparent; }
+    .stats-box th, .stats-box td { padding: 4px 0; font-size: 12px; border: none; }
+    .stats-box tr:not(:last-child) td { border-bottom: 1px solid #f0e7dc; }
   </style>
 </head>
 <body>
   <div class="wrap">
     <h1>AI 월 크레딧 관리자</h1>
     <p class="sub">사용자별 크레딧 조정과 함께 <strong>가입 경로</strong>, <strong>유입 페이지</strong>, <strong>UTM/검색어</strong>를 확인할 수 있습니다.</p>
+    <section class="stats-section" id="statsSection">
+      <h2>가입·전환 요약</h2>
+      <div class="toolbar" style="margin-bottom:10px;">
+        <label>집계 기간(일) <input id="statsDays" type="number" min="1" max="365" value="30" style="width:80px" /></label>
+        <button id="statsBtn" type="button">통계 새로고침</button>
+      </div>
+      <div class="stats-cards" id="statsCards">
+        <div class="stat-card"><div class="label">가입 (기간 내)</div><div class="value" id="statTotal">—</div></div>
+        <div class="stat-card"><div class="label">유료 전환</div><div class="value" id="statPaid">—</div></div>
+        <div class="stat-card"><div class="label">전환율</div><div class="value" id="statRate">—</div></div>
+        <div class="stat-card"><div class="label">무료 유지</div><div class="value" id="statFree">—</div></div>
+      </div>
+      <div class="stats-grid" id="statsGrid"></div>
+    </section>
     <div class="toolbar">
       <label>기간(YYYY-MM) <input id="period" placeholder="2026-07" /></label>
       <label>검색 <input id="q" placeholder="이메일, google, numerology-calendar 등" /></label>
@@ -169,6 +195,41 @@
         `;
       }
 
+      function miniTable(title, rows) {
+        if (!rows || !rows.length) {
+          return `<div class="stats-box"><h3>${title}</h3><p class="small">데이터 없음</p></div>`;
+        }
+        const body = rows.map((r) => `<tr><td>${r.key}</td><td style="text-align:right;font-weight:600;">${r.count}</td></tr>`).join('');
+        return `<div class="stats-box"><h3>${title}</h3><table><tbody>${body}</tbody></table></div>`;
+      }
+
+      async function loadStats() {
+        const grid = document.getElementById('statsGrid');
+        grid.innerHTML = '<p class="small">통계 불러오는 중...</p>';
+        try {
+          const token = await getToken();
+          const days = Number(document.getElementById('statsDays').value) || 30;
+          const res = await fetch('/api/admin/signup-stats?days=' + encodeURIComponent(days), {
+            headers: { Authorization: 'Bearer ' + token },
+          });
+          const j = await res.json().catch(() => ({}));
+          if (!res.ok) throw new Error(j.error || '통계 조회 실패');
+          document.getElementById('statTotal').textContent = j.totalSignups ?? '0';
+          document.getElementById('statPaid').textContent = j.paidSignups ?? '0';
+          document.getElementById('statRate').textContent = (j.conversionRate ?? 0) + '%';
+          document.getElementById('statFree').textContent = j.freeSignups ?? '0';
+          grid.innerHTML = [
+            miniTable('가입 경로', j.byProvider),
+            miniTable('유입 페이지', j.byLanding),
+            miniTable('UTM source', j.byUtmSource),
+            miniTable('플랜 분포', j.byPlan),
+            miniTable('일별 가입', (j.byDay || []).slice(-14)),
+          ].join('');
+        } catch (e) {
+          grid.innerHTML = '<p class="small" style="color:#991b1b;">' + (e.message || '통계 오류') + '</p>';
+        }
+      }
+
       async function loadUsers() {
         rowsEl.innerHTML = '<tr><td colspan="12">불러오는 중...</td></tr>';
         msgEl.style.display = 'none';
@@ -242,12 +303,14 @@
       });
 
       document.getElementById('loadBtn').addEventListener('click', loadUsers);
+      document.getElementById('statsBtn').addEventListener('click', loadStats);
       qEl.addEventListener('keydown', (e) => { if (e.key === 'Enter') loadUsers(); });
       document.getElementById('logoutBtn').addEventListener('click', async () => {
         await sb.auth.signOut();
         location.href = 'login.html';
       });
 
+      loadStats();
       loadUsers();
     })();
   </script>
