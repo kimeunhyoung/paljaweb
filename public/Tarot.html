@@ -1253,6 +1253,84 @@
       font-size: 14px;
       font-family: var(--font-body);
     }
+
+    /* 자유 드로우: 위 트레이 + 아래 배치판 */
+    .free-draw-hint {
+      width: 100%;
+      margin: 0 0 10px;
+      font-size: 13px;
+      color: var(--muted);
+      line-height: 1.55;
+      text-align: center;
+    }
+    .free-draw-tray {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      align-items: flex-start;
+      gap: 10px;
+      width: 100%;
+      min-height: 120px;
+      padding: 12px 10px;
+      margin-bottom: 12px;
+      border: 1px dashed rgba(200, 169, 110, 0.55);
+      border-radius: 10px;
+      background: rgba(245, 240, 232, 0.55);
+    }
+    .free-draw-tray:empty::after {
+      content: '배치판의 카드를 여기로 다시 끌어올 수 있어요';
+      display: block;
+      width: 100%;
+      text-align: center;
+      font-size: 12px;
+      color: var(--muted);
+      padding: 28px 8px;
+    }
+    .free-draw-canvas {
+      position: relative;
+      width: 100%;
+      min-height: min(62vh, 520px);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background:
+        radial-gradient(circle at 50% 40%, rgba(200, 169, 110, 0.08), transparent 55%),
+        #faf7f2;
+      overflow: hidden;
+      touch-action: none;
+    }
+    .free-draw-canvas::before {
+      content: '카드를 여기로 끌어다 배치';
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      color: rgba(90, 70, 50, 0.28);
+      pointer-events: none;
+      z-index: 0;
+    }
+    .free-draw-canvas.has-cards::before { content: none; }
+    .free-draw-tray .tarot-card-wrap.is-draggable,
+    .free-draw-canvas .tarot-card-wrap.is-draggable {
+      cursor: grab;
+      touch-action: none;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+    .free-draw-tray .tarot-card-wrap.is-draggable { width: min(100px, 26vw); }
+    .free-draw-canvas .tarot-card-wrap.is-draggable {
+      width: min(110px, 28vw);
+      z-index: 2;
+    }
+    .tarot-card-wrap.is-dragging {
+      cursor: grabbing;
+      opacity: 0.92;
+      z-index: 50 !important;
+      box-shadow: 0 10px 28px rgba(45, 38, 28, 0.22);
+      pointer-events: none;
+    }
+    .tarot-card-wrap.is-dragging .tarot-card { pointer-events: none; }
     .reveal-all-btn {
       display: none;
       margin: 0 0 16px;
@@ -2411,10 +2489,10 @@ const DRAW_SPREADS = {
   free: {
     id: 'free',
     label: '자유 드로우',
-    sub: '장수 직접',
+    sub: '장수 직접 · 자유 배치',
     count: null,
     positions: null,
-    layout: 'rows',
+    layout: 'freeform',
   },
   one: {
     id: 'one',
@@ -3875,11 +3953,19 @@ function makeDrawCardWrap(i, positions, hideNames, extraClass) {
 function appendClarifyCard(i) {
   const section = document.getElementById('drawExtraSection');
   const row = document.getElementById('drawExtraCards');
-  if (!section || !row) return;
-  section.classList.add('on');
   const hideNames = true;
   const positions = [];
-  row.appendChild(makeDrawCardWrap(i, positions, hideNames));
+  const wrap = makeDrawCardWrap(i, positions, hideNames);
+  // 자유 드로우: 추가 카드도 트레이에 올려 손으로 배치
+  const tray = document.getElementById('freeDrawTray');
+  if (tray && drawSpreadId === 'free') {
+    wrap.classList.add('is-draggable');
+    tray.appendChild(wrap);
+    return;
+  }
+  if (!section || !row) return;
+  section.classList.add('on');
+  row.appendChild(wrap);
 }
 
 /** 말발굽: 화면 폭에 맞춰 카드 크기·줄 간격을 맞춰 잘림 방지 */
@@ -3999,6 +4085,109 @@ function fitMagicSevenBoard(board) {
   });
 }
 
+/** 자유 드로우: 위 트레이 → 아래 배치판 드래그 */
+function enableFreeDrawDrag(tray, canvas) {
+  if (!tray || !canvas) return;
+  const THRESH = 8;
+  let state = null;
+
+  function syncCanvasFlag() {
+    canvas.classList.toggle('has-cards', canvas.querySelectorAll('.tarot-card-wrap').length > 0);
+  }
+
+  function placeOnCanvas(wrap, clientX, clientY, offsetX, offsetY) {
+    const rect = canvas.getBoundingClientRect();
+    const cw = wrap.offsetWidth || 100;
+    const ch = wrap.offsetHeight || 160;
+    let left = clientX - rect.left - offsetX;
+    let top = clientY - rect.top - offsetY;
+    left = Math.max(-cw * 0.35, Math.min(left, canvas.clientWidth - cw * 0.35));
+    top = Math.max(-ch * 0.2, Math.min(top, canvas.clientHeight - ch * 0.35));
+    if (wrap.parentElement !== canvas) {
+      const w = wrap.getBoundingClientRect().width;
+      canvas.appendChild(wrap);
+      wrap.style.width = Math.round(w) + 'px';
+    }
+    wrap.style.position = 'absolute';
+    wrap.style.left = left + 'px';
+    wrap.style.top = top + 'px';
+    wrap.style.zIndex = String(20 + (Date.now() % 1000));
+    wrap.style.margin = '0';
+    syncCanvasFlag();
+  }
+
+  function returnToTray(wrap) {
+    wrap.style.position = '';
+    wrap.style.left = '';
+    wrap.style.top = '';
+    wrap.style.zIndex = '';
+    wrap.style.width = '';
+    wrap.style.margin = '';
+    tray.appendChild(wrap);
+    syncCanvasFlag();
+  }
+
+  function onDown(e) {
+    const wrap = e.target.closest('.tarot-card-wrap.is-draggable');
+    if (!wrap) return;
+    if (!tray.contains(wrap) && !canvas.contains(wrap)) return;
+    if (e.pointerType === 'mouse' && e.button !== 0) return;
+    const rect = wrap.getBoundingClientRect();
+    state = {
+      wrap,
+      startX: e.clientX,
+      startY: e.clientY,
+      offsetX: e.clientX - rect.left,
+      offsetY: e.clientY - rect.top,
+      fromTray: tray.contains(wrap),
+      moved: false,
+      pointerId: e.pointerId,
+    };
+    try { wrap.setPointerCapture(e.pointerId); } catch (_) {}
+  }
+
+  function onMove(e) {
+    if (!state || state.pointerId !== e.pointerId) return;
+    const dx = e.clientX - state.startX;
+    const dy = e.clientY - state.startY;
+    if (!state.moved && (Math.abs(dx) > THRESH || Math.abs(dy) > THRESH)) {
+      state.moved = true;
+      state.wrap.classList.add('is-dragging');
+      placeOnCanvas(state.wrap, e.clientX, e.clientY, state.offsetX, state.offsetY);
+    } else if (state.moved) {
+      placeOnCanvas(state.wrap, e.clientX, e.clientY, state.offsetX, state.offsetY);
+    }
+    if (state.moved) e.preventDefault();
+  }
+
+  function onUp(e) {
+    if (!state || state.pointerId !== e.pointerId) return;
+    const wrap = state.wrap;
+    const moved = state.moved;
+    wrap.classList.remove('is-dragging');
+    if (moved) {
+      const trayRect = tray.getBoundingClientRect();
+      const overTray =
+        e.clientX >= trayRect.left &&
+        e.clientX <= trayRect.right &&
+        e.clientY >= trayRect.top &&
+        e.clientY <= trayRect.bottom;
+      if (overTray) returnToTray(wrap);
+      wrap.dataset.suppressFlip = '1';
+      setTimeout(() => { delete wrap.dataset.suppressFlip; }, 50);
+    }
+    try { wrap.releasePointerCapture(e.pointerId); } catch (_) {}
+    state = null;
+  }
+
+  const root = tray.parentElement || document;
+  root.addEventListener('pointerdown', onDown);
+  window.addEventListener('pointermove', onMove, { passive: false });
+  window.addEventListener('pointerup', onUp);
+  window.addEventListener('pointercancel', onUp);
+  syncCanvasFlag();
+}
+
 function showDrawnCards() {
   document.getElementById('step2').style.display = 'none';
   document.getElementById('step3').style.display = 'block';
@@ -4009,12 +4198,30 @@ function showDrawnCards() {
   if (step3Title) {
     if (curMode === 'draw') {
       const sp = getDrawSpread();
-      step3Title.textContent = sp.label + ' · 카드를 눌러 공개 (해석 없음)';
+      if (sp.id === 'free') {
+        step3Title.textContent = '자유 드로우 · 끌어다 배치 (해석 없음)';
+      } else {
+        step3Title.textContent = sp.label + ' · 카드를 눌러 공개 (해석 없음)';
+      }
     } else {
       step3Title.textContent = '카드를 클릭해서 펼쳐보세요';
     }
   }
-  if (drawNote) drawNote.style.display = curMode === 'draw' ? 'block' : 'none';
+  if (drawNote) {
+    drawNote.style.display = curMode === 'draw' ? 'block' : 'none';
+    if (curMode === 'draw') {
+      const spNote = getDrawSpread();
+      if (spNote.id === 'free') {
+        drawNote.innerHTML =
+          '<div class="step-label">드로우만 · Rider–Waite–Smith</div>' +
+          '<p style="margin:0;font-size:14px;color:var(--muted);line-height:1.7;">해석은 제공하지 않습니다. 위 트레이에서 카드를 끌어 아래 배치판에 원하는 대로 놓아 보세요. (짧게 누르면 공개)</p>';
+      } else {
+        drawNote.innerHTML =
+          '<div class="step-label">드로우만 · Rider–Waite–Smith</div>' +
+          '<p style="margin:0;font-size:14px;color:var(--muted);line-height:1.7;">해석은 제공하지 않습니다. 카드 그림·자리만 확인하세요. (정방향 · 퍼블릭 도메인 · Wikimedia Commons)</p>';
+      }
+    }
+  }
   if (resetBtn) {
     resetBtn.textContent = curMode === 'draw' ? '↺ 다시 뽑기' : '↺ 새로운 리딩 시작하기';
   }
@@ -4052,7 +4259,30 @@ function showDrawnCards() {
 
   const layout = drawSp && drawSp.layout;
 
-  if (curMode === 'draw' && layout === 'horseshoe') {
+  if (curMode === 'draw' && (layout === 'freeform' || (drawSp && drawSp.id === 'free'))) {
+    const hint = document.createElement('p');
+    hint.className = 'free-draw-hint';
+    hint.textContent = '뽑은 카드가 위에 있어요. 손가락·마우스로 아래 배치판에 원하는 대로 옮겨 보세요. (짧게 누르면 공개)';
+
+    const tray = document.createElement('div');
+    tray.className = 'free-draw-tray';
+    tray.id = 'freeDrawTray';
+
+    const canvas = document.createElement('div');
+    canvas.className = 'free-draw-canvas';
+    canvas.id = 'freeDrawCanvas';
+
+    for (let i = 0; i < spreadCount; i++) {
+      const wrap = makeCardWrap(i);
+      wrap.classList.add('is-draggable');
+      tray.appendChild(wrap);
+    }
+
+    container.appendChild(hint);
+    container.appendChild(tray);
+    container.appendChild(canvas);
+    enableFreeDrawDrag(tray, canvas);
+  } else if (curMode === 'draw' && layout === 'horseshoe') {
     const n = drawSp.count === 5 ? 5 : 7;
     const boardClass = n === 5 ? 'spread-board--horseshoe5' : 'spread-board--horseshoe';
     const rows = n === 7
@@ -4278,6 +4508,8 @@ function onAllCardsFlipped() {
 }
 
 function flipCard(i) {
+  const wrap = document.querySelector('.tarot-card-wrap[data-slot="' + i + '"]');
+  if (wrap && wrap.dataset.suppressFlip === '1') return;
   const cardEl = document.getElementById('card-' + i);
   if (!cardEl || cardEl.classList.contains('flipped')) return;
   cardEl.classList.add('flipped');
