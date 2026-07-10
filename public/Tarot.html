@@ -808,12 +808,138 @@
       flex-wrap: wrap;
     }
     .drawn-row.drawn-row--narrow .tarot-card-wrap { width: 120px; }
-    .drawn-row.drawn-row--staff {
-      flex-direction: column;
-      align-items: center;
-      gap: 12px;
+
+    /* ── 전통 스프레드 보드 (상담사 익숙 배치) ── */
+    .spread-board {
+      width: 100%;
+      max-width: 760px;
+      margin: 0 auto 8px;
     }
-    .drawn-row.drawn-row--staff .tarot-card-wrap { width: 140px; }
+    .spread-board .tarot-card-wrap {
+      width: 112px;
+      gap: 6px;
+    }
+    .spread-board .tarot-card-pos {
+      font-size: 10px;
+      min-height: 2.6em;
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+    }
+
+    /* 말발굽: U자 (열림이 위) */
+    .spread-board--horseshoe {
+      display: grid;
+      grid-template-columns: repeat(7, minmax(0, 1fr));
+      grid-template-rows: auto auto auto auto;
+      column-gap: 4px;
+      row-gap: 6px;
+      align-items: start;
+      justify-items: center;
+      max-width: 680px;
+    }
+    .spread-board--horseshoe .tarot-card-wrap { width: 88px; }
+    .spread-board--horseshoe [data-slot="0"] { grid-column: 1; grid-row: 1; }
+    .spread-board--horseshoe [data-slot="1"] { grid-column: 2; grid-row: 2; }
+    .spread-board--horseshoe [data-slot="2"] { grid-column: 3; grid-row: 3; }
+    .spread-board--horseshoe [data-slot="3"] { grid-column: 4; grid-row: 4; }
+    .spread-board--horseshoe [data-slot="4"] { grid-column: 5; grid-row: 3; }
+    .spread-board--horseshoe [data-slot="5"] { grid-column: 6; grid-row: 2; }
+    .spread-board--horseshoe [data-slot="6"] { grid-column: 7; grid-row: 1; }
+
+    /* 십자 (5장) */
+    .spread-board--cross {
+      display: grid;
+      grid-template-columns: repeat(3, auto);
+      grid-template-rows: auto auto auto;
+      gap: 10px 14px;
+      justify-content: center;
+      justify-items: center;
+      align-items: start;
+    }
+    .spread-board--cross [data-slot="0"] { grid-column: 2; grid-row: 1; }
+    .spread-board--cross [data-slot="1"] { grid-column: 2; grid-row: 2; }
+    .spread-board--cross [data-slot="2"] { grid-column: 1; grid-row: 2; }
+    .spread-board--cross [data-slot="3"] { grid-column: 3; grid-row: 2; }
+    .spread-board--cross [data-slot="4"] { grid-column: 2; grid-row: 3; }
+
+    /* 미니 켈틱 (6장): 작은 십자 + 오른쪽 스태프 */
+    .spread-board--mini-celtic {
+      display: grid;
+      grid-template-columns: auto auto auto auto;
+      grid-template-rows: auto auto;
+      gap: 10px 12px;
+      justify-content: center;
+      justify-items: center;
+      align-items: start;
+    }
+    .spread-board--mini-celtic [data-slot="0"] { grid-column: 2; grid-row: 1; }
+    .spread-board--mini-celtic [data-slot="1"] { grid-column: 2; grid-row: 1; margin-top: 28px; z-index: 1; }
+    .spread-board--mini-celtic [data-slot="2"] { grid-column: 1; grid-row: 1 / span 2; align-self: center; }
+    .spread-board--mini-celtic [data-slot="3"] { grid-column: 3; grid-row: 1 / span 2; align-self: center; }
+    .spread-board--mini-celtic [data-slot="4"] { grid-column: 4; grid-row: 1; }
+    .spread-board--mini-celtic [data-slot="5"] { grid-column: 4; grid-row: 2; }
+
+    /* 켈틱 크로스: 왼쪽 십자 + 오른쪽 스태프 */
+    .spread-board--celtic {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      align-items: flex-start;
+      gap: 20px 28px;
+      max-width: 780px;
+    }
+    .celtic-cross {
+      display: grid;
+      grid-template-columns: auto auto auto;
+      grid-template-rows: auto auto auto;
+      gap: 8px 12px;
+      justify-items: center;
+      align-items: center;
+    }
+    .celtic-cross .tarot-card-wrap { width: 100px; }
+    .celtic-cross__above { grid-column: 2; grid-row: 1; }
+    .celtic-cross__left { grid-column: 1; grid-row: 2; }
+    .celtic-cross__center {
+      grid-column: 2;
+      grid-row: 2;
+      position: relative;
+      width: 100px;
+      height: 168px;
+    }
+    .celtic-cross__center .tarot-card-wrap--present {
+      position: absolute;
+      inset: 0;
+      width: 100px;
+    }
+    .celtic-cross__center .tarot-card-wrap--challenge {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      width: 100px;
+      transform: translate(-50%, -50%) rotate(90deg);
+      z-index: 2;
+    }
+    .celtic-cross__center .tarot-card-wrap--challenge .tarot-card-pos {
+      transform: rotate(-90deg);
+      white-space: nowrap;
+    }
+    .celtic-cross__right { grid-column: 3; grid-row: 2; }
+    .celtic-cross__below { grid-column: 2; grid-row: 3; }
+    .celtic-staff {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      align-items: center;
+      padding-top: 4px;
+    }
+    .celtic-staff .tarot-card-wrap { width: 100px; }
+    .celtic-staff-label {
+      font-size: 10px;
+      color: var(--muted);
+      letter-spacing: .04em;
+      margin-bottom: 2px;
+    }
 
     .draw-spread-grid {
       display: grid;
@@ -1590,6 +1716,18 @@
       .drawn-row { gap: 10px; }
       .drawn-row.drawn-row--narrow .tarot-card-wrap { width: 96px; }
       .tarot-card-wrap { width: 110px; }
+      .spread-board .tarot-card-wrap { width: 78px; }
+      .spread-board--horseshoe .tarot-card-wrap { width: 44px; }
+      .spread-board--horseshoe { column-gap: 2px; row-gap: 4px; max-width: 100%; }
+      .spread-board--horseshoe .tarot-card-pos { font-size: 8px; min-height: 2.2em; }
+      .celtic-cross .tarot-card-wrap,
+      .celtic-staff .tarot-card-wrap { width: 72px; }
+      .celtic-cross__center { width: 72px; height: 122px; }
+      .celtic-cross__center .tarot-card-wrap--present,
+      .celtic-cross__center .tarot-card-wrap--challenge { width: 72px; }
+      .spread-board--celtic { gap: 14px 12px; }
+      .spread-board--cross .tarot-card-wrap,
+      .spread-board--mini-celtic .tarot-card-wrap { width: 86px; }
       .tarot-card-pos { font-size: 10px; }
       .card-name-ko { font-size: 12px; }
       .card-name-en { font-size: 8px; }
@@ -1943,16 +2081,15 @@ const DRAW_SPREADS = {
     sub: '5장',
     count: 5,
     positions: ['상황', '도전', '과거', '미래', '조언'],
-    rows: [[0], [2, 1, 3], [4]],
-    narrow: true,
+    layout: 'cross',
   },
   horseshoe: {
     id: 'horseshoe',
     label: '말발굽',
-    sub: '7장',
+    sub: '7장 · U자',
     count: 7,
     positions: ['과거', '현재', '숨은 영향', '장애', '환경', '조언', '결과'],
-    rows: [[0, 1, 2], [3], [4, 5, 6]],
+    layout: 'horseshoe',
   },
   mini_celtic: {
     id: 'mini_celtic',
@@ -1960,12 +2097,12 @@ const DRAW_SPREADS = {
     sub: '6장',
     count: 6,
     positions: ['현재', '도전', '과거', '미래', '자신', '결과'],
-    rows: [[0, 1], [2, 3], [4, 5]],
+    layout: 'mini_celtic',
   },
   celtic: {
     id: 'celtic',
     label: '켈틱 크로스',
-    sub: '10장',
+    sub: '10장 · 십자+스태프',
     count: 10,
     positions: [
       '현재',
@@ -1979,10 +2116,7 @@ const DRAW_SPREADS = {
       '희망·두려움',
       '최종 결과',
     ],
-    // 시각: 위(가능) / 과거·현재·도전·미래 / 기반 / 스태프 4장
-    rows: [[4], [3, 0, 1, 5], [2], [6, 7, 8, 9]],
-    narrow: true,
-    staffLast: true,
+    layout: 'celtic',
   },
 };
 const DRAW_SPREAD_ORDER = [
@@ -3154,22 +3288,20 @@ function showDrawnCards() {
   const hideNames = curMode === 'draw';
   const drawSp = curMode === 'draw' ? getDrawSpread() : null;
 
-  function appendCardRow(indices, rowClass) {
-    const row = document.createElement('div');
-    row.className = 'drawn-row' + (rowClass ? ' ' + rowClass : '');
-    indices.forEach(i => {
-      const card = drawnCards[i];
-      const wrap = document.createElement('div');
-      wrap.className = 'tarot-card-wrap';
-      const bgColor = CARD_COLORS[card.suit] || '#f5f0e8';
-      const imgSrc = getTarotCardImageSrc(card);
-      const metaHtml = hideNames
-        ? ''
-        : `<div class="tarot-card-front-meta">
-              <div class="card-name-ko">${card.name}${card.faceRev ? ' (역)' : ''}</div>
-              <div class="card-name-en">${card.en}</div>
-            </div>`;
-      wrap.innerHTML = `
+  function makeCardWrap(i, extraClass) {
+    const card = drawnCards[i];
+    const wrap = document.createElement('div');
+    wrap.className = 'tarot-card-wrap' + (extraClass ? ' ' + extraClass : '');
+    wrap.dataset.slot = String(i);
+    const bgColor = CARD_COLORS[card.suit] || '#f5f0e8';
+    const imgSrc = getTarotCardImageSrc(card);
+    const metaHtml = hideNames
+      ? ''
+      : `<div class="tarot-card-front-meta">
+            <div class="card-name-ko">${card.name}${card.faceRev ? ' (역)' : ''}</div>
+            <div class="card-name-en">${card.en}</div>
+          </div>`;
+    wrap.innerHTML = `
       <div class="tarot-card-pos">${positions[i] || ((i + 1) + '번')}</div>
       <div class="tarot-card" id="card-${i}" onclick="flipCard(${i})">
         <div class="tarot-card-inner">
@@ -3184,22 +3316,82 @@ function showDrawnCards() {
         </div>
       </div>
     `;
-      row.appendChild(wrap);
-    });
+    return wrap;
+  }
+
+  function appendCardRow(indices, rowClass) {
+    const row = document.createElement('div');
+    row.className = 'drawn-row' + (rowClass ? ' ' + rowClass : '');
+    indices.forEach((i) => row.appendChild(makeCardWrap(i)));
     container.appendChild(row);
   }
 
-  if (curMode === 'draw') {
-    const rows = buildDrawRows(spreadCount);
-    const narrow = drawSp && drawSp.narrow ? 'drawn-row--narrow' : '';
-    rows.forEach((indices, ri) => {
-      let cls = narrow;
-      // 켈틱 스태프(마지막 행)는 세로로
-      if (drawSp && drawSp.staffLast && ri === rows.length - 1) {
-        cls = 'drawn-row--staff';
-      }
-      appendCardRow(indices, cls);
+  function mountBoard(className, placeFn) {
+    const board = document.createElement('div');
+    board.className = 'spread-board ' + className;
+    placeFn(board);
+    container.appendChild(board);
+  }
+
+  if (curMode === 'draw' && drawSp && drawSp.layout === 'horseshoe') {
+    mountBoard('spread-board--horseshoe', (board) => {
+      for (let i = 0; i < 7; i++) board.appendChild(makeCardWrap(i));
     });
+  } else if (curMode === 'draw' && drawSp && drawSp.layout === 'cross') {
+    mountBoard('spread-board--cross', (board) => {
+      for (let i = 0; i < 5; i++) board.appendChild(makeCardWrap(i));
+    });
+  } else if (curMode === 'draw' && drawSp && drawSp.layout === 'mini_celtic') {
+    mountBoard('spread-board--mini-celtic', (board) => {
+      for (let i = 0; i < 6; i++) board.appendChild(makeCardWrap(i));
+    });
+  } else if (curMode === 'draw' && drawSp && drawSp.layout === 'celtic') {
+    mountBoard('spread-board--celtic', (board) => {
+      const cross = document.createElement('div');
+      cross.className = 'celtic-cross';
+
+      const above = document.createElement('div');
+      above.className = 'celtic-cross__above';
+      above.appendChild(makeCardWrap(4));
+
+      const left = document.createElement('div');
+      left.className = 'celtic-cross__left';
+      left.appendChild(makeCardWrap(3));
+
+      const center = document.createElement('div');
+      center.className = 'celtic-cross__center';
+      center.appendChild(makeCardWrap(0, 'tarot-card-wrap--present'));
+      center.appendChild(makeCardWrap(1, 'tarot-card-wrap--challenge'));
+
+      const right = document.createElement('div');
+      right.className = 'celtic-cross__right';
+      right.appendChild(makeCardWrap(5));
+
+      const below = document.createElement('div');
+      below.className = 'celtic-cross__below';
+      below.appendChild(makeCardWrap(2));
+
+      cross.appendChild(above);
+      cross.appendChild(left);
+      cross.appendChild(center);
+      cross.appendChild(right);
+      cross.appendChild(below);
+
+      const staff = document.createElement('div');
+      staff.className = 'celtic-staff';
+      const staffHint = document.createElement('div');
+      staffHint.className = 'celtic-staff-label';
+      staffHint.textContent = '스태프';
+      staff.appendChild(staffHint);
+      // 테이블 기준: 위=최종 결과 … 아래=자신
+      [9, 8, 7, 6].forEach((i) => staff.appendChild(makeCardWrap(i)));
+
+      board.appendChild(cross);
+      board.appendChild(staff);
+    });
+  } else if (curMode === 'draw') {
+    const rows = buildDrawRows(spreadCount);
+    rows.forEach((indices) => appendCardRow(indices));
   } else if (spreadCount === 5) {
     appendCardRow([0, 1, 2]);
     appendCardRow([3, 4]);
