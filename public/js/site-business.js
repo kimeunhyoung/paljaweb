@@ -19,5 +19,5 @@ window.SITE_BUSINESS_HTML = [
   '통신판매업 신고번호 ' + window.SITE_BUSINESS.mailOrderNo,
   window.SITE_BUSINESS.address,
   '휴대폰 ' + window.SITE_BUSINESS.phone + ' · 이메일 <a href="mailto:' + window.SITE_BUSINESS.email + '">' + window.SITE_BUSINESS.email + '</a>',
-  '카카오톡 문의 <a href="' + window.SITE_BUSINESS.kakaoChat + '" target="_blank" rel="noopener noreferrer">팔자연구소 채널</a>',
+  '전화 연결이 어려우면 <a href="' + window.SITE_BUSINESS.kakaoChat + '" target="_blank" rel="noopener noreferrer">카카오톡으로 문의</a>해 주세요',
 ].join('<br>');
