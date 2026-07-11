@@ -9,6 +9,9 @@ window.SITE_BUSINESS = {
   /** 팔자연구소 상담·문의 전용 */
   phone: '010-8674-8481',
   email: 'ohayou989@gmail.com',
+  /** 카카오톡 채널 (문의) */
+  kakaoChannel: 'https://pf.kakao.com/_HXxmwX',
+  kakaoChat: 'https://pf.kakao.com/_HXxmwX/chat',
 };
 
 window.SITE_BUSINESS_HTML = [
@@ -16,4 +19,5 @@ window.SITE_BUSINESS_HTML = [
   '통신판매업 신고번호 ' + window.SITE_BUSINESS.mailOrderNo,
   window.SITE_BUSINESS.address,
   '휴대폰 ' + window.SITE_BUSINESS.phone + ' · 이메일 <a href="mailto:' + window.SITE_BUSINESS.email + '">' + window.SITE_BUSINESS.email + '</a>',
+  '카카오톡 문의 <a href="' + window.SITE_BUSINESS.kakaoChat + '" target="_blank" rel="noopener noreferrer">팔자연구소 채널</a>',
 ].join('<br>');
