@@ -847,6 +847,7 @@ registerAiOneTimeRoutes(app, {
   portonePublicConfig,
   portoneOneTimePublicConfig,
   getUserIdFromAuth,
+  getProfile,
 });
 
 app.get('/favicon.ico', (req, res) => {

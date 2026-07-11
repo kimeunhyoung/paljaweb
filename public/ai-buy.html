@@ -175,6 +175,13 @@
           successLabel: '수비학 달력 열기 →',
         };
       }
+      if (p.minPlan) {
+        return {
+          priceExtra: 'AI ' + p.credits + '크레딧 · 구독자',
+          successHref: '/dashboard.html',
+          successLabel: '마이페이지에서 잔여 확인 →',
+        };
+      }
       return {
         priceExtra: 'AI ' + p.credits + '크레딧',
         successHref: '/astrology.html',
@@ -192,6 +199,9 @@
       } else if (p && p.scope === 'astrology') {
         back.href = '/astrology.html';
         back.textContent = '← 점성학';
+      } else if (p && p.minPlan) {
+        back.href = '/dashboard.html';
+        back.textContent = '← 마이페이지';
       } else {
         back.href = '/pricing.html';
         back.textContent = '← 요금제';
@@ -275,6 +285,11 @@
         if (!prep.ok) {
           if (prepJson.error === 'one_time_disabled') {
             showMsg('AI 1회 결제는 현재 준비 중입니다. 요금제에서 월 구독을 이용해 주세요.', 'info');
+            return;
+          }
+          if (prepJson.error === 'subscriber_required') {
+            showMsg(prepJson.message || 'Basic 이상 구독 중에만 구매할 수 있어요.', 'info');
+            payBtn.disabled = false;
             return;
           }
           if (prep.status === 401) {
