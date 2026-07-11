@@ -13,6 +13,7 @@
   <script src="js/attribution.js"></script>
   <script src="js/analytics.js?v=1" defer></script>
   <script src="js/account-device-client.js?v=1"></script>
+  <script src="js/ai-quota-client.js?v=1"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
   <style>
@@ -463,7 +464,7 @@
     /* ── STAT ROW ── */
     .stats-row {
       display: grid;
-      grid-template-columns: repeat(4, 1fr);
+      grid-template-columns: repeat(5, 1fr);
       gap: 1px;
       background: var(--border);
       border: 1px solid var(--border);
@@ -591,6 +592,47 @@
       line-height: 1.6;
       margin-bottom: 14px;
     }
+    .ai-credit-box {
+      margin: 0 0 14px;
+      padding: 12px 14px;
+      background: var(--parchment);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      text-align: left;
+    }
+    .ai-credit-label {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--warm-brown);
+      margin-bottom: 4px;
+    }
+    .ai-credit-value {
+      font-family: var(--font-serif);
+      font-size: 26px;
+      font-weight: 600;
+      color: var(--deep-brown);
+      line-height: 1.2;
+    }
+    .ai-credit-value span {
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--muted);
+    }
+    .ai-credit-note {
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 6px;
+      line-height: 1.45;
+    }
+    .ai-credit-link {
+      display: inline-block;
+      margin-top: 8px;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--warm-brown);
+      text-decoration: none;
+    }
+    .ai-credit-link:hover { text-decoration: underline; }
 
     .device-panel {
       margin-top: 24px;
@@ -1036,6 +1078,10 @@
           <div class="stat-label">구독 플랜</div>
         </div>
         <div class="stat">
+          <div class="stat-value" id="stat-ai-credits">—</div>
+          <div class="stat-label">AI 크레딧 남음</div>
+        </div>
+        <div class="stat">
           <div class="stat-value" id="stat-days">1</div>
           <div class="stat-label">가입 후 일수</div>
         </div>
@@ -1081,6 +1127,12 @@
             <div class="plan-name">Current Plan</div>
             <div class="plan-tier">Free</div>
             <div class="plan-desc" id="plan-desc-block">기본 수비학 분석이 포함됩니다.<br>프리미엄으로 업그레이드하면 전체 리포트와 심층 Growth Map을 이용할 수 있습니다.</div>
+            <div class="ai-credit-box" id="aiCreditBox">
+              <div class="ai-credit-label">이번 달 AI 크레딧</div>
+              <div class="ai-credit-value" id="aiCreditValue">—</div>
+              <div class="ai-credit-note" id="aiCreditNote">불러오는 중…</div>
+              <a class="ai-credit-link" href="pricing.html#onetime">AI 체험·크레딧 구매 →</a>
+            </div>
             <button class="upgrade-btn" id="upgradeBtn" onclick="onPlanActionClick()">
               플랜 관리 →
             </button>
@@ -1110,6 +1162,41 @@
 </div>
 
 <script>
+  async function loadAiCredits() {
+    const statEl = document.getElementById('stat-ai-credits');
+    const valueEl = document.getElementById('aiCreditValue');
+    const noteEl = document.getElementById('aiCreditNote');
+    try {
+      if (!window.PaljaAiQuota || typeof PaljaAiQuota.fetchQuota !== 'function') {
+        if (statEl) statEl.textContent = '—';
+        if (valueEl) valueEl.textContent = '—';
+        if (noteEl) noteEl.textContent = '잠시 후 다시 확인해 주세요.';
+        return;
+      }
+      const quota = await PaljaAiQuota.fetchQuota();
+      if (!quota || quota.limit == null) {
+        if (statEl) statEl.textContent = '—';
+        if (valueEl) valueEl.textContent = '—';
+        if (noteEl) noteEl.textContent = '로그인 후 AI 잔여를 확인할 수 있어요.';
+        return;
+      }
+      const used = Number(quota.used) || 0;
+      const limit = Number(quota.limit) || 0;
+      const rem = quota.remaining != null ? Number(quota.remaining) : Math.max(0, limit - used);
+      if (statEl) statEl.textContent = String(rem);
+      if (valueEl) valueEl.innerHTML = rem + '<span> / ' + limit + '</span>';
+      let note = '이번 달 사용 ' + used + ' · 남은 ' + rem + '크레딧';
+      if (quota.bonus > 0) note += ' (구매 크레딧 포함)';
+      if (quota.counselorTrial) note += ' · 상담사 체험';
+      if (limit === 0) note = '구독 또는 AI 체험팩을 구매하면 이용할 수 있어요.';
+      if (noteEl) noteEl.textContent = note;
+    } catch (_) {
+      if (statEl) statEl.textContent = '—';
+      if (valueEl) valueEl.textContent = '—';
+      if (noteEl) noteEl.textContent = '잔여 크레딧을 불러오지 못했습니다.';
+    }
+  }
+
   async function getUsageStats(userId) {
     const fallback = { analysisRuns: 0, savedReports: 0 };
     if (!userId) return fallback;
@@ -1496,6 +1583,7 @@
     } catch (e) { /* ignore */ }
 
     const { data: { session: sess2 } } = await sb.auth.getSession();
+    await loadAiCredits();
     await loadRegisteredDevices(sess2 || session);
     if (location.hash === '#devices') {
       document.getElementById('devices')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
