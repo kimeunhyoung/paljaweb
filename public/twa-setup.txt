@@ -52,19 +52,21 @@
 ■ 스토어 등록 필수 항목 (팔자연구소)
 
   - 앱 아이콘 512×512: public/icons/icon-512.png
-  - 스크린샷: screen1~4.png 등 (휴대폰 세로)
+  - 스크린샷: 스크린샷/최종/ 권장 순서·캡션은 public/구글텍스트.txt
+  - 스토어 문구(짧은설명·전체설명·체크리스트): public/구글텍스트.txt
   - 개인정보처리방침: https://8code.kr/privacy.html
   - 이용약관: https://8code.kr/terms.html
   - 콘텐츠 등급: 설문 (운세·자기계발·교육 성격)
-  - 데이터 보안 설문
+  - 데이터 보안 설문: public/구글텍스트.txt 가이드 참고
 
 ■ 업로드 순서
 
   1. keystore로 AAB 빌드
   2. assetlinks.json SHA 반영 후 8code.kr 배포
-  3. Play Console → kr.co.palja.app 앱 → 내부 테스트 → AAB 업로드
+  3. Play Console → kr.co.palja.app 앱 → 비공개(클로즈드) 테스트 → AAB 업로드
   4. 실기기 설치·로그인·결제 흐름 확인
-  5. 프로덕션 검토 제출
+  5. 테스터 12명·14일 요건 충족 후 → 프로덕션 액세스 신청
+  6. 스토어 등록정보 채운 뒤 프로덕션 검토 제출
 
 ■ 참고
 

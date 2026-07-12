@@ -2471,13 +2471,27 @@
     .guest-signup-dismiss { background: transparent; color: var(--muted, #9a8570); font-weight: 500 !important; }
     .gate-onetime {
       display: block;
-      margin-top: 14px;
+      margin-top: 10px;
       font-size: 12px;
       color: var(--warm-brown);
       text-decoration: underline;
       text-underline-offset: 2px;
     }
+    .gate-onetime:first-of-type { margin-top: 14px; }
     .gate-onetime:hover { color: var(--deep-brown); }
+    .gate-onetime-primary {
+      display: inline-block;
+      margin-top: 12px;
+      margin-right: 8px;
+      padding: 10px 14px;
+      border-radius: 8px;
+      background: var(--deep-brown, #4a3520);
+      color: #f5f0e8 !important;
+      text-decoration: none !important;
+      font-size: 13px;
+      font-weight: 600;
+    }
+    .gate-onetime-primary:hover { opacity: 0.92; color: #f5f0e8 !important; }
 
     /* ── AI SUMMARY ── */
     .ai-summary {
@@ -4706,17 +4720,19 @@ function gateHTML(planRequired, title, desc) {
     <div class="gate-desc">${desc}<br><br><strong>Private</strong> 플랜 전용입니다. 결제하는 <strong>Professional(상담사)</strong> 플랜과는 별개예요.</div>
   </div>`;
   }
-  // 구독 부담을 줄이기 위한 건별(1회) 이용권 대안 — 잠금 등급에 맞는 단품 연결
-  const onetime = planRequired === 'basic'
-    ? { href: '/lifecode/buy.html?product=basic30', label: '베이직 15일 이용권 (7,900원)' }
-    : { href: '/lifecode/buy.html?product=counselor30', label: '상담사 15일 체험권 (29,900원)' };
+  // 첫 결제는 저가 단품 → 그다음 15일 이용권 (구독 부담 완화)
+  const onetimeLinks = planRequired === 'basic'
+    ? `<a class="gate-onetime-primary" href="/ai-buy.html?product=cal_pass_3d">달력 3일 · 1,900원</a>
+    <a class="gate-onetime" href="/lifecode/buy.html?product=basic30">베이직 15일 이용권 (7,900원) · 자동결제 없음</a>
+    <a class="gate-onetime" href="/pricing.html#onetime">AI 차트 1,000원 · 운세팩 등 단품 더보기</a>`
+    : `<a class="gate-onetime" href="/lifecode/buy.html?product=counselor30">상담사 15일 체험권 (29,900원) · 자동결제 없음</a>`;
   return `<div class="feature-gate">
     <div class="gate-icon">🔒</div>
     <div class="gate-title">${title}</div>
-    <div class="gate-desc">${desc}<br><br><strong>${labels[planRequired]} 플랜</strong> 이상에서 이용할 수 있어요.</div>
+    <div class="gate-desc">${desc}<br><br><strong>${labels[planRequired]} 플랜</strong> 이상에서 이용할 수 있어요.${planRequired === 'basic' ? '<br><span style="display:block;margin-top:8px;font-size:13px;line-height:1.55;opacity:.92">달력·오늘 운세만 궁금하면 3일 체험으로 먼저 써 보세요.</span>' : ''}</div>
     <button class="gate-btn" onclick="location.href='pricing.html?highlight=${planRequired}'">플랜 업그레이드 →</button>
     ${guestCta}
-    <a class="gate-onetime" href="${onetime.href}">${onetime.label} · 자동결제 없음</a>
+    ${onetimeLinks}
   </div>`;
 }
 
