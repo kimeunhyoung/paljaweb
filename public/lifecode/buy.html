@@ -335,7 +335,7 @@
       const amt = new Intl.NumberFormat('ko-KR').format(p.amount);
       return `<button type="button" class="product${sel}" data-key="${p.key}">
         <div class="product-name">${p.title}</div>
-        <div class="product-price">${amt}원 <small>/ ${p.days}일 · 1회 결제</small></div>
+        <div class="product-price">${amt}원 <small>/ ${p.days}일${p.aiCredits ? ` · AI ${p.aiCredits}크레딧` : ''} · 1회 결제</small></div>
         <div class="product-desc">${p.desc}</div>
       </button>`;
     }).join('');

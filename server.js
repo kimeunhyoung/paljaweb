@@ -104,7 +104,7 @@ async function getProfile(userId) {
   if (!base || !key) return null;
   const url =
     `${base.replace(/\/$/, '')}/rest/v1/profiles?id=eq.${encodeURIComponent(userId)}` +
-    '&select=id,full_name,plan,plan_active_until,professional_payment_key,toss_billing_key,subscription_cycle,subscription_cancel_at_period_end,counselor_trial_license_id,counselor_trial_device_id,ai_credits_bonus,calendar_pass_until,signup_landing_page,signup_referrer,utm_source,utm_medium,utm_campaign,utm_term,utm_content,signup_attribution_at';
+    '&select=id,full_name,plan,plan_active_until,professional_payment_key,toss_billing_key,subscription_cycle,subscription_cancel_at_period_end,counselor_trial_license_id,counselor_trial_device_id,basic_pass_license_id,ai_credits_bonus,calendar_pass_until,signup_landing_page,signup_referrer,utm_source,utm_medium,utm_campaign,utm_term,utm_content,signup_attribution_at';
   const res = await fetch(url, { headers: supabaseHeaders(key) });
   if (!res.ok) return null;
   const rows = await res.json();

@@ -1192,6 +1192,7 @@
       let note = '이번 달 사용 ' + used + ' · 남은 ' + rem + '크레딧';
       if (quota.bonus > 0) note += ' (구매 크레딧 포함)';
       if (quota.counselorTrial) note += ' · 상담사 체험';
+      if (quota.basicPass) note += ' · 베이직 7일(AI 5)';
       if (limit === 0) note = '구독 또는 AI 체험팩을 구매하면 이용할 수 있어요.';
       if (noteEl) noteEl.textContent = note;
     } catch (_) {
