@@ -48,19 +48,68 @@
     return `circetarot/${encodeURIComponent(folder)}/${num}.jpg`;
   }
 
+  function parseUprightSections(upright) {
+    if (!upright) return { story: '', you: '', advice: '' };
+    const storyMatch = upright.match(/【이 카드의 이야기】\s*\n([\s\S]*?)(?=\n\n【|$)/);
+    const youMatch = upright.match(/【지금 당신에게】\s*\n([\s\S]*?)(?=\n\n【|$)/);
+    const adviceMatch = upright.match(/【조언】\s*\n([\s\S]*?)$/);
+    return {
+      story: storyMatch ? `【이 카드의 이야기】\n${storyMatch[1].trim()}` : '',
+      you: youMatch ? `【지금 당신에게】\n${youMatch[1].trim()}` : '',
+      advice: adviceMatch ? `【조언】\n${adviceMatch[1].trim()}` : '',
+    };
+  }
+
+  function normalizeTopics(m, parsed) {
+    const base = {
+      general: {
+        you: parsed.you,
+        advice: parsed.advice,
+      },
+    };
+    if (m.topics && typeof m.topics === 'object') {
+      return { ...base, ...m.topics };
+    }
+    return base;
+  }
+
   function applyMeaning(card, id) {
     const m = MEANINGS[id];
     if (!m) return card;
+    const upright = m.upright || PLACEHOLDER_UPRIGHT;
+    const parsed = m.story
+      ? {
+          story: m.story,
+          you: m.topics?.general?.you || '',
+          advice: m.topics?.general?.advice || '',
+        }
+      : parseUprightSections(upright);
+    const story = m.story || parsed.story;
+    const topics = normalizeTopics(m, parsed);
     return {
       ...card,
       name: m.nameKr || card.name,
       en: m.en || card.en,
       myth: m.myth || '',
       keywords: m.keywords || PLACEHOLDER_KEYWORDS,
-      upright: m.upright || PLACEHOLDER_UPRIGHT,
+      story,
+      topics,
+      upright,
       reversed: m.reversed || PLACEHOLDER_REVERSED,
     };
   }
+
+  window.getKirkeReadingText = function (card, topic) {
+    if (!card) return '';
+    const resolved = window.resolveKirkeReadingTopic?.(topic) || 'general';
+    const topics = card.topics || {};
+    const picked = topics[resolved] || topics.general || {};
+    const you = picked.you || '';
+    const advice = picked.advice || '';
+    const parts = [card.story, you, advice].filter(Boolean);
+    if (parts.length) return parts.join('\n\n');
+    return card.upright || PLACEHOLDER_UPRIGHT;
+  };
 
   function buildDeck() {
     const deck = [];

@@ -1,5 +1,5 @@
 /**
- * 키르케타로코드 — UI (뼈대)
+ * 키르케타로코드 — UI
  */
 (function () {
   const DECK = window.KIRKE_TAROT_DECK || [];
@@ -8,6 +8,8 @@
   let shuffledDeck = [];
   let drawnCards = [];
   let flippedCount = 0;
+  let selectedTopic = 'general';
+  let customQuestion = '';
 
   function escapeHtml(s) {
     if (s == null) return '';
@@ -20,6 +22,34 @@
 
   function escapeAttr(s) {
     return escapeHtml(s).replace(/'/g, '&#39;');
+  }
+
+  function syncQuestionField() {
+    const topicEl = document.getElementById('kirkeTopic');
+    const questionEl = document.getElementById('kirkeQuestion');
+    if (!topicEl || !questionEl) return;
+    const isCustom = topicEl.value === 'custom';
+    questionEl.disabled = !isCustom;
+    questionEl.setAttribute('aria-disabled', isCustom ? 'false' : 'true');
+  }
+
+  function syncTopicHint() {
+    const topicEl = document.getElementById('kirkeTopic');
+    const hintEl = document.getElementById('kirkeTopicHint');
+    if (!topicEl || !hintEl) return;
+    const meta = window.KIRKE_TAROT_TOPICS?.[topicEl.value];
+    hintEl.textContent = meta?.hint || '';
+  }
+
+  function initKirkeTopicUi() {
+    const topicEl = document.getElementById('kirkeTopic');
+    if (!topicEl) return;
+    topicEl.addEventListener('change', () => {
+      syncTopicHint();
+      syncQuestionField();
+    });
+    syncTopicHint();
+    syncQuestionField();
   }
 
   function preloadKirkeImages(cards) {
@@ -39,6 +69,9 @@
       alert('질문을 입력해 주세요.');
       return;
     }
+
+    selectedTopic = topic;
+    customQuestion = topic === 'custom' ? custom : '';
 
     document.getElementById('kirkeStep1').hidden = true;
     document.getElementById('kirkeStep2').hidden = false;
@@ -60,11 +93,18 @@
       el.onclick = () => drawCard(i, el);
       grid.appendChild(el);
     });
+
+    requestAnimationFrame(() => {
+      document.getElementById('kirkeStep2')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
   }
 
   function drawCard(index, el) {
     if (el.classList.contains('drawn') || drawnCards.length >= SPREAD_COUNT) return;
+    const order = drawnCards.length + 1;
     el.classList.add('drawn');
+    el.dataset.order = String(order);
+    el.setAttribute('aria-label', `카드 ${index + 1} · ${order}번째 선택`);
     const card = shuffledDeck[index];
     drawnCards.push({ ...card });
     if (drawnCards.length >= SPREAD_COUNT) {
@@ -158,18 +198,26 @@
   function renderReading() {
     const reading = document.getElementById('kirkeReading');
     if (!reading) return;
+
+    const topicLabel = window.getKirkeTopicLabel?.(selectedTopic) || '전반적인 흐름';
     let html = '<div class="kirke-reading-title">리딩</div>';
+    html += `<p class="kirke-reading-topic">주제 · ${escapeHtml(topicLabel)}</p>`;
+    if (selectedTopic === 'custom' && customQuestion) {
+      html += `<p class="kirke-reading-question">질문 · ${escapeHtml(customQuestion)}</p>`;
+    }
+
     drawnCards.forEach((card, i) => {
       const mythLine = card.myth
         ? `<p class="kirke-reading-myth">신화: ${escapeHtml(card.myth)}</p>`
         : '';
+      const readingText = window.getKirkeReadingText?.(card, selectedTopic) || card.upright || '';
       html += `
         <article class="kirke-reading-block">
           <h3>${escapeHtml(POSITIONS[i])} — ${escapeHtml(card.name)}</h3>
           <p class="kirke-reading-en">${escapeHtml(card.en || '')}</p>
           ${mythLine}
           <p class="kirke-reading-kw">키워드 · ${escapeHtml(card.keywords)}</p>
-          <div class="kirke-reading-text">${formatReadingParagraphs(card.upright)}</div>
+          <div class="kirke-reading-text">${formatReadingParagraphs(readingText)}</div>
         </article>`;
     });
     html +=
@@ -181,6 +229,8 @@
     drawnCards = [];
     shuffledDeck = [];
     flippedCount = 0;
+    selectedTopic = 'general';
+    customQuestion = '';
     document.getElementById('kirkeStep1').hidden = false;
     document.getElementById('kirkeStep2').hidden = true;
     document.getElementById('kirkeStep3').hidden = true;
@@ -193,4 +243,10 @@
 
   window.startKirkeSpread = startSpread;
   window.resetKirkeTarot = resetKirkeTarot;
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initKirkeTopicUi);
+  } else {
+    initKirkeTopicUi();
+  }
 })();
