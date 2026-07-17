@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <title>블로그용 UTM 링크 — 팔자연구소 8CODE</title>
+  <meta name="description" content="네이버 블로그 CTA용 UTM 추적 링크 생성 (운영용)">
+  <meta name="robots" content="noindex, nofollow">
+  <link rel="stylesheet" href="/css/style.css?v=20260610a">
+  <link rel="stylesheet" href="/css/content-pages.css?v=20260711d">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Noto+Serif+KR:wght@400;600&family=Noto+Sans+KR:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    .bl-field {
+      margin: 0 0 1.25rem;
+      padding: 1rem 1.1rem;
+      background: rgba(255, 252, 245, 0.9);
+      border: 1px solid rgba(139, 111, 71, 0.22);
+      border-radius: 12px;
+    }
+    .bl-field label {
+      display: block;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: #5c451f;
+      margin-bottom: 0.4rem;
+    }
+    .bl-field input {
+      width: 100%;
+      box-sizing: border-box;
+      padding: 0.65rem 0.75rem;
+      border: 1px solid rgba(139, 111, 71, 0.35);
+      border-radius: 8px;
+      font-size: 0.95rem;
+      font-family: inherit;
+      color: #2c1f0e;
+      background: #fff;
+    }
+    .bl-field input:focus {
+      outline: none;
+      border-color: #8b6f47;
+      box-shadow: 0 0 0 3px rgba(139, 111, 71, 0.15);
+    }
+    .bl-hint {
+      margin: 0.45rem 0 0;
+      font-size: 0.78rem;
+      color: #7a6b58;
+      line-height: 1.5;
+    }
+    .bl-fixed {
+      margin-top: 0.65rem;
+      font-size: 0.78rem;
+      color: #5c451f;
+      font-family: ui-monospace, monospace;
+    }
+    .bl-card {
+      margin-bottom: 1rem;
+      padding: 1rem 1.1rem;
+      background: #fff;
+      border: 1px solid rgba(139, 111, 71, 0.2);
+      border-radius: 12px;
+    }
+    .bl-card h3 {
+      margin: 0 0 0.35rem;
+      font-size: 1rem;
+      color: #4a3520;
+      border: none;
+      padding: 0;
+    }
+    .bl-card-topic {
+      font-size: 0.75rem;
+      color: #8b6f47;
+      margin-bottom: 0.75rem;
+    }
+    .bl-row {
+      margin-bottom: 0.75rem;
+    }
+    .bl-row:last-child { margin-bottom: 0; }
+    .bl-row-label {
+      font-size: 0.72rem;
+      font-weight: 600;
+      color: #7a6b58;
+      margin-bottom: 0.25rem;
+    }
+    .bl-cta {
+      font-size: 0.82rem;
+      color: #4a3520;
+      margin-bottom: 0.35rem;
+    }
+    .bl-url {
+      display: block;
+      width: 100%;
+      box-sizing: border-box;
+      padding: 0.5rem 0.6rem;
+      font-size: 0.72rem;
+      line-height: 1.45;
+      word-break: break-all;
+      background: #f7f2e8;
+      border: 1px solid rgba(139, 111, 71, 0.18);
+      border-radius: 8px;
+      color: #2c1f0e;
+      font-family: ui-monospace, Consolas, monospace;
+      margin-bottom: 0.4rem;
+    }
+    .bl-actions {
+      display: flex;
+      gap: 0.4rem;
+      flex-wrap: wrap;
+    }
+    .bl-btn {
+      appearance: none;
+      border: none;
+      cursor: pointer;
+      padding: 0.45rem 0.85rem;
+      border-radius: 8px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      font-family: inherit;
+      background: #4a3520;
+      color: #fffaf0;
+    }
+    .bl-btn:hover { background: #5c451f; }
+    .bl-btn--ghost {
+      background: transparent;
+      color: #4a3520;
+      border: 1px solid rgba(74, 53, 32, 0.3);
+    }
+    .bl-btn--ghost:hover { background: rgba(74, 53, 32, 0.06); }
+    .bl-btn.is-copied {
+      background: #2d6a4f;
+    }
+    .bl-check {
+      margin-top: 1.5rem;
+      padding: 1rem 1.1rem;
+      background: linear-gradient(165deg, #fdfaf3, #f3ead8);
+      border: 1px dashed rgba(139, 111, 71, 0.4);
+      border-radius: 12px;
+      font-size: 0.88rem;
+      color: #4a3520;
+      line-height: 1.65;
+    }
+    .bl-check strong { color: #2c1f0e; }
+    .bl-toast {
+      position: fixed;
+      bottom: 1.25rem;
+      left: 50%;
+      transform: translateX(-50%) translateY(120%);
+      background: #2c1f0e;
+      color: #fffaf0;
+      padding: 0.65rem 1.1rem;
+      border-radius: 999px;
+      font-size: 0.85rem;
+      opacity: 0;
+      transition: transform 0.25s ease, opacity 0.25s ease;
+      z-index: 50;
+      pointer-events: none;
+    }
+    .bl-toast.is-show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+  </style>
+</head>
+<body>
+  <nav class="navbar">
+    <div class="nav-inner">
+      <a href="/index.html" class="nav-logo"><div class="logo-mark">八</div><span class="logo-text">팔자연구소</span></a>
+      <div class="nav-actions"><a href="/ai-credit-admin.html" class="btn-nav-ghost">유입 확인</a></div>
+    </div>
+  </nav>
+
+  <main class="content-main">
+    <h1>블로그용 UTM 링크</h1>
+    <p class="content-meta">운영용 · 검색 비노출</p>
+    <p class="content-lead">
+      네이버 글 CTA에 이 링크를 넣으면, 가입 시 관리자·텔레그램에
+      <strong>utm_source=naver_blog</strong>로 표시됩니다.
+    </p>
+
+    <div class="bl-field">
+      <label for="campaign">캠페인 이름 (utm_campaign)</label>
+      <input id="campaign" type="text" value="daily_energy" autocomplete="off" spellcheck="false"
+        placeholder="예: life-path, natal-chart, daily_energy">
+      <p class="bl-hint">글 주제마다 다르게 쓰면 어떤 글에서 왔는지 구분됩니다. 영문·숫자·하이픈 권장.</p>
+      <p class="bl-fixed">고정: utm_source=<strong>naver_blog</strong> · utm_medium=<strong>organic</strong></p>
+    </div>
+
+    <section class="content-section">
+      <h2>주제별 링크</h2>
+      <div id="cards"></div>
+    </section>
+
+    <div class="bl-check">
+      <strong>확인 방법</strong><br>
+      1. 위 링크로 들어와 가입<br>
+      2. <a href="/ai-credit-admin.html">AI 크레딧 관리자</a>에서 UTM에
+      <code>naver_blog · organic · (캠페인명)</code>이 보이는지 확인<br>
+      텔레그램 가입 알림에도 동일하게 표시됩니다.
+    </div>
+  </main>
+
+  <div class="bl-toast" id="toast" role="status">복사됨</div>
+
+  <script>
+(function () {
+  var ORIGIN = 'https://8code.kr';
+  var SOURCE = 'naver_blog';
+  var MEDIUM = 'organic';
+
+  var TOPICS = [
+    {
+      title: '수비학 일반',
+      topic: '수비학이란 · 입문',
+      primary: { path: '/analysis.html', cta: '무료로 내 숫자 보기 →', label: '무료 입구' },
+      secondary: { path: '/guide/what-is-numerology.html', cta: '수비학이란? 가이드 →', label: '글 주제' }
+    },
+    {
+      title: '인생여정수',
+      topic: '라이프패스 · 생일 숫자',
+      primary: { path: '/analysis.html', cta: '무료로 내 숫자 보기 →', label: '무료 입구' },
+      secondary: { path: '/guide/life-path-number.html', cta: '인생여정수 가이드 →', label: '글 주제' }
+    },
+    {
+      title: '수비학 달력',
+      topic: '개인일 · 오늘의 에너지',
+      primary: { path: '/analysis.html', cta: '무료로 내 숫자 보기 →', label: '무료 입구' },
+      secondary: { path: '/numerology-calendar.html', cta: '수비학 달력 보기 →', label: '글 주제' }
+    },
+    {
+      title: '수비학 궁합',
+      topic: '소울하모니',
+      primary: { path: '/analysis.html', cta: '무료로 내 숫자 보기 →', label: '무료 입구' },
+      secondary: { path: '/compatibility.html', cta: '수비학 궁합 보기 →', label: '글 주제' }
+    },
+    {
+      title: '점성학',
+      topic: '출생 차트 · 네이탈',
+      primary: { path: '/astrology.html', cta: '출생 차트 보기 →', label: '무료 입구' },
+      secondary: { path: '/guide/what-is-astrology.html', cta: '점성학이란? 가이드 →', label: '글 주제' }
+    },
+    {
+      title: '커플 차트',
+      topic: '시너스트리',
+      primary: { path: '/astrology.html', cta: '출생 차트 보기 →', label: '무료 입구' },
+      secondary: { path: '/astrology-couple.html', cta: '커플 차트 보기 →', label: '글 주제' }
+    }
+  ];
+
+  function slugCampaign(raw) {
+    var s = String(raw || '').trim();
+    if (!s) return 'blog';
+    return s.replace(/\s+/g, '-').replace(/[^\w\-.가-힣]/g, '').slice(0, 80) || 'blog';
+  }
+
+  function buildUrl(path, campaign) {
+    var u = new URL(path, ORIGIN);
+    u.searchParams.set('utm_source', SOURCE);
+    u.searchParams.set('utm_medium', MEDIUM);
+    u.searchParams.set('utm_campaign', campaign);
+    return u.toString();
+  }
+
+  var campaignEl = document.getElementById('campaign');
+  var cardsEl = document.getElementById('cards');
+  var toastEl = document.getElementById('toast');
+  var toastTimer = null;
+
+  function showToast(msg) {
+    toastEl.textContent = msg || '복사됨';
+    toastEl.classList.add('is-show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function () {
+      toastEl.classList.remove('is-show');
+    }, 1600);
+  }
+
+  function copyText(text, btn) {
+    function done() {
+      if (btn) {
+        btn.classList.add('is-copied');
+        var prev = btn.textContent;
+        btn.textContent = '복사됨';
+        setTimeout(function () {
+          btn.classList.remove('is-copied');
+          btn.textContent = prev;
+        }, 1200);
+      }
+      showToast('클립보드에 복사됨');
+    }
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(done).catch(function () {
+        fallbackCopy(text);
+        done();
+      });
+    } else {
+      fallbackCopy(text);
+      done();
+    }
+  }
+
+  function fallbackCopy(text) {
+    var ta = document.createElement('textarea');
+    ta.value = text;
+    ta.setAttribute('readonly', '');
+    ta.style.position = 'fixed';
+    ta.style.left = '-9999px';
+    document.body.appendChild(ta);
+    ta.select();
+    try { document.execCommand('copy'); } catch (_) {}
+    document.body.removeChild(ta);
+  }
+
+  function renderRow(link, campaign) {
+    var url = buildUrl(link.path, campaign);
+    var wrap = document.createElement('div');
+    wrap.className = 'bl-row';
+    wrap.innerHTML =
+      '<div class="bl-row-label">' + link.label + '</div>' +
+      '<div class="bl-cta">' + link.cta + '</div>' +
+      '<code class="bl-url"></code>' +
+      '<div class="bl-actions">' +
+      '  <button type="button" class="bl-btn" data-copy="url">링크 복사</button>' +
+      '  <button type="button" class="bl-btn bl-btn--ghost" data-copy="cta">CTA+링크 복사</button>' +
+      '</div>';
+    wrap.querySelector('.bl-url').textContent = url;
+    wrap.querySelector('[data-copy="url"]').addEventListener('click', function (e) {
+      copyText(url, e.currentTarget);
+    });
+    wrap.querySelector('[data-copy="cta"]').addEventListener('click', function (e) {
+      copyText(link.cta + '\n' + url, e.currentTarget);
+    });
+    return wrap;
+  }
+
+  function render() {
+    var campaign = slugCampaign(campaignEl.value);
+    cardsEl.innerHTML = '';
+    TOPICS.forEach(function (t) {
+      var card = document.createElement('article');
+      card.className = 'bl-card';
+      card.innerHTML =
+        '<h3>' + t.title + '</h3>' +
+        '<div class="bl-card-topic">' + t.topic + '</div>';
+      card.appendChild(renderRow(t.primary, campaign));
+      card.appendChild(renderRow(t.secondary, campaign));
+      cardsEl.appendChild(card);
+    });
+  }
+
+  campaignEl.addEventListener('input', render);
+  campaignEl.addEventListener('change', render);
+  render();
+})();
+  </script>
+</body>
+</html>
