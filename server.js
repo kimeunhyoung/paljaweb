@@ -236,7 +236,7 @@ async function listProfilesBasic() {
   const base = process.env.SUPABASE_URL?.replace(/\/$/, '');
   const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
   if (!base || !key) return [];
-  const url = `${base}/rest/v1/profiles?select=id,full_name,plan,plan_active_until,counselor_trial_license_id,signup_landing_page,signup_referrer,utm_source,utm_medium,utm_campaign,utm_term,utm_content`;
+  const url = `${base}/rest/v1/profiles?select=id,full_name,plan,plan_active_until,toss_billing_key,counselor_trial_license_id,basic_pass_license_id,ai_credits_bonus,signup_landing_page,signup_referrer,utm_source,utm_medium,utm_campaign,utm_term,utm_content`;
   const res = await fetch(url, { headers: supabaseHeaders(key) });
   if (!res.ok) return [];
   const rows = await res.json();
