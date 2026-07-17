@@ -22,7 +22,7 @@ export const LIFECODE_PRODUCT = {
 
   pdfFilenamePrefix: '라이프코드',
 
-  /** 단품 Basic(30일) 목차 — 무료 레이어 + 리듬 묶음 */
+  /** 단품 Basic(7일) 목차 — 무료 레이어 + 리듬 묶음 */
   basicGuideHrefs: [
     '#nav-at-a-glance',
     '#nav-core',
@@ -163,7 +163,7 @@ export function buildLifecodeProductReadingGuideInner() {
   const legend =
     typeof window !== 'undefined' && window.PaljaPlan && window.PaljaPlan.tierLegendHtml
       ? window.PaljaPlan.tierLegendHtml()
-      : '<p class="lc-guide-tier-legend"><span class="lc-guide-tier-badge lc-guide-tier-badge--basic" title="Basic 플랜">B</span> 30일 단품 · <span class="lc-guide-tier-badge lc-guide-tier-badge--pro" title="Plus 플랜">P</span> 상담사 이용권</p>';
+      : '<p class="lc-guide-tier-legend"><span class="lc-guide-tier-badge lc-guide-tier-badge--basic" title="Basic 플랜">B</span> 베이직 7일 이용권 · <span class="lc-guide-tier-badge lc-guide-tier-badge--pro" title="Plus 플랜">P</span> 상담사 이용권</p>';
   const rows = modules
     .map(
       (m) => `

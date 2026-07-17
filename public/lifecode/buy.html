@@ -396,14 +396,25 @@
     shop.style.display = 'none';
     successPanel.classList.add('is-visible');
     const exp = result.expiresAt ? new Date(result.expiresAt) : null;
-    document.getElementById('expiresLine').textContent = exp
-      ? `이용 기한: ${exp.getFullYear()}년 ${exp.getMonth() + 1}월 ${exp.getDate()}일까지`
-      : '이용권이 활성화되었습니다.';
+    const expText = exp
+      ? `${exp.getFullYear()}년 ${exp.getMonth() + 1}월 ${exp.getDate()}일까지`
+      : null;
+    let note = '이용권이 활성화되었습니다.';
+    if (result.profileSkipped === 'has_subscription') {
+      note = '결제는 완료됐지만, 이미 월 구독 중이라 건별 이용권 기간은 적용되지 않았습니다. 고객센터로 문의해 주세요.';
+    } else if (result.profileSkipped === 'higher_plan') {
+      note = '결제는 완료됐지만, 이미 Plus 이상 플랜을 이용 중이라 베이직 이용권은 적용되지 않았습니다. 고객센터로 문의해 주세요.';
+    } else if (result.extended && expText) {
+      note = `이용 기간이 연장되었습니다. ${expText}`;
+    } else if (expText) {
+      note = `이용 기한: ${expText}`;
+    }
+    document.getElementById('expiresLine').textContent = note;
     const primary = document.getElementById('successPrimary');
     const isCounselor = selectedKey === 'counselor30' || result.productTier === 'counselor' || result.counselorHub;
     if (primary) {
-      primary.href = isCounselor ? '/counselor.html' : '/lifecode/';
-      primary.textContent = isCounselor ? '상담사 허브 열기 →' : '라이프코드 시작 →';
+      primary.href = isCounselor ? '/counselor.html' : '/analysis.html';
+      primary.textContent = isCounselor ? '상담사 허브 열기 →' : '분석 시작 →';
     }
     if (window.PaljaAnalytics?.track) {
       window.PaljaAnalytics.track('lifecode_purchase_success', { product: selectedKey });
@@ -447,6 +458,11 @@
         if (prep.status === 401) {
           showMsg('로그인이 필요합니다.', 'info');
           updateAuthUi();
+          return;
+        }
+        if (prep.status === 409) {
+          showMsg(prepJson.message || prepJson.error || '지금은 이 이용권을 구매할 수 없습니다.', 'info');
+          payBtn.disabled = false;
           return;
         }
         showMsg(prepJson.error || '결제 준비에 실패했습니다.', 'err');

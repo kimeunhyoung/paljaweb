@@ -180,7 +180,7 @@
     }
 
     if (!cfg.portoneConfigured || !cfg.storeId || !cfg.channelKey) {
-      showMsg('PORTONE_STORE_ID, PORTONE_CHANNEL_KEY, PORTONE_API_SECRET 환경변수를 Render에 설정해 주세요.', 'err');
+      showMsg('결제 설정을 확인할 수 없습니다. 잠시 후 다시 시도하거나 고객센터로 문의해 주세요.', 'err');
       document.getElementById('payBtn').disabled = true;
       return;
     }

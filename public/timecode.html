@@ -577,11 +577,15 @@
     }
     .lock-desc { font-size: 12px; color: var(--text-muted); }
     .btn-unlock {
+      display: inline-block;
       padding: 11px 28px;
       background: var(--brown); color: var(--gold-light);
       border: none; border-radius: 10px;
       font-family: 'Noto Serif KR', serif;
       font-size: 13px; font-weight: 600;
+      text-decoration: none;
+      cursor: pointer;
+    }
       cursor: pointer; margin-top: 4px;
       transition: background 0.2s;
     }
@@ -740,7 +744,7 @@
       <div class="lock-icon">🔒</div>
       <div class="lock-title">월별 에너지 캘린더</div>
       <div class="lock-desc">12개월 세밀한 흐름 + 월별 AI 해석</div>
-      <button class="btn-unlock" onclick="alert('준비 중입니다!')">Pro로 잠금 해제 · 월 9,900원</button>
+      <a class="btn-unlock" href="/numerology-calendar.html">수비학 달력으로 이동 · Basic부터</a>
     </div>
   </div>
 
