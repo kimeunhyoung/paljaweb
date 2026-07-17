@@ -8,7 +8,7 @@ const { registerLifecodeRoutes } = require('./lib/lifecode-api');
 const { registerNaverAuthRoutes } = require('./lib/naver-auth');
 const { registerCounselorPushRoutes, startCounselorPushScheduler } = require('./lib/counselor-push');
 const { registerCounselorTrialRoutes } = require('./lib/counselor-trial');
-const { registerAiUsageRoutes, isAiUpstreamAvailable, kstPeriod, aiCreditLimit } = require('./lib/ai-usage');
+const { registerAiUsageRoutes, isAiUpstreamAvailable, kstPeriod, aiCreditLimit, aiUsagePeriod } = require('./lib/ai-usage');
 const { registerAiOneTimeRoutes } = require('./lib/ai-one-time');
 const { registerSignupNotifyRoutes, providerLabel } = require('./lib/signup-notify');
 const { buildSignupStats } = require('./lib/admin-signup-stats');
@@ -626,17 +626,16 @@ app.get('/api/admin/ai-credits/users', async (req, res) => {
   const period = String(req.query.period || '').trim() || kstPeriod();
   const q = String(req.query.q || '').trim().toLowerCase();
   try {
-    const [profiles, authUsers, usageRows] = await Promise.all([
+    const [profiles, authUsers] = await Promise.all([
       listProfilesBasic(),
       listAuthUsers(),
-      listAiUsageMonthly(period),
     ]);
-    const usageByUser = new Map(usageRows.map((r) => [r.user_id, Number(r.credits_used) || 0]));
     const authByUser = new Map(authUsers.map((u) => [u.id, u]));
-    const merged = profiles.map((p) => {
+    const merged = await Promise.all(profiles.map(async (p) => {
       const authUser = authByUser.get(p.id);
       const email = (authUser?.email || '').toLowerCase();
-      const used = usageByUser.get(p.id) || 0;
+      const usagePeriod = aiUsagePeriod(p);
+      const used = await getAiMonthlyUsed(p.id, usagePeriod);
       const limit = aiCreditLimit(p);
       return {
         userId: p.id,
@@ -644,6 +643,7 @@ app.get('/api/admin/ai-credits/users', async (req, res) => {
         fullName: p.full_name || '',
         plan: p.plan || 'free',
         planActiveUntil: p.plan_active_until || null,
+        usagePeriod,
         signupProvider: providerLabel(authUser),
         joinedAt: authUser?.created_at || null,
         landingPage: p.signup_landing_page || '',
@@ -656,7 +656,7 @@ app.get('/api/admin/ai-credits/users', async (req, res) => {
         limit,
         remaining: Math.max(0, limit - used),
       };
-    });
+    }));
     const filtered = q
       ? merged.filter((u) =>
         u.email.includes(q) ||
@@ -713,7 +713,6 @@ app.post('/api/admin/ai-credits/adjust', async (req, res) => {
     return;
   }
   const userId = String(req.body?.userId || '').trim();
-  const period = String(req.body?.period || '').trim() || kstPeriod();
   const delta = Number(req.body?.delta);
   if (!userId || !Number.isInteger(delta) || delta === 0) {
     res.status(400).json({ error: 'userId와 정수 delta(0 제외)가 필요합니다.' });
@@ -724,10 +723,11 @@ app.post('/api/admin/ai-credits/adjust', async (req, res) => {
     return;
   }
   try {
+    const profile = await getProfile(userId);
+    const period = String(req.body?.period || '').trim() || aiUsagePeriod(profile || {});
     const prev = await getAiMonthlyUsed(userId, period);
     const next = Math.max(0, prev + delta);
     const saved = await upsertAiMonthlyUsed(userId, period, next);
-    const profile = await getProfile(userId);
     const limit = aiCreditLimit(profile || {});
     res.json({
       ok: true,
