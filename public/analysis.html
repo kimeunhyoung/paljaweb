@@ -4069,9 +4069,7 @@
     </div>
     <div id="flowBridge"></div>
     <div class="flow-row" id="flowRow"></div>
-    <div id="ageVibBox" class="age-vib-box" hidden></div>
     <div id="flowAccordion"></div>
-    <div id="pyDomainsContent" style="margin-top:14px"></div>
     <div id="flowTodayMsg" class="flow-today-msg-wrap" aria-label="오늘의 메시지"></div>
   </div>
 
@@ -5812,7 +5810,7 @@ window.NUMEROLOGY_DATA = (() => {
 <script src="js/majorCycleMap.js?v=20260508mc"></script>
 <script src="js/numerologyAccordionDetail.js?v=20260506v"></script>
 <script src="js/growthChallengeData.js?v=20260507"></script>
-<script src="js/numerology-life-tables.js?v=3"></script>
+<script src="js/numerology-life-tables.js?v=4"></script>
 <script src="js/period48LifeZones.js?v=20260517p48v6"></script>
 <script src="js/period48Data.js?v=20260517p48v6"></script>
 <script src="js/period48Profiles.js?v=20260517p48v6"></script>
@@ -5848,17 +5846,31 @@ function ageVibAccordionHtml(av, at, atf) {
   return intro + (deep || '') + alt;
 }
 
-function flowYearAccordionHtml(pyClassic, pyTarot) {
+function flowYearAccordionHtml(pyClassic, pyTarot, yearLabel) {
   const classicDeep = classicYearDeepHtml(pyClassic);
   const tarotDeep = currentFlowDeepHtml('year', pyTarot);
-  if (!classicDeep && !tarotDeep) return '';
-  if (pyClassic === pyTarot && classicDeep === tarotDeep) return classicDeep || tarotDeep;
-  const parts = [];
-  if (classicDeep) parts.push(classicDeep);
-  if (tarotDeep) {
-    parts.push(`<div class="flow-year-acc-split">${tarotDeep}</div>`);
+  let html = '';
+  if (classicDeep || tarotDeep) {
+    if (pyClassic === pyTarot && classicDeep === tarotDeep) {
+      html = classicDeep || tarotDeep;
+    } else {
+      const parts = [];
+      if (classicDeep) parts.push(classicDeep);
+      if (tarotDeep) {
+        parts.push(`<div class="flow-year-acc-split">${tarotDeep}</div>`);
+      }
+      html = parts.join('');
+    }
   }
-  return parts.join('');
+  if (window.PaljaLifeTables && typeof PaljaLifeTables.renderPersonalYearTableHtml === 'function') {
+    const pySingle = typeof PaljaLifeTables.toSingleDigit === 'function'
+      ? PaljaLifeTables.toSingleDigit(pyClassic)
+      : pyClassic;
+    html += PaljaLifeTables.renderPersonalYearTableHtml(pySingle, {
+      yearLabel: yearLabel != null ? String(yearLabel) : ''
+    });
+  }
+  return html;
 }
 
 function flowYearCardTitle(pyClassic, pyTarot) {
@@ -8655,46 +8667,20 @@ async function runAnalysis() {
   const atf = calcAgeTransitionForward(manAge);
   const avReduceSuffix = av.pre !== av.num ? ` → ${av.num}` : '';
 
-  const ageVibEl = document.getElementById('ageVibBox');
-  if (ageVibEl) {
-    const avReduce = avReduceSuffix;
-    ageVibEl.hidden = false;
-    ageVibEl.innerHTML = `
-      <div class="age-vib-num">${av.num}</div>
-      <div class="age-vib-body">
-        <div class="age-vib-label">연령진동수<span class="age-vib-tag">만 ${av.age}세 · 자릿수 합 ${av.pre}${avReduce}</span></div>
-        <div class="age-vib-title">${av.num}번 · ${TITLE_MAP[av.num] || ''}</div>
-        <div class="age-vib-desc">${TL_DESC[av.num] || ''}</div>
-        <div class="age-vib-note">만 나이의 자릿수를 더해 얻는 수로, <strong>생일마다 바뀌는 그해의 기본 리듬</strong>을 봅니다. 개인연도수가 ‘달력의 해’라면 연령진동수는 ‘내 나이의 해’를 봅니다.</div>
-        <div class="age-vib-alt">
-          <div class="age-vib-alt-row"><span class="age-vib-alt-tag">전환형 · 과거→현재</span> 이전+현재 나이 ${at.prev}+${at.age}=${at.sum} → <strong>${at.num}번</strong> · ${TITLE_MAP[at.num] || ''}</div>
-          <div class="age-vib-alt-row"><span class="age-vib-alt-tag">전환형 · 현재→미래</span> 현재+다음 나이 ${atf.age}+${atf.next}=${atf.sum} → <strong>${atf.num}번</strong> · ${TITLE_MAP[atf.num] || ''}</div>
-          <span class="age-vib-alt-hint">한 나이에서 다음으로 넘어가는 ‘전환 에너지’를 보는 변형 방식입니다. (보조)</span>
-        </div>
-      </div>`;
-  }
-
   document.getElementById('flowAccordion').innerHTML = [
-    {k:'올해의 수', v:pyDisplay, pre:pyPreLabel, pyClassic, pyTarot:py},
+    {k:'올해의 수', v:pyDisplay, pre:pyPreLabel, pyClassic, pyTarot:py, open:true},
     {k:'연령진동수', v:av.num, pre:`만 ${av.age}세 · ${av.pre}${avReduceSuffix}`, isAge:true},
     {k:'이번 달의 수', v:pm, pre:(py + curM), kind:'month'},
     {k:'오늘의 수', v:pd, pre:(pm + curD), kind:'day'}
   ].map(i=>{
     const body = i.k === '올해의 수'
-      ? flowYearAccordionHtml(i.pyClassic, i.pyTarot)
+      ? flowYearAccordionHtml(i.pyClassic, i.pyTarot, curY)
       : i.isAge
         ? ageVibAccordionHtml(av, at, atf)
         : currentFlowDeepHtml(i.kind, i.v);
     const titleMeta = i.isAge ? i.pre : `전합 ${i.pre}`;
-    return accordion(`✦ ${i.k} ${i.v}번 (${titleMeta})`, body);
+    return accordion(`✦ ${i.k} ${i.v}번 (${titleMeta})`, body, !!i.open);
   }).join('');
-
-  const pyDomainsHost = document.getElementById('pyDomainsContent');
-  if (pyDomainsHost && window.PaljaLifeTables) {
-    pyDomainsHost.innerHTML = PaljaLifeTables.renderPersonalYearTableHtml(pyClassic, {
-      yearLabel: String(curY) + '년'
-    });
-  }
 
   const todayDayLine = TL_DESC[pd] || '오늘의 리듬에 몸을 맡기며 하루를 살아가 보세요.';
   const todayHintParagraph = (DAY_HINT && DAY_HINT[pd])
@@ -8721,8 +8707,6 @@ async function runAnalysis() {
     }
     document.getElementById('flowRow').innerHTML = '';
     document.getElementById('flowAccordion').innerHTML = '';
-    const pyDomainsFree = document.getElementById('pyDomainsContent');
-    if (pyDomainsFree) pyDomainsFree.innerHTML = '';
     const ageVibElFree = document.getElementById('ageVibBox');
     if (ageVibElFree) { ageVibElFree.hidden = true; ageVibElFree.innerHTML = ''; }
     const flowTodayElFree = document.getElementById('flowTodayMsg');

@@ -3890,7 +3890,6 @@
     <div id="flowBridge"></div>
     <div class="flow-row" id="flowRow"></div>
     <div id="flowAccordion"></div>
-    <div id="pyDomainsContent" style="margin-top:14px"></div>
     <div id="flowTodayMsg" class="flow-today-msg-wrap" aria-label="오늘의 메시지"></div>
   </div>
 
@@ -5447,17 +5446,31 @@ function currentFlowDeepHtml(kind, v) {
   return DEEP_MAP[v] || '';
 }
 
-function flowYearAccordionHtml(pyClassic, pyTarot) {
+function flowYearAccordionHtml(pyClassic, pyTarot, yearLabel) {
   const classicDeep = classicYearDeepHtml(pyClassic);
   const tarotDeep = currentFlowDeepHtml('year', pyTarot);
-  if (!classicDeep && !tarotDeep) return '';
-  if (pyClassic === pyTarot && classicDeep === tarotDeep) return classicDeep || tarotDeep;
-  const parts = [];
-  if (classicDeep) parts.push(classicDeep);
-  if (tarotDeep) {
-    parts.push(`<div class="flow-year-acc-split">${tarotDeep}</div>`);
+  let html = '';
+  if (classicDeep || tarotDeep) {
+    if (pyClassic === pyTarot && classicDeep === tarotDeep) {
+      html = classicDeep || tarotDeep;
+    } else {
+      const parts = [];
+      if (classicDeep) parts.push(classicDeep);
+      if (tarotDeep) {
+        parts.push(`<div class="flow-year-acc-split">${tarotDeep}</div>`);
+      }
+      html = parts.join('');
+    }
   }
-  return parts.join('');
+  if (window.PaljaLifeTables && typeof PaljaLifeTables.renderPersonalYearTableHtml === 'function') {
+    const pySingle = typeof PaljaLifeTables.toSingleDigit === 'function'
+      ? PaljaLifeTables.toSingleDigit(pyClassic)
+      : pyClassic;
+    html += PaljaLifeTables.renderPersonalYearTableHtml(pySingle, {
+      yearLabel: yearLabel != null ? String(yearLabel) : ''
+    });
+  }
+  return html;
 }
 
 function flowYearCardTitle(pyClassic, pyTarot) {
@@ -8075,22 +8088,15 @@ async function runAnalysis() {
   }).join('');
 
   document.getElementById('flowAccordion').innerHTML = [
-    {k:'올해의 수', v:pyDisplay, pre:pyPreLabel, pyClassic, pyTarot:py},
+    {k:'올해의 수', v:pyDisplay, pre:pyPreLabel, pyClassic, pyTarot:py, open:true},
     {k:'이번 달의 수', v:pm, pre:(py + curM), kind:'month'},
     {k:'오늘의 수', v:pd, pre:(pm + curD), kind:'day'}
   ].map(i=>{
     const body = i.k === '올해의 수'
-      ? flowYearAccordionHtml(i.pyClassic, i.pyTarot)
+      ? flowYearAccordionHtml(i.pyClassic, i.pyTarot, curY)
       : currentFlowDeepHtml(i.kind, i.v);
-    return accordion(`✦ ${i.k} ${i.v}번 (전합 ${i.pre})`, body);
+    return accordion(`✦ ${i.k} ${i.v}번 (전합 ${i.pre})`, body, !!i.open);
   }).join('');
-
-  const pyDomainsHost = document.getElementById('pyDomainsContent');
-  if (pyDomainsHost && window.PaljaLifeTables) {
-    pyDomainsHost.innerHTML = PaljaLifeTables.renderPersonalYearTableHtml(pyClassic, {
-      yearLabel: String(curY) + '년'
-    });
-  }
 
   const todayDayLine = TL_DESC[pd] || '오늘의 리듬에 몸을 맡기며 하루를 살아가 보세요.';
   const todayHintParagraph = (DAY_HINT && DAY_HINT[pd])

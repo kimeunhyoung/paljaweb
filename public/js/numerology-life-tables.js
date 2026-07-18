@@ -202,7 +202,7 @@
     if (!p) return '';
     var yearLabel = opts.yearLabel ? esc(opts.yearLabel) + ' · ' : '';
     return (
-      '<div class="life-tables py-domains">' +
+      '<div class="life-tables py-domains" id="pyDomainsContent">' +
       '<div class="lt-head"><span class="lt-num">' +
       p.n +
       '</span><div><div class="lt-title">' +
