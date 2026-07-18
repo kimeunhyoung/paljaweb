@@ -389,6 +389,7 @@ function renderDetail(date, personalYear, personalMonth, personalDay, universalD
     </div>
     <div class="card-title">이번 달 흐름</div>
     <div class="text-card">${monthMessage}</div>
+    <div id="pyDomainsSlot"></div>
     <div class="guide">
       <div class="guide-item do">
         <strong>DO</strong>
@@ -414,6 +415,13 @@ function renderDetail(date, personalYear, personalMonth, personalDay, universalD
       <p class="ai-time-hint" id="numAiMonthlyHint">보통 20~40초 정도 걸려요.</p>
     </div>
   `;
+  const pySlot = document.getElementById("pyDomainsSlot");
+  if (pySlot && window.PaljaLifeTables) {
+    const pyClassic = reduceNumber(personalYear, false);
+    pySlot.innerHTML = PaljaLifeTables.renderPersonalYearTableHtml(pyClassic, {
+      yearLabel: String(year) + "년",
+    });
+  }
   bindDetailAiEvents();
 }
 

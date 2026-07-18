@@ -3882,6 +3882,7 @@
   <link rel="stylesheet" href="css/site-topbar.css?v=5" />
   <link rel="stylesheet" href="css/site-header.css?v=7" />
   <link rel="stylesheet" href="css/lifecode-product.css?v=1" />
+  <link rel="stylesheet" href="css/life-tables.css?v=1" />
 </head>
 <body class="logo-style-classic">
 
@@ -3962,6 +3963,7 @@
     <div id="coreReadingLede"></div>
     <div class="core-grid" id="coreGrid"></div>
     <div class="core-accordion-wrap" id="coreAccordion"></div>
+    <div id="wealthMatrixContent" style="margin-top:16px"></div>
     <div id="integratedStorySection" class="integrated-story-wrap" style="display:none;">
       <div class="integrated-story-kicker">Story · 겉과 속, 그리고 길</div>
       <div id="integratedStoryBody" class="integrated-story"></div>
@@ -4069,6 +4071,7 @@
     <div class="flow-row" id="flowRow"></div>
     <div id="ageVibBox" class="age-vib-box" hidden></div>
     <div id="flowAccordion"></div>
+    <div id="pyDomainsContent" style="margin-top:14px"></div>
     <div id="flowTodayMsg" class="flow-today-msg-wrap" aria-label="오늘의 메시지"></div>
   </div>
 
@@ -4142,6 +4145,7 @@
       <div class="analysis-jump-list">
         <a href="#nav-at-a-glance">먼저 보는 수</a>
         <a href="#nav-core">핵심 수</a>
+        <a href="#wealthMatrixContent">재물 매트릭스</a>
       </div>
       <div class="analysis-jump-group-label">기질 · 요약</div>
       <div class="analysis-jump-list">
@@ -5807,6 +5811,7 @@ window.NUMEROLOGY_DATA = (() => {
 <script src="js/majorCycleMap.js?v=20260508mc"></script>
 <script src="js/numerologyAccordionDetail.js?v=20260506v"></script>
 <script src="js/growthChallengeData.js?v=20260507"></script>
+<script src="js/numerology-life-tables.js?v=1"></script>
 <script src="js/period48LifeZones.js?v=20260517p48v6"></script>
 <script src="js/period48Data.js?v=20260517p48v6"></script>
 <script src="js/period48Profiles.js?v=20260517p48v6"></script>
@@ -7338,6 +7343,10 @@ function buildReadingGuideCatalogInnerHtml() {
         `피타고라스계 수비학 숫자 카드. 해설·아코디언은 <strong>Basic</strong> 이상.`,
       )}
       ${lcReadingGuideCatalogRow(
+        lcModuleNav('#wealthMatrixContent', '재물 매트릭스', 'free'),
+        `인생여정수 기준 재물 끌어당기는 방식(사분면)과 직업·금전·애정·컨디션 성향.`,
+      )}
+      ${lcReadingGuideCatalogRow(
         lcModuleNav('#zodiacInsightSection', '별자리', 'free'),
         `생일 기준 별자리 요약. 상세 해석은 <strong>Basic</strong> 이상.`,
       )}
@@ -8546,6 +8555,13 @@ async function runAnalysis() {
       '<p class="core-preview-note">나머지 숫자 해설(문 넘버·운명수·혼의수·성격수·완성수)과 통합 스토리는 <strong>Basic</strong> 이상에서 열립니다. <a href="/lifecode/buy.html?product=basic30" style="color:var(--warm-brown);text-decoration:underline;">구독 없이 7일 보기(4,900원)</a></p>';
   }
 
+  const wealthHost = document.getElementById('wealthMatrixContent');
+  if (wealthHost && window.PaljaLifeTables) {
+    wealthHost.innerHTML = PaljaLifeTables.renderWealthMatrixHtml(lp, {
+      title: '재물 매트릭스 · 인생여정수 ' + (lpDisplay != null ? lpDisplay : lp)
+    });
+  }
+
   const storySection = document.getElementById('integratedStorySection');
   const storyBody = document.getElementById('integratedStoryBody');
   if (storySection && storyBody) {
@@ -8660,6 +8676,13 @@ async function runAnalysis() {
     return accordion(`✦ ${i.k} ${i.v}번 (${titleMeta})`, body);
   }).join('');
 
+  const pyDomainsHost = document.getElementById('pyDomainsContent');
+  if (pyDomainsHost && window.PaljaLifeTables) {
+    pyDomainsHost.innerHTML = PaljaLifeTables.renderPersonalYearTableHtml(pyClassic, {
+      yearLabel: String(curY) + '년'
+    });
+  }
+
   const todayDayLine = TL_DESC[pd] || '오늘의 리듬에 몸을 맡기며 하루를 살아가 보세요.';
   const todayHintParagraph = (DAY_HINT && DAY_HINT[pd])
     ? `<p class="flow-today-msg-hint">${escapeHtml(DAY_HINT[pd])}</p>`
@@ -8685,6 +8708,8 @@ async function runAnalysis() {
     }
     document.getElementById('flowRow').innerHTML = '';
     document.getElementById('flowAccordion').innerHTML = '';
+    const pyDomainsFree = document.getElementById('pyDomainsContent');
+    if (pyDomainsFree) pyDomainsFree.innerHTML = '';
     const ageVibElFree = document.getElementById('ageVibBox');
     if (ageVibElFree) { ageVibElFree.hidden = true; ageVibElFree.innerHTML = ''; }
     const flowTodayElFree = document.getElementById('flowTodayMsg');
