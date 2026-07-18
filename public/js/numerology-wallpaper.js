@@ -187,6 +187,21 @@ function analyzeHangulName(nameStr) {
       soulPre += vVal;
       personalityPre += cVal;
       counted = true;
+      continue;
+    }
+    const low = ch.toLowerCase();
+    if (/[a-z]/.test(low)) {
+      const map = {
+        a: 1, j: 1, s: 1, b: 2, k: 2, t: 2, c: 3, l: 3, u: 3, d: 4, m: 4, v: 4,
+        e: 5, n: 5, w: 5, f: 6, o: 6, x: 6, g: 7, p: 7, y: 7, h: 8, q: 8, z: 8, i: 9, r: 9,
+      };
+      const vowels = new Set(["a", "e", "i", "o", "u"]);
+      const v = map[low] || 0;
+      if (!v) continue;
+      exprPre += v;
+      if (vowels.has(low)) soulPre += v;
+      else personalityPre += v;
+      counted = true;
     }
   }
 
@@ -201,7 +216,10 @@ function analyzeHangulName(nameStr) {
 function analyzeNameNumerology(nameStr) {
   const trimmed = String(nameStr || "").trim();
   if (!trimmed) return null;
-  if (hasHangul(trimmed)) return analyzeHangulName(trimmed);
+  if (hasHangul(trimmed) || /[ㄱ-ㅎㅏ-ㅣ]/.test(trimmed)) {
+    const mixed = analyzeHangulName(trimmed);
+    if (mixed) return mixed;
+  }
   return analyzeEnglishName(trimmed);
 }
 

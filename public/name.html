@@ -842,15 +842,23 @@ function reduce(n,master=true){
 }
 function decomposeChar(ch){const c=ch.charCodeAt(0)-0xAC00;if(c<0||c>11171)return null;return{cho:CHOS[Math.floor(c/(21*28))],jung:JUNGS[Math.floor((c%(21*28))/28)],jong:JONGS[c%28]||''};}
 function calcName(name){
-  const s=(name||'').replace(/\s/g,'');const hasHangul=/[가-힣ㄱ-ㅎㅏ-ㅣ]/.test(s);let cv=0,vv=0;
-  if(hasHangul){
-    for(const ch of s){
-      const d=decomposeChar(ch);
-      if(d){cv+=HC[d.cho]||0;if(d.jong)for(const j of d.jong)cv+=HC[j]||0;vv+=HV[d.jung]||0;continue;}
-      cv+=HC[ch]||0; vv+=HV[ch]||0;
+  const s=(name||'').replace(/\s/g,'');
+  if(!s) return {expression:{raw:0,val:0},soul:{raw:0,val:0},personality:{raw:0,val:0}};
+  let cv=0,vv=0;
+  for(const ch of s){
+    const d=decomposeChar(ch);
+    if(d){
+      cv+=HC[d.cho]||0;
+      if(d.jong) for(const j of d.jong) cv+=HC[j]||0;
+      vv+=HV[d.jung]||0;
+      continue;
     }
-  } else {
-    const clean=s.toUpperCase().replace(/[^A-Z]/g,'');for(const ch of clean){const v=PY[ch]||0;if(VOWELS.has(ch))vv+=v;else cv+=v;}
+    if(HC[ch]||HV[ch]){ cv+=HC[ch]||0; vv+=HV[ch]||0; continue; }
+    const up=ch.toUpperCase();
+    if(PY[up]){
+      const v=PY[up]||0;
+      if(VOWELS.has(up)) vv+=v; else cv+=v;
+    }
   }
   const total=cv+vv;
   return{expression:{raw:total,val:reduce(total)},soul:{raw:vv,val:reduce(vv)},personality:{raw:cv,val:reduce(cv)}};

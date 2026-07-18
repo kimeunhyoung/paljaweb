@@ -57,42 +57,52 @@
       .trim();
   }
 
+  function addLatinLetter(L, bag) {
+    var v = PY[L] || 0;
+    if (!v) return;
+    if (VOWELS[L]) bag.vv += v;
+    else bag.cv += v;
+  }
+
+  /** 한글·영문 혼용 상호는 글자마다 해당 체계로 합산 (한쪽만 쓰면 영문이 누락되던 문제 수정) */
   function calcName(name) {
     var s = cleanBrand(name).replace(/\s/g, '');
     if (!s) return null;
-    var hasHangul = /[가-힣ㄱ-ㅎㅏ-ㅣ]/.test(s);
-    var cv = 0;
-    var vv = 0;
-    if (hasHangul) {
-      for (var i = 0; i < s.length; i++) {
-        var ch = s[i];
-        var d = decomposeChar(ch);
-        if (d) {
-          cv += HC[d.cho] || 0;
-          if (d.jong) {
-            for (var j = 0; j < d.jong.length; j++) cv += HC[d.jong[j]] || 0;
-          }
-          vv += HV[d.jung] || 0;
-          continue;
+    var bag = { cv: 0, vv: 0 };
+    var usedHangul = false;
+    var usedLatin = false;
+    for (var i = 0; i < s.length; i++) {
+      var ch = s[i];
+      var d = decomposeChar(ch);
+      if (d) {
+        usedHangul = true;
+        bag.cv += HC[d.cho] || 0;
+        if (d.jong) {
+          for (var j = 0; j < d.jong.length; j++) bag.cv += HC[d.jong[j]] || 0;
         }
-        cv += HC[ch] || 0;
-        vv += HV[ch] || 0;
+        bag.vv += HV[d.jung] || 0;
+        continue;
       }
-    } else {
-      var clean = s.toUpperCase().replace(/[^A-Z]/g, '');
-      for (var k = 0; k < clean.length; k++) {
-        var L = clean[k];
-        var v = PY[L] || 0;
-        if (VOWELS[L]) vv += v;
-        else cv += v;
+      if (HC[ch] || HV[ch]) {
+        usedHangul = true;
+        bag.cv += HC[ch] || 0;
+        bag.vv += HV[ch] || 0;
+        continue;
+      }
+      var up = ch.toUpperCase();
+      if (PY[up]) {
+        usedLatin = true;
+        addLatinLetter(up, bag);
       }
     }
-    var total = cv + vv;
+    if (!bag.cv && !bag.vv) return null;
+    var total = bag.cv + bag.vv;
     return {
       cleaned: cleanBrand(name),
+      mixedScript: usedHangul && usedLatin,
       expression: { raw: total, val: reduce(total) },
-      soul: { raw: vv, val: reduce(vv) },
-      personality: { raw: cv, val: reduce(cv) }
+      soul: { raw: bag.vv, val: reduce(bag.vv) },
+      personality: { raw: bag.cv, val: reduce(bag.cv) }
     };
   }
 
@@ -160,16 +170,20 @@
     if (empty) empty.hidden = true;
     if (results) results.hidden = false;
     if (cleanedEl) {
-      cleanedEl.textContent =
+      var note =
         data.cleaned !== String(raw).trim()
           ? '계산에 쓴 이름: ' + data.cleaned + ' (Inc./주식회사 등 일반 표기는 제외)'
           : '계산에 쓴 이름: ' + data.cleaned;
+      if (data.mixedScript) {
+        note += ' · 한글·영문을 각각 합산했습니다';
+      }
+      cleanedEl.textContent = note;
     }
     if (numsEl) {
       numsEl.innerHTML =
         numCard('운명·표현수', '상호가 세상에 내거는 방향·역할', data.expression) +
         numCard('혼의수', '브랜드가 진짜로 원하는 것(모음 에너지)', data.soul) +
-        numCard('성격수', '공적 이미지·첫인상 — 상호에서 가장 중요', data.personality);
+        numCard('성격수', '공적 이미지·첫인상(바깥으로 보이는 면)', data.personality);
     }
     if (indEl && window.PaljaLifeTables) {
       indEl.innerHTML = PaljaLifeTables.renderIndustryMatchHtml(

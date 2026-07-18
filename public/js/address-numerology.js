@@ -123,14 +123,21 @@
 
   function detectSpecial(pre) {
     var notes = [];
-    if (pre === 11 || pre === 22 || pre === 33) {
-      notes.push('마스터 수 ' + pre + ' 진동을 거칩니다. 한 자리로 줄여도 본래 울림을 함께 보세요.');
+    var p = Number(pre) || 0;
+    var seenMaster = {};
+    var seenKarma = {};
+    if (p === 11 || p === 22 || p === 33) {
+      notes.push('마스터 수 ' + p + ' 진동을 거칩니다. 한 자리로 줄여도 본래 울림을 함께 보세요.');
+      seenMaster[p] = true;
     }
-    var p = pre;
     while (p > 9) {
-      if (KARMA[p]) {
+      if ((p === 11 || p === 22 || p === 33) && !seenMaster[p]) {
+        notes.push('마스터 수 ' + p + ' 진동을 거칩니다. 한 자리로 줄여도 본래 울림을 함께 보세요.');
+        seenMaster[p] = true;
+      }
+      if (KARMA[p] && !seenKarma[p]) {
         notes.push(KARMA[p]);
-        break;
+        seenKarma[p] = true;
       }
       p = sumDigits(p);
     }
@@ -359,8 +366,10 @@
       '</p>' +
       (info
         ? '<h3>' +
-          escapeHtml(info.title.replace('의 집', '의 통화')) +
-          '</h3><p>' +
+          escapeHtml(info.title.replace('의 집', '') || info.title) +
+          ' · 끝자리 테마</h3><p>' +
+          escapeHtml(info.theme) +
+          ' 진동으로 참고합니다. (전화 전용 표준 체계가 아니라 1~9 공통 의미를 빌려 씁니다.)</p><p>' +
           escapeHtml(info.body) +
           '</p>'
         : '') +
@@ -373,12 +382,12 @@
       ' → ' +
       escapeHtml(pathLabel(phone.full.path)) +
       '</p>' +
-      (fullInfo ? '<p>' + escapeHtml(fullInfo.theme) + ' 진동</p>' : '') +
+      (fullInfo ? '<p>' + escapeHtml(fullInfo.theme) + ' 진동(참고)</p>' : '') +
       '</div></div>' +
       '<h4>끝자리 각 수</h4><ul class="digit-list">' +
       digits +
       '</ul>' +
-      '<p class="hint-inline">끝자리가 가장 중요합니다. 지역번호·앞자리는 범위가 넓어 개인 해석에는 보조로만 봅니다.</p>';
+      '<p class="hint-inline">끝자리가 가장 중요합니다. 지역번호·앞자리는 보조로만 봅니다. 아래 해석은 주택 수와 같은 1~9 의미를 참고로 옮긴 것입니다.</p>';
   }
 
   function run() {

@@ -366,20 +366,20 @@
       .join('');
     return (
       '<div class="ind-match">' +
-      '<div class="lt-k" style="margin-bottom:8px">업종별 조화 수</div>' +
+      '<div class="lt-k" style="margin-bottom:8px">업종별 조화 수 <small style="font-weight:400;opacity:.75">(참고용 학파 표)</small></div>' +
       '<div class="ind-chips">' +
       chips +
       '</div>' +
       '<p class="lt-tip">' +
       (matched.length
-        ? '현재 상호 수와 잘 맞는 업종: <strong>' +
+        ? '표 기준으로 겹치는 업종: <strong>' +
           matched
             .map(function (m) {
               return m.label;
             })
             .join(', ') +
-          '</strong>. 상호의 <strong>성격수</strong>가 공적 이미지에 가장 크게 닿습니다.'
-        : '선택 업종과 숫자가 겹치지 않습니다. 성격수·운명수를 조율하거나 업종 포지션을 다시 보면 좋습니다.') +
+          '</strong>. 절대 규칙이 아니라 방향 점검용입니다. 표현수·성격수 중 하나라도 해당 업종 수와 겹치면 표시됩니다.'
+        : '표 기준으로는 겹치는 업종이 없습니다. 상호 수를 조율하거나, 업종 포지션을 다시 보는 참고로만 쓰세요.') +
       '</p></div>'
     );
   }
