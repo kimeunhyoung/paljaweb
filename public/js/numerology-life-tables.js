@@ -1,5 +1,5 @@
 /**
- * 재물 매트릭스 · 인생여정수 영역표 · 개인년 직업/금전/애정/건강
+ * 재물 매트릭스 · 인생여정수 영역표 · 개인연수 직업/금전/애정/건강
  * (수업 노트 5-4 · 5-6 · 5-7 기반. 투자·의료 조언 아님)
  */
 (function (root) {
@@ -207,9 +207,9 @@
       p.n +
       '</span><div><div class="lt-title">' +
       yearLabel +
-      '개인년 ' +
+      '개인연수 ' +
       p.n +
-      ' · 네 영역</div><div class="lt-sub">' +
+      ' · 4가지 영역</div><div class="lt-sub">' +
       esc(p.phase) +
       '</div></div></div>' +
       '<div class="lt-grid4">' +
