@@ -231,13 +231,171 @@
     );
   }
 
+  var COMPOUND_DAY = {
+    10: '합성수 10 — 1번 계열이지만 순수 1일보다 직접성이 조금 덜한 톤',
+    19: '합성수 19 — 1번 계열 + 충동적·추진 톤',
+    28: '합성수 28 — 1번 계열 + 조용하고 성실한 톤',
+    11: '합성수 11 — 2번 계열(마스터 11 울림을 함께 볼 수 있음)',
+    12: '합성수 12 — 3번 계열. 첫째 자리 1이 시리즈 톤을 만듦',
+    13: '합성수 13 — 4번 계열(변형·재구성 톤이 섞일 수 있음)',
+    14: '합성수 14 — 5번 계열(변화·해체 톤)',
+    16: '합성수 16 — 7번 계열(각성·재건 톤)',
+    20: '합성수 20 — 2번 계열',
+    21: '합성수 21 — 3번 계열',
+    22: '합성수 22 — 4번 계열(마스터 22 울림)',
+    29: '합성수 29 — 11→2 계열',
+    30: '합성수 30 — 3번 계열',
+    31: '합성수 31 — 4번 계열'
+  };
+
+  function calcPsychicFromDay(day) {
+    var d = Number(day) || 0;
+    if (d < 1 || d > 31) return null;
+    var single = toSingleDigit(d);
+    return {
+      day: d,
+      single: single,
+      compound: d > 9 ? d : null,
+      compoundNote: COMPOUND_DAY[d] || (d > 9 ? '합성수 ' + d + ' → ' + single + '. 첫째 자리가 시리즈를 결정합니다.' : null),
+      isPure: d <= 9
+    };
+  }
+
+  function renderPsychicVsLifePathHtml(day, lifePath, opts) {
+    opts = opts || {};
+    var psy = calcPsychicFromDay(day);
+    if (!psy) return '';
+    var lpN = toSingleDigit(lifePath);
+    var lpLabel = opts.lpLabel != null ? String(opts.lpLabel) : String(lifePath);
+    var same = psy.single === lpN;
+    var lpInfo = getLifePathDomains(lpN);
+    var psyInfo = getLifePathDomains(psy.single);
+    return (
+      '<div class="life-tables psychic-compare">' +
+      '<div class="lt-head"><span class="lt-num">◎</span><div>' +
+      '<div class="lt-title">사이킥 숫자 · 인생여정수</div>' +
+      '<div class="lt-sub">나를 보는 나 vs 삶의 큰 길</div></div></div>' +
+      '<div class="psy-pair">' +
+      '<div class="psy-card">' +
+      '<div class="psy-label">사이킥 (생일 일)</div>' +
+      '<div class="psy-num">' +
+      psy.single +
+      '</div>' +
+      '<div class="psy-meta">' +
+      psy.day +
+      '일' +
+      (psy.compound ? ' → ' + psy.compound + '/' + psy.single : '') +
+      '</div>' +
+      '<p class="psy-desc">자기 이미지 · 욕구·선택. 약 35~40세까지 강하게 작동합니다.</p>' +
+      (psyInfo ? '<p class="psy-role">' + esc(psyInfo.role) + '</p>' : '') +
+      '</div>' +
+      '<div class="psy-card">' +
+      '<div class="psy-label">인생여정수 (데스티니)</div>' +
+      '<div class="psy-num">' +
+      esc(lpLabel) +
+      '</div>' +
+      '<div class="psy-meta">한 자리 ' +
+      lpN +
+      '</div>' +
+      '<p class="psy-desc">세상이 보는 길 · 사회적 이미지. 35세 이후 점점 더 두드러집니다.</p>' +
+      (lpInfo ? '<p class="psy-role">' + esc(lpInfo.role) + '</p>' : '') +
+      '</div></div>' +
+      '<div class="concord-badge ' +
+      (same ? 'is-same' : 'is-diff') +
+      '">' +
+      (same
+        ? '✦ 같은 진동 — 나를 보는 눈과 삶의 방향이 잘 맞물립니다'
+        : '◇ 다른 진동 — 속마음과 바깥 역할이 다를 수 있어, 둘을 잇는 연습이 성장 포인트입니다') +
+      '</div>' +
+      (psy.compoundNote ? '<p class="lt-tip">' + esc(psy.compoundNote) + '</p>' : '') +
+      '<ul class="psy-timeline">' +
+      '<li><strong>~35세</strong> — 사이킥이 상대적으로 강함</li>' +
+      '<li><strong>35~40세</strong> — 사이킥 영향 최고조</li>' +
+      '<li><strong>35세 이후</strong> — 인생여정수가 점차 앞으로, 사이킥도 계속 중요</li>' +
+      '</ul>' +
+      '<p class="lt-disclaimer">자기이해 가이드이며, 운명의 확정이 아닙니다.</p>' +
+      '</div>'
+    );
+  }
+
+  var INDUSTRIES = [
+    { id: 'manufacturing', label: '제조', nums: [2, 4, 8] },
+    { id: 'service', label: '서비스', nums: [2, 3, 6, 9] },
+    { id: 'research', label: '연구', nums: [2, 7, 9] },
+    { id: 'education', label: '교육', nums: [6, 7, 9] },
+    { id: 'arts', label: '예술·음악', nums: [2, 3, 6, 9] },
+    { id: 'finance', label: '금융', nums: [8, 9] },
+    { id: 'venture', label: '벤처·광고', nums: [1, 5] },
+    { id: 'health', label: '건강', nums: [4, 7] }
+  ];
+
+  function matchIndustries(expression, personality) {
+    var ex = toSingleDigit(expression);
+    var pe = toSingleDigit(personality);
+    return INDUSTRIES.map(function (ind) {
+      var hitEx = ind.nums.indexOf(ex) >= 0;
+      var hitPe = ind.nums.indexOf(pe) >= 0;
+      return {
+        id: ind.id,
+        label: ind.label,
+        nums: ind.nums,
+        match: hitEx || hitPe,
+        hitExpression: hitEx,
+        hitPersonality: hitPe
+      };
+    });
+  }
+
+  function renderIndustryMatchHtml(expression, personality) {
+    var rows = matchIndustries(expression, personality);
+    var matched = rows.filter(function (r) {
+      return r.match;
+    });
+    var chips = rows
+      .map(function (r) {
+        return (
+          '<span class="ind-chip' +
+          (r.match ? ' is-on' : '') +
+          '">' +
+          esc(r.label) +
+          ' <small>' +
+          r.nums.join('·') +
+          '</small></span>'
+        );
+      })
+      .join('');
+    return (
+      '<div class="ind-match">' +
+      '<div class="lt-k" style="margin-bottom:8px">업종별 조화 수</div>' +
+      '<div class="ind-chips">' +
+      chips +
+      '</div>' +
+      '<p class="lt-tip">' +
+      (matched.length
+        ? '현재 상호 수와 잘 맞는 업종: <strong>' +
+          matched
+            .map(function (m) {
+              return m.label;
+            })
+            .join(', ') +
+          '</strong>. 상호의 <strong>성격수</strong>가 공적 이미지에 가장 크게 닿습니다.'
+        : '선택 업종과 숫자가 겹치지 않습니다. 성격수·운명수를 조율하거나 업종 포지션을 다시 보면 좋습니다.') +
+      '</p></div>'
+    );
+  }
+
   var api = {
     toSingleDigit: toSingleDigit,
     getWealth: getWealth,
     getLifePathDomains: getLifePathDomains,
     getPersonalYearDomains: getPersonalYearDomains,
+    calcPsychicFromDay: calcPsychicFromDay,
     renderWealthMatrixHtml: renderWealthMatrixHtml,
     renderPersonalYearTableHtml: renderPersonalYearTableHtml,
+    renderPsychicVsLifePathHtml: renderPsychicVsLifePathHtml,
+    INDUSTRIES: INDUSTRIES,
+    matchIndustries: matchIndustries,
+    renderIndustryMatchHtml: renderIndustryMatchHtml,
     WEALTH: WEALTH,
     LIFE_PATH: LIFE_PATH,
     PERSONAL_YEAR: PERSONAL_YEAR

@@ -102,3 +102,94 @@
     grid-template-columns: 1fr;
   }
 }
+
+.psy-pair {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+.psy-card {
+  padding: 12px;
+  border-radius: 12px;
+  background: #fff;
+  border: 1px solid rgba(139, 111, 71, 0.16);
+}
+.psy-label {
+  font-size: 11px;
+  font-weight: 700;
+  color: #8b6f47;
+  letter-spacing: 0.03em;
+}
+.psy-num {
+  margin-top: 4px;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 32px;
+  font-weight: 700;
+  color: #4a3520;
+  line-height: 1;
+}
+.psy-meta {
+  margin-top: 4px;
+  font-size: 12px;
+  color: #9a8a74;
+}
+.psy-desc,
+.psy-role {
+  margin: 8px 0 0;
+  font-size: 12.5px;
+  line-height: 1.55;
+  color: #5c4a36;
+}
+.psy-role { font-weight: 600; color: #8b6f47; }
+.psy-timeline {
+  margin: 10px 0 0;
+  padding-left: 1.1rem;
+  font-size: 12.5px;
+  line-height: 1.55;
+  color: #5c4a36;
+}
+.life-tables .concord-badge {
+  display: inline-block;
+  margin: 0 0 10px;
+  padding: 8px 12px;
+  border-radius: 999px;
+  font-size: 12.5px;
+  font-weight: 700;
+}
+.life-tables .concord-badge.is-same {
+  background: rgba(90, 176, 168, 0.15);
+  color: #2f6f68;
+  border: 1px solid rgba(90, 176, 168, 0.35);
+}
+.life-tables .concord-badge.is-diff {
+  background: rgba(200, 160, 88, 0.12);
+  color: #4a3520;
+  border: 1px solid rgba(200, 160, 88, 0.35);
+}
+.ind-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.ind-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  border: 1px solid rgba(139, 111, 71, 0.2);
+  background: #fff;
+  color: #9a8a74;
+}
+.ind-chip small { opacity: 0.85; }
+.ind-chip.is-on {
+  background: rgba(139, 111, 71, 0.12);
+  border-color: rgba(139, 111, 71, 0.4);
+  color: #4a3520;
+  font-weight: 700;
+}
+@media (max-width: 560px) {
+  .psy-pair { grid-template-columns: 1fr; }
+}
