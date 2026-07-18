@@ -3783,7 +3783,6 @@
     <div id="coreReadingLede"></div>
     <div class="core-grid" id="coreGrid"></div>
     <div class="core-accordion-wrap" id="coreAccordion"></div>
-    <div id="wealthMatrixContent" style="margin-top:16px"></div>
     <div id="psychicCompareContent" style="margin-top:14px"></div>
     <div id="integratedStorySection" class="integrated-story-wrap" style="display:none;">
       <div class="integrated-story-kicker">Story · 겉과 속, 그리고 길</div>
@@ -5424,7 +5423,7 @@ window.NUMEROLOGY_DATA = (() => {
 <script src="../js/majorCycleMap.js?v=20260508mc"></script>
 <script src="../js/numerologyAccordionDetail.js?v=20260506v"></script>
 <script src="../js/growthChallengeData.js?v=20260507"></script>
-<script src="../js/numerology-life-tables.js?v=2"></script>
+<script src="../js/numerology-life-tables.js?v=3"></script>
 <script src="../js/period48LifeZones.js?v=20260517p48v6"></script>
 <script src="../js/period48Data.js?v=20260517p48v6"></script>
 <script src="../js/period48Profiles.js?v=20260517p48v6"></script>
@@ -7943,7 +7942,13 @@ async function runAnalysis() {
   const coreDetail = hasBasicProfileDetailAccess();
   const coreItems = [
     { label:'인생여정수', value:lp, valueDisplay:lpDisplay, pre:lpPreLabel, desc: CORE_LIFE_PATH_MAP[lp]||DEEP_MAP[lp]||'',
-      accBody: lifePathCalcExplainHtml(y, m, d, lpParts) + coreAccordionBody(CORE_LIFE_PATH_MAP[lp]||DEEP_MAP[lp]||'', lp, ACCORDION_LIFE_PATH) },
+      accBody: lifePathCalcExplainHtml(y, m, d, lpParts)
+        + coreAccordionBody(CORE_LIFE_PATH_MAP[lp]||DEEP_MAP[lp]||'', lp, ACCORDION_LIFE_PATH)
+        + ((window.PaljaLifeTables && PaljaLifeTables.renderWealthMatrixHtml)
+          ? PaljaLifeTables.renderWealthMatrixHtml(lp, {
+              title: '재물 매트릭스 · 인생여정수 ' + (lpDisplay != null ? lpDisplay : lp)
+            })
+          : '') },
     { label:'문 넘버', value:mn, pre:mnPre, title: (MOON_TAROT_TITLE[mn] || ''), desc: moonNumberDesc(mn, mnPre),
       accBody: coreAccordionBody(moonNumberDesc(mn, mnPre), mn, ACCORDION_MOON) }
   ];
@@ -7975,15 +7980,16 @@ async function runAnalysis() {
       return accordion(`✦ ${c.label} ${c.valueDisplay ?? c.value}번${preText}`, accRich || '', false);
     }).join('');
   } else {
+    const first = coreItems[0];
+    let freeAcc = '';
+    if (first) {
+      const firstBody = (first.accBody != null ? first.accBody : first.desc) || '';
+      const prePart = first.pre ? ` (합산전수: ${first.pre})` : '';
+      freeAcc = accordion(`✦ ${first.label} ${first.valueDisplay ?? first.value}번${prePart} · 무료 공개`, firstBody, true);
+    }
     document.getElementById('coreAccordion').innerHTML =
-      '<p class="core-preview-note">숫자 해설·아코디언은 <strong>Basic</strong> 이상에서 열립니다.</p>';
-  }
-
-  const wealthHost = document.getElementById('wealthMatrixContent');
-  if (wealthHost && window.PaljaLifeTables) {
-    wealthHost.innerHTML = PaljaLifeTables.renderWealthMatrixHtml(lp, {
-      title: '재물 매트릭스 · 인생여정수 ' + (lpDisplay != null ? lpDisplay : lp)
-    });
+      freeAcc +
+      '<p class="core-preview-note">나머지 숫자 해설은 <strong>Basic</strong> 이상에서 열립니다.</p>';
   }
 
   const psychicHost = document.getElementById('psychicCompareContent');

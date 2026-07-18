@@ -150,7 +150,7 @@
     var title = opts.title || '재물 매트릭스 · 인생여정수';
     var note = opts.note !== false;
     return (
-      '<div class="life-tables wealth-matrix">' +
+      '<div class="life-tables wealth-matrix" id="wealthMatrixContent">' +
       '<div class="lt-head"><span class="lt-num">' +
       w.n +
       '</span><div><div class="lt-title">' +

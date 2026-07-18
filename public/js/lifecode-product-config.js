@@ -43,7 +43,7 @@ export const LIFECODE_PRODUCT = {
       desc: '별자리·핵심 수·이름 수·올해·이번 달 요약 그리드.',
     },
     { href: '#nav-core', title: '핵심 수', tier: 'free', desc: '생년월일·이름에서 뽑은 대표 수비학 숫자와 해석.' },
-    { href: '#wealthMatrixContent', title: '재물 매트릭스', tier: 'free', desc: '인생여정수 기준 재물 사분면·직업·금전·애정·컨디션 성향.' },
+    { href: '#wealthMatrixContent', title: '재물 매트릭스', tier: 'free', desc: '인생여정수 아코디언 안 — 재물 사분면·직업·금전·애정·컨디션.' },
     { href: '#psychicCompareContent', title: '사이킥 · 인생여정', tier: 'free', desc: '생일 일(사이킥)과 인생여정수 비교.' },
     { href: '#zodiacInsightSection', title: '별자리', tier: 'free', desc: '생일 기준 별자리 요약. 상세 해석은 Basic 이상.' },
     { href: '#period48Section', title: '48주기 성격', tier: 'basic', desc: '생일 구간별 성격·역할 패턴(48 세그먼트).' },

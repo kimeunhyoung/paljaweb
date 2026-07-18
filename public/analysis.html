@@ -3963,7 +3963,6 @@
     <div id="coreReadingLede"></div>
     <div class="core-grid" id="coreGrid"></div>
     <div class="core-accordion-wrap" id="coreAccordion"></div>
-    <div id="wealthMatrixContent" style="margin-top:16px"></div>
     <div id="psychicCompareContent" style="margin-top:14px"></div>
     <div id="integratedStorySection" class="integrated-story-wrap" style="display:none;">
       <div class="integrated-story-kicker">Story · 겉과 속, 그리고 길</div>
@@ -5813,7 +5812,7 @@ window.NUMEROLOGY_DATA = (() => {
 <script src="js/majorCycleMap.js?v=20260508mc"></script>
 <script src="js/numerologyAccordionDetail.js?v=20260506v"></script>
 <script src="js/growthChallengeData.js?v=20260507"></script>
-<script src="js/numerology-life-tables.js?v=2"></script>
+<script src="js/numerology-life-tables.js?v=3"></script>
 <script src="js/period48LifeZones.js?v=20260517p48v6"></script>
 <script src="js/period48Data.js?v=20260517p48v6"></script>
 <script src="js/period48Profiles.js?v=20260517p48v6"></script>
@@ -7346,7 +7345,7 @@ function buildReadingGuideCatalogInnerHtml() {
       )}
       ${lcReadingGuideCatalogRow(
         lcModuleNav('#wealthMatrixContent', '재물 매트릭스', 'free'),
-        `인생여정수 기준 재물 끌어당기는 방식(사분면)과 직업·금전·애정·컨디션 성향.`,
+        `인생여정수 아코디언 안 — 재물 사분면·직업·금전·애정·컨디션 성향.`,
       )}
       ${lcReadingGuideCatalogRow(
         lcModuleNav('#psychicCompareContent', '사이킥 · 인생여정', 'free'),
@@ -8395,13 +8394,15 @@ function setupAnalysisJumpNav() {
   dim.addEventListener('click', closeNav);
   closeBtn.addEventListener('click', closeNav);
 
-  panel.querySelectorAll('a[href^="#"]').forEach((a) => {
+    panel.querySelectorAll('a[href^="#"]').forEach((a) => {
     a.addEventListener('click', (e) => {
       e.preventDefault();
       const id = a.getAttribute('href').slice(1);
       const el = document.getElementById(id);
       closeNav();
       if (el) {
+        const acc = el.closest('.accordion');
+        if (acc && !acc.classList.contains('open')) acc.classList.add('open');
         requestAnimationFrame(() => {
           el.scrollIntoView({ behavior: 'smooth', block: 'start' });
         });
@@ -8516,7 +8517,13 @@ async function runAnalysis() {
   const coreDetail = hasBasicProfileDetailAccess();
   const coreItems = [
     { label:'인생여정수', value:lp, valueDisplay:lpDisplay, pre:lpPreLabel, desc: CORE_LIFE_PATH_MAP[lp]||DEEP_MAP[lp]||'',
-      accBody: lifePathCalcExplainHtml(y, m, d, lpParts) + coreAccordionBody(CORE_LIFE_PATH_MAP[lp]||DEEP_MAP[lp]||'', lp, ACCORDION_LIFE_PATH) },
+      accBody: lifePathCalcExplainHtml(y, m, d, lpParts)
+        + coreAccordionBody(CORE_LIFE_PATH_MAP[lp]||DEEP_MAP[lp]||'', lp, ACCORDION_LIFE_PATH)
+        + ((window.PaljaLifeTables && PaljaLifeTables.renderWealthMatrixHtml)
+          ? PaljaLifeTables.renderWealthMatrixHtml(lp, {
+              title: '재물 매트릭스 · 인생여정수 ' + (lpDisplay != null ? lpDisplay : lp)
+            })
+          : '') },
     { label:'문 넘버', value:mn, pre:mnPre, title: (MOON_TAROT_TITLE[mn] || ''), desc: moonNumberDesc(mn, mnPre),
       accBody: coreAccordionBody(moonNumberDesc(mn, mnPre), mn, ACCORDION_MOON) }
   ];
@@ -8559,13 +8566,6 @@ async function runAnalysis() {
     document.getElementById('coreAccordion').innerHTML =
       freeAcc +
       '<p class="core-preview-note">나머지 숫자 해설(문 넘버·운명수·혼의수·성격수·완성수)과 통합 스토리는 <strong>Basic</strong> 이상에서 열립니다. <a href="/lifecode/buy.html?product=basic30" style="color:var(--warm-brown);text-decoration:underline;">구독 없이 7일 보기(4,900원)</a></p>';
-  }
-
-  const wealthHost = document.getElementById('wealthMatrixContent');
-  if (wealthHost && window.PaljaLifeTables) {
-    wealthHost.innerHTML = PaljaLifeTables.renderWealthMatrixHtml(lp, {
-      title: '재물 매트릭스 · 인생여정수 ' + (lpDisplay != null ? lpDisplay : lp)
-    });
   }
 
   const psychicHost = document.getElementById('psychicCompareContent');
