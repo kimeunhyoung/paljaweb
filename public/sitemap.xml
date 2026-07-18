@@ -175,6 +175,18 @@
     <priority>0.8</priority>
   </url>
   <url>
+    <loc>https://8code.kr/address-numerology.html</loc>
+    <lastmod>2026-07-18</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://8code.kr/guide/address-numerology.html</loc>
+    <lastmod>2026-07-18</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.65</priority>
+  </url>
+  <url>
     <loc>https://8code.kr/timecode.html</loc>
     <lastmod>2026-06-17</lastmod>
     <changefreq>weekly</changefreq>
