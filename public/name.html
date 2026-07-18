@@ -846,6 +846,11 @@ function calcName(name){
   if(!s) return {expression:{raw:0,val:0},soul:{raw:0,val:0},personality:{raw:0,val:0}};
   let cv=0,vv=0;
   for(const ch of s){
+    if(/\d/.test(ch)){
+      const digit=Number(ch);
+      if(digit>0) cv+=digit; // 숫자는 모음(혼)이 아니라 바깥(성격·표현)
+      continue;
+    }
     const d=decomposeChar(ch);
     if(d){
       cv+=HC[d.cho]||0;

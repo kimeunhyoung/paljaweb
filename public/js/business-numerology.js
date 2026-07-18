@@ -64,15 +64,24 @@
     else bag.cv += v;
   }
 
-  /** 한글·영문 혼용 상호는 글자마다 해당 체계로 합산 (한쪽만 쓰면 영문이 누락되던 문제 수정) */
+  /** 한글·영문·숫자 혼용: 글자/숫자는 각각 합산. 숫자는 모음(혼의수)이 아니라 바깥(성격·표현)에만 가산 */
   function calcName(name) {
     var s = cleanBrand(name).replace(/\s/g, '');
     if (!s) return null;
     var bag = { cv: 0, vv: 0 };
     var usedHangul = false;
     var usedLatin = false;
+    var usedDigit = false;
     for (var i = 0; i < s.length; i++) {
       var ch = s[i];
+      if (/\d/.test(ch)) {
+        var digit = Number(ch);
+        if (digit > 0) {
+          bag.cv += digit;
+          usedDigit = true;
+        }
+        continue;
+      }
       var d = decomposeChar(ch);
       if (d) {
         usedHangul = true;
@@ -100,6 +109,7 @@
     return {
       cleaned: cleanBrand(name),
       mixedScript: usedHangul && usedLatin,
+      usedDigit: usedDigit,
       expression: { raw: total, val: reduce(total) },
       soul: { raw: bag.vv, val: reduce(bag.vv) },
       personality: { raw: bag.cv, val: reduce(bag.cv) }
@@ -170,14 +180,17 @@
     if (empty) empty.hidden = true;
     if (results) results.hidden = false;
     if (cleanedEl) {
-      var note =
-        data.cleaned !== String(raw).trim()
-          ? '계산에 쓴 이름: ' + data.cleaned + ' (Inc./주식회사 등 일반 표기는 제외)'
-          : '계산에 쓴 이름: ' + data.cleaned;
-      if (data.mixedScript) {
-        note += ' · 한글·영문을 각각 합산했습니다';
+      var parts = [];
+      if (data.cleaned !== String(raw).trim()) {
+        parts.push('계산에 쓴 이름: ' + data.cleaned + ' (Inc./주식회사 등 일반 표기는 제외)');
+      } else {
+        parts.push('계산에 쓴 이름: ' + data.cleaned);
       }
-      cleanedEl.textContent = note;
+      var how = [];
+      if (data.mixedScript) how.push('한글·영문');
+      if (data.usedDigit) how.push('숫자(액면값→성격·표현)');
+      if (how.length) parts.push(how.join('·') + ' 합산');
+      cleanedEl.textContent = parts.join(' · ');
     }
     if (numsEl) {
       numsEl.innerHTML =

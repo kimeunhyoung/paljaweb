@@ -138,12 +138,31 @@ function analyzeEnglishName(nameStr) {
   const vowels = new Set(["a", "e", "i", "o", "u"]);
   const lookup = {};
   Object.keys(map).forEach((k) => map[k].forEach((ch) => { lookup[ch] = Number(k); }));
-  const letters = nameStr.toLowerCase().replace(/[^a-z]/g, "").split("").filter(Boolean);
-  if (!letters.length) return null;
 
-  const exprPre = letters.reduce((sum, ch) => sum + (lookup[ch] || 0), 0);
-  const soulPre = letters.reduce((sum, ch) => sum + (vowels.has(ch) ? (lookup[ch] || 0) : 0), 0);
-  const personalityPre = letters.reduce((sum, ch) => sum + (!vowels.has(ch) ? (lookup[ch] || 0) : 0), 0);
+  let exprPre = 0;
+  let soulPre = 0;
+  let personalityPre = 0;
+  let counted = false;
+  for (const ch of [...String(nameStr)]) {
+    if (/\d/.test(ch)) {
+      const digit = Number(ch);
+      if (digit > 0) {
+        exprPre += digit;
+        personalityPre += digit;
+        counted = true;
+      }
+      continue;
+    }
+    const low = ch.toLowerCase();
+    if (!/[a-z]/.test(low)) continue;
+    const v = lookup[low] || 0;
+    if (!v) continue;
+    exprPre += v;
+    if (vowels.has(low)) soulPre += v;
+    else personalityPre += v;
+    counted = true;
+  }
+  if (!counted) return null;
 
   return {
     expression: withPreSum(exprPre),
@@ -187,6 +206,16 @@ function analyzeHangulName(nameStr) {
       soulPre += vVal;
       personalityPre += cVal;
       counted = true;
+      continue;
+    }
+    if (/\d/.test(ch)) {
+      const digit = Number(ch);
+      if (digit > 0) {
+        // 숫자는 혼의수(모음)가 아니라 표현·성격(바깥)
+        exprPre += digit;
+        personalityPre += digit;
+        counted = true;
+      }
       continue;
     }
     const low = ch.toLowerCase();

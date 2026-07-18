@@ -186,6 +186,7 @@
       <h1>상호 · 브랜드 수비학</h1>
       <p>
         사업명·브랜드의 운명수·혼의수·성격수를 피타고라스·한글 자모 규칙으로 계산합니다.
+        숫자(예: 8CODE)는 액면값으로 표현·성격에만 더하고, 혼의수(모음)에는 넣지 않습니다.
         Inc./주식회사 등 일반 표기는 제외합니다. 업종 조화는 참고용이며, 작명 확정이 아니라 방향 점검용입니다.
       </p>
     </header>
@@ -195,7 +196,7 @@
         <h2>상호 입력</h2>
         <label class="field-label" for="brandInput">사업명 · 브랜드</label>
         <input id="brandInput" type="text" placeholder="예: 팔자연구소, 8CODE Studio" autocomplete="off" />
-        <p class="field-hint">한글·영문 모두 가능. 동업이면 각자 이름 수도 함께 보세요.</p>
+        <p class="field-hint">한글·영문·숫자 모두 반영. 숫자는 혼의수가 아니라 표현·성격(바깥)에 액면값으로 더합니다.</p>
         <div class="actions">
           <button type="button" class="btn btn-primary" id="calcBtn">계산하기</button>
           <a class="btn btn-secondary" href="name.html">개인 이름(네임코드)</a>
@@ -244,6 +245,6 @@
   </main>
 
   <script src="js/numerology-life-tables.js?v=6"></script>
-  <script src="js/business-numerology.js?v=2"></script>
+  <script src="js/business-numerology.js?v=3"></script>
 </body>
 </html>
