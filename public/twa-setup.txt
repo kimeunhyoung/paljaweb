@@ -6,8 +6,8 @@
   1) 팔자연구소 (전체 플랫폼) — 권장: 지금 이걸 먼저 출시
      - Play 앱 이름 예: 팔자연구소 — 수비학 자기이해
      - 패키지명: kr.co.palja.app
-     - TWA 시작 URL: https://8code.kr/play-app.html
-       (또는 https://8code.kr/ — play-app.html 은 ?source=play 붙여 메인으로 이동)
+     - TWA 시작 URL (Lite 수비학): https://8code.kr/lifecode-play/
+       (전체 플랫폼 래퍼: https://8code.kr/play-app.html → ?source=play 메인)
      - 웹 매니페스트: https://8code.kr/manifest.json
      - assetlinks: public/.well-known/assetlinks.json (패키지 kr.co.palja.app)
 

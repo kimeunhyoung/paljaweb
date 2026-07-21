@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
+  <meta name="theme-color" content="#090a10"/>
+  <meta name="apple-mobile-web-app-capable" content="yes"/>
+  <meta name="apple-mobile-web-app-title" content="8CODE 수비학"/>
+  <meta name="description" content="생년월일·이름으로 라이프패스·소울·퍼스널리티 등 핵심 수비학 숫자와 짧은 해설을 무료로 확인하세요. 팔자연구소 8CODE 수비학 Lite."/>
+  <meta name="robots" content="index, follow"/>
+  <link rel="canonical" href="https://8code.kr/lifecode-play/"/>
+  <meta property="og:type" content="website"/>
+  <meta property="og:site_name" content="팔자연구소 8CODE"/>
+  <meta property="og:title" content="8CODE 수비학 Lite — 생년월일·이름 핵심 숫자"/>
+  <meta property="og:description" content="라이프패스, 소울, 퍼스널리티, 올해·이번 달 흐름을 짧은 해설과 함께 확인하는 무료 수비학 도구."/>
+  <meta property="og:url" content="https://8code.kr/lifecode-play/"/>
+  <meta property="og:locale" content="ko_KR"/>
+  <!-- AdSense 슬롯 ID: 콘솔에서 광고 단위 생성 후 입력 (비우면 슬롯 숨김) -->
+  <meta name="play-adsense-slot" content=""/>
+  <script>
+    (function () {
+      try {
+        if (new URLSearchParams(window.location.search).get('source') === 'play') {
+          document.documentElement.classList.add('play-twa');
+        }
+      } catch (e) {}
+    })();
+  </script>
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7451075921625740" crossorigin="anonymous"></script>
+  <link rel="manifest" href="/lifecode-play/manifest.webmanifest"/>
+  <link rel="icon" href="/lifecode-play/icon-192.png" type="image/png"/>
+  <link rel="apple-touch-icon" href="/lifecode-play/icon-192.png"/>
+  <title>8CODE 수비학 — 라이프코드 Lite</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=Noto+Sans+KR:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --bg: #07060d;
+      --bg-2: #0f0b1f;
+      --panel: rgba(15, 17, 30, 0.88);
+      --accent: #8f63ff;
+      --accent-2: #b991ff;
+      --text: #f8f6ef;
+      --gold: #d9b16f;
+      --gold-soft: #f1dbb0;
+      --blue: #7da6ff;
+      --red: #ff8f8f;
+      --teal: #7de0d0;
+      --muted: #b8afc8;
+      --border: rgba(255, 255, 255, 0.16);
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100dvh;
+      font-family: 'Noto Sans KR', sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at 15% 10%, rgba(143, 99, 255, 0.16), transparent 35%),
+        radial-gradient(circle at 85% 20%, rgba(217, 177, 111, 0.12), transparent 32%),
+        linear-gradient(145deg, var(--bg), var(--bg-2));
+      line-height: 1.65;
+      padding: 16px 16px 28px;
+    }
+    .wrap { max-width: 640px; margin: 0 auto; }
+    .brand {
+      text-align: center;
+      margin-bottom: 18px;
+    }
+    .brand h1 {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.65rem;
+      color: var(--gold-soft);
+      margin: 0 0 4px;
+      letter-spacing: 0.04em;
+    }
+    .brand p { margin: 0; font-size: 0.84rem; color: var(--muted); }
+    .panel {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 22px;
+      padding: 18px;
+      backdrop-filter: blur(12px);
+      box-shadow: 0 20px 50px rgba(6, 4, 16, 0.45);
+      margin-bottom: 14px;
+    }
+    label { display: block; font-size: 0.76rem; color: var(--muted); margin-bottom: 6px; }
+    input[type="text"], input[type="date"] {
+      width: 100%;
+      padding: 13px 14px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      background: rgba(8, 10, 20, 0.85);
+      color: #fff;
+      font: inherit;
+      margin-bottom: 10px;
+    }
+    .btn-row { display: flex; gap: 8px; margin-top: 4px; }
+    button {
+      font: inherit;
+      cursor: pointer;
+      border: none;
+      border-radius: 12px;
+    }
+    .btn-primary {
+      flex: 1;
+      padding: 14px;
+      font-weight: 700;
+      color: #fff;
+      background: linear-gradient(135deg, var(--accent), var(--accent-2));
+    }
+    .btn-ghost {
+      padding: 14px 16px;
+      color: var(--muted);
+      background: rgba(255,255,255,0.06);
+      border: 1px solid var(--border);
+    }
+    .section-title {
+      font-size: 0.95rem;
+      color: var(--gold-soft);
+      border-left: 2px solid var(--gold);
+      padding-left: 10px;
+      margin: 18px 0 10px;
+      font-weight: 700;
+    }
+    .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+    .card, .cycle-mini-card, .month-cell {
+      background: rgba(20, 24, 42, 0.92);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      text-align: center;
+    }
+    .card { padding: 12px 6px; }
+    .card span { display: block; font-size: 0.72rem; color: var(--muted); margin-bottom: 4px; }
+    .card strong { color: var(--accent-2); font-size: 1.05rem; }
+    .zodiac-card {
+      grid-column: 1 / -1;
+      padding: 16px;
+      border-color: rgba(217, 177, 111, 0.45);
+    }
+    .zodiac-name { font-size: 1.35rem; color: var(--gold); font-weight: 700; }
+    .zodiac-desc { font-size: 0.88rem; color: var(--teal); margin-top: 4px; }
+    .accordion {
+      margin-bottom: 6px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      overflow: hidden;
+      background: rgba(20, 24, 42, 0.92);
+    }
+    .accordion-header {
+      padding: 10px 12px;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .accordion-header h4 { margin: 0; font-size: 0.84rem; color: var(--teal); font-weight: 600; }
+    .accordion-header::after { content: '▼'; font-size: 0.62rem; color: var(--gold); }
+    .accordion.active .accordion-header::after { transform: rotate(180deg); }
+    .accordion-content { display: none; padding: 10px 12px; border-top: 1px solid var(--border); font-size: 0.84rem; color: #e8e3f2; }
+    .accordion.active .accordion-content { display: block; }
+    .accordion-content p { margin: 0; }
+    .year-box {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      padding: 14px;
+      border-radius: 14px;
+      border: 1px solid rgba(143, 99, 255, 0.45);
+      background: linear-gradient(145deg, rgba(143,99,255,0.12), rgba(20,184,166,0.06));
+    }
+    .year-num { font-size: 2rem; font-weight: 800; color: var(--gold); min-width: 52px; text-align: center; }
+    .year-meta strong { display: block; margin-bottom: 4px; }
+    .year-meta p { margin: 0; font-size: 0.82rem; color: #ccc; }
+    .table-wrap { overflow-x: auto; border-radius: 10px; border: 1px solid var(--border); }
+    table { width: 100%; border-collapse: collapse; min-width: 280px; }
+    th { background: rgba(255,255,255,0.08); color: var(--gold-soft); font-size: 0.76rem; padding: 8px 6px; }
+    td { padding: 8px 6px; text-align: center; font-size: 0.82rem; border-top: 1px solid rgba(255,255,255,0.06); }
+    .stage-current-row td { background: rgba(217, 177, 111, 0.1); }
+    .p-num { color: var(--blue); font-weight: 700; }
+    .c-num { color: var(--red); font-weight: 700; }
+    .now-badge {
+      display: inline-block;
+      font-size: 0.6rem;
+      background: var(--gold);
+      color: #1a1230;
+      border-radius: 8px;
+      padding: 1px 6px;
+      margin-left: 4px;
+      font-weight: 700;
+    }
+    .cycle-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+    .cycle-mini-card { padding: 10px 6px; }
+    .cycle-mini-card span { display: block; font-size: 0.68rem; color: var(--muted); }
+    .cycle-mini-card strong { display: block; font-size: 1.25rem; color: var(--accent); margin: 4px 0; }
+    .cycle-mini-range { font-size: 0.62rem; color: #9990b8; }
+    .cycle-mini-active { border-color: var(--gold); box-shadow: 0 0 12px rgba(217,177,111,0.15); }
+    .cycle-mini-active strong { color: var(--gold); }
+    #monthGrid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 6px;
+      margin-bottom: 10px;
+    }
+    .month-cell {
+      padding: 8px 4px;
+      cursor: pointer;
+      color: inherit;
+    }
+    .month-cell span { display: block; font-size: 0.65rem; color: var(--muted); }
+    .month-cell strong { display: block; font-size: 1.1rem; color: var(--accent-2); }
+    .month-cell small { display: block; font-size: 0.6rem; color: #999; }
+    .month-cell.is-current, .month-cell.is-selected {
+      border-color: var(--gold);
+      background: rgba(217, 177, 111, 0.1);
+    }
+    #monthDetail {
+      padding: 12px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      background: rgba(12, 14, 26, 0.9);
+      font-size: 0.84rem;
+    }
+    #monthDetail strong { color: var(--gold-soft); display: block; margin-bottom: 6px; }
+    #monthDetail p { margin: 0; color: #ddd; }
+    .cta {
+      margin-top: 18px;
+      padding: 16px;
+      border-radius: 14px;
+      border: 1px solid rgba(217, 177, 111, 0.35);
+      background: rgba(217, 177, 111, 0.06);
+      text-align: center;
+    }
+    .cta p { margin: 0 0 10px; font-size: 0.84rem; color: #ddd; }
+    .cta a {
+      display: inline-block;
+      padding: 12px 18px;
+      border-radius: 10px;
+      background: var(--gold);
+      color: #1a1230;
+      font-weight: 700;
+      text-decoration: none;
+      font-size: 0.88rem;
+    }
+    .cta-sub {
+      margin: 14px 0 8px !important;
+      font-size: 0.8rem !important;
+      color: #ccc !important;
+    }
+    .cta-secondary {
+      background: transparent !important;
+      color: var(--gold-soft) !important;
+      border: 1px solid rgba(217, 177, 111, 0.45);
+    }
+    .history-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+    .history-head .section-title { margin: 0; flex: 1; }
+    .history-meta {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-shrink: 0;
+    }
+    #historyCount {
+      font-size: 0.72rem;
+      color: var(--muted);
+      font-weight: 600;
+    }
+    #historyClearAll {
+      padding: 5px 10px;
+      font-size: 0.72rem;
+      font-weight: 600;
+      color: var(--red);
+      background: rgba(255, 143, 143, 0.08);
+      border: 1px solid rgba(255, 143, 143, 0.28);
+      border-radius: 8px;
+    }
+    #historyClearAll[hidden] { display: none; }
+    #historyList {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .history-empty {
+      margin: 0;
+      padding: 14px 12px;
+      font-size: 0.8rem;
+      color: var(--muted);
+      line-height: 1.55;
+      text-align: center;
+      border: 1px dashed var(--border);
+      border-radius: 12px;
+      background: rgba(255,255,255,0.02);
+    }
+    .history-card {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 4px 4px 4px 0;
+      background: rgba(22, 26, 44, 0.96);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.18);
+    }
+    .history-load {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      text-align: left;
+      padding: 12px 10px 12px 12px;
+      background: transparent;
+      border: none;
+      border-radius: 12px;
+      color: inherit;
+      min-width: 0;
+    }
+    .history-load:active { background: rgba(143, 99, 255, 0.1); }
+    .history-avatar {
+      flex-shrink: 0;
+      width: 40px;
+      height: 40px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--gold-soft);
+      background: linear-gradient(145deg, rgba(143,99,255,0.25), rgba(217,177,111,0.15));
+      border: 1px solid rgba(217, 177, 111, 0.25);
+    }
+    .history-text { min-width: 0; }
+    .history-text strong {
+      display: block;
+      font-size: 0.92rem;
+      font-weight: 600;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .history-text span {
+      display: block;
+      font-size: 0.78rem;
+      color: var(--muted);
+      margin-top: 2px;
+      font-variant-numeric: tabular-nums;
+    }
+    .history-del {
+      flex-shrink: 0;
+      width: 34px;
+      height: 34px;
+      margin-right: 6px;
+      background: rgba(255, 143, 143, 0.1);
+      border: 1px solid rgba(255, 143, 143, 0.22);
+      border-radius: 50%;
+      color: #ffb4b4;
+      font-size: 1.15rem;
+      line-height: 1;
+    }
+    .history-del:active { background: rgba(255, 143, 143, 0.22); }
+    .history-note {
+      margin: -4px 0 10px;
+      font-size: 0.68rem;
+      color: #8a8298;
+    }
+    .muted { font-size: 0.8rem; color: var(--muted); margin: 0; }
+    .result-head { margin-bottom: 8px; }
+    .result-head h2 { margin: 0; font-size: 1.1rem; }
+    .result-head span { font-size: 0.8rem; color: var(--muted); }
+    .legal { margin-top: 14px; font-size: 0.72rem; color: #888; text-align: center; }
+    .legal a { color: var(--muted); }
+    .intro-panel { font-size: 0.84rem; color: #d8d2e8; }
+    .intro-panel h2 {
+      margin: 0 0 10px;
+      font-size: 0.95rem;
+      color: var(--gold-soft);
+      font-weight: 700;
+    }
+    .intro-panel p { margin: 0 0 10px; }
+    .intro-panel ul {
+      margin: 0 0 12px;
+      padding-left: 1.15rem;
+      color: #ccc;
+    }
+    .intro-panel li { margin-bottom: 4px; }
+    .intro-links {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 12px;
+    }
+    .intro-links a {
+      font-size: 0.76rem;
+      color: var(--gold-soft);
+      text-decoration: none;
+      padding: 6px 10px;
+      border-radius: 8px;
+      border: 1px solid rgba(217, 177, 111, 0.35);
+      background: rgba(217, 177, 111, 0.06);
+    }
+    .play-ad-slot {
+      display: none;
+      margin: 14px 0 0;
+      padding: 12px;
+      border-radius: 14px;
+      border: 1px dashed rgba(255,255,255,0.12);
+      background: rgba(12, 14, 26, 0.5);
+      text-align: center;
+    }
+    .play-ad-slot--active { display: block; }
+    html.play-twa .play-ad-slot { display: none !important; }
+    .play-ad-slot-label {
+      margin: 0 0 8px;
+      font-size: 0.68rem;
+      color: #8a8298;
+      letter-spacing: 0.06em;
+    }
+    #playAdHost { min-height: 90px; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header class="brand">
+      <h1>8CODE 수비학</h1>
+      <p>라이프코드 Lite — 핵심 숫자와 짧은 해설</p>
+    </header>
+
+    <section class="panel">
+      <label for="inputName">이름 (선택)</label>
+      <input id="inputName" type="text" placeholder="한글 또는 영문" autocomplete="name"/>
+      <label for="inputBirth">생년월일</label>
+      <input id="inputBirth" type="date"/>
+      <div class="btn-row">
+        <button type="button" class="btn-primary" id="btnRun">나의 수비학 확인하기</button>
+        <button type="button" class="btn-ghost" id="btnReset">초기화</button>
+      </div>
+    </section>
+
+    <section class="panel" aria-label="저장된 계산 기록">
+      <div class="history-head">
+        <div class="section-title">기록</div>
+        <div class="history-meta">
+          <span id="historyCount" aria-live="polite"></span>
+          <button type="button" id="historyClearAll" hidden>전체 삭제</button>
+        </div>
+      </div>
+      <p class="history-note">이 기기에만 저장 · 서버 전송 없음</p>
+      <div id="historyList"></div>
+    </section>
+
+    <section class="panel" id="resultArea" hidden>
+      <div class="result-head">
+        <h2 id="resultTitle"></h2>
+        <span id="resultBirth"></span>
+      </div>
+
+      <div class="section-title">핵심 에너지</div>
+      <div class="grid-3">
+        <div class="card zodiac-card">
+          <div class="zodiac-name" id="zodiacName"></div>
+          <div class="zodiac-desc" id="zodiacDesc"></div>
+        </div>
+        <div id="coreGrid" style="display:contents"></div>
+      </div>
+      <div id="coreAccordions"></div>
+
+      <div class="section-title">올해의 흐름</div>
+      <div class="year-box" id="yearBox"></div>
+
+      <div class="section-title">절정수 · 도전수</div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>단계</th><th>나이</th><th>절정</th><th>도전</th></tr></thead>
+          <tbody id="stageTable"></tbody>
+        </table>
+      </div>
+
+      <div class="section-title">대주기</div>
+      <div class="cycle-grid" id="majorGrid"></div>
+
+      <div class="section-title">월별 숫자 · 이번 달 해설</div>
+      <div id="monthGrid"></div>
+      <div id="monthDetail"></div>
+
+      <div class="cta">
+        <p>10년 타임라인 · 로슈 격자 · 궁합 · AI 해설은<br><strong>팔자연구소 8CODE</strong>에서 이어서 볼 수 있어요.</p>
+        <a href="https://8code.kr/analysis.html?utm_source=play&amp;utm_medium=app&amp;utm_campaign=lifecode_lite">수비학 심화 보기</a>
+        <p class="cta-sub">출생 시간·장소로 <strong>점성학 차트(빅3·네이탈)</strong>는 무료 계산</p>
+        <a href="https://8code.kr/astrology.html?utm_source=play&amp;utm_medium=app&amp;utm_campaign=lifecode_lite" class="cta-secondary">출생 차트 보기 →</a>
+      </div>
+    </section>
+
+    <section class="panel intro-panel" aria-label="수비학 Lite 안내">
+      <h2>8CODE 수비학 Lite란?</h2>
+      <p>
+        <strong>팔자연구소 8CODE</strong>의 무료 수비학 도구입니다. 생년월일과 이름(선택)만으로
+        <strong>라이프패스·소울·퍼스널리티</strong> 등 핵심 숫자, 별자리 한 줄, 올해·월별 흐름,
+        절정·도전 단계, 대주기를 짧은 해설과 함께 확인할 수 있습니다.
+      </p>
+      <ul>
+        <li>계산 기록은 이 기기에만 저장되며 서버로 전송되지 않습니다.</li>
+        <li>10년 타임라인·로슈 격자·AI 해설 등 심화 기능은 <a href="/analysis.html">수비학 분석</a>에서 이어집니다.</li>
+        <li>출생 시간·장소 기반 <a href="/astrology.html">점성학 차트(빅3)</a>도 무료로 제공합니다.</li>
+      </ul>
+      <p class="muted">본 서비스는 오락·자기성찰 목적이며, 의학·법률·투자 등 전문적 조언을 대체하지 않습니다.</p>
+      <div class="intro-links">
+        <a href="/guide/what-is-numerology.html">수비학이란?</a>
+        <a href="/guide/life-path-number.html">라이프패스 번호</a>
+        <a href="/guide/numerology-basics.html">수비학 기초</a>
+        <a href="/guide/index.html">이용 가이드</a>
+        <a href="/about.html">서비스 소개</a>
+        <a href="/faq.html">자주 묻는 질문</a>
+      </div>
+    </section>
+
+    <aside class="play-ad-slot" id="playAdSlot" aria-label="광고">
+      <p class="play-ad-slot-label">광고</p>
+      <div id="playAdHost"></div>
+    </aside>
+
+    <p class="legal">
+      팔자연구소 8CODE · 오락·자기성찰 목적 ·
+      <a href="/about.html">소개</a> ·
+      <a href="/privacy.html">개인정보</a> ·
+      <a href="/terms.html">이용약관</a> ·
+      <a href="/contact.html">문의</a>
+    </p>
+  </div>
+
+  <script src="/lifecode-play/data-lite.js"></script>
+  <script src="/lifecode-play/app.js"></script>
+  <script src="/js/play-ads.js" defer></script>
+</body>
+</html>
