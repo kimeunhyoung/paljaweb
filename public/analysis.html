@@ -2397,6 +2397,25 @@
       padding-top: 14px;
       border-top: 1px solid rgba(45,38,28,.08);
     }
+    /* ── 통합 타임라인 격자표 ── */
+    .utg-wrap { margin-top: 28px; }
+    .utg-title { font-size: 15px; font-weight: 700; margin-bottom: 12px; color: var(--deep-brown); }
+    .utg-scroll { overflow-x: auto; padding-bottom: 8px; }
+    .utg-table { border-collapse: collapse; font-size: 10.5px; white-space: nowrap; }
+    .utg-table th, .utg-table td { border: 1px solid rgba(45,38,28,.12); padding: 4px 6px; text-align: center; min-width: 32px; }
+    .utg-table th { background: rgba(46,139,122,.06); font-weight: 700; position: sticky; left: 0; z-index: 2; }
+    .utg-table thead th { position: sticky; top: 0; z-index: 3; background: #faf8f4; }
+    .utg-row-label { text-align: left !important; min-width: 80px; background: #faf8f4; font-weight: 600; }
+    .utg-cur { background: rgba(46,139,122,.18) !important; font-weight: 700; border: 2px solid var(--teal) !important; }
+    .utg-major1 { background: rgba(255,193,7,.10); }
+    .utg-major2 { background: rgba(76,175,80,.08); }
+    .utg-major3 { background: rgba(156,39,176,.07); }
+    .utg-pin { color: var(--teal); font-weight: 700; }
+    .utg-ch { color: var(--warm-brown); font-weight: 700; }
+    .utg-pyr-active { background: rgba(46,139,122,.08); }
+    .utg-pyr-passive { background: rgba(192,57,43,.06); }
+    .utg-foot { font-size: 11px; color: var(--muted); margin-top: 8px; }
+
     .pyramid-cycle-head th {
       text-align: left;
       background: rgba(46,139,122,.12);
@@ -4033,6 +4052,7 @@
     </div>
     <div id="pyramidRhythmSectionBridge" class="timeline-bridge loshu-map-bridge"></div>
     <div id="pyramidRhythmContent"></div>
+    <div id="unifiedTimelineGrid" class="unified-timeline-grid-wrap"></div>
   </div>
 
   <!-- ⑥ 10년 타임라인 -->
@@ -9137,6 +9157,86 @@ async function runAnalysis() {
   }
   if (window.PaljaPlan && typeof window.PaljaPlan.syncPyramidRhythmSectionVisibility === 'function') {
     window.PaljaPlan.syncPyramidRhythmSectionVisibility(USER_PLAN, DEV_UNLOCK_PAID);
+  }
+
+  // ── 통합 타임라인 격자표 (Private) ──
+  if (hasSpecialAccess()) {
+    const utgHost = document.getElementById('unifiedTimelineGrid');
+    if (utgHost) {
+      const pyramidTL = buildPyramidRhythmTimeline(lpAlt);
+      const utgMaxAge = 79;
+      let headerRow = '<th class="utg-row-label">나이</th>';
+      let yearRow = '<th class="utg-row-label">연도</th>';
+      let majorRow = '<th class="utg-row-label">대주기</th>';
+      let pyrRow = '<th class="utg-row-label">피라미드 리듬</th>';
+      let pinRow = '<th class="utg-row-label">절정수</th>';
+      let chalRow = '<th class="utg-row-label">도전수</th>';
+
+      for (let age = 0; age <= utgMaxAge; age++) {
+        const isCur = age === userAge;
+        const cls = isCur ? ' class="utg-cur"' : '';
+        headerRow += `<td${cls}>${age}</td>`;
+        yearRow += `<td${cls}>${y + age}</td>`;
+
+        // 대주기
+        let mCls = '';
+        let mLabel = '';
+        if (age <= age1) { mCls = ' utg-major1'; mLabel = `1(${mr_r})`; }
+        else if (age <= age1 + 27) { mCls = ' utg-major2'; mLabel = `2(${dr_r})`; }
+        else { mCls = ' utg-major3'; mLabel = `3(${yr_r})`; }
+        majorRow += `<td class="${mCls}${isCur ? ' utg-cur' : ''}">${mLabel}</td>`;
+
+        // 피라미드 리듬
+        let pyrCls = '';
+        let pyrLabel = '';
+        if (age < pyramidTL.s1) {
+          pyrLabel = '준비';
+        } else {
+          let found = false;
+          for (const cyc of pyramidTL.cycles) {
+            for (const st of cyc.stages) {
+              if (age >= st.start && age <= st.end) {
+                const offset = age - st.start;
+                if (offset < 3) { pyrCls = ' utg-pyr-active'; pyrLabel = '활'; }
+                else if (offset < 6) { pyrCls = ' utg-pyr-passive'; pyrLabel = '정'; }
+                else { pyrCls = ' utg-pyr-active'; pyrLabel = '활'; }
+                found = true; break;
+              }
+            }
+            if (found) break;
+          }
+          if (!found) pyrLabel = '—';
+        }
+        pyrRow += `<td class="${pyrCls}${isCur ? ' utg-cur' : ''}">${pyrLabel}</td>`;
+
+        // 절정수/도전수
+        let pn = '', cn = '';
+        if (age <= age1) { pn = pin1; cn = ch1; }
+        else if (age <= age1 + 9) { pn = pin2; cn = ch2; }
+        else if (age <= age1 + 18) { pn = reduceToSingle(pin1 + pin2); cn = ch3; }
+        else { pn = pin4; cn = ch4; }
+        pinRow += `<td class="utg-pin${isCur ? ' utg-cur' : ''}">${pn}</td>`;
+        chalRow += `<td class="utg-ch${isCur ? ' utg-cur' : ''}">${cn}</td>`;
+      }
+
+      utgHost.innerHTML = `
+        <div class="utg-wrap">
+          <div class="utg-title">통합 타임라인 격자표</div>
+          <div class="utg-scroll">
+            <table class="utg-table">
+              <thead><tr>${headerRow}</tr></thead>
+              <tbody>
+                <tr>${yearRow}</tr>
+                <tr>${majorRow}</tr>
+                <tr>${pyrRow}</tr>
+                <tr>${pinRow}</tr>
+                <tr>${chalRow}</tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="utg-foot">가로 스크롤로 전체 나이를 탐색하세요. 현재 나이(${userAge}세)는 강조 표시됩니다.</p>
+        </div>`;
+    }
   }
 
   const pmPre = py + curM;
