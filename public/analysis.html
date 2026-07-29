@@ -9200,8 +9200,9 @@ async function runAnalysis() {
               if (age >= st.start && age <= st.end) {
                 stageName = PYR_STAGE_NAMES[st.index] || '';
                 const offset = age - st.start;
-                if (offset < 3) { pyrCls = ' utg-pyr-active'; rhythmLabel = '활동'; }
-                else if (offset < 6) { pyrCls = ' utg-pyr-passive'; rhythmLabel = '정비'; }
+                if (offset === 0) { pyrCls = ' utg-pyr-active'; rhythmLabel = '시작'; }
+                else if (offset <= 2) { pyrCls = ' utg-pyr-active'; rhythmLabel = '활동'; }
+                else if (offset <= 5) { pyrCls = ' utg-pyr-passive'; rhythmLabel = '정비'; }
                 else { pyrCls = ' utg-pyr-active'; rhythmLabel = '활동'; }
                 found = true; break;
               }
