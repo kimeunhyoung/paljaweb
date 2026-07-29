@@ -2415,6 +2415,10 @@
     .utg-pyr-start { background: rgba(255,152,0,.15); font-weight: 700; }
     .utg-pyr-active { background: rgba(46,139,122,.08); }
     .utg-pyr-passive { background: rgba(192,57,43,.06); }
+    .utg-pyr-s1 { background: rgba(46,139,122,.06); }
+    .utg-pyr-s2 { background: rgba(33,150,243,.06); }
+    .utg-pyr-s3 { background: rgba(156,39,176,.06); }
+    .utg-pyr-s4 { background: rgba(255,152,0,.06); }
     .utg-foot { font-size: 11px; color: var(--muted); margin-top: 8px; }
 
     .pyramid-cycle-head th {
@@ -9190,7 +9194,7 @@ async function runAnalysis() {
         majorRow += `<td class="${mCls}${cur}">${mLabel}</td>`;
 
         // 피라미드 구간 + 리듬
-        let stageName = '', rhythmLabel = '', pyrCls = '';
+        let stageName = '', rhythmLabel = '', pyrCls = '', stgCls = '';
         if (age < pyramidTL.s1) {
           stageName = '준비';
           rhythmLabel = '—';
@@ -9200,6 +9204,7 @@ async function runAnalysis() {
             for (const st of cyc.stages) {
               if (age >= st.start && age <= st.end) {
                 stageName = PYR_STAGE_NAMES[st.index] || '';
+                stgCls = ` utg-pyr-s${st.index + 1}`;
                 const offset = age - st.start;
                 if (offset === 0) { pyrCls = ' utg-pyr-start'; rhythmLabel = '시작'; }
                 else if (offset <= 2) { pyrCls = ' utg-pyr-active'; rhythmLabel = '활동'; }
@@ -9212,7 +9217,7 @@ async function runAnalysis() {
           }
           if (!found) { stageName = '—'; rhythmLabel = '—'; }
         }
-        pyrStageRow += `<td class="${cur}">${stageName}</td>`;
+        pyrStageRow += `<td class="${stgCls}${cur}">${stageName}</td>`;
         pyrRhythmRow += `<td class="${pyrCls}${cur}">${rhythmLabel}</td>`;
 
         // 절정수/도전수
