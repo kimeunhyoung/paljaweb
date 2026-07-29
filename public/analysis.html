@@ -2412,6 +2412,7 @@
     .utg-major3 { background: rgba(156,39,176,.07); }
     .utg-pin { color: var(--teal); font-weight: 700; }
     .utg-ch { color: var(--warm-brown); font-weight: 700; }
+    .utg-pyr-start { background: rgba(255,152,0,.15); font-weight: 700; }
     .utg-pyr-active { background: rgba(46,139,122,.08); }
     .utg-pyr-passive { background: rgba(192,57,43,.06); }
     .utg-foot { font-size: 11px; color: var(--muted); margin-top: 8px; }
@@ -9200,7 +9201,7 @@ async function runAnalysis() {
               if (age >= st.start && age <= st.end) {
                 stageName = PYR_STAGE_NAMES[st.index] || '';
                 const offset = age - st.start;
-                if (offset === 0) { pyrCls = ' utg-pyr-active'; rhythmLabel = '시작'; }
+                if (offset === 0) { pyrCls = ' utg-pyr-start'; rhythmLabel = '시작'; }
                 else if (offset <= 2) { pyrCls = ' utg-pyr-active'; rhythmLabel = '활동'; }
                 else if (offset <= 5) { pyrCls = ' utg-pyr-passive'; rhythmLabel = '정비'; }
                 else { pyrCls = ' utg-pyr-active'; rhythmLabel = '활동'; }
