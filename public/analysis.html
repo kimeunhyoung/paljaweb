@@ -9165,58 +9165,99 @@ async function runAnalysis() {
     if (utgHost) {
       const pyramidTL = buildPyramidRhythmTimeline(lpAlt);
       const utgMaxAge = 79;
+      const PYR_STAGE_NAMES = ['출발기', '발전기', '충실기', '완성기'];
+
+      // 나이·연도 행 (cell per age)
       let headerRow = '<th class="utg-row-label">나이</th>';
       let yearRow = '<th class="utg-row-label">연도</th>';
+      for (let age = 0; age <= utgMaxAge; age++) {
+        const cur = age === userAge ? ' utg-cur' : '';
+        headerRow += `<td class="${cur}">${age}</td>`;
+        yearRow += `<td class="${cur}">${y + age}</td>`;
+      }
+
+      // 대주기 행 (colspan 병합)
+      const majorSpans = [
+        { label: `1주기(${mr_r})`, start: 0, end: age1, cls: 'utg-major1' },
+        { label: `2주기(${dr_r})`, start: age1 + 1, end: age1 + 27, cls: 'utg-major2' },
+        { label: `3주기(${yr_r})`, start: age1 + 28, end: utgMaxAge, cls: 'utg-major3' }
+      ];
       let majorRow = '<th class="utg-row-label">대주기</th>';
-      let pyrRow = '<th class="utg-row-label">피라미드 리듬</th>';
+      for (const sp of majorSpans) {
+        const span = Math.min(sp.end, utgMaxAge) - sp.start + 1;
+        if (span <= 0) continue;
+        const hasCur = userAge >= sp.start && userAge <= Math.min(sp.end, utgMaxAge);
+        majorRow += `<td colspan="${span}" class="${sp.cls}${hasCur ? ' utg-cur' : ''}">${sp.label}</td>`;
+      }
+
+      // 피라미드 리듬 행 (구간명 + 활/정 colspan)
+      let pyrStageRow = '<th class="utg-row-label">피라미드 구간</th>';
+      let pyrRhythmRow = '<th class="utg-row-label">리듬</th>';
+
+      // 준비기 (0 ~ s1-1)
+      if (pyramidTL.s1 > 0) {
+        const prepSpan = Math.min(pyramidTL.s1, utgMaxAge + 1);
+        const hasCur = userAge < pyramidTL.s1;
+        pyrStageRow += `<td colspan="${prepSpan}"${hasCur ? ' class="utg-cur"' : ''}>준비기</td>`;
+        pyrRhythmRow += `<td colspan="${prepSpan}"${hasCur ? ' class="utg-cur"' : ''}>—</td>`;
+      }
+
+      // 주기별 구간
+      for (const cyc of pyramidTL.cycles) {
+        for (const st of cyc.stages) {
+          if (st.start > utgMaxAge) continue;
+          const stEnd = Math.min(st.end, utgMaxAge);
+          const stSpan = stEnd - st.start + 1;
+          const hasCur = userAge >= st.start && userAge <= stEnd;
+          const stageName = PYR_STAGE_NAMES[st.index] || st.label;
+          pyrStageRow += `<td colspan="${stSpan}"${hasCur ? ' class="utg-cur"' : ''}>${stageName}</td>`;
+
+          // 각 구간 9년 = 활3 + 정3 + 활3
+          const segs = [
+            { label: '활', cls: 'utg-pyr-active', len: 3 },
+            { label: '정', cls: 'utg-pyr-passive', len: 3 },
+            { label: '활', cls: 'utg-pyr-active', len: 3 }
+          ];
+          let consumed = 0;
+          for (const seg of segs) {
+            const segStart = st.start + consumed;
+            const segEnd = Math.min(segStart + seg.len - 1, utgMaxAge);
+            const segSpan = segEnd - segStart + 1;
+            if (segSpan <= 0) break;
+            const segCur = userAge >= segStart && userAge <= segEnd;
+            pyrRhythmRow += `<td colspan="${segSpan}" class="${seg.cls}${segCur ? ' utg-cur' : ''}">${seg.label}</td>`;
+            consumed += segSpan;
+            if (segStart + seg.len - 1 > utgMaxAge) break;
+          }
+        }
+      }
+
+      // 절정수/도전수 행 (colspan 병합)
+      const stageSpans = [
+        { label: `1단계(${pin1})`, start: 0, end: age1 },
+        { label: `2단계(${pin2})`, start: age1 + 1, end: age1 + 9 },
+        { label: `3단계(${reduceToSingle(pin1+pin2)})`, start: age1 + 10, end: age1 + 18 },
+        { label: `4단계(${pin4})`, start: age1 + 19, end: utgMaxAge }
+      ];
+      const chalStageSpans = [
+        { label: `${ch1}`, start: 0, end: age1 },
+        { label: `${ch2}`, start: age1 + 1, end: age1 + 9 },
+        { label: `${ch3}`, start: age1 + 10, end: age1 + 18 },
+        { label: `${ch4}`, start: age1 + 19, end: utgMaxAge }
+      ];
       let pinRow = '<th class="utg-row-label">절정수</th>';
       let chalRow = '<th class="utg-row-label">도전수</th>';
-
-      for (let age = 0; age <= utgMaxAge; age++) {
-        const isCur = age === userAge;
-        const cls = isCur ? ' class="utg-cur"' : '';
-        headerRow += `<td${cls}>${age}</td>`;
-        yearRow += `<td${cls}>${y + age}</td>`;
-
-        // 대주기
-        let mCls = '';
-        let mLabel = '';
-        if (age <= age1) { mCls = ' utg-major1'; mLabel = `1(${mr_r})`; }
-        else if (age <= age1 + 27) { mCls = ' utg-major2'; mLabel = `2(${dr_r})`; }
-        else { mCls = ' utg-major3'; mLabel = `3(${yr_r})`; }
-        majorRow += `<td class="${mCls}${isCur ? ' utg-cur' : ''}">${mLabel}</td>`;
-
-        // 피라미드 리듬
-        let pyrCls = '';
-        let pyrLabel = '';
-        if (age < pyramidTL.s1) {
-          pyrLabel = '준비';
-        } else {
-          let found = false;
-          for (const cyc of pyramidTL.cycles) {
-            for (const st of cyc.stages) {
-              if (age >= st.start && age <= st.end) {
-                const offset = age - st.start;
-                if (offset < 3) { pyrCls = ' utg-pyr-active'; pyrLabel = '활'; }
-                else if (offset < 6) { pyrCls = ' utg-pyr-passive'; pyrLabel = '정'; }
-                else { pyrCls = ' utg-pyr-active'; pyrLabel = '활'; }
-                found = true; break;
-              }
-            }
-            if (found) break;
-          }
-          if (!found) pyrLabel = '—';
-        }
-        pyrRow += `<td class="${pyrCls}${isCur ? ' utg-cur' : ''}">${pyrLabel}</td>`;
-
-        // 절정수/도전수
-        let pn = '', cn = '';
-        if (age <= age1) { pn = pin1; cn = ch1; }
-        else if (age <= age1 + 9) { pn = pin2; cn = ch2; }
-        else if (age <= age1 + 18) { pn = reduceToSingle(pin1 + pin2); cn = ch3; }
-        else { pn = pin4; cn = ch4; }
-        pinRow += `<td class="utg-pin${isCur ? ' utg-cur' : ''}">${pn}</td>`;
-        chalRow += `<td class="utg-ch${isCur ? ' utg-cur' : ''}">${cn}</td>`;
+      for (const sp of stageSpans) {
+        const span = Math.min(sp.end, utgMaxAge) - sp.start + 1;
+        if (span <= 0) continue;
+        const hasCur = userAge >= sp.start && userAge <= Math.min(sp.end, utgMaxAge);
+        pinRow += `<td colspan="${span}" class="utg-pin${hasCur ? ' utg-cur' : ''}">${sp.label}</td>`;
+      }
+      for (const sp of chalStageSpans) {
+        const span = Math.min(sp.end, utgMaxAge) - sp.start + 1;
+        if (span <= 0) continue;
+        const hasCur = userAge >= sp.start && userAge <= Math.min(sp.end, utgMaxAge);
+        chalRow += `<td colspan="${span}" class="utg-ch${hasCur ? ' utg-cur' : ''}">${sp.label}</td>`;
       }
 
       utgHost.innerHTML = `
@@ -9228,7 +9269,8 @@ async function runAnalysis() {
               <tbody>
                 <tr>${yearRow}</tr>
                 <tr>${majorRow}</tr>
-                <tr>${pyrRow}</tr>
+                <tr>${pyrStageRow}</tr>
+                <tr>${pyrRhythmRow}</tr>
                 <tr>${pinRow}</tr>
                 <tr>${chalRow}</tr>
               </tbody>
