@@ -97,6 +97,11 @@
 
   const PRICES = {
     basic: 9900,
+    plus: 19900,
+    professional: 29900,
+  };
+  const LIST_PRICES = {
+    basic: 9900,
     plus: 29900,
     professional: 49900,
   };
@@ -119,8 +124,12 @@
     el.textContent = text;
   }
 
+  const listAmount = LIST_PRICES[plan];
+  const fmt = (n) => new Intl.NumberFormat('ko-KR').format(n);
   document.getElementById('amountLine').innerHTML =
-    new Intl.NumberFormat('ko-KR').format(amount) + '원 <small>(월간)</small>';
+    listAmount > amount
+      ? `<span style="text-decoration:line-through;opacity:.55;margin-right:8px;font-size:.9em">${fmt(listAmount)}원</span>${fmt(amount)}원 <small>(월간 · 출시 기념)</small>`
+      : `${fmt(amount)}원 <small>(월간)</small>`;
 
   async function main() {
     const { data: { session } } = await sb.auth.getSession();
