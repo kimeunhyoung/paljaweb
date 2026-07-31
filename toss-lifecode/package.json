@@ -1,0 +1,27 @@
+{
+  "name": "toss-lifecode",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "sync": "node scripts/sync-lifecode-public.mjs",
+    "predev": "npm run sync",
+    "prebuild": "npm run sync",
+    "dev": "granite dev",
+    "build": "ait build",
+    "ait:path": "node scripts/print-ait.mjs",
+    "release": "npm run sync && npm run build && npm run ait:path"
+  },
+  "dependencies": {
+    "@apps-in-toss/web-framework": "^2.6.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  },
+  "devDependencies": {
+    "@types/react": "^18.0.0",
+    "@types/react-dom": "^18.0.0",
+    "@vitejs/plugin-react": "^4.3.4",
+    "typescript": "~5.7.2",
+    "vite": "^6.2.0"
+  }
+}

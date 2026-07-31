@@ -1,0 +1,7 @@
+node_modules/
+dist/
+public/
+*.ait
+.env
+brand-icon.url
+.DS_Store

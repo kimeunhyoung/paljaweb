@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"
+    />
+    <title>8CODE 수비학 Lite</title>
+    <style>
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+        background: #090a10;
+      }
+      #lite-shell {
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        width: 100%;
+        height: 100dvh;
+        max-height: 100dvh;
+        box-sizing: border-box;
+      }
+      #toss-banner-host {
+        display: none;
+        flex-shrink: 0;
+        width: 100%;
+        min-height: 0;
+        box-sizing: border-box;
+        padding: 8px 16px 4px;
+        background: #090a10;
+      }
+      #toss-banner-host.is-active {
+        display: block;
+        min-height: 96px;
+      }
+      #lite-frame {
+        flex: 1;
+        display: block;
+        width: 100%;
+        min-height: 0;
+        border: 0;
+        background: #090a10;
+      }
+      .site-cta-fab {
+        position: absolute;
+        left: 14px;
+        right: 14px;
+        bottom: calc(14px + env(safe-area-inset-bottom, 0px));
+        z-index: 20;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        padding: 12px 16px;
+        border: 0;
+        border-radius: 14px;
+        background: rgba(143, 99, 255, 0.94);
+        color: #fff;
+        font: 600 14px/1.2 "Noto Sans KR", system-ui, sans-serif;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+        cursor: pointer;
+        text-decoration: none;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="lite-shell">
+      <div id="toss-banner-host" aria-label="광고"></div>
+      <iframe id="lite-frame" title="8CODE 수비학 Lite"></iframe>
+      <a
+        class="site-cta-fab"
+        id="siteCta"
+        href="https://8code.kr/?utm_source=toss&utm_medium=app&utm_campaign=lifecode_lite"
+        target="_blank"
+        rel="noopener"
+      >
+        8CODE 전체 서비스 보기
+      </a>
+    </div>
+    <script type="module" src="/src/entry.ts"></script>
+  </body>
+</html>

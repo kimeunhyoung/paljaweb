@@ -2,12 +2,12 @@
  * lifecode-play AdSense — 본문 하단 수동 슬롯 (탐색 정책 준수)
  *
  * meta name="play-adsense-slot" content="슬롯ID"
- * ?source=play (TWA) 일 때는 AdMob용으로 AdSense 미로드
+ * ?source=play (TWA) / ?source=toss (앱인토스) 일 때는 AdMob·토스광고용으로 AdSense 미로드
  */
 (function () {
   const AD_CLIENT = 'ca-pub-7451075921625740';
-
-  if (new URLSearchParams(window.location.search).get('source') === 'play') return;
+  const src = new URLSearchParams(window.location.search).get('source');
+  if (src === 'play' || src === 'toss') return;
 
   const host = document.getElementById('playAdHost');
   if (!host) return;

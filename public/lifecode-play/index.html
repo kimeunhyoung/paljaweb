@@ -20,8 +20,11 @@
   <script>
     (function () {
       try {
-        if (new URLSearchParams(window.location.search).get('source') === 'play') {
-          document.documentElement.classList.add('play-twa');
+        var src = new URLSearchParams(window.location.search).get('source');
+        if (src === 'play') document.documentElement.classList.add('play-twa');
+        if (src === 'toss') document.documentElement.classList.add('toss-app');
+        if (src === 'play' || src === 'toss') {
+          document.documentElement.dataset.appSource = src;
         }
       } catch (e) {}
     })();
@@ -415,7 +418,8 @@
       text-align: center;
     }
     .play-ad-slot--active { display: block; }
-    html.play-twa .play-ad-slot { display: none !important; }
+    html.play-twa .play-ad-slot,
+    html.toss-app .play-ad-slot { display: none !important; }
     .play-ad-slot-label {
       margin: 0 0 8px;
       font-size: 0.68rem;
@@ -491,9 +495,9 @@
 
       <div class="cta">
         <p>10년 타임라인 · 로슈 격자 · 궁합 · AI 해설은<br><strong>팔자연구소 8CODE</strong>에서 이어서 볼 수 있어요.</p>
-        <a href="https://8code.kr/analysis.html?utm_source=play&amp;utm_medium=app&amp;utm_campaign=lifecode_lite">수비학 심화 보기</a>
+        <a class="js-site-cta" data-path="/analysis.html" href="https://8code.kr/analysis.html?utm_source=play&amp;utm_medium=app&amp;utm_campaign=lifecode_lite">수비학 심화 보기</a>
         <p class="cta-sub">출생 시간·장소로 <strong>점성학 차트(빅3·네이탈)</strong>는 무료 계산</p>
-        <a href="https://8code.kr/astrology.html?utm_source=play&amp;utm_medium=app&amp;utm_campaign=lifecode_lite" class="cta-secondary">출생 차트 보기 →</a>
+        <a class="cta-secondary js-site-cta" data-path="/astrology.html" href="https://8code.kr/astrology.html?utm_source=play&amp;utm_medium=app&amp;utm_campaign=lifecode_lite">출생 차트 보기 →</a>
       </div>
     </section>
 
@@ -537,5 +541,29 @@
   <script src="/lifecode-play/data-lite.js"></script>
   <script src="/lifecode-play/app.js"></script>
   <script src="/js/play-ads.js" defer></script>
+  <script>
+    (function () {
+      var src = document.documentElement.dataset.appSource || 'web';
+      if (src !== 'play' && src !== 'toss') return;
+      document.querySelectorAll('.js-site-cta').forEach(function (a) {
+        var path = a.getAttribute('data-path') || '/';
+        a.href = 'https://8code.kr' + path +
+          '?utm_source=' + encodeURIComponent(src) +
+          '&utm_medium=app&utm_campaign=lifecode_lite';
+        a.setAttribute('target', '_blank');
+        a.setAttribute('rel', 'noopener');
+      });
+      document.querySelectorAll('.intro-links a, .intro-panel a[href^="/"], .legal a[href^="/"]').forEach(function (a) {
+        var href = a.getAttribute('href') || '';
+        if (!href.startsWith('/')) return;
+        a.href = 'https://8code.kr' + href +
+          (href.indexOf('?') >= 0 ? '&' : '?') +
+          'utm_source=' + encodeURIComponent(src) +
+          '&utm_medium=app&utm_campaign=lifecode_lite';
+        a.setAttribute('target', '_blank');
+        a.setAttribute('rel', 'noopener');
+      });
+    })();
+  </script>
 </body>
 </html>
