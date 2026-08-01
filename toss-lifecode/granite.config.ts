@@ -25,7 +25,7 @@ function brandIconUrl(): string {
 export default defineConfig({
   appName: "lifecodelite",
   brand: {
-    displayName: "8CODE 수비학",
+    displayName: "수비학 Lite",
     primaryColor: "#8f63ff",
     icon: brandIconUrl(),
   },
