@@ -129,7 +129,7 @@
         const item = list[Number(btn.dataset.i)];
         $('inputName').value = item.name || '';
         $('inputBirth').value = item.birth;
-        runAnalysis();
+        startAnalysis();
       };
     });
     box.querySelectorAll('.history-del').forEach((btn) => {
@@ -366,7 +366,8 @@
     window.parent.postMessage({ source: TOSS_MSG, type: 'run-analysis-ad' }, '*');
   }
 
-  $('btnRun').addEventListener('click', () => {
+  /** 확인하기·기록 탭 공통 — 토스에선 전면 광고 후 결과 */
+  function startAnalysis() {
     const dateStr = $('inputBirth').value;
     if (!dateStr) {
       $('inputBirth').focus();
@@ -381,7 +382,9 @@
       return;
     }
     runAnalysis();
-  });
+  }
+
+  $('btnRun').addEventListener('click', startAnalysis);
 
   if (isTossApp) {
     window.addEventListener('message', (ev) => {
