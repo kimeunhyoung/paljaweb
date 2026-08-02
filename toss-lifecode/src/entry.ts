@@ -1,5 +1,12 @@
 import { TossAds } from "@apps-in-toss/web-framework";
 
+import {
+  TOSS_BANNER_AD_GROUP,
+  TOSS_INTERSTITIAL_AD_GROUP,
+} from "./toss-ad-group";
+import { createRunInterstitial } from "./toss-interstitial";
+
+const MSG = "paljaweb-lifecode";
 const DEFAULT_QUERY = "source=toss";
 /** 운영: 항상 최신 Lite + 사이트 유입 링크가 동작하도록 기본은 8code.kr */
 const REMOTE =
@@ -86,13 +93,35 @@ function mountTossBanner(host: HTMLElement, adGroupId: string) {
   };
 }
 
+function postRunContinue(frame: HTMLIFrameElement) {
+  frame.contentWindow?.postMessage(
+    { source: MSG, type: "run-analysis-continue" },
+    "*",
+  );
+}
+
 const frame = document.getElementById("lite-frame");
+const interstitial = TOSS_INTERSTITIAL_AD_GROUP
+  ? createRunInterstitial(TOSS_INTERSTITIAL_AD_GROUP)
+  : null;
+
 if (frame instanceof HTMLIFrameElement) {
   frame.src = resolveLiteUrl();
+
+  window.addEventListener("message", (ev) => {
+    if (ev.data?.source !== MSG || ev.data?.type !== "run-analysis-ad") return;
+    if (ev.source !== frame.contentWindow) return;
+
+    void (async () => {
+      if (interstitial) {
+        await interstitial.show();
+      }
+      postRunContinue(frame);
+    })();
+  });
 }
 
 const bannerHost = document.getElementById("toss-banner-host");
-const adGroup = (import.meta.env.VITE_TOSS_AD_GROUP as string | undefined)?.trim() || "";
-if (bannerHost instanceof HTMLElement && adGroup) {
-  mountTossBanner(bannerHost, adGroup);
+if (bannerHost instanceof HTMLElement && TOSS_BANNER_AD_GROUP) {
+  mountTossBanner(bannerHost, TOSS_BANNER_AD_GROUP);
 }

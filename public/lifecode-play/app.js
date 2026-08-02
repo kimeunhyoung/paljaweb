@@ -324,7 +324,82 @@
     $('resultArea').scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
 
-  $('btnRun').addEventListener('click', runAnalysis);
+  const TOSS_MSG = 'paljaweb-lifecode';
+  const isTossApp =
+    document.documentElement.classList.contains('toss-app') ||
+    new URLSearchParams(window.location.search).get('source') === 'toss';
+  const AD_SKIP_MS = 10 * 60 * 1000;
+  let tossAdPending = false;
+  let tossAdTimer = 0;
+
+  function shouldSkipTossAd(dateStr) {
+    try {
+      const raw = sessionStorage.getItem('lc_toss_ad_skip');
+      if (!raw) return false;
+      const { date, t } = JSON.parse(raw);
+      return date === dateStr && Date.now() - t < AD_SKIP_MS;
+    } catch {
+      return false;
+    }
+  }
+
+  function markTossAd(dateStr) {
+    try {
+      sessionStorage.setItem(
+        'lc_toss_ad_skip',
+        JSON.stringify({ date: dateStr, t: Date.now() }),
+      );
+    } catch {
+      /* ignore */
+    }
+  }
+
+  function requestTossAdThenRun() {
+    if (tossAdPending) return;
+    tossAdPending = true;
+    window.clearTimeout(tossAdTimer);
+    tossAdTimer = window.setTimeout(() => {
+      if (!tossAdPending) return;
+      tossAdPending = false;
+      runAnalysis();
+    }, 12000);
+    window.parent.postMessage({ source: TOSS_MSG, type: 'run-analysis-ad' }, '*');
+  }
+
+  $('btnRun').addEventListener('click', () => {
+    const dateStr = $('inputBirth').value;
+    if (!dateStr) {
+      $('inputBirth').focus();
+      return;
+    }
+    if (
+      isTossApp &&
+      window.parent !== window &&
+      !shouldSkipTossAd(dateStr)
+    ) {
+      requestTossAdThenRun();
+      return;
+    }
+    runAnalysis();
+  });
+
+  if (isTossApp) {
+    window.addEventListener('message', (ev) => {
+      if (
+        !ev.data ||
+        ev.data.source !== TOSS_MSG ||
+        ev.data.type !== 'run-analysis-continue'
+      ) {
+        return;
+      }
+      tossAdPending = false;
+      window.clearTimeout(tossAdTimer);
+      const dateStr = $('inputBirth').value;
+      if (dateStr) markTossAd(dateStr);
+      runAnalysis();
+    });
+  }
+
   $('btnReset').addEventListener('click', () => {
     $('inputName').value = '';
     $('inputBirth').value = '';

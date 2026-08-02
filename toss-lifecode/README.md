@@ -34,12 +34,21 @@ npm run release   # sync + build + .ait 경로 출력
 
 ## 광고
 
-콘솔에서 배너 광고 그룹 발급 후:
+| 용도 | 콘솔 이름 | 기본 ID |
+|------|-----------|---------|
+| 상단 배너 | 수비학lite상단배너 | `ait.v2.live.dba17bf3f3234811` |
+| 전면 (확인하기) | 수비학lite전면형 | `ait.v2.live.c9265b6a59f84ea8` |
+
+ID는 `src/toss-ad-group.ts`에 반영됨. 바꿀 때만 `.env`:
 
 ```bash
-# toss-lifecode/.env
 VITE_TOSS_AD_GROUP=ait.v2.live.xxxxx
+VITE_TOSS_AD_INTERSTITIAL=ait.v2.live.yyyyy
 ```
+
+- 배너: 셸 상단
+- 전면: Lite iframe에서 「나의 수비학 확인하기」→ 광고 후 결과 (같은 생년월일 10분 내 재조회는 스킵)
+- **전면이 동작하려면** `public/lifecode-play/app.js`가 **8code.kr에 배포**되어 있어야 함 (iframe이 원격 URL을 씀)
 
 ## 로컬 번들만 보고 싶을 때
 

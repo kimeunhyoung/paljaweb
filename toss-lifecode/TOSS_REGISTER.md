@@ -4,34 +4,35 @@
 |------|-----|
 | 콘솔 appName | `lifecodelite` (`granite.config.ts`와 동일) |
 | 표시 이름 | **수비학 Lite** (`granite.config.ts` displayName과 콘솔 앱 이름 동일해야 함) |
-| 이번 버전 | **0.1.2** |
+| 이번 버전 | **0.1.3** |
 | 딥링크 | `intoss://lifecodelite` |
 
 ---
 
-## ★ 반려 수정 후 재업로드 (아이콘·이름)
+## ★ v0.1.3 — 광고 연결
 
-반려 사유: `granite.config.ts`의 **브랜드 아이콘·표시 이름**이 콘솔과 다름.
+상단 배너 + 「나의 수비학 확인하기」전면 광고.
 
-1. 콘솔 → **앱 정보** → 업로드한 **앱 로고** 이미지 우클릭 → **링크 주소 복사**
-2. `toss-lifecode/brand-icon.url` 파일을 만들고, 복사한 `https://...` 한 줄만 저장
-3. `displayName`은 이미 **수비학 Lite** 로 맞춤 (콘솔 한국어 앱 이름과 동일)
-4. PowerShell:
+1. **먼저** `public/lifecode-play/app.js` 를 **8code.kr(Render 등)에 배포**  
+   (전면 광고는 iframe이 `8code.kr` 를 불러서, 사이트 배포 없으면 전면만 안 뜸)
+2. PowerShell:
 
 ```powershell
 cd "b:\앱설계\라이프코드내꺼\paljaweb\toss-lifecode"
 npm run release
 ```
 
-5. 콘솔 → **앱 출시 → 버전 등록** → 새 `lifecodelite.ait` 업로드 · 버전 **0.1.2**
+3. 콘솔 → **앱 출시 → 버전 등록** → 새 `lifecodelite.ait` · 버전 **0.1.3**
 
 ### 메모 (복사용)
 
 ```
-v0.1.2
-- 브랜드 아이콘·앱 이름(수비학 Lite) 콘솔과 동일하게 수정
-- 하단 사이트 링크 UI 축소
+v0.1.3
+- 상단 배너·확인하기 전면 광고 연결
+- 동일 생년월일 10분 내 재조회 시 전면 스킵
 ```
+
+광고 ID: 배너 `ait.v2.live.dba17bf3f3234811` / 전면 `ait.v2.live.c9265b6a59f84ea8`
 
 ---
 
