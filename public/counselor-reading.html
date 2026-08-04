@@ -1329,8 +1329,10 @@
       if (clientSel && nickEl) {
         clientSel.addEventListener('change', () => {
           const c = clientRows.find((x) => x.id === clientSel.value);
-          if (c && !nickEl.value.trim()) {
+          if (c) {
             nickEl.value = (c.display_name || c.legal_name || '').trim();
+          } else {
+            nickEl.value = '';
           }
           syncClientContext(c || null);
         });
