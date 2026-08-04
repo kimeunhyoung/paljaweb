@@ -1,5 +1,6 @@
 /**
- * 상담사 AI 리딩용 78장 이름·키워드 (표시번호 1~78 = 덱 id 0~77)
+ * 상담사 AI 리딩용 78장 이름·키워드
+ * 표시번호 = 덱 id (0~77). 메이저는 관례 번호(0 바보 … 12 매달린 남자 … 21 세계).
  */
 (function (global) {
   const NAMES = [
@@ -34,15 +35,14 @@
 
   function byDisplayNum(n) {
     const num = Number(n);
-    if (!Number.isInteger(num) || num < 1 || num > 78) return null;
-    const id = num - 1;
-    return { id, num, name: NAMES[id], keywords: KW[id] || '', imageSrc: rwsImageSrc(id) };
+    if (!Number.isInteger(num) || num < 0 || num > 77) return null;
+    return { id: num, num, name: NAMES[num], keywords: KW[num] || '', imageSrc: rwsImageSrc(num) };
   }
 
   function byId(id) {
     const i = Number(id);
     if (!Number.isInteger(i) || i < 0 || i > 77) return null;
-    return { id: i, num: i + 1, name: NAMES[i], keywords: KW[i] || '', imageSrc: rwsImageSrc(i) };
+    return { id: i, num: i, name: NAMES[i], keywords: KW[i] || '', imageSrc: rwsImageSrc(i) };
   }
 
   /** 타로코드「카드만 뽑기」와 동일 — public/tarot-rws (Rider–Waite–Smith PD) */

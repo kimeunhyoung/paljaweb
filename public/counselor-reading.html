@@ -12,7 +12,7 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="js/plan-access.js?v=1"></script>
   <script src="js/ai-quota-client.js?v=2"></script>
-  <script src="js/counselor-tarot-deck.js?v=3"></script>
+  <script src="js/counselor-tarot-deck.js?v=4"></script>
   <script src="js/attribution.js"></script>
   <script src="js/site-topbar.js?v=5" defer></script>
   <script src="js/topbar-session.js?v=6" defer></script>
@@ -353,7 +353,7 @@
         </div>
         <div class="full">
           <label>뽑힌 카드</label>
-          <p class="ai-card-hint">이름 선택·카드 고르기·칸 뽑기로 스프래드를 채운 뒤, 아래에서 <strong>조언 카드</strong> 등을 더 뽑을 수 있습니다.</p>
+          <p class="ai-card-hint">이름 선택·카드 고르기·칸 뽑기로 스프래드를 채운 뒤, 아래에서 <strong>조언 카드</strong> 등을 더 뽑을 수 있습니다. 번호는 관례대로 <strong>0=바보 · 12=매달린 남자(행맨)</strong>입니다.</p>
           <div class="ai-spread-row" id="aiSpreadRow">
             <div>
               <label for="aiSpreadPreset">스프래드 (칸 이름)</label>
@@ -426,7 +426,7 @@
         <div id="numTableGrid" class="num-table-grid"></div>
       </div>
       <div id="numPanePrint" style="display:none">
-        <p class="num-table-hint">고객에게 보낼 1~78 번호표입니다. 인쇄·PDF·캡처로 공유하세요. (이 탭에서는 클릭 선택이 없습니다.)</p>
+        <p class="num-table-hint">고객에게 보낼 0~77 번호표입니다. 메이저는 관례 번호(0 바보 · 12 매달린 남자). 인쇄·PDF·캡처로 공유하세요.</p>
         <div id="numTablePrintGrid" class="num-table-grid"></div>
       </div>
       <div class="copy-sum-actions" style="margin-top:14px">
@@ -806,11 +806,11 @@
         { id: 'custom', label: '직접 입력 (칸마다 수정)', positions: ['1장', '2장', '3장'] },
       ];
       const GROUPS = [
-        { label: '메이저', from: 1, to: 22 },
-        { label: '완드 (지팡이)', from: 23, to: 36 },
-        { label: '컵 (성배)', from: 37, to: 50 },
-        { label: '소드 (검)', from: 51, to: 64 },
-        { label: '펜타클 (동전)', from: 65, to: 78 },
+        { label: '메이저 (0~21)', from: 0, to: 21 },
+        { label: '완드 (지팡이)', from: 22, to: 35 },
+        { label: '컵 (성배)', from: 36, to: 49 },
+        { label: '소드 (검)', from: 50, to: 63 },
+        { label: '펜타클 (동전)', from: 64, to: 77 },
       ];
       const MAX_CARDS = 6;
       let mode = 'basic'; // basic | advanced
@@ -919,11 +919,11 @@
         const used = usedNums();
         if (typeof excludeSlot === 'number' && slots[excludeSlot]) used.delete(slots[excludeSlot].num);
         const pool = [];
-        for (let n = 1; n <= 78; n++) {
+        for (let n = 0; n <= 77; n++) {
           if (!used.has(n)) pool.push(n);
         }
         if (!pool.length) {
-          for (let n = 1; n <= 78; n++) pool.push(n);
+          for (let n = 0; n <= 77; n++) pool.push(n);
         }
         return pool[Math.floor(Math.random() * pool.length)];
       }
@@ -957,7 +957,7 @@
               '<br/>대기</div>';
           }
           const card = cardFor(s.num);
-          const src = (card && card.imageSrc) || (Deck.rwsImageSrc && Deck.rwsImageSrc(card ? card.id : s.num - 1)) || '';
+          const src = (card && card.imageSrc) || (Deck.rwsImageSrc && Deck.rwsImageSrc(card ? card.id : s.num)) || '';
           return (
             '<div class="ai-prev-card' + (s.rev ? ' is-rev' : '') + '" data-preview="' + i + '" title="클릭하면 이 칸 선택">' +
               '<div class="ai-prev-art">' +
@@ -1033,7 +1033,7 @@
       function renderSlots() {
         const labels = posLabels();
         slotsEl.innerHTML = slots.map((s, i) => {
-          const card = s.num ? cardFor(s.num) : null;
+          const card = s.num != null ? cardFor(s.num) : null;
           const kw = card ? card.keywords : '이름 선택 · 뽑기 · 카드 고르기';
           const canEditLabel = mode === 'advanced' || !!s.extra;
           const head = canEditLabel
@@ -1045,7 +1045,7 @@
             '<div class="ai-card-slot' + (i === targetSlot ? ' is-target' : '') + (s.extra ? ' is-extra' : '') + '" data-i="' + i + '">' +
               head +
               '<div class="slot-row">' +
-                '<input type="number" min="1" max="78" inputmode="numeric" placeholder="번호" ' +
+                '<input type="number" min="0" max="77" inputmode="numeric" placeholder="번호" ' +
                   'aria-label="카드 번호" value="' + (s.num != null ? s.num : '') + '" data-num="' + i + '"/>' +
                 '<div class="ai-orient" role="group" aria-label="정역">' +
                   '<button type="button" data-orient="' + i + '" data-rev="0"' + (s.rev ? '' : ' class="active"') + '>정</button>' +
@@ -1124,12 +1124,12 @@
             const i = Number(inp.getAttribute('data-num'));
             const v = Number(inp.value);
             targetSlot = i;
-            if (!inp.value) slots[i].num = null;
-            else if (Number.isInteger(v) && v >= 1 && v <= 78) slots[i].num = v;
+            if (inp.value === '') slots[i].num = null;
+            else if (Number.isInteger(v) && v >= 0 && v <= 77) slots[i].num = v;
             else slots[i].num = null;
             const sel = slotsEl.querySelector('select[data-pick="' + i + '"]');
             if (sel) sel.value = slots[i].num != null ? String(slots[i].num) : '';
-            const card = slots[i].num ? cardFor(slots[i].num) : null;
+            const card = slots[i].num != null ? cardFor(slots[i].num) : null;
             const root = inp.closest('.ai-card-slot');
             const kwEl = root && root.querySelector('.slot-kw');
             if (kwEl) kwEl.textContent = card ? card.keywords : '이름 선택 · 뽑기 · 카드 고르기';
@@ -1141,10 +1141,10 @@
             const i = Number(sel.getAttribute('data-pick'));
             targetSlot = i;
             const v = Number(sel.value);
-            slots[i].num = sel.value && Number.isInteger(v) ? v : null;
+            slots[i].num = sel.value !== '' && Number.isInteger(v) ? v : null;
             const inp = slotsEl.querySelector('input[data-num="' + i + '"]');
             if (inp) inp.value = slots[i].num != null ? String(slots[i].num) : '';
-            const card = slots[i].num ? cardFor(slots[i].num) : null;
+            const card = slots[i].num != null ? cardFor(slots[i].num) : null;
             const root = sel.closest('.ai-card-slot');
             const kwEl = root && root.querySelector('.slot-kw');
             if (kwEl) kwEl.textContent = card ? card.keywords : '이름 선택 · 뽑기 · 카드 고르기';
@@ -1169,7 +1169,7 @@
         const n = baseCount();
         const extras = slots.filter((s) => s.extra);
         const pool = [];
-        for (let i = 1; i <= 78; i++) pool.push(i);
+        for (let i = 0; i <= 77; i++) pool.push(i);
         for (let i = pool.length - 1; i > 0; i--) {
           const j = Math.floor(Math.random() * (i + 1));
           const t = pool[i]; pool[i] = pool[j]; pool[j] = t;
@@ -1188,7 +1188,7 @@
           let num = s.num;
           if (num != null && used.has(num)) {
             const free = [];
-            for (let k = 1; k <= 78; k++) if (!used.has(k)) free.push(k);
+            for (let k = 0; k <= 77; k++) if (!used.has(k)) free.push(k);
             num = free.length ? free[Math.floor(Math.random() * free.length)] : num;
           }
           if (num != null) used.add(num);
@@ -1293,7 +1293,7 @@
           if (panePrint) panePrint.style.display = tab === 'print' ? '' : 'none';
           if (hintEl) {
             if (tab === 'print') {
-              hintEl.innerHTML = '원격 고객에게 보내 숫자를 고르게 하세요. 「1~78 중 ○개 골라 알려 주세요.」';
+              hintEl.innerHTML = '원격 고객에게 보내 숫자를 고르게 하세요. 「0~77 중 ○개 골라 알려 주세요.」(메이저 0=바보, 12=매달린 남자)';
             } else {
               hintEl.innerHTML = '카드를 누르면 <strong>비어 있는 칸</strong>(또는 선택한 칸)에 들어갑니다. 정·역은 칸에서 바꿀 수 있습니다.';
             }
@@ -1320,6 +1320,7 @@
             .replace(/지팡이|막대|완즈/g, '완드')
             .replace(/성배/g, '컵')
             .replace(/동전|펜타|코인/g, '펜타클')
+            .replace(/행맨|행드맨|hanged/g, '매달린남자')
             .replace(/\s+/g, '');
           return s;
         }
@@ -1347,7 +1348,7 @@
           const used = usedNums();
           if (grid) {
             grid.innerHTML = Array.from({ length: 78 }, (_, i) => {
-              const n = i + 1;
+              const n = i; // 0~77 (메이저 관례 번호)
               const c = cardFor(n);
               const u = used.has(n);
               return '<button type="button" class="num-table-cell' + (u ? ' used' : '') +
@@ -1360,7 +1361,7 @@
           }
           if (printGrid && !printGrid.dataset.ready) {
             printGrid.innerHTML = Array.from({ length: 78 }, (_, i) =>
-              '<div class="num-table-cell" style="cursor:default">' + (i + 1) + '</div>'
+              '<div class="num-table-cell" style="cursor:default">' + i + '</div>'
             ).join('');
             printGrid.dataset.ready = '1';
           }
@@ -1424,15 +1425,15 @@
             }
             const cells = Array.from({ length: 78 }, (_, i) =>
               '<div style="aspect-ratio:1;display:flex;align-items:center;justify-content:center;border:1px solid #c9b89a;border-radius:8px;background:#f7f1e6;font:700 14px/1 sans-serif;color:#2c1f0e">' +
-              (i + 1) + '</div>'
+              i + '</div>'
             ).join('');
             w.document.write(
-              '<!doctype html><html><head><meta charset="utf-8"><title>타로 번호표 1~78</title>' +
+              '<!doctype html><html><head><meta charset="utf-8"><title>타로 번호표 0~77</title>' +
               '<style>body{font-family:sans-serif;padding:24px;color:#2c1f0e}h1{font-size:20px;margin:0 0 8px}' +
               'p{font-size:13px;color:#666;margin:0 0 16px;line-height:1.5}' +
               '.g{display:grid;grid-template-columns:repeat(10,1fr);gap:6px}</style></head><body>' +
-              '<h1>타로 번호표 (1~78)</h1>' +
-              '<p>마음에 드는 숫자를 골라 상담사에게 알려 주세요. (인쇄 · PDF 저장 가능)</p>' +
+              '<h1>타로 번호표 (0~77)</h1>' +
+              '<p>마음에 드는 숫자를 골라 상담사에게 알려 주세요. 메이저: 0=바보, 12=매달린 남자. (인쇄 · PDF 저장 가능)</p>' +
               '<div class="g">' + cells + '</div>' +
               '<' + 'script>setTimeout(function(){window.print()},300)<' + '/script></body></html>'
             );
