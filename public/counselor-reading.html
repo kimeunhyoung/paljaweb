@@ -1518,55 +1518,82 @@
         out.classList.add('is-empty');
         out.textContent = '해석을 만드는 중…';
 
-        const extraCards = cards.filter((c) => c.extra);
-        const cardLines = cards.map((c) =>
-          (c.extra ? '[추가] ' : '') + c.pos + ': ' + c.num + '. ' + c.name +
-          (c.rev ? '(역방향)' : '(정방향)') +
-          (c.keywords ? ' — ' + c.keywords : '')
-        ).join('\n');
-
         const topic = resolveReadingTopic(question);
         const topicLabel = TOPIC_LABEL[topic] || topic;
 
-        const depthHint = cards.length <= 1
-          ? '기본 리딩: 카드 1장 중심으로 짧고 명확하게. 질문 한 줄에 바로 닿게.'
-          : '카드 ' + cards.length + '장. 스프래드 포지션을 먼저 읽고,' +
-            (extraCards.length ? ' 추가 카드(' + extraCards.map((c) => c.pos).join('·') + ')는 보완·조언·명확화로 연결하세요.' : ' 카드 간 연결(흐름·긴장·보완)을 쓰세요.');
+        function cardXmlLine(c) {
+          return c.num + '. ' + c.name + (c.rev ? ' (역방향)' : ' (정방향)') +
+            (c.keywords ? ' — ' + c.keywords : '');
+        }
+
+        function classifyPos(label) {
+          const t = String(label || '');
+          if (/도움\s*안|방해|장애|경고|주의|하지\s*말|약점|리스크/.test(t)) return 'unhelpful';
+          if (/도움|조언|기회|강점|명확|보완|해야/.test(t)) return 'helpful';
+          return 'neutral';
+        }
+
+        const spreadXml = cards.map((c) => {
+          const kind = classifyPos(c.pos);
+          const line = cardXmlLine(c);
+          if (kind === 'helpful') {
+            return '  <helpful>포지션「' + c.pos + '」: ' + line + '</helpful>';
+          }
+          if (kind === 'unhelpful') {
+            return '  <unhelpful>포지션「' + c.pos + '」: ' + line + '</unhelpful>';
+          }
+          return '  <card pos="' + String(c.pos).replace(/"/g, '') + '">' + line + '</card>';
+        }).join('\n');
+
+        const systemBlock =
+`<role>
+당신은 20년 경력의 타로 마스터이며, 초보 상담사가 고객에게 바로 전달할 수 있는 **팩트 기반 리딩 초안**을 작성합니다.
+라이더–웨이트(유니버설) 전통을 기준으로 합니다. AI가 고객에게 직접 말하는 앱이 아닙니다.
+</role>
+
+<core_directives>
+1. 팩트 기반 논리: 피상적 위로·막연한 동조 금지. 카드 의미와 카드 간 상호작용으로만 분석.
+2. 포지션의 우선: 카드의 사전적 의미보다, 놓인 포지션(역할)을 우선해 해석을 변형.
+3. 역설적 해석:
+   - <helpful>(도움·조언·기회 등)에 무거운/부정적 카드: '경계하거나 역이용하라'로 비틀어 해석.
+   - <unhelpful>(장애·경고 등)에 밝은/긍정적 카드: '그 긍정에 과도 집착할 때의 부작용'으로 비틀어 해석.
+4. 인과 연결: 각 카드를 따로 나열만 하지 말고, 원인→현재→전개(또는 포지션 흐름)로 유기적으로 연결.
+5. 카드 정체성 유지: 연결하되 A카드 의미를 B카드인 것처럼 바꾸지 말 것.
+6. 확정 예언·의료·법률·투자 단정 금지. "가능성/살펴볼 포인트"로.
+7. 한국어 존댓말. 이모지·긴 면책·불필요한 인사 금지. 복사해 쓰기 좋게.
+</core_directives>
+
+<output_format>
+반드시 아래 마크다운 ## 소제목만 사용:
+## 한 줄 요약
+## 흐름 분석
+## 전략적 조언
+## 상담사 실전 솔루션
+## 주의
+- 한 줄 요약: 객관적 진단 1문장
+- 흐름 분석: 포지션 순서대로 카드 간 인과·긴장·보완 (각 카드에 포지션·번호·이름·정역 명시)
+- 전략적 조언: helpful/unhelpful(또는 조언·장애 포지션)을 조합한 실질 행동 지침. 없으면 본 스프래드만으로.
+- 상담사 실전 솔루션: 고객에게 말해줄 **해야 할 것(Do)** / **하지 말아야 할 것(Don't)** 각 2~3개
+- 주의: 과한 예언·단정 금지 한두 문장
+</output_format>`;
 
         const prompt =
-`당신은 타로를 쓰는 전문 상담사의 '세션 보조 작가'입니다.
-상담사가 고객 채팅/대면에 **그대로 붙여넣고 살짝 다듬을** 해석 초안을 작성하세요.
-AI가 고객에게 직접 말하는 앱이 아닙니다.
-라이더–웨이트(유니버설) 전통의 일반적 카드 의미를 기준으로 하세요.
+systemBlock + `
 
-[고객 호칭] ${displayName}
-${client ? '[CRM] 생년월일: ' + (client.birth_date || '미상') + ' / 최근 상담: ' + (ls.last || '없음') + (ls.topic ? ' · ' + ls.topic : '') + '\n' : ''}
-[질문]
-${question}
-[해석 주제] ${topicLabel}
-${note ? '[상담사만 보는 메모 — 해석에 반영하되 메모 문구를 그대로 노출하지 말 것]\n' + note + '\n' : ''}
-[뽑힌 카드]
-${cardLines}
-${extraCards.length ? '\n(추가 카드는 본 스프래드 해석을 보완하는 조언/명확화로 다루세요.)\n' : ''}
-[깊이] ${depthHint}
+<context>
+- 호칭: ${displayName}
+${client ? '- CRM 생년월일: ' + (client.birth_date || '미상') + ' / 최근 상담: ' + (ls.last || '없음') + (ls.topic ? ' · ' + ls.topic : '') + '\n' : ''}- 질문: ${question}
+- 해석 주제: ${topicLabel}
+${note ? '- 상담사 메모(고객에게 노출 금지, 반영만): ' + note + '\n' : ''}</context>
 
-규칙:
-1) 한국어. 고객에게 건네는 존댓말. 상담사가 읽어도 자연스럽게.
-2) 아래 소제목만 사용 (마크다운 ##):
-## 한 줄 요약
-## 카드 해석
-## 질문에 대한 답
-## 오늘 가져갈 조언
-## 주의 (과한 예언·단정 금지)
-3) 카드 해석: 포지션·번호·카드명·정역 명시 후,
-   (이 카드 핵심) → (이 질문·주제에 맞춘 상황) → (구체 행동/관점 1개). 2~4문장.
-4) 여러 장이면 카드 간 연결을 쓰고, 「질문에 대한 답」에서 질문에 직접 답할 것.
-5) 추상적 일반론·동어반복 금지. 주제(${topicLabel})와 무관한 영역 스토리는 끌어오지 말 것.
-6) 점술 확정 예언·의료·법률·투자 단정 금지. "가능성이 있다/살펴볼 포인트"로.
-7) 이모지·불필요한 인사·면책 장문 금지. 복사해 쓰기 좋게.`;
+<spread>
+${spreadXml}
+</spread>
+
+위 데이터를 바탕으로 <core_directives>를 엄격히 준수하여 <output_format>에 맞게 타로 리딩을 분석해 주세요.`;
 
         const cacheKey = PaljaAiQuota.hashKey([
-          'counselor_reading_v9',
+          'counselor_reading_v10',
           feature,
           topic,
           clientId || '',
@@ -1580,7 +1607,7 @@ ${extraCards.length ? '\n(추가 카드는 본 스프래드 해석을 보완하�
           const { text, quota } = await PaljaAiQuota.callAi({
             feature,
             cacheKey,
-            max_tokens: cards.length <= 1 ? 1100 : 1800,
+            max_tokens: cards.length <= 1 ? 1200 : 2000,
             messages: [{ role: 'user', content: prompt }],
           });
           lastText = text || '';
