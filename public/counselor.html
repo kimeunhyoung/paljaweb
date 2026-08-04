@@ -13,7 +13,7 @@
   <script src="js/plan-access.js?v=1"></script>
   <script src="js/astro-cities.js?v=1"></script>
   <script src="js/ai-quota-client.js?v=2"></script>
-  <script src="js/counselor-tarot-deck.js?v=1"></script>
+  <script src="js/counselor-tarot-deck.js?v=2"></script>
   <script src="js/counselor-copy-summary.js?v=1"></script>
   <script src="js/attribution.js"></script>
   <script src="js/site-topbar.js?v=5" defer></script>
@@ -555,16 +555,47 @@
     .ai-draft-out.is-empty { color: var(--muted); }
     .ai-draft-msg { font-size: 12px; margin-top: 8px; color: var(--teal); }
     .ai-draft-msg.err { color: #8b3a3a; }
+    .ai-card-slot.is-target { border-color: var(--deep); box-shadow: 0 0 0 2px rgba(44,31,14,.12); }
+    .ai-card-slot select {
+      width: 100%; margin-top: 8px; padding: 8px 10px; border: 1px solid var(--border); border-radius: 8px;
+      font-family: var(--font-body); font-size: 13px; background: #fff; color: var(--ink);
+    }
+    .ai-card-hint { font-size: 11px; color: var(--muted); margin: 0 0 8px; line-height: 1.45; }
+    .num-table-tabs { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
+    .num-table-tabs button {
+      font-size: 12px; padding: 6px 12px; border-radius: 999px; border: 1px solid var(--border);
+      background: #fff; color: var(--muted); cursor: pointer; font-family: var(--font-body);
+    }
+    .num-table-tabs button.active { background: var(--deep); color: #fff; border-color: var(--deep); }
+    .num-table-search {
+      width: 100%; padding: 9px 11px; border: 1px solid var(--border); border-radius: 8px;
+      font-family: var(--font-body); font-size: 13px; margin-bottom: 10px; background: #fff; color: var(--ink);
+    }
     .num-table-grid {
       display: grid; grid-template-columns: repeat(6, 1fr); gap: 6px;
     }
     @media (min-width: 520px) { .num-table-grid { grid-template-columns: repeat(10, 1fr); } }
     .num-table-cell {
-      aspect-ratio: 1; display: flex; align-items: center; justify-content: center;
+      aspect-ratio: 1; display: flex; flex-direction: column; align-items: center; justify-content: center;
       border: 1px solid var(--border); border-radius: 8px; background: var(--parchment);
       font-size: 13px; font-weight: 700; color: var(--deep); font-family: var(--font-body);
+      cursor: pointer; padding: 2px; line-height: 1.15; gap: 1px;
     }
+    .num-table-cell:hover { border-color: var(--deep); background: #fff; }
+    .num-table-cell.used { opacity: .45; }
+    .num-table-cell .nt-name { font-size: 8px; font-weight: 500; color: var(--muted); max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; padding: 0 2px; }
+    .num-name-list { max-height: min(52vh, 420px); overflow-y: auto; display: grid; gap: 4px; }
+    .num-name-group { font-size: 11px; font-weight: 700; color: var(--muted); margin: 8px 0 4px; letter-spacing: .04em; }
+    .num-name-row {
+      display: flex; align-items: center; gap: 8px; width: 100%; text-align: left;
+      padding: 8px 10px; border: 1px solid var(--border); border-radius: 8px; background: #fff;
+      cursor: pointer; font-family: var(--font-body); font-size: 13px; color: var(--ink);
+    }
+    .num-name-row:hover { border-color: var(--deep); background: var(--parchment); }
+    .num-name-row.used { opacity: .45; }
+    .num-name-row .nn { font-weight: 700; color: var(--deep); min-width: 28px; }
     .num-table-hint { font-size: 12px; color: var(--muted); line-height: 1.5; margin-bottom: 12px; }
+    .num-table-hint strong { color: var(--deep); }
     .script-panel details { border: none; }
     .script-panel summary {
       cursor: pointer; font-size: 13px; font-weight: 600; color: var(--deep); list-style: none;
@@ -822,7 +853,7 @@
 
     <div class="section-title" id="ai-draft" style="margin-top:28px">상담사 AI 리딩</div>
     <div class="ai-draft-panel">
-      <p class="ai-draft-intro">질문과 카드 번호(정·역)를 넣으면 <strong>고객에게 붙여넣을 해석 초안</strong>을 만듭니다. 상담사가 다듬어 쓰는 Professional 전용 도구이며, AI가 대신 상담하지 않습니다. 기본 1장 <strong>크레딧 1</strong> · 심화 1~3장 <strong>크레딧 2</strong>.</p>
+      <p class="ai-draft-intro">직접 뽑은 카드를 <strong>이름</strong>으로 고르거나, 카드 고르기에서 눌러 넣으면 됩니다. 고객에게 붙여넣을 해석 초안용이며 AI가 대신 상담하지 않습니다. 기본 1장 <strong>크레딧 1</strong> · 심화 1~3장 <strong>크레딧 2</strong>.</p>
       <div class="ai-mode-row" role="tablist" aria-label="리딩 모드">
         <button type="button" class="ai-mode-btn active" id="aiModeBasic" data-mode="basic" role="tab" aria-selected="true">
           <strong>기본 리딩</strong>
@@ -852,10 +883,11 @@
         </div>
         <div class="full">
           <label>뽑힌 카드</label>
+          <p class="ai-card-hint">실물 스프래드에서 뽑았으면 <strong>이름 선택</strong>하거나 <strong>카드 고르기</strong>에서 눌러 넣으세요. 칸을 누른 뒤 고르면 그 칸에 들어갑니다.</p>
           <div id="aiCardSlots" class="ai-card-slots"></div>
         </div>
         <div class="full ai-draft-actions">
-          <button type="button" class="btn-sm outline" id="aiNumTableBtn">번호표 열기</button>
+          <button type="button" class="btn-sm outline" id="aiNumTableBtn">카드 고르기</button>
           <button type="button" class="btn-sm outline" id="aiDrawBtn">랜덤 뽑기</button>
           <button type="submit" class="btn-sm" id="aiDraftBtn">해석 생성</button>
           <button type="button" class="btn-sm outline" id="aiCopyBtn" style="display:none;">복사</button>
@@ -1060,14 +1092,29 @@
   <div class="modal" role="dialog" aria-modal="true" aria-labelledby="numTableTitle" style="max-width:640px">
     <div class="modal-head">
       <div>
-        <h3 id="numTableTitle">타로 번호표 (1~78)</h3>
-        <div class="sub">원격 상담 시 고객에게 보내 숫자를 고르게 하세요. 인쇄·캡처·스크린샷으로 공유하면 됩니다.</div>
+        <h3 id="numTableTitle">카드 고르기</h3>
+        <div class="sub" id="numTableSub">뽑힌 카드 칸에 넣습니다. 이름을 모르면 번호로, 원격용은 인쇄 탭을 쓰세요.</div>
       </div>
       <button type="button" class="modal-close" id="numTableClose" aria-label="닫기">×</button>
     </div>
     <div class="modal-body">
-      <p class="num-table-hint">고객에게: 「번호 1~78 중 마음에 드는 숫자를 ○개 골라 알려 주세요.」 상담사는 받은 번호를 위 카드 칸에 입력하고 정·역을 정한 뒤 해석을 생성합니다.</p>
-      <div id="numTableGrid" class="num-table-grid" aria-hidden="false"></div>
+      <p class="num-table-hint" id="numTableHint">카드를 누르면 <strong>비어 있는 칸</strong>(또는 선택한 칸)에 들어갑니다. 정·역은 칸에서 바꿀 수 있습니다.</p>
+      <div class="num-table-tabs" role="tablist">
+        <button type="button" class="active" id="numTabName" data-tab="name">이름으로</button>
+        <button type="button" id="numTabNum" data-tab="num">번호로</button>
+        <button type="button" id="numTabPrint" data-tab="print">고객용 인쇄</button>
+      </div>
+      <div id="numPaneName">
+        <input type="search" class="num-table-search" id="numTableSearch" placeholder="카드 이름 검색 (예: 컵 5, 탑, 완드)" autocomplete="off"/>
+        <div id="numNameList" class="num-name-list"></div>
+      </div>
+      <div id="numPaneNum" style="display:none">
+        <div id="numTableGrid" class="num-table-grid"></div>
+      </div>
+      <div id="numPanePrint" style="display:none">
+        <p class="num-table-hint">고객에게 보낼 1~78 번호표입니다. 인쇄·PDF·캡처로 공유하세요. (이 탭에서는 클릭 선택이 없습니다.)</p>
+        <div id="numTablePrintGrid" class="num-table-grid"></div>
+      </div>
       <div class="copy-sum-actions" style="margin-top:14px">
         <button type="button" class="btn-sm" id="numTablePrintBtn">인쇄 / PDF 저장</button>
         <button type="button" class="btn-sm outline" id="numTableCloseBtn">닫기</button>
@@ -2843,8 +2890,16 @@
       const Deck = window.CounselorTarotDeck;
       const POS_BASIC = ['카드'];
       const POS_ADV = ['상황', '핵심 메시지', '조언'];
+      const GROUPS = [
+        { label: '메이저', from: 1, to: 22 },
+        { label: '완드', from: 23, to: 36 },
+        { label: '컵', from: 37, to: 50 },
+        { label: '소드', from: 51, to: 64 },
+        { label: '펜타클', from: 65, to: 78 },
+      ];
       let mode = 'basic'; // basic | advanced
       let lastText = '';
+      let targetSlot = 0;
       /** @type {{ num: number|null, rev: boolean }[]} */
       let slots = [{ num: null, rev: false }];
 
@@ -2889,6 +2944,7 @@
         const n = slotCount();
         while (slots.length < n) slots.push({ num: null, rev: false });
         slots = slots.slice(0, n);
+        if (targetSlot >= n) targetSlot = 0;
         syncModeButtons();
         renderSlots();
       }
@@ -2897,44 +2953,114 @@
         return Deck.byDisplayNum(num);
       }
 
+      function usedNums() {
+        return new Set(slots.map((s) => s.num).filter((n) => n != null));
+      }
+
+      function nextEmptySlot() {
+        const i = slots.findIndex((s) => s.num == null);
+        return i >= 0 ? i : Math.min(targetSlot, slots.length - 1);
+      }
+
+      function optionHtml(selectedNum) {
+        return GROUPS.map((g) => {
+          let opts = '';
+          for (let n = g.from; n <= g.to; n++) {
+            const c = cardFor(n);
+            if (!c) continue;
+            opts += '<option value="' + n + '"' + (selectedNum === n ? ' selected' : '') + '>' +
+              n + '. ' + escapeHtml(c.name) + '</option>';
+          }
+          return '<optgroup label="' + escapeHtml(g.label) + '">' + opts + '</optgroup>';
+        }).join('');
+      }
+
+      function assignCard(num, slotIndex) {
+        let i = typeof slotIndex === 'number' ? slotIndex : targetSlot;
+        if (i < 0 || i >= slots.length) i = nextEmptySlot();
+        if (slots[i].num != null && slots.some((s, j) => j !== i && s.num == null)) {
+          i = nextEmptySlot();
+        }
+        slots[i].num = num;
+        targetSlot = Math.min(i + 1, slots.length - 1);
+        if (slots[targetSlot].num != null) {
+          const empty = slots.findIndex((s) => s.num == null);
+          if (empty >= 0) targetSlot = empty;
+        }
+        renderSlots();
+        const c = cardFor(num);
+        const labels = posLabels();
+        setAiMsg((c ? c.name : num) + ' → ' + (labels[i] || (i + 1) + '장') + '에 넣었습니다. 정·역을 확인해 주세요.');
+        return i;
+      }
+
       function renderSlots() {
         const labels = posLabels();
         slotsEl.innerHTML = slots.map((s, i) => {
           const card = s.num ? cardFor(s.num) : null;
-          const name = card ? card.name : (s.num ? '번호 확인' : '번호 입력');
-          const kw = card ? card.keywords : '';
+          const kw = card ? card.keywords : '이름 선택 또는 카드 고르기';
           return (
-            '<div class="ai-card-slot" data-i="' + i + '">' +
-              '<h4>' + escapeHtml(labels[i] || (i + 1) + '장') + '</h4>' +
+            '<div class="ai-card-slot' + (i === targetSlot ? ' is-target' : '') + '" data-i="' + i + '">' +
+              '<h4>' + escapeHtml(labels[i] || (i + 1) + '장') +
+              (i === targetSlot ? ' · 선택 중' : '') + '</h4>' +
               '<div class="slot-row">' +
-                '<input type="number" min="1" max="78" inputmode="numeric" placeholder="1~78" ' +
+                '<input type="number" min="1" max="78" inputmode="numeric" placeholder="번호" ' +
                   'aria-label="카드 번호" value="' + (s.num != null ? s.num : '') + '" data-num="' + i + '"/>' +
                 '<div class="ai-orient" role="group" aria-label="정역">' +
                   '<button type="button" data-orient="' + i + '" data-rev="0"' + (s.rev ? '' : ' class="active"') + '>정</button>' +
                   '<button type="button" data-orient="' + i + '" data-rev="1"' + (s.rev ? ' class="active"' : '') + '>역</button>' +
                 '</div>' +
               '</div>' +
-              '<div class="slot-name">' + escapeHtml(name) + '</div>' +
+              '<select data-pick="' + i + '" aria-label="카드 이름">' +
+                '<option value="">— 카드 이름 선택 —</option>' +
+                optionHtml(s.num) +
+              '</select>' +
               '<div class="slot-kw">' + escapeHtml(kw) + '</div>' +
             '</div>'
           );
         }).join('');
 
+        slotsEl.querySelectorAll('.ai-card-slot').forEach((el) => {
+          el.addEventListener('click', (e) => {
+            if (e.target.closest('button, input, select')) return;
+            targetSlot = Number(el.getAttribute('data-i'));
+            renderSlots();
+          });
+        });
         slotsEl.querySelectorAll('[data-num]').forEach((inp) => {
+          inp.addEventListener('focus', () => {
+            targetSlot = Number(inp.getAttribute('data-num'));
+            slotsEl.querySelectorAll('.ai-card-slot').forEach((el) => {
+              el.classList.toggle('is-target', Number(el.getAttribute('data-i')) === targetSlot);
+            });
+          });
           inp.addEventListener('input', () => {
             const i = Number(inp.getAttribute('data-num'));
             const v = Number(inp.value);
+            targetSlot = i;
             if (!inp.value) slots[i].num = null;
             else if (Number.isInteger(v) && v >= 1 && v <= 78) slots[i].num = v;
             else slots[i].num = null;
+            const sel = slotsEl.querySelector('select[data-pick="' + i + '"]');
+            if (sel) sel.value = slots[i].num != null ? String(slots[i].num) : '';
             const card = slots[i].num ? cardFor(slots[i].num) : null;
             const root = inp.closest('.ai-card-slot');
-            if (root) {
-              const nameEl = root.querySelector('.slot-name');
-              const kwEl = root.querySelector('.slot-kw');
-              if (nameEl) nameEl.textContent = card ? card.name : (inp.value ? '1~78 사이 번호를 입력' : '번호 입력');
-              if (kwEl) kwEl.textContent = card ? card.keywords : '';
-            }
+            const kwEl = root && root.querySelector('.slot-kw');
+            if (kwEl) kwEl.textContent = card ? card.keywords : '이름 선택 또는 카드 고르기';
+          });
+        });
+        slotsEl.querySelectorAll('[data-pick]').forEach((sel) => {
+          sel.addEventListener('change', () => {
+            const i = Number(sel.getAttribute('data-pick'));
+            targetSlot = i;
+            const v = Number(sel.value);
+            slots[i].num = sel.value && Number.isInteger(v) ? v : null;
+            const inp = slotsEl.querySelector('input[data-num="' + i + '"]');
+            if (inp) inp.value = slots[i].num != null ? String(slots[i].num) : '';
+            const card = slots[i].num ? cardFor(slots[i].num) : null;
+            const root = sel.closest('.ai-card-slot');
+            const kwEl = root && root.querySelector('.slot-kw');
+            if (kwEl) kwEl.textContent = card ? card.keywords : '이름 선택 또는 카드 고르기';
           });
         });
         slotsEl.querySelectorAll('[data-orient]').forEach((btn) => {
@@ -2961,6 +3087,7 @@
           num,
           rev: Math.random() < 0.35,
         }));
+        targetSlot = 0;
         renderSlots();
         setAiMsg(n + '장을 랜덤으로 뽑았습니다. 해석 생성을 눌러 주세요.');
       }
@@ -3009,22 +3136,119 @@
         });
       }
 
-      // 번호표 모달
+      // 카드 고르기 모달 (이름 / 번호 클릭 / 고객용 인쇄)
       (function initNumTable() {
         const modal = document.getElementById('numTableModal');
         const grid = document.getElementById('numTableGrid');
+        const printGrid = document.getElementById('numTablePrintGrid');
+        const nameList = document.getElementById('numNameList');
+        const searchEl = document.getElementById('numTableSearch');
         const openBtn = document.getElementById('aiNumTableBtn');
-        if (!modal || !grid || !openBtn) return;
-        grid.innerHTML = Array.from({ length: 78 }, (_, i) =>
-          '<div class="num-table-cell">' + (i + 1) + '</div>'
-        ).join('');
+        const paneName = document.getElementById('numPaneName');
+        const paneNum = document.getElementById('numPaneNum');
+        const panePrint = document.getElementById('numPanePrint');
+        const hintEl = document.getElementById('numTableHint');
+        if (!modal || !openBtn || !Deck) return;
+
+        let tab = 'name';
+
         function close() { modal.classList.remove('open'); }
-        openBtn.addEventListener('click', () => modal.classList.add('open'));
+
+        function setTab(next) {
+          tab = next;
+          ['name', 'num', 'print'].forEach((t) => {
+            const btn = document.getElementById(t === 'name' ? 'numTabName' : t === 'num' ? 'numTabNum' : 'numTabPrint');
+            if (btn) btn.classList.toggle('active', t === tab);
+          });
+          if (paneName) paneName.style.display = tab === 'name' ? '' : 'none';
+          if (paneNum) paneNum.style.display = tab === 'num' ? '' : 'none';
+          if (panePrint) panePrint.style.display = tab === 'print' ? '' : 'none';
+          if (hintEl) {
+            if (tab === 'print') {
+              hintEl.innerHTML = '원격 고객에게 보내 숫자를 고르게 하세요. 「1~78 중 ○개 골라 알려 주세요.」';
+            } else {
+              hintEl.innerHTML = '카드를 누르면 <strong>비어 있는 칸</strong>(또는 선택한 칸)에 들어갑니다. 정·역은 칸에서 바꿀 수 있습니다.';
+            }
+          }
+          refreshPickers();
+        }
+
+        function onPick(num) {
+          if (tab === 'print') return;
+          assignCard(num);
+          refreshPickers();
+          if (slots.every((s) => s.num != null)) close();
+        }
+
+        function refreshPickers() {
+          const used = usedNums();
+          if (grid) {
+            grid.innerHTML = Array.from({ length: 78 }, (_, i) => {
+              const n = i + 1;
+              const c = cardFor(n);
+              const u = used.has(n);
+              return '<button type="button" class="num-table-cell' + (u ? ' used' : '') +
+                '" data-pick-num="' + n + '" title="' + escapeHtml(c ? c.name : '') + '">' +
+                n + '<span class="nt-name">' + escapeHtml(c ? c.name : '') + '</span></button>';
+            }).join('');
+            grid.querySelectorAll('[data-pick-num]').forEach((btn) => {
+              btn.addEventListener('click', () => onPick(Number(btn.getAttribute('data-pick-num'))));
+            });
+          }
+          if (printGrid && !printGrid.dataset.ready) {
+            printGrid.innerHTML = Array.from({ length: 78 }, (_, i) =>
+              '<div class="num-table-cell" style="cursor:default">' + (i + 1) + '</div>'
+            ).join('');
+            printGrid.dataset.ready = '1';
+          }
+          if (nameList) {
+            const q = ((searchEl && searchEl.value) || '').trim().toLowerCase();
+            nameList.innerHTML = GROUPS.map((g) => {
+              const rows = [];
+              for (let n = g.from; n <= g.to; n++) {
+                const c = cardFor(n);
+                if (!c) continue;
+                if (q && !(String(n).includes(q) || c.name.toLowerCase().includes(q))) continue;
+                const u = used.has(n);
+                rows.push(
+                  '<button type="button" class="num-name-row' + (u ? ' used' : '') +
+                  '" data-pick-num="' + n + '"><span class="nn">' + n + '</span>' +
+                  escapeHtml(c.name) +
+                  (c.keywords ? '<span style="margin-left:auto;font-size:11px;color:var(--muted)">' +
+                    escapeHtml(c.keywords) + '</span>' : '') +
+                  '</button>'
+                );
+              }
+              if (!rows.length) return '';
+              return '<div class="num-name-group">' + escapeHtml(g.label) + '</div>' + rows.join('');
+            }).join('') || '<p class="num-table-hint">검색 결과가 없습니다.</p>';
+            nameList.querySelectorAll('[data-pick-num]').forEach((btn) => {
+              btn.addEventListener('click', () => onPick(Number(btn.getAttribute('data-pick-num'))));
+            });
+          }
+        }
+
+        document.getElementById('numTabName')?.addEventListener('click', () => setTab('name'));
+        document.getElementById('numTabNum')?.addEventListener('click', () => setTab('num'));
+        document.getElementById('numTabPrint')?.addEventListener('click', () => setTab('print'));
+        if (searchEl) searchEl.addEventListener('input', refreshPickers);
+
+        openBtn.addEventListener('click', () => {
+          if (slots[targetSlot] && slots[targetSlot].num != null) {
+            const empty = nextEmptySlot();
+            targetSlot = empty;
+            renderSlots();
+          }
+          setTab(tab === 'print' ? 'name' : tab);
+          modal.classList.add('open');
+          if (searchEl && tab === 'name') setTimeout(() => searchEl.focus(), 50);
+        });
         const c1 = document.getElementById('numTableClose');
         const c2 = document.getElementById('numTableCloseBtn');
         if (c1) c1.addEventListener('click', close);
         if (c2) c2.addEventListener('click', close);
         modal.addEventListener('click', (e) => { if (e.target === modal) close(); });
+
         const printBtn = document.getElementById('numTablePrintBtn');
         if (printBtn) {
           printBtn.addEventListener('click', () => {
@@ -3072,7 +3296,7 @@
           return;
         }
         if (cards.length < need) {
-          setAiMsg(mode === 'basic' ? '카드 번호 1장을 입력해 주세요.' : '카드 번호를 1~3장 입력해 주세요.', true);
+          setAiMsg(mode === 'basic' ? '카드를 1장 선택해 주세요.' : '카드를 1~3장 선택해 주세요.', true);
           return;
         }
         if (mode === 'basic' && cards.length !== 1) {
@@ -3174,9 +3398,6 @@ ${cardLines}
 
       setMode('basic');
 
-      if (location.hash === '#ai-draft' || location.hash === '#session-scripts') {
-        /* session-scripts handled above; ai-draft scroll here if hash matches */
-      }
       if (location.hash === '#ai-draft') {
         setTimeout(() => {
           const el = document.getElementById('ai-draft');
