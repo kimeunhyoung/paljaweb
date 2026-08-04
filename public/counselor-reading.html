@@ -13,6 +13,7 @@
   <script src="js/plan-access.js?v=1"></script>
   <script src="js/ai-quota-client.js?v=2"></script>
   <script src="js/counselor-tarot-deck.js?v=4"></script>
+  <script src="js/kirke-tarot-meanings.js?v=1"></script>
   <script src="js/attribution.js"></script>
   <script src="js/site-topbar.js?v=5" defer></script>
   <script src="js/topbar-session.js?v=6" defer></script>
@@ -1220,6 +1221,45 @@
         return outCards;
       }
 
+      function detectReadingTopic(question) {
+        const s = String(question || '');
+        if (/연애|사랑|이별|커플|남친|여친|짝사랑|썸|결혼|헤어진|재회|남사친|여사친/.test(s)) return 'love';
+        if (/직장|회사|이직|사업|커리어|면접|업무|직장운|퇴사|취업|프로젝트/.test(s)) return 'work';
+        if (/돈|금전|재물|투자|수입|빚|재정|월급|자산|매출/.test(s)) return 'money';
+        if (/친구|가족|동료|인간관계|갈등|부모|형제|상사/.test(s)) return 'relation';
+        if (/마음|나\s*자신|자존|성장|내면|고민|불안|멘탈|우울/.test(s)) return 'inner';
+        return 'general';
+      }
+
+      function clipMeaning(text, max) {
+        const t = String(text || '').replace(/【[^】]+】\s*/g, '').replace(/\s+/g, ' ').trim();
+        if (!t) return '';
+        if (t.length <= max) return t;
+        return t.slice(0, max - 1) + '…';
+      }
+
+      /** 키르케 공식 해설을 카드·정역·주제 맞춰 짧게 뽑아 프롬프트에 주입 */
+      function meaningRefForCard(card, topic) {
+        const m = (window.KIRKE_CARD_MEANINGS || {})[String(card.num)];
+        if (!m) return '';
+        const lines = [];
+        if (m.keywords) lines.push('키워드: ' + m.keywords);
+        if (card.rev && m.reversed) {
+          lines.push('역방향: ' + clipMeaning(m.reversed, 480));
+        } else if (!card.rev && m.upright) {
+          lines.push('정방향: ' + clipMeaning(m.upright, 480));
+        } else if (m.topics) {
+          const block = m.topics[topic] || m.topics.general || {};
+          if (m.story) lines.push('상징: ' + clipMeaning(m.story, 200));
+          if (block.you) lines.push('상황: ' + clipMeaning(block.you, 240));
+          if (block.advice) lines.push('조언핵: ' + clipMeaning(block.advice, 180));
+          if (card.rev) lines.push('※ 역방향: 위 에너지가 막히거나 과도·부족·내면화되어 나타남');
+        } else if (m.upright) {
+          lines.push((card.rev ? '정방향 기반(역으로 재해석): ' : '정방향: ') + clipMeaning(m.upright, 480));
+        }
+        return lines.join('\n');
+      }
+
       if (modeBasic) modeBasic.addEventListener('click', () => setMode('basic'));
       if (modeAdv) modeAdv.addEventListener('click', () => setMode('advanced'));
       if (drawBtn) drawBtn.addEventListener('click', drawRandom);
@@ -1491,13 +1531,20 @@
           (c.keywords ? ' — ' + c.keywords : '')
         ).join('\n');
 
+        const topic = detectReadingTopic(question);
+        const meaningBlock = cards.map((c) => {
+          const ref = meaningRefForCard(c, topic);
+          return '· ' + c.pos + ' / ' + c.num + '. ' + c.name + (c.rev ? ' (역)' : ' (정)') +
+            (ref ? '\n' + ref : '\n(해설 DB 없음 — 일반 타로 지식으로 신중히)');
+        }).join('\n\n');
+
         const depthHint = cards.length <= 1
-          ? '기본 리딩: 카드 1장 중심으로 짧고 명확하게.'
+          ? '기본 리딩: 카드 1장 중심으로 짧고 명확하게. 질문 한 줄에 바로 닿게.'
           : '카드 ' + cards.length + '장. 스프래드 포지션을 먼저 읽고,' +
-            (extraCards.length ? ' 추가 카드(' + extraCards.map((c) => c.pos).join('·') + ')는 보완·조언·명확화로 연결하세요.' : ' 카드 간 연결을 쓰세요.');
+            (extraCards.length ? ' 추가 카드(' + extraCards.map((c) => c.pos).join('·') + ')는 보완·조언·명확화로 연결하세요.' : ' 카드 간 연결(흐름·긴장·보완)을 쓰세요.');
 
         const prompt =
-`당신은 타로·수비학을 쓰는 전문 상담사의 '세션 보조 작가'입니다.
+`당신은 타로를 쓰는 전문 상담사의 '세션 보조 작가'입니다.
 상담사가 고객 채팅/대면에 **그대로 붙여넣고 살짝 다듬을** 해석 초안을 작성하세요.
 AI가 고객에게 직접 말하는 앱이 아닙니다.
 
@@ -1509,7 +1556,15 @@ ${note ? '[상담사만 보는 메모 — 해석에 반영하되 메모 문구�
 [뽑힌 카드]
 ${cardLines}
 ${extraCards.length ? '\n(추가 카드는 본 스프래드 해석을 보완하는 조언/명확화로 다루세요.)\n' : ''}
+[추정 주제] ${topic}
 [깊이] ${depthHint}
+
+[카드별 공식 해설 참고 — 반드시 이 의미를 기준으로 해석]
+아래는 팔자연구소 키르케 타로 가이드북 기반 요약입니다.
+핵심 상징·상황·조언을 **지키되**, 문장은 상담사 톤으로 다시 쓰세요. 통째로 복사하지 마세요.
+신화 고유명사(헤르메스 등)는 고객이 이해하기 어렵면 상징만 풀어 쓰세요.
+
+${meaningBlock}
 
 규칙:
 1) 한국어. 고객에게 건네는 존댓말. 상담사가 읽어도 자연스럽게.
@@ -1519,13 +1574,17 @@ ${extraCards.length ? '\n(추가 카드는 본 스프래드 해석을 보완하�
 ## 질문에 대한 답
 ## 오늘 가져갈 조언
 ## 주의 (과한 예언·단정 금지)
-3) 카드 해석에는 포지션(또는 추가 역할)·번호·카드명·정역을 명시. 추가 카드가 있으면 그 역할을 분명히.
-4) 점술 확정 예언·의료·법률·투자 단정 금지. "가능성이 있다/살펴볼 포인트"로.
-5) 이모지·불필요한 인사·면책 장문 금지. 복사해 쓰기 좋게.`;
+3) 카드 해석: 포지션(또는 추가 역할)·번호·카드명·정역을 명시한 뒤,
+   각 카드마다 (상징 한 줄) → (질문·포지션에 맞춘 지금 상황) → (구체 행동/관점 1개) 순으로 2~4문장.
+4) 참고 해설과 다른 카드처럼 쓰지 말 것. 키워드만 나열하거나 추상적 일반론·동어반복 금지.
+5) 「질문에 대한 답」은 카드들을 연결해 질문에 직접 답. 에둘러 피하지 말 것.
+6) 점술 확정 예언·의료·법률·투자 단정 금지. "가능성이 있다/살펴볼 포인트"로.
+7) 이모지·불필요한 인사·면책 장문 금지. 복사해 쓰기 좋게.`;
 
         const cacheKey = PaljaAiQuota.hashKey([
-          'counselor_reading_v5',
+          'counselor_reading_v6',
           feature,
+          topic,
           clientId || '',
           displayName,
           question,
@@ -1537,7 +1596,7 @@ ${extraCards.length ? '\n(추가 카드는 본 스프래드 해석을 보완하�
           const { text, quota } = await PaljaAiQuota.callAi({
             feature,
             cacheKey,
-            max_tokens: cards.length <= 1 ? 900 : 1600,
+            max_tokens: cards.length <= 1 ? 1100 : 1800,
             messages: [{ role: 'user', content: prompt }],
           });
           lastText = text || '';
