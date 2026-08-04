@@ -471,6 +471,14 @@
     .ops-form textarea { min-height: 72px; resize: vertical; }
     .ops-form .ops-actions { display: flex; gap: 8px; flex-wrap: wrap; align-items: end; }
     .ops-list { display: grid; gap: 8px; }
+    .ops-list-inner { display: grid; gap: 8px; }
+    .ops-list-inner.is-scroll { max-height: 260px; overflow-y: auto; padding-right: 2px; }
+    .ops-more {
+      margin-top: 4px; font-size: 12px; padding: 6px 12px; border-radius: 8px;
+      border: 1px solid var(--border); background: #fff; color: var(--deep);
+      cursor: pointer; font-family: var(--font-body); font-weight: 600;
+    }
+    .ops-more:hover { border-color: var(--teal); color: var(--teal); }
     .ops-row {
       display: flex; align-items: flex-start; gap: 10px;
       background: var(--parchment); border: 1px solid var(--border); border-radius: 8px;
@@ -1061,6 +1069,9 @@
     let snippetsAvailable = true;
     let activeClientId = null;
     let snipKind = 'review';
+    let salesListExpanded = false;
+    let snipListExpanded = false;
+    const OPS_LIST_PREVIEW = 5;
     const uid = session.user.id;
     const accessToken = session.access_token;
     const REMIND_LS_KEY = 'palja_counselor_session_remind_min_v1';
@@ -1324,7 +1335,9 @@
       }
       const nameById = {};
       clientRows.forEach((c) => { nameById[c.id] = c.display_name || c.legal_name || '고객'; });
-      host.innerHTML = saleRows.slice(0, 40).map((s) => {
+      const total = saleRows.length;
+      const visible = salesListExpanded ? saleRows : saleRows.slice(0, OPS_LIST_PREVIEW);
+      const rowsHtml = visible.map((s) => {
         const name = s.client_id ? (nameById[s.client_id] || '고객') : '';
         const meta = [
           escapeHtml(String(s.sale_date || '')),
@@ -1339,6 +1352,14 @@
           '<div class="ops-btns"><button type="button" data-del-sale="' + s.id + '">삭제</button></div>' +
           '</div>';
       }).join('');
+      let moreHtml = '';
+      if (total > OPS_LIST_PREVIEW) {
+        moreHtml = salesListExpanded
+          ? '<button type="button" class="ops-more" data-ops-more="sales-collapse">접기 · 최근 ' + OPS_LIST_PREVIEW + '건만</button>'
+          : '<button type="button" class="ops-more" data-ops-more="sales-expand">더 보기 · 전체 ' + total + '건</button>';
+      }
+      const scrollCls = (salesListExpanded && total > OPS_LIST_PREVIEW) ? ' ops-list-inner is-scroll' : ' ops-list-inner';
+      host.innerHTML = '<div class="' + scrollCls.trim() + '">' + rowsHtml + '</div>' + moreHtml;
       host.querySelectorAll('button[data-del-sale]').forEach((btn) => {
         btn.addEventListener('click', async () => {
           if (!confirm('이 매출 기록을 삭제할까요?')) return;
@@ -1349,6 +1370,13 @@
           setSalesMsg('삭제했습니다.');
         });
       });
+      const moreBtn = host.querySelector('[data-ops-more]');
+      if (moreBtn) {
+        moreBtn.addEventListener('click', () => {
+          salesListExpanded = moreBtn.getAttribute('data-ops-more') === 'sales-expand';
+          renderSalesList();
+        });
+      }
     }
 
     function renderSnipList() {
@@ -1365,7 +1393,9 @@
           '</p>';
         return;
       }
-      host.innerHTML = rows.map((s) =>
+      const total = rows.length;
+      const visible = snipListExpanded ? rows : rows.slice(0, OPS_LIST_PREVIEW);
+      const rowsHtml = visible.map((s) =>
         '<div class="ops-row">' +
         '<div class="ops-main">' +
         (s.title ? '<strong>' + escapeHtml(String(s.title)) + '</strong>' : '') +
@@ -1377,6 +1407,14 @@
         '<button type="button" data-del-snip="' + s.id + '">삭제</button>' +
         '</div></div>'
       ).join('');
+      let moreHtml = '';
+      if (total > OPS_LIST_PREVIEW) {
+        moreHtml = snipListExpanded
+          ? '<button type="button" class="ops-more" data-ops-more="snip-collapse">접기 · 최근 ' + OPS_LIST_PREVIEW + '건만</button>'
+          : '<button type="button" class="ops-more" data-ops-more="snip-expand">더 보기 · 전체 ' + total + '건</button>';
+      }
+      const scrollCls = (snipListExpanded && total > OPS_LIST_PREVIEW) ? 'ops-list-inner is-scroll' : 'ops-list-inner';
+      host.innerHTML = '<div class="' + scrollCls + '">' + rowsHtml + '</div>' + moreHtml;
       host.querySelectorAll('button[data-copy-snip]').forEach((btn) => {
         btn.addEventListener('click', async () => {
           const row = snippetRows.find((x) => x.id === btn.getAttribute('data-copy-snip'));
@@ -1399,6 +1437,13 @@
           setSnipMsg('삭제했습니다.');
         });
       });
+      const moreBtn = host.querySelector('[data-ops-more]');
+      if (moreBtn) {
+        moreBtn.addEventListener('click', () => {
+          snipListExpanded = moreBtn.getAttribute('data-ops-more') === 'snip-expand';
+          renderSnipList();
+        });
+      }
     }
 
     async function onRowAction(e) {
@@ -2430,6 +2475,7 @@
           document.querySelectorAll('.ops-tab[data-snip-kind]').forEach((t) => {
             t.classList.toggle('active', t === tab);
           });
+          snipListExpanded = false;
           renderSnipList();
           setSnipMsg('');
         });
