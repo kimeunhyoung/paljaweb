@@ -13,7 +13,8 @@
   <script src="js/plan-access.js?v=1"></script>
   <script src="js/ai-quota-client.js?v=2"></script>
   <script src="js/counselor-tarot-deck.js?v=4"></script>
-  <script src="js/kirke-tarot-meanings.js?v=1"></script>
+  <script src="js/tarot-major-scripted.js?v=1"></script>
+  <script src="js/tarot-minor-scripted.js?v=1"></script>
   <script src="js/attribution.js"></script>
   <script src="js/site-topbar.js?v=5" defer></script>
   <script src="js/topbar-session.js?v=6" defer></script>
@@ -1238,24 +1239,31 @@
         return t.slice(0, max - 1) + '…';
       }
 
-      /** 키르케 공식 해설을 카드·정역·주제 맞춰 짧게 뽑아 프롬프트에 주입 */
+      /** 타로코드 유니(RWS식) 공식 해설 — 메이저 0~21 / 마이너 22~77 */
       function meaningRefForCard(card, topic) {
-        const m = (window.KIRKE_CARD_MEANINGS || {})[String(card.num)];
-        if (!m) return '';
+        const ctx = { curMode: 'question', curTopic: topic === 'general' ? 'custom' : topic };
+        const scripted = card.num <= 21
+          ? (window.getTarotMajorScripted && window.getTarotMajorScripted(card.num, ctx))
+          : (window.getTarotMinorScripted && window.getTarotMinorScripted(card.num, ctx));
+        if (!scripted) return '';
         const lines = [];
-        if (m.keywords) lines.push('키워드: ' + m.keywords);
-        if (card.rev && m.reversed) {
-          lines.push('역방향: ' + clipMeaning(m.reversed, 480));
-        } else if (!card.rev && m.upright) {
-          lines.push('정방향: ' + clipMeaning(m.upright, 480));
-        } else if (m.topics) {
-          const block = m.topics[topic] || m.topics.general || {};
-          if (m.story) lines.push('상징: ' + clipMeaning(m.story, 200));
-          if (block.you) lines.push('상황: ' + clipMeaning(block.you, 240));
-          if (block.advice) lines.push('조언핵: ' + clipMeaning(block.advice, 180));
-          if (card.rev) lines.push('※ 역방향: 위 에너지가 막히거나 과도·부족·내면화되어 나타남');
-        } else if (m.upright) {
-          lines.push((card.rev ? '정방향 기반(역으로 재해석): ' : '정방향: ') + clipMeaning(m.upright, 480));
+        if (scripted.mainTitle) lines.push('핵심: ' + clipMeaning(scripted.mainTitle, 120));
+        if (card.rev) {
+          const caution = card.num <= 21
+            ? (window.getTarotMajorScripted && window.getTarotMajorScripted(card.num, { role: 'dont' }))
+            : (window.getTarotMinorScripted && window.getTarotMinorScripted(card.num, { role: 'dont' }));
+          if (scripted.summary) lines.push('정방향 요약(참고): ' + clipMeaning(scripted.summary, 160));
+          if (caution && caution.doDontBody) {
+            lines.push('역방향·주의 쪽: ' + clipMeaning(caution.doDontBody, 420));
+          } else if (scripted.mono) {
+            lines.push('흐름(역으로 재해석): ' + clipMeaning(scripted.mono, 360));
+            lines.push('※ 역방향: 위 에너지가 막히거나 과도·부족·내면화되어 나타남');
+          }
+          if (scripted.advice) lines.push('조언핵을 역에 맞게 조정: ' + clipMeaning(scripted.advice, 200));
+        } else {
+          if (scripted.mono) lines.push('흐름: ' + clipMeaning(scripted.mono, 420));
+          if (scripted.summary) lines.push('요약: ' + clipMeaning(scripted.summary, 160));
+          if (scripted.advice) lines.push('조언: ' + clipMeaning(scripted.advice, 220));
         }
         return lines.join('\n');
       }
@@ -1560,9 +1568,8 @@ ${extraCards.length ? '\n(추가 카드는 본 스프래드 해석을 보완하�
 [깊이] ${depthHint}
 
 [카드별 공식 해설 참고 — 반드시 이 의미를 기준으로 해석]
-아래는 팔자연구소 키르케 타로 가이드북 기반 요약입니다.
-핵심 상징·상황·조언을 **지키되**, 문장은 상담사 톤으로 다시 쓰세요. 통째로 복사하지 마세요.
-신화 고유명사(헤르메스 등)는 고객이 이해하기 어렵면 상징만 풀어 쓰세요.
+아래는 팔자연구소 **타로코드 유니버설(RWS식) 공식 해설** 요약입니다. (키르케 신화 덱 해설이 아님)
+핵심 의미·요약·조언을 **지키되**, 문장은 상담사 톤으로 다시 쓰세요. 통째로 복사하지 마세요.
 
 ${meaningBlock}
 
@@ -1582,7 +1589,7 @@ ${meaningBlock}
 7) 이모지·불필요한 인사·면책 장문 금지. 복사해 쓰기 좋게.`;
 
         const cacheKey = PaljaAiQuota.hashKey([
-          'counselor_reading_v6',
+          'counselor_reading_v7',
           feature,
           topic,
           clientId || '',
