@@ -140,9 +140,14 @@
       font-family: var(--font-body); font-size: 13px; background: #fff; color: var(--ink);
     }
     .ai-card-hint { font-size: 11px; color: var(--muted); margin: 0 0 8px; line-height: 1.45; }
+    .ai-preview-label {
+      font-size: 11px; font-weight: 700; color: var(--muted); letter-spacing: .04em;
+      margin: 4px 0 8px;
+    }
     .ai-card-preview {
-      display: flex; flex-wrap: wrap; gap: 12px; margin: 0 0 16px; min-height: 0;
+      display: flex; flex-wrap: wrap; gap: 12px; margin: 0 0 12px; min-height: 0;
       justify-content: flex-start;
+      padding: 12px; background: var(--parchment); border: 1px solid var(--border); border-radius: 12px;
     }
     .ai-card-preview:empty { display: none; }
     .ai-prev-card {
@@ -322,7 +327,7 @@
   <div id="workspace">
 <div class="section-title" id="ai-draft" style="margin-top:28px">상담사 AI 리딩</div>
     <div class="ai-draft-panel">
-      <p class="ai-draft-intro">스프래드 카드를 넣은 뒤, 필요하면 <strong>조언·명확화 카드를 추가로 뽑을</strong> 수 있습니다. 위에 뽑힌 카드가 보입니다. 1장 <strong>크레딧 1</strong> · 2장 이상 <strong>크레딧 2</strong>.</p>
+      <p class="ai-draft-intro">스프래드 카드를 넣은 뒤, 필요하면 <strong>조언·명확화 카드를 추가로 뽑을</strong> 수 있습니다. 뽑힌 카드는 <strong>해석 바로 위</strong>에 보입니다. 1장 <strong>크레딧 1</strong> · 2장 이상 <strong>크레딧 2</strong>.</p>
       <div class="ai-mode-row" role="tablist" aria-label="리딩 모드">
         <button type="button" class="ai-mode-btn active" id="aiModeBasic" data-mode="basic" role="tab" aria-selected="true">
           <strong>기본 리딩</strong>
@@ -333,7 +338,6 @@
           <span>스프래드 1~3장 · 추가 카드 가능</span>
         </button>
       </div>
-      <div id="aiCardPreview" class="ai-card-preview" aria-live="polite"></div>
       <form id="aiDraftForm" class="ai-draft-form" autocomplete="off">
         <div>
           <label for="aiClient">고객 (선택 · CRM 연결)</label>
@@ -388,6 +392,8 @@
           <span class="ai-draft-quota" id="aiDraftQuota" hidden></span>
         </div>
       </form>
+      <p class="ai-preview-label" id="aiPreviewLabel" hidden>뽑힌 카드 · 해석과 함께 보세요</p>
+      <div id="aiCardPreview" class="ai-card-preview" aria-live="polite"></div>
       <div id="aiDraftOut" class="ai-draft-out is-empty">질문을 넣고 카드를 정한 뒤 해석을 생성해 보세요.</div>
       <p id="aiDraftMsg" class="ai-draft-msg"></p>
     </div>
@@ -960,6 +966,8 @@
 
       function renderPreview() {
         if (!previewEl) return;
+        const labelEl = document.getElementById('aiPreviewLabel');
+        if (labelEl) labelEl.hidden = !slots.length;
         const labels = posLabels();
         previewEl.innerHTML = slots.map((s, i) => {
           const pos = labels[i] || ((i + 1) + '장');
