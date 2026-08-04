@@ -447,6 +447,56 @@
     .brand-row input { width: 100%; padding: 10px 12px; border: 1px solid var(--border); border-radius: 8px; font-family: var(--font-body); font-size: 13px; }
     .brand-hint { font-size: 11px; color: var(--muted); margin-top: 10px; line-height: 1.5; }
 
+    /* 운영 섹터 */
+    .ops-panel { background: #fff; border: 1px solid var(--border); border-radius: 12px; padding: 18px 20px; box-shadow: 0 6px 18px rgba(44,31,14,.05); margin-bottom: 8px; }
+    .ops-intro { font-size: 12.5px; color: var(--muted); line-height: 1.55; margin-bottom: 14px; }
+    .ops-intro strong { color: var(--deep); }
+    .ops-subhead { font-family: var(--font-serif); font-size: 15px; color: var(--deep); margin: 18px 0 8px; }
+    .ops-subhead:first-of-type { margin-top: 0; }
+    .ops-summary { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 12px; }
+    .ops-sum-chip { background: var(--parchment); border: 1px solid var(--border); border-radius: 8px; padding: 8px 12px; font-size: 12px; color: var(--muted); }
+    .ops-sum-chip strong { display: block; font-size: 16px; color: var(--deep); font-weight: 700; margin-top: 2px; }
+    .ops-form { display: grid; gap: 10px; margin-bottom: 12px; }
+    @media (min-width: 640px) {
+      .ops-form.sales-form { grid-template-columns: 120px 110px 1fr 1fr auto; align-items: end; }
+      .ops-form.sales-form .full { grid-column: 1 / -1; }
+      .ops-form.snip-form { grid-template-columns: 120px 1fr auto; align-items: end; }
+      .ops-form.snip-form .full { grid-column: 1 / -1; }
+    }
+    .ops-form label { font-size: 11px; color: var(--muted); display: block; margin-bottom: 5px; }
+    .ops-form input, .ops-form select, .ops-form textarea {
+      width: 100%; padding: 9px 11px; border: 1px solid var(--border); border-radius: 8px;
+      font-family: var(--font-body); font-size: 13px; background: #fff; color: var(--ink);
+    }
+    .ops-form textarea { min-height: 72px; resize: vertical; }
+    .ops-form .ops-actions { display: flex; gap: 8px; flex-wrap: wrap; align-items: end; }
+    .ops-list { display: grid; gap: 8px; }
+    .ops-row {
+      display: flex; align-items: flex-start; gap: 10px;
+      background: var(--parchment); border: 1px solid var(--border); border-radius: 8px;
+      padding: 10px 12px; font-size: 12.5px;
+    }
+    .ops-row .ops-main { flex: 1; min-width: 0; }
+    .ops-row .ops-amt { font-weight: 700; color: var(--deep); white-space: nowrap; }
+    .ops-row .ops-meta { font-size: 11px; color: var(--muted); margin-top: 3px; }
+    .ops-row .ops-body { margin-top: 4px; color: var(--ink); line-height: 1.5; white-space: pre-wrap; }
+    .ops-row .ops-btns { margin-left: auto; display: flex; gap: 6px; flex-shrink: 0; }
+    .ops-row .ops-btns button { font-size: 11px; padding: 4px 8px; }
+    .ops-empty { font-size: 12px; color: var(--muted); }
+    .ops-tabs { display: flex; gap: 6px; margin-bottom: 10px; flex-wrap: wrap; }
+    .ops-tab {
+      font-size: 12px; padding: 6px 12px; border-radius: 999px; border: 1px solid var(--border);
+      background: #fff; color: var(--muted); cursor: pointer; font-family: var(--font-body);
+    }
+    .ops-tab.active { background: var(--deep); color: #fff; border-color: var(--deep); }
+    .push-remind { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 10px; width: 100%; }
+    .push-remind label { font-size: 11px; color: var(--muted); font-weight: 600; }
+    .push-remind select {
+      padding: 7px 10px; border: 1px solid var(--border); border-radius: 8px;
+      font-family: var(--font-body); font-size: 12px; background: #fff; color: var(--ink);
+    }
+    .push-remind-hint { font-size: 11px; color: var(--muted); line-height: 1.45; flex: 1 1 100%; }
+
     /* 관계 분석 */
     .rel-panel { background: #fff; border: 1px solid var(--border); border-radius: 12px; padding: 18px 20px; box-shadow: 0 6px 18px rgba(44,31,14,.05); }
     .rel-row { display: grid; gap: 12px; align-items: end; }
@@ -532,12 +582,12 @@
 <div id="app">
   <div class="hub-intro">
     <h1>상담사 허브</h1>
-    <p>고객 관리 → 라이프코드·궁합 분석 → <strong>고객용 리포트 PDF</strong>와 <strong>고객별 세션 기록</strong>까지. 일정 캘린더·푸시 알림으로 오늘 상담을 챙기고, 이 화면은 <strong>Professional 상담사 전용</strong>으로 상담 업무 도구를 한곳에 모았습니다.</p>
+    <p>고객 관리 → 라이프코드·궁합 분석 → <strong>고객용 리포트 PDF</strong>와 <strong>고객별 세션 기록</strong>까지. 일정 캘린더·푸시 알림으로 오늘 상담을 챙기고, <strong>매출·후기·멘트</strong>로 운영까지. 이 화면은 <strong>Professional 상담사 전용</strong>으로 상담 업무 도구를 한곳에 모았습니다.</p>
     <p id="trialBadge" class="trial-badge" style="display:none" role="status"></p>
   </div>
   <div id="gate">
     <h2>Professional 플랜 전용</h2>
-    <p>상담사 허브는 <strong>Professional</strong> 요금제에서 이용할 수 있어요.<br>고객 카드·세션 기록(CRM), 일정 캘린더·중요 일정·웹 푸시, 상담사 대시보드, 브랜디드 리포트 PDF, 상담 준비 요약, 고객 간 궁합까지 상담 업무 도구가 함께 켜집니다.</p>
+    <p>상담사 허브는 <strong>Professional</strong> 요금제에서 이용할 수 있어요.<br>고객 카드·세션 기록(CRM), 일정 캘린더·중요 일정·웹 푸시, 매출·후기·멘트, 상담사 대시보드, 브랜디드 리포트 PDF, 상담 준비 요약, 고객 간 궁합까지 상담 업무 도구가 함께 켜집니다.</p>
     <a class="cta" href="for-counselors.html">Professional 안내 보기</a>
     <a class="cta secondary" href="/lifecode/buy.html?product=counselor30" style="margin-left:8px;background:transparent;border:1.5px solid var(--border);color:var(--deep);">15일 체험 구매</a>
     <a class="cta secondary" href="pricing.html?checkout=professional" style="margin-left:8px;background:transparent;border:1.5px solid var(--border);color:var(--deep);">바로 구독</a>
@@ -561,6 +611,7 @@
       <div class="dash-card"><div class="dash-num" id="dashNew">0</div><div class="dash-label">이번 달 신규 고객</div></div>
       <div class="dash-card"><div class="dash-num" id="dashMonthSessions">0</div><div class="dash-label">이번 달 상담 건수</div></div>
       <div class="dash-card"><div class="dash-num" id="dashRepeat">0<small>%</small></div><div class="dash-label">재방문율(2회+)</div></div>
+      <div class="dash-card"><div class="dash-num" id="dashMonthSales">0</div><div class="dash-label">이번 달 매출(원)</div></div>
     </div>
     <div class="dash-upcoming" id="dashUpcomingList"></div>
 
@@ -623,12 +674,22 @@
       <p>알림을 켜 두면 <strong>오늘 날짜</strong>의 상담·중요 일정이 있을 때, <strong>정해 둔 시간(한국)</strong>에 한 번 요약해 드립니다. 오늘 일정이 없으면 알림은 가지 않습니다.</p>
       <div class="push-actions">
         <div class="push-time">
-          <label for="pushHourSelect">알림 시간 (한국)</label>
+          <label for="pushHourSelect">오전 요약 시간 (한국)</label>
           <select id="pushHourSelect" aria-label="알림 시간"></select>
           <button type="button" class="btn-sm outline" id="pushSaveHourBtn" style="display:none;">시간 저장</button>
         </div>
         <button type="button" class="btn-sm" id="pushToggleBtn">알림 켜기</button>
         <span class="push-status off" id="pushStatus">확인 중…</span>
+      </div>
+      <div class="push-remind">
+        <label for="sessionRemindSelect">세션 시작 전 알림</label>
+        <select id="sessionRemindSelect" aria-label="세션 시작 전 알림">
+          <option value="0">끔</option>
+          <option value="10">10분 전</option>
+          <option value="20">20분 전</option>
+          <option value="30" selected>30분 전</option>
+        </select>
+        <p class="push-remind-hint">중요 일정에 <strong>시작 시간</strong>을 넣은 경우, 이 탭이 열려 있으면 선택 분 전에 브라우저 알림을 한 번 보냅니다. (오전 요약 푸시와 별개)</p>
       </div>
     </div>
 
@@ -646,6 +707,65 @@
         <button type="button" class="btn-sm" id="brandSaveBtn">저장</button>
       </div>
       <p class="brand-hint">여기에 입력한 이름·로고가 <strong>고객용 리포트 PDF</strong> 머리글에 들어갑니다. 이 기기 브라우저에 저장됩니다.</p>
+    </div>
+
+    <div class="section-title" style="margin-top:28px">운영 · 매출 · 멘트</div>
+    <div class="ops-panel" id="opsPanel">
+      <p class="ops-intro">상담 후 정산·홍보에 쓰는 <strong>간단 매출 장부</strong>와 <strong>후기·멘트 보관함</strong>입니다. Supabase에서 <code class="inline-code">database/counselor_ops.sql</code>을 실행해야 저장됩니다.</p>
+
+      <div class="ops-subhead">간단 매출 장부</div>
+      <div class="ops-summary" id="salesSummary">
+        <div class="ops-sum-chip">이번 달 합계<strong id="salesMonthTotal">0원</strong></div>
+        <div class="ops-sum-chip">이번 달 건수<strong id="salesMonthCount">0건</strong></div>
+      </div>
+      <form id="salesForm" class="ops-form sales-form" autocomplete="off">
+        <div>
+          <label for="saleDate">날짜 *</label>
+          <input id="saleDate" type="date" required/>
+        </div>
+        <div>
+          <label for="saleAmount">금액(원) *</label>
+          <input id="saleAmount" type="number" min="0" step="1000" required placeholder="50000"/>
+        </div>
+        <div>
+          <label for="saleChannel">채널</label>
+          <input id="saleChannel" type="text" maxlength="80" placeholder="카톡 · 인스타 · 소개"/>
+        </div>
+        <div>
+          <label for="saleClient">고객 (선택)</label>
+          <select id="saleClient"></select>
+        </div>
+        <div class="full">
+          <label for="saleNote">메모</label>
+          <input id="saleNote" type="text" maxlength="200" placeholder="예: 1회 상담, 패키지 잔금"/>
+        </div>
+        <div class="ops-actions">
+          <button type="submit" class="btn-sm" id="saleSaveBtn">매출 저장</button>
+        </div>
+      </form>
+      <div id="salesList" class="ops-list"></div>
+      <p id="salesMsg" class="form-msg"></p>
+
+      <div class="ops-subhead">후기 · 멘트 보관함</div>
+      <div class="ops-tabs" role="tablist">
+        <button type="button" class="ops-tab active" data-snip-kind="review" id="snipTabReview">고객 후기</button>
+        <button type="button" class="ops-tab" data-snip-kind="script" id="snipTabScript">자주 쓰는 멘트</button>
+      </div>
+      <form id="snipForm" class="ops-form snip-form" autocomplete="off">
+        <div>
+          <label for="snipTitle">제목 (선택)</label>
+          <input id="snipTitle" type="text" maxlength="120" placeholder="예: 재상담 후기 / 오프닝 멘트"/>
+        </div>
+        <div class="full">
+          <label for="snipBody">내용 *</label>
+          <textarea id="snipBody" required maxlength="2000" placeholder="후기 문장 또는 상담에 자주 쓰는 멘트"></textarea>
+        </div>
+        <div class="ops-actions">
+          <button type="submit" class="btn-sm" id="snipSaveBtn">저장</button>
+        </div>
+      </form>
+      <div id="snipList" class="ops-list"></div>
+      <p id="snipMsg" class="form-msg"></p>
     </div>
 
     <div class="section-title">고객 카드</div>
@@ -933,11 +1053,18 @@
     let clientRows = [];
     let sessionRows = [];
     let eventRows = [];
+    let saleRows = [];
+    let snippetRows = [];
     let eventsAvailable = true;
     let sessionsAvailable = true;
+    let salesAvailable = true;
+    let snippetsAvailable = true;
     let activeClientId = null;
+    let snipKind = 'review';
     const uid = session.user.id;
     const accessToken = session.access_token;
+    const REMIND_LS_KEY = 'palja_counselor_session_remind_min_v1';
+    const REMIND_FIRED_KEY = 'palja_counselor_remind_fired_v1';
 
     function setMsg(text, isErr) {
       msgEl.textContent = text || '';
@@ -1047,15 +1174,21 @@
         clientRows = [];
         setMsg('고객 목록을 불러오지 못했습니다. Supabase SQL로 counselor_clients를 만든 뒤 다시 시도해주세요. (' + error.message + ')', true);
         await loadEvents();
+        await loadSales();
+        await loadSnippets();
         renderDashboard();
         populateRelSelects();
+        populateSaleClientSelect();
         return;
       }
       clientRows = data || [];
       await loadSessions();
       await loadEvents();
+      await loadSales();
+      await loadSnippets();
       renderDashboard();
       populateRelSelects();
+      populateSaleClientSelect();
       if (!clientRows.length) {
         listEl.innerHTML = '<p class="list-empty">저장된 고객이 없습니다. 위 폼에서 추가해 보세요.</p>';
         return;
@@ -1105,6 +1238,167 @@
       eventsAvailable = true;
       eventRows = data || [];
       renderEventList();
+    }
+
+    async function loadSales() {
+      const { data, error } = await sb
+        .from('counselor_sales')
+        .select('id,client_id,sale_date,amount,channel,note,created_at')
+        .order('sale_date', { ascending: false });
+      if (error) {
+        saleRows = [];
+        salesAvailable = false;
+        renderSalesList();
+        return;
+      }
+      salesAvailable = true;
+      saleRows = data || [];
+      renderSalesList();
+    }
+
+    async function loadSnippets() {
+      const { data, error } = await sb
+        .from('counselor_snippets')
+        .select('id,kind,title,body,created_at,updated_at')
+        .order('updated_at', { ascending: false });
+      if (error) {
+        snippetRows = [];
+        snippetsAvailable = false;
+        renderSnipList();
+        return;
+      }
+      snippetsAvailable = true;
+      snippetRows = data || [];
+      renderSnipList();
+    }
+
+    function populateSaleClientSelect() {
+      const sel = document.getElementById('saleClient');
+      if (!sel) return;
+      const cur = sel.value;
+      sel.innerHTML = '<option value="">— 고객 없음 —</option>' +
+        clientRows.map((c) =>
+          '<option value="' + c.id + '">' + escapeHtml(c.display_name || c.legal_name || '고객') + '</option>'
+        ).join('');
+      if (cur && clientRows.some((c) => c.id === cur)) sel.value = cur;
+    }
+
+    function formatWon(n) {
+      const v = Number(n) || 0;
+      return v.toLocaleString('ko-KR') + '원';
+    }
+
+    function setSalesMsg(text, isErr) {
+      const el = document.getElementById('salesMsg');
+      if (!el) return;
+      el.textContent = text || '';
+      el.classList.toggle('err', !!isErr);
+    }
+
+    function setSnipMsg(text, isErr) {
+      const el = document.getElementById('snipMsg');
+      if (!el) return;
+      el.textContent = text || '';
+      el.classList.toggle('err', !!isErr);
+    }
+
+    function renderSalesList() {
+      const host = document.getElementById('salesList');
+      const monthEl = document.getElementById('salesMonthTotal');
+      const countEl = document.getElementById('salesMonthCount');
+      const ym = ymd(new Date()).slice(0, 7);
+      const monthRows = saleRows.filter((s) => String(s.sale_date || '').slice(0, 7) === ym);
+      const monthSum = monthRows.reduce((a, s) => a + (Number(s.amount) || 0), 0);
+      if (monthEl) monthEl.textContent = formatWon(monthSum);
+      if (countEl) countEl.textContent = monthRows.length + '건';
+      const dashSales = document.getElementById('dashMonthSales');
+      if (dashSales) dashSales.textContent = monthSum ? monthSum.toLocaleString('ko-KR') : '0';
+      if (!host) return;
+      if (!salesAvailable) {
+        host.innerHTML = '<p class="ops-empty">매출 장부를 쓰려면 Supabase에서 <code class="inline-code">database/counselor_ops.sql</code>을 실행해 주세요.</p>';
+        return;
+      }
+      if (!saleRows.length) {
+        host.innerHTML = '<p class="ops-empty">아직 매출 기록이 없습니다. 위에서 첫 건을 남겨 보세요.</p>';
+        return;
+      }
+      const nameById = {};
+      clientRows.forEach((c) => { nameById[c.id] = c.display_name || c.legal_name || '고객'; });
+      host.innerHTML = saleRows.slice(0, 40).map((s) => {
+        const name = s.client_id ? (nameById[s.client_id] || '고객') : '';
+        const meta = [
+          escapeHtml(String(s.sale_date || '')),
+          s.channel ? escapeHtml(String(s.channel)) : '',
+          name ? escapeHtml(name) : '',
+        ].filter(Boolean).join(' · ');
+        return '<div class="ops-row">' +
+          '<div class="ops-amt">' + escapeHtml(formatWon(s.amount)) + '</div>' +
+          '<div class="ops-main"><div class="ops-meta">' + meta + '</div>' +
+          (s.note ? '<div class="ops-body">' + escapeHtml(String(s.note)) + '</div>' : '') +
+          '</div>' +
+          '<div class="ops-btns"><button type="button" data-del-sale="' + s.id + '">삭제</button></div>' +
+          '</div>';
+      }).join('');
+      host.querySelectorAll('button[data-del-sale]').forEach((btn) => {
+        btn.addEventListener('click', async () => {
+          if (!confirm('이 매출 기록을 삭제할까요?')) return;
+          const { error } = await sb.from('counselor_sales').delete().eq('id', btn.getAttribute('data-del-sale'));
+          if (error) { setSalesMsg(error.message, true); return; }
+          await loadSales();
+          renderDashboard();
+          setSalesMsg('삭제했습니다.');
+        });
+      });
+    }
+
+    function renderSnipList() {
+      const host = document.getElementById('snipList');
+      if (!host) return;
+      if (!snippetsAvailable) {
+        host.innerHTML = '<p class="ops-empty">보관함을 쓰려면 Supabase에서 <code class="inline-code">database/counselor_ops.sql</code>을 실행해 주세요.</p>';
+        return;
+      }
+      const rows = snippetRows.filter((s) => s.kind === snipKind);
+      if (!rows.length) {
+        host.innerHTML = '<p class="ops-empty">' +
+          (snipKind === 'review' ? '저장된 후기가 없습니다.' : '저장된 멘트가 없습니다.') +
+          '</p>';
+        return;
+      }
+      host.innerHTML = rows.map((s) =>
+        '<div class="ops-row">' +
+        '<div class="ops-main">' +
+        (s.title ? '<strong>' + escapeHtml(String(s.title)) + '</strong>' : '') +
+        '<div class="ops-body">' + escapeHtml(String(s.body || '')) + '</div>' +
+        '<div class="ops-meta">' + escapeHtml(String(s.updated_at || s.created_at || '').slice(0, 10)) + '</div>' +
+        '</div>' +
+        '<div class="ops-btns">' +
+        '<button type="button" data-copy-snip="' + s.id + '">복사</button>' +
+        '<button type="button" data-del-snip="' + s.id + '">삭제</button>' +
+        '</div></div>'
+      ).join('');
+      host.querySelectorAll('button[data-copy-snip]').forEach((btn) => {
+        btn.addEventListener('click', async () => {
+          const row = snippetRows.find((x) => x.id === btn.getAttribute('data-copy-snip'));
+          if (!row) return;
+          const text = [row.title, row.body].filter(Boolean).join('\n');
+          try {
+            await navigator.clipboard.writeText(text);
+            setSnipMsg('클립보드에 복사했습니다.');
+          } catch (_) {
+            setSnipMsg('복사에 실패했습니다. 내용을 직접 선택해 주세요.', true);
+          }
+        });
+      });
+      host.querySelectorAll('button[data-del-snip]').forEach((btn) => {
+        btn.addEventListener('click', async () => {
+          if (!confirm('이 항목을 삭제할까요?')) return;
+          const { error } = await sb.from('counselor_snippets').delete().eq('id', btn.getAttribute('data-del-snip'));
+          if (error) { setSnipMsg(error.message, true); return; }
+          await loadSnippets();
+          setSnipMsg('삭제했습니다.');
+        });
+      });
     }
 
     async function onRowAction(e) {
@@ -1289,6 +1583,11 @@
       document.getElementById('dashNew').textContent = String(newCount);
       document.getElementById('dashMonthSessions').textContent = String(monthSessions);
       document.getElementById('dashRepeat').innerHTML = String(repeatRate) + '<small>%</small>';
+      const monthSales = saleRows
+        .filter((s) => String(s.sale_date || '').slice(0, 7) === ym)
+        .reduce((a, s) => a + (Number(s.amount) || 0), 0);
+      const dashSales = document.getElementById('dashMonthSales');
+      if (dashSales) dashSales.textContent = monthSales ? monthSales.toLocaleString('ko-KR') : '0';
       renderUpcomingList(todayStr, horizonStr);
       renderCalendar();
     }
@@ -2048,6 +2347,15 @@
           lines.push(['', nameById[s.client_id] || '', s.session_date || '', s.topic || '', s.summary || '', s.next_focus || '', s.next_appointment || ''].map(csvCell).join('\t'));
         });
       }
+      if (saleRows.length) {
+        const nameById = {};
+        clientRows.forEach((c) => { nameById[c.id] = c.display_name || c.legal_name || ''; });
+        lines.push('');
+        lines.push(['[매출]', '날짜', '금액', '채널', '고객', '메모'].map(csvCell).join('\t'));
+        saleRows.slice().sort((a, b) => String(a.sale_date).localeCompare(String(b.sale_date))).forEach((s) => {
+          lines.push(['', s.sale_date || '', s.amount || 0, s.channel || '', nameById[s.client_id] || '', s.note || ''].map(csvCell).join('\t'));
+        });
+      }
       const blob = new Blob([strToUtf16LeBytes(lines.join('\r\n'))], { type: 'text/csv;charset=utf-16le;' });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
@@ -2075,6 +2383,150 @@
         btn.textContent = '저장됨 ✓';
         setTimeout(() => { btn.textContent = '저장'; }, 1500);
       });
+    })();
+
+    // ── 운영: 매출 · 후기/멘트 ──
+    (function initOps() {
+      const saleDate = document.getElementById('saleDate');
+      if (saleDate && !saleDate.value) saleDate.value = ymd(new Date());
+
+      const salesForm = document.getElementById('salesForm');
+      if (salesForm) {
+        salesForm.addEventListener('submit', async (e) => {
+          e.preventDefault();
+          if (!salesAvailable) {
+            setSalesMsg('먼저 Supabase에서 counselor_ops.sql을 실행해 주세요.', true);
+            return;
+          }
+          const amount = Number(document.getElementById('saleAmount').value);
+          if (!Number.isFinite(amount) || amount < 0) {
+            setSalesMsg('금액을 확인해 주세요.', true);
+            return;
+          }
+          const clientVal = document.getElementById('saleClient').value || null;
+          const payload = {
+            counselor_id: uid,
+            sale_date: document.getElementById('saleDate').value,
+            amount: Math.round(amount),
+            channel: (document.getElementById('saleChannel').value || '').trim() || null,
+            client_id: clientVal,
+            note: (document.getElementById('saleNote').value || '').trim() || null,
+          };
+          const { error } = await sb.from('counselor_sales').insert(payload);
+          if (error) { setSalesMsg(error.message, true); return; }
+          document.getElementById('saleAmount').value = '';
+          document.getElementById('saleChannel').value = '';
+          document.getElementById('saleNote').value = '';
+          document.getElementById('saleClient').value = '';
+          await loadSales();
+          renderDashboard();
+          setSalesMsg('매출을 저장했습니다.');
+        });
+      }
+
+      document.querySelectorAll('.ops-tab[data-snip-kind]').forEach((tab) => {
+        tab.addEventListener('click', () => {
+          snipKind = tab.getAttribute('data-snip-kind') || 'review';
+          document.querySelectorAll('.ops-tab[data-snip-kind]').forEach((t) => {
+            t.classList.toggle('active', t === tab);
+          });
+          renderSnipList();
+          setSnipMsg('');
+        });
+      });
+
+      const snipForm = document.getElementById('snipForm');
+      if (snipForm) {
+        snipForm.addEventListener('submit', async (e) => {
+          e.preventDefault();
+          if (!snippetsAvailable) {
+            setSnipMsg('먼저 Supabase에서 counselor_ops.sql을 실행해 주세요.', true);
+            return;
+          }
+          const body = (document.getElementById('snipBody').value || '').trim();
+          if (!body) { setSnipMsg('내용을 입력해 주세요.', true); return; }
+          const payload = {
+            counselor_id: uid,
+            kind: snipKind,
+            title: (document.getElementById('snipTitle').value || '').trim() || null,
+            body,
+            updated_at: new Date().toISOString(),
+          };
+          const { error } = await sb.from('counselor_snippets').insert(payload);
+          if (error) { setSnipMsg(error.message, true); return; }
+          document.getElementById('snipTitle').value = '';
+          document.getElementById('snipBody').value = '';
+          await loadSnippets();
+          setSnipMsg((snipKind === 'review' ? '후기' : '멘트') + '를 저장했습니다.');
+        });
+      }
+    })();
+
+    // ── 세션 시작 전 로컬 알림 (허브 탭이 열려 있을 때) ──
+    (function initSessionRemind() {
+      const sel = document.getElementById('sessionRemindSelect');
+      if (!sel) return;
+      try {
+        const saved = Number(localStorage.getItem(REMIND_LS_KEY));
+        if ([0, 10, 20, 30].includes(saved)) sel.value = String(saved);
+      } catch (_) { /* ignore */ }
+      sel.addEventListener('change', () => {
+        try { localStorage.setItem(REMIND_LS_KEY, sel.value); } catch (_) { /* ignore */ }
+        if (Number(sel.value) > 0 && typeof Notification !== 'undefined' && Notification.permission === 'default') {
+          Notification.requestPermission().catch(() => {});
+        }
+      });
+
+      function readFired() {
+        try { return JSON.parse(sessionStorage.getItem(REMIND_FIRED_KEY) || '{}') || {}; }
+        catch { return {}; }
+      }
+      function writeFired(map) {
+        try { sessionStorage.setItem(REMIND_FIRED_KEY, JSON.stringify(map)); } catch (_) { /* ignore */ }
+      }
+      function parseHm(raw) {
+        const m = String(raw || '').trim().match(/^(\d{1,2}):(\d{2})/);
+        if (!m) return null;
+        const h = Number(m[1]); const min = Number(m[2]);
+        if (h < 0 || h > 23 || min < 0 || min > 59) return null;
+        return h * 60 + min;
+      }
+      function nowKstMinutes() {
+        const parts = new Intl.DateTimeFormat('en-US', {
+          timeZone: 'Asia/Seoul', hour: 'numeric', minute: 'numeric', hour12: false,
+        }).formatToParts(new Date());
+        const h = Number(parts.find((p) => p.type === 'hour')?.value || 0);
+        const min = Number(parts.find((p) => p.type === 'minute')?.value || 0);
+        return h * 60 + min;
+      }
+
+      async function tickRemind() {
+        const mins = Number(sel.value) || 0;
+        if (mins <= 0) return;
+        if (typeof Notification === 'undefined' || Notification.permission !== 'granted') return;
+        const today = ymd(new Date());
+        const nowMin = nowKstMinutes();
+        const fired = readFired();
+        eventRows.forEach((ev) => {
+          if (String(ev.event_date) !== today || !ev.event_time) return;
+          const start = parseHm(ev.event_time);
+          if (start == null) return;
+          const diff = start - nowMin;
+          if (diff < 0 || diff > mins) return;
+          const key = today + ':' + ev.id + ':' + mins;
+          if (fired[key]) return;
+          fired[key] = 1;
+          writeFired(fired);
+          try {
+            new Notification('상담 일정 ' + mins + '분 전', {
+              body: (ev.title || '일정') + (ev.event_time ? ' · ' + ev.event_time : ''),
+              tag: 'counselor-session-' + ev.id,
+            });
+          } catch (_) { /* ignore */ }
+        });
+      }
+      setInterval(tickRemind, 30000);
+      setTimeout(tickRemind, 2500);
     })();
 
     // ── 고객 상세 · 세션 기록 모달 ──
