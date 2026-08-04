@@ -1388,12 +1388,10 @@
           (chip.title ? '<span class="t">' + escapeHtml(chip.title) + '</span>' : '') +
           '</div>'
         ).join('');
-        const first = built.chips && built.chips[0];
-        const year = built.chips && built.chips[1];
-        blurbEl.textContent = [
-          first && first.blurb ? first.blurb : '',
-          year && year.blurb ? year.blurb : '',
-        ].filter(Boolean).join(' ');
+        blurbEl.textContent = (built.chips || [])
+          .map((chip) => chip.blurb ? (chip.label + ': ' + chip.blurb) : '')
+          .filter(Boolean)
+          .join(' ');
       }
 
       if (copyBtn) {
