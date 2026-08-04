@@ -327,7 +327,8 @@
   <div id="workspace">
 <div class="section-title" id="ai-draft" style="margin-top:28px">상담사 AI 리딩</div>
     <div class="ai-draft-panel">
-      <p class="ai-draft-intro">스프래드 카드를 넣은 뒤, 필요하면 <strong>조언·명확화 카드를 추가로 뽑을</strong> 수 있습니다. 뽑힌 카드는 <strong>해석 바로 위</strong>에 보입니다. 1장 <strong>크레딧 1</strong> · 2장 이상 <strong>크레딧 2</strong>.</p>
+      <p class="ai-draft-intro">스프래드 카드를 넣은 뒤, 필요하면 <strong>조언·명확화 카드를 추가로 뽑을</strong> 수 있습니다. 뽑힌 카드는 <strong>해석 바로 위</strong>에 보입니다.
+        크레딧: <strong>1장 → 1</strong> · <strong>2~3장 → 2</strong> · <strong>4~6장 → 3</strong>.</p>
       <div class="ai-mode-row" role="tablist" aria-label="리딩 모드">
         <button type="button" class="ai-mode-btn active" id="aiModeBasic" data-mode="basic" role="tab" aria-selected="true">
           <strong>기본 리딩</strong>
@@ -335,7 +336,7 @@
         </button>
         <button type="button" class="ai-mode-btn" id="aiModeAdv" data-mode="advanced" role="tab" aria-selected="false">
           <strong>심화 리딩</strong>
-          <span>스프래드 1~3장 · 추가 카드 가능</span>
+          <span>스프래드 1~3장 · 추가 시 4~6장(크레딧 3)</span>
         </button>
       </div>
       <form id="aiDraftForm" class="ai-draft-form" autocomplete="off">
@@ -1516,8 +1517,12 @@
           return;
         }
 
-        const feature = cards.length <= 1 ? 'counselor_session_basic' : 'counselor_session';
-        const costLabel = cards.length <= 1 ? '1' : '2';
+        const feature = cards.length <= 1
+          ? 'counselor_session_basic'
+          : cards.length <= 3
+            ? 'counselor_session'
+            : 'counselor_session_plus';
+        const costLabel = cards.length <= 1 ? '1' : cards.length <= 3 ? '2' : '3';
         const ls = client ? clientLastSession(client.id) : { last: '', topic: '' };
         const displayName = nickname || (client && (client.display_name || client.legal_name)) || '고객님';
         const btn = document.getElementById('aiDraftBtn');
@@ -1615,7 +1620,7 @@ ${spreadXml}
           const { text, quota, stopReason } = await PaljaAiQuota.callAi({
             feature,
             cacheKey,
-            max_tokens: cards.length <= 1 ? 1800 : 3500,
+            max_tokens: cards.length <= 1 ? 1800 : cards.length <= 3 ? 2800 : 4000,
             messages: [{ role: 'user', content: prompt }],
           });
           lastText = text || '';
