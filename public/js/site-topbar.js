@@ -21,6 +21,7 @@
     { id: 'wallpaper', href: 'numerology-wallpaper.html', label: '에너지배경' },
     { id: 'tarot', href: 'Tarot.html', label: '타로코드' },
     { id: 'counselor', href: 'counselor.html', label: '상담사허브' },
+    { id: 'counselor-reading', href: 'counselor-reading.html', label: 'AI리딩' },
     { id: 'pricing', href: 'pricing.html', label: '요금제' }
   ];
 
