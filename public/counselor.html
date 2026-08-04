@@ -460,8 +460,6 @@
     @media (min-width: 640px) {
       .ops-form.sales-form { grid-template-columns: 120px 110px 1fr 1fr auto; align-items: end; }
       .ops-form.sales-form .full { grid-column: 1 / -1; }
-      .ops-form.snip-form { grid-template-columns: 120px 1fr auto; align-items: end; }
-      .ops-form.snip-form .full { grid-column: 1 / -1; }
     }
     .ops-form label { font-size: 11px; color: var(--muted); display: block; margin-bottom: 5px; }
     .ops-form input, .ops-form select, .ops-form textarea {
@@ -491,12 +489,6 @@
     .ops-row .ops-btns { margin-left: auto; display: flex; gap: 6px; flex-shrink: 0; }
     .ops-row .ops-btns button { font-size: 11px; padding: 4px 8px; }
     .ops-empty { font-size: 12px; color: var(--muted); }
-    .ops-tabs { display: flex; gap: 6px; margin-bottom: 10px; flex-wrap: wrap; }
-    .ops-tab {
-      font-size: 12px; padding: 6px 12px; border-radius: 999px; border: 1px solid var(--border);
-      background: #fff; color: var(--muted); cursor: pointer; font-family: var(--font-body);
-    }
-    .ops-tab.active { background: var(--deep); color: #fff; border-color: var(--deep); }
     .push-remind { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 10px; width: 100%; }
     .push-remind label { font-size: 11px; color: var(--muted); font-weight: 600; }
     .push-remind select {
@@ -590,12 +582,12 @@
 <div id="app">
   <div class="hub-intro">
     <h1>상담사 허브</h1>
-    <p>고객 관리 → 라이프코드·궁합 분석 → <strong>고객용 리포트 PDF</strong>와 <strong>고객별 세션 기록</strong>까지. 일정 캘린더·푸시 알림으로 오늘 상담을 챙기고, <strong>매출·후기·멘트</strong>로 운영까지. 이 화면은 <strong>Professional 상담사 전용</strong>으로 상담 업무 도구를 한곳에 모았습니다.</p>
+    <p>고객 관리 → 라이프코드·궁합 분석 → <strong>고객용 리포트 PDF</strong>와 <strong>고객별 세션 기록</strong>까지. 일정 캘린더·푸시 알림으로 오늘 상담을 챙기고, <strong>간단 매출 장부</strong>로 운영까지. 이 화면은 <strong>Professional 상담사 전용</strong>으로 상담 업무 도구를 한곳에 모았습니다.</p>
     <p id="trialBadge" class="trial-badge" style="display:none" role="status"></p>
   </div>
   <div id="gate">
     <h2>Professional 플랜 전용</h2>
-    <p>상담사 허브는 <strong>Professional</strong> 요금제에서 이용할 수 있어요.<br>고객 카드·세션 기록(CRM), 일정 캘린더·중요 일정·웹 푸시, 매출·후기·멘트, 상담사 대시보드, 브랜디드 리포트 PDF, 상담 준비 요약, 고객 간 궁합까지 상담 업무 도구가 함께 켜집니다.</p>
+    <p>상담사 허브는 <strong>Professional</strong> 요금제에서 이용할 수 있어요.<br>고객 카드·세션 기록(CRM), 일정 캘린더·중요 일정·웹 푸시, 간단 매출 장부, 상담사 대시보드, 브랜디드 리포트 PDF, 상담 준비 요약, 고객 간 궁합까지 상담 업무 도구가 함께 켜집니다.</p>
     <a class="cta" href="for-counselors.html">Professional 안내 보기</a>
     <a class="cta secondary" href="/lifecode/buy.html?product=counselor30" style="margin-left:8px;background:transparent;border:1.5px solid var(--border);color:var(--deep);">15일 체험 구매</a>
     <a class="cta secondary" href="pricing.html?checkout=professional" style="margin-left:8px;background:transparent;border:1.5px solid var(--border);color:var(--deep);">바로 구독</a>
@@ -717,9 +709,9 @@
       <p class="brand-hint">여기에 입력한 이름·로고가 <strong>고객용 리포트 PDF</strong> 머리글에 들어갑니다. 이 기기 브라우저에 저장됩니다.</p>
     </div>
 
-    <div class="section-title" style="margin-top:28px">운영 · 매출 · 멘트</div>
+    <div class="section-title" style="margin-top:28px">운영 · 매출</div>
     <div class="ops-panel" id="opsPanel">
-      <p class="ops-intro">상담 후 정산·홍보에 쓰는 <strong>간단 매출 장부</strong>와 <strong>후기·멘트 보관함</strong>입니다. Supabase에서 <code class="inline-code">database/counselor_ops.sql</code>을 실행해야 저장됩니다.</p>
+      <p class="ops-intro">상담 후 정산에 쓰는 <strong>간단 매출 장부</strong>입니다. Supabase에서 <code class="inline-code">database/counselor_ops.sql</code>을 실행해야 저장됩니다.</p>
 
       <div class="ops-subhead">간단 매출 장부</div>
       <div class="ops-summary" id="salesSummary">
@@ -753,27 +745,6 @@
       </form>
       <div id="salesList" class="ops-list"></div>
       <p id="salesMsg" class="form-msg"></p>
-
-      <div class="ops-subhead">후기 · 멘트 보관함</div>
-      <div class="ops-tabs" role="tablist">
-        <button type="button" class="ops-tab active" data-snip-kind="review" id="snipTabReview">고객 후기</button>
-        <button type="button" class="ops-tab" data-snip-kind="script" id="snipTabScript">자주 쓰는 멘트</button>
-      </div>
-      <form id="snipForm" class="ops-form snip-form" autocomplete="off">
-        <div>
-          <label for="snipTitle">제목 (선택)</label>
-          <input id="snipTitle" type="text" maxlength="120" placeholder="예: 재상담 후기 / 오프닝 멘트"/>
-        </div>
-        <div class="full">
-          <label for="snipBody">내용 *</label>
-          <textarea id="snipBody" required maxlength="2000" placeholder="후기 문장 또는 상담에 자주 쓰는 멘트"></textarea>
-        </div>
-        <div class="ops-actions">
-          <button type="submit" class="btn-sm" id="snipSaveBtn">저장</button>
-        </div>
-      </form>
-      <div id="snipList" class="ops-list"></div>
-      <p id="snipMsg" class="form-msg"></p>
     </div>
 
     <div class="section-title">고객 카드</div>
@@ -1062,15 +1033,11 @@
     let sessionRows = [];
     let eventRows = [];
     let saleRows = [];
-    let snippetRows = [];
     let eventsAvailable = true;
     let sessionsAvailable = true;
     let salesAvailable = true;
-    let snippetsAvailable = true;
     let activeClientId = null;
-    let snipKind = 'review';
     let salesListExpanded = false;
-    let snipListExpanded = false;
     const OPS_LIST_PREVIEW = 5;
     const uid = session.user.id;
     const accessToken = session.access_token;
@@ -1186,7 +1153,6 @@
         setMsg('고객 목록을 불러오지 못했습니다. Supabase SQL로 counselor_clients를 만든 뒤 다시 시도해주세요. (' + error.message + ')', true);
         await loadEvents();
         await loadSales();
-        await loadSnippets();
         renderDashboard();
         populateRelSelects();
         populateSaleClientSelect();
@@ -1196,7 +1162,6 @@
       await loadSessions();
       await loadEvents();
       await loadSales();
-      await loadSnippets();
       renderDashboard();
       populateRelSelects();
       populateSaleClientSelect();
@@ -1267,22 +1232,6 @@
       renderSalesList();
     }
 
-    async function loadSnippets() {
-      const { data, error } = await sb
-        .from('counselor_snippets')
-        .select('id,kind,title,body,created_at,updated_at')
-        .order('updated_at', { ascending: false });
-      if (error) {
-        snippetRows = [];
-        snippetsAvailable = false;
-        renderSnipList();
-        return;
-      }
-      snippetsAvailable = true;
-      snippetRows = data || [];
-      renderSnipList();
-    }
-
     function populateSaleClientSelect() {
       const sel = document.getElementById('saleClient');
       if (!sel) return;
@@ -1301,13 +1250,6 @@
 
     function setSalesMsg(text, isErr) {
       const el = document.getElementById('salesMsg');
-      if (!el) return;
-      el.textContent = text || '';
-      el.classList.toggle('err', !!isErr);
-    }
-
-    function setSnipMsg(text, isErr) {
-      const el = document.getElementById('snipMsg');
       if (!el) return;
       el.textContent = text || '';
       el.classList.toggle('err', !!isErr);
@@ -1375,73 +1317,6 @@
         moreBtn.addEventListener('click', () => {
           salesListExpanded = moreBtn.getAttribute('data-ops-more') === 'sales-expand';
           renderSalesList();
-        });
-      }
-    }
-
-    function renderSnipList() {
-      const host = document.getElementById('snipList');
-      if (!host) return;
-      if (!snippetsAvailable) {
-        host.innerHTML = '<p class="ops-empty">보관함을 쓰려면 Supabase에서 <code class="inline-code">database/counselor_ops.sql</code>을 실행해 주세요.</p>';
-        return;
-      }
-      const rows = snippetRows.filter((s) => s.kind === snipKind);
-      if (!rows.length) {
-        host.innerHTML = '<p class="ops-empty">' +
-          (snipKind === 'review' ? '저장된 후기가 없습니다.' : '저장된 멘트가 없습니다.') +
-          '</p>';
-        return;
-      }
-      const total = rows.length;
-      const visible = snipListExpanded ? rows : rows.slice(0, OPS_LIST_PREVIEW);
-      const rowsHtml = visible.map((s) =>
-        '<div class="ops-row">' +
-        '<div class="ops-main">' +
-        (s.title ? '<strong>' + escapeHtml(String(s.title)) + '</strong>' : '') +
-        '<div class="ops-body">' + escapeHtml(String(s.body || '')) + '</div>' +
-        '<div class="ops-meta">' + escapeHtml(String(s.updated_at || s.created_at || '').slice(0, 10)) + '</div>' +
-        '</div>' +
-        '<div class="ops-btns">' +
-        '<button type="button" data-copy-snip="' + s.id + '">복사</button>' +
-        '<button type="button" data-del-snip="' + s.id + '">삭제</button>' +
-        '</div></div>'
-      ).join('');
-      let moreHtml = '';
-      if (total > OPS_LIST_PREVIEW) {
-        moreHtml = snipListExpanded
-          ? '<button type="button" class="ops-more" data-ops-more="snip-collapse">접기 · 최근 ' + OPS_LIST_PREVIEW + '건만</button>'
-          : '<button type="button" class="ops-more" data-ops-more="snip-expand">더 보기 · 전체 ' + total + '건</button>';
-      }
-      const scrollCls = (snipListExpanded && total > OPS_LIST_PREVIEW) ? 'ops-list-inner is-scroll' : 'ops-list-inner';
-      host.innerHTML = '<div class="' + scrollCls + '">' + rowsHtml + '</div>' + moreHtml;
-      host.querySelectorAll('button[data-copy-snip]').forEach((btn) => {
-        btn.addEventListener('click', async () => {
-          const row = snippetRows.find((x) => x.id === btn.getAttribute('data-copy-snip'));
-          if (!row) return;
-          const text = [row.title, row.body].filter(Boolean).join('\n');
-          try {
-            await navigator.clipboard.writeText(text);
-            setSnipMsg('클립보드에 복사했습니다.');
-          } catch (_) {
-            setSnipMsg('복사에 실패했습니다. 내용을 직접 선택해 주세요.', true);
-          }
-        });
-      });
-      host.querySelectorAll('button[data-del-snip]').forEach((btn) => {
-        btn.addEventListener('click', async () => {
-          if (!confirm('이 항목을 삭제할까요?')) return;
-          const { error } = await sb.from('counselor_snippets').delete().eq('id', btn.getAttribute('data-del-snip'));
-          if (error) { setSnipMsg(error.message, true); return; }
-          await loadSnippets();
-          setSnipMsg('삭제했습니다.');
-        });
-      });
-      const moreBtn = host.querySelector('[data-ops-more]');
-      if (moreBtn) {
-        moreBtn.addEventListener('click', () => {
-          snipListExpanded = moreBtn.getAttribute('data-ops-more') === 'snip-expand';
-          renderSnipList();
         });
       }
     }
@@ -2430,7 +2305,7 @@
       });
     })();
 
-    // ── 운영: 매출 · 후기/멘트 ──
+    // ── 운영: 매출 장부 ──
     (function initOps() {
       const saleDate = document.getElementById('saleDate');
       if (saleDate && !saleDate.value) saleDate.value = ymd(new Date());
@@ -2466,44 +2341,6 @@
           await loadSales();
           renderDashboard();
           setSalesMsg('매출을 저장했습니다.');
-        });
-      }
-
-      document.querySelectorAll('.ops-tab[data-snip-kind]').forEach((tab) => {
-        tab.addEventListener('click', () => {
-          snipKind = tab.getAttribute('data-snip-kind') || 'review';
-          document.querySelectorAll('.ops-tab[data-snip-kind]').forEach((t) => {
-            t.classList.toggle('active', t === tab);
-          });
-          snipListExpanded = false;
-          renderSnipList();
-          setSnipMsg('');
-        });
-      });
-
-      const snipForm = document.getElementById('snipForm');
-      if (snipForm) {
-        snipForm.addEventListener('submit', async (e) => {
-          e.preventDefault();
-          if (!snippetsAvailable) {
-            setSnipMsg('먼저 Supabase에서 counselor_ops.sql을 실행해 주세요.', true);
-            return;
-          }
-          const body = (document.getElementById('snipBody').value || '').trim();
-          if (!body) { setSnipMsg('내용을 입력해 주세요.', true); return; }
-          const payload = {
-            counselor_id: uid,
-            kind: snipKind,
-            title: (document.getElementById('snipTitle').value || '').trim() || null,
-            body,
-            updated_at: new Date().toISOString(),
-          };
-          const { error } = await sb.from('counselor_snippets').insert(payload);
-          if (error) { setSnipMsg(error.message, true); return; }
-          document.getElementById('snipTitle').value = '';
-          document.getElementById('snipBody').value = '';
-          await loadSnippets();
-          setSnipMsg((snipKind === 'review' ? '후기' : '멘트') + '를 저장했습니다.');
         });
       }
     })();
