@@ -166,15 +166,18 @@
       display: flex; align-items: center; justify-content: center; text-align: center;
       font-size: 12px; color: var(--muted); padding: 12px;
     }
-    .ai-card-slot .slot-ask {
-      width: 100%; margin-top: 8px; padding: 7px 9px; border: 1px solid var(--border); border-radius: 8px;
-      font-family: var(--font-body); font-size: 12px; background: #fff; color: var(--ink);
-    }
     .ai-card-slot .slot-tools { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
     .ai-card-slot .slot-tools button {
       font-size: 11px; padding: 5px 9px; border-radius: 6px; border: 1px solid var(--border);
       background: #fff; color: var(--deep); cursor: pointer; font-family: var(--font-body); font-weight: 600;
     }
+    .ai-card-slot.is-extra { border-style: dashed; background: #fff; }
+    .ai-extra-bar {
+      display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-top: 12px;
+      padding-top: 12px; border-top: 1px dashed var(--border);
+    }
+    .ai-extra-bar .ai-extra-label { font-size: 12px; color: var(--muted); width: 100%; margin-bottom: 2px; }
+    .ai-prev-extra { font-size: 9px; letter-spacing: .06em; text-transform: uppercase; color: #c8a96e; opacity: .9; }
     .ai-spread-row { display: none; gap: 8px; align-items: end; margin-bottom: 10px; flex-wrap: wrap; }
     .ai-spread-row.is-on { display: flex; }
     .ai-spread-row label { font-size: 11px; color: var(--muted); display: block; margin-bottom: 5px; }
@@ -291,7 +294,7 @@
   <div class="hub-intro">
     <div class="back-row"><a href="counselor.html">← 상담사 허브</a></div>
     <h1>상담사 AI 리딩</h1>
-    <p>질문·카드·칸별 해석 요청으로 고객에게 붙여넣을 초안을 만듭니다. 신입용 세션 스크립트도 이 페이지에 있습니다. <strong>Professional</strong> 전용.</p>
+    <p>질문·카드로 고객에게 붙여넣을 초안을 만듭니다. 스프래드 뒤에 <strong>조언·명확화 카드를 더 뽑을</strong> 수 있습니다. <strong>Professional</strong> 전용.</p>
     <p id="trialBadge" class="trial-badge" style="display:none" role="status"></p>
   </div>
   <div id="gate">
@@ -309,15 +312,15 @@
   <div id="workspace">
 <div class="section-title" id="ai-draft" style="margin-top:28px">상담사 AI 리딩</div>
     <div class="ai-draft-panel">
-      <p class="ai-draft-intro">직접 뽑거나 <strong>칸별 뽑기</strong>·이름 선택으로 카드를 넣고, 칸마다 <strong>해석 요청</strong>(예: 조언으로)을 적을 수 있습니다. 위에 뽑힌 카드가 보입니다. 기본 1장 <strong>크레딧 1</strong> · 심화 1~3장 <strong>크레딧 2</strong>.</p>
+      <p class="ai-draft-intro">스프래드 카드를 넣은 뒤, 필요하면 <strong>조언·명확화 카드를 추가로 뽑을</strong> 수 있습니다. 위에 뽑힌 카드가 보입니다. 1장 <strong>크레딧 1</strong> · 2장 이상 <strong>크레딧 2</strong>.</p>
       <div class="ai-mode-row" role="tablist" aria-label="리딩 모드">
         <button type="button" class="ai-mode-btn active" id="aiModeBasic" data-mode="basic" role="tab" aria-selected="true">
           <strong>기본 리딩</strong>
-          <span>카드 1장 · 크레딧 1</span>
+          <span>스프래드 1장 · 추가 카드 가능</span>
         </button>
         <button type="button" class="ai-mode-btn" id="aiModeAdv" data-mode="advanced" role="tab" aria-selected="false">
           <strong>심화 리딩</strong>
-          <span>카드 1~3장 · 크레딧 2</span>
+          <span>스프래드 1~3장 · 추가 카드 가능</span>
         </button>
       </div>
       <div id="aiCardPreview" class="ai-card-preview" aria-live="polite"></div>
@@ -340,7 +343,7 @@
         </div>
         <div class="full">
           <label>뽑힌 카드</label>
-          <p class="ai-card-hint">칸에서 <strong>이 칸 뽑기</strong>로 랜덤 배정하거나, 이름·카드 고르기로 넣으세요. 칸별 <strong>해석 요청</strong>에 「조언으로」「상대 마음 위주」처럼 적을 수 있습니다.</p>
+          <p class="ai-card-hint">이름 선택·카드 고르기·칸 뽑기로 스프래드를 채운 뒤, 아래에서 <strong>조언 카드</strong> 등을 더 뽑을 수 있습니다.</p>
           <div class="ai-spread-row" id="aiSpreadRow">
             <div>
               <label for="aiSpreadPreset">스프래드 (칸 이름)</label>
@@ -348,6 +351,12 @@
             </div>
           </div>
           <div id="aiCardSlots" class="ai-card-slots"></div>
+          <div class="ai-extra-bar" id="aiExtraBar">
+            <div class="ai-extra-label">추가 카드 (스프래드 밖 · 예: 조언으로 한 장 더)</div>
+            <button type="button" class="btn-sm outline" id="aiAddAdvice">+ 조언 카드 뽑기</button>
+            <button type="button" class="btn-sm outline" id="aiAddClarify">+ 명확화 카드</button>
+            <button type="button" class="btn-sm outline" id="aiAddCustom">+ 추가 카드</button>
+          </div>
         </div>
         <div class="full ai-draft-actions">
           <button type="button" class="btn-sm outline" id="aiNumTableBtn">카드 고르기</button>
@@ -790,12 +799,13 @@
         { label: '소드', from: 51, to: 64 },
         { label: '펜타클', from: 65, to: 78 },
       ];
+      const MAX_CARDS = 6;
       let mode = 'basic'; // basic | advanced
       let spreadId = 'advice';
       let lastText = '';
       let targetSlot = 0;
-      /** @type {{ num: number|null, rev: boolean, label: string, ask: string }[]} */
-      let slots = [{ num: null, rev: false, label: '카드', ask: '' }];
+      /** @type {{ num: number|null, rev: boolean, label: string, extra?: boolean }[]} */
+      let slots = [{ num: null, rev: false, label: '카드', extra: false }];
 
       const form = document.getElementById('aiDraftForm');
       const out = document.getElementById('aiDraftOut');
@@ -831,11 +841,10 @@
       }
 
       function posLabels() {
-        if (mode === 'basic') return [slots[0] && slots[0].label ? slots[0].label : '카드'];
-        return slots.map((s, i) => (s.label && s.label.trim()) || ((i + 1) + '장'));
+        return slots.map((s, i) => (s.label && String(s.label).trim()) || ((i + 1) + '장'));
       }
 
-      function slotCount() {
+      function baseCount() {
         return mode === 'basic' ? 1 : 3;
       }
 
@@ -843,7 +852,9 @@
         const sp = SPREADS.find((s) => s.id === ids) || getSpread();
         spreadId = sp.id;
         if (spreadSel) spreadSel.value = spreadId;
-        for (let i = 0; i < slots.length; i++) {
+        const n = baseCount();
+        for (let i = 0; i < n; i++) {
+          if (!slots[i] || slots[i].extra) continue;
           slots[i].label = sp.positions[i] || ((i + 1) + '장');
         }
       }
@@ -860,20 +871,20 @@
 
       function setMode(next) {
         mode = next === 'advanced' ? 'advanced' : 'basic';
-        const n = slotCount();
-        const prev = slots.slice();
+        const n = baseCount();
+        const prevBase = slots.filter((s) => !s.extra);
         slots = [];
         for (let i = 0; i < n; i++) {
           slots.push({
-            num: prev[i] ? prev[i].num : null,
-            rev: prev[i] ? !!prev[i].rev : false,
-            label: prev[i] && prev[i].label ? prev[i].label : (mode === 'basic' ? '카드' : ((i + 1) + '장')),
-            ask: prev[i] && prev[i].ask ? prev[i].ask : '',
+            num: prevBase[i] ? prevBase[i].num : null,
+            rev: prevBase[i] ? !!prevBase[i].rev : false,
+            label: prevBase[i] && prevBase[i].label ? prevBase[i].label : (mode === 'basic' ? '카드' : ((i + 1) + '장')),
+            extra: false,
           });
         }
         if (mode === 'advanced') applySpreadLabels(spreadId);
         else slots[0].label = '카드';
-        if (targetSlot >= n) targetSlot = 0;
+        if (targetSlot >= slots.length) targetSlot = 0;
         syncModeButtons();
         renderSlots();
       }
@@ -904,24 +915,43 @@
         return pool[Math.floor(Math.random() * pool.length)];
       }
 
+      function addExtraCard(label, autoDraw) {
+        if (slots.length >= MAX_CARDS) {
+          setAiMsg('카드는 최대 ' + MAX_CARDS + '장까지입니다.', true);
+          return;
+        }
+        const name = (label || '추가').trim() || '추가';
+        slots.push({ num: null, rev: false, label: name, extra: true });
+        const i = slots.length - 1;
+        targetSlot = i;
+        if (autoDraw) {
+          drawOneSlot(i);
+          setAiMsg(name + ' 카드를 추가해 뽑았습니다. (정·역 확인 가능)');
+        } else {
+          renderSlots();
+          setAiMsg(name + ' 칸을 추가했습니다. 카드를 고르거나 뽑아 주세요.');
+        }
+      }
+
       function renderPreview() {
         if (!previewEl) return;
         const labels = posLabels();
         previewEl.innerHTML = slots.map((s, i) => {
           const pos = labels[i] || ((i + 1) + '장');
           if (s.num == null) {
-            return '<div class="ai-prev-empty">' + escapeHtml(pos) + '<br/>대기</div>';
+            return '<div class="ai-prev-empty">' + escapeHtml(pos) +
+              (s.extra ? '<br/><span class="ai-prev-extra">추가</span>' : '') +
+              '<br/>대기</div>';
           }
           const card = cardFor(s.num);
-          const ask = (s.ask || '').trim();
           return (
             '<div class="ai-prev-card' + (s.rev ? ' is-rev' : '') + '" data-preview="' + i + '" title="클릭하면 이 칸 선택">' +
               '<div class="ai-prev-inner">' +
+                (s.extra ? '<div class="ai-prev-extra">추가</div>' : '') +
                 '<div class="ai-prev-pos">' + escapeHtml(pos) + '</div>' +
                 '<div class="ai-prev-num">No.' + s.num + '</div>' +
                 '<div class="ai-prev-name">' + escapeHtml(card ? card.name : '?') + '</div>' +
                 '<div class="ai-prev-orient">' + (s.rev ? '역방향' : '정방향') + '</div>' +
-                (ask ? '<div class="ai-prev-ask">' + escapeHtml(ask) + '</div>' : '') +
               '</div>' +
             '</div>'
           );
@@ -964,7 +994,7 @@
         renderSlots();
         const c = cardFor(num);
         const labels = posLabels();
-        setAiMsg((c ? c.name : num) + ' → ' + (labels[i] || (i + 1) + '장') + '에 넣었습니다. 정·역·해석 요청을 확인해 주세요.');
+        setAiMsg((c ? c.name : num) + ' → ' + (labels[i] || (i + 1) + '장') + '에 넣었습니다.');
         return i;
       }
 
@@ -985,17 +1015,16 @@
         const labels = posLabels();
         slotsEl.innerHTML = slots.map((s, i) => {
           const card = s.num ? cardFor(s.num) : null;
-          const kw = card ? card.keywords : '이름 선택 · 이 칸 뽑기 · 카드 고르기';
-          const posInput = mode === 'advanced'
-            ? '<input type="text" class="slot-pos" maxlength="40" data-label="' + i + '" value="' +
-              escapeHtml(s.label || labels[i] || '') + '" placeholder="칸 이름 (예: 조언)" aria-label="포지션 이름"/>'
-            : '<h4>' + escapeHtml(labels[i] || '카드') +
-              (i === targetSlot ? ' · 선택 중' : '') + '</h4>';
+          const kw = card ? card.keywords : '이름 선택 · 뽑기 · 카드 고르기';
+          const canEditLabel = mode === 'advanced' || !!s.extra;
+          const head = canEditLabel
+            ? ('<h4>' + (s.extra ? '추가 카드' : '포지션') + (i === targetSlot ? ' · 선택 중' : '') + '</h4>' +
+              '<input type="text" class="slot-pos" maxlength="40" data-label="' + i + '" value="' +
+              escapeHtml(s.label || labels[i] || '') + '" placeholder="역할 (예: 조언)" aria-label="카드 역할"/>')
+            : ('<h4>' + escapeHtml(labels[i] || '카드') + (i === targetSlot ? ' · 선택 중' : '') + '</h4>');
           return (
-            '<div class="ai-card-slot' + (i === targetSlot ? ' is-target' : '') + '" data-i="' + i + '">' +
-              (mode === 'advanced'
-                ? '<h4>포지션' + (i === targetSlot ? ' · 선택 중' : '') + '</h4>' + posInput
-                : posInput) +
+            '<div class="ai-card-slot' + (i === targetSlot ? ' is-target' : '') + (s.extra ? ' is-extra' : '') + '" data-i="' + i + '">' +
+              head +
               '<div class="slot-row">' +
                 '<input type="number" min="1" max="78" inputmode="numeric" placeholder="번호" ' +
                   'aria-label="카드 번호" value="' + (s.num != null ? s.num : '') + '" data-num="' + i + '"/>' +
@@ -1008,11 +1037,10 @@
                 '<option value="">— 카드 이름 선택 —</option>' +
                 optionHtml(s.num) +
               '</select>' +
-              '<input type="text" class="slot-ask" maxlength="120" data-ask="' + i + '" value="' +
-                escapeHtml(s.ask || '') + '" placeholder="해석 요청 (예: 조언으로 · 상대 마음 위주)" aria-label="칸별 해석 요청"/>' +
               '<div class="slot-tools">' +
                 '<button type="button" data-draw-one="' + i + '">이 칸 뽑기</button>' +
                 '<button type="button" data-clear-one="' + i + '">비우기</button>' +
+                (s.extra ? '<button type="button" data-remove-one="' + i + '">추가 칸 삭제</button>' : '') +
               '</div>' +
               '<div class="slot-kw">' + escapeHtml(kw) + '</div>' +
             '</div>'
@@ -1033,20 +1061,10 @@
           inp.addEventListener('input', () => {
             const i = Number(inp.getAttribute('data-label'));
             slots[i].label = inp.value;
-            if (spreadSel && spreadId !== 'custom') {
+            if (!slots[i].extra && spreadSel && spreadId !== 'custom') {
               spreadId = 'custom';
               spreadSel.value = 'custom';
             }
-            renderPreview();
-          });
-        });
-        slotsEl.querySelectorAll('[data-ask]').forEach((inp) => {
-          inp.addEventListener('focus', () => {
-            targetSlot = Number(inp.getAttribute('data-ask'));
-          });
-          inp.addEventListener('input', () => {
-            const i = Number(inp.getAttribute('data-ask'));
-            slots[i].ask = inp.value;
             renderPreview();
           });
         });
@@ -1063,6 +1081,17 @@
             targetSlot = i;
             renderSlots();
             setAiMsg((posLabels()[i] || (i + 1) + '장') + '을 비웠습니다.');
+          });
+        });
+        slotsEl.querySelectorAll('[data-remove-one]').forEach((btn) => {
+          btn.addEventListener('click', () => {
+            const i = Number(btn.getAttribute('data-remove-one'));
+            if (!slots[i] || !slots[i].extra) return;
+            const name = slots[i].label || '추가';
+            slots.splice(i, 1);
+            if (targetSlot >= slots.length) targetSlot = Math.max(0, slots.length - 1);
+            renderSlots();
+            setAiMsg(name + ' 칸을 삭제했습니다.');
           });
         });
         slotsEl.querySelectorAll('[data-num]').forEach((inp) => {
@@ -1084,7 +1113,7 @@
             const card = slots[i].num ? cardFor(slots[i].num) : null;
             const root = inp.closest('.ai-card-slot');
             const kwEl = root && root.querySelector('.slot-kw');
-            if (kwEl) kwEl.textContent = card ? card.keywords : '이름 선택 · 이 칸 뽑기 · 카드 고르기';
+            if (kwEl) kwEl.textContent = card ? card.keywords : '이름 선택 · 뽑기 · 카드 고르기';
             renderPreview();
           });
         });
@@ -1099,7 +1128,7 @@
             const card = slots[i].num ? cardFor(slots[i].num) : null;
             const root = sel.closest('.ai-card-slot');
             const kwEl = root && root.querySelector('.slot-kw');
-            if (kwEl) kwEl.textContent = card ? card.keywords : '이름 선택 · 이 칸 뽑기 · 카드 고르기';
+            if (kwEl) kwEl.textContent = card ? card.keywords : '이름 선택 · 뽑기 · 카드 고르기';
             renderPreview();
           });
         });
@@ -1118,24 +1147,38 @@
       }
 
       function drawRandom() {
-        const n = slotCount();
+        const n = baseCount();
+        const extras = slots.filter((s) => s.extra);
         const pool = [];
         for (let i = 1; i <= 78; i++) pool.push(i);
         for (let i = pool.length - 1; i > 0; i--) {
           const j = Math.floor(Math.random() * (i + 1));
           const t = pool[i]; pool[i] = pool[j]; pool[j] = t;
         }
-        slots = pool.slice(0, n).map((num, i) => ({
+        const base = pool.slice(0, n).map((num, i) => ({
           num,
           rev: Math.random() < 0.35,
-          label: slots[i] && slots[i].label
+          label: slots[i] && !slots[i].extra && slots[i].label
             ? slots[i].label
             : (mode === 'basic' ? '카드' : (getSpread().positions[i] || ((i + 1) + '장'))),
-          ask: slots[i] && slots[i].ask ? slots[i].ask : '',
+          extra: false,
         }));
+        // 추가 칸은 유지하되, 중복 번호면 다시 뽑기
+        const used = new Set(base.map((s) => s.num));
+        const keptExtras = extras.map((s) => {
+          let num = s.num;
+          if (num != null && used.has(num)) {
+            const free = [];
+            for (let k = 1; k <= 78; k++) if (!used.has(k)) free.push(k);
+            num = free.length ? free[Math.floor(Math.random() * free.length)] : num;
+          }
+          if (num != null) used.add(num);
+          return { ...s, num };
+        });
+        slots = base.concat(keptExtras);
         targetSlot = 0;
         renderSlots();
-        setAiMsg(n + '장을 랜덤으로 뽑았습니다. 해석 요청·정역을 확인한 뒤 생성해 주세요.');
+        setAiMsg('스프래드 ' + n + '장을 랜덤으로 뽑았습니다.' + (extras.length ? ' (추가 카드는 유지)' : ''));
       }
 
       function readFilledCards() {
@@ -1152,7 +1195,7 @@
             name: card.name,
             keywords: card.keywords,
             rev: !!s.rev,
-            ask: (s.ask || '').trim(),
+            extra: !!s.extra,
           });
         }
         return outCards;
@@ -1166,6 +1209,18 @@
           applySpreadLabels(spreadSel.value);
           renderSlots();
           setAiMsg('스프래드 칸 이름을 바꿨습니다.');
+        });
+      }
+      const addAdvice = document.getElementById('aiAddAdvice');
+      const addClarify = document.getElementById('aiAddClarify');
+      const addCustom = document.getElementById('aiAddCustom');
+      if (addAdvice) addAdvice.addEventListener('click', () => addExtraCard('조언', true));
+      if (addClarify) addClarify.addEventListener('click', () => addExtraCard('명확화', true));
+      if (addCustom) {
+        addCustom.addEventListener('click', () => {
+          const name = window.prompt('추가 카드 역할 이름', '조언');
+          if (name == null) return;
+          addExtraCard(name.trim() || '추가', true);
         });
       }
 
@@ -1342,19 +1397,15 @@
         const clientId = clientSel ? clientSel.value : '';
         const client = clientId ? clientRows.find((c) => c.id === clientId) : null;
         const cards = readFilledCards();
-        const need = mode === 'basic' ? 1 : 1;
-        const max = mode === 'basic' ? 1 : 3;
+        const need = 1;
+        const max = MAX_CARDS;
 
         if (!question) {
           setAiMsg('질문을 입력해 주세요.', true);
           return;
         }
         if (cards.length < need) {
-          setAiMsg(mode === 'basic' ? '카드를 1장 선택해 주세요.' : '카드를 1~3장 선택해 주세요.', true);
-          return;
-        }
-        if (mode === 'basic' && cards.length !== 1) {
-          setAiMsg('기본 리딩은 카드 1장만 사용합니다.', true);
+          setAiMsg('카드를 1장 이상 선택해 주세요.', true);
           return;
         }
         if (cards.length > max) {
@@ -1366,8 +1417,8 @@
           return;
         }
 
-        const feature = mode === 'basic' ? 'counselor_session_basic' : 'counselor_session';
-        const costLabel = mode === 'basic' ? '1' : '2';
+        const feature = cards.length <= 1 ? 'counselor_session_basic' : 'counselor_session';
+        const costLabel = cards.length <= 1 ? '1' : '2';
         const ls = client ? clientLastSession(client.id) : { last: '', topic: '' };
         const displayName = nickname || (client && (client.display_name || client.legal_name)) || '고객님';
         const btn = document.getElementById('aiDraftBtn');
@@ -1376,15 +1427,17 @@
         out.classList.add('is-empty');
         out.textContent = '해석을 만드는 중…';
 
+        const extraCards = cards.filter((c) => c.extra);
         const cardLines = cards.map((c) =>
-          c.pos + ': ' + c.num + '. ' + c.name + (c.rev ? '(역방향)' : '(정방향)') +
-          (c.keywords ? ' — ' + c.keywords : '') +
-          (c.ask ? '\n  · 이 포지션 해석 요청: ' + c.ask : '')
+          (c.extra ? '[추가] ' : '') + c.pos + ': ' + c.num + '. ' + c.name +
+          (c.rev ? '(역방향)' : '(정방향)') +
+          (c.keywords ? ' — ' + c.keywords : '')
         ).join('\n');
 
-        const depthHint = mode === 'basic'
-          ? '기본 리딩: 카드 1장 중심으로 짧고 명확하게 (전체 분량 중간 이하).'
-          : '심화 리딩: 카드 ' + cards.length + '장. 각 카드의 포지션 이름과(있을 경우) 칸별 해석 요청을 존중해 해석하고 연결하세요.';
+        const depthHint = cards.length <= 1
+          ? '기본 리딩: 카드 1장 중심으로 짧고 명확하게.'
+          : '카드 ' + cards.length + '장. 스프래드 포지션을 먼저 읽고,' +
+            (extraCards.length ? ' 추가 카드(' + extraCards.map((c) => c.pos).join('·') + ')는 보완·조언·명확화로 연결하세요.' : ' 카드 간 연결을 쓰세요.');
 
         const prompt =
 `당신은 타로·수비학을 쓰는 전문 상담사의 '세션 보조 작가'입니다.
@@ -1396,9 +1449,9 @@ ${client ? '[CRM] 생년월일: ' + (client.birth_date || '미상') + ' / 최근
 [질문]
 ${question}
 ${note ? '[상담사만 보는 메모 — 해석에 반영하되 메모 문구를 그대로 노출하지 말 것]\n' + note + '\n' : ''}
-[뽑힌 카드 · 포지션 · 칸별 해석 요청]
+[뽑힌 카드]
 ${cardLines}
-
+${extraCards.length ? '\n(추가 카드는 본 스프래드 해석을 보완하는 조언/명확화로 다루세요.)\n' : ''}
 [깊이] ${depthHint}
 
 규칙:
@@ -1409,25 +1462,25 @@ ${cardLines}
 ## 질문에 대한 답
 ## 오늘 가져갈 조언
 ## 주의 (과한 예언·단정 금지)
-3) 카드 해석에는 포지션 이름·번호·카드명·정역을 명시. 칸별 해석 요청이 있으면 그 관점(조언/상대 마음 등)을 우선 반영.
+3) 카드 해석에는 포지션(또는 추가 역할)·번호·카드명·정역을 명시. 추가 카드가 있으면 그 역할을 분명히.
 4) 점술 확정 예언·의료·법률·투자 단정 금지. "가능성이 있다/살펴볼 포인트"로.
 5) 이모지·불필요한 인사·면책 장문 금지. 복사해 쓰기 좋게.`;
 
         const cacheKey = PaljaAiQuota.hashKey([
-          'counselor_reading_v4',
+          'counselor_reading_v5',
           feature,
           clientId || '',
           displayName,
           question,
           note,
-          cards.map((c) => c.pos + ':' + c.num + (c.rev ? 'r' : 'u') + ':' + (c.ask || '')).join('|'),
+          cards.map((c) => (c.extra ? 'x' : 'b') + c.pos + ':' + c.num + (c.rev ? 'r' : 'u')).join('|'),
         ].join('::'));
 
         try {
           const { text, quota } = await PaljaAiQuota.callAi({
             feature,
             cacheKey,
-            max_tokens: mode === 'basic' ? 900 : 1400,
+            max_tokens: cards.length <= 1 ? 900 : 1600,
             messages: [{ role: 'user', content: prompt }],
           });
           lastText = text || '';
