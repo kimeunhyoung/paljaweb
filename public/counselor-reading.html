@@ -13,6 +13,7 @@
   <script src="js/plan-access.js?v=1"></script>
   <script src="js/ai-quota-client.js?v=2"></script>
   <script src="js/counselor-tarot-deck.js?v=4"></script>
+  <script src="js/counselor-copy-summary.js?v=2"></script>
   <script src="js/attribution.js"></script>
   <script src="js/site-topbar.js?v=5" defer></script>
   <script src="js/topbar-session.js?v=6" defer></script>
@@ -26,6 +27,7 @@
       --accent: #c8a96e;
       --border: rgba(139,111,71,.18);
       --teal: #2e8b7a;
+      --warm-brown: #8b6f47;
       --font-serif: 'Noto Serif KR', serif;
       --font-body: 'Noto Serif KR', serif;
     }
@@ -103,6 +105,32 @@
       font-family: var(--font-body); font-size: 13px; background: #fff; color: var(--ink);
     }
     .ai-draft-form textarea { min-height: 88px; resize: vertical; }
+    .ai-client-tools { display: flex; flex-wrap: wrap; gap: 8px; align-items: flex-end; margin-top: 8px; }
+    .ai-client-tools .btn-sm { text-decoration: none; display: inline-flex; align-items: center; }
+    .ai-client-tools .btn-sm[aria-disabled="true"] {
+      opacity: .45; pointer-events: none; cursor: not-allowed;
+    }
+    .ai-num-brief {
+      grid-column: 1 / -1;
+      background: var(--parchment); border: 1px solid var(--border); border-radius: 10px;
+      padding: 10px 12px; margin-top: 2px;
+    }
+    .ai-num-brief[hidden] { display: none !important; }
+    .ai-num-brief-head {
+      display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between;
+      gap: 6px; margin-bottom: 8px;
+    }
+    .ai-num-brief-head strong { font-size: 13px; color: var(--deep); }
+    .ai-num-brief-head span { font-size: 11px; color: var(--muted); }
+    .ai-num-chips { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 8px; }
+    .ai-num-chip {
+      background: #fff; border: 1px solid var(--border); border-radius: 8px;
+      padding: 6px 10px; min-width: 88px;
+    }
+    .ai-num-chip .k { font-size: 10px; color: var(--muted); display: block; }
+    .ai-num-chip .v { font-size: 15px; font-weight: 700; color: var(--deep); }
+    .ai-num-chip .t { font-size: 10px; color: var(--warm-brown); }
+    .ai-num-blurb { font-size: 12px; color: var(--ink); line-height: 1.5; margin: 0; }
     .ai-draft-actions { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
     .ai-draft-quota { font-size: 11px; color: var(--teal); font-weight: 600; }
     .ai-card-slots { display: grid; gap: 10px; margin: 4px 0 8px; }
@@ -343,10 +371,22 @@
         <div>
           <label for="aiClient">고객 (선택 · CRM 연결)</label>
           <select id="aiClient"></select>
+          <div class="ai-client-tools">
+            <a class="btn-sm outline" id="aiLinkNumerology" href="analysis.html" target="_blank" rel="noopener" aria-disabled="true">수비학 분석</a>
+            <a class="btn-sm outline" id="aiLinkAstro" href="astrology.html" target="_blank" rel="noopener" aria-disabled="true">점성학 차트</a>
+          </div>
         </div>
         <div>
           <label for="aiNickname">호칭 / 닉네임</label>
           <input id="aiNickname" type="text" maxlength="40" placeholder="예: 민지님 · 고객님"/>
+        </div>
+        <div class="ai-num-brief" id="aiNumBrief" hidden>
+          <div class="ai-num-brief-head">
+            <strong id="aiNumBriefTitle">수비학 한눈</strong>
+            <span>세션 중 참고용 · 짧게만</span>
+          </div>
+          <div class="ai-num-chips" id="aiNumBriefChips"></div>
+          <p class="ai-num-blurb" id="aiNumBriefBlurb"></p>
         </div>
         <div class="full">
           <label for="aiQuestion">질문 *</label>
@@ -593,7 +633,7 @@
 
     const { data: clients } = await sb
       .from('counselor_clients')
-      .select('id, display_name, legal_name, birth_date')
+      .select('id, display_name, legal_name, birth_date, birth_time, birth_city')
       .order('display_name', { ascending: true });
     clientRows = clients || [];
 
@@ -1292,7 +1332,68 @@
           if (c && !nickEl.value.trim()) {
             nickEl.value = (c.display_name || c.legal_name || '').trim();
           }
+          syncClientContext(c || null);
         });
+        syncClientContext(clientRows.find((x) => x.id === clientSel.value) || null);
+      }
+
+      function setClientLink(el, href, enabled) {
+        if (!el) return;
+        el.href = href || '#';
+        if (enabled) el.removeAttribute('aria-disabled');
+        else el.setAttribute('aria-disabled', 'true');
+      }
+
+      function syncClientContext(c) {
+        const linkNum = document.getElementById('aiLinkNumerology');
+        const linkAstro = document.getElementById('aiLinkAstro');
+        const brief = document.getElementById('aiNumBrief');
+        const chipsEl = document.getElementById('aiNumBriefChips');
+        const blurbEl = document.getElementById('aiNumBriefBlurb');
+        const titleEl = document.getElementById('aiNumBriefTitle');
+
+        if (!c) {
+          setClientLink(linkNum, 'analysis.html', false);
+          setClientLink(linkAstro, 'astrology.html', false);
+          if (brief) brief.hidden = true;
+          return;
+        }
+
+        setClientLink(linkNum, 'analysis.html?client=' + encodeURIComponent(c.id), true);
+        const qs = new URLSearchParams({
+          name: ((c.display_name || c.legal_name) || '').trim(),
+          date: c.birth_date ? String(c.birth_date).slice(0, 10) : '',
+          client: c.id,
+        });
+        if (c.birth_time) qs.set('time', c.birth_time);
+        if (c.birth_city) qs.set('city', c.birth_city);
+        setClientLink(linkAstro, 'astrology.html?' + qs.toString(), !!c.birth_date);
+
+        if (!brief || !chipsEl || !blurbEl) return;
+        const built = window.PaljaCounselorCopySummary && PaljaCounselorCopySummary.buildBrief
+          ? PaljaCounselorCopySummary.buildBrief(c)
+          : { ok: false, error: '요약 모듈을 불러오지 못했습니다.' };
+        if (!built.ok) {
+          brief.hidden = false;
+          if (titleEl) titleEl.textContent = '수비학 한눈';
+          chipsEl.innerHTML = '';
+          blurbEl.textContent = built.error || '요약을 만들 수 없습니다.';
+          return;
+        }
+        brief.hidden = false;
+        if (titleEl) titleEl.textContent = built.name + ' · 수비학 한눈';
+        chipsEl.innerHTML = (built.chips || []).map((chip) =>
+          '<div class="ai-num-chip"><span class="k">' + escapeHtml(chip.label) + '</span>' +
+          '<span class="v">' + escapeHtml(String(chip.num)) + '</span>' +
+          (chip.title ? '<span class="t">' + escapeHtml(chip.title) + '</span>' : '') +
+          '</div>'
+        ).join('');
+        const first = built.chips && built.chips[0];
+        const year = built.chips && built.chips[1];
+        blurbEl.textContent = [
+          first && first.blurb ? first.blurb : '',
+          year && year.blurb ? year.blurb : '',
+        ].filter(Boolean).join(' ');
       }
 
       if (copyBtn) {

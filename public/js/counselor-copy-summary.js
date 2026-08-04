@@ -257,5 +257,28 @@
     };
   }
 
-  global.PaljaCounselorCopySummary = { build };
+  /** 세션 중 한눈용 — 인생여정·올해·이번 달만 */
+  function buildBrief(client) {
+    const birth = parseBirth(client && client.birth_date);
+    if (!birth) {
+      return { ok: false, error: '생년월일이 없어 요약을 만들 수 없습니다.' };
+    }
+    const nameLabel = (client.display_name || client.legal_name || '고객').trim();
+    const lp = calcLifePath(birth.y, birth.m, birth.d);
+    const now = todayKstParts();
+    const py = calcPersonalYear(now.y, lp.mr, lp.dr);
+    const pm = reduce(py.val + now.m);
+    return {
+      ok: true,
+      name: nameLabel,
+      birth: String(client.birth_date).slice(0, 10),
+      chips: [
+        { label: '인생여정', num: lp.val, title: TITLE[lp.val] || '', blurb: LP[lp.val] || '' },
+        { label: '올해', num: py.val, title: TITLE[py.val] || '', blurb: YEAR[py.val] || '' },
+        { label: '이번 달', num: pm, title: TITLE[pm] || '', blurb: MONTH[pm] || '' },
+      ],
+    };
+  }
+
+  global.PaljaCounselorCopySummary = { build, buildBrief };
 })(typeof window !== 'undefined' ? window : globalThis);
