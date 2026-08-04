@@ -561,6 +561,18 @@
       font-family: var(--font-body); font-size: 13px; background: #fff; color: var(--ink);
     }
     .ai-card-hint { font-size: 11px; color: var(--muted); margin: 0 0 8px; line-height: 1.45; }
+    .ai-spread-row { display: none; gap: 8px; align-items: end; margin-bottom: 10px; flex-wrap: wrap; }
+    .ai-spread-row.is-on { display: flex; }
+    .ai-spread-row label { font-size: 11px; color: var(--muted); display: block; margin-bottom: 5px; }
+    .ai-spread-row select {
+      min-width: 200px; padding: 8px 10px; border: 1px solid var(--border); border-radius: 8px;
+      font-family: var(--font-body); font-size: 13px; background: #fff; color: var(--ink);
+    }
+    .ai-card-slot .slot-pos {
+      width: 100%; margin-bottom: 8px; padding: 6px 8px; border: 1px dashed var(--border); border-radius: 6px;
+      font-family: var(--font-body); font-size: 12px; font-weight: 600; color: var(--deep); background: #fff;
+    }
+    .ai-card-slot h4 { font-size: 11px; color: var(--muted); margin: 0 0 6px; letter-spacing: .03em; display: flex; justify-content: space-between; gap: 6px; }
     .num-table-tabs { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
     .num-table-tabs button {
       font-size: 12px; padding: 6px 12px; border-radius: 999px; border: 1px solid var(--border);
@@ -883,7 +895,13 @@
         </div>
         <div class="full">
           <label>뽑힌 카드</label>
-          <p class="ai-card-hint">실물 스프래드에서 뽑았으면 <strong>이름 선택</strong>하거나 <strong>카드 고르기</strong>에서 눌러 넣으세요. 칸을 누른 뒤 고르면 그 칸에 들어갑니다.</p>
+          <p class="ai-card-hint">실물 스프래드에서 뽑았으면 <strong>이름 선택</strong>하거나 <strong>카드 고르기</strong>에서 눌러 넣으세요. 심화는 칸 이름(포지션)을 바꿀 수 있습니다.</p>
+          <div class="ai-spread-row" id="aiSpreadRow">
+            <div>
+              <label for="aiSpreadPreset">스프래드 (칸 이름)</label>
+              <select id="aiSpreadPreset"></select>
+            </div>
+          </div>
           <div id="aiCardSlots" class="ai-card-slots"></div>
         </div>
         <div class="full ai-draft-actions">
@@ -2889,7 +2907,14 @@
     (function initAiDraft() {
       const Deck = window.CounselorTarotDeck;
       const POS_BASIC = ['카드'];
-      const POS_ADV = ['상황', '핵심 메시지', '조언'];
+      const SPREADS = [
+        { id: 'advice', label: '상황 · 핵심 메시지 · 조언', positions: ['상황', '핵심 메시지', '조언'] },
+        { id: 'choice', label: '상황 · 선택 · 결과', positions: ['상황', '선택', '결과'] },
+        { id: 'time', label: '과거 · 현재 · 미래', positions: ['과거', '현재', '미래'] },
+        { id: 'love', label: '내 마음 · 상대 · 관계', positions: ['내 마음', '상대 마음', '관계 흐름'] },
+        { id: 'block', label: '원인 · 장애 · 돌파', positions: ['원인', '장애', '돌파'] },
+        { id: 'custom', label: '직접 입력 (칸마다 수정)', positions: ['1장', '2장', '3장'] },
+      ];
       const GROUPS = [
         { label: '메이저', from: 1, to: 22 },
         { label: '완드', from: 23, to: 36 },
@@ -2898,10 +2923,11 @@
         { label: '펜타클', from: 65, to: 78 },
       ];
       let mode = 'basic'; // basic | advanced
+      let spreadId = 'advice';
       let lastText = '';
       let targetSlot = 0;
-      /** @type {{ num: number|null, rev: boolean }[]} */
-      let slots = [{ num: null, rev: false }];
+      /** @type {{ num: number|null, rev: boolean, label: string }[]} */
+      let slots = [{ num: null, rev: false, label: '카드' }];
 
       const form = document.getElementById('aiDraftForm');
       const out = document.getElementById('aiDraftOut');
@@ -2914,7 +2940,16 @@
       const modeAdv = document.getElementById('aiModeAdv');
       const clientSel = document.getElementById('aiClient');
       const nickEl = document.getElementById('aiNickname');
+      const spreadRow = document.getElementById('aiSpreadRow');
+      const spreadSel = document.getElementById('aiSpreadPreset');
       if (!form || !out || !slotsEl || !Deck) return;
+
+      if (spreadSel) {
+        spreadSel.innerHTML = SPREADS.map((s) =>
+          '<option value="' + s.id + '">' + escapeHtml(s.label) + '</option>'
+        ).join('');
+        spreadSel.value = spreadId;
+      }
 
       function setAiMsg(text, isErr) {
         if (!msg) return;
@@ -2922,12 +2957,26 @@
         msg.classList.toggle('err', !!isErr);
       }
 
+      function getSpread() {
+        return SPREADS.find((s) => s.id === spreadId) || SPREADS[0];
+      }
+
       function posLabels() {
-        return mode === 'basic' ? POS_BASIC : POS_ADV;
+        if (mode === 'basic') return [slots[0] && slots[0].label ? slots[0].label : '카드'];
+        return slots.map((s, i) => (s.label && s.label.trim()) || ((i + 1) + '장'));
       }
 
       function slotCount() {
         return mode === 'basic' ? 1 : 3;
+      }
+
+      function applySpreadLabels(ids) {
+        const sp = SPREADS.find((s) => s.id === ids) || getSpread();
+        spreadId = sp.id;
+        if (spreadSel) spreadSel.value = spreadId;
+        for (let i = 0; i < slots.length; i++) {
+          slots[i].label = sp.positions[i] || ((i + 1) + '장');
+        }
       }
 
       function syncModeButtons() {
@@ -2937,13 +2986,23 @@
           btn.classList.toggle('active', on);
           btn.setAttribute('aria-selected', on ? 'true' : 'false');
         });
+        if (spreadRow) spreadRow.classList.toggle('is-on', mode === 'advanced');
       }
 
       function setMode(next) {
         mode = next === 'advanced' ? 'advanced' : 'basic';
         const n = slotCount();
-        while (slots.length < n) slots.push({ num: null, rev: false });
-        slots = slots.slice(0, n);
+        const prev = slots.slice();
+        slots = [];
+        for (let i = 0; i < n; i++) {
+          slots.push({
+            num: prev[i] ? prev[i].num : null,
+            rev: prev[i] ? !!prev[i].rev : false,
+            label: prev[i] && prev[i].label ? prev[i].label : (mode === 'basic' ? '카드' : ((i + 1) + '장')),
+          });
+        }
+        if (mode === 'advanced') applySpreadLabels(spreadId);
+        else slots[0].label = '카드';
         if (targetSlot >= n) targetSlot = 0;
         syncModeButtons();
         renderSlots();
@@ -2999,10 +3058,16 @@
         slotsEl.innerHTML = slots.map((s, i) => {
           const card = s.num ? cardFor(s.num) : null;
           const kw = card ? card.keywords : '이름 선택 또는 카드 고르기';
+          const posInput = mode === 'advanced'
+            ? '<input type="text" class="slot-pos" maxlength="40" data-label="' + i + '" value="' +
+              escapeHtml(s.label || labels[i] || '') + '" placeholder="칸 이름 (예: 선택)" aria-label="포지션 이름"/>'
+            : '<h4>' + escapeHtml(labels[i] || '카드') +
+              (i === targetSlot ? ' · 선택 중' : '') + '</h4>';
           return (
             '<div class="ai-card-slot' + (i === targetSlot ? ' is-target' : '') + '" data-i="' + i + '">' +
-              '<h4>' + escapeHtml(labels[i] || (i + 1) + '장') +
-              (i === targetSlot ? ' · 선택 중' : '') + '</h4>' +
+              (mode === 'advanced'
+                ? '<h4>포지션' + (i === targetSlot ? ' · 선택 중' : '') + '</h4>' + posInput
+                : posInput) +
               '<div class="slot-row">' +
                 '<input type="number" min="1" max="78" inputmode="numeric" placeholder="번호" ' +
                   'aria-label="카드 번호" value="' + (s.num != null ? s.num : '') + '" data-num="' + i + '"/>' +
@@ -3025,6 +3090,19 @@
             if (e.target.closest('button, input, select')) return;
             targetSlot = Number(el.getAttribute('data-i'));
             renderSlots();
+          });
+        });
+        slotsEl.querySelectorAll('[data-label]').forEach((inp) => {
+          inp.addEventListener('focus', () => {
+            targetSlot = Number(inp.getAttribute('data-label'));
+          });
+          inp.addEventListener('input', () => {
+            const i = Number(inp.getAttribute('data-label'));
+            slots[i].label = inp.value;
+            if (spreadSel && spreadId !== 'custom') {
+              spreadId = 'custom';
+              spreadSel.value = 'custom';
+            }
           });
         });
         slotsEl.querySelectorAll('[data-num]').forEach((inp) => {
@@ -3083,9 +3161,12 @@
           const j = Math.floor(Math.random() * (i + 1));
           const t = pool[i]; pool[i] = pool[j]; pool[j] = t;
         }
-        slots = pool.slice(0, n).map((num) => ({
+        slots = pool.slice(0, n).map((num, i) => ({
           num,
           rev: Math.random() < 0.35,
+          label: slots[i] && slots[i].label
+            ? slots[i].label
+            : (mode === 'basic' ? '카드' : (getSpread().positions[i] || ((i + 1) + '장'))),
         }));
         targetSlot = 0;
         renderSlots();
@@ -3114,6 +3195,13 @@
       if (modeBasic) modeBasic.addEventListener('click', () => setMode('basic'));
       if (modeAdv) modeAdv.addEventListener('click', () => setMode('advanced'));
       if (drawBtn) drawBtn.addEventListener('click', drawRandom);
+      if (spreadSel) {
+        spreadSel.addEventListener('change', () => {
+          applySpreadLabels(spreadSel.value);
+          renderSlots();
+          setAiMsg('스프래드 칸 이름을 바꿨습니다.');
+        });
+      }
 
       if (clientSel && nickEl) {
         clientSel.addEventListener('change', () => {
@@ -3329,7 +3417,7 @@
 
         const depthHint = mode === 'basic'
           ? '기본 리딩: 카드 1장 중심으로 짧고 명확하게 (전체 분량 중간 이하).'
-          : '심화 리딩: 카드 ' + cards.length + '장을 연결해 흐름·조언까지 조금 더 깊게.';
+          : '심화 리딩: 카드 ' + cards.length + '장. 각 카드의 포지션 이름(상황·선택 등)을 존중해 해석하고 연결하세요.';
 
         const prompt =
 `당신은 타로·수비학을 쓰는 전문 상담사의 '세션 보조 작가'입니다.
@@ -3341,7 +3429,7 @@ ${client ? '[CRM] 생년월일: ' + (client.birth_date || '미상') + ' / 최근
 [질문]
 ${question}
 ${note ? '[상담사만 보는 메모 — 해석에 반영하되 메모 문구를 그대로 노출하지 말 것]\n' + note + '\n' : ''}
-[뽑힌 카드]
+[뽑힌 카드 · 포지션]
 ${cardLines}
 
 [깊이] ${depthHint}
@@ -3354,18 +3442,18 @@ ${cardLines}
 ## 질문에 대한 답
 ## 오늘 가져갈 조언
 ## 주의 (과한 예언·단정 금지)
-3) 카드 해석에는 번호·이름·정역을 명시. 심화면 카드 간 연결 1~2문장.
+3) 카드 해석에는 포지션 이름·번호·카드명·정역을 명시. 심화면 포지션 의미에 맞게 쓰고 카드 간 연결 1~2문장.
 4) 점술 확정 예언·의료·법률·투자 단정 금지. "가능성이 있다/살펴볼 포인트"로.
 5) 이모지·불필요한 인사·면책 장문 금지. 복사해 쓰기 좋게.`;
 
         const cacheKey = PaljaAiQuota.hashKey([
-          'counselor_reading_v2',
+          'counselor_reading_v3',
           feature,
           clientId || '',
           displayName,
           question,
           note,
-          cards.map((c) => c.num + (c.rev ? 'r' : 'u')).join('|'),
+          cards.map((c) => c.pos + ':' + c.num + (c.rev ? 'r' : 'u')).join('|'),
         ].join('::'));
 
         try {
