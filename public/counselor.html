@@ -12,6 +12,7 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="js/plan-access.js?v=1"></script>
   <script src="js/astro-cities.js?v=1"></script>
+  <script src="js/ai-quota-client.js?v=2"></script>
   <script src="js/attribution.js"></script>
   <script src="js/site-topbar.js?v=5" defer></script>
   <script src="js/topbar-session.js?v=6" defer></script>
@@ -497,6 +498,39 @@
     }
     .push-remind-hint { font-size: 11px; color: var(--muted); line-height: 1.45; flex: 1 1 100%; }
 
+    /* AI 세션 초안 */
+    .ai-draft-panel { background: #fff; border: 1px solid var(--border); border-radius: 12px; padding: 18px 20px; box-shadow: 0 6px 18px rgba(44,31,14,.05); }
+    .ai-draft-intro { font-size: 12.5px; color: var(--muted); line-height: 1.55; margin-bottom: 14px; }
+    .ai-draft-intro strong { color: var(--deep); }
+    .ai-draft-form { display: grid; gap: 10px; margin-bottom: 12px; }
+    @media (min-width: 640px) {
+      .ai-draft-form { grid-template-columns: 1fr 1fr; align-items: end; }
+      .ai-draft-form .full { grid-column: 1 / -1; }
+    }
+    .ai-draft-form label { font-size: 11px; color: var(--muted); display: block; margin-bottom: 5px; }
+    .ai-draft-form input, .ai-draft-form select, .ai-draft-form textarea {
+      width: 100%; padding: 9px 11px; border: 1px solid var(--border); border-radius: 8px;
+      font-family: var(--font-body); font-size: 13px; background: #fff; color: var(--ink);
+    }
+    .ai-draft-form textarea { min-height: 64px; resize: vertical; }
+    .ai-draft-actions { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+    .ai-draft-quota { font-size: 11px; color: var(--teal); font-weight: 600; }
+    .ai-draft-cards { display: flex; flex-wrap: wrap; gap: 8px; margin: 10px 0 4px; }
+    .ai-draft-card {
+      background: var(--parchment); border: 1px solid var(--border); border-radius: 8px;
+      padding: 8px 12px; font-size: 12px; color: var(--deep); min-width: 120px;
+    }
+    .ai-draft-card strong { display: block; font-size: 13px; margin-bottom: 2px; }
+    .ai-draft-card span { font-size: 11px; color: var(--muted); }
+    .ai-draft-out {
+      margin-top: 12px; background: var(--parchment); border: 1px solid var(--border);
+      border-radius: 10px; padding: 14px 16px; font-size: 13px; line-height: 1.7; color: var(--ink);
+      white-space: pre-wrap; min-height: 80px;
+    }
+    .ai-draft-out.is-empty { color: var(--muted); }
+    .ai-draft-msg { font-size: 12px; margin-top: 8px; color: var(--teal); }
+    .ai-draft-msg.err { color: #8b3a3a; }
+
     /* 관계 분석 */
     .rel-panel { background: #fff; border: 1px solid var(--border); border-radius: 12px; padding: 18px 20px; box-shadow: 0 6px 18px rgba(44,31,14,.05); }
     .rel-row { display: grid; gap: 12px; align-items: end; }
@@ -582,12 +616,12 @@
 <div id="app">
   <div class="hub-intro">
     <h1>상담사 허브</h1>
-    <p>고객 관리 → 라이프코드·궁합 분석 → <strong>고객용 리포트 PDF</strong>와 <strong>고객별 세션 기록</strong>까지. 일정 캘린더·푸시 알림으로 오늘 상담을 챙기고, <strong>간단 매출 장부</strong>로 운영까지. 이 화면은 <strong>Professional 상담사 전용</strong>으로 상담 업무 도구를 한곳에 모았습니다.</p>
+    <p>고객 관리 → 라이프코드·궁합 분석 → <strong>고객용 리포트 PDF</strong>와 <strong>고객별 세션 기록</strong>까지. 일정 캘린더·푸시 알림으로 오늘 상담을 챙기고, <strong>AI 세션 초안</strong>·매출 장부로 운영까지. 이 화면은 <strong>Professional 상담사 전용</strong>으로 상담 업무 도구를 한곳에 모았습니다.</p>
     <p id="trialBadge" class="trial-badge" style="display:none" role="status"></p>
   </div>
   <div id="gate">
     <h2>Professional 플랜 전용</h2>
-    <p>상담사 허브는 <strong>Professional</strong> 요금제에서 이용할 수 있어요.<br>고객 카드·세션 기록(CRM), 일정 캘린더·중요 일정·웹 푸시, 간단 매출 장부, 상담사 대시보드, 브랜디드 리포트 PDF, 상담 준비 요약, 고객 간 궁합까지 상담 업무 도구가 함께 켜집니다.</p>
+    <p>상담사 허브는 <strong>Professional</strong> 요금제에서 이용할 수 있어요.<br>고객 카드·세션 기록(CRM), 일정 캘린더·중요 일정·웹 푸시, AI 세션 초안, 간단 매출 장부, 상담사 대시보드, 브랜디드 리포트 PDF, 상담 준비 요약, 고객 간 궁합까지 상담 업무 도구가 함께 켜집니다.</p>
     <a class="cta" href="for-counselors.html">Professional 안내 보기</a>
     <a class="cta secondary" href="/lifecode/buy.html?product=counselor30" style="margin-left:8px;background:transparent;border:1.5px solid var(--border);color:var(--deep);">15일 체험 구매</a>
     <a class="cta secondary" href="pricing.html?checkout=professional" style="margin-left:8px;background:transparent;border:1.5px solid var(--border);color:var(--deep);">바로 구독</a>
@@ -707,6 +741,41 @@
         <button type="button" class="btn-sm" id="brandSaveBtn">저장</button>
       </div>
       <p class="brand-hint">여기에 입력한 이름·로고가 <strong>고객용 리포트 PDF</strong> 머리글에 들어갑니다. 이 기기 브라우저에 저장됩니다.</p>
+    </div>
+
+    <div class="section-title" id="ai-draft" style="margin-top:28px">상담사 AI 세션 초안</div>
+    <div class="ai-draft-panel">
+      <p class="ai-draft-intro">고객·주제·(선택) 타로 3장을 넣으면 <strong>세션에서 쓸 해석 초안</strong>을 만듭니다. AI가 고객에게 직접 상담하는 기능이 아니라, 상담사가 다듬어 쓰는 Professional 전용 도구입니다. 생성 1회에 AI 크레딧 <strong>2</strong>가 차감됩니다.</p>
+      <form id="aiDraftForm" class="ai-draft-form" autocomplete="off">
+        <div>
+          <label for="aiClient">고객 *</label>
+          <select id="aiClient" required></select>
+        </div>
+        <div>
+          <label for="aiMode">모드</label>
+          <select id="aiMode">
+            <option value="tarot">타로 3장 초안</option>
+            <option value="topic">주제만 초안</option>
+          </select>
+        </div>
+        <div class="full">
+          <label for="aiTopic">이번 주제 / 질문 *</label>
+          <input id="aiTopic" type="text" maxlength="200" required placeholder="예: 이직 타이밍, 연애 흐름, 재회 가능성"/>
+        </div>
+        <div class="full">
+          <label for="aiNote">추가 메모 (선택)</label>
+          <textarea id="aiNote" maxlength="500" placeholder="지난 회차 포인트, 고객이 말한 상황 등"></textarea>
+        </div>
+        <div class="full ai-draft-actions">
+          <button type="button" class="btn-sm outline" id="aiDrawBtn">타로 3장 뽑기</button>
+          <button type="submit" class="btn-sm" id="aiDraftBtn">초안 생성</button>
+          <button type="button" class="btn-sm outline" id="aiCopyBtn" style="display:none;">복사</button>
+          <span class="ai-draft-quota" id="aiDraftQuota" hidden></span>
+        </div>
+      </form>
+      <div id="aiCardRow" class="ai-draft-cards" style="display:none;"></div>
+      <div id="aiDraftOut" class="ai-draft-out is-empty">아직 초안이 없습니다. 고객과 주제를 넣고 생성해 보세요.</div>
+      <p id="aiDraftMsg" class="ai-draft-msg"></p>
     </div>
 
     <div class="section-title" style="margin-top:28px">운영 · 매출</div>
@@ -1156,6 +1225,7 @@
         renderDashboard();
         populateRelSelects();
         populateSaleClientSelect();
+        populateAiClientSelect();
         return;
       }
       clientRows = data || [];
@@ -1165,6 +1235,7 @@
       renderDashboard();
       populateRelSelects();
       populateSaleClientSelect();
+      populateAiClientSelect();
       if (!clientRows.length) {
         listEl.innerHTML = '<p class="list-empty">저장된 고객이 없습니다. 위 폼에서 추가해 보세요.</p>';
         return;
@@ -1239,6 +1310,18 @@
       sel.innerHTML = '<option value="">— 고객 없음 —</option>' +
         clientRows.map((c) =>
           '<option value="' + c.id + '">' + escapeHtml(c.display_name || c.legal_name || '고객') + '</option>'
+        ).join('');
+      if (cur && clientRows.some((c) => c.id === cur)) sel.value = cur;
+    }
+
+    function populateAiClientSelect() {
+      const sel = document.getElementById('aiClient');
+      if (!sel) return;
+      const cur = sel.value;
+      sel.innerHTML = '<option value="">— 고객 선택 —</option>' +
+        clientRows.map((c) =>
+          '<option value="' + c.id + '">' + escapeHtml(c.display_name || c.legal_name || '고객') +
+          (c.birth_date ? ' · ' + escapeHtml(String(c.birth_date)) : '') + '</option>'
         ).join('');
       if (cur && clientRows.some((c) => c.id === cur)) sel.value = cur;
     }
@@ -2342,6 +2425,193 @@
           renderDashboard();
           setSalesMsg('매출을 저장했습니다.');
         });
+      }
+    })();
+
+    // ── 상담사 AI 세션 초안 ──
+    (function initAiDraft() {
+      const MAJOR = [
+        { name: '바보', kw: '시작·순수·모험' },
+        { name: '마법사', kw: '의지·실행·도구' },
+        { name: '여사제', kw: '직관·내면·비밀' },
+        { name: '여황제', kw: '풍요·돌봄·창조' },
+        { name: '황제', kw: '구조·권위·안정' },
+        { name: '교황', kw: '전통·가르침·규범' },
+        { name: '연인', kw: '선택·관계·가치' },
+        { name: '전차', kw: '추진·승리·통제' },
+        { name: '힘', kw: '용기·인내·자기통제' },
+        { name: '은둔자', kw: '성찰·고독·신중' },
+        { name: '운명의 수레바퀴', kw: '전환·순환·타이밍' },
+        { name: '정의', kw: '균형·진실·책임' },
+        { name: '매달린 남자', kw: '관점 전환·내려놓음' },
+        { name: '죽음', kw: '종료·변화·재탄생' },
+        { name: '절제', kw: '조화·중용·조율' },
+        { name: '악마', kw: '집착·속박·욕망' },
+        { name: '탑', kw: '충격·붕괴·각성' },
+        { name: '별', kw: '희망·치유·영감' },
+        { name: '달', kw: '불안·혼란·직감' },
+        { name: '태양', kw: '명확·기쁨·성공' },
+        { name: '심판', kw: '부름·각성·정리' },
+        { name: '세계', kw: '완성·통합·마무리' },
+      ];
+      const POS = ['상황', '핵심 메시지', '조언'];
+      let drawn = [];
+      let lastText = '';
+
+      const form = document.getElementById('aiDraftForm');
+      const out = document.getElementById('aiDraftOut');
+      const msg = document.getElementById('aiDraftMsg');
+      const cardRow = document.getElementById('aiCardRow');
+      const copyBtn = document.getElementById('aiCopyBtn');
+      const drawBtn = document.getElementById('aiDrawBtn');
+      const quotaEl = document.getElementById('aiDraftQuota');
+      if (!form || !out) return;
+
+      function setAiMsg(text, isErr) {
+        if (!msg) return;
+        msg.textContent = text || '';
+        msg.classList.toggle('err', !!isErr);
+      }
+
+      function renderCards() {
+        if (!cardRow) return;
+        if (!drawn.length) {
+          cardRow.style.display = 'none';
+          cardRow.innerHTML = '';
+          return;
+        }
+        cardRow.style.display = 'flex';
+        cardRow.innerHTML = drawn.map((c, i) =>
+          '<div class="ai-draft-card"><strong>' + POS[i] + ' · ' + escapeHtml(c.name) +
+          (c.rev ? ' (역)' : ' (정)') + '</strong><span>' + escapeHtml(c.kw) + '</span></div>'
+        ).join('');
+      }
+
+      function drawThree() {
+        const pool = MAJOR.slice();
+        for (let i = pool.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          const t = pool[i]; pool[i] = pool[j]; pool[j] = t;
+        }
+        drawn = pool.slice(0, 3).map((c) => ({
+          name: c.name,
+          kw: c.kw,
+          rev: Math.random() < 0.35,
+        }));
+        renderCards();
+        setAiMsg('타로 3장을 뽑았습니다. 초안 생성을 눌러 주세요.');
+      }
+
+      if (drawBtn) drawBtn.addEventListener('click', drawThree);
+
+      if (copyBtn) {
+        copyBtn.addEventListener('click', async () => {
+          if (!lastText) return;
+          try {
+            await navigator.clipboard.writeText(lastText);
+            setAiMsg('초안을 복사했습니다.');
+          } catch (_) {
+            setAiMsg('복사에 실패했습니다.', true);
+          }
+        });
+      }
+
+      if (window.PaljaAiQuota) {
+        PaljaAiQuota.fetchQuota().then((q) => PaljaAiQuota.applyQuotaBadge(quotaEl, q));
+      }
+
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const clientId = document.getElementById('aiClient').value;
+        const topic = (document.getElementById('aiTopic').value || '').trim();
+        const note = (document.getElementById('aiNote').value || '').trim();
+        const mode = document.getElementById('aiMode').value || 'tarot';
+        const client = clientRows.find((c) => c.id === clientId);
+        if (!client || !topic) {
+          setAiMsg('고객과 주제를 입력해 주세요.', true);
+          return;
+        }
+        if (mode === 'tarot' && drawn.length < 3) {
+          drawThree();
+        }
+        if (!window.PaljaAiQuota) {
+          setAiMsg('AI 클라이언트를 불러오지 못했습니다. 페이지를 새로고침해 주세요.', true);
+          return;
+        }
+
+        const ls = clientLastSession(client.id);
+        const btn = document.getElementById('aiDraftBtn');
+        if (btn) { btn.disabled = true; btn.textContent = '생성 중…'; }
+        setAiMsg('');
+        out.classList.add('is-empty');
+        out.textContent = '초안을 만드는 중…';
+
+        const cardLines = drawn.length
+          ? drawn.map((c, i) => POS[i] + ': ' + c.name + (c.rev ? '(역방향)' : '(정방향)') + ' — ' + c.kw).join('\n')
+          : '(카드 없음)';
+
+        const prompt =
+`당신은 수비학·타로를 쓰는 전문 상담사의 '세션 보조 작가'입니다.
+고객에게 직접 말하는 운세 앱이 아니라, 상담사가 세션에서 쓸 **해석 초안**을 작성하세요.
+
+[고객]
+표시명: ${client.display_name || client.legal_name || '고객'}
+생년월일: ${client.birth_date || '미상'}
+최근 상담: ${ls.last || '없음'}${ls.topic ? ' / 주제 ' + ls.topic : ''}
+
+[이번 주제]
+${topic}
+${note ? '[추가 메모]\n' + note + '\n' : ''}
+[모드] ${mode === 'tarot' ? '타로 3장 초안' : '주제만 초안'}
+${mode === 'tarot' ? '[뽑힌 카드]\n' + cardLines + '\n' : ''}
+규칙:
+1) 한국어. 상담사에게 건네는 메모 톤(존댓말).
+2) 아래 소제목만 사용:
+## 오프닝 한 줄
+## 카드/주제 해석 (각 2~3문장)
+## 고객에게 던질 질문 2개
+## 주의·경계 (과한 예언·단정 금지 1~2문장)
+## 세션 마무리 제안
+3) 점술 확정 예언·의료·법률·투자 단정 금지. "가능성이 있다/살펴볼 포인트"로 표현.
+4) 이모지·불필요한 인사말 금지.`;
+
+        const cacheKey = PaljaAiQuota.hashKey([
+          'counselor_session_v1',
+          client.id,
+          topic,
+          note,
+          mode,
+          drawn.map((c) => c.name + (c.rev ? 'r' : 'u')).join('|'),
+        ].join('::'));
+
+        try {
+          const { text, quota } = await PaljaAiQuota.callAi({
+            feature: 'counselor_session',
+            cacheKey,
+            max_tokens: 1200,
+            messages: [{ role: 'user', content: prompt }],
+          });
+          lastText = text || '';
+          out.classList.remove('is-empty');
+          out.textContent = lastText || '초안을 만들지 못했습니다.';
+          if (copyBtn) copyBtn.style.display = lastText ? '' : 'none';
+          PaljaAiQuota.applyQuotaBadge(quotaEl, quota);
+          setAiMsg(lastText ? '초안을 만들었습니다. 상담에 맞게 다듬어 사용하세요.' : '응답이 비어 있습니다.', !lastText);
+        } catch (err) {
+          out.classList.add('is-empty');
+          out.textContent = '아직 초안이 없습니다. 고객과 주제를 넣고 생성해 보세요.';
+          if (err && err.quota) PaljaAiQuota.applyQuotaBadge(quotaEl, err.quota);
+          setAiMsg((err && err.message) || '초안 생성에 실패했습니다.', true);
+        } finally {
+          if (btn) { btn.disabled = false; btn.textContent = '초안 생성'; }
+        }
+      });
+
+      if (location.hash === '#ai-draft') {
+        setTimeout(() => {
+          const el = document.getElementById('ai-draft');
+          if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }, 400);
       }
     })();
 
