@@ -349,6 +349,18 @@
           <label for="aiQuestion">질문 *</label>
           <textarea id="aiQuestion" maxlength="800" required placeholder="키보드로 입력하거나, 카톡·메모에서 붙여넣기 하세요.&#10;예: 이직을 지금 해도 될까요? / 그 사람 마음이 궁금해요"></textarea>
         </div>
+        <div>
+          <label for="aiTopic">해석 주제</label>
+          <select id="aiTopic">
+            <option value="auto">자동 (질문으로 추정)</option>
+            <option value="love">연애 · 사랑</option>
+            <option value="work">일 · 커리어</option>
+            <option value="money">금전 · 재물</option>
+            <option value="relation">인간관계</option>
+            <option value="inner">내면 · 성장</option>
+            <option value="general">종합 (일반 흐름)</option>
+          </select>
+        </div>
         <div class="full">
           <label for="aiNote">추가 메모 (선택 · 고객에게 안 보임)</label>
           <textarea id="aiNote" maxlength="500" placeholder="지난 회차 포인트, 상담사가 알고 있는 맥락 등"></textarea>
@@ -1239,7 +1251,7 @@
         return t.slice(0, max - 1) + '…';
       }
 
-      /** 타로코드 유니(RWS식) 공식 해설 — 메이저 0~21 / 마이너 22~77 */
+      /** 타로코드 유니(RWS식) — 주제별 핵심만 짧게 (긴 본문은 AI가 질문에 맞춰 쓰게) */
       function meaningRefForCard(card, topic) {
         const ctx = { curMode: 'question', curTopic: topic === 'general' ? 'custom' : topic };
         const scripted = card.num <= 21
@@ -1247,26 +1259,35 @@
           : (window.getTarotMinorScripted && window.getTarotMinorScripted(card.num, ctx));
         if (!scripted) return '';
         const lines = [];
-        if (scripted.mainTitle) lines.push('핵심: ' + clipMeaning(scripted.mainTitle, 120));
+        if (scripted.mainTitle) lines.push('핵심: ' + clipMeaning(scripted.mainTitle, 110));
         if (card.rev) {
           const caution = card.num <= 21
             ? (window.getTarotMajorScripted && window.getTarotMajorScripted(card.num, { role: 'dont' }))
             : (window.getTarotMinorScripted && window.getTarotMinorScripted(card.num, { role: 'dont' }));
-          if (scripted.summary) lines.push('정방향 요약(참고): ' + clipMeaning(scripted.summary, 160));
+          if (scripted.summary) lines.push('정방향 한줄(참고): ' + clipMeaning(scripted.summary, 140));
           if (caution && caution.doDontBody) {
-            lines.push('역방향·주의 쪽: ' + clipMeaning(caution.doDontBody, 420));
-          } else if (scripted.mono) {
-            lines.push('흐름(역으로 재해석): ' + clipMeaning(scripted.mono, 360));
-            lines.push('※ 역방향: 위 에너지가 막히거나 과도·부족·내면화되어 나타남');
+            lines.push('역·주의 포인트: ' + clipMeaning(caution.doDontBody, 280));
+          } else {
+            lines.push('※ 역방향: 핵심 에너지가 막히거나 과도·부족·내면화');
           }
-          if (scripted.advice) lines.push('조언핵을 역에 맞게 조정: ' + clipMeaning(scripted.advice, 200));
         } else {
-          if (scripted.mono) lines.push('흐름: ' + clipMeaning(scripted.mono, 420));
-          if (scripted.summary) lines.push('요약: ' + clipMeaning(scripted.summary, 160));
-          if (scripted.advice) lines.push('조언: ' + clipMeaning(scripted.advice, 220));
+          if (scripted.summary) lines.push('한줄: ' + clipMeaning(scripted.summary, 160));
+          if (scripted.advice) lines.push('조언핵: ' + clipMeaning(scripted.advice, 200));
         }
         return lines.join('\n');
       }
+
+      function resolveReadingTopic(question) {
+        const sel = document.getElementById('aiTopic');
+        const v = sel ? sel.value : 'auto';
+        if (v && v !== 'auto') return v;
+        return detectReadingTopic(question);
+      }
+
+      const TOPIC_LABEL = {
+        love: '연애·사랑', work: '일·커리어', money: '금전·재물',
+        relation: '인간관계', inner: '내면·성장', general: '종합',
+      };
 
       if (modeBasic) modeBasic.addEventListener('click', () => setMode('basic'));
       if (modeAdv) modeAdv.addEventListener('click', () => setMode('advanced'));
@@ -1539,7 +1560,8 @@
           (c.keywords ? ' — ' + c.keywords : '')
         ).join('\n');
 
-        const topic = detectReadingTopic(question);
+        const topic = resolveReadingTopic(question);
+        const topicLabel = TOPIC_LABEL[topic] || topic;
         const meaningBlock = cards.map((c) => {
           const ref = meaningRefForCard(c, topic);
           return '· ' + c.pos + ' / ' + c.num + '. ' + c.name + (c.rev ? ' (역)' : ' (정)') +
@@ -1560,16 +1582,17 @@ AI가 고객에게 직접 말하는 앱이 아닙니다.
 ${client ? '[CRM] 생년월일: ' + (client.birth_date || '미상') + ' / 최근 상담: ' + (ls.last || '없음') + (ls.topic ? ' · ' + ls.topic : '') + '\n' : ''}
 [질문]
 ${question}
+[해석 주제] ${topicLabel}
 ${note ? '[상담사만 보는 메모 — 해석에 반영하되 메모 문구를 그대로 노출하지 말 것]\n' + note + '\n' : ''}
 [뽑힌 카드]
 ${cardLines}
 ${extraCards.length ? '\n(추가 카드는 본 스프래드 해석을 보완하는 조언/명확화로 다루세요.)\n' : ''}
-[추정 주제] ${topic}
 [깊이] ${depthHint}
 
-[카드별 공식 해설 참고 — 반드시 이 의미를 기준으로 해석]
-아래는 팔자연구소 **타로코드 유니버설(RWS식) 공식 해설** 요약입니다. (키르케 신화 덱 해설이 아님)
-핵심 의미·요약·조언을 **지키되**, 문장은 상담사 톤으로 다시 쓰세요. 통째로 복사하지 마세요.
+[카드별 의미 앵커 — 의미의 뼈대만. 문장은 질문에 맞게 새로 쓸 것]
+아래는 팔자연구소 타로코드 유니버설 해설의 **짧은 핵심**입니다. (${topicLabel} 관점)
+이 카드가 “무슨 카드인지”는 지키되, 긴 해설을 붙여넣지 말고 **고객 질문·포지션**에 맞게 문장을 새로 쓰세요.
+주제가 연애/금전 등이면 그 영역에 닿게 풀고, 질문과 무관한 영역 스토리는 끌어오지 마세요.
 
 ${meaningBlock}
 
@@ -1581,15 +1604,15 @@ ${meaningBlock}
 ## 질문에 대한 답
 ## 오늘 가져갈 조언
 ## 주의 (과한 예언·단정 금지)
-3) 카드 해석: 포지션(또는 추가 역할)·번호·카드명·정역을 명시한 뒤,
-   각 카드마다 (상징 한 줄) → (질문·포지션에 맞춘 지금 상황) → (구체 행동/관점 1개) 순으로 2~4문장.
-4) 참고 해설과 다른 카드처럼 쓰지 말 것. 키워드만 나열하거나 추상적 일반론·동어반복 금지.
-5) 「질문에 대한 답」은 카드들을 연결해 질문에 직접 답. 에둘러 피하지 말 것.
+3) 카드 해석: 포지션·번호·카드명·정역 명시 후,
+   (이 카드 핵심 한 줄) → (이 질문에 맞춘 상황) → (구체 행동/관점 1개). 2~4문장.
+4) 앵커와 완전히 다른 카드처럼 쓰지 말 것. 다만 앵커 문장을 통째로 베끼지 말 것.
+5) 「질문에 대한 답」은 카드들을 연결해 질문에 직접 답.
 6) 점술 확정 예언·의료·법률·투자 단정 금지. "가능성이 있다/살펴볼 포인트"로.
 7) 이모지·불필요한 인사·면책 장문 금지. 복사해 쓰기 좋게.`;
 
         const cacheKey = PaljaAiQuota.hashKey([
-          'counselor_reading_v7',
+          'counselor_reading_v8',
           feature,
           topic,
           clientId || '',
