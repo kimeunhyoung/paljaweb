@@ -1,0 +1,1477 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="manifest" href="/manifest.json">
+  <title>상담사 AI 리딩 — 팔자연구소 8CODE</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/plan-access.js?v=1"></script>
+  <script src="js/ai-quota-client.js?v=2"></script>
+  <script src="js/counselor-tarot-deck.js?v=2"></script>
+  <script src="js/attribution.js"></script>
+  <script src="js/site-topbar.js?v=5" defer></script>
+  <script src="js/topbar-session.js?v=6" defer></script>
+  <style>
+    :root {
+      --cream: #f5f0e8;
+      --parchment: #ede5d4;
+      --deep: #4a3520;
+      --ink: #2c1f0e;
+      --muted: #9a8570;
+      --accent: #c8a96e;
+      --border: rgba(139,111,71,.18);
+      --teal: #2e8b7a;
+      --font-serif: 'Noto Serif KR', serif;
+      --font-body: 'Noto Serif KR', serif;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: var(--font-body); background: var(--cream); color: var(--ink); min-height: 100vh; }
+    #guard { position: fixed; inset: 0; background: var(--cream); display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 12px; z-index: 99; }
+    #guard .spinner { width: 32px; height: 32px; border: 2px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin .85s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .guard-text { font-size: 13px; color: var(--muted); }
+    #app { display: none; max-width: 820px; margin: 0 auto; padding: 24px 24px 80px; }
+    .site-top {
+      position: sticky; top: 0; z-index: 100;
+      background: rgba(245, 240, 232, 0.98);
+      box-shadow: 0 6px 18px rgba(45, 38, 28, 0.06);
+    }
+    .hub-intro { margin-bottom: 22px; }
+    .hub-intro h1 { font-family: var(--font-serif); font-size: 28px; color: var(--deep); margin-bottom: 8px; }
+    .hub-intro p { font-size: 13.5px; color: var(--muted); line-height: 1.65; }
+    .hub-intro a { color: var(--deep); font-weight: 600; }
+    .trial-badge {
+      display: inline-block; margin-top: 10px; font-size: 12px; color: var(--teal);
+      background: rgba(46,139,122,.08); border: 1px solid rgba(46,139,122,.22);
+      border-radius: 999px; padding: 5px 12px;
+    }
+    #gate, #trialDeviceGate {
+      display: none; text-align: center; padding: 48px 24px; background: var(--parchment);
+      border-radius: 12px; border: 1px solid var(--border);
+    }
+    #gate h2, #trialDeviceGate h2 { font-family: var(--font-serif); font-size: 22px; color: var(--deep); margin-bottom: 12px; }
+    #gate p, #trialDeviceGate p { font-size: 14px; color: var(--muted); line-height: 1.75; margin-bottom: 20px; }
+    #gate .cta, #trialDeviceGate .cta {
+      display: inline-block; background: var(--deep); color: var(--cream); padding: 12px 24px;
+      border-radius: 6px; text-decoration: none; font-size: 13px; margin-top: 4px;
+    }
+    #workspace { display: none; }
+    .section-title {
+      font-family: var(--font-serif); font-size: 18px; color: var(--deep);
+      margin: 0 0 12px; font-weight: 600;
+    }
+    .btn-sm {
+      display: inline-flex; align-items: center; justify-content: center;
+      background: var(--deep); color: #fff; border: none; border-radius: 8px;
+      padding: 8px 14px; font-size: 13px; font-family: var(--font-body); cursor: pointer; font-weight: 600;
+    }
+    .btn-sm.outline { background: white; color: var(--deep); border: 1px solid var(--border); }
+    .form-msg { font-size: 12px; margin-top: 12px; min-height: 1.2em; color: var(--muted); }
+    .form-msg.err { color: #8b3a3a; }
+    .back-row { margin-bottom: 18px; }
+    .back-row a {
+      font-size: 13px; color: var(--muted); text-decoration: none; font-weight: 600;
+    }
+    .back-row a:hover { color: var(--deep); }
+    .copy-sum-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+/* 상담사 AI 리딩 */
+    .ai-draft-panel { background: #fff; border: 1px solid var(--border); border-radius: 12px; padding: 18px 20px; box-shadow: 0 6px 18px rgba(44,31,14,.05); }
+    .ai-draft-intro { font-size: 12.5px; color: var(--muted); line-height: 1.55; margin-bottom: 14px; }
+    .ai-draft-intro strong { color: var(--deep); }
+    .ai-mode-row { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 14px; }
+    .ai-mode-btn {
+      flex: 1 1 140px; text-align: left; padding: 10px 12px; border-radius: 10px;
+      border: 1px solid var(--border); background: #fff; cursor: pointer; font-family: var(--font-body);
+      color: var(--muted); transition: border-color .15s, background .15s, color .15s;
+    }
+    .ai-mode-btn strong { display: block; font-size: 13px; color: var(--deep); margin-bottom: 2px; }
+    .ai-mode-btn span { font-size: 11px; line-height: 1.4; }
+    .ai-mode-btn.active { border-color: var(--deep); background: var(--parchment); color: var(--deep); }
+    .ai-draft-form { display: grid; gap: 10px; margin-bottom: 12px; }
+    @media (min-width: 640px) {
+      .ai-draft-form { grid-template-columns: 1fr 1fr; align-items: end; }
+      .ai-draft-form .full { grid-column: 1 / -1; }
+    }
+    .ai-draft-form label { font-size: 11px; color: var(--muted); display: block; margin-bottom: 5px; }
+    .ai-draft-form input, .ai-draft-form select, .ai-draft-form textarea {
+      width: 100%; padding: 9px 11px; border: 1px solid var(--border); border-radius: 8px;
+      font-family: var(--font-body); font-size: 13px; background: #fff; color: var(--ink);
+    }
+    .ai-draft-form textarea { min-height: 88px; resize: vertical; }
+    .ai-draft-actions { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+    .ai-draft-quota { font-size: 11px; color: var(--teal); font-weight: 600; }
+    .ai-card-slots { display: grid; gap: 10px; margin: 4px 0 8px; }
+    @media (min-width: 640px) { .ai-card-slots { grid-template-columns: repeat(3, 1fr); } }
+    .ai-card-slot {
+      background: var(--parchment); border: 1px solid var(--border); border-radius: 10px; padding: 12px;
+    }
+    .ai-card-slot h4 { font-size: 11px; color: var(--muted); margin: 0 0 8px; letter-spacing: .03em; }
+    .ai-card-slot .slot-row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+    .ai-card-slot input[type="number"] {
+      width: 72px; padding: 8px 10px; border: 1px solid var(--border); border-radius: 8px;
+      font-family: var(--font-body); font-size: 14px; font-weight: 600; background: #fff; color: var(--ink);
+    }
+    .ai-card-slot .slot-name { flex: 1 1 100px; font-size: 13px; color: var(--deep); font-weight: 600; min-height: 1.2em; }
+    .ai-card-slot .slot-kw { font-size: 11px; color: var(--muted); margin-top: 4px; min-height: 1.2em; }
+    .ai-orient {
+      display: inline-flex; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; background: #fff;
+    }
+    .ai-orient button {
+      border: none; background: transparent; padding: 7px 10px; font-size: 12px; cursor: pointer;
+      font-family: var(--font-body); color: var(--muted);
+    }
+    .ai-orient button.active { background: var(--deep); color: #fff; }
+    .ai-draft-out {
+      margin-top: 12px; background: var(--parchment); border: 1px solid var(--border);
+      border-radius: 10px; padding: 14px 16px; font-size: 13px; line-height: 1.7; color: var(--ink);
+      white-space: pre-wrap; min-height: 100px;
+    }
+    .ai-draft-out.is-empty { color: var(--muted); }
+    .ai-draft-msg { font-size: 12px; margin-top: 8px; color: var(--teal); }
+    .ai-draft-msg.err { color: #8b3a3a; }
+    .ai-card-slot.is-target { border-color: var(--deep); box-shadow: 0 0 0 2px rgba(44,31,14,.12); }
+    .ai-card-slot select {
+      width: 100%; margin-top: 8px; padding: 8px 10px; border: 1px solid var(--border); border-radius: 8px;
+      font-family: var(--font-body); font-size: 13px; background: #fff; color: var(--ink);
+    }
+    .ai-card-hint { font-size: 11px; color: var(--muted); margin: 0 0 8px; line-height: 1.45; }
+    .ai-card-preview {
+      display: flex; flex-wrap: wrap; gap: 10px; margin: 0 0 16px; min-height: 0;
+    }
+    .ai-card-preview:empty { display: none; }
+    .ai-prev-card {
+      flex: 1 1 100px; max-width: 140px; min-height: 150px;
+      background: linear-gradient(165deg, #2c1f0e 0%, #4a3520 55%, #3d2a18 100%);
+      color: #f7f1e6; border-radius: 12px; padding: 12px 10px; text-align: center;
+      box-shadow: 0 8px 20px rgba(44,31,14,.18); border: 1px solid rgba(200,169,110,.35);
+      display: flex; flex-direction: column; align-items: center; justify-content: space-between; gap: 6px;
+      transition: transform .2s ease;
+    }
+    .ai-prev-card.is-rev { transform: rotate(180deg); }
+    .ai-prev-card.is-rev .ai-prev-inner { transform: rotate(180deg); }
+    .ai-prev-inner { display: flex; flex-direction: column; align-items: center; gap: 4px; width: 100%; }
+    .ai-prev-pos { font-size: 10px; letter-spacing: .04em; opacity: .75; }
+    .ai-prev-num { font-size: 11px; font-weight: 600; color: #c8a96e; }
+    .ai-prev-name { font-size: 15px; font-weight: 700; line-height: 1.25; }
+    .ai-prev-orient { font-size: 11px; opacity: .85; }
+    .ai-prev-ask { font-size: 10px; opacity: .7; line-height: 1.3; margin-top: 2px; }
+    .ai-prev-empty {
+      flex: 1 1 100px; max-width: 140px; min-height: 150px;
+      border: 1px dashed var(--border); border-radius: 12px; background: var(--parchment);
+      display: flex; align-items: center; justify-content: center; text-align: center;
+      font-size: 12px; color: var(--muted); padding: 12px;
+    }
+    .ai-card-slot .slot-ask {
+      width: 100%; margin-top: 8px; padding: 7px 9px; border: 1px solid var(--border); border-radius: 8px;
+      font-family: var(--font-body); font-size: 12px; background: #fff; color: var(--ink);
+    }
+    .ai-card-slot .slot-tools { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+    .ai-card-slot .slot-tools button {
+      font-size: 11px; padding: 5px 9px; border-radius: 6px; border: 1px solid var(--border);
+      background: #fff; color: var(--deep); cursor: pointer; font-family: var(--font-body); font-weight: 600;
+    }
+    .ai-spread-row { display: none; gap: 8px; align-items: end; margin-bottom: 10px; flex-wrap: wrap; }
+    .ai-spread-row.is-on { display: flex; }
+    .ai-spread-row label { font-size: 11px; color: var(--muted); display: block; margin-bottom: 5px; }
+    .ai-spread-row select {
+      min-width: 200px; padding: 8px 10px; border: 1px solid var(--border); border-radius: 8px;
+      font-family: var(--font-body); font-size: 13px; background: #fff; color: var(--ink);
+    }
+    .ai-card-slot .slot-pos {
+      width: 100%; margin-bottom: 8px; padding: 6px 8px; border: 1px dashed var(--border); border-radius: 6px;
+      font-family: var(--font-body); font-size: 12px; font-weight: 600; color: var(--deep); background: #fff;
+    }
+    .ai-card-slot h4 { font-size: 11px; color: var(--muted); margin: 0 0 6px; letter-spacing: .03em; display: flex; justify-content: space-between; gap: 6px; }
+    .num-table-tabs { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
+    .num-table-tabs button {
+      font-size: 12px; padding: 6px 12px; border-radius: 999px; border: 1px solid var(--border);
+      background: #fff; color: var(--muted); cursor: pointer; font-family: var(--font-body);
+    }
+    .num-table-tabs button.active { background: var(--deep); color: #fff; border-color: var(--deep); }
+    .num-table-search {
+      width: 100%; padding: 9px 11px; border: 1px solid var(--border); border-radius: 8px;
+      font-family: var(--font-body); font-size: 13px; margin-bottom: 10px; background: #fff; color: var(--ink);
+    }
+    .num-table-grid {
+      display: grid; grid-template-columns: repeat(6, 1fr); gap: 6px;
+    }
+    @media (min-width: 520px) { .num-table-grid { grid-template-columns: repeat(10, 1fr); } }
+    .num-table-cell {
+      aspect-ratio: 1; display: flex; flex-direction: column; align-items: center; justify-content: center;
+      border: 1px solid var(--border); border-radius: 8px; background: var(--parchment);
+      font-size: 13px; font-weight: 700; color: var(--deep); font-family: var(--font-body);
+      cursor: pointer; padding: 2px; line-height: 1.15; gap: 1px;
+    }
+    .num-table-cell:hover { border-color: var(--deep); background: #fff; }
+    .num-table-cell.used { opacity: .45; }
+    .num-table-cell .nt-name { font-size: 8px; font-weight: 500; color: var(--muted); max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; padding: 0 2px; }
+    .num-name-list { max-height: min(52vh, 420px); overflow-y: auto; display: grid; gap: 4px; }
+    .num-name-group { font-size: 11px; font-weight: 700; color: var(--muted); margin: 8px 0 4px; letter-spacing: .04em; }
+    .num-name-row {
+      display: flex; align-items: center; gap: 8px; width: 100%; text-align: left;
+      padding: 8px 10px; border: 1px solid var(--border); border-radius: 8px; background: #fff;
+      cursor: pointer; font-family: var(--font-body); font-size: 13px; color: var(--ink);
+    }
+    .num-name-row:hover { border-color: var(--deep); background: var(--parchment); }
+    .num-name-row.used { opacity: .45; }
+    .num-name-row .nn { font-weight: 700; color: var(--deep); min-width: 28px; }
+    .num-table-hint { font-size: 12px; color: var(--muted); line-height: 1.5; margin-bottom: 12px; }
+    .num-table-hint strong { color: var(--deep); }
+    .script-panel details { border: none; }
+    .script-panel summary {
+      cursor: pointer; font-size: 13px; font-weight: 600; color: var(--deep); list-style: none;
+      padding: 2px 0 10px;
+    }
+    .script-panel summary::-webkit-details-marker { display: none; }
+    .script-panel summary::before { content: '▸ '; color: var(--muted); }
+    .script-panel details[open] summary::before { content: '▾ '; }
+
+    
+/* 신입용 세션 스크립트 */
+    .script-panel { background: #fff; border: 1px solid var(--border); border-radius: 12px; padding: 18px 20px; box-shadow: 0 6px 18px rgba(44,31,14,.05); }
+    .script-intro { font-size: 12.5px; color: var(--muted); line-height: 1.55; margin-bottom: 12px; }
+    .script-intro strong { color: var(--deep); }
+    .script-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
+    .script-chip {
+      font-size: 12px; padding: 6px 12px; border-radius: 999px; border: 1px solid var(--border);
+      background: #fff; color: var(--muted); cursor: pointer; font-family: var(--font-body);
+    }
+    .script-chip.active { background: var(--deep); color: #fff; border-color: var(--deep); }
+    .script-body { display: grid; gap: 10px; }
+    .script-block {
+      background: var(--parchment); border: 1px solid var(--border); border-radius: 10px; padding: 12px 14px;
+    }
+    .script-block h4 {
+      font-size: 11px; letter-spacing: .04em; color: var(--muted); margin: 0 0 6px; font-weight: 700;
+      display: flex; align-items: center; justify-content: space-between; gap: 8px;
+    }
+    .script-block h4 button {
+      font-size: 11px; padding: 3px 8px; border-radius: 6px; border: 1px solid var(--border);
+      background: #fff; color: var(--deep); cursor: pointer; font-family: var(--font-body); font-weight: 600;
+    }
+    .script-block p, .script-block li { font-size: 13px; color: var(--ink); line-height: 1.65; margin: 0; }
+    .script-block ul { margin: 0; padding-left: 18px; }
+    .script-block li + li { margin-top: 4px; }
+    .script-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+
+    
+/* 고객 상세 · 세션 모달 */
+    .modal-overlay {
+      position: fixed; inset: 0; background: rgba(44,31,14,.45); z-index: 200;
+      display: none; align-items: flex-start; justify-content: center; padding: 40px 16px; overflow-y: auto;
+    }
+    .modal-overlay.open { display: flex; }
+    .modal {
+      background: var(--cream); border-radius: 16px; width: 100%; max-width: 560px;
+      box-shadow: 0 24px 60px rgba(44,31,14,.3); border: 1px solid var(--border); overflow: hidden;
+    }
+    .modal-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; padding: 18px 20px; border-bottom: 1px solid var(--border); background: #fff; }
+    .modal-head h3 { font-family: var(--font-serif); font-size: 19px; color: var(--deep); }
+    .modal-head .sub { font-size: 12px; color: var(--muted); margin-top: 4px; }
+    .modal-close { background: none; border: none; font-size: 22px; line-height: 1; color: var(--muted); cursor: pointer; padding: 0 4px; }
+    .modal-body { padding: 18px 20px; }
+    .modal-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+    
+  </style>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css" crossorigin />
+  <link rel="stylesheet" href="css/site-topbar.css?v=5" />
+  <link rel="stylesheet" href="css/site-header.css?v=7" />
+</head>
+<body>
+<div id="guard"><div class="spinner"></div><p class="guard-text">확인 중…</p></div>
+
+<div class="site-top" data-topbar-title="상담사 AI 리딩" data-nav-current="counselor" data-login-next="counselor-reading.html"></div>
+
+<div id="app">
+  <div class="hub-intro">
+    <div class="back-row"><a href="counselor.html">← 상담사 허브</a></div>
+    <h1>상담사 AI 리딩</h1>
+    <p>질문·카드·칸별 해석 요청으로 고객에게 붙여넣을 초안을 만듭니다. 신입용 세션 스크립트도 이 페이지에 있습니다. <strong>Professional</strong> 전용.</p>
+    <p id="trialBadge" class="trial-badge" style="display:none" role="status"></p>
+  </div>
+  <div id="gate">
+    <h2>Professional 플랜 전용</h2>
+    <p>상담사 AI 리딩은 <strong>Professional</strong> 요금제에서 이용할 수 있어요.</p>
+    <a class="cta" href="for-counselors.html">Professional 안내 보기</a>
+    <a class="cta" href="/lifecode/buy.html?product=counselor30" style="margin-left:8px;background:transparent;border:1.5px solid var(--border);color:var(--deep);">15일 체험 구매</a>
+    <a class="cta" href="pricing.html?checkout=professional" style="margin-left:8px;background:transparent;border:1.5px solid var(--border);color:var(--deep);">바로 구독</a>
+  </div>
+  <div id="trialDeviceGate" style="display:none">
+    <h2>등록 기기 한도 초과</h2>
+    <p>이 계정은 이미 <strong>기기 4대</strong>까지 등록되어 이 브라우저에서는 열 수 없습니다.<br><a href="dashboard.html#devices">마이페이지에서 기기 해제</a> 후 다시 시도해 주세요.</p>
+    <a class="cta" href="for-counselors.html">체험·구독 안내</a>
+  </div>
+  <div id="workspace">
+<div class="section-title" id="ai-draft" style="margin-top:28px">상담사 AI 리딩</div>
+    <div class="ai-draft-panel">
+      <p class="ai-draft-intro">직접 뽑거나 <strong>칸별 뽑기</strong>·이름 선택으로 카드를 넣고, 칸마다 <strong>해석 요청</strong>(예: 조언으로)을 적을 수 있습니다. 위에 뽑힌 카드가 보입니다. 기본 1장 <strong>크레딧 1</strong> · 심화 1~3장 <strong>크레딧 2</strong>.</p>
+      <div class="ai-mode-row" role="tablist" aria-label="리딩 모드">
+        <button type="button" class="ai-mode-btn active" id="aiModeBasic" data-mode="basic" role="tab" aria-selected="true">
+          <strong>기본 리딩</strong>
+          <span>카드 1장 · 크레딧 1</span>
+        </button>
+        <button type="button" class="ai-mode-btn" id="aiModeAdv" data-mode="advanced" role="tab" aria-selected="false">
+          <strong>심화 리딩</strong>
+          <span>카드 1~3장 · 크레딧 2</span>
+        </button>
+      </div>
+      <div id="aiCardPreview" class="ai-card-preview" aria-live="polite"></div>
+      <form id="aiDraftForm" class="ai-draft-form" autocomplete="off">
+        <div>
+          <label for="aiClient">고객 (선택 · CRM 연결)</label>
+          <select id="aiClient"></select>
+        </div>
+        <div>
+          <label for="aiNickname">호칭 / 닉네임</label>
+          <input id="aiNickname" type="text" maxlength="40" placeholder="예: 민지님 · 고객님"/>
+        </div>
+        <div class="full">
+          <label for="aiQuestion">질문 *</label>
+          <textarea id="aiQuestion" maxlength="800" required placeholder="키보드로 입력하거나, 카톡·메모에서 붙여넣기 하세요.&#10;예: 이직을 지금 해도 될까요? / 그 사람 마음이 궁금해요"></textarea>
+        </div>
+        <div class="full">
+          <label for="aiNote">추가 메모 (선택 · 고객에게 안 보임)</label>
+          <textarea id="aiNote" maxlength="500" placeholder="지난 회차 포인트, 상담사가 알고 있는 맥락 등"></textarea>
+        </div>
+        <div class="full">
+          <label>뽑힌 카드</label>
+          <p class="ai-card-hint">칸에서 <strong>이 칸 뽑기</strong>로 랜덤 배정하거나, 이름·카드 고르기로 넣으세요. 칸별 <strong>해석 요청</strong>에 「조언으로」「상대 마음 위주」처럼 적을 수 있습니다.</p>
+          <div class="ai-spread-row" id="aiSpreadRow">
+            <div>
+              <label for="aiSpreadPreset">스프래드 (칸 이름)</label>
+              <select id="aiSpreadPreset"></select>
+            </div>
+          </div>
+          <div id="aiCardSlots" class="ai-card-slots"></div>
+        </div>
+        <div class="full ai-draft-actions">
+          <button type="button" class="btn-sm outline" id="aiNumTableBtn">카드 고르기</button>
+          <button type="button" class="btn-sm outline" id="aiDrawBtn">전체 랜덤 뽑기</button>
+          <button type="submit" class="btn-sm" id="aiDraftBtn">해석 생성</button>
+          <button type="button" class="btn-sm outline" id="aiCopyBtn" style="display:none;">복사</button>
+          <span class="ai-draft-quota" id="aiDraftQuota" hidden></span>
+        </div>
+      </form>
+      <div id="aiDraftOut" class="ai-draft-out is-empty">질문을 넣고 카드를 정한 뒤 해석을 생성해 보세요.</div>
+      <p id="aiDraftMsg" class="ai-draft-msg"></p>
+    </div>
+
+    <div class="section-title" id="session-scripts" style="margin-top:28px">신입용 세션 스크립트</div>
+    <div class="script-panel">
+      <details>
+        <summary>오프닝 · 질문 · 마무리 예시 (크레딧 없음)</summary>
+        <p class="script-intro">주제를 고르면 예시가 나옵니다. <strong>이 주제로 질문 넣기</strong>로 AI 리딩 칸에 이어서 쓸 수 있습니다.</p>
+        <div class="script-chips" id="scriptChips" role="tablist"></div>
+        <div class="script-body" id="scriptBody"></div>
+        <div class="script-actions">
+          <button type="button" class="btn-sm" id="scriptToAiBtn">이 주제로 질문 넣기</button>
+          <button type="button" class="btn-sm outline" id="scriptCopyAllBtn">전체 복사</button>
+        </div>
+        <p id="scriptMsg" class="form-msg"></p>
+      </details>
+    </div>
+
+    
+  </div>
+</div>
+
+<div class="modal-overlay" id="numTableModal">
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="numTableTitle" style="max-width:640px">
+    <div class="modal-head">
+      <div>
+        <h3 id="numTableTitle">카드 고르기</h3>
+        <div class="sub" id="numTableSub">뽑힌 카드 칸에 넣습니다. 이름을 모르면 번호로, 원격용은 인쇄 탭을 쓰세요.</div>
+      </div>
+      <button type="button" class="modal-close" id="numTableClose" aria-label="닫기">×</button>
+    </div>
+    <div class="modal-body">
+      <p class="num-table-hint" id="numTableHint">카드를 누르면 <strong>비어 있는 칸</strong>(또는 선택한 칸)에 들어갑니다. 정·역은 칸에서 바꿀 수 있습니다.</p>
+      <div class="num-table-tabs" role="tablist">
+        <button type="button" class="active" id="numTabName" data-tab="name">이름으로</button>
+        <button type="button" id="numTabNum" data-tab="num">번호로</button>
+        <button type="button" id="numTabPrint" data-tab="print">고객용 인쇄</button>
+      </div>
+      <div id="numPaneName">
+        <input type="search" class="num-table-search" id="numTableSearch" placeholder="카드 이름 검색 (예: 컵 5, 탑, 완드)" autocomplete="off"/>
+        <div id="numNameList" class="num-name-list"></div>
+      </div>
+      <div id="numPaneNum" style="display:none">
+        <div id="numTableGrid" class="num-table-grid"></div>
+      </div>
+      <div id="numPanePrint" style="display:none">
+        <p class="num-table-hint">고객에게 보낼 1~78 번호표입니다. 인쇄·PDF·캡처로 공유하세요. (이 탭에서는 클릭 선택이 없습니다.)</p>
+        <div id="numTablePrintGrid" class="num-table-grid"></div>
+      </div>
+      <div class="copy-sum-actions" style="margin-top:14px">
+        <button type="button" class="btn-sm" id="numTablePrintBtn">인쇄 / PDF 저장</button>
+        <button type="button" class="btn-sm outline" id="numTableCloseBtn">닫기</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+<script>
+(function () {
+  const SUPABASE_URL = 'https://sghsryumnrnftyjoqmwf.supabase.co';
+  const SUPABASE_ANON_KEY = 'sb_publishable_6S3W_oWrzG-Nv8wLK98gmg_q_KcB2I1';
+  const { createClient } = supabase;
+  const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+  let workspaceReady = false;
+  let clientRows = [];
+  let sessionRows = [];
+
+  function getLifecodeDeviceId() {
+    const KEY = 'lifecode_device_id';
+    let id = localStorage.getItem(KEY);
+    if (!id) {
+      id = crypto.randomUUID();
+      localStorage.setItem(KEY, id);
+    }
+    return id;
+  }
+
+  function escapeHtml(s) {
+    return String(s)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
+  }
+
+  function clientLastSession(clientId) {
+    const rows = sessionRows
+      .filter((s) => s.client_id === clientId)
+      .slice()
+      .sort((a, b) => String(b.session_date || '').localeCompare(String(a.session_date || '')));
+    if (!rows.length) return { last: '', topic: '', count: 0 };
+    return {
+      last: rows[0].session_date || '',
+      topic: rows[0].topic || '',
+      count: rows.length,
+    };
+  }
+
+  function populateAiClientSelect() {
+    const sel = document.getElementById('aiClient');
+    if (!sel) return;
+    const cur = sel.value;
+    sel.innerHTML = '<option value="">— 고객 선택 —</option>' +
+      clientRows.map((c) =>
+        '<option value="' + c.id + '">' + escapeHtml(c.display_name || c.legal_name || '고객') +
+        (c.birth_date ? ' · ' + escapeHtml(String(c.birth_date)) : '') + '</option>'
+      ).join('');
+    if (cur && clientRows.some((c) => c.id === cur)) sel.value = cur;
+  }
+
+  async function checkAccess() {
+    const guard = document.getElementById('guard');
+    const gate = document.getElementById('gate');
+    const trialDeviceGate = document.getElementById('trialDeviceGate');
+    const workspace = document.getElementById('workspace');
+    guard.style.display = 'flex';
+    gate.style.display = 'none';
+    trialDeviceGate.style.display = 'none';
+    workspace.style.display = 'none';
+
+    const { data: { session } } = await sb.auth.getSession();
+    guard.style.display = 'none';
+    document.getElementById('app').style.display = 'block';
+
+    if (!session) {
+      window.location.replace('login.html?next=' + encodeURIComponent('counselor-reading.html'));
+      return null;
+    }
+
+    const { data: profile, error } = await sb.from('profiles')
+      .select('plan, plan_active_until, counselor_trial_license_id, counselor_trial_device_id')
+      .eq('id', session.user.id)
+      .maybeSingle();
+
+    const proOk = !error && profile &&
+      window.PaljaPlan &&
+      PaljaPlan.hasCounselorAccess(profile);
+
+    if (!proOk) {
+      gate.style.display = 'block';
+      return null;
+    }
+
+    {
+      const deviceId = getLifecodeDeviceId();
+      let deviceOk = true;
+      try {
+        const { data: { session: s2 } } = await sb.auth.getSession();
+        if (window.PaljaDevice && s2) {
+          const gateRes = await window.PaljaDevice.ensurePaidAccess(s2.access_token, profile);
+          deviceOk = !!gateRes.ok;
+        } else if (s2) {
+          const st = await fetch('/api/account/devices/register', {
+            method: 'POST',
+            headers: {
+              Authorization: 'Bearer ' + s2.access_token,
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ deviceId }),
+          });
+          const stJson = await st.json().catch(() => ({}));
+          if (st.status === 403 || stJson.error === 'device_limit') deviceOk = false;
+        }
+      } catch (_) { /* ignore */ }
+      if (!deviceOk) {
+        trialDeviceGate.style.display = 'block';
+        return null;
+      }
+      if (profile.counselor_trial_license_id) {
+        const badge = document.getElementById('trialBadge');
+        if (badge && profile.plan_active_until) {
+          const exp = new Date(profile.plan_active_until);
+          const expStr = exp.getFullYear() + '년 ' + (exp.getMonth() + 1) + '월 ' + exp.getDate() + '일';
+          badge.textContent = '15일 체험 이용 중 · ' + expStr + '까지 (기기 최대 4대)';
+          badge.style.display = 'inline-block';
+        }
+      }
+    }
+
+    workspace.style.display = 'block';
+    return session;
+  }
+
+  async function main() {
+    const session = await checkAccess();
+    if (!session || workspaceReady) return;
+    workspaceReady = true;
+    const uid = session.user.id;
+
+    const { data: clients } = await sb
+      .from('counselor_clients')
+      .select('id, display_name, legal_name, birth_date')
+      .order('display_name', { ascending: true });
+    clientRows = clients || [];
+
+    const { data: sessions } = await sb
+      .from('counselor_sessions')
+      .select('id, client_id, session_date, topic')
+      .order('session_date', { ascending: false })
+      .limit(200);
+    sessionRows = sessions || [];
+
+    populateAiClientSelect();
+    // uid reserved for future session saves on this page
+    void uid;
+
+    // ── 신입용 세션 스크립트 ──
+    (function initSessionScripts() {
+      const TEMPLATES = [
+        {
+          id: 'first',
+          label: '첫 상담',
+          topic: '첫 상담 · 오늘 가장 궁금한 점',
+          mode: 'topic',
+          opening: '오늘 오셔서 가장 먼저 확인하고 싶은 한 가지가 있으실까요? 그걸 기준으로 오늘 흐름을 짧게 정리해 볼게요.',
+          questions: [
+            '지금 마음이 가장 무거운 부분은 관계·일·선택 중 어디에 가깝나요?',
+            '이미 해본 시도 중에 “이건 도움이 됐다 / 안 됐다”가 있으면 말씀해 주세요.',
+            '오늘 상담이 끝나면 어떤 상태가 되면 좋겠다고 느끼시나요?',
+          ],
+          closing: '오늘은 “한 줄로 가져갈 포인트”만 정리할게요. 다음에 이어볼 주제는 ○○로 잡아 두겠습니다. 필요하면 메모로 남겨 드릴게요.',
+        },
+        {
+          id: 'love',
+          label: '연애',
+          topic: '연애 흐름 · 관계 선택',
+          mode: 'tarot',
+          opening: '연애 이야기를 하실 때는 맞고 틀림보다, 지금 관계에서 반복되는 패턴을 먼저 같이 볼게요.',
+          questions: [
+            '상대와의 관계에서 가장 자주 생기는 마찰은 무엇인가요?',
+            '지금은 “확인”이 필요하신가요, “결정”이 필요하신가요?',
+            '한 달 뒤에도 같은 고민을 하고 싶지 않다면, 무엇을 바꾸고 싶으신가요?',
+          ],
+          closing: '오늘은 관계의 방향성보다 “내가 지킬 경계 하나”를 가져가시면 좋아요. 다음엔 그 경계가 실제로 어떻게 작동했는지 이어볼게요.',
+        },
+        {
+          id: 'career',
+          label: '이직·진로',
+          topic: '이직 타이밍 · 진로 선택',
+          mode: 'tarot',
+          opening: '이직·진로는 점수보다 “지금 버티는 이유 / 떠나고 싶은 이유”를 먼저 나눠 보면 판단이 선명해집니다.',
+          questions: [
+            '지금 자리를 떠나는 이유로 가장 큰 것은 무엇인가요?',
+            '새 선택에서 절대 포기하기 싫은 조건 한 가지는요?',
+            '결정이 미뤄지는 가장 큰 두려움은 무엇인가요?',
+          ],
+          closing: '오늘은 “당장 퇴사 vs 준비 후 이동” 중 어디에 가까운지만 정리해 두겠습니다. 다음 상담 전까지 확인해볼 행동 하나를 적어 드릴게요.',
+        },
+        {
+          id: 'reunion',
+          label: '재회',
+          topic: '재회 가능성 · 관계 정리',
+          mode: 'tarot',
+          opening: '재회는 “된다/안 된다”보다, 다시 만나면 무엇이 달라질 수 있는지를 먼저 보는 편이 안전합니다.',
+          questions: [
+            '헤어진 뒤 상대와 나 사이에서 가장 바뀐 점은 무엇인가요?',
+            '재회를 원하시는 이유가 “그리움”인지 “미해결”인지 어느 쪽에 가깝나요?',
+            '다시 만나도 반복되면 안 되는 한 가지는 무엇인가요?',
+          ],
+          closing: '오늘은 재회 여부보다 “내가 먼저 정리할 감정/행동”을 우선순위로 둘게요. 연락·기다림에 대한 기준선도 함께 잡아 보겠습니다.',
+        },
+        {
+          id: 'money',
+          label: '금전·사업',
+          topic: '금전 흐름 · 사업 선택',
+          mode: 'topic',
+          opening: '돈·사업 상담은 예언보다 “지금 리스크를 키우는 습관”과 “지키는 규칙”을 같이 보는 게 도움이 됩니다.',
+          questions: [
+            '최근 3개월, 돈이 새는 지점은 어디라고 느끼시나요?',
+            '이번 선택이 실패해도 감당할 수 있는 선은 어디인가요?',
+            '수익보다 먼저 지키고 싶은 가치(시간·건강·관계)가 있나요?',
+          ],
+          closing: '오늘은 “하면 안 되는 한 가지”와 “이번 주 점검할 숫자/행동 하나”만 남기겠습니다. 투자·계약은 전문가 확인이 필요한 영역이라는 점도 함께 안내드릴게요.',
+        },
+        {
+          id: 'repeat',
+          label: '재상담',
+          topic: '지난 회차 이어서 · 변화 점검',
+          mode: 'topic',
+          opening: '지난번에 남긴 포인트를 먼저 짧게 복기하고, 그다음에 오늘 새로 생긴 변화를 볼게요.',
+          questions: [
+            '지난 상담 이후 실제로 시도해 본 것이 있나요?',
+            '그때와 달리 지금 더 선명해진 감정이나 사실이 있나요?',
+            '오늘은 지난 주제의 연장인가요, 새 주제인가요?',
+          ],
+          closing: '오늘은 “이어갈 것 / 이번엔 내려둘 것”을 구분해서 마무리할게요. 다음 약속과 확인할 한 가지만 메모에 남겨 두겠습니다.',
+        },
+      ];
+
+      const chips = document.getElementById('scriptChips');
+      const body = document.getElementById('scriptBody');
+      const msgEl = document.getElementById('scriptMsg');
+      const toAiBtn = document.getElementById('scriptToAiBtn');
+      const copyAllBtn = document.getElementById('scriptCopyAllBtn');
+      if (!chips || !body) return;
+
+      let activeId = TEMPLATES[0].id;
+
+      function setScriptMsg(text, isErr) {
+        if (!msgEl) return;
+        msgEl.textContent = text || '';
+        msgEl.classList.toggle('err', !!isErr);
+      }
+
+      function getActive() {
+        return TEMPLATES.find((t) => t.id === activeId) || TEMPLATES[0];
+      }
+
+      function templatePlain(t) {
+        return [
+          '[' + t.label + ']',
+          '',
+          '■ 오프닝',
+          t.opening,
+          '',
+          '■ 질문',
+          t.questions.map((q, i) => (i + 1) + '. ' + q).join('\n'),
+          '',
+          '■ 마무리',
+          t.closing,
+        ].join('\n');
+      }
+
+      function render() {
+        const t = getActive();
+        chips.innerHTML = TEMPLATES.map((x) =>
+          '<button type="button" class="script-chip' + (x.id === activeId ? ' active' : '') +
+          '" data-script="' + x.id + '">' + escapeHtml(x.label) + '</button>'
+        ).join('');
+        body.innerHTML =
+          '<div class="script-block"><h4>오프닝 <button type="button" data-copy-part="opening">복사</button></h4><p>' +
+          escapeHtml(t.opening) + '</p></div>' +
+          '<div class="script-block"><h4>질문 <button type="button" data-copy-part="questions">복사</button></h4><ul>' +
+          t.questions.map((q) => '<li>' + escapeHtml(q) + '</li>').join('') +
+          '</ul></div>' +
+          '<div class="script-block"><h4>마무리 <button type="button" data-copy-part="closing">복사</button></h4><p>' +
+          escapeHtml(t.closing) + '</p></div>';
+
+        chips.querySelectorAll('[data-script]').forEach((btn) => {
+          btn.addEventListener('click', () => {
+            activeId = btn.getAttribute('data-script');
+            setScriptMsg('');
+            render();
+          });
+        });
+        body.querySelectorAll('[data-copy-part]').forEach((btn) => {
+          btn.addEventListener('click', async () => {
+            const part = btn.getAttribute('data-copy-part');
+            let text = '';
+            if (part === 'opening') text = t.opening;
+            else if (part === 'closing') text = t.closing;
+            else text = t.questions.map((q, i) => (i + 1) + '. ' + q).join('\n');
+            try {
+              await navigator.clipboard.writeText(text);
+              setScriptMsg('복사했습니다.');
+            } catch (_) {
+              setScriptMsg('복사에 실패했습니다.', true);
+            }
+          });
+        });
+      }
+
+      if (copyAllBtn) {
+        copyAllBtn.addEventListener('click', async () => {
+          try {
+            await navigator.clipboard.writeText(templatePlain(getActive()));
+            setScriptMsg('전체 스크립트를 복사했습니다.');
+          } catch (_) {
+            setScriptMsg('복사에 실패했습니다.', true);
+          }
+        });
+      }
+
+      if (toAiBtn) {
+        toAiBtn.addEventListener('click', () => {
+          const t = getActive();
+          const qEl = document.getElementById('aiQuestion');
+          const noteEl = document.getElementById('aiNote');
+          if (qEl) qEl.value = t.topic;
+          if (noteEl) {
+            noteEl.value = [
+              '[신입 스크립트 · ' + t.label + ']',
+              '오프닝: ' + t.opening,
+              '질문:',
+              ...t.questions.map((q, i) => (i + 1) + ') ' + q),
+              '마무리: ' + t.closing,
+            ].join('\n');
+          }
+          const aiSec = document.getElementById('ai-draft');
+          if (aiSec) aiSec.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          setScriptMsg('질문을 AI 리딩 칸에 넣었습니다. 카드를 정한 뒤 생성하세요.');
+        });
+      }
+
+      render();
+
+      if (location.hash === '#session-scripts') {
+        setTimeout(() => {
+          const el = document.getElementById('session-scripts');
+          if (el) {
+            const det = el.parentElement && el.parentElement.querySelector
+              ? document.querySelector('#session-scripts + .script-panel details')
+              : null;
+            if (det) det.open = true;
+            el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          }
+        }, 400);
+      }
+    })();
+
+    // ── 상담사 AI 리딩 (시아식: 질문 + 카드번호 → 해석 → 복사) ──
+    (function initAiDraft() {
+      const Deck = window.CounselorTarotDeck;
+      const POS_BASIC = ['카드'];
+      const SPREADS = [
+        { id: 'advice', label: '상황 · 핵심 메시지 · 조언', positions: ['상황', '핵심 메시지', '조언'] },
+        { id: 'choice', label: '상황 · 선택 · 결과', positions: ['상황', '선택', '결과'] },
+        { id: 'time', label: '과거 · 현재 · 미래', positions: ['과거', '현재', '미래'] },
+        { id: 'love', label: '내 마음 · 상대 · 관계', positions: ['내 마음', '상대 마음', '관계 흐름'] },
+        { id: 'block', label: '원인 · 장애 · 돌파', positions: ['원인', '장애', '돌파'] },
+        { id: 'custom', label: '직접 입력 (칸마다 수정)', positions: ['1장', '2장', '3장'] },
+      ];
+      const GROUPS = [
+        { label: '메이저', from: 1, to: 22 },
+        { label: '완드', from: 23, to: 36 },
+        { label: '컵', from: 37, to: 50 },
+        { label: '소드', from: 51, to: 64 },
+        { label: '펜타클', from: 65, to: 78 },
+      ];
+      let mode = 'basic'; // basic | advanced
+      let spreadId = 'advice';
+      let lastText = '';
+      let targetSlot = 0;
+      /** @type {{ num: number|null, rev: boolean, label: string, ask: string }[]} */
+      let slots = [{ num: null, rev: false, label: '카드', ask: '' }];
+
+      const form = document.getElementById('aiDraftForm');
+      const out = document.getElementById('aiDraftOut');
+      const msg = document.getElementById('aiDraftMsg');
+      const slotsEl = document.getElementById('aiCardSlots');
+      const previewEl = document.getElementById('aiCardPreview');
+      const copyBtn = document.getElementById('aiCopyBtn');
+      const drawBtn = document.getElementById('aiDrawBtn');
+      const quotaEl = document.getElementById('aiDraftQuota');
+      const modeBasic = document.getElementById('aiModeBasic');
+      const modeAdv = document.getElementById('aiModeAdv');
+      const clientSel = document.getElementById('aiClient');
+      const nickEl = document.getElementById('aiNickname');
+      const spreadRow = document.getElementById('aiSpreadRow');
+      const spreadSel = document.getElementById('aiSpreadPreset');
+      if (!form || !out || !slotsEl || !Deck) return;
+
+      if (spreadSel) {
+        spreadSel.innerHTML = SPREADS.map((s) =>
+          '<option value="' + s.id + '">' + escapeHtml(s.label) + '</option>'
+        ).join('');
+        spreadSel.value = spreadId;
+      }
+
+      function setAiMsg(text, isErr) {
+        if (!msg) return;
+        msg.textContent = text || '';
+        msg.classList.toggle('err', !!isErr);
+      }
+
+      function getSpread() {
+        return SPREADS.find((s) => s.id === spreadId) || SPREADS[0];
+      }
+
+      function posLabels() {
+        if (mode === 'basic') return [slots[0] && slots[0].label ? slots[0].label : '카드'];
+        return slots.map((s, i) => (s.label && s.label.trim()) || ((i + 1) + '장'));
+      }
+
+      function slotCount() {
+        return mode === 'basic' ? 1 : 3;
+      }
+
+      function applySpreadLabels(ids) {
+        const sp = SPREADS.find((s) => s.id === ids) || getSpread();
+        spreadId = sp.id;
+        if (spreadSel) spreadSel.value = spreadId;
+        for (let i = 0; i < slots.length; i++) {
+          slots[i].label = sp.positions[i] || ((i + 1) + '장');
+        }
+      }
+
+      function syncModeButtons() {
+        [modeBasic, modeAdv].forEach((btn) => {
+          if (!btn) return;
+          const on = btn.getAttribute('data-mode') === mode;
+          btn.classList.toggle('active', on);
+          btn.setAttribute('aria-selected', on ? 'true' : 'false');
+        });
+        if (spreadRow) spreadRow.classList.toggle('is-on', mode === 'advanced');
+      }
+
+      function setMode(next) {
+        mode = next === 'advanced' ? 'advanced' : 'basic';
+        const n = slotCount();
+        const prev = slots.slice();
+        slots = [];
+        for (let i = 0; i < n; i++) {
+          slots.push({
+            num: prev[i] ? prev[i].num : null,
+            rev: prev[i] ? !!prev[i].rev : false,
+            label: prev[i] && prev[i].label ? prev[i].label : (mode === 'basic' ? '카드' : ((i + 1) + '장')),
+            ask: prev[i] && prev[i].ask ? prev[i].ask : '',
+          });
+        }
+        if (mode === 'advanced') applySpreadLabels(spreadId);
+        else slots[0].label = '카드';
+        if (targetSlot >= n) targetSlot = 0;
+        syncModeButtons();
+        renderSlots();
+      }
+
+      function cardFor(num) {
+        return Deck.byDisplayNum(num);
+      }
+
+      function usedNums() {
+        return new Set(slots.map((s) => s.num).filter((n) => n != null));
+      }
+
+      function nextEmptySlot() {
+        const i = slots.findIndex((s) => s.num == null);
+        return i >= 0 ? i : Math.min(targetSlot, slots.length - 1);
+      }
+
+      function pickUnusedNum(excludeSlot) {
+        const used = usedNums();
+        if (typeof excludeSlot === 'number' && slots[excludeSlot]) used.delete(slots[excludeSlot].num);
+        const pool = [];
+        for (let n = 1; n <= 78; n++) {
+          if (!used.has(n)) pool.push(n);
+        }
+        if (!pool.length) {
+          for (let n = 1; n <= 78; n++) pool.push(n);
+        }
+        return pool[Math.floor(Math.random() * pool.length)];
+      }
+
+      function renderPreview() {
+        if (!previewEl) return;
+        const labels = posLabels();
+        previewEl.innerHTML = slots.map((s, i) => {
+          const pos = labels[i] || ((i + 1) + '장');
+          if (s.num == null) {
+            return '<div class="ai-prev-empty">' + escapeHtml(pos) + '<br/>대기</div>';
+          }
+          const card = cardFor(s.num);
+          const ask = (s.ask || '').trim();
+          return (
+            '<div class="ai-prev-card' + (s.rev ? ' is-rev' : '') + '" data-preview="' + i + '" title="클릭하면 이 칸 선택">' +
+              '<div class="ai-prev-inner">' +
+                '<div class="ai-prev-pos">' + escapeHtml(pos) + '</div>' +
+                '<div class="ai-prev-num">No.' + s.num + '</div>' +
+                '<div class="ai-prev-name">' + escapeHtml(card ? card.name : '?') + '</div>' +
+                '<div class="ai-prev-orient">' + (s.rev ? '역방향' : '정방향') + '</div>' +
+                (ask ? '<div class="ai-prev-ask">' + escapeHtml(ask) + '</div>' : '') +
+              '</div>' +
+            '</div>'
+          );
+        }).join('');
+        previewEl.querySelectorAll('[data-preview]').forEach((el) => {
+          el.addEventListener('click', () => {
+            targetSlot = Number(el.getAttribute('data-preview'));
+            renderSlots();
+            const slot = slotsEl.querySelector('.ai-card-slot[data-i="' + targetSlot + '"]');
+            if (slot) slot.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+          });
+        });
+      }
+
+      function optionHtml(selectedNum) {
+        return GROUPS.map((g) => {
+          let opts = '';
+          for (let n = g.from; n <= g.to; n++) {
+            const c = cardFor(n);
+            if (!c) continue;
+            opts += '<option value="' + n + '"' + (selectedNum === n ? ' selected' : '') + '>' +
+              n + '. ' + escapeHtml(c.name) + '</option>';
+          }
+          return '<optgroup label="' + escapeHtml(g.label) + '">' + opts + '</optgroup>';
+        }).join('');
+      }
+
+      function assignCard(num, slotIndex) {
+        let i = typeof slotIndex === 'number' ? slotIndex : targetSlot;
+        if (i < 0 || i >= slots.length) i = nextEmptySlot();
+        if (slots[i].num != null && slots.some((s, j) => j !== i && s.num == null)) {
+          i = nextEmptySlot();
+        }
+        slots[i].num = num;
+        targetSlot = Math.min(i + 1, slots.length - 1);
+        if (slots[targetSlot].num != null) {
+          const empty = slots.findIndex((s) => s.num == null);
+          if (empty >= 0) targetSlot = empty;
+        }
+        renderSlots();
+        const c = cardFor(num);
+        const labels = posLabels();
+        setAiMsg((c ? c.name : num) + ' → ' + (labels[i] || (i + 1) + '장') + '에 넣었습니다. 정·역·해석 요청을 확인해 주세요.');
+        return i;
+      }
+
+      function drawOneSlot(i) {
+        if (i < 0 || i >= slots.length) return;
+        const num = pickUnusedNum(i);
+        slots[i].num = num;
+        slots[i].rev = Math.random() < 0.35;
+        targetSlot = i;
+        renderSlots();
+        const c = cardFor(num);
+        const labels = posLabels();
+        setAiMsg((labels[i] || (i + 1) + '장') + '에 ' + (c ? c.name : num) +
+          (slots[i].rev ? ' (역)' : ' (정)') + '을 뽑았습니다.');
+      }
+
+      function renderSlots() {
+        const labels = posLabels();
+        slotsEl.innerHTML = slots.map((s, i) => {
+          const card = s.num ? cardFor(s.num) : null;
+          const kw = card ? card.keywords : '이름 선택 · 이 칸 뽑기 · 카드 고르기';
+          const posInput = mode === 'advanced'
+            ? '<input type="text" class="slot-pos" maxlength="40" data-label="' + i + '" value="' +
+              escapeHtml(s.label || labels[i] || '') + '" placeholder="칸 이름 (예: 조언)" aria-label="포지션 이름"/>'
+            : '<h4>' + escapeHtml(labels[i] || '카드') +
+              (i === targetSlot ? ' · 선택 중' : '') + '</h4>';
+          return (
+            '<div class="ai-card-slot' + (i === targetSlot ? ' is-target' : '') + '" data-i="' + i + '">' +
+              (mode === 'advanced'
+                ? '<h4>포지션' + (i === targetSlot ? ' · 선택 중' : '') + '</h4>' + posInput
+                : posInput) +
+              '<div class="slot-row">' +
+                '<input type="number" min="1" max="78" inputmode="numeric" placeholder="번호" ' +
+                  'aria-label="카드 번호" value="' + (s.num != null ? s.num : '') + '" data-num="' + i + '"/>' +
+                '<div class="ai-orient" role="group" aria-label="정역">' +
+                  '<button type="button" data-orient="' + i + '" data-rev="0"' + (s.rev ? '' : ' class="active"') + '>정</button>' +
+                  '<button type="button" data-orient="' + i + '" data-rev="1"' + (s.rev ? ' class="active"' : '') + '>역</button>' +
+                '</div>' +
+              '</div>' +
+              '<select data-pick="' + i + '" aria-label="카드 이름">' +
+                '<option value="">— 카드 이름 선택 —</option>' +
+                optionHtml(s.num) +
+              '</select>' +
+              '<input type="text" class="slot-ask" maxlength="120" data-ask="' + i + '" value="' +
+                escapeHtml(s.ask || '') + '" placeholder="해석 요청 (예: 조언으로 · 상대 마음 위주)" aria-label="칸별 해석 요청"/>' +
+              '<div class="slot-tools">' +
+                '<button type="button" data-draw-one="' + i + '">이 칸 뽑기</button>' +
+                '<button type="button" data-clear-one="' + i + '">비우기</button>' +
+              '</div>' +
+              '<div class="slot-kw">' + escapeHtml(kw) + '</div>' +
+            '</div>'
+          );
+        }).join('');
+
+        slotsEl.querySelectorAll('.ai-card-slot').forEach((el) => {
+          el.addEventListener('click', (e) => {
+            if (e.target.closest('button, input, select')) return;
+            targetSlot = Number(el.getAttribute('data-i'));
+            renderSlots();
+          });
+        });
+        slotsEl.querySelectorAll('[data-label]').forEach((inp) => {
+          inp.addEventListener('focus', () => {
+            targetSlot = Number(inp.getAttribute('data-label'));
+          });
+          inp.addEventListener('input', () => {
+            const i = Number(inp.getAttribute('data-label'));
+            slots[i].label = inp.value;
+            if (spreadSel && spreadId !== 'custom') {
+              spreadId = 'custom';
+              spreadSel.value = 'custom';
+            }
+            renderPreview();
+          });
+        });
+        slotsEl.querySelectorAll('[data-ask]').forEach((inp) => {
+          inp.addEventListener('focus', () => {
+            targetSlot = Number(inp.getAttribute('data-ask'));
+          });
+          inp.addEventListener('input', () => {
+            const i = Number(inp.getAttribute('data-ask'));
+            slots[i].ask = inp.value;
+            renderPreview();
+          });
+        });
+        slotsEl.querySelectorAll('[data-draw-one]').forEach((btn) => {
+          btn.addEventListener('click', () => {
+            drawOneSlot(Number(btn.getAttribute('data-draw-one')));
+          });
+        });
+        slotsEl.querySelectorAll('[data-clear-one]').forEach((btn) => {
+          btn.addEventListener('click', () => {
+            const i = Number(btn.getAttribute('data-clear-one'));
+            slots[i].num = null;
+            slots[i].rev = false;
+            targetSlot = i;
+            renderSlots();
+            setAiMsg((posLabels()[i] || (i + 1) + '장') + '을 비웠습니다.');
+          });
+        });
+        slotsEl.querySelectorAll('[data-num]').forEach((inp) => {
+          inp.addEventListener('focus', () => {
+            targetSlot = Number(inp.getAttribute('data-num'));
+            slotsEl.querySelectorAll('.ai-card-slot').forEach((el) => {
+              el.classList.toggle('is-target', Number(el.getAttribute('data-i')) === targetSlot);
+            });
+          });
+          inp.addEventListener('input', () => {
+            const i = Number(inp.getAttribute('data-num'));
+            const v = Number(inp.value);
+            targetSlot = i;
+            if (!inp.value) slots[i].num = null;
+            else if (Number.isInteger(v) && v >= 1 && v <= 78) slots[i].num = v;
+            else slots[i].num = null;
+            const sel = slotsEl.querySelector('select[data-pick="' + i + '"]');
+            if (sel) sel.value = slots[i].num != null ? String(slots[i].num) : '';
+            const card = slots[i].num ? cardFor(slots[i].num) : null;
+            const root = inp.closest('.ai-card-slot');
+            const kwEl = root && root.querySelector('.slot-kw');
+            if (kwEl) kwEl.textContent = card ? card.keywords : '이름 선택 · 이 칸 뽑기 · 카드 고르기';
+            renderPreview();
+          });
+        });
+        slotsEl.querySelectorAll('[data-pick]').forEach((sel) => {
+          sel.addEventListener('change', () => {
+            const i = Number(sel.getAttribute('data-pick'));
+            targetSlot = i;
+            const v = Number(sel.value);
+            slots[i].num = sel.value && Number.isInteger(v) ? v : null;
+            const inp = slotsEl.querySelector('input[data-num="' + i + '"]');
+            if (inp) inp.value = slots[i].num != null ? String(slots[i].num) : '';
+            const card = slots[i].num ? cardFor(slots[i].num) : null;
+            const root = sel.closest('.ai-card-slot');
+            const kwEl = root && root.querySelector('.slot-kw');
+            if (kwEl) kwEl.textContent = card ? card.keywords : '이름 선택 · 이 칸 뽑기 · 카드 고르기';
+            renderPreview();
+          });
+        });
+        slotsEl.querySelectorAll('[data-orient]').forEach((btn) => {
+          btn.addEventListener('click', () => {
+            const i = Number(btn.getAttribute('data-orient'));
+            slots[i].rev = btn.getAttribute('data-rev') === '1';
+            const group = btn.parentElement;
+            if (group) {
+              group.querySelectorAll('button').forEach((b) => b.classList.toggle('active', b === btn));
+            }
+            renderPreview();
+          });
+        });
+        renderPreview();
+      }
+
+      function drawRandom() {
+        const n = slotCount();
+        const pool = [];
+        for (let i = 1; i <= 78; i++) pool.push(i);
+        for (let i = pool.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          const t = pool[i]; pool[i] = pool[j]; pool[j] = t;
+        }
+        slots = pool.slice(0, n).map((num, i) => ({
+          num,
+          rev: Math.random() < 0.35,
+          label: slots[i] && slots[i].label
+            ? slots[i].label
+            : (mode === 'basic' ? '카드' : (getSpread().positions[i] || ((i + 1) + '장'))),
+          ask: slots[i] && slots[i].ask ? slots[i].ask : '',
+        }));
+        targetSlot = 0;
+        renderSlots();
+        setAiMsg(n + '장을 랜덤으로 뽑았습니다. 해석 요청·정역을 확인한 뒤 생성해 주세요.');
+      }
+
+      function readFilledCards() {
+        const labels = posLabels();
+        const outCards = [];
+        for (let i = 0; i < slots.length; i++) {
+          const s = slots[i];
+          if (s.num == null) continue;
+          const card = cardFor(s.num);
+          if (!card) continue;
+          outCards.push({
+            pos: labels[i] || (i + 1) + '장',
+            num: card.num,
+            name: card.name,
+            keywords: card.keywords,
+            rev: !!s.rev,
+            ask: (s.ask || '').trim(),
+          });
+        }
+        return outCards;
+      }
+
+      if (modeBasic) modeBasic.addEventListener('click', () => setMode('basic'));
+      if (modeAdv) modeAdv.addEventListener('click', () => setMode('advanced'));
+      if (drawBtn) drawBtn.addEventListener('click', drawRandom);
+      if (spreadSel) {
+        spreadSel.addEventListener('change', () => {
+          applySpreadLabels(spreadSel.value);
+          renderSlots();
+          setAiMsg('스프래드 칸 이름을 바꿨습니다.');
+        });
+      }
+
+      if (clientSel && nickEl) {
+        clientSel.addEventListener('change', () => {
+          const c = clientRows.find((x) => x.id === clientSel.value);
+          if (c && !nickEl.value.trim()) {
+            nickEl.value = (c.display_name || c.legal_name || '').trim();
+          }
+        });
+      }
+
+      if (copyBtn) {
+        copyBtn.addEventListener('click', async () => {
+          if (!lastText) return;
+          try {
+            await navigator.clipboard.writeText(lastText);
+            setAiMsg('해석을 복사했습니다. 다듬어 고객에게 붙여넣으세요.');
+          } catch (_) {
+            setAiMsg('복사에 실패했습니다.', true);
+          }
+        });
+      }
+
+      // 카드 고르기 모달 (이름 / 번호 클릭 / 고객용 인쇄)
+      (function initNumTable() {
+        const modal = document.getElementById('numTableModal');
+        const grid = document.getElementById('numTableGrid');
+        const printGrid = document.getElementById('numTablePrintGrid');
+        const nameList = document.getElementById('numNameList');
+        const searchEl = document.getElementById('numTableSearch');
+        const openBtn = document.getElementById('aiNumTableBtn');
+        const paneName = document.getElementById('numPaneName');
+        const paneNum = document.getElementById('numPaneNum');
+        const panePrint = document.getElementById('numPanePrint');
+        const hintEl = document.getElementById('numTableHint');
+        if (!modal || !openBtn || !Deck) return;
+
+        let tab = 'name';
+
+        function close() { modal.classList.remove('open'); }
+
+        function setTab(next) {
+          tab = next;
+          ['name', 'num', 'print'].forEach((t) => {
+            const btn = document.getElementById(t === 'name' ? 'numTabName' : t === 'num' ? 'numTabNum' : 'numTabPrint');
+            if (btn) btn.classList.toggle('active', t === tab);
+          });
+          if (paneName) paneName.style.display = tab === 'name' ? '' : 'none';
+          if (paneNum) paneNum.style.display = tab === 'num' ? '' : 'none';
+          if (panePrint) panePrint.style.display = tab === 'print' ? '' : 'none';
+          if (hintEl) {
+            if (tab === 'print') {
+              hintEl.innerHTML = '원격 고객에게 보내 숫자를 고르게 하세요. 「1~78 중 ○개 골라 알려 주세요.」';
+            } else {
+              hintEl.innerHTML = '카드를 누르면 <strong>비어 있는 칸</strong>(또는 선택한 칸)에 들어갑니다. 정·역은 칸에서 바꿀 수 있습니다.';
+            }
+          }
+          refreshPickers();
+        }
+
+        function onPick(num) {
+          if (tab === 'print') return;
+          assignCard(num);
+          refreshPickers();
+          if (slots.every((s) => s.num != null)) close();
+        }
+
+        function refreshPickers() {
+          const used = usedNums();
+          if (grid) {
+            grid.innerHTML = Array.from({ length: 78 }, (_, i) => {
+              const n = i + 1;
+              const c = cardFor(n);
+              const u = used.has(n);
+              return '<button type="button" class="num-table-cell' + (u ? ' used' : '') +
+                '" data-pick-num="' + n + '" title="' + escapeHtml(c ? c.name : '') + '">' +
+                n + '<span class="nt-name">' + escapeHtml(c ? c.name : '') + '</span></button>';
+            }).join('');
+            grid.querySelectorAll('[data-pick-num]').forEach((btn) => {
+              btn.addEventListener('click', () => onPick(Number(btn.getAttribute('data-pick-num'))));
+            });
+          }
+          if (printGrid && !printGrid.dataset.ready) {
+            printGrid.innerHTML = Array.from({ length: 78 }, (_, i) =>
+              '<div class="num-table-cell" style="cursor:default">' + (i + 1) + '</div>'
+            ).join('');
+            printGrid.dataset.ready = '1';
+          }
+          if (nameList) {
+            const q = ((searchEl && searchEl.value) || '').trim().toLowerCase();
+            nameList.innerHTML = GROUPS.map((g) => {
+              const rows = [];
+              for (let n = g.from; n <= g.to; n++) {
+                const c = cardFor(n);
+                if (!c) continue;
+                if (q && !(String(n).includes(q) || c.name.toLowerCase().includes(q))) continue;
+                const u = used.has(n);
+                rows.push(
+                  '<button type="button" class="num-name-row' + (u ? ' used' : '') +
+                  '" data-pick-num="' + n + '"><span class="nn">' + n + '</span>' +
+                  escapeHtml(c.name) +
+                  (c.keywords ? '<span style="margin-left:auto;font-size:11px;color:var(--muted)">' +
+                    escapeHtml(c.keywords) + '</span>' : '') +
+                  '</button>'
+                );
+              }
+              if (!rows.length) return '';
+              return '<div class="num-name-group">' + escapeHtml(g.label) + '</div>' + rows.join('');
+            }).join('') || '<p class="num-table-hint">검색 결과가 없습니다.</p>';
+            nameList.querySelectorAll('[data-pick-num]').forEach((btn) => {
+              btn.addEventListener('click', () => onPick(Number(btn.getAttribute('data-pick-num'))));
+            });
+          }
+        }
+
+        document.getElementById('numTabName')?.addEventListener('click', () => setTab('name'));
+        document.getElementById('numTabNum')?.addEventListener('click', () => setTab('num'));
+        document.getElementById('numTabPrint')?.addEventListener('click', () => setTab('print'));
+        if (searchEl) searchEl.addEventListener('input', refreshPickers);
+
+        openBtn.addEventListener('click', () => {
+          if (slots[targetSlot] && slots[targetSlot].num != null) {
+            const empty = nextEmptySlot();
+            targetSlot = empty;
+            renderSlots();
+          }
+          setTab(tab === 'print' ? 'name' : tab);
+          modal.classList.add('open');
+          if (searchEl && tab === 'name') setTimeout(() => searchEl.focus(), 50);
+        });
+        const c1 = document.getElementById('numTableClose');
+        const c2 = document.getElementById('numTableCloseBtn');
+        if (c1) c1.addEventListener('click', close);
+        if (c2) c2.addEventListener('click', close);
+        modal.addEventListener('click', (e) => { if (e.target === modal) close(); });
+
+        const printBtn = document.getElementById('numTablePrintBtn');
+        if (printBtn) {
+          printBtn.addEventListener('click', () => {
+            const w = window.open('', '_blank', 'noopener,width=720,height=900');
+            if (!w) {
+              setAiMsg('팝업이 차단되었습니다. 허용 후 다시 시도해 주세요.', true);
+              return;
+            }
+            const cells = Array.from({ length: 78 }, (_, i) =>
+              '<div style="aspect-ratio:1;display:flex;align-items:center;justify-content:center;border:1px solid #c9b89a;border-radius:8px;background:#f7f1e6;font:700 14px/1 sans-serif;color:#2c1f0e">' +
+              (i + 1) + '</div>'
+            ).join('');
+            w.document.write(
+              '<!doctype html><html><head><meta charset="utf-8"><title>타로 번호표 1~78</title>' +
+              '<style>body{font-family:sans-serif;padding:24px;color:#2c1f0e}h1{font-size:20px;margin:0 0 8px}' +
+              'p{font-size:13px;color:#666;margin:0 0 16px;line-height:1.5}' +
+              '.g{display:grid;grid-template-columns:repeat(10,1fr);gap:6px}</style></head><body>' +
+              '<h1>타로 번호표 (1~78)</h1>' +
+              '<p>마음에 드는 숫자를 골라 상담사에게 알려 주세요. (인쇄 · PDF 저장 가능)</p>' +
+              '<div class="g">' + cells + '</div>' +
+              '<' + 'script>setTimeout(function(){window.print()},300)<' + '/script></body></html>'
+            );
+            w.document.close();
+          });
+        }
+      })();
+
+      if (window.PaljaAiQuota) {
+        PaljaAiQuota.fetchQuota().then((q) => PaljaAiQuota.applyQuotaBadge(quotaEl, q));
+      }
+
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const question = (document.getElementById('aiQuestion').value || '').trim();
+        const note = (document.getElementById('aiNote').value || '').trim();
+        const nickname = (nickEl && nickEl.value || '').trim();
+        const clientId = clientSel ? clientSel.value : '';
+        const client = clientId ? clientRows.find((c) => c.id === clientId) : null;
+        const cards = readFilledCards();
+        const need = mode === 'basic' ? 1 : 1;
+        const max = mode === 'basic' ? 1 : 3;
+
+        if (!question) {
+          setAiMsg('질문을 입력해 주세요.', true);
+          return;
+        }
+        if (cards.length < need) {
+          setAiMsg(mode === 'basic' ? '카드를 1장 선택해 주세요.' : '카드를 1~3장 선택해 주세요.', true);
+          return;
+        }
+        if (mode === 'basic' && cards.length !== 1) {
+          setAiMsg('기본 리딩은 카드 1장만 사용합니다.', true);
+          return;
+        }
+        if (cards.length > max) {
+          setAiMsg('카드는 최대 ' + max + '장까지입니다.', true);
+          return;
+        }
+        if (!window.PaljaAiQuota) {
+          setAiMsg('AI 클라이언트를 불러오지 못했습니다. 페이지를 새로고침해 주세요.', true);
+          return;
+        }
+
+        const feature = mode === 'basic' ? 'counselor_session_basic' : 'counselor_session';
+        const costLabel = mode === 'basic' ? '1' : '2';
+        const ls = client ? clientLastSession(client.id) : { last: '', topic: '' };
+        const displayName = nickname || (client && (client.display_name || client.legal_name)) || '고객님';
+        const btn = document.getElementById('aiDraftBtn');
+        if (btn) { btn.disabled = true; btn.textContent = '생성 중…'; }
+        setAiMsg('');
+        out.classList.add('is-empty');
+        out.textContent = '해석을 만드는 중…';
+
+        const cardLines = cards.map((c) =>
+          c.pos + ': ' + c.num + '. ' + c.name + (c.rev ? '(역방향)' : '(정방향)') +
+          (c.keywords ? ' — ' + c.keywords : '') +
+          (c.ask ? '\n  · 이 포지션 해석 요청: ' + c.ask : '')
+        ).join('\n');
+
+        const depthHint = mode === 'basic'
+          ? '기본 리딩: 카드 1장 중심으로 짧고 명확하게 (전체 분량 중간 이하).'
+          : '심화 리딩: 카드 ' + cards.length + '장. 각 카드의 포지션 이름과(있을 경우) 칸별 해석 요청을 존중해 해석하고 연결하세요.';
+
+        const prompt =
+`당신은 타로·수비학을 쓰는 전문 상담사의 '세션 보조 작가'입니다.
+상담사가 고객 채팅/대면에 **그대로 붙여넣고 살짝 다듬을** 해석 초안을 작성하세요.
+AI가 고객에게 직접 말하는 앱이 아닙니다.
+
+[고객 호칭] ${displayName}
+${client ? '[CRM] 생년월일: ' + (client.birth_date || '미상') + ' / 최근 상담: ' + (ls.last || '없음') + (ls.topic ? ' · ' + ls.topic : '') + '\n' : ''}
+[질문]
+${question}
+${note ? '[상담사만 보는 메모 — 해석에 반영하되 메모 문구를 그대로 노출하지 말 것]\n' + note + '\n' : ''}
+[뽑힌 카드 · 포지션 · 칸별 해석 요청]
+${cardLines}
+
+[깊이] ${depthHint}
+
+규칙:
+1) 한국어. 고객에게 건네는 존댓말. 상담사가 읽어도 자연스럽게.
+2) 아래 소제목만 사용 (마크다운 ##):
+## 한 줄 요약
+## 카드 해석
+## 질문에 대한 답
+## 오늘 가져갈 조언
+## 주의 (과한 예언·단정 금지)
+3) 카드 해석에는 포지션 이름·번호·카드명·정역을 명시. 칸별 해석 요청이 있으면 그 관점(조언/상대 마음 등)을 우선 반영.
+4) 점술 확정 예언·의료·법률·투자 단정 금지. "가능성이 있다/살펴볼 포인트"로.
+5) 이모지·불필요한 인사·면책 장문 금지. 복사해 쓰기 좋게.`;
+
+        const cacheKey = PaljaAiQuota.hashKey([
+          'counselor_reading_v4',
+          feature,
+          clientId || '',
+          displayName,
+          question,
+          note,
+          cards.map((c) => c.pos + ':' + c.num + (c.rev ? 'r' : 'u') + ':' + (c.ask || '')).join('|'),
+        ].join('::'));
+
+        try {
+          const { text, quota } = await PaljaAiQuota.callAi({
+            feature,
+            cacheKey,
+            max_tokens: mode === 'basic' ? 900 : 1400,
+            messages: [{ role: 'user', content: prompt }],
+          });
+          lastText = text || '';
+          out.classList.remove('is-empty');
+          out.textContent = lastText || '해석을 만들지 못했습니다.';
+          if (copyBtn) copyBtn.style.display = lastText ? '' : 'none';
+          PaljaAiQuota.applyQuotaBadge(quotaEl, quota);
+          setAiMsg(
+            lastText
+              ? '해석을 만들었습니다. (크레딧 ' + costLabel + ') 다듬어 복사해 쓰세요.'
+              : '응답이 비어 있습니다.',
+            !lastText
+          );
+        } catch (err) {
+          out.classList.add('is-empty');
+          out.textContent = '질문을 넣고 카드를 정한 뒤 해석을 생성해 보세요.';
+          if (err && err.quota) PaljaAiQuota.applyQuotaBadge(quotaEl, err.quota);
+          setAiMsg((err && err.message) || '해석 생성에 실패했습니다.', true);
+        } finally {
+          if (btn) { btn.disabled = false; btn.textContent = '해석 생성'; }
+        }
+      });
+
+      setMode('basic');
+
+      if (location.hash === '#ai-draft') {
+        setTimeout(() => {
+          const el = document.getElementById('ai-draft');
+          if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }, 400);
+      }
+    })();
+
+
+  }
+
+  main();
+  window.addEventListener('pageshow', (e) => {
+    if (e.persisted) {
+      workspaceReady = false;
+      main();
+    }
+  });
+})();
+</script>
+</body>
+</html>
