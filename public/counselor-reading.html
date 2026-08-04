@@ -430,6 +430,7 @@
           <button type="button" class="btn-sm outline" id="aiDrawBtn">전체 랜덤 뽑기</button>
           <button type="submit" class="btn-sm" id="aiDraftBtn">해석 생성</button>
           <button type="button" class="btn-sm outline" id="aiCopyBtn" style="display:none;">복사</button>
+          <button type="button" class="btn-sm outline" id="aiSaveSessionBtn" style="display:none;">세션에 전문 남기기</button>
           <span class="ai-draft-quota" id="aiDraftQuota" hidden></span>
         </div>
       </form>
@@ -645,8 +646,6 @@
     sessionRows = sessions || [];
 
     populateAiClientSelect();
-    // uid reserved for future session saves on this page
-    void uid;
 
     // ── 신입용 세션 스크립트 ──
     (function initSessionScripts() {
@@ -875,6 +874,8 @@
       let mode = 'basic'; // basic | advanced
       let spreadId = 'advice';
       let lastText = '';
+      let lastSessionId = null;
+      let lastSessionClientId = null;
       let targetSlot = 0;
       /** @type {{ num: number|null, rev: boolean, label: string, extra?: boolean }[]} */
       let slots = [{ num: null, rev: false, label: '카드', extra: false }];
@@ -885,6 +886,7 @@
       const slotsEl = document.getElementById('aiCardSlots');
       const previewEl = document.getElementById('aiCardPreview');
       const copyBtn = document.getElementById('aiCopyBtn');
+      const saveSessionBtn = document.getElementById('aiSaveSessionBtn');
       const drawBtn = document.getElementById('aiDrawBtn');
       const quotaEl = document.getElementById('aiDraftQuota');
       const modeBasic = document.getElementById('aiModeBasic');
@@ -906,6 +908,77 @@
         if (!msg) return;
         msg.textContent = text || '';
         msg.classList.toggle('err', !!isErr);
+      }
+
+      function sessionDateKst() {
+        return new Intl.DateTimeFormat('en-CA', {
+          timeZone: 'Asia/Seoul',
+          year: 'numeric',
+          month: '2-digit',
+          day: '2-digit',
+        }).format(new Date());
+      }
+
+      function extractOneLineSummary(text) {
+        const m = String(text || '').match(/##\s*한\s*줄\s*요약\s*\r?\n+([^\n#]+)/);
+        if (m) return m[1].trim();
+        const line = String(text || '').split(/\r?\n/).find((l) => l.trim() && !/^#/.test(l.trim()));
+        return line ? line.trim() : '';
+      }
+
+      function formatCardsLine(cards) {
+        return cards.map((c) =>
+          c.pos + ': ' + c.num + '.' + c.name + (c.rev ? '(역)' : '(정)')
+        ).join(' · ');
+      }
+
+      function buildSessionBriefSummary(cards, text) {
+        const one = extractOneLineSummary(text);
+        return '[타로 AI 짧은 기록]\n카드: ' + formatCardsLine(cards) +
+          (one ? '\n한줄: ' + one : '');
+      }
+
+      function buildSessionFullSummary(cards, text) {
+        const brief = buildSessionBriefSummary(cards, text);
+        const body = String(text || '').trim();
+        const capped = body.length > 3500 ? body.slice(0, 3500) + '\n…(이하 생략)' : body;
+        return brief + '\n\n' + capped;
+      }
+
+      async function upsertTarotSession({ clientId, question, summary, sessionId }) {
+        if (!clientId || !uid) return { ok: false, error: '고객 또는 로그인 정보가 없습니다.' };
+        const topic = ('타로 · ' + String(question || '').trim()).slice(0, 120) || '타로 AI 리딩';
+        if (sessionId) {
+          const { error } = await sb.from('counselor_sessions')
+            .update({ summary, topic })
+            .eq('id', sessionId)
+            .eq('counselor_id', uid);
+          if (error) return { ok: false, error: error.message };
+          return { ok: true, id: sessionId };
+        }
+        const payload = {
+          counselor_id: uid,
+          client_id: clientId,
+          session_date: sessionDateKst(),
+          topic,
+          summary,
+        };
+        let { data, error } = await sb.from('counselor_sessions').insert(payload).select('id').maybeSingle();
+        if (error && /topic|next_focus/i.test(error.message || '')) {
+          delete payload.topic;
+          ({ data, error } = await sb.from('counselor_sessions').insert(payload).select('id').maybeSingle());
+        }
+        if (error) return { ok: false, error: error.message };
+        const id = data && data.id;
+        if (id) {
+          sessionRows = [{
+            id,
+            client_id: clientId,
+            session_date: payload.session_date,
+            topic: payload.topic || null,
+          }].concat(sessionRows || []);
+        }
+        return { ok: true, id };
       }
 
       function getSpread() {
@@ -1408,6 +1481,40 @@
         });
       }
 
+      if (saveSessionBtn) {
+        saveSessionBtn.addEventListener('click', async () => {
+          const clientId = clientSel ? clientSel.value : '';
+          if (!clientId) {
+            setAiMsg('세션에 남기려면 고객을 선택해 주세요.', true);
+            return;
+          }
+          if (!lastText) {
+            setAiMsg('먼저 해석을 생성해 주세요.', true);
+            return;
+          }
+          const cards = readFilledCards();
+          saveSessionBtn.disabled = true;
+          saveSessionBtn.textContent = '저장 중…';
+          const full = buildSessionFullSummary(cards, lastText);
+          const question = (document.getElementById('aiQuestion').value || '').trim();
+          const saved = await upsertTarotSession({
+            clientId,
+            question,
+            summary: full,
+            sessionId: (lastSessionClientId === clientId) ? lastSessionId : null,
+          });
+          saveSessionBtn.disabled = false;
+          saveSessionBtn.textContent = '세션에 전문 남기기';
+          if (!saved.ok) {
+            setAiMsg(saved.error || '세션 저장에 실패했습니다.', true);
+            return;
+          }
+          lastSessionId = saved.id || lastSessionId;
+          lastSessionClientId = clientId;
+          setAiMsg('해석 전문을 세션 기록에 남겼습니다. 상담사 허브에서 확인할 수 있어요.');
+        });
+      }
+
       // 카드 고르기 모달 (이름 / 번호 클릭 / 고객용 인쇄)
       (function initNumTable() {
         const modal = document.getElementById('numTableModal');
@@ -1725,18 +1832,41 @@ ${spreadXml}
             messages: [{ role: 'user', content: prompt }],
           });
           lastText = text || '';
+          lastSessionId = null;
+          lastSessionClientId = clientId || null;
           out.classList.remove('is-empty');
           out.textContent = lastText || '해석을 만들지 못했습니다.';
           if (copyBtn) copyBtn.style.display = lastText ? '' : 'none';
+          if (saveSessionBtn) saveSessionBtn.style.display = 'none';
           PaljaAiQuota.applyQuotaBadge(quotaEl, quota);
           const truncated = stopReason === 'max_tokens';
+
+          let sessionNote = '';
+          if (lastText && clientId) {
+            const brief = buildSessionBriefSummary(cards, lastText);
+            const saved = await upsertTarotSession({
+              clientId,
+              question,
+              summary: brief,
+            });
+            if (saved.ok) {
+              lastSessionId = saved.id || null;
+              if (saveSessionBtn) saveSessionBtn.style.display = '';
+              sessionNote = ' · 세션에 짧은 기록 저장';
+            } else {
+              sessionNote = ' · 세션 자동 저장 실패(' + (saved.error || '오류') + ')';
+            }
+          } else if (lastText && !clientId) {
+            sessionNote = ' · 고객을 고르면 세션에 자동 기록됩니다';
+          }
+
           setAiMsg(
             lastText
               ? (truncated
-                ? '해석이 길어 뒷부분이 잘릴 수 있습니다. 한 번 더 생성하거나 카드 수를 줄여 보세요. (크레딧 ' + costLabel + ')'
-                : '해석을 만들었습니다. (크레딧 ' + costLabel + ') 다듬어 복사해 쓰세요.')
+                ? '해석이 길어 뒷부분이 잘릴 수 있습니다. 한 번 더 생성하거나 카드 수를 줄여 보세요. (크레딧 ' + costLabel + ')' + sessionNote
+                : '해석을 만들었습니다. (크레딧 ' + costLabel + ') 다듬어 복사해 쓰세요.' + sessionNote)
               : '응답이 비어 있습니다.',
-            !lastText || truncated
+            !lastText || truncated || (sessionNote.indexOf('실패') >= 0)
           );
         } catch (err) {
           out.classList.add('is-empty');
