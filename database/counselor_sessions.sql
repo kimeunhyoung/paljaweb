@@ -40,3 +40,5 @@ create policy "counselor_sessions_update_own"
 create policy "counselor_sessions_delete_own"
   on public.counselor_sessions for delete
   using (auth.uid() = counselor_id);
+
+-- 주제·다음 포인트 컬럼: counselor_sessions_extend.sql 을 이어서 실행하세요.

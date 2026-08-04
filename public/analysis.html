@@ -4667,12 +4667,14 @@ async function loadPrefilledCounselorClient(session) {
   try {
     const { data: sess } = await sb
       .from('counselor_sessions')
-      .select('session_date,summary')
+      .select('session_date,summary,topic,next_focus')
       .eq('client_id', clientId)
       .eq('counselor_id', session.user.id)
       .order('session_date', { ascending: false })
       .limit(1);
-    if (sess && sess.length && sess[0].summary) COUNSELOR_CLIENT.recentSession = sess[0];
+    if (sess && sess.length && (sess[0].summary || sess[0].topic || sess[0].next_focus)) {
+      COUNSELOR_CLIENT.recentSession = sess[0];
+    }
   } catch (e) { /* ignore */ }
 }
 
@@ -6778,7 +6780,13 @@ function renderCounselorPrepCard(p) {
   let memoHtml = '';
   if (COUNSELOR_CLIENT && COUNSELOR_CLIENT.recentSession) {
     const rs = COUNSELOR_CLIENT.recentSession;
-    memoHtml = `<div class="prep-box"><h4>최근 상담 메모</h4><div class="prep-memo"><span class="memo-date">${esc(String(rs.session_date))}</span>${esc(rs.summary || '')}</div></div>`;
+    const bits = [];
+    if (rs.topic) bits.push(`<div class="memo-topic"><strong>주제</strong> ${esc(String(rs.topic))}</div>`);
+    if (rs.summary) bits.push(`<div class="memo-body">${esc(String(rs.summary))}</div>`);
+    if (rs.next_focus) bits.push(`<div class="memo-focus"><strong>다음 포인트</strong> ${esc(String(rs.next_focus))}</div>`);
+    if (bits.length) {
+      memoHtml = `<div class="prep-box"><h4>최근 상담 · 이어가기</h4><div class="prep-memo"><span class="memo-date">${esc(String(rs.session_date))}</span>${bits.join('')}</div></div>`;
+    }
   }
 
   host.innerHTML = `

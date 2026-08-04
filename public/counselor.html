@@ -484,9 +484,35 @@
     .session-item { background: #fff; border: 1px solid var(--border); border-radius: 10px; padding: 12px 14px; }
     .session-item .s-date { font-size: 12px; font-weight: 700; color: var(--deep); display: flex; justify-content: space-between; align-items: center; gap: 8px; }
     .session-item .s-date button { font-size: 11px; color: #8b3a3a; background: none; border: none; cursor: pointer; }
+    .session-item .s-topic { font-size: 12.5px; font-weight: 600; color: var(--deep); margin-top: 6px; }
     .session-item .s-sum { font-size: 13px; color: var(--ink); line-height: 1.65; margin-top: 6px; white-space: pre-wrap; }
+    .session-item .s-focus { font-size: 12px; color: #6b5a40; margin-top: 6px; line-height: 1.5; }
     .session-item .s-next { font-size: 11px; color: var(--teal); margin-top: 6px; }
     .session-empty { font-size: 12px; color: var(--muted); }
+    .session-last {
+      display: none;
+      background: #eef6f4;
+      border: 1px solid rgba(46, 139, 122, 0.28);
+      border-left: 3px solid var(--teal);
+      border-radius: 10px;
+      padding: 12px 14px;
+      margin-bottom: 14px;
+      font-size: 12.5px;
+      line-height: 1.65;
+      color: var(--deep);
+    }
+    .session-last.is-visible { display: block; }
+    .session-last .sl-label {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      color: var(--teal);
+      margin-bottom: 6px;
+    }
+    .session-last .sl-meta { font-size: 12px; font-weight: 700; margin-bottom: 4px; }
+    .session-last .sl-topic { font-weight: 600; margin-bottom: 4px; }
+    .session-last .sl-sum { color: var(--ink); white-space: pre-wrap; }
+    .session-last .sl-focus { margin-top: 6px; color: #5a4a32; }
     @media (max-width: 640px) {
       #app { padding: 20px 16px 56px; }
       .hub-intro { padding: 14px; border-radius: 12px; }
@@ -750,6 +776,13 @@
     </div>
     <div class="modal-body">
       <div id="sessionAstro" class="session-astro" style="display:none;white-space:pre-wrap;font-size:12.5px;line-height:1.7;color:#4a3520;background:#f5efe3;border:1px solid rgba(139,111,71,.2);border-left:3px solid #c8a96e;border-radius:10px;padding:11px 14px;margin-bottom:14px;"></div>
+      <div id="sessionLast" class="session-last" aria-live="polite">
+        <div class="sl-label">지난 회차 · 재상담 이어가기</div>
+        <div class="sl-meta" id="sessionLastMeta"></div>
+        <div class="sl-topic" id="sessionLastTopic"></div>
+        <div class="sl-sum" id="sessionLastSum"></div>
+        <div class="sl-focus" id="sessionLastFocus"></div>
+      </div>
       <form id="sessionForm" class="session-add" autocomplete="off">
         <div>
           <label for="sDate">상담일</label>
@@ -760,8 +793,16 @@
           <input id="sNext" type="date"/>
         </div>
         <div class="full">
+          <label for="sTopic">이번 주제 / 질문 (선택)</label>
+          <input id="sTopic" type="text" maxlength="200" placeholder="예: 이직 타이밍, 연애 흐름"/>
+        </div>
+        <div class="full">
           <label for="sSummary">세션 요약</label>
-          <textarea id="sSummary" placeholder="다룬 주제, 고객 반응, 과제, 다음 상담 포인트…"></textarea>
+          <textarea id="sSummary" placeholder="고객 반응, 핵심 해석, 과제 등"></textarea>
+        </div>
+        <div class="full">
+          <label for="sNextFocus">다음 상담 포인트 (선택)</label>
+          <input id="sNextFocus" type="text" maxlength="300" placeholder="다음에 꼭 이어갈 말·확인할 것"/>
         </div>
         <div class="full modal-actions">
           <button type="submit" class="btn-sm">기록 추가</button>
@@ -960,7 +1001,9 @@
           (tags ? ' · ' + escapeHtml(tags) : '') +
           (next ? ' · 다음 약속 ' + escapeHtml(String(next)) : '');
         const lastLine = ls.last
-          ? '<span class="last-visit">최근 상담 ' + escapeHtml(ls.last) + ' (' + escapeHtml(daysAgoLabel(ls.last)) + ') · 총 ' + ls.count + '회</span>'
+          ? '<span class="last-visit">최근 상담 ' + escapeHtml(ls.last) + ' (' + escapeHtml(daysAgoLabel(ls.last)) + ') · 총 ' + ls.count + '회'
+            + (ls.topic ? ' · ' + escapeHtml(ls.topic) : '')
+            + '</span>'
           : '<span class="last-visit none">상담 기록 없음</span>';
         div.innerHTML =
           '<div class="meta"><strong>' + dn + '</strong><span>' + sub + '</span>' + lastLine + '</div>' +
@@ -1023,11 +1066,21 @@
     async function loadSessions() {
       const { data, error } = await sb
         .from('counselor_sessions')
-        .select('id,client_id,session_date,summary,next_appointment,created_at')
+        .select('id,client_id,session_date,summary,next_appointment,topic,next_focus,created_at')
         .order('session_date', { ascending: false });
       if (error) {
-        sessionRows = [];
-        sessionsAvailable = false;
+        // topic/next_focus 미적용 DB면 구 스키마로 재시도
+        const retry = await sb
+          .from('counselor_sessions')
+          .select('id,client_id,session_date,summary,next_appointment,created_at')
+          .order('session_date', { ascending: false });
+        if (retry.error) {
+          sessionRows = [];
+          sessionsAvailable = false;
+          return;
+        }
+        sessionsAvailable = true;
+        sessionRows = (retry.data || []).map((s) => ({ ...s, topic: null, next_focus: null }));
         return;
       }
       sessionsAvailable = true;
@@ -1173,11 +1226,21 @@
       return y + '-' + m + '-' + da;
     }
     function clientLastSession(clientId) {
-      const dates = sessionRows
+      const rows = sessionRows
         .filter((s) => s.client_id === clientId && s.session_date)
-        .map((s) => String(s.session_date))
-        .sort();
-      return { last: dates.length ? dates[dates.length - 1] : null, count: dates.length };
+        .slice()
+        .sort((a, b) => {
+          const d = String(a.session_date).localeCompare(String(b.session_date));
+          if (d !== 0) return d;
+          return String(a.created_at || '').localeCompare(String(b.created_at || ''));
+        });
+      if (!rows.length) return { last: null, count: 0, topic: '' };
+      const lastRow = rows[rows.length - 1];
+      return {
+        last: String(lastRow.session_date),
+        count: rows.length,
+        topic: String(lastRow.topic || '').trim(),
+      };
     }
     function daysAgoLabel(dateStr) {
       const d = new Date(dateStr + 'T00:00:00');
@@ -1980,9 +2043,9 @@
         const nameById = {};
         clientRows.forEach((c) => { nameById[c.id] = c.display_name || c.legal_name || ''; });
         lines.push('');
-        lines.push(['[상담기록]', '고객', '상담일', '요약', '다음약속'].map(csvCell).join('\t'));
+        lines.push(['[상담기록]', '고객', '상담일', '주제', '요약', '다음포인트', '다음약속'].map(csvCell).join('\t'));
         sessionRows.slice().sort((a, b) => String(a.session_date).localeCompare(String(b.session_date))).forEach((s) => {
-          lines.push(['', nameById[s.client_id] || '', s.session_date || '', s.summary || '', s.next_appointment || ''].map(csvCell).join('\t'));
+          lines.push(['', nameById[s.client_id] || '', s.session_date || '', s.topic || '', s.summary || '', s.next_focus || '', s.next_appointment || ''].map(csvCell).join('\t'));
         });
       }
       const blob = new Blob([strToUtf16LeBytes(lines.join('\r\n'))], { type: 'text/csv;charset=utf-16le;' });
@@ -2026,10 +2089,51 @@
     document.getElementById('sessionModalClose').addEventListener('click', closeSessionModal);
     sessionModal.addEventListener('click', (e) => { if (e.target === sessionModal) closeSessionModal(); });
 
+    function truncateText(s, n) {
+      const t = String(s || '').trim();
+      if (!t) return '';
+      if (t.length <= n) return t;
+      return t.slice(0, n) + '…';
+    }
+
+    function renderSessionLastBox() {
+      const box = document.getElementById('sessionLast');
+      if (!box) return;
+      const rows = sessionRows
+        .filter((s) => s.client_id === activeClientId && s.session_date)
+        .slice()
+        .sort((a, b) => {
+          const d = String(b.session_date).localeCompare(String(a.session_date));
+          if (d !== 0) return d;
+          return String(b.created_at || '').localeCompare(String(a.created_at || ''));
+        });
+      const last = rows[0];
+      if (!last) {
+        box.classList.remove('is-visible');
+        return;
+      }
+      const topic = String(last.topic || '').trim();
+      const sum = String(last.summary || '').trim();
+      const focus = String(last.next_focus || '').trim();
+      document.getElementById('sessionLastMeta').textContent =
+        String(last.session_date) + (daysAgoLabel(String(last.session_date)) ? ' · ' + daysAgoLabel(String(last.session_date)) : '');
+      const topicEl = document.getElementById('sessionLastTopic');
+      topicEl.textContent = topic ? '주제: ' + topic : '';
+      topicEl.style.display = topic ? 'block' : 'none';
+      const sumEl = document.getElementById('sessionLastSum');
+      const sumShort = truncateText(sum, 160);
+      sumEl.textContent = sumShort;
+      sumEl.style.display = sumShort ? 'block' : 'none';
+      const focusEl = document.getElementById('sessionLastFocus');
+      focusEl.textContent = focus ? '다음 포인트: ' + focus : '';
+      focusEl.style.display = focus ? 'block' : 'none';
+      box.classList.add('is-visible');
+    }
+
     function renderSessionList() {
       const listElS = document.getElementById('sessionList');
       if (!sessionsAvailable) {
-        listElS.innerHTML = '<p class="session-empty">세션 기록 기능을 쓰려면 Supabase SQL 에디터에서 <code class="inline-code">database/counselor_sessions.sql</code>을 먼저 실행해 주세요.</p>';
+        listElS.innerHTML = '<p class="session-empty">세션 기록 기능을 쓰려면 Supabase SQL 에디터에서 <code class="inline-code">database/counselor_sessions.sql</code>을 먼저 실행해 주세요. 주제·다음 포인트는 <code class="inline-code">database/counselor_sessions_extend.sql</code>도 실행하세요.</p>';
         return;
       }
       const rows = sessionRows.filter((s) => s.client_id === activeClientId);
@@ -2041,7 +2145,9 @@
         '<div class="session-item">' +
         '<div class="s-date"><span>' + escapeHtml(String(s.session_date)) + '</span>' +
         '<button type="button" data-del-session="' + s.id + '">삭제</button></div>' +
+        (s.topic ? '<div class="s-topic">' + escapeHtml(String(s.topic)) + '</div>' : '') +
         (s.summary ? '<div class="s-sum">' + escapeHtml(s.summary) + '</div>' : '') +
+        (s.next_focus ? '<div class="s-focus">다음 포인트: ' + escapeHtml(String(s.next_focus)) + '</div>' : '') +
         (s.next_appointment ? '<div class="s-next">다음 약속: ' + escapeHtml(String(s.next_appointment)) + '</div>' : '') +
         '</div>'
       ).join('');
@@ -2052,8 +2158,10 @@
           const { error } = await sb.from('counselor_sessions').delete().eq('id', sid);
           if (error) { sessionMsgEl.textContent = error.message; sessionMsgEl.classList.add('err'); return; }
           await loadSessions();
+          renderSessionLastBox();
           renderSessionList();
           renderDashboard();
+          applyClientFilter();
         });
       });
     }
@@ -2080,6 +2188,7 @@
       document.getElementById('sDate').value = ymd(new Date());
       sessionMsgEl.textContent = '';
       sessionMsgEl.classList.remove('err');
+      renderSessionLastBox();
       renderSessionList();
       sessionModal.classList.add('open');
     }
@@ -2096,15 +2205,28 @@
       }
       const session_date = document.getElementById('sDate').value;
       const next_appointment = document.getElementById('sNext').value || null;
+      const topic = document.getElementById('sTopic').value.trim() || null;
       const summary = document.getElementById('sSummary').value.trim() || null;
+      const next_focus = document.getElementById('sNextFocus').value.trim() || null;
       if (!session_date) return;
-      const { error } = await sb.from('counselor_sessions').insert({
+      const payload = {
         counselor_id: uid,
         client_id: activeClientId,
         session_date,
         summary,
         next_appointment,
-      });
+        topic,
+        next_focus,
+      };
+      let { error } = await sb.from('counselor_sessions').insert(payload);
+      if (error && /topic|next_focus/i.test(error.message || '')) {
+        delete payload.topic;
+        delete payload.next_focus;
+        ({ error } = await sb.from('counselor_sessions').insert(payload));
+        if (!error) {
+          sessionMsgEl.textContent = '저장됨. 주제·다음 포인트 컬럼이 없어 요약만 저장했습니다. Supabase에서 counselor_sessions_extend.sql을 실행해 주세요.';
+        }
+      }
       if (error) { sessionMsgEl.textContent = error.message; sessionMsgEl.classList.add('err'); return; }
       // 다음 약속이 입력되면 고객 카드에도 반영(목록·대시보드 동기화)
       if (next_appointment) {
@@ -2114,9 +2236,12 @@
       }
       document.getElementById('sSummary').value = '';
       document.getElementById('sNext').value = '';
+      document.getElementById('sTopic').value = '';
+      document.getElementById('sNextFocus').value = '';
       await loadClients();
+      renderSessionLastBox();
       renderSessionList();
-      sessionMsgEl.textContent = '기록을 추가했습니다.';
+      if (!sessionMsgEl.textContent) sessionMsgEl.textContent = '기록을 추가했습니다.';
     });
 
     await loadClients();
