@@ -96,7 +96,7 @@
     .ai-mode-btn.active { border-color: var(--deep); background: var(--parchment); color: var(--deep); }
     .ai-draft-form { display: grid; gap: 10px; margin-bottom: 12px; }
     @media (min-width: 640px) {
-      .ai-draft-form { grid-template-columns: 1fr 1fr; align-items: end; }
+      .ai-draft-form { grid-template-columns: 1fr 1fr; align-items: start; }
       .ai-draft-form .full { grid-column: 1 / -1; }
     }
     .ai-draft-form label { font-size: 11px; color: var(--muted); display: block; margin-bottom: 5px; }
@@ -105,7 +105,7 @@
       font-family: var(--font-body); font-size: 13px; background: #fff; color: var(--ink);
     }
     .ai-draft-form textarea { min-height: 88px; resize: vertical; }
-    .ai-client-tools { display: flex; flex-wrap: wrap; gap: 8px; align-items: flex-end; margin-top: 8px; }
+    .ai-client-tools { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin: 0; }
     .ai-client-tools .btn-sm { text-decoration: none; display: inline-flex; align-items: center; }
     .ai-client-tools .btn-sm[aria-disabled="true"] {
       opacity: .45; pointer-events: none; cursor: not-allowed;
@@ -371,16 +371,16 @@
         <div>
           <label for="aiClient">고객 (선택 · CRM 연결)</label>
           <select id="aiClient"></select>
-          <div class="ai-client-tools">
-            <a class="btn-sm outline" id="aiLinkNumerology" href="analysis.html" target="_blank" rel="noopener" aria-disabled="true">수비학 분석</a>
-            <a class="btn-sm outline" id="aiLinkAstro" href="astrology.html" target="_blank" rel="noopener" aria-disabled="true">점성학 차트</a>
-          </div>
         </div>
         <div>
           <label for="aiNickname">호칭 / 닉네임</label>
           <input id="aiNickname" type="text" maxlength="40" placeholder="예: 민지님 · 고객님"/>
         </div>
-        <div class="ai-num-brief" id="aiNumBrief" hidden>
+        <div class="full ai-client-tools">
+          <a class="btn-sm outline" id="aiLinkNumerology" href="analysis.html" target="_blank" rel="noopener" aria-disabled="true">수비학 분석</a>
+          <a class="btn-sm outline" id="aiLinkAstro" href="astrology.html" target="_blank" rel="noopener" aria-disabled="true">점성학 차트</a>
+        </div>
+        <div class="ai-num-brief full" id="aiNumBrief" hidden>
           <div class="ai-num-brief-head">
             <strong id="aiNumBriefTitle">수비학 한눈</strong>
             <span>세션 중 참고용 · 짧게만</span>
