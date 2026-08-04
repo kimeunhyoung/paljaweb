@@ -13,8 +13,6 @@
   <script src="js/plan-access.js?v=1"></script>
   <script src="js/ai-quota-client.js?v=2"></script>
   <script src="js/counselor-tarot-deck.js?v=4"></script>
-  <script src="js/tarot-major-scripted.js?v=1"></script>
-  <script src="js/tarot-minor-scripted.js?v=1"></script>
   <script src="js/attribution.js"></script>
   <script src="js/site-topbar.js?v=5" defer></script>
   <script src="js/topbar-session.js?v=6" defer></script>
@@ -1244,39 +1242,6 @@
         return 'general';
       }
 
-      function clipMeaning(text, max) {
-        const t = String(text || '').replace(/【[^】]+】\s*/g, '').replace(/\s+/g, ' ').trim();
-        if (!t) return '';
-        if (t.length <= max) return t;
-        return t.slice(0, max - 1) + '…';
-      }
-
-      /** 타로코드 유니(RWS식) — 주제별 핵심만 짧게 (긴 본문은 AI가 질문에 맞춰 쓰게) */
-      function meaningRefForCard(card, topic) {
-        const ctx = { curMode: 'question', curTopic: topic === 'general' ? 'custom' : topic };
-        const scripted = card.num <= 21
-          ? (window.getTarotMajorScripted && window.getTarotMajorScripted(card.num, ctx))
-          : (window.getTarotMinorScripted && window.getTarotMinorScripted(card.num, ctx));
-        if (!scripted) return '';
-        const lines = [];
-        if (scripted.mainTitle) lines.push('핵심: ' + clipMeaning(scripted.mainTitle, 110));
-        if (card.rev) {
-          const caution = card.num <= 21
-            ? (window.getTarotMajorScripted && window.getTarotMajorScripted(card.num, { role: 'dont' }))
-            : (window.getTarotMinorScripted && window.getTarotMinorScripted(card.num, { role: 'dont' }));
-          if (scripted.summary) lines.push('정방향 한줄(참고): ' + clipMeaning(scripted.summary, 140));
-          if (caution && caution.doDontBody) {
-            lines.push('역·주의 포인트: ' + clipMeaning(caution.doDontBody, 280));
-          } else {
-            lines.push('※ 역방향: 핵심 에너지가 막히거나 과도·부족·내면화');
-          }
-        } else {
-          if (scripted.summary) lines.push('한줄: ' + clipMeaning(scripted.summary, 160));
-          if (scripted.advice) lines.push('조언핵: ' + clipMeaning(scripted.advice, 200));
-        }
-        return lines.join('\n');
-      }
-
       function resolveReadingTopic(question) {
         const sel = document.getElementById('aiTopic');
         const v = sel ? sel.value : 'auto';
@@ -1562,11 +1527,6 @@
 
         const topic = resolveReadingTopic(question);
         const topicLabel = TOPIC_LABEL[topic] || topic;
-        const meaningBlock = cards.map((c) => {
-          const ref = meaningRefForCard(c, topic);
-          return '· ' + c.pos + ' / ' + c.num + '. ' + c.name + (c.rev ? ' (역)' : ' (정)') +
-            (ref ? '\n' + ref : '\n(해설 DB 없음 — 일반 타로 지식으로 신중히)');
-        }).join('\n\n');
 
         const depthHint = cards.length <= 1
           ? '기본 리딩: 카드 1장 중심으로 짧고 명확하게. 질문 한 줄에 바로 닿게.'
@@ -1577,6 +1537,7 @@
 `당신은 타로를 쓰는 전문 상담사의 '세션 보조 작가'입니다.
 상담사가 고객 채팅/대면에 **그대로 붙여넣고 살짝 다듬을** 해석 초안을 작성하세요.
 AI가 고객에게 직접 말하는 앱이 아닙니다.
+라이더–웨이트(유니버설) 전통의 일반적 카드 의미를 기준으로 하세요.
 
 [고객 호칭] ${displayName}
 ${client ? '[CRM] 생년월일: ' + (client.birth_date || '미상') + ' / 최근 상담: ' + (ls.last || '없음') + (ls.topic ? ' · ' + ls.topic : '') + '\n' : ''}
@@ -1589,13 +1550,6 @@ ${cardLines}
 ${extraCards.length ? '\n(추가 카드는 본 스프래드 해석을 보완하는 조언/명확화로 다루세요.)\n' : ''}
 [깊이] ${depthHint}
 
-[카드별 의미 앵커 — 의미의 뼈대만. 문장은 질문에 맞게 새로 쓸 것]
-아래는 팔자연구소 타로코드 유니버설 해설의 **짧은 핵심**입니다. (${topicLabel} 관점)
-이 카드가 “무슨 카드인지”는 지키되, 긴 해설을 붙여넣지 말고 **고객 질문·포지션**에 맞게 문장을 새로 쓰세요.
-주제가 연애/금전 등이면 그 영역에 닿게 풀고, 질문과 무관한 영역 스토리는 끌어오지 마세요.
-
-${meaningBlock}
-
 규칙:
 1) 한국어. 고객에게 건네는 존댓말. 상담사가 읽어도 자연스럽게.
 2) 아래 소제목만 사용 (마크다운 ##):
@@ -1605,14 +1559,14 @@ ${meaningBlock}
 ## 오늘 가져갈 조언
 ## 주의 (과한 예언·단정 금지)
 3) 카드 해석: 포지션·번호·카드명·정역 명시 후,
-   (이 카드 핵심 한 줄) → (이 질문에 맞춘 상황) → (구체 행동/관점 1개). 2~4문장.
-4) 앵커와 완전히 다른 카드처럼 쓰지 말 것. 다만 앵커 문장을 통째로 베끼지 말 것.
-5) 「질문에 대한 답」은 카드들을 연결해 질문에 직접 답.
+   (이 카드 핵심) → (이 질문·주제에 맞춘 상황) → (구체 행동/관점 1개). 2~4문장.
+4) 여러 장이면 카드 간 연결을 쓰고, 「질문에 대한 답」에서 질문에 직접 답할 것.
+5) 추상적 일반론·동어반복 금지. 주제(${topicLabel})와 무관한 영역 스토리는 끌어오지 말 것.
 6) 점술 확정 예언·의료·법률·투자 단정 금지. "가능성이 있다/살펴볼 포인트"로.
 7) 이모지·불필요한 인사·면책 장문 금지. 복사해 쓰기 좋게.`;
 
         const cacheKey = PaljaAiQuota.hashKey([
-          'counselor_reading_v8',
+          'counselor_reading_v9',
           feature,
           topic,
           clientId || '',
