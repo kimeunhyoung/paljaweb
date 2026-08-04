@@ -416,7 +416,10 @@
         <button type="button" id="numTabPrint" data-tab="print">고객용 인쇄</button>
       </div>
       <div id="numPaneName">
-        <input type="search" class="num-table-search" id="numTableSearch" placeholder="카드 이름 검색 (예: 컵 5, 탑, 완드)" autocomplete="off"/>
+        <input type="search" class="num-table-search" id="numTableSearch" placeholder="예: 소드7 · 검7 · 컵5 · 탑" autocomplete="off"/>
+        <p class="num-table-hint" style="margin-top:-4px;margin-bottom:10px">슈트 이름: <strong>메이저</strong> · <strong>완드</strong> · <strong>컵</strong> · <strong>소드</strong> · <strong>펜타클</strong>
+          <span style="display:block;margin-top:4px;font-size:11px">별칭 가능 — 검/칼=소드, 지팡이=완드, 성배=컵, 동전=펜타클 · 띄어쓰기 없어도 됩니다 (소드7)</span>
+        </p>
         <div id="numNameList" class="num-name-list"></div>
       </div>
       <div id="numPaneNum" style="display:none">
@@ -804,10 +807,10 @@
       ];
       const GROUPS = [
         { label: '메이저', from: 1, to: 22 },
-        { label: '완드', from: 23, to: 36 },
-        { label: '컵', from: 37, to: 50 },
-        { label: '소드', from: 51, to: 64 },
-        { label: '펜타클', from: 65, to: 78 },
+        { label: '완드 (지팡이)', from: 23, to: 36 },
+        { label: '컵 (성배)', from: 37, to: 50 },
+        { label: '소드 (검)', from: 51, to: 64 },
+        { label: '펜타클 (동전)', from: 65, to: 78 },
       ];
       const MAX_CARDS = 6;
       let mode = 'basic'; // basic | advanced
@@ -1305,6 +1308,41 @@
           if (slots.every((s) => s.num != null)) close();
         }
 
+        function normalizeCardQuery(raw) {
+          let s = String(raw || '').trim().toLowerCase();
+          if (!s) return '';
+          s = s
+            .replace(/swords?/g, '소드')
+            .replace(/wands?/g, '완드')
+            .replace(/cups?/g, '컵')
+            .replace(/pentacles?|coins?/g, '펜타클')
+            .replace(/검|칼|스워드/g, '소드')
+            .replace(/지팡이|막대|완즈/g, '완드')
+            .replace(/성배/g, '컵')
+            .replace(/동전|펜타|코인/g, '펜타클')
+            .replace(/\s+/g, '');
+          return s;
+        }
+
+        function cardMatchesQuery(card, num, raw) {
+          const q = normalizeCardQuery(raw);
+          if (!q) return true;
+          const nameCompact = String(card.name || '').toLowerCase().replace(/\s+/g, '');
+          const numStr = String(num);
+          if (numStr.includes(String(raw).trim()) || numStr === q) return true;
+          if (nameCompact.includes(q)) return true;
+          // "7소드" 같은 순서도 허용
+          const m = q.match(/^(\d+)(소드|완드|컵|펜타클|메이저)?$/) || q.match(/^(소드|완드|컵|펜타클)(\d+)$/);
+          if (m) {
+            const suit = m[1] && /[가-힣]/.test(m[1]) ? m[1] : m[2];
+            const rank = m[1] && /^\d+$/.test(m[1]) ? m[1] : m[2];
+            if (suit && !nameCompact.includes(suit)) return false;
+            if (rank && !nameCompact.includes(rank) && numStr !== rank) return false;
+            return true;
+          }
+          return false;
+        }
+
         function refreshPickers() {
           const used = usedNums();
           if (grid) {
@@ -1327,13 +1365,13 @@
             printGrid.dataset.ready = '1';
           }
           if (nameList) {
-            const q = ((searchEl && searchEl.value) || '').trim().toLowerCase();
+            const rawQ = (searchEl && searchEl.value) || '';
             nameList.innerHTML = GROUPS.map((g) => {
               const rows = [];
               for (let n = g.from; n <= g.to; n++) {
                 const c = cardFor(n);
                 if (!c) continue;
-                if (q && !(String(n).includes(q) || c.name.toLowerCase().includes(q))) continue;
+                if (!cardMatchesQuery(c, n, rawQ)) continue;
                 const u = used.has(n);
                 rows.push(
                   '<button type="button" class="num-name-row' + (u ? ' used' : '') +
@@ -1345,8 +1383,10 @@
                 );
               }
               if (!rows.length) return '';
-              return '<div class="num-name-group">' + escapeHtml(g.label) + '</div>' + rows.join('');
-            }).join('') || '<p class="num-table-hint">검색 결과가 없습니다.</p>';
+              return '<div class="num-name-group">' + escapeHtml(g.label) +
+                ' <span style="font-weight:500;color:var(--muted)">(' + g.from + '–' + g.to + ')</span></div>' +
+                rows.join('');
+            }).join('') || '<p class="num-table-hint">검색 결과가 없습니다. 슈트는 소드·완드·컵·펜타클로 적어 보세요.</p>';
             nameList.querySelectorAll('[data-pick-num]').forEach((btn) => {
               btn.addEventListener('click', () => onPick(Number(btn.getAttribute('data-pick-num'))));
             });
