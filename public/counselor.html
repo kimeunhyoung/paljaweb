@@ -13,6 +13,7 @@
   <script src="js/plan-access.js?v=1"></script>
   <script src="js/astro-cities.js?v=1"></script>
   <script src="js/ai-quota-client.js?v=2"></script>
+  <script src="js/counselor-copy-summary.js?v=1"></script>
   <script src="js/attribution.js"></script>
   <script src="js/site-topbar.js?v=5" defer></script>
   <script src="js/topbar-session.js?v=6" defer></script>
@@ -531,6 +532,13 @@
     .ai-draft-msg { font-size: 12px; margin-top: 8px; color: var(--teal); }
     .ai-draft-msg.err { color: #8b3a3a; }
 
+    .copy-sum-out {
+      white-space: pre-wrap; font-size: 13px; line-height: 1.7; color: var(--ink);
+      background: var(--parchment); border: 1px solid var(--border); border-radius: 10px;
+      padding: 14px 16px; max-height: 50vh; overflow-y: auto;
+    }
+    .copy-sum-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+
     /* 신입용 세션 스크립트 */
     .script-panel { background: #fff; border: 1px solid var(--border); border-radius: 12px; padding: 18px 20px; box-shadow: 0 6px 18px rgba(44,31,14,.05); }
     .script-intro { font-size: 12.5px; color: var(--muted); line-height: 1.55; margin-bottom: 12px; }
@@ -857,7 +865,7 @@
 
     <div class="section-title">고객 카드</div>
     <div class="client-panel">
-      <p class="client-intro">상담 대상별로 생일·이름을 저장해 두었다가 <strong>라이프코드 분석</strong>으로 바로 불러올 수 있어요. 고객 수 <strong>무제한</strong>이며, 위의 <strong>CSV 내보내기</strong>로 언제든 백업할 수 있습니다. (Supabase에 <code class="inline-code">counselor_clients</code> 테이블이 있어야 합니다.)</p>
+      <p class="client-intro">상담 대상별로 생일·이름을 저장해 두었다가 <strong>요약 복사</strong>로 짧은 수비학 문장을 바로 붙이거나, <strong>라이프코드 분석</strong>으로 자세히 볼 수 있어요. 고객 수 <strong>무제한</strong>이며, 위의 <strong>CSV 내보내기</strong>로 언제든 백업할 수 있습니다.</p>
       <form id="clientForm" class="client-form" autocomplete="off">
         <input type="hidden" id="editClientId" value=""/>
         <div>
@@ -968,6 +976,26 @@
       <label for="sessionNotes">상담 중 빠른 메모 (이 기기 브라우저에만 저장)</label>
       <textarea id="sessionNotes" placeholder="고객 반응, 다시 볼 포인트, 과제 등"></textarea>
       <p class="notes-hint">자동 저장됩니다. 고객별로 남는 영구 기록은 각 고객의 <strong>상담 기록</strong> 버튼을 이용하세요.</p>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="copySumModal">
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="copySumTitle">
+    <div class="modal-head">
+      <div>
+        <h3 id="copySumTitle">수비학 요약</h3>
+        <div class="sub">상담 중 바로 붙여 넣을 짧은 문장입니다. 필요하면 다듬어 쓰세요.</div>
+      </div>
+      <button type="button" class="modal-close" id="copySumClose" aria-label="닫기">×</button>
+    </div>
+    <div class="modal-body">
+      <div id="copySumOut" class="copy-sum-out"></div>
+      <div class="copy-sum-actions">
+        <button type="button" class="btn-sm" id="copySumDoBtn">클립보드에 복사</button>
+        <button type="button" class="btn-sm outline" id="copySumCloseBtn">닫기</button>
+      </div>
+      <p id="copySumMsg" class="form-msg"></p>
     </div>
   </div>
 </div>
@@ -1221,7 +1249,8 @@
         div.innerHTML =
           '<div class="meta"><strong>' + dn + '</strong><span>' + sub + '</span>' + lastLine + '</div>' +
           '<div class="row-btns">' +
-          '<button type="button" class="primary" data-act="analyze" data-id="' + row.id + '">분석 열기</button>' +
+          '<button type="button" class="primary" data-act="copy-sum" data-id="' + row.id + '">요약 복사</button>' +
+          '<button type="button" class="ghost" data-act="analyze" data-id="' + row.id + '">분석 열기</button>' +
           '<button type="button" class="ghost" data-act="astro" data-id="' + row.id + '">점성학 차트</button>' +
           '<button type="button" class="ghost" data-act="sessions" data-id="' + row.id + '">상담 기록</button>' +
           '<button type="button" data-act="edit" data-id="' + row.id + '">수정</button>' +
@@ -1443,10 +1472,72 @@
       }
     }
 
+    function openCopySummary(clientId) {
+      const c = clientRows.find((x) => x.id === clientId);
+      const modal = document.getElementById('copySumModal');
+      const out = document.getElementById('copySumOut');
+      const msg = document.getElementById('copySumMsg');
+      const title = document.getElementById('copySumTitle');
+      if (!c || !modal || !out) return;
+      if (!window.PaljaCounselorCopySummary) {
+        if (msg) {
+          msg.textContent = '요약 모듈을 불러오지 못했습니다. 새로고침 후 다시 시도해 주세요.';
+          msg.classList.add('err');
+        }
+        return;
+      }
+      const built = PaljaCounselorCopySummary.build(c);
+      if (!built.ok) {
+        out.textContent = built.error || '요약을 만들 수 없습니다.';
+        if (title) title.textContent = '수비학 요약';
+        if (msg) { msg.textContent = ''; msg.classList.remove('err'); }
+        modal.dataset.copyText = '';
+        modal.classList.add('open');
+        return;
+      }
+      out.textContent = built.text;
+      if (title) title.textContent = built.title || '수비학 요약';
+      modal.dataset.copyText = built.text;
+      if (msg) { msg.textContent = ''; msg.classList.remove('err'); }
+      modal.classList.add('open');
+    }
+
+    (function initCopySumModal() {
+      const modal = document.getElementById('copySumModal');
+      if (!modal) return;
+      function close() { modal.classList.remove('open'); }
+      const closeX = document.getElementById('copySumClose');
+      const closeBtn = document.getElementById('copySumCloseBtn');
+      if (closeX) closeX.addEventListener('click', close);
+      if (closeBtn) closeBtn.addEventListener('click', close);
+      modal.addEventListener('click', (e) => { if (e.target === modal) close(); });
+      const doBtn = document.getElementById('copySumDoBtn');
+      if (doBtn) {
+        doBtn.addEventListener('click', async () => {
+          const text = modal.dataset.copyText || '';
+          const msg = document.getElementById('copySumMsg');
+          if (!text) {
+            if (msg) { msg.textContent = '복사할 내용이 없습니다.'; msg.classList.add('err'); }
+            return;
+          }
+          try {
+            await navigator.clipboard.writeText(text);
+            if (msg) { msg.textContent = '클립보드에 복사했습니다.'; msg.classList.remove('err'); }
+          } catch (_) {
+            if (msg) { msg.textContent = '복사에 실패했습니다. 텍스트를 직접 선택해 주세요.'; msg.classList.add('err'); }
+          }
+        });
+      }
+    })();
+
     async function onRowAction(e) {
       const btn = e.currentTarget;
       const id = btn.getAttribute('data-id');
       const act = btn.getAttribute('data-act');
+      if (act === 'copy-sum') {
+        openCopySummary(id);
+        return;
+      }
       if (act === 'analyze') {
         window.location.href = 'analysis.html?client=' + encodeURIComponent(id);
         return;
