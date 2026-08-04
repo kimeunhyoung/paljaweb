@@ -13,6 +13,7 @@
   <script src="js/plan-access.js?v=1"></script>
   <script src="js/astro-cities.js?v=1"></script>
   <script src="js/ai-quota-client.js?v=2"></script>
+  <script src="js/counselor-tarot-deck.js?v=1"></script>
   <script src="js/counselor-copy-summary.js?v=1"></script>
   <script src="js/attribution.js"></script>
   <script src="js/site-topbar.js?v=5" defer></script>
@@ -499,10 +500,19 @@
     }
     .push-remind-hint { font-size: 11px; color: var(--muted); line-height: 1.45; flex: 1 1 100%; }
 
-    /* AI 세션 초안 */
+    /* 상담사 AI 리딩 */
     .ai-draft-panel { background: #fff; border: 1px solid var(--border); border-radius: 12px; padding: 18px 20px; box-shadow: 0 6px 18px rgba(44,31,14,.05); }
     .ai-draft-intro { font-size: 12.5px; color: var(--muted); line-height: 1.55; margin-bottom: 14px; }
     .ai-draft-intro strong { color: var(--deep); }
+    .ai-mode-row { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 14px; }
+    .ai-mode-btn {
+      flex: 1 1 140px; text-align: left; padding: 10px 12px; border-radius: 10px;
+      border: 1px solid var(--border); background: #fff; cursor: pointer; font-family: var(--font-body);
+      color: var(--muted); transition: border-color .15s, background .15s, color .15s;
+    }
+    .ai-mode-btn strong { display: block; font-size: 13px; color: var(--deep); margin-bottom: 2px; }
+    .ai-mode-btn span { font-size: 11px; line-height: 1.4; }
+    .ai-mode-btn.active { border-color: var(--deep); background: var(--parchment); color: var(--deep); }
     .ai-draft-form { display: grid; gap: 10px; margin-bottom: 12px; }
     @media (min-width: 640px) {
       .ai-draft-form { grid-template-columns: 1fr 1fr; align-items: end; }
@@ -513,24 +523,56 @@
       width: 100%; padding: 9px 11px; border: 1px solid var(--border); border-radius: 8px;
       font-family: var(--font-body); font-size: 13px; background: #fff; color: var(--ink);
     }
-    .ai-draft-form textarea { min-height: 64px; resize: vertical; }
+    .ai-draft-form textarea { min-height: 88px; resize: vertical; }
     .ai-draft-actions { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
     .ai-draft-quota { font-size: 11px; color: var(--teal); font-weight: 600; }
-    .ai-draft-cards { display: flex; flex-wrap: wrap; gap: 8px; margin: 10px 0 4px; }
-    .ai-draft-card {
-      background: var(--parchment); border: 1px solid var(--border); border-radius: 8px;
-      padding: 8px 12px; font-size: 12px; color: var(--deep); min-width: 120px;
+    .ai-card-slots { display: grid; gap: 10px; margin: 4px 0 8px; }
+    @media (min-width: 640px) { .ai-card-slots { grid-template-columns: repeat(3, 1fr); } }
+    .ai-card-slot {
+      background: var(--parchment); border: 1px solid var(--border); border-radius: 10px; padding: 12px;
     }
-    .ai-draft-card strong { display: block; font-size: 13px; margin-bottom: 2px; }
-    .ai-draft-card span { font-size: 11px; color: var(--muted); }
+    .ai-card-slot h4 { font-size: 11px; color: var(--muted); margin: 0 0 8px; letter-spacing: .03em; }
+    .ai-card-slot .slot-row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+    .ai-card-slot input[type="number"] {
+      width: 72px; padding: 8px 10px; border: 1px solid var(--border); border-radius: 8px;
+      font-family: var(--font-body); font-size: 14px; font-weight: 600; background: #fff; color: var(--ink);
+    }
+    .ai-card-slot .slot-name { flex: 1 1 100px; font-size: 13px; color: var(--deep); font-weight: 600; min-height: 1.2em; }
+    .ai-card-slot .slot-kw { font-size: 11px; color: var(--muted); margin-top: 4px; min-height: 1.2em; }
+    .ai-orient {
+      display: inline-flex; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; background: #fff;
+    }
+    .ai-orient button {
+      border: none; background: transparent; padding: 7px 10px; font-size: 12px; cursor: pointer;
+      font-family: var(--font-body); color: var(--muted);
+    }
+    .ai-orient button.active { background: var(--deep); color: #fff; }
     .ai-draft-out {
       margin-top: 12px; background: var(--parchment); border: 1px solid var(--border);
       border-radius: 10px; padding: 14px 16px; font-size: 13px; line-height: 1.7; color: var(--ink);
-      white-space: pre-wrap; min-height: 80px;
+      white-space: pre-wrap; min-height: 100px;
     }
     .ai-draft-out.is-empty { color: var(--muted); }
     .ai-draft-msg { font-size: 12px; margin-top: 8px; color: var(--teal); }
     .ai-draft-msg.err { color: #8b3a3a; }
+    .num-table-grid {
+      display: grid; grid-template-columns: repeat(6, 1fr); gap: 6px;
+    }
+    @media (min-width: 520px) { .num-table-grid { grid-template-columns: repeat(10, 1fr); } }
+    .num-table-cell {
+      aspect-ratio: 1; display: flex; align-items: center; justify-content: center;
+      border: 1px solid var(--border); border-radius: 8px; background: var(--parchment);
+      font-size: 13px; font-weight: 700; color: var(--deep); font-family: var(--font-body);
+    }
+    .num-table-hint { font-size: 12px; color: var(--muted); line-height: 1.5; margin-bottom: 12px; }
+    .script-panel details { border: none; }
+    .script-panel summary {
+      cursor: pointer; font-size: 13px; font-weight: 600; color: var(--deep); list-style: none;
+      padding: 2px 0 10px;
+    }
+    .script-panel summary::-webkit-details-marker { display: none; }
+    .script-panel summary::before { content: '▸ '; color: var(--muted); }
+    .script-panel details[open] summary::before { content: '▾ '; }
 
     .copy-sum-out {
       white-space: pre-wrap; font-size: 13px; line-height: 1.7; color: var(--ink);
@@ -651,12 +693,12 @@
 <div id="app">
   <div class="hub-intro">
     <h1>상담사 허브</h1>
-    <p>고객 관리 → 라이프코드·궁합 분석 → <strong>고객용 리포트 PDF</strong>와 <strong>고객별 세션 기록</strong>까지. 일정 캘린더·푸시 알림으로 오늘 상담을 챙기고, <strong>신입용 스크립트·AI 세션 초안</strong>·매출 장부로 운영까지. 이 화면은 <strong>Professional 상담사 전용</strong>으로 상담 업무 도구를 한곳에 모았습니다.</p>
+    <p>고객 관리 → 라이프코드·궁합 분석 → <strong>고객용 리포트 PDF</strong>와 <strong>고객별 세션 기록</strong>까지. 일정 캘린더·푸시 알림으로 오늘 상담을 챙기고, <strong>상담사 AI 리딩</strong>·신입용 스크립트·매출 장부로 운영까지. 이 화면은 <strong>Professional 상담사 전용</strong>으로 상담 업무 도구를 한곳에 모았습니다.</p>
     <p id="trialBadge" class="trial-badge" style="display:none" role="status"></p>
   </div>
   <div id="gate">
     <h2>Professional 플랜 전용</h2>
-    <p>상담사 허브는 <strong>Professional</strong> 요금제에서 이용할 수 있어요.<br>고객 카드·세션 기록(CRM), 일정 캘린더·중요 일정·웹 푸시, 신입용 세션 스크립트·AI 세션 초안, 간단 매출 장부, 상담사 대시보드, 브랜디드 리포트 PDF, 상담 준비 요약, 고객 간 궁합까지 상담 업무 도구가 함께 켜집니다.</p>
+    <p>상담사 허브는 <strong>Professional</strong> 요금제에서 이용할 수 있어요.<br>고객 카드·세션 기록(CRM), 일정 캘린더·중요 일정·웹 푸시, 상담사 AI 리딩·신입용 세션 스크립트, 간단 매출 장부, 상담사 대시보드, 브랜디드 리포트 PDF, 상담 준비 요약, 고객 간 궁합까지 상담 업무 도구가 함께 켜집니다.</p>
     <a class="cta" href="for-counselors.html">Professional 안내 보기</a>
     <a class="cta secondary" href="/lifecode/buy.html?product=counselor30" style="margin-left:8px;background:transparent;border:1.5px solid var(--border);color:var(--deep);">15일 체험 구매</a>
     <a class="cta secondary" href="pricing.html?checkout=professional" style="margin-left:8px;background:transparent;border:1.5px solid var(--border);color:var(--deep);">바로 구독</a>
@@ -778,51 +820,65 @@
       <p class="brand-hint">여기에 입력한 이름·로고가 <strong>고객용 리포트 PDF</strong> 머리글에 들어갑니다. 이 기기 브라우저에 저장됩니다.</p>
     </div>
 
-    <div class="section-title" id="session-scripts" style="margin-top:28px">신입용 세션 스크립트</div>
-    <div class="script-panel">
-      <p class="script-intro">주제를 고르면 <strong>오프닝 · 질문 · 마무리</strong> 예시가 나옵니다. 크레딧 없이 바로 쓸 수 있고, 아래에서 AI 초안으로 이어서 다듬을 수도 있습니다.</p>
-      <div class="script-chips" id="scriptChips" role="tablist"></div>
-      <div class="script-body" id="scriptBody"></div>
-      <div class="script-actions">
-        <button type="button" class="btn-sm" id="scriptToAiBtn">이 주제로 AI 초안 열기</button>
-        <button type="button" class="btn-sm outline" id="scriptCopyAllBtn">전체 복사</button>
-      </div>
-      <p id="scriptMsg" class="form-msg"></p>
-    </div>
-
-    <div class="section-title" id="ai-draft" style="margin-top:28px">상담사 AI 세션 초안</div>
+    <div class="section-title" id="ai-draft" style="margin-top:28px">상담사 AI 리딩</div>
     <div class="ai-draft-panel">
-      <p class="ai-draft-intro">고객·주제·(선택) 타로 3장을 넣으면 <strong>세션에서 쓸 해석 초안</strong>을 만듭니다. 위 <strong>신입용 세션 스크립트</strong>에서 주제를 고른 뒤 이어서 쓰면 편합니다. AI가 고객에게 직접 상담하는 기능이 아니라, 상담사가 다듬어 쓰는 Professional 전용 도구입니다. 생성 1회에 AI 크레딧 <strong>2</strong>가 차감됩니다.</p>
+      <p class="ai-draft-intro">질문과 카드 번호(정·역)를 넣으면 <strong>고객에게 붙여넣을 해석 초안</strong>을 만듭니다. 상담사가 다듬어 쓰는 Professional 전용 도구이며, AI가 대신 상담하지 않습니다. 기본 1장 <strong>크레딧 1</strong> · 심화 1~3장 <strong>크레딧 2</strong>.</p>
+      <div class="ai-mode-row" role="tablist" aria-label="리딩 모드">
+        <button type="button" class="ai-mode-btn active" id="aiModeBasic" data-mode="basic" role="tab" aria-selected="true">
+          <strong>기본 리딩</strong>
+          <span>카드 1장 · 크레딧 1</span>
+        </button>
+        <button type="button" class="ai-mode-btn" id="aiModeAdv" data-mode="advanced" role="tab" aria-selected="false">
+          <strong>심화 리딩</strong>
+          <span>카드 1~3장 · 크레딧 2</span>
+        </button>
+      </div>
       <form id="aiDraftForm" class="ai-draft-form" autocomplete="off">
         <div>
-          <label for="aiClient">고객 *</label>
-          <select id="aiClient" required></select>
+          <label for="aiClient">고객 (선택 · CRM 연결)</label>
+          <select id="aiClient"></select>
         </div>
         <div>
-          <label for="aiMode">모드</label>
-          <select id="aiMode">
-            <option value="tarot">타로 3장 초안</option>
-            <option value="topic">주제만 초안</option>
-          </select>
+          <label for="aiNickname">호칭 / 닉네임</label>
+          <input id="aiNickname" type="text" maxlength="40" placeholder="예: 민지님 · 고객님"/>
         </div>
         <div class="full">
-          <label for="aiTopic">이번 주제 / 질문 *</label>
-          <input id="aiTopic" type="text" maxlength="200" required placeholder="예: 이직 타이밍, 연애 흐름, 재회 가능성"/>
+          <label for="aiQuestion">질문 *</label>
+          <textarea id="aiQuestion" maxlength="800" required placeholder="키보드로 입력하거나, 카톡·메모에서 붙여넣기 하세요.&#10;예: 이직을 지금 해도 될까요? / 그 사람 마음이 궁금해요"></textarea>
         </div>
         <div class="full">
-          <label for="aiNote">추가 메모 (선택)</label>
-          <textarea id="aiNote" maxlength="500" placeholder="지난 회차 포인트, 고객이 말한 상황 등"></textarea>
+          <label for="aiNote">추가 메모 (선택 · 고객에게 안 보임)</label>
+          <textarea id="aiNote" maxlength="500" placeholder="지난 회차 포인트, 상담사가 알고 있는 맥락 등"></textarea>
+        </div>
+        <div class="full">
+          <label>뽑힌 카드</label>
+          <div id="aiCardSlots" class="ai-card-slots"></div>
         </div>
         <div class="full ai-draft-actions">
-          <button type="button" class="btn-sm outline" id="aiDrawBtn">타로 3장 뽑기</button>
-          <button type="submit" class="btn-sm" id="aiDraftBtn">초안 생성</button>
+          <button type="button" class="btn-sm outline" id="aiNumTableBtn">번호표 열기</button>
+          <button type="button" class="btn-sm outline" id="aiDrawBtn">랜덤 뽑기</button>
+          <button type="submit" class="btn-sm" id="aiDraftBtn">해석 생성</button>
           <button type="button" class="btn-sm outline" id="aiCopyBtn" style="display:none;">복사</button>
           <span class="ai-draft-quota" id="aiDraftQuota" hidden></span>
         </div>
       </form>
-      <div id="aiCardRow" class="ai-draft-cards" style="display:none;"></div>
-      <div id="aiDraftOut" class="ai-draft-out is-empty">아직 초안이 없습니다. 고객과 주제를 넣고 생성해 보세요.</div>
+      <div id="aiDraftOut" class="ai-draft-out is-empty">질문을 넣고 카드를 정한 뒤 해석을 생성해 보세요.</div>
       <p id="aiDraftMsg" class="ai-draft-msg"></p>
+    </div>
+
+    <div class="section-title" id="session-scripts" style="margin-top:28px">신입용 세션 스크립트</div>
+    <div class="script-panel">
+      <details>
+        <summary>오프닝 · 질문 · 마무리 예시 (크레딧 없음)</summary>
+        <p class="script-intro">주제를 고르면 예시가 나옵니다. <strong>이 주제로 질문 넣기</strong>로 AI 리딩 칸에 이어서 쓸 수 있습니다.</p>
+        <div class="script-chips" id="scriptChips" role="tablist"></div>
+        <div class="script-body" id="scriptBody"></div>
+        <div class="script-actions">
+          <button type="button" class="btn-sm" id="scriptToAiBtn">이 주제로 질문 넣기</button>
+          <button type="button" class="btn-sm outline" id="scriptCopyAllBtn">전체 복사</button>
+        </div>
+        <p id="scriptMsg" class="form-msg"></p>
+      </details>
     </div>
 
     <div class="section-title" style="margin-top:28px">운영 · 매출</div>
@@ -996,6 +1052,26 @@
         <button type="button" class="btn-sm outline" id="copySumCloseBtn">닫기</button>
       </div>
       <p id="copySumMsg" class="form-msg"></p>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="numTableModal">
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="numTableTitle" style="max-width:640px">
+    <div class="modal-head">
+      <div>
+        <h3 id="numTableTitle">타로 번호표 (1~78)</h3>
+        <div class="sub">원격 상담 시 고객에게 보내 숫자를 고르게 하세요. 인쇄·캡처·스크린샷으로 공유하면 됩니다.</div>
+      </div>
+      <button type="button" class="modal-close" id="numTableClose" aria-label="닫기">×</button>
+    </div>
+    <div class="modal-body">
+      <p class="num-table-hint">고객에게: 「번호 1~78 중 마음에 드는 숫자를 ○개 골라 알려 주세요.」 상담사는 받은 번호를 위 카드 칸에 입력하고 정·역을 정한 뒤 해석을 생성합니다.</p>
+      <div id="numTableGrid" class="num-table-grid" aria-hidden="false"></div>
+      <div class="copy-sum-actions" style="margin-top:14px">
+        <button type="button" class="btn-sm" id="numTablePrintBtn">인쇄 / PDF 저장</button>
+        <button type="button" class="btn-sm outline" id="numTableCloseBtn">닫기</button>
+      </div>
     </div>
   </div>
 </div>
@@ -2728,11 +2804,9 @@
       if (toAiBtn) {
         toAiBtn.addEventListener('click', () => {
           const t = getActive();
-          const topicEl = document.getElementById('aiTopic');
+          const qEl = document.getElementById('aiQuestion');
           const noteEl = document.getElementById('aiNote');
-          const modeEl = document.getElementById('aiMode');
-          if (topicEl) topicEl.value = t.topic;
-          if (modeEl) modeEl.value = t.mode;
+          if (qEl) qEl.value = t.topic;
           if (noteEl) {
             noteEl.value = [
               '[신입 스크립트 · ' + t.label + ']',
@@ -2744,7 +2818,7 @@
           }
           const aiSec = document.getElementById('ai-draft');
           if (aiSec) aiSec.scrollIntoView({ behavior: 'smooth', block: 'start' });
-          setScriptMsg('주제를 AI 초안 칸에 넣었습니다. 고객을 고른 뒤 생성하세요.');
+          setScriptMsg('질문을 AI 리딩 칸에 넣었습니다. 카드를 정한 뒤 생성하세요.');
         });
       }
 
@@ -2753,49 +2827,39 @@
       if (location.hash === '#session-scripts') {
         setTimeout(() => {
           const el = document.getElementById('session-scripts');
-          if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          if (el) {
+            const det = el.parentElement && el.parentElement.querySelector
+              ? document.querySelector('#session-scripts + .script-panel details')
+              : null;
+            if (det) det.open = true;
+            el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          }
         }, 400);
       }
     })();
 
-    // ── 상담사 AI 세션 초안 ──
+    // ── 상담사 AI 리딩 (시아식: 질문 + 카드번호 → 해석 → 복사) ──
     (function initAiDraft() {
-      const MAJOR = [
-        { name: '바보', kw: '시작·순수·모험' },
-        { name: '마법사', kw: '의지·실행·도구' },
-        { name: '여사제', kw: '직관·내면·비밀' },
-        { name: '여황제', kw: '풍요·돌봄·창조' },
-        { name: '황제', kw: '구조·권위·안정' },
-        { name: '교황', kw: '전통·가르침·규범' },
-        { name: '연인', kw: '선택·관계·가치' },
-        { name: '전차', kw: '추진·승리·통제' },
-        { name: '힘', kw: '용기·인내·자기통제' },
-        { name: '은둔자', kw: '성찰·고독·신중' },
-        { name: '운명의 수레바퀴', kw: '전환·순환·타이밍' },
-        { name: '정의', kw: '균형·진실·책임' },
-        { name: '매달린 남자', kw: '관점 전환·내려놓음' },
-        { name: '죽음', kw: '종료·변화·재탄생' },
-        { name: '절제', kw: '조화·중용·조율' },
-        { name: '악마', kw: '집착·속박·욕망' },
-        { name: '탑', kw: '충격·붕괴·각성' },
-        { name: '별', kw: '희망·치유·영감' },
-        { name: '달', kw: '불안·혼란·직감' },
-        { name: '태양', kw: '명확·기쁨·성공' },
-        { name: '심판', kw: '부름·각성·정리' },
-        { name: '세계', kw: '완성·통합·마무리' },
-      ];
-      const POS = ['상황', '핵심 메시지', '조언'];
-      let drawn = [];
+      const Deck = window.CounselorTarotDeck;
+      const POS_BASIC = ['카드'];
+      const POS_ADV = ['상황', '핵심 메시지', '조언'];
+      let mode = 'basic'; // basic | advanced
       let lastText = '';
+      /** @type {{ num: number|null, rev: boolean }[]} */
+      let slots = [{ num: null, rev: false }];
 
       const form = document.getElementById('aiDraftForm');
       const out = document.getElementById('aiDraftOut');
       const msg = document.getElementById('aiDraftMsg');
-      const cardRow = document.getElementById('aiCardRow');
+      const slotsEl = document.getElementById('aiCardSlots');
       const copyBtn = document.getElementById('aiCopyBtn');
       const drawBtn = document.getElementById('aiDrawBtn');
       const quotaEl = document.getElementById('aiDraftQuota');
-      if (!form || !out) return;
+      const modeBasic = document.getElementById('aiModeBasic');
+      const modeAdv = document.getElementById('aiModeAdv');
+      const clientSel = document.getElementById('aiClient');
+      const nickEl = document.getElementById('aiNickname');
+      if (!form || !out || !slotsEl || !Deck) return;
 
       function setAiMsg(text, isErr) {
         if (!msg) return;
@@ -2803,48 +2867,190 @@
         msg.classList.toggle('err', !!isErr);
       }
 
-      function renderCards() {
-        if (!cardRow) return;
-        if (!drawn.length) {
-          cardRow.style.display = 'none';
-          cardRow.innerHTML = '';
-          return;
-        }
-        cardRow.style.display = 'flex';
-        cardRow.innerHTML = drawn.map((c, i) =>
-          '<div class="ai-draft-card"><strong>' + POS[i] + ' · ' + escapeHtml(c.name) +
-          (c.rev ? ' (역)' : ' (정)') + '</strong><span>' + escapeHtml(c.kw) + '</span></div>'
-        ).join('');
+      function posLabels() {
+        return mode === 'basic' ? POS_BASIC : POS_ADV;
       }
 
-      function drawThree() {
-        const pool = MAJOR.slice();
+      function slotCount() {
+        return mode === 'basic' ? 1 : 3;
+      }
+
+      function syncModeButtons() {
+        [modeBasic, modeAdv].forEach((btn) => {
+          if (!btn) return;
+          const on = btn.getAttribute('data-mode') === mode;
+          btn.classList.toggle('active', on);
+          btn.setAttribute('aria-selected', on ? 'true' : 'false');
+        });
+      }
+
+      function setMode(next) {
+        mode = next === 'advanced' ? 'advanced' : 'basic';
+        const n = slotCount();
+        while (slots.length < n) slots.push({ num: null, rev: false });
+        slots = slots.slice(0, n);
+        syncModeButtons();
+        renderSlots();
+      }
+
+      function cardFor(num) {
+        return Deck.byDisplayNum(num);
+      }
+
+      function renderSlots() {
+        const labels = posLabels();
+        slotsEl.innerHTML = slots.map((s, i) => {
+          const card = s.num ? cardFor(s.num) : null;
+          const name = card ? card.name : (s.num ? '번호 확인' : '번호 입력');
+          const kw = card ? card.keywords : '';
+          return (
+            '<div class="ai-card-slot" data-i="' + i + '">' +
+              '<h4>' + escapeHtml(labels[i] || (i + 1) + '장') + '</h4>' +
+              '<div class="slot-row">' +
+                '<input type="number" min="1" max="78" inputmode="numeric" placeholder="1~78" ' +
+                  'aria-label="카드 번호" value="' + (s.num != null ? s.num : '') + '" data-num="' + i + '"/>' +
+                '<div class="ai-orient" role="group" aria-label="정역">' +
+                  '<button type="button" data-orient="' + i + '" data-rev="0"' + (s.rev ? '' : ' class="active"') + '>정</button>' +
+                  '<button type="button" data-orient="' + i + '" data-rev="1"' + (s.rev ? ' class="active"' : '') + '>역</button>' +
+                '</div>' +
+              '</div>' +
+              '<div class="slot-name">' + escapeHtml(name) + '</div>' +
+              '<div class="slot-kw">' + escapeHtml(kw) + '</div>' +
+            '</div>'
+          );
+        }).join('');
+
+        slotsEl.querySelectorAll('[data-num]').forEach((inp) => {
+          inp.addEventListener('input', () => {
+            const i = Number(inp.getAttribute('data-num'));
+            const v = Number(inp.value);
+            if (!inp.value) slots[i].num = null;
+            else if (Number.isInteger(v) && v >= 1 && v <= 78) slots[i].num = v;
+            else slots[i].num = null;
+            const card = slots[i].num ? cardFor(slots[i].num) : null;
+            const root = inp.closest('.ai-card-slot');
+            if (root) {
+              const nameEl = root.querySelector('.slot-name');
+              const kwEl = root.querySelector('.slot-kw');
+              if (nameEl) nameEl.textContent = card ? card.name : (inp.value ? '1~78 사이 번호를 입력' : '번호 입력');
+              if (kwEl) kwEl.textContent = card ? card.keywords : '';
+            }
+          });
+        });
+        slotsEl.querySelectorAll('[data-orient]').forEach((btn) => {
+          btn.addEventListener('click', () => {
+            const i = Number(btn.getAttribute('data-orient'));
+            slots[i].rev = btn.getAttribute('data-rev') === '1';
+            const group = btn.parentElement;
+            if (group) {
+              group.querySelectorAll('button').forEach((b) => b.classList.toggle('active', b === btn));
+            }
+          });
+        });
+      }
+
+      function drawRandom() {
+        const n = slotCount();
+        const pool = [];
+        for (let i = 1; i <= 78; i++) pool.push(i);
         for (let i = pool.length - 1; i > 0; i--) {
           const j = Math.floor(Math.random() * (i + 1));
           const t = pool[i]; pool[i] = pool[j]; pool[j] = t;
         }
-        drawn = pool.slice(0, 3).map((c) => ({
-          name: c.name,
-          kw: c.kw,
+        slots = pool.slice(0, n).map((num) => ({
+          num,
           rev: Math.random() < 0.35,
         }));
-        renderCards();
-        setAiMsg('타로 3장을 뽑았습니다. 초안 생성을 눌러 주세요.');
+        renderSlots();
+        setAiMsg(n + '장을 랜덤으로 뽑았습니다. 해석 생성을 눌러 주세요.');
       }
 
-      if (drawBtn) drawBtn.addEventListener('click', drawThree);
+      function readFilledCards() {
+        const labels = posLabels();
+        const outCards = [];
+        for (let i = 0; i < slots.length; i++) {
+          const s = slots[i];
+          if (s.num == null) continue;
+          const card = cardFor(s.num);
+          if (!card) continue;
+          outCards.push({
+            pos: labels[i] || (i + 1) + '장',
+            num: card.num,
+            name: card.name,
+            keywords: card.keywords,
+            rev: !!s.rev,
+          });
+        }
+        return outCards;
+      }
+
+      if (modeBasic) modeBasic.addEventListener('click', () => setMode('basic'));
+      if (modeAdv) modeAdv.addEventListener('click', () => setMode('advanced'));
+      if (drawBtn) drawBtn.addEventListener('click', drawRandom);
+
+      if (clientSel && nickEl) {
+        clientSel.addEventListener('change', () => {
+          const c = clientRows.find((x) => x.id === clientSel.value);
+          if (c && !nickEl.value.trim()) {
+            nickEl.value = (c.display_name || c.legal_name || '').trim();
+          }
+        });
+      }
 
       if (copyBtn) {
         copyBtn.addEventListener('click', async () => {
           if (!lastText) return;
           try {
             await navigator.clipboard.writeText(lastText);
-            setAiMsg('초안을 복사했습니다.');
+            setAiMsg('해석을 복사했습니다. 다듬어 고객에게 붙여넣으세요.');
           } catch (_) {
             setAiMsg('복사에 실패했습니다.', true);
           }
         });
       }
+
+      // 번호표 모달
+      (function initNumTable() {
+        const modal = document.getElementById('numTableModal');
+        const grid = document.getElementById('numTableGrid');
+        const openBtn = document.getElementById('aiNumTableBtn');
+        if (!modal || !grid || !openBtn) return;
+        grid.innerHTML = Array.from({ length: 78 }, (_, i) =>
+          '<div class="num-table-cell">' + (i + 1) + '</div>'
+        ).join('');
+        function close() { modal.classList.remove('open'); }
+        openBtn.addEventListener('click', () => modal.classList.add('open'));
+        const c1 = document.getElementById('numTableClose');
+        const c2 = document.getElementById('numTableCloseBtn');
+        if (c1) c1.addEventListener('click', close);
+        if (c2) c2.addEventListener('click', close);
+        modal.addEventListener('click', (e) => { if (e.target === modal) close(); });
+        const printBtn = document.getElementById('numTablePrintBtn');
+        if (printBtn) {
+          printBtn.addEventListener('click', () => {
+            const w = window.open('', '_blank', 'noopener,width=720,height=900');
+            if (!w) {
+              setAiMsg('팝업이 차단되었습니다. 허용 후 다시 시도해 주세요.', true);
+              return;
+            }
+            const cells = Array.from({ length: 78 }, (_, i) =>
+              '<div style="aspect-ratio:1;display:flex;align-items:center;justify-content:center;border:1px solid #c9b89a;border-radius:8px;background:#f7f1e6;font:700 14px/1 sans-serif;color:#2c1f0e">' +
+              (i + 1) + '</div>'
+            ).join('');
+            w.document.write(
+              '<!doctype html><html><head><meta charset="utf-8"><title>타로 번호표 1~78</title>' +
+              '<style>body{font-family:sans-serif;padding:24px;color:#2c1f0e}h1{font-size:20px;margin:0 0 8px}' +
+              'p{font-size:13px;color:#666;margin:0 0 16px;line-height:1.5}' +
+              '.g{display:grid;grid-template-columns:repeat(10,1fr);gap:6px}</style></head><body>' +
+              '<h1>타로 번호표 (1~78)</h1>' +
+              '<p>마음에 드는 숫자를 골라 상담사에게 알려 주세요. (인쇄 · PDF 저장 가능)</p>' +
+              '<div class="g">' + cells + '</div>' +
+              '<' + 'script>setTimeout(function(){window.print()},300)<' + '/script></body></html>'
+            );
+            w.document.close();
+          });
+        }
+      })();
 
       if (window.PaljaAiQuota) {
         PaljaAiQuota.fetchQuota().then((q) => PaljaAiQuota.applyQuotaBadge(quotaEl, q));
@@ -2852,91 +3058,125 @@
 
       form.addEventListener('submit', async (e) => {
         e.preventDefault();
-        const clientId = document.getElementById('aiClient').value;
-        const topic = (document.getElementById('aiTopic').value || '').trim();
+        const question = (document.getElementById('aiQuestion').value || '').trim();
         const note = (document.getElementById('aiNote').value || '').trim();
-        const mode = document.getElementById('aiMode').value || 'tarot';
-        const client = clientRows.find((c) => c.id === clientId);
-        if (!client || !topic) {
-          setAiMsg('고객과 주제를 입력해 주세요.', true);
+        const nickname = (nickEl && nickEl.value || '').trim();
+        const clientId = clientSel ? clientSel.value : '';
+        const client = clientId ? clientRows.find((c) => c.id === clientId) : null;
+        const cards = readFilledCards();
+        const need = mode === 'basic' ? 1 : 1;
+        const max = mode === 'basic' ? 1 : 3;
+
+        if (!question) {
+          setAiMsg('질문을 입력해 주세요.', true);
           return;
         }
-        if (mode === 'tarot' && drawn.length < 3) {
-          drawThree();
+        if (cards.length < need) {
+          setAiMsg(mode === 'basic' ? '카드 번호 1장을 입력해 주세요.' : '카드 번호를 1~3장 입력해 주세요.', true);
+          return;
+        }
+        if (mode === 'basic' && cards.length !== 1) {
+          setAiMsg('기본 리딩은 카드 1장만 사용합니다.', true);
+          return;
+        }
+        if (cards.length > max) {
+          setAiMsg('카드는 최대 ' + max + '장까지입니다.', true);
+          return;
         }
         if (!window.PaljaAiQuota) {
           setAiMsg('AI 클라이언트를 불러오지 못했습니다. 페이지를 새로고침해 주세요.', true);
           return;
         }
 
-        const ls = clientLastSession(client.id);
+        const feature = mode === 'basic' ? 'counselor_session_basic' : 'counselor_session';
+        const costLabel = mode === 'basic' ? '1' : '2';
+        const ls = client ? clientLastSession(client.id) : { last: '', topic: '' };
+        const displayName = nickname || (client && (client.display_name || client.legal_name)) || '고객님';
         const btn = document.getElementById('aiDraftBtn');
         if (btn) { btn.disabled = true; btn.textContent = '생성 중…'; }
         setAiMsg('');
         out.classList.add('is-empty');
-        out.textContent = '초안을 만드는 중…';
+        out.textContent = '해석을 만드는 중…';
 
-        const cardLines = drawn.length
-          ? drawn.map((c, i) => POS[i] + ': ' + c.name + (c.rev ? '(역방향)' : '(정방향)') + ' — ' + c.kw).join('\n')
-          : '(카드 없음)';
+        const cardLines = cards.map((c) =>
+          c.pos + ': ' + c.num + '. ' + c.name + (c.rev ? '(역방향)' : '(정방향)') +
+          (c.keywords ? ' — ' + c.keywords : '')
+        ).join('\n');
+
+        const depthHint = mode === 'basic'
+          ? '기본 리딩: 카드 1장 중심으로 짧고 명확하게 (전체 분량 중간 이하).'
+          : '심화 리딩: 카드 ' + cards.length + '장을 연결해 흐름·조언까지 조금 더 깊게.';
 
         const prompt =
-`당신은 수비학·타로를 쓰는 전문 상담사의 '세션 보조 작가'입니다.
-고객에게 직접 말하는 운세 앱이 아니라, 상담사가 세션에서 쓸 **해석 초안**을 작성하세요.
+`당신은 타로·수비학을 쓰는 전문 상담사의 '세션 보조 작가'입니다.
+상담사가 고객 채팅/대면에 **그대로 붙여넣고 살짝 다듬을** 해석 초안을 작성하세요.
+AI가 고객에게 직접 말하는 앱이 아닙니다.
 
-[고객]
-표시명: ${client.display_name || client.legal_name || '고객'}
-생년월일: ${client.birth_date || '미상'}
-최근 상담: ${ls.last || '없음'}${ls.topic ? ' / 주제 ' + ls.topic : ''}
+[고객 호칭] ${displayName}
+${client ? '[CRM] 생년월일: ' + (client.birth_date || '미상') + ' / 최근 상담: ' + (ls.last || '없음') + (ls.topic ? ' · ' + ls.topic : '') + '\n' : ''}
+[질문]
+${question}
+${note ? '[상담사만 보는 메모 — 해석에 반영하되 메모 문구를 그대로 노출하지 말 것]\n' + note + '\n' : ''}
+[뽑힌 카드]
+${cardLines}
 
-[이번 주제]
-${topic}
-${note ? '[추가 메모]\n' + note + '\n' : ''}
-[모드] ${mode === 'tarot' ? '타로 3장 초안' : '주제만 초안'}
-${mode === 'tarot' ? '[뽑힌 카드]\n' + cardLines + '\n' : ''}
+[깊이] ${depthHint}
+
 규칙:
-1) 한국어. 상담사에게 건네는 메모 톤(존댓말).
-2) 아래 소제목만 사용:
-## 오프닝 한 줄
-## 카드/주제 해석 (각 2~3문장)
-## 고객에게 던질 질문 2개
-## 주의·경계 (과한 예언·단정 금지 1~2문장)
-## 세션 마무리 제안
-3) 점술 확정 예언·의료·법률·투자 단정 금지. "가능성이 있다/살펴볼 포인트"로 표현.
-4) 이모지·불필요한 인사말 금지.`;
+1) 한국어. 고객에게 건네는 존댓말. 상담사가 읽어도 자연스럽게.
+2) 아래 소제목만 사용 (마크다운 ##):
+## 한 줄 요약
+## 카드 해석
+## 질문에 대한 답
+## 오늘 가져갈 조언
+## 주의 (과한 예언·단정 금지)
+3) 카드 해석에는 번호·이름·정역을 명시. 심화면 카드 간 연결 1~2문장.
+4) 점술 확정 예언·의료·법률·투자 단정 금지. "가능성이 있다/살펴볼 포인트"로.
+5) 이모지·불필요한 인사·면책 장문 금지. 복사해 쓰기 좋게.`;
 
         const cacheKey = PaljaAiQuota.hashKey([
-          'counselor_session_v1',
-          client.id,
-          topic,
+          'counselor_reading_v2',
+          feature,
+          clientId || '',
+          displayName,
+          question,
           note,
-          mode,
-          drawn.map((c) => c.name + (c.rev ? 'r' : 'u')).join('|'),
+          cards.map((c) => c.num + (c.rev ? 'r' : 'u')).join('|'),
         ].join('::'));
 
         try {
           const { text, quota } = await PaljaAiQuota.callAi({
-            feature: 'counselor_session',
+            feature,
             cacheKey,
-            max_tokens: 1200,
+            max_tokens: mode === 'basic' ? 900 : 1400,
             messages: [{ role: 'user', content: prompt }],
           });
           lastText = text || '';
           out.classList.remove('is-empty');
-          out.textContent = lastText || '초안을 만들지 못했습니다.';
+          out.textContent = lastText || '해석을 만들지 못했습니다.';
           if (copyBtn) copyBtn.style.display = lastText ? '' : 'none';
           PaljaAiQuota.applyQuotaBadge(quotaEl, quota);
-          setAiMsg(lastText ? '초안을 만들었습니다. 상담에 맞게 다듬어 사용하세요.' : '응답이 비어 있습니다.', !lastText);
+          setAiMsg(
+            lastText
+              ? '해석을 만들었습니다. (크레딧 ' + costLabel + ') 다듬어 복사해 쓰세요.'
+              : '응답이 비어 있습니다.',
+            !lastText
+          );
         } catch (err) {
           out.classList.add('is-empty');
-          out.textContent = '아직 초안이 없습니다. 고객과 주제를 넣고 생성해 보세요.';
+          out.textContent = '질문을 넣고 카드를 정한 뒤 해석을 생성해 보세요.';
           if (err && err.quota) PaljaAiQuota.applyQuotaBadge(quotaEl, err.quota);
-          setAiMsg((err && err.message) || '초안 생성에 실패했습니다.', true);
+          setAiMsg((err && err.message) || '해석 생성에 실패했습니다.', true);
         } finally {
-          if (btn) { btn.disabled = false; btn.textContent = '초안 생성'; }
+          if (btn) { btn.disabled = false; btn.textContent = '해석 생성'; }
         }
       });
 
+      setMode('basic');
+
+      if (location.hash === '#ai-draft' || location.hash === '#session-scripts') {
+        /* session-scripts handled above; ai-draft scroll here if hash matches */
+      }
       if (location.hash === '#ai-draft') {
         setTimeout(() => {
           const el = document.getElementById('ai-draft');
