@@ -12,7 +12,7 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="js/plan-access.js?v=1"></script>
   <script src="js/ai-quota-client.js?v=2"></script>
-  <script src="js/counselor-tarot-deck.js?v=2"></script>
+  <script src="js/counselor-tarot-deck.js?v=3"></script>
   <script src="js/attribution.js"></script>
   <script src="js/site-topbar.js?v=5" defer></script>
   <script src="js/topbar-session.js?v=6" defer></script>
@@ -141,28 +141,38 @@
     }
     .ai-card-hint { font-size: 11px; color: var(--muted); margin: 0 0 8px; line-height: 1.45; }
     .ai-card-preview {
-      display: flex; flex-wrap: wrap; gap: 10px; margin: 0 0 16px; min-height: 0;
+      display: flex; flex-wrap: wrap; gap: 12px; margin: 0 0 16px; min-height: 0;
+      justify-content: flex-start;
     }
     .ai-card-preview:empty { display: none; }
     .ai-prev-card {
-      flex: 1 1 100px; max-width: 140px; min-height: 150px;
-      background: linear-gradient(165deg, #2c1f0e 0%, #4a3520 55%, #3d2a18 100%);
-      color: #f7f1e6; border-radius: 12px; padding: 12px 10px; text-align: center;
-      box-shadow: 0 8px 20px rgba(44,31,14,.18); border: 1px solid rgba(200,169,110,.35);
-      display: flex; flex-direction: column; align-items: center; justify-content: space-between; gap: 6px;
-      transition: transform .2s ease;
+      flex: 0 0 auto; width: 112px;
+      background: #fff; color: var(--ink); border-radius: 10px; padding: 6px;
+      box-shadow: 0 8px 20px rgba(44,31,14,.12); border: 1px solid var(--border);
+      display: flex; flex-direction: column; align-items: stretch; gap: 6px;
+      cursor: pointer; transition: transform .15s ease, box-shadow .15s ease;
     }
-    .ai-prev-card.is-rev { transform: rotate(180deg); }
-    .ai-prev-card.is-rev .ai-prev-inner { transform: rotate(180deg); }
-    .ai-prev-inner { display: flex; flex-direction: column; align-items: center; gap: 4px; width: 100%; }
-    .ai-prev-pos { font-size: 10px; letter-spacing: .04em; opacity: .75; }
-    .ai-prev-num { font-size: 11px; font-weight: 600; color: #c8a96e; }
-    .ai-prev-name { font-size: 15px; font-weight: 700; line-height: 1.25; }
-    .ai-prev-orient { font-size: 11px; opacity: .85; }
-    .ai-prev-ask { font-size: 10px; opacity: .7; line-height: 1.3; margin-top: 2px; }
+    .ai-prev-card:hover { transform: translateY(-2px); box-shadow: 0 12px 24px rgba(44,31,14,.16); }
+    .ai-prev-art {
+      width: 100%; aspect-ratio: 2 / 3.4; border-radius: 6px; overflow: hidden;
+      background: var(--parchment); position: relative;
+    }
+    .ai-prev-art img {
+      width: 100%; height: 100%; object-fit: cover; display: block;
+    }
+    .ai-prev-card.is-rev .ai-prev-art img { transform: rotate(180deg); }
+    .ai-prev-badge {
+      position: absolute; top: 5px; right: 5px; z-index: 1;
+      background: rgba(192,57,43,.12); border: 1px solid rgba(192,57,43,.28);
+      border-radius: 5px; font-size: 9px; font-weight: 600; color: #a93226; padding: 2px 5px;
+    }
+    .ai-prev-meta { text-align: center; padding: 0 2px 4px; }
+    .ai-prev-pos { font-size: 10px; letter-spacing: .04em; color: var(--muted); margin-bottom: 2px; }
+    .ai-prev-name { font-size: 12px; font-weight: 700; color: var(--deep); line-height: 1.25; }
+    .ai-prev-num { font-size: 10px; color: var(--muted); margin-top: 2px; }
     .ai-prev-empty {
-      flex: 1 1 100px; max-width: 140px; min-height: 150px;
-      border: 1px dashed var(--border); border-radius: 12px; background: var(--parchment);
+      flex: 0 0 auto; width: 112px; min-height: 168px;
+      border: 1px dashed var(--border); border-radius: 10px; background: var(--parchment);
       display: flex; align-items: center; justify-content: center; text-align: center;
       font-size: 12px; color: var(--muted); padding: 12px;
     }
@@ -177,7 +187,7 @@
       padding-top: 12px; border-top: 1px dashed var(--border);
     }
     .ai-extra-bar .ai-extra-label { font-size: 12px; color: var(--muted); width: 100%; margin-bottom: 2px; }
-    .ai-prev-extra { font-size: 9px; letter-spacing: .06em; text-transform: uppercase; color: #c8a96e; opacity: .9; }
+    .ai-prev-extra { font-size: 9px; letter-spacing: .06em; color: #8b6f47; font-weight: 700; margin-bottom: 2px; }
     .ai-spread-row { display: none; gap: 8px; align-items: end; margin-bottom: 10px; flex-wrap: wrap; }
     .ai-spread-row.is-on { display: flex; }
     .ai-spread-row label { font-size: 11px; color: var(--muted); display: block; margin-bottom: 5px; }
@@ -944,14 +954,20 @@
               '<br/>대기</div>';
           }
           const card = cardFor(s.num);
+          const src = (card && card.imageSrc) || (Deck.rwsImageSrc && Deck.rwsImageSrc(card ? card.id : s.num - 1)) || '';
           return (
             '<div class="ai-prev-card' + (s.rev ? ' is-rev' : '') + '" data-preview="' + i + '" title="클릭하면 이 칸 선택">' +
-              '<div class="ai-prev-inner">' +
+              '<div class="ai-prev-art">' +
+                (s.rev ? '<span class="ai-prev-badge">역</span>' : '') +
+                (src
+                  ? '<img src="' + src + '" alt="' + escapeHtml(card ? card.name : '') + '" loading="lazy"/>'
+                  : '') +
+              '</div>' +
+              '<div class="ai-prev-meta">' +
                 (s.extra ? '<div class="ai-prev-extra">추가</div>' : '') +
                 '<div class="ai-prev-pos">' + escapeHtml(pos) + '</div>' +
-                '<div class="ai-prev-num">No.' + s.num + '</div>' +
                 '<div class="ai-prev-name">' + escapeHtml(card ? card.name : '?') + '</div>' +
-                '<div class="ai-prev-orient">' + (s.rev ? '역방향' : '정방향') + '</div>' +
+                '<div class="ai-prev-num">No.' + s.num + (s.rev ? ' · 역' : ' · 정') + '</div>' +
               '</div>' +
             '</div>'
           );

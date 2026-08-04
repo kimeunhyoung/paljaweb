@@ -36,13 +36,26 @@
     const num = Number(n);
     if (!Number.isInteger(num) || num < 1 || num > 78) return null;
     const id = num - 1;
-    return { id, num, name: NAMES[id], keywords: KW[id] || '' };
+    return { id, num, name: NAMES[id], keywords: KW[id] || '', imageSrc: rwsImageSrc(id) };
   }
 
   function byId(id) {
     const i = Number(id);
     if (!Number.isInteger(i) || i < 0 || i > 77) return null;
-    return { id: i, num: i + 1, name: NAMES[i], keywords: KW[i] || '' };
+    return { id: i, num: i + 1, name: NAMES[i], keywords: KW[i] || '', imageSrc: rwsImageSrc(i) };
+  }
+
+  /** 타로코드「카드만 뽑기」와 동일 — public/tarot-rws (Rider–Waite–Smith PD) */
+  function rwsImageSrc(id) {
+    const i = Number(id);
+    if (!Number.isInteger(i) || i < 0 || i > 77) return '';
+    let file;
+    if (i <= 21) file = 'major (' + i + ').jpg';
+    else if (i <= 35) file = 'wands (' + (i - 21) + ').jpg';
+    else if (i <= 49) file = 'cups (' + (i - 35) + ').jpg';
+    else if (i <= 63) file = 'swords (' + (i - 49) + ').jpg';
+    else file = 'pentacles (' + (i - 63) + ').jpg';
+    return 'tarot-rws/' + encodeURIComponent(file);
   }
 
   global.CounselorTarotDeck = {
@@ -50,6 +63,7 @@
     names: NAMES,
     byDisplayNum,
     byId,
+    rwsImageSrc,
     label: function (card, reversed) {
       if (!card) return '';
       return card.num + '. ' + card.name + (reversed ? ' (역)' : ' (정)');
