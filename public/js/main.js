@@ -162,7 +162,9 @@ async function updateNav() {
         .eq('id', sess.user.id)
         .single()
       if (isProfessionalAccess(profile)) {
-        counselorNav = '<a href="counselor.html" class="btn-nav-ghost">상담사 허브</a>'
+        counselorNav =
+          '<a href="counselor.html" class="btn-nav-ghost">상담사 허브</a>' +
+          '<a href="counselor-reading.html" class="btn-nav-ghost">AI리딩</a>'
       }
     } catch (e) { /* ignore */ }
 
