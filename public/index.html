@@ -49,7 +49,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,400&family=Noto+Sans+KR:wght@300;400;500;700&family=Noto+Serif+KR:wght@400;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css" crossorigin>
-  <link rel="stylesheet" href="css/style.css?v=20260805a">
+  <link rel="stylesheet" href="css/style.css?v=20260805b">
 </head>
 <body>
 
@@ -130,8 +130,10 @@
       </div>
       <p class="hero-program-note">바로 위 메뉴에서 라이프코드·점성학·타로 등 원하는 프로그램으로 이동할 수 있어요.</p>
       <div id="heroCounselorRow" class="hero-counselor-row">
-        <a href="counselor.html" class="btn-fill link-inline">상담사 허브</a>
-        <a href="for-counselors.html" class="btn-text-link" style="margin-left:12px;">Professional 안내 →</a>
+        <span class="hero-counselor-label">상담사이신가요?</span>
+        <a href="counselor.html" class="hero-counselor-link">상담사 허브</a>
+        <a href="counselor-reading.html" class="hero-counselor-link">AI 리딩</a>
+        <a href="for-counselors.html" class="hero-counselor-link">안내 →</a>
       </div>
     </div>
     <div class="hero-right">
@@ -170,6 +172,21 @@
       </a>
     </div>
   </div>
+
+  <!-- 상담사 도구 스트립 -->
+  <section class="counselor-strip" aria-label="상담사 도구">
+    <div class="container counselor-strip-inner">
+      <div class="counselor-strip-copy">
+        <h2 class="counselor-strip-title">상담사를 위한 업무 도구</h2>
+        <p class="counselor-strip-desc">고객 CRM · AI 리딩 · 요약 카드</p>
+      </div>
+      <div class="counselor-strip-actions">
+        <a href="counselor.html" class="counselor-strip-btn">상담사 허브</a>
+        <a href="counselor-reading.html" class="counselor-strip-btn">AI 리딩</a>
+        <a href="for-counselors.html" class="counselor-strip-btn counselor-strip-btn-ghost">Professional 안내</a>
+      </div>
+    </div>
+  </section>
 
   <!-- 서비스 -->
   <section class="services-section" id="services">
@@ -346,8 +363,25 @@
           <div class="service-item-action">→</div>
         </a>
 
-        <a href="counselor-reading.html" class="service-item active link-reset">
+        <div class="service-group-label" role="presentation">상담사 도구</div>
+
+        <a href="counselor.html" class="service-item active link-reset">
           <div class="service-item-num">11</div>
+          <div class="service-item-body">
+            <div class="service-item-name">상담사 허브</div>
+            <div class="service-item-desc">고객 CRM·일정·상담 기록. 상담 준비 요약과 고객 간 궁합까지 한곳에서.</div>
+            <div class="service-item-tags">
+              <span class="tag">Professional</span>
+              <span class="tag">고객 CRM</span>
+              <span class="tag">일정</span>
+            </div>
+          </div>
+          <div class="service-item-badge">Professional</div>
+          <div class="service-item-action">→</div>
+        </a>
+
+        <a href="counselor-reading.html" class="service-item active link-reset">
+          <div class="service-item-num">12</div>
           <div class="service-item-body">
             <div class="service-item-name">상담사 AI 리딩</div>
             <div class="service-item-desc">Professional 상담사용. 질문·카드로 해석 초안을 만들고 복사해 고객에게 전달. 신입 스크립트 포함.</div>
@@ -669,7 +703,7 @@
   
   <script src="js/attribution.js"></script>
   <script src="js/analytics.js?v=1" defer></script>
-  <script type="module" src="js/main.js?v=20260507e"></script>
+  <script type="module" src="js/main.js?v=20260805b"></script>
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {

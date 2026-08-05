@@ -413,24 +413,27 @@ function syncHeroCtas(session, profile) {
   const counselorRow = document.getElementById('heroCounselorRow')
   if (!heroCta) return
 
+  // 상담사 경로는 항상 노출 (이중 진입)
+  if (counselorRow) {
+    counselorRow.style.display = 'flex'
+    counselorRow.classList.toggle('is-pro', !!(session && isProfessionalAccess(profile)))
+  }
+
   if (!session) {
     heroCta.style.display = ''
     heroCta.textContent = '무료로 시작하기'
     heroCta.href = 'analysis.html'
-    if (counselorRow) counselorRow.style.display = 'none'
     return
   }
 
   if (isProfessionalAccess(profile)) {
     heroCta.style.display = 'none'
-    if (counselorRow) counselorRow.style.display = 'block'
     return
   }
 
   heroCta.style.display = ''
   heroCta.textContent = '라이프코드 분석 보기'
   heroCta.href = 'analysis.html'
-  if (counselorRow) counselorRow.style.display = 'none'
 }
 
 async function populateHeroWithUser() {
