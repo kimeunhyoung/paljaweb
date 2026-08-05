@@ -422,6 +422,152 @@ ul { list-style: none; }
   border-top: 1px solid var(--border);
   margin-top: 8px;
 }
+
+/* 상담사 안내 팝업 */
+.counselor-promo-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background: rgba(45, 31, 22, 0.48);
+  backdrop-filter: blur(2px);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.22s ease;
+}
+.counselor-promo-overlay.is-open {
+  opacity: 1;
+  pointer-events: auto;
+}
+.counselor-promo {
+  position: relative;
+  width: min(520px, 100%);
+  max-height: min(90vh, 640px);
+  overflow: auto;
+  background: var(--cream);
+  border-radius: var(--radius-lg);
+  padding: 28px 26px 22px;
+  box-shadow: 0 24px 60px rgba(45, 31, 22, 0.28);
+  transform: translateY(10px);
+  transition: transform 0.22s ease;
+}
+.counselor-promo-overlay.is-open .counselor-promo {
+  transform: translateY(0);
+}
+.counselor-promo-close {
+  position: absolute;
+  top: 12px;
+  right: 14px;
+  border: none;
+  background: transparent;
+  font-size: 24px;
+  line-height: 1;
+  color: var(--text3);
+  cursor: pointer;
+  padding: 4px 8px;
+}
+.counselor-promo-close:hover { color: var(--brown); }
+.counselor-promo-kicker {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--terracotta);
+  margin: 0 0 8px;
+}
+.counselor-promo-title {
+  font-family: var(--font-serif);
+  font-size: 24px;
+  color: var(--brown);
+  margin: 0 0 8px;
+  line-height: 1.3;
+  padding-right: 28px;
+}
+.counselor-promo-lead {
+  font-size: 14px;
+  color: var(--text2);
+  line-height: 1.55;
+  margin: 0 0 18px;
+}
+.counselor-promo-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  margin-bottom: 20px;
+}
+.counselor-promo-col h3 {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--brown);
+  margin: 0 0 8px;
+}
+.counselor-promo-col ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.counselor-promo-col li {
+  position: relative;
+  padding: 0 0 7px 14px;
+  font-size: 13px;
+  line-height: 1.45;
+  color: var(--text2);
+}
+.counselor-promo-col li::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0.55em;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--terracotta);
+}
+.counselor-promo-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+.counselor-promo-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 14px;
+  border-radius: var(--radius);
+  font-size: 13px;
+  font-weight: 600;
+  background: var(--brown);
+  color: var(--cream);
+  transition: background 0.15s, transform 0.15s;
+}
+.counselor-promo-btn:hover { background: #5a4030; transform: translateY(-1px); }
+.counselor-promo-btn-accent {
+  background: var(--terracotta);
+  color: #fff;
+}
+.counselor-promo-btn-accent:hover { background: #b85530; }
+.counselor-promo-btn-ghost {
+  background: transparent;
+  color: var(--brown);
+  border: 1px solid var(--border2);
+}
+.counselor-promo-btn-ghost:hover { background: rgba(61,43,31,0.05); }
+.counselor-promo-dismiss {
+  display: block;
+  width: 100%;
+  border: none;
+  background: transparent;
+  font-size: 12px;
+  color: var(--text3);
+  cursor: pointer;
+  padding: 6px 0 0;
+  text-align: center;
+}
+.counselor-promo-dismiss:hover { color: var(--brown); }
 .hero-proof { display: flex; align-items: center; gap: 24px; }
 .proof-avatars { display: flex; }
 .proof-avatar {
@@ -1027,6 +1173,8 @@ section { padding: 100px 0; }
   .cta-inner { flex-direction: column; text-align: center; }
   .counselor-strip-inner { flex-direction: column; align-items: flex-start; }
   .counselor-strip-title { font-size: 16px; }
+  .counselor-promo-grid { grid-template-columns: 1fr; }
+  .counselor-promo { padding: 24px 18px 18px; }
 }
 @media (max-width: 600px) {
   .service-item-tags { display: none; }

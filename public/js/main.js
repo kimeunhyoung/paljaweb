@@ -581,4 +581,63 @@ async function populateHeroWithUser() {
 
 document.addEventListener('DOMContentLoaded', () => {
   populateHeroWithUser()
+  initCounselorPromo()
 })
+
+const COUNSELOR_PROMO_KEY = 'palja_counselor_promo_dismiss_v1'
+const COUNSELOR_PROMO_SESSION = 'palja_counselor_promo_session_v1'
+
+function initCounselorPromo() {
+  const overlay = document.getElementById('counselorPromo')
+  if (!overlay) return
+
+  const closeBtn = document.getElementById('counselorPromoClose')
+  const dismissBtn = document.getElementById('counselorPromoDismiss')
+
+  function close(permanent) {
+    overlay.classList.remove('is-open')
+    overlay.setAttribute('hidden', '')
+    document.body.style.overflow = ''
+    try {
+      if (permanent) localStorage.setItem(COUNSELOR_PROMO_KEY, '1')
+      else sessionStorage.setItem(COUNSELOR_PROMO_SESSION, '1')
+    } catch (_) { /* ignore */ }
+  }
+
+  function open() {
+    overlay.removeAttribute('hidden')
+    requestAnimationFrame(() => overlay.classList.add('is-open'))
+    document.body.style.overflow = 'hidden'
+  }
+
+  closeBtn?.addEventListener('click', () => close(false))
+  dismissBtn?.addEventListener('click', () => close(true))
+  overlay.addEventListener('click', (e) => {
+    if (e.target === overlay) close(false)
+  })
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && overlay.classList.contains('is-open')) close(false)
+  })
+
+  try {
+    if (localStorage.getItem(COUNSELOR_PROMO_KEY) === '1') return
+    if (sessionStorage.getItem(COUNSELOR_PROMO_SESSION) === '1') return
+  } catch (_) { /* ignore */ }
+
+  // Professional 이용 중이면 안내 팝업 생략
+  ;(async () => {
+    try {
+      const { data: { session } } = await supabase.auth.getSession()
+      if (session?.user) {
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('plan, plan_active_until')
+          .eq('id', session.user.id)
+          .maybeSingle()
+        if (isProfessionalAccess(profile)) return
+      }
+    } catch (_) { /* ignore — 비로그인 등 */ }
+
+    setTimeout(open, 1400)
+  })()
+}
