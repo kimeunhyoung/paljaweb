@@ -115,10 +115,10 @@ ul { list-style: none; }
   transition: box-shadow 0.2s, background 0.2s;
 }
 .hero-program-note {
-  margin: 10px 0 0;
+  margin: 6px 0 0;
   font-size: 13px;
   color: var(--text3, #8a7a68);
-  line-height: 1.5;
+  line-height: 1.45;
 }
 .nav-inner {
   max-width: 1140px;
@@ -265,23 +265,24 @@ ul { list-style: none; }
 
 /* ===== 히어로 ===== */
 .hero {
-  min-height: 100vh;
+  min-height: 0;
   display: grid;
   grid-template-columns: 1fr 1fr;
-  padding-top: 128px;
+  padding-top: 108px;
+  padding-bottom: 36px;
   max-width: 1140px;
   margin: 0 auto;
   padding-left: 32px;
   padding-right: 32px;
-  gap: 60px;
+  gap: 40px;
   align-items: center;
 }
-.hero-left { padding: 40px 0; }
+.hero-left { padding: 12px 0 8px; }
 .hero-eyebrow {
   display: flex;
   align-items: center;
   gap: 10px;
-  margin-bottom: 28px;
+  margin-bottom: 16px;
 }
 .eyebrow-line { width: 40px; height: 1px; background: var(--terracotta); }
 .eyebrow-text {
@@ -293,10 +294,10 @@ ul { list-style: none; }
 }
 .hero-title {
   font-family: var(--font-display);
-  font-size: clamp(44px, 5vw, 72px);
-  line-height: 1.1;
+  font-size: clamp(40px, 4.6vw, 64px);
+  line-height: 1.12;
   color: var(--brown);
-  margin-bottom: 24px;
+  margin-bottom: 14px;
 }
 .hero-title em {
   font-style: italic;
@@ -304,16 +305,16 @@ ul { list-style: none; }
 }
 .hero-subtitle {
   font-family: var(--font-serif);
-  font-size: 18px;
+  font-size: 17px;
   color: var(--text2);
-  line-height: 1.8;
-  margin-bottom: 36px;
+  line-height: 1.65;
+  margin-bottom: 22px;
 }
 .hero-cta {
   display: flex;
   gap: 14px;
   align-items: center;
-  margin-bottom: 16px;
+  margin-bottom: 12px;
   flex-wrap: wrap;
 }
 .btn-fill {
@@ -340,8 +341,8 @@ ul { list-style: none; }
   flex-wrap: wrap;
   align-items: center;
   gap: 8px 14px;
-  margin-top: 14px;
-  padding-top: 14px;
+  margin-top: 10px;
+  padding-top: 10px;
   border-top: 1px solid var(--border);
 }
 .hero-counselor-label {
@@ -1154,7 +1155,13 @@ section { padding: 100px 0; }
   }
   .logo-mark { width: 30px; height: 30px; font-size: 17px; }
   .logo-text { font-size: 16px; }
-  .hero { grid-template-columns: 1fr; padding-top: 120px; }
+  .hero {
+    grid-template-columns: 1fr;
+    padding-top: 100px;
+    padding-bottom: 28px;
+    gap: 24px;
+  }
+  .hero-left { padding: 4px 0 0; }
   .hero-program-note { font-size: 12px; }
   /* Keep hero-right visible on small screens; stack below hero-left */
   .hero-right { display: block; margin-top: 20px; }
