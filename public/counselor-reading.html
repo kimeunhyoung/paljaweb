@@ -498,7 +498,7 @@
             <button type="button" class="ai-voice-btn" id="aiVoiceBtn" title="마이크로 질문 받아쓰기">🎤 음성 입력</button>
           </div>
           <textarea id="aiQuestion" maxlength="800" required placeholder="키보드·붙여넣기 또는 🎤 음성 입력.&#10;예: 이직을 지금 해도 될까요? / 그 사람 마음이 궁금해요"></textarea>
-          <p class="ai-voice-hint" id="aiVoiceHint">크롬·엣지·안드로이드에서 잘 됩니다. 아이폰 사파리는 지원이 약할 수 있어요.</p>
+          <p class="ai-voice-hint" id="aiVoiceHint">한 문장씩 말하면 됩니다. 크롬·엣지·안드로이드 권장. 더 쓰려면 버튼을 다시 누르세요.</p>
         </div>
         <div>
           <label for="aiTopic">해석 주제</label>
@@ -1069,7 +1069,8 @@
 
         let recog = null;
         let listening = false;
-        let baseText = '';
+        /** 이번 듣기 시작 시점의 기존 문장(고정). 인식 결과는 매번 처음부터 다시 합침 */
+        let sessionPrefix = '';
 
         function setListening(on) {
           listening = !!on;
@@ -1080,8 +1081,11 @@
 
         function stopVoice() {
           if (recog) {
+            try { recog.onresult = null; } catch (_) {}
             try { recog.stop(); } catch (_) {}
+            try { recog.abort(); } catch (_) {}
           }
+          recog = null;
           setListening(false);
         }
 
@@ -1089,14 +1093,16 @@
           stopVoice();
           recog = new SpeechRec();
           recog.lang = 'ko-KR';
-          recog.continuous = true;
+          // 짧은 질문용: 한 번 말하고 끝. continuous면 안드로이드에서 같은 말이 중복 붙는 경우 많음
+          recog.continuous = false;
           recog.interimResults = true;
-          baseText = (qEl.value || '').trim();
-          if (baseText) baseText += ' ';
+          recog.maxAlternatives = 1;
+          sessionPrefix = (qEl.value || '').trim();
+          if (sessionPrefix) sessionPrefix += ' ';
 
           recog.onstart = () => {
             setListening(true);
-            setAiMsg('듣고 있어요. 다시 누르면 멈춥니다.');
+            setAiMsg('듣고 있어요. 짧게 말한 뒤 잠시 기다리거나, 다시 누르면 멈춥니다.');
           };
           recog.onerror = (ev) => {
             const code = ev && ev.error;
@@ -1111,21 +1117,19 @@
           };
           recog.onend = () => {
             setListening(false);
+            recog = null;
           };
           recog.onresult = (ev) => {
-            let finalChunk = '';
+            // results 전체를 다시 합침 (append 금지 — 모바일 크롬 중복 방지)
+            let finals = '';
             let interim = '';
-            for (let i = ev.resultIndex; i < ev.results.length; i++) {
+            for (let i = 0; i < ev.results.length; i++) {
               const r = ev.results[i];
               const t = (r[0] && r[0].transcript) || '';
-              if (r.isFinal) finalChunk += t;
+              if (r.isFinal) finals += t;
               else interim += t;
             }
-            if (finalChunk) {
-              baseText = (baseText + finalChunk).replace(/\s+/g, ' ');
-              if (baseText.length > 800) baseText = baseText.slice(0, 800);
-            }
-            const shown = (baseText + interim).trim();
+            const shown = (sessionPrefix + finals + interim).replace(/\s+/g, ' ').trim();
             qEl.value = shown.slice(0, 800);
           };
 
@@ -1134,6 +1138,7 @@
           } catch (_) {
             setAiMsg('음성 입력을 시작할 수 없어요. 잠시 후 다시 시도해 주세요.', true);
             setListening(false);
+            recog = null;
           }
         }
 
