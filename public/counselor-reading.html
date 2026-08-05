@@ -13,7 +13,7 @@
   <script src="js/plan-access.js?v=1"></script>
   <script src="js/ai-quota-client.js?v=2"></script>
   <script src="js/counselor-tarot-deck.js?v=4"></script>
-  <script src="js/counselor-copy-summary.js?v=2"></script>
+  <script src="js/counselor-copy-summary.js?v=3"></script>
   <script src="js/attribution.js"></script>
   <script src="js/site-topbar.js?v=7" defer></script>
   <script src="js/topbar-session.js?v=6" defer></script>
@@ -131,6 +131,23 @@
     .ai-num-chip .v { font-size: 15px; font-weight: 700; color: var(--deep); }
     .ai-num-chip .t { font-size: 10px; color: var(--warm-brown); }
     .ai-num-blurb { font-size: 12px; color: var(--ink); line-height: 1.5; margin: 0; }
+    .ai-brief-stack { display: flex; flex-direction: column; gap: 10px; grid-column: 1 / -1; }
+    .ai-depth-row {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 0 0 4px;
+    }
+    @media (max-width: 520px) { .ai-depth-row { grid-template-columns: 1fr; } }
+    .ai-depth-btn {
+      text-align: left; border: 1px solid var(--border); border-radius: 10px;
+      background: #fff; padding: 10px 12px; cursor: pointer; font-family: var(--font-body);
+      color: var(--ink);
+    }
+    .ai-depth-btn strong { display: block; font-size: 13px; color: var(--deep); margin-bottom: 2px; }
+    .ai-depth-btn span { font-size: 11px; color: var(--muted); line-height: 1.4; }
+    .ai-depth-btn.active {
+      border-color: var(--deep); background: var(--parchment);
+      box-shadow: 0 0 0 2px rgba(44,31,14,.08);
+    }
+    .ai-depth-hint { font-size: 11px; color: var(--muted); margin: 0 0 8px; line-height: 1.45; }
     .ai-draft-actions { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
     .ai-draft-quota { font-size: 11px; color: var(--teal); font-weight: 600; }
     .ai-card-slots { display: grid; gap: 10px; margin: 4px 0 8px; }
@@ -371,7 +388,8 @@
 <div class="section-title" id="ai-draft" style="margin-top:28px">상담사 AI 리딩</div>
     <div class="ai-draft-panel">
       <p class="ai-draft-intro">스프래드 카드를 넣은 뒤, 필요하면 <strong>조언·명확화 카드를 추가로 뽑을</strong> 수 있습니다. 뽑힌 카드는 <strong>해석 바로 위</strong>에 보입니다.
-        크레딧: <strong>1장 → 1</strong> · <strong>2~3장 → 2</strong> · <strong>4~6장 → 3</strong>.</p>
+        크레딧: <strong>1장 → 1</strong> · <strong>2~3장 → 2</strong> · <strong>4~6장 → 3</strong>
+        · 통합(수비·점성) 시 <strong>+1</strong>.</p>
       <div class="ai-mode-row" role="tablist" aria-label="리딩 모드">
         <button type="button" class="ai-mode-btn active" id="aiModeBasic" data-mode="basic" role="tab" aria-selected="true">
           <strong>기본 리딩</strong>
@@ -380,6 +398,17 @@
         <button type="button" class="ai-mode-btn" id="aiModeAdv" data-mode="advanced" role="tab" aria-selected="false">
           <strong>심화 리딩</strong>
           <span>스프래드 1~3장 · 추가 시 4~6장(크레딧 3)</span>
+        </button>
+      </div>
+      <p class="ai-depth-hint" id="aiDepthHint">해석 깊이: 카드만이면 타로만. 통합이면 고객 수비·점성 한눈을 배경으로만 녹입니다.</p>
+      <div class="ai-depth-row" role="tablist" aria-label="해석 깊이">
+        <button type="button" class="ai-depth-btn active" id="aiDepthCard" data-depth="card" role="tab" aria-selected="true">
+          <strong>카드만</strong>
+          <span>질문·카드 인과로만 해석 · 장수 크레딧</span>
+        </button>
+        <button type="button" class="ai-depth-btn" id="aiDepthIntegrated" data-depth="integrated" role="tab" aria-selected="false">
+          <strong>통합 (수비·점성)</strong>
+          <span>고객 한눈을 배경 조율 · 크레딧 +1</span>
         </button>
       </div>
       <form id="aiDraftForm" class="ai-draft-form" autocomplete="off">
@@ -395,13 +424,23 @@
           <a class="btn-sm outline" id="aiLinkNumerology" href="analysis.html" target="_blank" rel="noopener" aria-disabled="true">수비학 분석</a>
           <a class="btn-sm outline" id="aiLinkAstro" href="astrology.html" target="_blank" rel="noopener" aria-disabled="true">점성학 차트</a>
         </div>
-        <div class="ai-num-brief full" id="aiNumBrief" hidden>
-          <div class="ai-num-brief-head">
-            <strong id="aiNumBriefTitle">수비학 한눈</strong>
-            <span>세션 중 참고용 · 짧게만</span>
+        <div class="ai-brief-stack full">
+          <div class="ai-num-brief" id="aiNumBrief" hidden>
+            <div class="ai-num-brief-head">
+              <strong id="aiNumBriefTitle">수비학 한눈</strong>
+              <span>세션 중 참고용 · 짧게만</span>
+            </div>
+            <div class="ai-num-chips" id="aiNumBriefChips"></div>
+            <p class="ai-num-blurb" id="aiNumBriefBlurb"></p>
           </div>
-          <div class="ai-num-chips" id="aiNumBriefChips"></div>
-          <p class="ai-num-blurb" id="aiNumBriefBlurb"></p>
+          <div class="ai-num-brief" id="aiAstroBrief" hidden>
+            <div class="ai-num-brief-head">
+              <strong id="aiAstroBriefTitle">점성학 한눈</strong>
+              <span>태양 기준 · 달·상승은 차트에서</span>
+            </div>
+            <div class="ai-num-chips" id="aiAstroBriefChips"></div>
+            <p class="ai-num-blurb" id="aiAstroBriefBlurb"></p>
+          </div>
         </div>
         <div class="full">
           <label for="aiQuestion">질문 *</label>
@@ -444,6 +483,7 @@
           <button type="button" class="btn-sm outline" id="aiNumTableBtn">카드 고르기</button>
           <button type="button" class="btn-sm outline" id="aiDrawBtn">전체 랜덤 뽑기</button>
           <button type="submit" class="btn-sm" id="aiDraftBtn">해석 생성</button>
+          <span class="ai-draft-quota" id="aiCreditHint" aria-live="polite">예상 크레딧 1</span>
           <button type="button" class="btn-sm outline" id="aiCopyBtn" style="display:none;">복사</button>
           <button type="button" class="btn-sm outline" id="aiSaveSessionBtn" style="display:none;">세션에 전문 남기기</button>
           <span class="ai-draft-quota" id="aiDraftQuota" hidden></span>
@@ -906,10 +946,15 @@
       const quotaEl = document.getElementById('aiDraftQuota');
       const modeBasic = document.getElementById('aiModeBasic');
       const modeAdv = document.getElementById('aiModeAdv');
+      const depthCardBtn = document.getElementById('aiDepthCard');
+      const depthIntegratedBtn = document.getElementById('aiDepthIntegrated');
+      const creditHintEl = document.getElementById('aiCreditHint');
       const clientSel = document.getElementById('aiClient');
       const nickEl = document.getElementById('aiNickname');
       const spreadRow = document.getElementById('aiSpreadRow');
       const spreadSel = document.getElementById('aiSpreadPreset');
+      /** @type {'card'|'integrated'} */
+      let readingDepth = 'card';
       if (!form || !out || !slotsEl) return;
       if (!Deck) {
         out.classList.remove('is-empty');
@@ -1038,6 +1083,50 @@
         if (spreadRow) spreadRow.classList.toggle('is-on', mode === 'advanced');
       }
 
+      function syncDepthButtons() {
+        [depthCardBtn, depthIntegratedBtn].forEach((btn) => {
+          if (!btn) return;
+          const on = btn.getAttribute('data-depth') === readingDepth;
+          btn.classList.toggle('active', on);
+          btn.setAttribute('aria-selected', on ? 'true' : 'false');
+        });
+        updateCreditHint();
+      }
+
+      function setReadingDepth(next) {
+        readingDepth = next === 'integrated' ? 'integrated' : 'card';
+        syncDepthButtons();
+      }
+
+      /** 장수·해석 깊이에 따른 feature / 크레딧 */
+      function resolveCounselorFeature(cardCount, depth) {
+        const integrated = depth === 'integrated';
+        if (cardCount <= 1) {
+          return {
+            feature: integrated ? 'counselor_integrated_basic' : 'counselor_session_basic',
+            cost: integrated ? 2 : 1,
+          };
+        }
+        if (cardCount <= 3) {
+          return {
+            feature: integrated ? 'counselor_integrated' : 'counselor_session',
+            cost: integrated ? 3 : 2,
+          };
+        }
+        return {
+          feature: integrated ? 'counselor_integrated_plus' : 'counselor_session_plus',
+          cost: integrated ? 4 : 3,
+        };
+      }
+
+      function updateCreditHint() {
+        if (!creditHintEl) return;
+        const n = readFilledCards().length || Math.max(1, slots.filter((s) => s.num != null).length || 1);
+        const { cost } = resolveCounselorFeature(n, readingDepth);
+        creditHintEl.textContent = '예상 크레딧 ' + cost +
+          (readingDepth === 'integrated' ? ' (통합)' : '');
+      }
+
       function setMode(next) {
         mode = next === 'advanced' ? 'advanced' : 'basic';
         const n = baseCount();
@@ -1056,6 +1145,7 @@
         if (targetSlot >= slots.length) targetSlot = 0;
         syncModeButtons();
         renderSlots();
+        updateCreditHint();
       }
 
       function cardFor(num) {
@@ -1554,6 +1644,7 @@
           });
         });
         renderPreview();
+        updateCreditHint();
       }
 
       function drawRandom() {
@@ -1635,6 +1726,8 @@
 
       if (modeBasic) modeBasic.addEventListener('click', () => setMode('basic'));
       if (modeAdv) modeAdv.addEventListener('click', () => setMode('advanced'));
+      if (depthCardBtn) depthCardBtn.addEventListener('click', () => setReadingDepth('card'));
+      if (depthIntegratedBtn) depthIntegratedBtn.addEventListener('click', () => setReadingDepth('integrated'));
       if (drawBtn) drawBtn.addEventListener('click', drawRandom);
       if (spreadSel) {
         spreadSel.addEventListener('change', () => {
@@ -1683,11 +1776,40 @@
         const chipsEl = document.getElementById('aiNumBriefChips');
         const blurbEl = document.getElementById('aiNumBriefBlurb');
         const titleEl = document.getElementById('aiNumBriefTitle');
+        const astroBrief = document.getElementById('aiAstroBrief');
+        const astroChipsEl = document.getElementById('aiAstroBriefChips');
+        const astroBlurbEl = document.getElementById('aiAstroBriefBlurb');
+        const astroTitleEl = document.getElementById('aiAstroBriefTitle');
+
+        function fillBriefBlock(wrap, chipsNode, blurbNode, titleNode, built, fallbackTitle) {
+          if (!wrap || !chipsNode || !blurbNode) return;
+          if (!built || !built.ok) {
+            wrap.hidden = false;
+            if (titleNode) titleNode.textContent = fallbackTitle;
+            chipsNode.innerHTML = '';
+            blurbNode.textContent = (built && built.error) || '요약을 만들 수 없습니다.';
+            return;
+          }
+          wrap.hidden = false;
+          if (titleNode) titleNode.textContent = built.name + ' · ' + fallbackTitle;
+          chipsNode.innerHTML = (built.chips || []).map((chip) =>
+            '<div class="ai-num-chip"><span class="k">' + escapeHtml(chip.label) + '</span>' +
+            '<span class="v">' + escapeHtml(String(chip.num)) + '</span>' +
+            (chip.title ? '<span class="t">' + escapeHtml(chip.title) + '</span>' : '') +
+            '</div>'
+          ).join('');
+          const blurbs = (built.chips || [])
+            .map((chip) => chip.blurb ? (chip.label + ': ' + chip.blurb) : '')
+            .filter(Boolean);
+          if (built.tip) blurbs.push(built.tip);
+          blurbNode.textContent = blurbs.join(' ');
+        }
 
         if (!c) {
           setClientLink(linkNum, 'analysis.html', false);
           setClientLink(linkAstro, 'astrology.html', false);
           if (brief) brief.hidden = true;
+          if (astroBrief) astroBrief.hidden = true;
           return;
         }
 
@@ -1701,29 +1823,16 @@
         if (c.birth_city) qs.set('city', c.birth_city);
         setClientLink(linkAstro, 'astrology.html?' + qs.toString(), !!c.birth_date);
 
-        if (!brief || !chipsEl || !blurbEl) return;
-        const built = window.PaljaCounselorCopySummary && PaljaCounselorCopySummary.buildBrief
-          ? PaljaCounselorCopySummary.buildBrief(c)
+        const mod = window.PaljaCounselorCopySummary;
+        const numBuilt = mod && mod.buildBrief
+          ? mod.buildBrief(c)
           : { ok: false, error: '요약 모듈을 불러오지 못했습니다.' };
-        if (!built.ok) {
-          brief.hidden = false;
-          if (titleEl) titleEl.textContent = '수비학 한눈';
-          chipsEl.innerHTML = '';
-          blurbEl.textContent = built.error || '요약을 만들 수 없습니다.';
-          return;
-        }
-        brief.hidden = false;
-        if (titleEl) titleEl.textContent = built.name + ' · 수비학 한눈';
-        chipsEl.innerHTML = (built.chips || []).map((chip) =>
-          '<div class="ai-num-chip"><span class="k">' + escapeHtml(chip.label) + '</span>' +
-          '<span class="v">' + escapeHtml(String(chip.num)) + '</span>' +
-          (chip.title ? '<span class="t">' + escapeHtml(chip.title) + '</span>' : '') +
-          '</div>'
-        ).join('');
-        blurbEl.textContent = (built.chips || [])
-          .map((chip) => chip.blurb ? (chip.label + ': ' + chip.blurb) : '')
-          .filter(Boolean)
-          .join(' ');
+        fillBriefBlock(brief, chipsEl, blurbEl, titleEl, numBuilt, '수비학 한눈');
+
+        const astroBuilt = mod && mod.buildAstroBrief
+          ? mod.buildAstroBrief(c)
+          : { ok: false, error: '요약 모듈을 불러오지 못했습니다.' };
+        fillBriefBlock(astroBrief, astroChipsEl, astroBlurbEl, astroTitleEl, astroBuilt, '점성학 한눈');
       }
 
       if (copyBtn) {
@@ -1946,12 +2055,15 @@
           return;
         }
 
-        const feature = cards.length <= 1
-          ? 'counselor_session_basic'
-          : cards.length <= 3
-            ? 'counselor_session'
-            : 'counselor_session_plus';
-        const costLabel = cards.length <= 1 ? '1' : cards.length <= 3 ? '2' : '3';
+        if (readingDepth === 'integrated') {
+          if (!client || !client.birth_date) {
+            setAiMsg('통합(수비·점성) 리딩은 생년월일이 있는 고객을 선택해야 합니다.', true);
+            return;
+          }
+        }
+
+        const { feature, cost } = resolveCounselorFeature(cards.length, readingDepth);
+        const costLabel = String(cost);
         const ls = client ? clientLastSession(client.id) : { last: '', topic: '' };
         const displayName = nickname || (client && (client.display_name || client.legal_name)) || '고객님';
         const btn = document.getElementById('aiDraftBtn');
@@ -1982,10 +2094,58 @@
             return '  <helpful>포지션「' + c.pos + '」: ' + line + '</helpful>';
           }
           if (kind === 'unhelpful') {
-            return '  <unhelpful>포지션「' + c.pos + '」: ' + line + '</unhelpful>';
+            return '  <unhelpful>포지션「' + c.pos + '」: ' + line + '</helpful>';
           }
           return '  <card pos="' + String(c.pos).replace(/"/g, '') + '">' + line + '</card>';
         }).join('\n');
+
+        let integratedContextXml = '';
+        let integratedDirective = '';
+        if (readingDepth === 'integrated' && client) {
+          const mod = window.PaljaCounselorCopySummary;
+          const numB = mod && mod.buildBrief ? mod.buildBrief(client) : { ok: false };
+          const astB = mod && mod.buildAstroBrief ? mod.buildAstroBrief(client) : { ok: false };
+          const numLines = (numB.ok && numB.chips)
+            ? numB.chips.map((ch) =>
+              '    <chip kind="' + String(ch.label).replace(/"/g, '') + '" value="' +
+              String(ch.num).replace(/"/g, '') + '"' +
+              (ch.title ? ' title="' + String(ch.title).replace(/"/g, '') + '"' : '') + '>' +
+              (ch.blurb || '') + '</chip>'
+            ).join('\n')
+            : '';
+          const astroLines = (astB.ok && astB.chips)
+            ? astB.chips.map((ch) =>
+              '    <chip kind="' + String(ch.label).replace(/"/g, '') + '" value="' +
+              String(ch.num).replace(/"/g, '') + '"' +
+              (ch.title ? ' title="' + String(ch.title).replace(/"/g, '') + '"' : '') + '>' +
+              (ch.blurb || '') + '</chip>'
+            ).join('\n')
+            : '';
+          integratedContextXml =
+`- 해석 깊이: 통합(수비·점성) — 아래는 배경 조율용. 카드 결론을 덮어쓰지 말 것.
+` +
+(numB.ok
+  ? `<numerology_brief birth="${numB.birth || ''}">
+${numLines}
+  </numerology_brief>
+`
+  : '') +
+(astB.ok
+  ? `<astrology_brief sun="${astB.sunKo || ''}" element="${astB.sunElement || ''}" time="${astB.time || '미상'}" city="${astB.city || '미상'}">
+${astroLines}
+    <note>${astB.tip || ''}</note>
+  </astrology_brief>
+`
+  : '');
+          integratedDirective = `
+
+<integration_rule>
+수비학·점성학 요약은 톤·조율·확인용 배경이다.
+- 카드 인과·포지션 결론이 주인공. 수비/점성으로 카드 결론을 뒤집거나 덮어쓰지 말 것.
+- 수비·점성과 카드가 맞으면 한두 문장으로 "조율·확인"만. 어긋나면 카드를 우선하고, 배경은 "참고"로만.
+- 출력 소제목은 기존 포맷만 사용. 수비/점성 전용 섹션을 새로 만들지 말 것.
+</integration_rule>`;
+        }
 
         const systemBlock =
 `<role>
@@ -2025,7 +2185,7 @@
 - 전략적 조언: helpful/unhelpful(또는 조언·장애 포지션) 조합 + 방치 시/대응 시 분기. 없으면 본 스프래드만으로.
 - 상담사 실전 솔루션: 고객에게 말해줄 **해야 할 것(Do)** / **하지 말아야 할 것(Don't)** 각 2~3개
 - 주의: 의료·법률·투자 경계 한두 문장(결론 자체를 흐리지 말 것)
-</output_format>`;
+</output_format>` + integratedDirective;
 
         const prompt =
 systemBlock + `
@@ -2034,7 +2194,7 @@ systemBlock + `
 - 호칭: ${displayName}
 ${client ? '- CRM 생년월일: ' + (client.birth_date || '미상') + ' / 최근 상담: ' + (ls.last || '없음') + (ls.topic ? ' · ' + ls.topic : '') + '\n' : ''}- 질문: ${question}
 - 해석 주제: ${topicLabel}
-${note ? '- 상담사 메모(고객에게 노출 금지, 반영만): ' + note + '\n' : ''}</context>
+${note ? '- 상담사 메모(고객에게 노출 금지, 반영만): ' + note + '\n' : ''}${integratedContextXml}</context>
 
 <spread>
 ${spreadXml}
@@ -2043,8 +2203,9 @@ ${spreadXml}
 위 데이터를 바탕으로 시스템 지시를 엄격히 준수하여 지정된 마크다운 형식으로 타로 리딩을 분석해 주세요.`;
 
         const cacheKey = PaljaAiQuota.hashKey([
-          'counselor_reading_v13',
+          'counselor_reading_v14',
           feature,
+          readingDepth,
           topic,
           clientId || '',
           displayName,
@@ -2108,6 +2269,7 @@ ${spreadXml}
       });
 
       setMode('basic');
+      syncDepthButtons();
 
       if (location.hash === '#ai-draft') {
         setTimeout(() => {

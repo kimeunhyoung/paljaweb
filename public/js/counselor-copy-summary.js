@@ -280,5 +280,117 @@
     };
   }
 
-  global.PaljaCounselorCopySummary = { build, buildBrief };
+  /** 트로피컬 태양 별자리 (일 경계 근사 — 한눈·프롬프트용) */
+  const SUN_SIGNS = [
+    { key: 'capricorn', ko: '염소자리', from: [12, 22], to: [1, 19], element: '흙' },
+    { key: 'aquarius', ko: '물병자리', from: [1, 20], to: [2, 18], element: '바람' },
+    { key: 'pisces', ko: '물고기자리', from: [2, 19], to: [3, 20], element: '물' },
+    { key: 'aries', ko: '양자리', from: [3, 21], to: [4, 19], element: '불' },
+    { key: 'taurus', ko: '황소자리', from: [4, 20], to: [5, 20], element: '흙' },
+    { key: 'gemini', ko: '쌍둥이자리', from: [5, 21], to: [6, 20], element: '바람' },
+    { key: 'cancer', ko: '게자리', from: [6, 21], to: [7, 22], element: '물' },
+    { key: 'leo', ko: '사자자리', from: [7, 23], to: [8, 22], element: '불' },
+    { key: 'virgo', ko: '처녀자리', from: [8, 23], to: [9, 22], element: '흙' },
+    { key: 'libra', ko: '천칭자리', from: [9, 23], to: [10, 22], element: '바람' },
+    { key: 'scorpio', ko: '전갈자리', from: [10, 23], to: [11, 21], element: '물' },
+    { key: 'sagittarius', ko: '사수자리', from: [11, 22], to: [12, 21], element: '불' },
+  ];
+
+  const SUN_BLURB = {
+    aries: '스스로 길을 내며 앞장설 때 가장 생생합니다. 도전과 새 시작이 정체성의 핵심입니다.',
+    taurus: '안정·감각·꾸준함 속에서 자기다움을 느낍니다. 천천히 단단히 쌓는 타입입니다.',
+    gemini: '배우고 말하고 연결할 때 살아납니다. 호기심과 재치가 중심입니다.',
+    cancer: '돌보고 소속될 때 존재를 확인합니다. 감정·안전·가족이 핵심 테마입니다.',
+    leo: '표현하고 빛날 때 가장 나다워집니다. 창조와 따뜻한 자부심이 중심입니다.',
+    virgo: '다듬고 도움이 될 때 의미를 느낍니다. 분석·성실이 정체성의 축입니다.',
+    libra: '관계와 균형 속에서 자기를 발견합니다. 조화·공정함이 핵심입니다.',
+    scorpio: '깊이 몰입하고 변형될 때 살아납니다. 본질·재생이 중심입니다.',
+    sagittarius: '의미를 찾아 확장할 때 가장 자유롭습니다. 모험·신념·큰 그림이 핵심입니다.',
+    capricorn: '목표를 향해 쌓아 올릴 때 자기를 증명합니다. 책임·성취가 중심입니다.',
+    aquarius: '다르게 보고 미래를 그릴 때 살아납니다. 독창성·자유가 핵심입니다.',
+    pisces: '느끼고 상상하고 연민할 때 가장 나다워집니다. 직관·공감이 중심입니다.',
+  };
+
+  function mdKey(m, d) {
+    return m * 100 + d;
+  }
+
+  function sunSignFromBirth(y, m, d) {
+    const key = mdKey(m, d);
+    for (let i = 0; i < SUN_SIGNS.length; i++) {
+      const s = SUN_SIGNS[i];
+      const a = mdKey(s.from[0], s.from[1]);
+      const b = mdKey(s.to[0], s.to[1]);
+      if (a <= b) {
+        if (key >= a && key <= b) return s;
+      } else if (key >= a || key <= b) {
+        return s; // 염소자리처럼 연말~연초
+      }
+    }
+    return SUN_SIGNS[0];
+  }
+
+  function normalizeTimeHm(raw) {
+    if (!raw) return '';
+    const s = String(raw).trim();
+    const m = s.match(/^(\d{1,2}):(\d{2})/);
+    if (!m) return '';
+    return String(m[1]).padStart(2, '0') + ':' + m[2];
+  }
+
+  /** 세션 중 한눈용 — 태양 별자리(+시간·출생지 메타) */
+  function buildAstroBrief(client) {
+    const birth = parseBirth(client && client.birth_date);
+    if (!birth) {
+      return { ok: false, error: '생년월일이 없어 점성학 요약을 만들 수 없습니다.' };
+    }
+    const nameLabel = (client.display_name || client.legal_name || '고객').trim();
+    const sign = sunSignFromBirth(birth.y, birth.m, birth.d);
+    const time = normalizeTimeHm(client && client.birth_time);
+    const city = String((client && client.birth_city) || '').trim();
+    const chips = [
+      { label: '태양', num: sign.ko, title: sign.element + ' 원소', blurb: SUN_BLURB[sign.key] || '' },
+    ];
+    if (time) {
+      chips.push({
+        label: '출생시간',
+        num: time,
+        title: '달·상승궁',
+        blurb: '시간이 있어 달·상승궁까지 차트에서 확인할 수 있습니다.',
+      });
+    } else {
+      chips.push({
+        label: '출생시간',
+        num: '미상',
+        title: '한눈 제한',
+        blurb: '정확한 달·상승궁은 시간이 필요합니다. 점성학 차트에서 보완하세요.',
+      });
+    }
+    if (city) {
+      chips.push({
+        label: '출생지',
+        num: city,
+        title: '하우스·상승',
+        blurb: '출생지가 있어 하우스·상승궁 계산에 쓸 수 있습니다.',
+      });
+    }
+    const tip = time && city
+      ? '태양 기준으로 한눈을 잡았습니다. 달·상승·하우스는 점성학 차트에서 이어서 보세요.'
+      : '태양 별자리만 한눈으로 제공합니다. 달·상승궁은 점성학 차트(시간·출생지)에서 확인하세요.';
+    return {
+      ok: true,
+      name: nameLabel,
+      birth: String(client.birth_date).slice(0, 10),
+      sunKey: sign.key,
+      sunKo: sign.ko,
+      sunElement: sign.element,
+      sunBlurb: SUN_BLURB[sign.key] || '',
+      time: time || '',
+      city: city || '',
+      chips: chips,
+      tip: tip,
+    };
+  }
+
+  global.PaljaCounselorCopySummary = { build, buildBrief, buildAstroBrief };
 })(typeof window !== 'undefined' ? window : globalThis);
