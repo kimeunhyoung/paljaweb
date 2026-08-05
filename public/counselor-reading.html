@@ -1281,7 +1281,8 @@
       }
 
       function searchCards(raw, limit) {
-        const max = limit || 10;
+        // 슈트만 치면 마이너 14장까지 나와야 함(펜타클 시종~왕 포함)
+        const max = limit || 16;
         const onlyNum = String(raw || '').trim().match(/^\d{1,2}$/);
         if (onlyNum) {
           const n = Number(onlyNum[0]);
@@ -1521,7 +1522,7 @@
                 return true;
               }
             }
-            const hits = searchCards(raw, 12);
+            const hits = searchCards(raw, 16);
             if (hits.length === 1) {
               applyCard(hits[0].num);
               return true;
@@ -1565,7 +1566,7 @@
               el.classList.toggle('is-target', Number(el.getAttribute('data-i')) === targetSlot);
             });
             if (inp.value && slots[i].num == null) {
-              renderSuggest(searchCards(inp.value, 10));
+              renderSuggest(searchCards(inp.value, 16));
             }
           });
           inp.addEventListener('input', () => {
@@ -1583,7 +1584,7 @@
               renderPreview();
               return;
             }
-            renderSuggest(searchCards(q, 10));
+            renderSuggest(searchCards(q, 16));
           });
           inp.addEventListener('keydown', (e) => {
             if (e.key === 'ArrowDown' && lastHits.length) {
@@ -1597,7 +1598,7 @@
             } else if (e.key === 'Enter') {
               e.preventDefault();
               if (!tryCommitQuery(inp.value)) {
-                renderSuggest(searchCards(inp.value, 10));
+                renderSuggest(searchCards(inp.value, 16));
                 setAiMsg('후보가 여러 개입니다. 목록에서 고르거나 더 정확히 입력해 주세요.', true);
               }
             } else if (e.key === 'Escape') {
