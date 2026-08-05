@@ -355,8 +355,8 @@
     .modal-body { padding: 18px 20px; }
     .modal-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
     .tool-dock {
-      display: none; grid-column: 1 / -1;
-      margin-top: 4px; border: 1px solid var(--border); border-radius: 12px;
+      display: none;
+      margin-top: 12px; border: 1px solid var(--border); border-radius: 12px;
       background: #fff; overflow: hidden;
     }
     .tool-dock.is-open { display: block; }
@@ -451,7 +451,7 @@
         <div class="full ai-client-tools">
           <button type="button" class="btn-sm outline" id="aiLinkNumerology" data-href="analysis.html" aria-disabled="true">수비학 분석</button>
           <button type="button" class="btn-sm outline" id="aiLinkAstro" data-href="astrology.html" aria-disabled="true">점성학 차트</button>
-          <span style="font-size:11px;color:var(--muted);align-self:center">카드 아래쪽에 펼쳐 같이 봄 · 새 탭도 가능</span>
+          <span style="font-size:11px;color:var(--muted);align-self:center">해석 결과 아래에 펼침 · 새 탭도 가능</span>
         </div>
         <div class="ai-brief-stack full">
           <div class="ai-num-brief" id="aiNumBrief" hidden>
@@ -517,27 +517,27 @@
           <button type="button" class="btn-sm outline" id="aiSaveSessionBtn" style="display:none;">세션에 전문 남기기</button>
           <span class="ai-draft-quota" id="aiDraftQuota" hidden></span>
         </div>
-        <div class="tool-dock full" id="toolDock" hidden>
-          <div class="tool-dock-head">
-            <div>
-              <strong id="toolDockTitle">참고 보기</strong>
-              <div class="sub">위 카드·질문은 그대로 두고, 여기서 수비학·점성학을 같이 봅니다.</div>
-            </div>
-            <div class="tool-dock-actions">
-              <a class="btn-sm outline" id="toolDockNewTab" href="#" target="_blank" rel="noopener">새 탭</a>
-              <button type="button" class="btn-sm outline" id="toolDockClose">접기</button>
-            </div>
-          </div>
-          <div class="tool-dock-frame-wrap">
-            <div class="tool-dock-loading" id="toolDockLoading">불러오는 중…</div>
-            <iframe id="toolDockFrame" title="수비학·점성학 참고"></iframe>
-          </div>
-        </div>
       </form>
       <p class="ai-preview-label" id="aiPreviewLabel" hidden>뽑힌 카드 · 해석과 함께 보세요</p>
       <div id="aiCardPreview" class="ai-card-preview" aria-live="polite"></div>
       <div id="aiDraftOut" class="ai-draft-out is-empty">질문을 넣고 카드를 정한 뒤 해석을 생성해 보세요.</div>
       <p id="aiDraftMsg" class="ai-draft-msg"></p>
+      <div class="tool-dock" id="toolDock" hidden>
+        <div class="tool-dock-head">
+          <div>
+            <strong id="toolDockTitle">참고 보기</strong>
+            <div class="sub">카드 해석 아래에서 수비학·점성학을 같이 봅니다.</div>
+          </div>
+          <div class="tool-dock-actions">
+            <a class="btn-sm outline" id="toolDockNewTab" href="#" target="_blank" rel="noopener">새 탭</a>
+            <button type="button" class="btn-sm outline" id="toolDockClose">접기</button>
+          </div>
+        </div>
+        <div class="tool-dock-frame-wrap">
+          <div class="tool-dock-loading" id="toolDockLoading">불러오는 중…</div>
+          <iframe id="toolDockFrame" title="수비학·점성학 참고"></iframe>
+        </div>
+      </div>
     </div>
 
     <div class="section-title" id="session-scripts" style="margin-top:28px">신입용 세션 스크립트</div>
