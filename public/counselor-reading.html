@@ -13,7 +13,7 @@
   <script src="js/plan-access.js?v=1"></script>
   <script src="js/ai-quota-client.js?v=2"></script>
   <script src="js/counselor-tarot-deck.js?v=4"></script>
-  <script src="js/counselor-copy-summary.js?v=4"></script>
+  <script src="js/counselor-copy-summary.js?v=5"></script>
   <script src="js/attribution.js"></script>
   <script src="js/site-topbar.js?v=7" defer></script>
   <script src="js/topbar-session.js?v=6" defer></script>
@@ -436,7 +436,7 @@
           <div class="ai-num-brief" id="aiAstroBrief" hidden>
             <div class="ai-num-brief-head">
               <strong id="aiAstroBriefTitle">점성학 요약</strong>
-              <span>태양 기준 · 달·상승은 차트에서</span>
+              <span>태양만 여기 · 상승은 차트</span>
             </div>
             <div class="ai-num-chips" id="aiAstroBriefChips"></div>
             <p class="ai-num-blurb" id="aiAstroBriefBlurb"></p>
@@ -606,6 +606,10 @@
         (c.birth_date ? ' · ' + escapeHtml(String(c.birth_date)) : '') + '</option>'
       ).join('');
     if (cur && clientRows.some((c) => c.id === cur)) sel.value = cur;
+    else {
+      const fromUrl = new URLSearchParams(location.search).get('client');
+      if (fromUrl && clientRows.some((c) => c.id === fromUrl)) sel.value = fromUrl;
+    }
   }
 
   async function checkAccess() {
@@ -1759,7 +1763,9 @@
           }
           syncClientContext(c || null);
         });
-        syncClientContext(clientRows.find((x) => x.id === clientSel.value) || null);
+        const initial = clientRows.find((x) => x.id === clientSel.value) || null;
+        if (initial) nickEl.value = (initial.display_name || initial.legal_name || '').trim();
+        syncClientContext(initial);
       }
 
       function setClientLink(el, href, enabled) {

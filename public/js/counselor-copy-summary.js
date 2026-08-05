@@ -338,7 +338,7 @@
     return String(m[1]).padStart(2, '0') + ':' + m[2];
   }
 
-  /** 세션 중 요약용 — 태양 별자리(+시간·출생지 메타) */
+  /** 세션 중 요약용 — 태양 별자리(+시간·출생지 메타). 상승궁은 에페메리스 없이 여기서 계산하지 않음. */
   function buildAstroBrief(client) {
     const birth = parseBirth(client && client.birth_date);
     if (!birth) {
@@ -351,32 +351,37 @@
     const chips = [
       { label: '태양', num: sign.ko, title: sign.element + ' 원소', blurb: SUN_BLURB[sign.key] || '' },
     ];
-    if (time) {
+    if (time && city) {
       chips.push({
-        label: '출생시간',
-        num: time,
-        title: '달·상승궁',
-        blurb: '시간이 있어 달·상승궁까지 차트에서 확인할 수 있습니다.',
+        label: '상승궁',
+        num: '차트에서',
+        title: '시간·출생지 있음',
+        blurb: '출생시간·출생지가 있어 점성학 차트에서 상승궁·달을 계산할 수 있습니다.',
+      });
+    } else if (time) {
+      chips.push({
+        label: '상승궁',
+        num: '출생지 필요',
+        title: '시간만 있음',
+        blurb: '상승궁·하우스는 출생지가 더 필요합니다. 점성학 차트에서 보완하세요.',
       });
     } else {
       chips.push({
-        label: '출생시간',
-        num: '미상',
+        label: '상승궁',
+        num: '시간 필요',
         title: '요약 제한',
-        blurb: '정확한 달·상승궁은 시간이 필요합니다. 점성학 차트에서 보완하세요.',
+        blurb: '상승궁·달은 출생 시간이 있어야 계산됩니다. 점성학 차트에서 보완하세요.',
       });
     }
-    if (city) {
-      chips.push({
-        label: '출생지',
-        num: city,
-        title: '하우스·상승',
-        blurb: '출생지가 있어 하우스·상승궁 계산에 쓸 수 있습니다.',
-      });
-    }
-    const tip = time && city
-      ? '태양 기준 요약입니다. 달·상승·하우스는 점성학 차트에서 이어서 보세요.'
-      : '태양 별자리만 요약으로 제공합니다. 달·상승궁은 점성학 차트(시간·출생지)에서 확인하세요.';
+    const metaBits = [];
+    if (time) metaBits.push('출생시간 ' + time);
+    if (city) metaBits.push('출생지 ' + city);
+    const tip = metaBits.length
+      ? '이 화면은 태양만 바로 계산합니다. ' + metaBits.join(' · ') +
+        (time && city
+          ? ' → 달·상승·하우스는 「점성학 차트」에서 확인하세요.'
+          : ' → 달·상승궁은 시간·출생지를 채운 뒤 차트에서 확인하세요.')
+      : '태양 별자리만 요약합니다. 달·상승궁은 출생시간·출생지를 넣고 점성학 차트에서 확인하세요.';
     return {
       ok: true,
       name: nameLabel,

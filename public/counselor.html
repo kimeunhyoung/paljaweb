@@ -1331,6 +1331,7 @@
           '<div class="meta"><strong>' + dn + '</strong><span>' + sub + '</span>' + lastLine + '</div>' +
           '<div class="row-btns">' +
           '<button type="button" class="primary" data-act="copy-sum" data-id="' + row.id + '">요약 복사</button>' +
+          '<button type="button" class="ghost" data-act="ai-reading" data-id="' + row.id + '">AI 리딩</button>' +
           '<button type="button" class="ghost" data-act="analyze" data-id="' + row.id + '">분석 열기</button>' +
           '<button type="button" class="ghost" data-act="astro" data-id="' + row.id + '">점성학 차트</button>' +
           '<button type="button" class="ghost" data-act="sessions" data-id="' + row.id + '">상담 기록</button>' +
@@ -1605,6 +1606,10 @@
         openCopySummary(id);
         return;
       }
+      if (act === 'ai-reading') {
+        window.location.href = 'counselor-reading.html?client=' + encodeURIComponent(id);
+        return;
+      }
       if (act === 'analyze') {
         window.location.href = 'analysis.html?client=' + encodeURIComponent(id);
         return;
@@ -1692,7 +1697,7 @@
         }
         setMsg('저장했습니다.');
       } else {
-        const { error } = await sb.from('counselor_clients').insert({
+        const { data: inserted, error } = await sb.from('counselor_clients').insert({
           counselor_id: uid,
           display_name,
           legal_name,
@@ -1703,13 +1708,24 @@
           tags,
           next_appointment,
           notes,
-        });
+        }).select('id').single();
         if (error) {
           setMsg(error.message, true);
           return;
         }
-        setMsg('새 고객 카드를 추가했습니다.');
+        const newId = inserted && inserted.id;
+        setMsg(
+          newId
+            ? '새 고객 카드를 추가했습니다. → AI 리딩으로 바로 가려면 목록의 「AI 리딩」을 누르세요.'
+            : '새 고객 카드를 추가했습니다.'
+        );
         resetForm();
+        await loadClients();
+        if (newId) {
+          const aiBtn = listEl.querySelector('button[data-act="ai-reading"][data-id="' + newId + '"]');
+          if (aiBtn) aiBtn.focus();
+        }
+        return;
       }
       loadClients();
     });
