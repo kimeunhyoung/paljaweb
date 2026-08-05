@@ -517,8 +517,11 @@
           <textarea id="aiNote" maxlength="500" placeholder="지난 회차 포인트, 상담사가 알고 있는 맥락 등"></textarea>
         </div>
         <div class="full">
-          <label>뽑힌 카드</label>
-          <p class="ai-card-hint">칸에 <strong>소드7 · 완드왕 · 35</strong>처럼 치면 바로 고를 수 있습니다. 번호만 넣어도 됩니다.</p>
+          <div class="ai-q-head">
+            <label>뽑힌 카드</label>
+            <button type="button" class="ai-voice-btn" id="aiCardVoiceBtn" title="마이크로 카드 이름 말하기">🎤 음성으로 카드</button>
+          </div>
+          <p class="ai-card-hint">칸에 <strong>소드7 · 완드왕 · 35</strong>처럼 치거나, <strong>「소드 칠」「완드 왕」「역방향 탑」</strong>처럼 말해 넣을 수 있습니다.</p>
           <div class="ai-spread-row" id="aiSpreadRow">
             <div>
               <label for="aiSpreadPreset">스프래드 (칸 이름)</label>
@@ -1421,8 +1424,85 @@
           .replace(/기사|knight/g, '기사')
           .replace(/여왕|queen/g, '여왕')
           .replace(/king/g, '왕')
+          // 음성 숫자 (긴 표현 우선)
+          .replace(/십일|열한/g, '11')
+          .replace(/십이|열두/g, '12')
+          .replace(/십삼|열세/g, '13')
+          .replace(/십사|열네/g, '14')
+          .replace(/십오|열다섯/g, '15')
+          .replace(/십육|열여섯/g, '16')
+          .replace(/십칠|열일곱/g, '17')
+          .replace(/십팔|열여덟/g, '18')
+          .replace(/십구|열아홉/g, '19')
+          .replace(/이십|스물/g, '20')
+          .replace(/열|십/g, '10')
+          .replace(/아홉|구/g, '9')
+          .replace(/여덟|팔/g, '8')
+          .replace(/일곱|칠/g, '7')
+          .replace(/여섯|육/g, '6')
+          .replace(/다섯|오/g, '5')
+          .replace(/넷|사/g, '4')
+          .replace(/셋|삼/g, '3')
+          .replace(/둘/g, '2')
+          .replace(/하나/g, '1')
+          .replace(/영|공/g, '0')
           .replace(/\s+/g, '');
         return s;
+      }
+
+      function applySpokenCard(transcript) {
+        let raw = String(transcript || '').trim();
+        if (!raw) {
+          setAiMsg('카드 이름이 들리지 않았어요. 다시 말해 주세요.', true);
+          return false;
+        }
+        const wantRev = /역방향|리버스|reversed?|거꾸로|뒤집|역으로/.test(raw);
+        raw = raw
+          .replace(/역방향|리버스|reversed?|거꾸로|뒤집힌?|역으로/gi, ' ')
+          .replace(/\s+/g, ' ')
+          .trim();
+        if (!raw) {
+          setAiMsg('카드 이름을 함께 말해 주세요. 예: 소드 칠, 완드 왕, 탑 역방향', true);
+          return false;
+        }
+
+        const hits = searchCards(raw, 16);
+        let pick = null;
+        if (hits.length === 1) {
+          pick = hits[0];
+        } else if (hits.length > 1) {
+          const used = usedNums();
+          const free = hits.filter((c) => !used.has(c.num));
+          const pool = free.length ? free : hits;
+          const q = normalizeCardQuery(raw);
+          const exact = pool.filter((c) =>
+            String(c.name || '').toLowerCase().replace(/\s+/g, '') === q ||
+            String(c.num) === q
+          );
+          if (exact.length === 1) pick = exact[0];
+          else if (pool.length === 1) pick = pool[0];
+          else {
+            setAiMsg(
+              '여러 카드가 맞아요: ' +
+              hits.slice(0, 5).map((c) => c.num + '.' + c.name).join(', ') +
+              '. 더 정확히 말해 주세요.',
+              true
+            );
+            return false;
+          }
+        } else {
+          setAiMsg('「' + raw + '」에 맞는 카드가 없어요. 예: 소드 칠, 완드 왕, 삼십오', true);
+          return false;
+        }
+
+        const i = assignCard(pick.num);
+        if (wantRev && typeof i === 'number' && slots[i]) {
+          slots[i].rev = true;
+          renderSlots();
+          const labels = posLabels();
+          setAiMsg(pick.name + ' (역) → ' + (labels[i] || (i + 1) + '장') + '에 넣었습니다.');
+        }
+        return true;
       }
 
       function cardMatchesQuery(card, num, raw) {
@@ -1899,6 +1979,89 @@
       if (depthCardBtn) depthCardBtn.addEventListener('click', () => setReadingDepth('card'));
       if (depthIntegratedBtn) depthIntegratedBtn.addEventListener('click', () => setReadingDepth('integrated'));
       if (drawBtn) drawBtn.addEventListener('click', drawRandom);
+
+      (function initCardVoice() {
+        const btn = document.getElementById('aiCardVoiceBtn');
+        if (!btn) return;
+        const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
+        if (!SpeechRec) {
+          btn.disabled = true;
+          btn.title = '이 브라우저에서는 음성 입력을 지원하지 않습니다';
+          return;
+        }
+
+        let recog = null;
+        let listening = false;
+
+        function setListening(on) {
+          listening = !!on;
+          btn.classList.toggle('is-listening', listening);
+          btn.textContent = listening ? '⏹ 듣는 중…' : '🎤 음성으로 카드';
+          btn.setAttribute('aria-pressed', listening ? 'true' : 'false');
+        }
+
+        function stopVoice() {
+          if (recog) {
+            try { recog.onresult = null; } catch (_) {}
+            try { recog.stop(); } catch (_) {}
+            try { recog.abort(); } catch (_) {}
+          }
+          recog = null;
+          setListening(false);
+        }
+
+        function startVoice() {
+          stopVoice();
+          recog = new SpeechRec();
+          recog.lang = 'ko-KR';
+          recog.continuous = false;
+          recog.interimResults = false;
+          recog.maxAlternatives = 1;
+
+          recog.onstart = () => {
+            setListening(true);
+            setAiMsg('카드 이름을 말해 주세요. 예: 소드 칠, 완드 왕, 탑 역방향');
+          };
+          recog.onerror = (ev) => {
+            const code = ev && ev.error;
+            setListening(false);
+            if (code === 'not-allowed' || code === 'service-not-allowed') {
+              setAiMsg('마이크 권한이 필요합니다. 브라우저에서 허용해 주세요.', true);
+            } else if (code === 'no-speech') {
+              setAiMsg('음성이 감지되지 않았어요. 다시 눌러 말해 주세요.', true);
+            } else if (code !== 'aborted') {
+              setAiMsg('음성 인식에 실패했습니다. (' + (code || '오류') + ')', true);
+            }
+          };
+          recog.onend = () => {
+            setListening(false);
+            recog = null;
+          };
+          recog.onresult = (ev) => {
+            let text = '';
+            for (let i = 0; i < ev.results.length; i++) {
+              if (ev.results[i].isFinal || i === ev.results.length - 1) {
+                text += (ev.results[i][0] && ev.results[i][0].transcript) || '';
+              }
+            }
+            applySpokenCard(text);
+          };
+
+          try {
+            recog.start();
+          } catch (_) {
+            setAiMsg('음성 입력을 시작할 수 없어요.', true);
+            setListening(false);
+            recog = null;
+          }
+        }
+
+        btn.addEventListener('click', () => {
+          if (listening) stopVoice();
+          else startVoice();
+        });
+      })();
+
       if (spreadSel) {
         spreadSel.addEventListener('change', () => {
           applySpreadLabels(spreadSel.value);
