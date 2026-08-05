@@ -257,7 +257,7 @@
     };
   }
 
-  /** 세션 중 한눈용 — 인생여정·올해·이번 달만 */
+  /** 세션 중 요약용 — 인생여정·올해·이번 달만 */
   function buildBrief(client) {
     const birth = parseBirth(client && client.birth_date);
     if (!birth) {
@@ -280,7 +280,7 @@
     };
   }
 
-  /** 트로피컬 태양 별자리 (일 경계 근사 — 한눈·프롬프트용) */
+  /** 트로피컬 태양 별자리 (일 경계 근사 — 요약·프롬프트용) */
   const SUN_SIGNS = [
     { key: 'capricorn', ko: '염소자리', from: [12, 22], to: [1, 19], element: '흙' },
     { key: 'aquarius', ko: '물병자리', from: [1, 20], to: [2, 18], element: '바람' },
@@ -338,7 +338,7 @@
     return String(m[1]).padStart(2, '0') + ':' + m[2];
   }
 
-  /** 세션 중 한눈용 — 태양 별자리(+시간·출생지 메타) */
+  /** 세션 중 요약용 — 태양 별자리(+시간·출생지 메타) */
   function buildAstroBrief(client) {
     const birth = parseBirth(client && client.birth_date);
     if (!birth) {
@@ -362,7 +362,7 @@
       chips.push({
         label: '출생시간',
         num: '미상',
-        title: '한눈 제한',
+        title: '요약 제한',
         blurb: '정확한 달·상승궁은 시간이 필요합니다. 점성학 차트에서 보완하세요.',
       });
     }
@@ -375,8 +375,8 @@
       });
     }
     const tip = time && city
-      ? '태양 기준으로 한눈을 잡았습니다. 달·상승·하우스는 점성학 차트에서 이어서 보세요.'
-      : '태양 별자리만 한눈으로 제공합니다. 달·상승궁은 점성학 차트(시간·출생지)에서 확인하세요.';
+      ? '태양 기준 요약입니다. 달·상승·하우스는 점성학 차트에서 이어서 보세요.'
+      : '태양 별자리만 요약으로 제공합니다. 달·상승궁은 점성학 차트(시간·출생지)에서 확인하세요.';
     return {
       ok: true,
       name: nameLabel,

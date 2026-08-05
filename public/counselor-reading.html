@@ -13,7 +13,7 @@
   <script src="js/plan-access.js?v=1"></script>
   <script src="js/ai-quota-client.js?v=2"></script>
   <script src="js/counselor-tarot-deck.js?v=4"></script>
-  <script src="js/counselor-copy-summary.js?v=3"></script>
+  <script src="js/counselor-copy-summary.js?v=4"></script>
   <script src="js/attribution.js"></script>
   <script src="js/site-topbar.js?v=7" defer></script>
   <script src="js/topbar-session.js?v=6" defer></script>
@@ -400,7 +400,7 @@
           <span>스프래드 1~3장 · 추가 시 4~6장(크레딧 3)</span>
         </button>
       </div>
-      <p class="ai-depth-hint" id="aiDepthHint">해석 깊이: 카드만이면 타로만. 통합이면 고객 수비·점성 한눈을 배경으로만 녹입니다.</p>
+      <p class="ai-depth-hint" id="aiDepthHint">해석 깊이: 카드만이면 타로만. 통합이면 고객 수비·점성 요약을 배경으로만 녹입니다.</p>
       <div class="ai-depth-row" role="tablist" aria-label="해석 깊이">
         <button type="button" class="ai-depth-btn active" id="aiDepthCard" data-depth="card" role="tab" aria-selected="true">
           <strong>카드만</strong>
@@ -408,7 +408,7 @@
         </button>
         <button type="button" class="ai-depth-btn" id="aiDepthIntegrated" data-depth="integrated" role="tab" aria-selected="false">
           <strong>통합 (수비·점성)</strong>
-          <span>고객 한눈을 배경 조율 · 크레딧 +1</span>
+          <span>고객 요약을 배경 조율 · 크레딧 +1</span>
         </button>
       </div>
       <form id="aiDraftForm" class="ai-draft-form" autocomplete="off">
@@ -427,7 +427,7 @@
         <div class="ai-brief-stack full">
           <div class="ai-num-brief" id="aiNumBrief" hidden>
             <div class="ai-num-brief-head">
-              <strong id="aiNumBriefTitle">수비학 한눈</strong>
+              <strong id="aiNumBriefTitle">수비학 요약</strong>
               <span>세션 중 참고용 · 짧게만</span>
             </div>
             <div class="ai-num-chips" id="aiNumBriefChips"></div>
@@ -435,7 +435,7 @@
           </div>
           <div class="ai-num-brief" id="aiAstroBrief" hidden>
             <div class="ai-num-brief-head">
-              <strong id="aiAstroBriefTitle">점성학 한눈</strong>
+              <strong id="aiAstroBriefTitle">점성학 요약</strong>
               <span>태양 기준 · 달·상승은 차트에서</span>
             </div>
             <div class="ai-num-chips" id="aiAstroBriefChips"></div>
@@ -1827,12 +1827,12 @@
         const numBuilt = mod && mod.buildBrief
           ? mod.buildBrief(c)
           : { ok: false, error: '요약 모듈을 불러오지 못했습니다.' };
-        fillBriefBlock(brief, chipsEl, blurbEl, titleEl, numBuilt, '수비학 한눈');
+        fillBriefBlock(brief, chipsEl, blurbEl, titleEl, numBuilt, '수비학 요약');
 
         const astroBuilt = mod && mod.buildAstroBrief
           ? mod.buildAstroBrief(c)
           : { ok: false, error: '요약 모듈을 불러오지 못했습니다.' };
-        fillBriefBlock(astroBrief, astroChipsEl, astroBlurbEl, astroTitleEl, astroBuilt, '점성학 한눈');
+        fillBriefBlock(astroBrief, astroChipsEl, astroBlurbEl, astroTitleEl, astroBuilt, '점성학 요약');
       }
 
       if (copyBtn) {
