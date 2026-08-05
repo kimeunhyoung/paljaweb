@@ -87,7 +87,7 @@
         <li><a href="Tarot.html">타로코드</a></li>
         <li><a href="counselor.html">상담사허브</a></li>
         <li><a href="counselor-reading.html">AI리딩</a></li>
-        <li><a href="counselor-lenormand.html">레노먼드</a></li>
+        <li><span aria-disabled="true" style="opacity:.55;cursor:default">레노먼드 · 준비중</span></li>
         <li><a href="guide/index.html">가이드</a></li>
         <li><a href="pricing.html">요금제</a></li>
       </ul>
@@ -106,7 +106,7 @@
       <a href="Tarot.html">타로코드</a>
       <a href="counselor.html">상담사허브</a>
       <a href="counselor-reading.html">AI리딩</a>
-      <a href="counselor-lenormand.html">레노먼드</a>
+      <span aria-disabled="true" style="opacity:.55;cursor:default">레노먼드 · 준비중</span>
     </div>
   </nav>
   </header>
@@ -135,7 +135,7 @@
         <span class="hero-counselor-label">상담사이신가요?</span>
         <a href="counselor.html" class="hero-counselor-link">상담사 허브</a>
         <a href="counselor-reading.html" class="hero-counselor-link">AI 리딩</a>
-        <a href="counselor-lenormand.html" class="hero-counselor-link">레노먼드</a>
+        <span class="hero-counselor-link" aria-disabled="true" style="opacity:.55;cursor:default;pointer-events:none">레노먼드 · 준비중</span>
         <a href="for-counselors.html" class="hero-counselor-link">안내 →</a>
       </div>
     </div>
@@ -186,7 +186,7 @@
       <div class="counselor-strip-actions">
         <a href="counselor.html" class="counselor-strip-btn">상담사 허브</a>
         <a href="counselor-reading.html" class="counselor-strip-btn">AI 리딩</a>
-        <a href="counselor-lenormand.html" class="counselor-strip-btn">레노먼드</a>
+        <span class="counselor-strip-btn" aria-disabled="true" style="opacity:.55;cursor:default;pointer-events:none">레노먼드 · 준비중</span>
         <a href="for-counselors.html" class="counselor-strip-btn counselor-strip-btn-ghost">Professional 안내</a>
       </div>
     </div>
@@ -399,20 +399,20 @@
           <div class="service-item-action">→</div>
         </a>
 
-        <a href="counselor-lenormand.html" class="service-item active link-reset">
+        <div class="service-item link-reset" aria-disabled="true" style="opacity:.72;cursor:default;pointer-events:none">
           <div class="service-item-num">13</div>
           <div class="service-item-body">
             <div class="service-item-name">레노먼드 AI</div>
-            <div class="service-item-desc">Petit Lenormand 36장. 상황·관계·진행 체인 해석 초안. Professional 전용.</div>
+            <div class="service-item-desc">Petit Lenormand 36장. 상황·관계·진행 체인 해석 초안. 점검 중이라 잠시 닫아 두었습니다.</div>
             <div class="service-item-tags">
               <span class="tag">Professional</span>
               <span class="tag">레노먼드</span>
               <span class="tag">AI 초안</span>
             </div>
           </div>
-          <div class="service-item-badge">Professional</div>
-          <div class="service-item-action">→</div>
-        </a>
+          <div class="service-item-badge">준비중</div>
+          <div class="service-item-action">·</div>
+        </div>
 
         <!-- 키르케타로코드 (임시 숨김)
         <a href="kirke-tarot.html" class="service-item active link-reset">
@@ -682,7 +682,7 @@
   <a href="business-numerology.html">상호 · 브랜드 수비학</a>
   <a href="Tarot.html">타로코드</a>
   <a href="counselor-reading.html">상담사 AI 리딩</a>
-  <a href="counselor-lenormand.html">레노먼드 AI</a>
+  <span style="opacity:.55;cursor:default">레노먼드 AI · 준비중</span>
   <!-- <a href="kirke-tarot.html">키르케타로</a> -->
 </div>
 
@@ -759,7 +759,7 @@
   
   <script src="js/attribution.js"></script>
   <script src="js/analytics.js?v=1" defer></script>
-  <script type="module" src="js/main.js?v=20260805c"></script>
+  <script type="module" src="js/main.js?v=20260806a"></script>
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
