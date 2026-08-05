@@ -130,6 +130,135 @@
     };
   }
 
+  /**
+   * SSE 스트리밍. onDelta(chunk)로 조각 수신.
+   * 실패 시 throw (err.quota 가능).
+   */
+  async function callAiStream({ feature, cacheKey, model, max_tokens, messages, onDelta }) {
+    const headers = await authHeaders();
+    headers.Accept = 'text/event-stream';
+    const res = await fetch('/api/ai/messages', {
+      method: 'POST',
+      headers,
+      body: JSON.stringify({
+        feature,
+        cacheKey: cacheKey || undefined,
+        model: model || DEFAULT_MODEL,
+        max_tokens,
+        messages,
+        stream: true,
+      }),
+    });
+
+    const ct = String(res.headers.get('content-type') || '');
+    if (!ct.includes('text/event-stream')) {
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        const err = new Error(data.error || `AI 요청 실패(${res.status})`);
+        err.status = res.status;
+        err.code = data.code;
+        err.quota = data.quota || data._palja?.quota;
+        throw err;
+      }
+      const text = extractText(data);
+      if (text && typeof onDelta === 'function') onDelta(text);
+      return {
+        data,
+        text,
+        quota: quotaFromResponse(data),
+        cached: !!data?._palja?.cached,
+        stopReason: data?.stop_reason || null,
+      };
+    }
+
+    if (!res.ok) {
+      const data = await res.json().catch(() => ({}));
+      const err = new Error(data.error || `AI 요청 실패(${res.status})`);
+      err.status = res.status;
+      err.code = data.code;
+      err.quota = data.quota;
+      throw err;
+    }
+
+    const reader = res.body && res.body.getReader ? res.body.getReader() : null;
+    if (!reader) {
+      throw new Error('이 브라우저에서는 스트리밍을 지원하지 않습니다.');
+    }
+
+    const decoder = new TextDecoder();
+    let buffer = '';
+    let fullText = '';
+    let donePayload = null;
+    let streamError = null;
+    let eventName = 'message';
+
+    function handleEvent(name, raw) {
+      if (!raw) return;
+      let payload;
+      try {
+        payload = JSON.parse(raw);
+      } catch (_) {
+        return;
+      }
+      if (name === 'delta' && payload && payload.text) {
+        fullText += payload.text;
+        if (typeof onDelta === 'function') onDelta(payload.text);
+      } else if (name === 'done') {
+        donePayload = payload;
+        if (payload && payload.content && !fullText) {
+          fullText = extractText(payload);
+        }
+      } else if (name === 'error') {
+        streamError = payload || { error: 'stream_error' };
+      }
+    }
+
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      buffer += decoder.decode(value, { stream: true });
+      const parts = buffer.split('\n');
+      buffer = parts.pop() || '';
+      for (const rawLine of parts) {
+        const line = rawLine.replace(/\r$/, '');
+        if (!line) {
+          eventName = 'message';
+          continue;
+        }
+        if (line.startsWith('event:')) {
+          eventName = line.slice(6).trim() || 'message';
+          continue;
+        }
+        if (line.startsWith('data:')) {
+          handleEvent(eventName, line.slice(5).trim());
+          eventName = 'message';
+        }
+      }
+    }
+
+    if (streamError) {
+      const err = new Error(streamError.error || 'AI 스트리밍에 실패했습니다.');
+      err.status = streamError.status || 502;
+      err.code = streamError.code;
+      err.quota = streamError.quota;
+      throw err;
+    }
+
+    const data = donePayload || {
+      content: [{ type: 'text', text: fullText }],
+      stop_reason: 'end_turn',
+    };
+    if (!fullText) fullText = extractText(data);
+
+    return {
+      data,
+      text: fullText,
+      quota: quotaFromResponse(data),
+      cached: !!data?._palja?.cached,
+      stopReason: data?.stop_reason || null,
+    };
+  }
+
   global.PaljaAiQuota = {
     DEFAULT_MODEL,
     hashKey,
@@ -139,6 +268,7 @@
     formatQuotaLine,
     applyQuotaBadge,
     callAi,
+    callAiStream,
     extractText,
   };
 })(typeof window !== 'undefined' ? window : globalThis);
