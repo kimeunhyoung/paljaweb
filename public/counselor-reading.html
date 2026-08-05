@@ -13,7 +13,7 @@
   <script src="js/plan-access.js?v=1"></script>
   <script src="js/ai-quota-client.js?v=3"></script>
   <script src="js/counselor-tarot-deck.js?v=4"></script>
-  <script src="js/counselor-copy-summary.js?v=5"></script>
+  <script src="js/counselor-copy-summary.js?v=6"></script>
   <script src="js/attribution.js"></script>
   <script src="js/site-topbar.js?v=7" defer></script>
   <script src="js/topbar-session.js?v=6" defer></script>
@@ -2534,10 +2534,10 @@ ${astroLines}
 - 수비·점성이 타로 결론을 뒤집거나 왜곡하면 안 된다.
 
 2) 수비·점성은 해석의 렌즈 (The Lens)
-- 인생여정·올해의 수·이번 달의 수·태양 별자리·원소 등을 **독립 문단으로 따로 설명하지 말 것**.
+- 인생여정·올해의 수·이번 달의 수·오늘의 개인일수·태양 별자리·원소 등을 **독립 문단으로 따로 설명하지 말 것**.
 - 모든 카드 해석·흐름 문장 속에서 「왜 이 고객이 이 카드 에너지를 유독 세게/버겁게 겪는지」의 이유·맥락(Tint)으로 **강제 녹여낼 것**.
-- 나쁜 예(금지): "수비학적으로 올해는 11년입니다."
-- 좋은 예: "염소자리의 타협 없는 성취욕과 올해 11년이 요구하는 심리적 압박이 맞물려, 오늘 펜타클 3의 협업은 단순한 팀워크가 아니라 기준을 스스로 높여야만 끝나는 구조로 작동합니다."
+- 나쁜 예(금지): "수비학적으로 올해는 11년입니다." / "오늘은 개인일수 5입니다."
+- 좋은 예: "염소자리의 타협 없는 성취욕과 올해 11년·오늘 개인일수의 압박이 맞물려, 오늘 펜타클 3의 협업은 단순한 팀워크가 아니라 기준을 스스로 높여야만 끝나는 구조로 작동합니다."
 
 3) 뼈를 때리는 구체성 (Precision)
 - 추상적 위로·백과사전식 카드 해설 금지.
@@ -2607,7 +2607,7 @@ ${spreadXml}
 위 데이터를 바탕으로 시스템 지시를 엄격히 준수하여 지정된 마크다운 형식으로 타로 리딩을 분석해 주세요.`;
 
         const cacheKey = PaljaAiQuota.hashKey([
-          'counselor_reading_v16',
+          'counselor_reading_v17',
           feature,
           readingDepth,
           topic,

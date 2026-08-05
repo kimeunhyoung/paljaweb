@@ -106,6 +106,20 @@
     22: '이번 달은 큰 그림·설계가 중요합니다.',
     33: '이번 달은 돌봄·나눔의 온도가 올라갑니다.',
   };
+  const DAY = {
+    1: '오늘은 시작·결단의 하루입니다.',
+    2: '오늘은 협력·조율이 잘 맞는 날입니다.',
+    3: '오늘은 표현·소통이 잘 통하는 날입니다.',
+    4: '오늘은 기반·루틴을 다지기 좋습니다.',
+    5: '오늘은 변화·이동의 흐름이 있습니다.',
+    6: '오늘은 돌봄·책임이 중심에 옵니다.',
+    7: '오늘은 성찰·정리가 필요한 날입니다.',
+    8: '오늘은 실행·성과를 챙기기 좋습니다.',
+    9: '오늘은 마무리·비움이 과제인 날입니다.',
+    11: '오늘은 직관·영감이 예리해질 수 있습니다.',
+    22: '오늘은 큰 그림·설계가 중요한 날입니다.',
+    33: '오늘은 돌봄·나눔의 온도가 올라가는 날입니다.',
+  };
   const TITLE = {
     1: '자립·개척', 2: '협력·조화', 3: '표현·창조', 4: '안정·내실',
     5: '변화·탐험', 6: '책임·사랑', 7: '성찰·지혜', 8: '성취·권위',
@@ -248,6 +262,9 @@
     blocks.push('');
     blocks.push(line(now.m + '월 이번 달의 수', pm, MONTH[pm] || ''));
     blocks.push('');
+    const pd = reduce(pm + now.d);
+    blocks.push(line('오늘 개인일수', pd, DAY[pd] || ''));
+    blocks.push('');
     blocks.push('— 팔자연구소 상담사 허브');
 
     return {
@@ -257,7 +274,7 @@
     };
   }
 
-  /** 세션 중 요약용 — 인생여정·올해·이번 달만 */
+  /** 세션 중 요약용 — 인생여정·올해·이번 달·오늘 */
   function buildBrief(client) {
     const birth = parseBirth(client && client.birth_date);
     if (!birth) {
@@ -268,6 +285,7 @@
     const now = todayKstParts();
     const py = calcPersonalYear(now.y, lp.mr, lp.dr);
     const pm = reduce(py.val + now.m);
+    const pd = reduce(pm + now.d);
     return {
       ok: true,
       name: nameLabel,
@@ -276,6 +294,7 @@
         { label: '인생여정', num: lp.val, title: TITLE[lp.val] || '', blurb: LP[lp.val] || '' },
         { label: '올해', num: py.val, title: TITLE[py.val] || '', blurb: YEAR[py.val] || '' },
         { label: '이번 달', num: pm, title: TITLE[pm] || '', blurb: MONTH[pm] || '' },
+        { label: '오늘', num: pd, title: TITLE[pd] || '', blurb: DAY[pd] || '' },
       ],
     };
   }
