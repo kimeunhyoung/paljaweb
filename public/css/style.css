@@ -275,7 +275,7 @@ ul { list-style: none; }
   padding-left: 32px;
   padding-right: 32px;
   gap: 40px;
-  align-items: center;
+  align-items: start;
 }
 .hero-left { padding: 12px 0 8px; }
 .hero-eyebrow {
@@ -588,7 +588,10 @@ ul { list-style: none; }
 .proof-text strong { color: var(--brown); }
 
 /* 히어로 오른쪽 카드 */
-.hero-right { position: relative; }
+.hero-right {
+  position: relative;
+  margin-top: 18px;
+}
 .hero-card-main {
   background: var(--brown);
   border-radius: var(--radius-lg);
