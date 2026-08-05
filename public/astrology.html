@@ -257,6 +257,11 @@ table.astro-table td .glyph{font-size:16px;margin-right:4px;color:var(--accent);
 .year-block h4{margin:0 0 8px;font-size:13.5px;color:var(--deep-brown);}
 .year-block p{margin:0 0 6px;font-size:13px;line-height:1.65;color:var(--text);}
 .counselor-report{white-space:pre-wrap;font-size:13px;line-height:1.7;background:rgba(255,255,255,.6);border:1px solid #e8ddcb;border-radius:12px;padding:14px 16px;max-height:420px;overflow:auto;}
+.client-pick-wrap{display:none;margin:0 0 16px;padding:0 0 14px;border-bottom:1px solid #e8ddcb;}
+.client-pick-wrap.is-visible{display:block;}
+.client-pick-row{display:grid;grid-template-columns:minmax(120px,1fr) minmax(160px,1.4fr);gap:10px;align-items:end;}
+.client-pick-hint{margin:8px 0 0;font-size:12px;line-height:1.5;color:var(--muted);}
+@media (max-width:680px){.client-pick-row{grid-template-columns:1fr;}}
 .ai-result{margin-top:14px;padding:14px 16px;background:rgba(255,255,255,.65);border:1px solid #e8ddcb;border-radius:12px;font-size:13.5px;line-height:1.75;white-space:pre-wrap;}
 .ai-result.empty{color:var(--muted);font-size:13px;}
 .ai-time-hint{font-size:11.5px;line-height:1.55;color:var(--muted);margin:8px 0 0;}
@@ -373,6 +378,21 @@ body.export-capturing #wheelCard .note{display:none !important;}
   <!-- 입력 -->
   <div class="card" id="inputCard">
     <div class="card-title">✦ 출생 정보 입력</div>
+    <div class="client-pick-wrap" id="clientPickWrap">
+      <div class="client-pick-row">
+        <div class="field">
+          <label for="clientPickSearch">고객 찾기</label>
+          <input class="input-field" id="clientPickSearch" type="search" placeholder="이름·생년월일" autocomplete="off"/>
+        </div>
+        <div class="field">
+          <label for="clientPickSelect">저장된 고객</label>
+          <select class="input-field" id="clientPickSelect" aria-label="저장된 고객 선택">
+            <option value="">— 직접 입력 —</option>
+          </select>
+        </div>
+      </div>
+      <p class="client-pick-hint">고객을 고르면 이름·생년월일·출생 시간·출생지가 채워집니다. 허브 없이 바로 차트를 계산할 수 있어요.</p>
+    </div>
     <div class="form-grid">
       <div class="field">
         <label for="inName">이름 <span class="hint">(선택)</span></label>
@@ -632,19 +652,38 @@ body.export-capturing #wheelCard .note{display:none !important;}
   try {
     if (window.supabase && window.supabase.createClient) sbClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
   } catch (e) { /* ignore */ }
-  const CLIENT_ID = new URLSearchParams(location.search).get('client') || '';
+  const CLIENT_ID_FROM_URL = new URLSearchParams(location.search).get('client') || '';
+  let ACTIVE_CLIENT_ID = CLIENT_ID_FROM_URL;
   let COUNSELOR_UID = '';
+  let COUNSELOR_CLIENT_ROWS = [];
 
   // 점성학 고급 기능(트랜짓·커플·AI·상세해석)은 Basic 이상. 상담사 브리핑은 Professional 전용.
   let HAS_BASIC = false;
   let HAS_PROFESSIONAL = false;
   let LAST_AI_QUOTA = null;
 
+  function escapeCounselorHtml(s) {
+    return String(s == null ? '' : s)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
+  }
+
+  function refreshClientSaveBtn() {
+    const btn = $('btnSaveClient');
+    if (!btn) return;
+    btn.hidden = !(ACTIVE_CLIENT_ID && HAS_PROFESSIONAL && COUNSELOR_UID);
+  }
+
   function applyCounselorAccessUi() {
     const card = $('counselorReportCard');
     if (card) card.hidden = !HAS_PROFESSIONAL;
     const expLbl = $('expReportLabel');
     if (expLbl) expLbl.hidden = !HAS_PROFESSIONAL;
+    const pickWrap = $('clientPickWrap');
+    if (pickWrap) pickWrap.classList.toggle('is-visible', !!HAS_PROFESSIONAL);
+    refreshClientSaveBtn();
   }
 
   const accessReady = (async () => {
@@ -661,7 +700,9 @@ body.export-capturing #wheelCard .note{display:none !important;}
       HAS_BASIC = window.PaljaPlan ? window.PaljaPlan.isPlanAtLeast(profile || {}, 'basic') : false;
       HAS_PROFESSIONAL = window.PaljaPlan ? window.PaljaPlan.hasCounselorAccess(profile || {}) : false;
       if (window.PALJA_DEVICE_LIMIT_HIT) HAS_PROFESSIONAL = false;
+      if (HAS_PROFESSIONAL) COUNSELOR_UID = session.user.id;
       applyCounselorAccessUi();
+      if (HAS_PROFESSIONAL) await loadCounselorClientPicker();
       if (ASTRO_AI_API_ENABLED) await checkAiServer();
       else await loadAiQuota();
       refreshAiUi();
@@ -2418,19 +2459,20 @@ body.export-capturing #wheelCard .note{display:none !important;}
   }
 
   (async function setupClientSave() {
-    if (!CLIENT_ID || !sbClient) return;
+    if (!sbClient) return;
     await accessReady;
     if (!HAS_PROFESSIONAL) return;
     try {
-      const { data: { session } } = await sbClient.auth.getSession();
-      if (!session) return;
-      COUNSELOR_UID = session.user.id;
-      $('btnSaveClient').hidden = false;
+      if (!COUNSELOR_UID) {
+        const { data: { session } } = await sbClient.auth.getSession();
+        if (session) COUNSELOR_UID = session.user.id;
+      }
+      refreshClientSaveBtn();
     } catch (e) { /* ignore */ }
   })();
 
   $('btnSaveClient').addEventListener('click', async () => {
-    if (!CLIENT_ID || !sbClient || !COUNSELOR_UID) return;
+    if (!ACTIVE_CLIENT_ID || !sbClient || !COUNSELOR_UID) return;
     const note = buildClientAstroNote();
     if (!note) { showStatus('먼저 “차트 계산하기”로 결과를 만든 뒤 저장할 수 있어요.', 'err'); return; }
     const btn = $('btnSaveClient');
@@ -2438,7 +2480,7 @@ body.export-capturing #wheelCard .note{display:none !important;}
     try {
       const { error } = await sbClient.from('counselor_clients')
         .update({ astro_summary: note, astro_updated_at: new Date().toISOString() })
-        .eq('id', CLIENT_ID).eq('counselor_id', COUNSELOR_UID);
+        .eq('id', ACTIVE_CLIENT_ID).eq('counselor_id', COUNSELOR_UID);
       if (error) throw error;
       flashBtn(btn, '✓ 저장됨');
     } catch (e) {
@@ -2507,7 +2549,11 @@ body.export-capturing #wheelCard .note{display:none !important;}
 
   function applyCityPrefill(cityName) {
     if (!cityName) return false;
-    const idx = CITIES.findIndex((c) => c.ko === cityName);
+    const raw = String(cityName).trim();
+    let idx = CITIES.findIndex((c) => c.ko === raw);
+    if (idx < 0) {
+      idx = CITIES.findIndex((c) => raw.includes(c.ko) || c.ko.includes(raw));
+    }
     if (idx < 0) return false;
     $('inCity').value = String(idx);
     $('manualCoords').classList.remove('show');
@@ -2520,7 +2566,14 @@ body.export-capturing #wheelCard .note{display:none !important;}
     const tm = normalizeTimeHm(data.time);
     const city = (data.city || '').trim();
     if (nm) $('inName').value = nm;
-    if (tm) $('inTime').value = tm;
+    if (tm) {
+      $('inTime').value = tm;
+      const unk = $('timeUnknown');
+      if (unk) {
+        unk.checked = false;
+        $('inTime').disabled = false;
+      }
+    }
     if (dt) $('inDate').value = dt;
     if (city) applyCityPrefill(city);
     return { nm, dt, tm, city };
@@ -2529,12 +2582,111 @@ body.export-capturing #wheelCard .note{display:none !important;}
   function counselorPrefillStatus({ dt, tm, city }) {
     if (!dt) return '고객 생년월일을 불러오지 못했어요. 직접 입력해 주세요.';
     if (tm && city) {
-      return '상담사 허브에서 <strong>이름·생년월일·출생 시간·출생지</strong>를 불러왔어요. 확인 후 차트를 계산합니다.';
+      return '저장된 고객에서 <strong>이름·생년월일·출생 시간·출생지</strong>를 불러왔어요. 확인 후 차트를 계산합니다.';
     }
     if (tm) {
       return '이름·생년월일·출생 시간을 불러왔어요. <strong>출생지</strong>를 확인한 뒤 “차트 계산하기”를 눌러주세요.';
     }
     return '생년월일을 불러왔어요. 정확한 차트를 위해 <strong>출생 시간</strong>과 <strong>출생지</strong>를 입력한 뒤 “차트 계산하기”를 눌러주세요. (시간을 모르면 “시간 모름”을 체크)';
+  }
+
+  function setActiveClientId(clientId, updateUrl) {
+    ACTIVE_CLIENT_ID = clientId || '';
+    refreshClientSaveBtn();
+    if (!updateUrl) return;
+    try {
+      const url = new URL(location.href);
+      if (ACTIVE_CLIENT_ID) url.searchParams.set('client', ACTIVE_CLIENT_ID);
+      else url.searchParams.delete('client');
+      history.replaceState({}, '', url.pathname + url.search + url.hash);
+    } catch (_) { /* ignore */ }
+  }
+
+  function populateCounselorClientSelect(filterText) {
+    const sel = $('clientPickSelect');
+    if (!sel) return;
+    const q = String(filterText || '').trim().toLowerCase().replace(/\s+/g, '');
+    const cur = sel.value;
+    const rows = !q
+      ? COUNSELOR_CLIENT_ROWS
+      : COUNSELOR_CLIENT_ROWS.filter((c) => {
+          const dn = String(c.display_name || '').toLowerCase().replace(/\s+/g, '');
+          const ln = String(c.legal_name || '').toLowerCase().replace(/\s+/g, '');
+          const birth = String(c.birth_date || '').toLowerCase();
+          return dn.includes(q) || ln.includes(q) || birth.includes(q);
+        });
+    sel.innerHTML = '<option value="">— 직접 입력 —</option>' + rows.map((c) => {
+      const label = (c.display_name || c.legal_name || '고객') +
+        (c.birth_date ? ' · ' + String(c.birth_date).slice(0, 10) : '');
+      return '<option value="' + c.id + '">' + escapeCounselorHtml(label) + '</option>';
+    }).join('');
+    if (cur && COUNSELOR_CLIENT_ROWS.some((c) => c.id === cur)) sel.value = cur;
+  }
+
+  function applyCounselorClientRow(row, opts) {
+    if (!row) return null;
+    const merged = applyBirthPrefill({
+      name: (row.display_name || row.legal_name || '').trim(),
+      date: row.birth_date,
+      time: row.birth_time,
+      city: row.birth_city,
+    });
+    setActiveClientId(row.id, !!(opts && opts.updateUrl));
+    const sel = $('clientPickSelect');
+    if (sel && opts && opts.syncSelect !== false) {
+      if (![...sel.options].some((o) => o.value === row.id)) {
+        populateCounselorClientSelect(($('clientPickSearch') || {}).value || '');
+      }
+      sel.value = row.id;
+    }
+    return merged;
+  }
+
+  async function loadCounselorClientPicker() {
+    const wrap = $('clientPickWrap');
+    const sel = $('clientPickSelect');
+    const search = $('clientPickSearch');
+    if (!wrap || !sel || !sbClient || !COUNSELOR_UID) return;
+    wrap.classList.add('is-visible');
+
+    const { data, error } = await sbClient
+      .from('counselor_clients')
+      .select('id,display_name,legal_name,birth_date,birth_time,birth_city')
+      .eq('counselor_id', COUNSELOR_UID)
+      .order('display_name', { ascending: true });
+
+    COUNSELOR_CLIENT_ROWS = (!error && data) ? data : [];
+    populateCounselorClientSelect((search && search.value) || '');
+
+    if (ACTIVE_CLIENT_ID && COUNSELOR_CLIENT_ROWS.some((c) => c.id === ACTIVE_CLIENT_ID)) {
+      sel.value = ACTIVE_CLIENT_ID;
+    }
+    refreshClientSaveBtn();
+
+    if (!sel.dataset.bound) {
+      sel.dataset.bound = '1';
+      sel.addEventListener('change', async () => {
+        const id = sel.value;
+        if (!id) {
+          setActiveClientId('', true);
+          return;
+        }
+        const row = COUNSELOR_CLIENT_ROWS.find((c) => c.id === id);
+        if (!row) return;
+        const merged = applyCounselorClientRow(row, { updateUrl: true, syncSelect: false });
+        showStatus(counselorPrefillStatus(merged || {}), 'info');
+        if (merged && merged.dt && merged.tm && merged.city) {
+          try { await calculate(); } catch (_) { /* ignore */ }
+        } else if (merged && merged.dt && !merged.tm) {
+          const t = $('inTime');
+          if (t) t.focus();
+        }
+      });
+    }
+    if (search && !search.dataset.bound) {
+      search.dataset.bound = '1';
+      search.addEventListener('input', () => populateCounselorClientSelect(search.value));
+    }
   }
 
   async function prefillFromCounselorHub() {
@@ -2547,25 +2699,26 @@ body.export-capturing #wheelCard .note{display:none !important;}
         city: qs.get('city'),
       });
 
-      const clientId = CLIENT_ID || qs.get('client') || '';
+      const clientId = ACTIVE_CLIENT_ID || qs.get('client') || '';
       let merged = fromQs;
 
       if (clientId && sbClient) {
-        const { data: { session } } = await sbClient.auth.getSession();
-        if (session) {
-          const { data: row } = await sbClient
-            .from('counselor_clients')
-            .select('display_name,legal_name,birth_date,birth_time,birth_city')
-            .eq('id', clientId)
-            .eq('counselor_id', session.user.id)
-            .maybeSingle();
-          if (row) {
-            merged = applyBirthPrefill({
-              name: (row.display_name || row.legal_name || fromQs.nm || '').trim(),
-              date: row.birth_date || fromQs.dt,
-              time: row.birth_time || fromQs.tm,
-              city: row.birth_city || fromQs.city,
-            });
+        await accessReady;
+        const fromList = COUNSELOR_CLIENT_ROWS.find((c) => c.id === clientId);
+        if (fromList) {
+          merged = applyCounselorClientRow(fromList, { updateUrl: false }) || fromQs;
+        } else {
+          const { data: { session } } = await sbClient.auth.getSession();
+          if (session) {
+            const { data: row } = await sbClient
+              .from('counselor_clients')
+              .select('id,display_name,legal_name,birth_date,birth_time,birth_city')
+              .eq('id', clientId)
+              .eq('counselor_id', session.user.id)
+              .maybeSingle();
+            if (row) {
+              merged = applyCounselorClientRow(row, { updateUrl: false }) || fromQs;
+            }
           }
         }
       }
