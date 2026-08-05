@@ -537,7 +537,8 @@ body.export-capturing #wheelCard .note{display:none !important;}
     <div class="card" id="aiCard">
       <div class="card-title">✦ AI 차트 해석</div>
       <span class="ai-quota-badge" id="aiQuotaBadge" hidden></span>
-      <p class="transit-intro">출생 차트(타고난 성향) 맞춤 해석이에요. <strong>올해 운세</strong>와 <strong>지금·이번 주 흐름</strong>은 아래에서 따로 볼 수 있어요.</p>
+      <p class="transit-intro">출생 차트(타고난 성향) 맞춤 해석이에요. <strong>올해 운세</strong>와 <strong>지금·이번 주 흐름</strong>은 아래에서 따로 볼 수 있어요.
+        고객이 연결되어 있으면 해석이 <strong>고객 카드에 자동 저장</strong>되어, 다음에 크레딧 없이 다시 볼 수 있어요.</p>
       <div class="ai-actions no-print">
         <button type="button" class="rt-btn rt-btn--share" id="btnAiRun" disabled>✨ AI 차트 해석 (2크레딧)</button>
         <button type="button" class="rt-btn" id="btnAiCopy">⧉ 프롬프트 복사</button>
@@ -598,7 +599,8 @@ body.export-capturing #wheelCard .note{display:none !important;}
     <!-- 상담사용 한 장 요약 (Professional 전용) -->
     <div class="card" id="counselorReportCard" hidden>
       <div class="card-title">✦ 상담사용 한 장 요약 리포트</div>
-      <p class="transit-intro">빅3·핵심 어스펙트·트랜짓·올해 흐름을 <strong>상담 전 브리핑</strong> 형식으로 정리합니다. 복사하거나 고객 카드에 저장하세요.</p>
+      <p class="transit-intro">빅3·핵심 어스펙트·트랜짓·올해 흐름을 <strong>상담 전 브리핑</strong> 형식으로 정리합니다. 복사·인쇄용이에요.
+        <strong>고객 카드 저장</strong>은 위 AI 차트 해석이 우선입니다.</p>
       <div id="counselorReport" class="counselor-report">차트를 계산하면 요약이 생성됩니다.</div>
       <div class="ai-actions no-print">
         <button type="button" class="rt-btn" id="btnReportCopy">⧉ 요약 복사</button>
@@ -661,6 +663,7 @@ body.export-capturing #wheelCard .note{display:none !important;}
   let HAS_BASIC = false;
   let HAS_PROFESSIONAL = false;
   let LAST_AI_QUOTA = null;
+  let LAST_AI_CHART_TEXT = '';
 
   function escapeCounselorHtml(s) {
     return String(s == null ? '' : s)
@@ -674,6 +677,69 @@ body.export-capturing #wheelCard .note{display:none !important;}
     const btn = $('btnSaveClient');
     if (!btn) return;
     btn.hidden = !(ACTIVE_CLIENT_ID && HAS_PROFESSIONAL && COUNSELOR_UID);
+    if (!btn.hidden) {
+      btn.title = LAST_AI_CHART_TEXT
+        ? '고객 카드에 AI 차트 해석 저장'
+        : '고객 카드에 차트 요약 저장 (AI 해석이 있으면 그게 우선)';
+      btn.textContent = LAST_AI_CHART_TEXT ? '💾 AI 해석 고객 카드에 저장' : '💾 고객 카드에 저장';
+    }
+  }
+
+  function formatAstroAiForClient(text) {
+    const body = String(text || '').trim();
+    if (!body) return '';
+    const today = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Seoul' }).format(new Date());
+    if (/^════ AI 차트 해석/.test(body)) return body;
+    return '════ AI 차트 해석 ════\n저장일: ' + today + '\n\n' + body;
+  }
+
+  function showAiChartResult(text, opts) {
+    const box = $('aiResult');
+    if (!box) return;
+    const t = String(text || '').trim();
+    if (!t) return;
+    LAST_AI_CHART_TEXT = t;
+    box.className = 'ai-result';
+    box.textContent = t;
+    const hint = $('aiTimeHint');
+    if (hint) {
+      if (opts && opts.fromCache) {
+        hint.textContent = '고객 카드에 저장된 AI 해석입니다. 다시 생성하면 크레딧이 차감되고 내용이 갱신됩니다.';
+        hint.classList.remove('is-loading');
+      } else if (opts && opts.saved) {
+        hint.textContent = '고객 카드에 AI 해석을 저장했습니다. 다음에 고객을 고르면 크레딧 없이 다시 볼 수 있어요.';
+        hint.classList.remove('is-loading');
+      }
+    }
+    refreshClientSaveBtn();
+  }
+
+  async function saveAstroAiToClient(text) {
+    if (!ACTIVE_CLIENT_ID || !sbClient || !COUNSELOR_UID) return { ok: false, skipped: true };
+    const note = formatAstroAiForClient(text);
+    if (!note) return { ok: false, error: 'empty' };
+    const { error } = await sbClient.from('counselor_clients')
+      .update({ astro_summary: note, astro_updated_at: new Date().toISOString() })
+      .eq('id', ACTIVE_CLIENT_ID).eq('counselor_id', COUNSELOR_UID);
+    if (error) return { ok: false, error: error.message };
+    const row = COUNSELOR_CLIENT_ROWS.find((c) => c.id === ACTIVE_CLIENT_ID);
+    if (row) {
+      row.astro_summary = note;
+      row.astro_updated_at = new Date().toISOString();
+    }
+    return { ok: true };
+  }
+
+  function applySavedAstroAiFromClient(row) {
+    const saved = row && row.astro_summary ? String(row.astro_summary).trim() : '';
+    if (!saved) {
+      LAST_AI_CHART_TEXT = '';
+      refreshClientSaveBtn();
+      return false;
+    }
+    // AI 해석 또는 예전에 저장한 요약 모두 표시 (우선 고객 카드 내용)
+    showAiChartResult(saved, { fromCache: true });
+    return true;
   }
 
   function applyCounselorAccessUi() {
@@ -870,6 +936,15 @@ body.export-capturing #wheelCard .note{display:none !important;}
     if (!canRun || box.querySelector('.astro-lock')) return;
     const busy = box.textContent.includes('생성하고') || box.textContent.includes('해석 중');
     if (busy) return;
+    // 고객 카드에서 불러온·방금 생성한 AI 해석은 차트 재계산해도 유지
+    if (LAST_AI_CHART_TEXT && LAST_AI_CHART_TEXT.trim()) {
+      box.className = 'ai-result';
+      box.textContent = LAST_AI_CHART_TEXT;
+      refreshClientSaveBtn();
+      refreshTransitAiUi();
+      refreshYearAiUi();
+      return;
+    }
     box.className = 'ai-result';
     if (AI_SERVER_OK) {
       box.innerHTML = '<strong>✨ AI 차트 해석</strong>을 누르면 타고난 성향(출생 차트)을 해석해 드려요. 서버가 응답하지 않으면 <strong>프롬프트 복사</strong>를 이용해 주세요.';
@@ -1897,9 +1972,19 @@ body.export-capturing #wheelCard .note{display:none !important;}
         out += '\n\n(※ 아주 긴 해석이라 일부가 잘렸을 수 있어요. 프롬프트 복사로 이어서 보실 수도 있어요.)';
       }
       box.textContent = out;
+      LAST_AI_CHART_TEXT = out;
+      refreshClientSaveBtn();
       if (quota) {
         LAST_AI_QUOTA = quota;
         PaljaAiQuota.applyQuotaBadge($('aiQuotaBadge'), quota);
+      }
+      if (ACTIVE_CLIENT_ID && COUNSELOR_UID && out && out !== '해석을 생성하지 못했어요.') {
+        const saved = await saveAstroAiToClient(out);
+        if (saved.ok) {
+          showAiChartResult(out, { saved: true });
+        } else if (!saved.skipped) {
+          showStatus('AI 해석은 됐지만 고객 카드 저장에 실패했어요: ' + (saved.error || ''), 'err');
+        }
       }
     } catch (e) {
       console.error(e);
@@ -2453,8 +2538,11 @@ body.export-capturing #wheelCard .note{display:none !important;}
     }
   });
 
-  // ── 상담사 허브: 차트 요약을 고객 카드에 저장 ──
+  // ── 상담사 허브: AI 차트 해석(우선) 또는 기술 요약을 고객 카드에 저장 ──
   function buildClientAstroNote() {
+    if (LAST_AI_CHART_TEXT && LAST_AI_CHART_TEXT.trim()) {
+      return formatAstroAiForClient(LAST_AI_CHART_TEXT);
+    }
     return buildCounselorReportText() || '';
   }
 
@@ -2474,7 +2562,10 @@ body.export-capturing #wheelCard .note{display:none !important;}
   $('btnSaveClient').addEventListener('click', async () => {
     if (!ACTIVE_CLIENT_ID || !sbClient || !COUNSELOR_UID) return;
     const note = buildClientAstroNote();
-    if (!note) { showStatus('먼저 “차트 계산하기”로 결과를 만든 뒤 저장할 수 있어요.', 'err'); return; }
+    if (!note) {
+      showStatus('먼저 AI 차트 해석을 만들거나, 차트를 계산한 뒤 저장할 수 있어요.', 'err');
+      return;
+    }
     const btn = $('btnSaveClient');
     const prev = btn.textContent; btn.textContent = '저장 중…'; btn.disabled = true;
     try {
@@ -2482,7 +2573,18 @@ body.export-capturing #wheelCard .note{display:none !important;}
         .update({ astro_summary: note, astro_updated_at: new Date().toISOString() })
         .eq('id', ACTIVE_CLIENT_ID).eq('counselor_id', COUNSELOR_UID);
       if (error) throw error;
+      const row = COUNSELOR_CLIENT_ROWS.find((c) => c.id === ACTIVE_CLIENT_ID);
+      if (row) {
+        row.astro_summary = note;
+        row.astro_updated_at = new Date().toISOString();
+      }
       flashBtn(btn, '✓ 저장됨');
+      showStatus(
+        LAST_AI_CHART_TEXT
+          ? '고객 카드에 AI 차트 해석을 저장했습니다.'
+          : '고객 카드에 차트 요약을 저장했습니다. (AI 해석이 있으면 그게 더 유용해요)',
+        'info'
+      );
     } catch (e) {
       console.error(e);
       btn.textContent = prev; btn.disabled = false;
@@ -2651,7 +2753,7 @@ body.export-capturing #wheelCard .note{display:none !important;}
 
     const { data, error } = await sbClient
       .from('counselor_clients')
-      .select('id,display_name,legal_name,birth_date,birth_time,birth_city')
+      .select('id,display_name,legal_name,birth_date,birth_time,birth_city,astro_summary,astro_updated_at')
       .eq('counselor_id', COUNSELOR_UID)
       .order('display_name', { ascending: true });
 
@@ -2660,6 +2762,8 @@ body.export-capturing #wheelCard .note{display:none !important;}
 
     if (ACTIVE_CLIENT_ID && COUNSELOR_CLIENT_ROWS.some((c) => c.id === ACTIVE_CLIENT_ID)) {
       sel.value = ACTIVE_CLIENT_ID;
+      const activeRow = COUNSELOR_CLIENT_ROWS.find((c) => c.id === ACTIVE_CLIENT_ID);
+      if (activeRow) applySavedAstroAiFromClient(activeRow);
     }
     refreshClientSaveBtn();
 
@@ -2674,6 +2778,9 @@ body.export-capturing #wheelCard .note{display:none !important;}
         const row = COUNSELOR_CLIENT_ROWS.find((c) => c.id === id);
         if (!row) return;
         const merged = applyCounselorClientRow(row, { updateUrl: true, syncSelect: false });
+        if (!applySavedAstroAiFromClient(row)) {
+          refreshAiUi();
+        }
         showStatus(counselorPrefillStatus(merged || {}), 'info');
         if (merged && merged.dt && merged.tm && merged.city) {
           try { await calculate(); } catch (_) { /* ignore */ }
