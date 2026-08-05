@@ -1,0 +1,925 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="manifest" href="/manifest.json">
+  <title>상담사 레노먼드 AI — 팔자연구소 8CODE</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/plan-access.js?v=1"></script>
+  <script src="js/ai-quota-client.js?v=3"></script>
+  <script src="js/lenormand-deck.js?v=1"></script>
+  <script src="js/attribution.js"></script>
+  <script src="js/site-topbar.js?v=8" defer></script>
+  <script src="js/topbar-session.js?v=6" defer></script>
+  <style>
+    :root {
+      --cream: #f5f0e8;
+      --parchment: #ede5d4;
+      --deep: #4a3520;
+      --ink: #2c1f0e;
+      --muted: #9a8570;
+      --accent: #c8a96e;
+      --border: rgba(139,111,71,.18);
+      --teal: #2e8b7a;
+      --font-serif: 'Noto Serif KR', serif;
+      --font-body: 'Noto Serif KR', serif;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: var(--font-body); background: var(--cream); color: var(--ink); min-height: 100vh; }
+    #guard { position: fixed; inset: 0; background: var(--cream); display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 12px; z-index: 99; }
+    #guard .spinner { width: 32px; height: 32px; border: 2px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin .85s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .guard-text { font-size: 13px; color: var(--muted); }
+    #app { display: none; max-width: 820px; margin: 0 auto; padding: 24px 24px 80px; }
+    .hub-intro { margin-bottom: 22px; }
+    .hub-intro h1 { font-family: var(--font-serif); font-size: 28px; color: var(--deep); margin-bottom: 8px; }
+    .hub-intro p { font-size: 13.5px; color: var(--muted); line-height: 1.65; }
+    .hub-intro a { color: var(--deep); font-weight: 600; }
+    .trial-badge {
+      display: inline-block; margin-top: 10px; font-size: 12px; color: var(--teal);
+      background: rgba(46,139,122,.08); border: 1px solid rgba(46,139,122,.22);
+      border-radius: 999px; padding: 5px 12px;
+    }
+    #gate, #trialDeviceGate {
+      display: none; text-align: center; padding: 48px 24px; background: var(--parchment);
+      border-radius: 12px; border: 1px solid var(--border);
+    }
+    #gate h2, #trialDeviceGate h2 { font-family: var(--font-serif); font-size: 22px; color: var(--deep); margin-bottom: 12px; }
+    #gate p, #trialDeviceGate p { font-size: 14px; color: var(--muted); line-height: 1.75; margin-bottom: 20px; }
+    #gate .cta, #trialDeviceGate .cta {
+      display: inline-block; background: var(--deep); color: var(--cream); padding: 12px 24px;
+      border-radius: 6px; text-decoration: none; font-size: 13px; margin-top: 4px;
+    }
+    #workspace { display: none; }
+    .back-row { margin-bottom: 18px; }
+    .back-row a { font-size: 13px; color: var(--muted); text-decoration: none; font-weight: 600; }
+    .back-row a:hover { color: var(--deep); }
+    .btn-sm {
+      display: inline-flex; align-items: center; justify-content: center;
+      background: var(--deep); color: #fff; border: none; border-radius: 8px;
+      padding: 8px 14px; font-size: 13px; font-family: var(--font-body); cursor: pointer; font-weight: 600;
+    }
+    .btn-sm.outline { background: white; color: var(--deep); border: 1px solid var(--border); }
+    .ai-draft-panel { background: #fff; border: 1px solid var(--border); border-radius: 12px; padding: 18px 20px; box-shadow: 0 6px 18px rgba(44,31,14,.05); }
+    .ai-draft-intro { font-size: 12.5px; color: var(--muted); line-height: 1.55; margin-bottom: 14px; }
+    .ai-draft-intro strong { color: var(--deep); }
+    .ai-mode-row { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 14px; }
+    .ai-mode-btn {
+      flex: 1 1 140px; text-align: left; padding: 10px 12px; border-radius: 10px;
+      border: 1px solid var(--border); background: #fff; cursor: pointer; font-family: var(--font-body);
+      color: var(--muted); transition: border-color .15s, background .15s, color .15s;
+    }
+    .ai-mode-btn strong { display: block; font-size: 13px; color: var(--deep); margin-bottom: 2px; }
+    .ai-mode-btn span { font-size: 11px; line-height: 1.4; }
+    .ai-mode-btn.active { border-color: var(--deep); background: var(--parchment); color: var(--deep); }
+    .ai-draft-form { display: grid; gap: 10px; margin-bottom: 12px; }
+    @media (min-width: 640px) {
+      .ai-draft-form { grid-template-columns: 1fr 1fr; align-items: start; }
+      .ai-draft-form .full { grid-column: 1 / -1; }
+    }
+    .ai-draft-form label { font-size: 11px; color: var(--muted); display: block; margin-bottom: 5px; }
+    .ai-draft-form input, .ai-draft-form select, .ai-draft-form textarea {
+      width: 100%; padding: 9px 11px; border: 1px solid var(--border); border-radius: 8px;
+      font-family: var(--font-body); font-size: 13px; background: #fff; color: var(--ink);
+    }
+    .ai-draft-form textarea { min-height: 88px; resize: vertical; }
+    .ai-q-head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 5px; }
+    .ai-q-head label { margin-bottom: 0; }
+    .ai-voice-btn {
+      border: 1px solid var(--border); background: #fff; color: var(--deep);
+      border-radius: 8px; padding: 6px 10px; font-size: 12px; font-family: var(--font-body);
+      cursor: pointer; display: inline-flex; align-items: center; gap: 5px;
+    }
+    .ai-voice-btn:hover { background: var(--parchment); }
+    .ai-voice-btn.is-listening { border-color: #c0392b; background: rgba(192,57,43,.08); color: #a93226; }
+    .ai-voice-btn:disabled { opacity: .45; cursor: not-allowed; }
+    .ai-voice-hint { font-size: 11px; color: var(--muted); margin: 6px 0 0; line-height: 1.4; }
+    .client-session-hint { font-size: 11px; color: var(--teal); margin-top: 6px; line-height: 1.45; }
+    .ai-card-hint { font-size: 11px; color: var(--muted); margin: 0 0 8px; line-height: 1.45; }
+    .ai-card-slots { display: grid; gap: 10px; margin: 4px 0 8px; }
+    @media (min-width: 640px) { .ai-card-slots { grid-template-columns: repeat(3, 1fr); } }
+    .ai-card-slot { background: var(--parchment); border: 1px solid var(--border); border-radius: 10px; padding: 12px; }
+    .ai-card-slot h4 { font-size: 11px; color: var(--muted); margin: 0 0 8px; letter-spacing: .03em; }
+    .ai-card-slot .slot-row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+    .ai-card-slot input[type="number"] {
+      width: 72px; padding: 8px 10px; border: 1px solid var(--border); border-radius: 8px;
+      font-family: var(--font-body); font-size: 14px; font-weight: 600; background: #fff; color: var(--ink);
+    }
+    .ai-card-slot .slot-kw { font-size: 11px; color: var(--muted); margin-top: 4px; min-height: 1.2em; }
+    .ai-card-slot.is-target { border-color: var(--deep); box-shadow: 0 0 0 2px rgba(44,31,14,.12); }
+    .slot-search-wrap { position: relative; margin-top: 8px; }
+    .slot-search-wrap input[type="search"] {
+      width: 100%; padding: 8px 10px; border: 1px solid var(--border); border-radius: 8px;
+      font-family: var(--font-body); font-size: 13px; background: #fff; color: var(--ink);
+    }
+    .slot-suggest {
+      position: absolute; left: 0; right: 0; top: calc(100% + 4px); z-index: 20;
+      max-height: 220px; overflow: auto; background: #fff; border: 1px solid var(--border);
+      border-radius: 8px; box-shadow: 0 10px 24px rgba(44,31,14,.14);
+    }
+    .slot-suggest[hidden] { display: none !important; }
+    .slot-suggest button {
+      display: flex; width: 100%; gap: 8px; align-items: center; text-align: left;
+      border: none; border-bottom: 1px solid var(--border); background: #fff;
+      padding: 8px 10px; font-family: var(--font-body); font-size: 12.5px; color: var(--ink); cursor: pointer;
+    }
+    .slot-suggest button:last-child { border-bottom: none; }
+    .slot-suggest button:hover, .slot-suggest button.is-active { background: var(--parchment); }
+    .slot-suggest .nn { font-weight: 700; color: var(--deep); min-width: 28px; }
+    .ai-card-slot .slot-tools { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+    .ai-card-slot .slot-tools button {
+      font-size: 11px; padding: 5px 9px; border-radius: 6px; border: 1px solid var(--border);
+      background: #fff; color: var(--deep); cursor: pointer; font-family: var(--font-body); font-weight: 600;
+    }
+    .ai-draft-actions { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+    .ai-draft-quota { font-size: 11px; color: var(--teal); font-weight: 600; }
+    .ai-preview-label { font-size: 11px; font-weight: 700; color: var(--muted); letter-spacing: .04em; margin: 4px 0 8px; }
+    .ai-card-preview {
+      display: flex; flex-wrap: wrap; gap: 12px; margin: 0 0 12px; padding: 12px;
+      background: var(--parchment); border: 1px solid var(--border); border-radius: 12px;
+    }
+    .ai-card-preview:empty { display: none; }
+    .ai-prev-card {
+      flex: 0 0 auto; width: 112px; background: #fff; border-radius: 10px; padding: 6px;
+      box-shadow: 0 8px 20px rgba(44,31,14,.12); border: 1px solid var(--border);
+      display: flex; flex-direction: column; align-items: stretch; gap: 6px; cursor: pointer;
+    }
+    .ai-prev-art { width: 100%; aspect-ratio: 2 / 3.4; border-radius: 6px; overflow: hidden; background: var(--parchment); position: relative; }
+    .ai-prev-art img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .ai-prev-meta { text-align: center; padding: 0 2px 4px; }
+    .ai-prev-pos { font-size: 10px; letter-spacing: .04em; color: var(--muted); margin-bottom: 2px; }
+    .ai-prev-name { font-size: 12px; font-weight: 700; color: var(--deep); line-height: 1.25; }
+    .ai-prev-num { font-size: 10px; color: var(--muted); margin-top: 2px; }
+    .ai-prev-empty {
+      flex: 0 0 auto; width: 112px; min-height: 168px; border: 1px dashed var(--border);
+      border-radius: 10px; background: var(--parchment); display: flex; align-items: center;
+      justify-content: center; text-align: center; font-size: 12px; color: var(--muted); padding: 12px;
+    }
+    .ai-draft-out {
+      margin-top: 12px; background: var(--parchment); border: 1px solid var(--border);
+      border-radius: 10px; padding: 14px 16px; font-size: 13px; line-height: 1.7; color: var(--ink);
+      white-space: pre-wrap; min-height: 100px;
+    }
+    .ai-draft-out.is-empty { color: var(--muted); }
+    .ai-draft-msg { font-size: 12px; margin-top: 8px; color: var(--teal); }
+    .ai-draft-msg.err { color: #8b3a3a; }
+  </style>
+  <link rel="stylesheet" href="css/site-topbar.css?v=5" />
+  <link rel="stylesheet" href="css/site-header.css?v=7" />
+</head>
+<body>
+<div id="guard"><div class="spinner"></div><p class="guard-text">확인 중…</p></div>
+
+<div class="site-top" data-topbar-title="상담사 레노먼드 AI" data-nav-current="counselor-lenormand" data-login-next="counselor-lenormand.html"></div>
+
+<div id="app">
+  <div class="hub-intro">
+    <div class="back-row"><a href="counselor.html">← 상담사 허브</a></div>
+    <h1>상담사 레노먼드 AI</h1>
+    <p>Petit Lenormand 36장. 상황·관계·진행 해석 초안. <strong>Professional</strong> 전용. 이미지 없어도 번호·이름으로 생성.</p>
+    <p id="trialBadge" class="trial-badge" style="display:none" role="status"></p>
+  </div>
+  <div id="gate">
+    <h2>Professional 플랜 전용</h2>
+    <p>상담사 레노먼드 AI는 <strong>Professional</strong> 요금제에서 이용할 수 있어요.</p>
+    <a class="cta" href="for-counselors.html">Professional 안내 보기</a>
+    <a class="cta" href="/lifecode/buy.html?product=counselor30" style="margin-left:8px;background:transparent;border:1.5px solid var(--border);color:var(--deep);">15일 체험 구매</a>
+    <a class="cta" href="pricing.html?checkout=professional" style="margin-left:8px;background:transparent;border:1.5px solid var(--border);color:var(--deep);">바로 구독</a>
+  </div>
+  <div id="trialDeviceGate" style="display:none">
+    <h2>등록 기기 한도 초과</h2>
+    <p>이 계정은 이미 <strong>기기 4대</strong>까지 등록되어 이 브라우저에서는 열 수 없습니다.<br><a href="dashboard.html#devices">마이페이지에서 기기 해제</a> 후 다시 시도해 주세요.</p>
+    <a class="cta" href="for-counselors.html">체험·구독 안내</a>
+  </div>
+  <div id="workspace">
+    <div class="ai-draft-panel">
+      <p class="ai-draft-intro">스프래드 카드를 넣고 해석 초안을 만듭니다. 크레딧: <strong>1장 → 1</strong> · <strong>2~3장 → 2</strong> · <strong>4~6장 → 3</strong> (통합 없음).</p>
+      <div class="ai-mode-row" role="tablist" aria-label="스프래드 모드">
+        <button type="button" class="ai-mode-btn active" id="aiModeThree" data-mode="three" role="tab" aria-selected="true">
+          <strong>3장 리딩</strong>
+          <span>과거 · 현재 · 전망</span>
+        </button>
+        <button type="button" class="ai-mode-btn" id="aiModeFive" data-mode="five" role="tab" aria-selected="false">
+          <strong>5장 체인</strong>
+          <span>상황 → 영향 → 전개 → 장애 → 결과</span>
+        </button>
+      </div>
+      <form id="aiDraftForm" class="ai-draft-form" autocomplete="off">
+        <div>
+          <label for="aiClient">고객 (선택 · CRM 연결)</label>
+          <select id="aiClient"></select>
+          <p class="client-session-hint" id="clientSessionHint" hidden></p>
+        </div>
+        <div>
+          <label for="aiNickname">호칭 / 닉네임</label>
+          <input id="aiNickname" type="text" maxlength="40" placeholder="예: 민지님 · 고객님"/>
+        </div>
+        <div class="full">
+          <div class="ai-q-head">
+            <label for="aiQuestion">질문 *</label>
+            <button type="button" class="ai-voice-btn" id="aiVoiceBtn" title="마이크로 질문 받아쓰기">🎤 음성 입력</button>
+          </div>
+          <textarea id="aiQuestion" maxlength="800" required placeholder="예: 이 관계는 앞으로 어떻게 흘러갈까요? / 지금 이직 타이밍이 맞나요?"></textarea>
+          <p class="ai-voice-hint" id="aiVoiceHint">한 문장씩 말하면 됩니다. 크롬·엣지·안드로이드 권장.</p>
+        </div>
+        <div class="full">
+          <label for="aiNote">상담사 메모 (선택 · 고객에게 안 보임)</label>
+          <textarea id="aiNote" maxlength="500" placeholder="지난 회차 포인트, 상담사가 알고 있는 맥락 등"></textarea>
+        </div>
+        <div class="full">
+          <label>레노먼드 카드 (1~36)</label>
+          <p class="ai-card-hint">번호 또는 이름으로 검색 · <strong>28 남자 / 29 여자</strong>는 질문자·상대 역할로 해석됩니다.</p>
+          <div id="aiCardSlots" class="ai-card-slots"></div>
+        </div>
+        <div class="full ai-draft-actions">
+          <button type="button" class="btn-sm outline" id="aiDrawBtn">전체 랜덤 뽑기</button>
+          <button type="submit" class="btn-sm" id="aiDraftBtn">해석 생성</button>
+          <span class="ai-draft-quota" id="aiCreditHint">예상 크레딧 2</span>
+          <button type="button" class="btn-sm outline" id="aiCopyBtn" style="display:none;">복사</button>
+          <span class="ai-draft-quota" id="aiDraftQuota" hidden></span>
+        </div>
+      </form>
+      <p class="ai-preview-label" id="aiPreviewLabel" hidden>뽑힌 카드</p>
+      <div id="aiCardPreview" class="ai-card-preview" aria-live="polite"></div>
+      <div id="aiDraftOut" class="ai-draft-out is-empty">질문을 넣고 카드를 정한 뒤 해석을 생성해 보세요.</div>
+      <p id="aiDraftMsg" class="ai-draft-msg"></p>
+    </div>
+  </div>
+</div>
+
+<script>
+(function () {
+  const SUPABASE_URL = 'https://sghsryumnrnftyjoqmwf.supabase.co';
+  const SUPABASE_ANON_KEY = 'sb_publishable_6S3W_oWrzG-Nv8wLK98gmg_q_KcB2I1';
+  const { createClient } = supabase;
+  const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+  let workspaceReady = false;
+  let clientRows = [];
+  let sessionRows = [];
+
+  const SPREADS = {
+    three: { labels: ['과거', '현재', '전망'], count: 3 },
+    five: { labels: ['상황', '영향', '전개', '장애', '결과'], count: 5 },
+  };
+
+  function getLifecodeDeviceId() {
+    const KEY = 'lifecode_device_id';
+    let id = localStorage.getItem(KEY);
+    if (!id) { id = crypto.randomUUID(); localStorage.setItem(KEY, id); }
+    return id;
+  }
+
+  function escapeHtml(s) {
+    return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  }
+
+  function clientLastSession(clientId) {
+    const rows = sessionRows.filter((s) => s.client_id === clientId)
+      .slice().sort((a, b) => String(b.session_date || '').localeCompare(String(a.session_date || '')));
+    if (!rows.length) return { last: '', topic: '', count: 0 };
+    return { last: rows[0].session_date || '', topic: rows[0].topic || '', count: rows.length };
+  }
+
+  function populateClientSelect() {
+    const sel = document.getElementById('aiClient');
+    if (!sel) return;
+    const cur = sel.value;
+    sel.innerHTML = '<option value="">— 고객 선택 —</option>' +
+      clientRows.map((c) =>
+        '<option value="' + c.id + '">' + escapeHtml(c.display_name || c.legal_name || '고객') +
+        (c.birth_date ? ' · ' + escapeHtml(String(c.birth_date)) : '') + '</option>'
+      ).join('');
+    if (cur && clientRows.some((c) => c.id === cur)) sel.value = cur;
+    else {
+      const fromUrl = new URLSearchParams(location.search).get('client');
+      if (fromUrl && clientRows.some((c) => c.id === fromUrl)) sel.value = fromUrl;
+    }
+    updateClientHint();
+  }
+
+  function updateClientHint() {
+    const sel = document.getElementById('aiClient');
+    const hint = document.getElementById('clientSessionHint');
+    if (!sel || !hint) return;
+    const clientId = sel.value;
+    if (!clientId) { hint.hidden = true; return; }
+    const ls = clientLastSession(clientId);
+    if (ls.last || ls.topic) {
+      hint.textContent = '최근 상담: ' + (ls.last || '—') + (ls.topic ? ' · ' + ls.topic : '');
+      hint.hidden = false;
+    } else hint.hidden = true;
+  }
+
+  async function checkAccess() {
+    const guard = document.getElementById('guard');
+    const gate = document.getElementById('gate');
+    const trialDeviceGate = document.getElementById('trialDeviceGate');
+    const workspace = document.getElementById('workspace');
+    guard.style.display = 'flex';
+    gate.style.display = 'none';
+    trialDeviceGate.style.display = 'none';
+    workspace.style.display = 'none';
+
+    const { data: { session } } = await sb.auth.getSession();
+    guard.style.display = 'none';
+    document.getElementById('app').style.display = 'block';
+
+    if (!session) {
+      window.location.replace('login.html?next=' + encodeURIComponent('counselor-lenormand.html'));
+      return null;
+    }
+
+    const { data: profile, error } = await sb.from('profiles')
+      .select('plan, plan_active_until, counselor_trial_license_id, counselor_trial_device_id')
+      .eq('id', session.user.id).maybeSingle();
+
+    const proOk = !error && profile && window.PaljaPlan && PaljaPlan.hasCounselorAccess(profile);
+    if (!proOk) { gate.style.display = 'block'; return null; }
+
+    {
+      const deviceId = getLifecodeDeviceId();
+      let deviceOk = true;
+      try {
+        const { data: { session: s2 } } = await sb.auth.getSession();
+        if (window.PaljaDevice && s2) {
+          const gateRes = await window.PaljaDevice.ensurePaidAccess(s2.access_token, profile);
+          deviceOk = !!gateRes.ok;
+        } else if (s2) {
+          const st = await fetch('/api/account/devices/register', {
+            method: 'POST',
+            headers: { Authorization: 'Bearer ' + s2.access_token, 'Content-Type': 'application/json' },
+            body: JSON.stringify({ deviceId }),
+          });
+          const stJson = await st.json().catch(() => ({}));
+          if (st.status === 403 || stJson.error === 'device_limit') deviceOk = false;
+        }
+      } catch (_) { /* ignore */ }
+      if (!deviceOk) { trialDeviceGate.style.display = 'block'; return null; }
+      if (profile.counselor_trial_license_id) {
+        const badge = document.getElementById('trialBadge');
+        if (badge && profile.plan_active_until) {
+          const exp = new Date(profile.plan_active_until);
+          badge.textContent = '15일 체험 이용 중 · ' + exp.getFullYear() + '년 ' + (exp.getMonth() + 1) + '월 ' + exp.getDate() + '일까지 (기기 최대 4대)';
+          badge.style.display = 'inline-block';
+        }
+      }
+    }
+
+    workspace.style.display = 'block';
+    return session;
+  }
+
+  function resolveFeature(n) {
+    if (n <= 1) return { feature: 'counselor_lenormand_basic', cost: 1 };
+    if (n <= 3) return { feature: 'counselor_lenormand', cost: 2 };
+    return { feature: 'counselor_lenormand_plus', cost: 3 };
+  }
+
+  function initLenormandDraft(uid) {
+    const Deck = window.CounselorLenormandDeck;
+    const form = document.getElementById('aiDraftForm');
+    const out = document.getElementById('aiDraftOut');
+    const msg = document.getElementById('aiDraftMsg');
+    const slotsEl = document.getElementById('aiCardSlots');
+    const previewEl = document.getElementById('aiCardPreview');
+    const copyBtn = document.getElementById('aiCopyBtn');
+    const drawBtn = document.getElementById('aiDrawBtn');
+    const quotaEl = document.getElementById('aiDraftQuota');
+    const creditHintEl = document.getElementById('aiCreditHint');
+    const clientSel = document.getElementById('aiClient');
+    const nickEl = document.getElementById('aiNickname');
+    const modeThree = document.getElementById('aiModeThree');
+    const modeFive = document.getElementById('aiModeFive');
+    if (!form || !out || !slotsEl) return;
+
+    if (!Deck || Deck.size !== 36) {
+      out.classList.remove('is-empty');
+      out.textContent = '레노먼드 덱 데이터를 불러오지 못했습니다. 페이지를 새로고침해 주세요.';
+      return;
+    }
+
+    let mode = 'three';
+    let targetSlot = 0;
+    let lastText = '';
+    /** @type {{ num: number|null, label: string }[]} */
+    let slots = [];
+
+    function setAiMsg(text, isErr) {
+      if (!msg) return;
+      msg.textContent = text || '';
+      msg.classList.toggle('err', !!isErr);
+    }
+
+    function spreadDef() { return SPREADS[mode] || SPREADS.three; }
+
+    function initSlots() {
+      const sp = spreadDef();
+      const prev = slots.slice();
+      slots = sp.labels.map((label, i) => ({
+        num: prev[i] ? prev[i].num : null,
+        label,
+      }));
+      if (targetSlot >= slots.length) targetSlot = 0;
+    }
+
+    function syncModeButtons() {
+      [modeThree, modeFive].forEach((btn) => {
+        if (!btn) return;
+        const on = btn.getAttribute('data-mode') === mode;
+        btn.classList.toggle('active', on);
+        btn.setAttribute('aria-selected', on ? 'true' : 'false');
+      });
+    }
+
+    function setMode(next) {
+      mode = next === 'five' ? 'five' : 'three';
+      initSlots();
+      syncModeButtons();
+      renderSlots();
+      updateCreditHint();
+    }
+
+    function cardFor(num) { return Deck.byDisplayNum(num); }
+
+    function cardLabel(card) { return Deck.label(card); }
+
+    function usedNums() { return new Set(slots.map((s) => s.num).filter((n) => n != null)); }
+
+    function pickUnusedNum(excludeSlot) {
+      const used = usedNums();
+      if (typeof excludeSlot === 'number' && slots[excludeSlot]) used.delete(slots[excludeSlot].num);
+      const pool = [];
+      for (let n = 1; n <= 36; n++) if (!used.has(n)) pool.push(n);
+      if (!pool.length) { for (let n = 1; n <= 36; n++) pool.push(n); }
+      return pool[Math.floor(Math.random() * pool.length)];
+    }
+
+    function updateCreditHint() {
+      if (!creditHintEl) return;
+      const n = readFilledCards().length || spreadDef().count;
+      creditHintEl.textContent = '예상 크레딧 ' + resolveFeature(n).cost;
+    }
+
+    function renderPreview() {
+      if (!previewEl) return;
+      const labelEl = document.getElementById('aiPreviewLabel');
+      if (labelEl) labelEl.hidden = !slots.length;
+      previewEl.innerHTML = slots.map((s, i) => {
+        const pos = s.label || ((i + 1) + '장');
+        if (s.num == null) {
+          return '<div class="ai-prev-empty">' + escapeHtml(pos) + '<br/>대기</div>';
+        }
+        const card = cardFor(s.num);
+        const src = card && card.imageSrc ? card.imageSrc : '';
+        return (
+          '<div class="ai-prev-card" data-preview="' + i + '" title="클릭하면 이 칸 선택">' +
+            '<div class="ai-prev-art">' +
+              (src ? '<img src="' + src + '" alt="' + escapeHtml(card ? card.name : '') + '" loading="lazy" onerror="this.style.display=\'none\'"/>' : '') +
+            '</div>' +
+            '<div class="ai-prev-meta">' +
+              '<div class="ai-prev-pos">' + escapeHtml(pos) + '</div>' +
+              '<div class="ai-prev-name">' + escapeHtml(card ? card.name : '?') + '</div>' +
+              '<div class="ai-prev-num">No.' + s.num + '</div>' +
+            '</div>' +
+          '</div>'
+        );
+      }).join('');
+      previewEl.querySelectorAll('[data-preview]').forEach((el) => {
+        el.addEventListener('click', () => {
+          targetSlot = Number(el.getAttribute('data-preview'));
+          renderSlots();
+        });
+      });
+    }
+
+    function applyCard(num, slotIndex) {
+      let i = typeof slotIndex === 'number' ? slotIndex : targetSlot;
+      if (i < 0 || i >= slots.length) {
+        i = slots.findIndex((s) => s.num == null);
+        if (i < 0) i = 0;
+      }
+      slots[i].num = num;
+      targetSlot = Math.min(i + 1, slots.length - 1);
+      const empty = slots.findIndex((s) => s.num == null);
+      if (empty >= 0) targetSlot = empty;
+      renderSlots();
+      const c = cardFor(num);
+      setAiMsg((c ? c.name : num) + ' → ' + slots[i].label + '에 넣었습니다.');
+    }
+
+    function drawOneSlot(i) {
+      if (i < 0 || i >= slots.length) return;
+      slots[i].num = pickUnusedNum(i);
+      targetSlot = i;
+      renderSlots();
+      const c = cardFor(slots[i].num);
+      setAiMsg(slots[i].label + '에 ' + (c ? c.name : slots[i].num) + '을 뽑았습니다.');
+    }
+
+    function renderSlots() {
+      slotsEl.innerHTML = slots.map((s, i) => {
+        const card = s.num != null ? cardFor(s.num) : null;
+        const kw = card ? card.keywords : '번호 · 이름 검색 · 뽑기';
+        return (
+          '<div class="ai-card-slot' + (i === targetSlot ? ' is-target' : '') + '" data-i="' + i + '">' +
+            '<h4>' + escapeHtml(s.label) + (i === targetSlot ? ' · 선택 중' : '') + '</h4>' +
+            '<div class="slot-row">' +
+              '<input type="number" min="1" max="36" inputmode="numeric" placeholder="번호" ' +
+                'aria-label="카드 번호" value="' + (s.num != null ? s.num : '') + '" data-num="' + i + '"/>' +
+            '</div>' +
+            '<div class="slot-search-wrap">' +
+              '<input type="search" data-search="' + i + '" autocomplete="off" spellcheck="false" ' +
+                'placeholder="28 남자 · 클로버 · 2" aria-label="카드 검색" value="' +
+                escapeHtml(card ? cardLabel(card) : '') + '"/>' +
+              '<div class="slot-suggest" data-suggest="' + i + '" hidden></div>' +
+            '</div>' +
+            '<div class="slot-tools">' +
+              '<button type="button" data-draw-one="' + i + '">이 칸 뽑기</button>' +
+              '<button type="button" data-clear-one="' + i + '">비우기</button>' +
+            '</div>' +
+            '<div class="slot-kw">' + escapeHtml(kw) + '</div>' +
+          '</div>'
+        );
+      }).join('');
+
+      slotsEl.querySelectorAll('.ai-card-slot').forEach((el) => {
+        el.addEventListener('click', (e) => {
+          if (e.target.closest('button, input, .slot-suggest')) return;
+          targetSlot = Number(el.getAttribute('data-i'));
+          renderSlots();
+        });
+      });
+
+      slotsEl.querySelectorAll('[data-draw-one]').forEach((btn) => {
+        btn.addEventListener('click', () => drawOneSlot(Number(btn.getAttribute('data-draw-one'))));
+      });
+      slotsEl.querySelectorAll('[data-clear-one]').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          const i = Number(btn.getAttribute('data-clear-one'));
+          slots[i].num = null;
+          targetSlot = i;
+          renderSlots();
+        });
+      });
+
+      slotsEl.querySelectorAll('[data-num]').forEach((inp) => {
+        inp.addEventListener('focus', () => {
+          targetSlot = Number(inp.getAttribute('data-num'));
+          slotsEl.querySelectorAll('.ai-card-slot').forEach((el) => {
+            el.classList.toggle('is-target', Number(el.getAttribute('data-i')) === targetSlot);
+          });
+        });
+        inp.addEventListener('input', () => {
+          const i = Number(inp.getAttribute('data-num'));
+          const v = Number(inp.value);
+          targetSlot = i;
+          if (inp.value === '') slots[i].num = null;
+          else if (Number.isInteger(v) && v >= 1 && v <= 36) slots[i].num = v;
+          else slots[i].num = null;
+          const root = inp.closest('.ai-card-slot');
+          const searchInp = root && root.querySelector('[data-search="' + i + '"]');
+          const kwEl = root && root.querySelector('.slot-kw');
+          const card = slots[i].num != null ? cardFor(slots[i].num) : null;
+          if (searchInp && document.activeElement !== searchInp) searchInp.value = card ? cardLabel(card) : '';
+          if (kwEl) kwEl.textContent = card ? card.keywords : '번호 · 이름 검색 · 뽑기';
+          renderPreview();
+          updateCreditHint();
+        });
+        inp.addEventListener('keydown', (e) => {
+          if (e.key !== 'Enter') return;
+          e.preventDefault();
+          const i = Number(inp.getAttribute('data-num'));
+          const v = Number(inp.value);
+          if (inp.value !== '' && Number.isInteger(v) && v >= 1 && v <= 36) applyCard(v, i);
+        });
+      });
+
+      slotsEl.querySelectorAll('[data-search]').forEach((inp) => {
+        const i = Number(inp.getAttribute('data-search'));
+        const suggest = slotsEl.querySelector('[data-suggest="' + i + '"]');
+        let activeIdx = -1;
+        let lastHits = [];
+
+        function hideSuggest() {
+          if (suggest) { suggest.hidden = true; suggest.innerHTML = ''; }
+          activeIdx = -1; lastHits = [];
+        }
+
+        function renderSuggest(hits) {
+          lastHits = hits;
+          activeIdx = hits.length ? 0 : -1;
+          if (!suggest) return;
+          if (!hits.length) {
+            suggest.innerHTML = '<button type="button" disabled style="color:var(--muted);cursor:default">결과 없음 · 28 남자 / 클로버 / 12</button>';
+            suggest.hidden = false;
+            return;
+          }
+          suggest.innerHTML = hits.map((c, idx) =>
+            '<button type="button" data-hit-num="' + c.num + '"' + (idx === 0 ? ' class="is-active"' : '') + '>' +
+            '<span class="nn">' + c.num + '</span>' + escapeHtml(c.name) + '</button>'
+          ).join('');
+          suggest.hidden = false;
+          suggest.querySelectorAll('[data-hit-num]').forEach((btn) => {
+            btn.addEventListener('mousedown', (e) => {
+              e.preventDefault();
+              applyCard(Number(btn.getAttribute('data-hit-num')), i);
+              hideSuggest();
+            });
+          });
+        }
+
+        function tryCommit(q) {
+          const raw = String(q || '').trim();
+          if (!raw) return false;
+          const onlyNum = raw.match(/^\d{1,2}$/);
+          if (onlyNum) {
+            const n = Number(onlyNum[0]);
+            if (n >= 1 && n <= 36) { applyCard(n, i); return true; }
+          }
+          if (activeIdx >= 0 && lastHits[activeIdx]) { applyCard(lastHits[activeIdx].num, i); return true; }
+          const hits = Deck.search(raw, 12);
+          if (hits.length === 1) { applyCard(hits[0].num, i); return true; }
+          return false;
+        }
+
+        inp.addEventListener('focus', () => {
+          targetSlot = i;
+          if (inp.value && slots[i].num == null) renderSuggest(Deck.search(inp.value, 12));
+        });
+        inp.addEventListener('input', () => {
+          targetSlot = i;
+          const q = inp.value.trim();
+          if (!q) {
+            slots[i].num = null;
+            hideSuggest();
+            renderPreview();
+            updateCreditHint();
+            return;
+          }
+          renderSuggest(Deck.search(q, 12));
+        });
+        inp.addEventListener('keydown', (e) => {
+          if (e.key === 'ArrowDown' && lastHits.length) {
+            e.preventDefault();
+            activeIdx = (activeIdx + 1) % lastHits.length;
+            suggest.querySelectorAll('[data-hit-num]').forEach((btn, idx) => {
+              btn.classList.toggle('is-active', idx === activeIdx);
+            });
+          } else if (e.key === 'ArrowUp' && lastHits.length) {
+            e.preventDefault();
+            activeIdx = (activeIdx - 1 + lastHits.length) % lastHits.length;
+            suggest.querySelectorAll('[data-hit-num]').forEach((btn, idx) => {
+              btn.classList.toggle('is-active', idx === activeIdx);
+            });
+          } else if (e.key === 'Enter') {
+            e.preventDefault();
+            if (!tryCommit(inp.value)) {
+              renderSuggest(Deck.search(inp.value, 12));
+              setAiMsg('후보가 여러 개입니다. 목록에서 고르세요.', true);
+            }
+          } else if (e.key === 'Escape') hideSuggest();
+        });
+        inp.addEventListener('blur', () => {
+          setTimeout(() => {
+            hideSuggest();
+            if (slots[i].num != null) inp.value = cardLabel(cardFor(slots[i].num));
+          }, 120);
+        });
+      });
+
+      renderPreview();
+      updateCreditHint();
+    }
+
+    function drawRandom() {
+      const used = new Set();
+      slots.forEach((s, i) => {
+        const pool = [];
+        for (let n = 1; n <= 36; n++) if (!used.has(n)) pool.push(n);
+        const num = pool[Math.floor(Math.random() * pool.length)];
+        used.add(num);
+        s.num = num;
+      });
+      targetSlot = 0;
+      renderSlots();
+      setAiMsg('스프래드 ' + slots.length + '장을 랜덤으로 뽑았습니다.');
+    }
+
+    function readFilledCards() {
+      return slots.filter((s) => s.num != null).map((s) => {
+        const card = cardFor(s.num);
+        return {
+          pos: s.label,
+          num: card ? card.num : s.num,
+          name: card ? card.name : '?',
+          keywords: card ? card.keywords : '',
+        };
+      });
+    }
+
+    (function initQuestionVoice() {
+      const btn = document.getElementById('aiVoiceBtn');
+      const qEl = document.getElementById('aiQuestion');
+      const hint = document.getElementById('aiVoiceHint');
+      if (!btn || !qEl) return;
+      const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
+      if (!SpeechRec) {
+        btn.disabled = true;
+        if (hint) hint.textContent = '이 브라우저에서는 음성 입력을 쓸 수 없어요.';
+        return;
+      }
+      let recog = null;
+      let listening = false;
+      let sessionPrefix = '';
+      function setListening(on) {
+        listening = !!on;
+        btn.classList.toggle('is-listening', listening);
+        btn.textContent = listening ? '⏹ 듣는 중…' : '🎤 음성 입력';
+      }
+      function stopVoice() {
+        if (recog) { try { recog.stop(); } catch (_) {} try { recog.abort(); } catch (_) {} }
+        recog = null; setListening(false);
+      }
+      btn.addEventListener('click', () => {
+        if (listening) { stopVoice(); return; }
+        recog = new SpeechRec();
+        recog.lang = 'ko-KR';
+        recog.continuous = false;
+        recog.interimResults = true;
+        sessionPrefix = (qEl.value || '').trim();
+        if (sessionPrefix) sessionPrefix += ' ';
+        recog.onstart = () => setListening(true);
+        recog.onend = () => { recog = null; setListening(false); };
+        recog.onerror = () => setListening(false);
+        recog.onresult = (ev) => {
+          let finals = '', interim = '';
+          for (let j = 0; j < ev.results.length; j++) {
+            const t = (ev.results[j][0] && ev.results[j][0].transcript) || '';
+            if (ev.results[j].isFinal) finals += t; else interim += t;
+          }
+          qEl.value = (sessionPrefix + finals + interim).replace(/\s+/g, ' ').trim().slice(0, 800);
+        };
+        try { recog.start(); } catch (_) { setAiMsg('음성 입력을 시작할 수 없어요.', true); }
+      });
+    })();
+
+    if (modeThree) modeThree.addEventListener('click', () => setMode('three'));
+    if (modeFive) modeFive.addEventListener('click', () => setMode('five'));
+    if (drawBtn) drawBtn.addEventListener('click', drawRandom);
+    if (clientSel) clientSel.addEventListener('change', updateClientHint);
+
+    if (copyBtn) {
+      copyBtn.addEventListener('click', async () => {
+        if (!lastText) return;
+        try {
+          await navigator.clipboard.writeText(lastText);
+          setAiMsg('해석을 복사했습니다.');
+        } catch (_) { setAiMsg('복사에 실패했습니다.', true); }
+      });
+    }
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const question = (document.getElementById('aiQuestion').value || '').trim();
+      const note = (document.getElementById('aiNote').value || '').trim();
+      const nickname = (nickEl && nickEl.value || '').trim();
+      const clientId = clientSel ? clientSel.value : '';
+      const client = clientId ? clientRows.find((c) => c.id === clientId) : null;
+      const cards = readFilledCards();
+      const need = spreadDef().count;
+
+      if (!question) { setAiMsg('질문을 입력해 주세요.', true); return; }
+      if (cards.length < need) { setAiMsg('카드를 ' + need + '장 모두 선택해 주세요.', true); return; }
+      if (cards.length > need) { setAiMsg('카드는 ' + need + '장만 필요합니다.', true); return; }
+      if (!window.PaljaAiQuota) { setAiMsg('AI 클라이언트를 불러오지 못했습니다.', true); return; }
+
+      const { feature, cost } = resolveFeature(cards.length);
+      const displayName = nickname || (client && (client.display_name || client.legal_name)) || '고객님';
+      const ls = client ? clientLastSession(client.id) : { last: '', topic: '' };
+      const btn = document.getElementById('aiDraftBtn');
+      if (btn) { btn.disabled = true; btn.textContent = '생성 중…'; }
+      setAiMsg('해석을 생성하는 중…');
+      out.classList.remove('is-empty');
+      out.textContent = '';
+
+      const cardLines = cards.map((c) => c.pos + ': ' + c.num + '. ' + c.name + ' — ' + c.keywords).join('\n');
+
+      const systemBlock =
+`<role>
+당신은 Petit Lenormand(36장) 전문 상담사를 돕는 **리딩 초안 작성자**입니다.
+AI가 고객에게 직접 말하는 앱이 아닙니다. 상담사가 복사해 다듬어 쓸 초안을 작성합니다.
+</role>
+
+<lenormand_rules>
+1. 사전식 나열 금지. **조합·체인 리딩**: 카드가 서로 어떻게 이어지고 수정하는지 인과로 연결.
+2. 레노먼드는 **역방향 없음**. 모든 카드는 정방향으로만 해석.
+3. 28 남자 / 29 여자 카드는 질문 맥락에서 **질문자·상대·핵심 인물** 역할로 매핑 (해당 시).
+4. 인물·사물·행동 카드를 상황에 맞게 유기적으로 엮을 것. 뜬구름·모호한 위로 금지.
+5. 의료·법률·투자 단정 금지.
+6. 한국어 **존댓말**. 이모지·긴 면책·불필요한 인사 금지. 복사해 쓰기 좋게.
+</lenormand_rules>
+
+<output_format>
+반드시 아래 마크다운 ## 소제목만 사용:
+## 한 줄 요약
+## 흐름 분석
+## 전략적 조언
+## 상담사 실전 솔루션
+## 주의
+- 한 줄 요약: 객관적 진단 1문장
+- 흐름 분석: 포지션 순서로 체인·조합 해석. 각 카드에 포지션·번호·이름 명시
+- 전략적 조언: 실행 가능한 방향
+- 상담사 실전 솔루션: 고객에게 말할 **해야 할 것(Do)** / **하지 말아야 할 것(Don't)** 각 2~3개
+- 주의: 경계 한두 문장
+</output_format>`;
+
+      const prompt = systemBlock + `
+
+<context>
+- 호칭: ${displayName}
+${client ? '- CRM 생년월일: ' + (client.birth_date || '미상') + ' / 최근 상담: ' + (ls.last || '없음') + (ls.topic ? ' · ' + ls.topic : '') + '\n' : ''}- 질문: ${question}
+${note ? '- 상담사 메모(고객에게 노출 금지, 반영만): ' + note + '\n' : ''}- 스프래드: ${mode === 'five' ? '5장 체인' : '3장 (과거·현재·전망)'}
+</context>
+
+<spread>
+${cardLines}
+</spread>
+
+위 데이터를 바탕으로 레노먼드 조합·체인 리딩 초안을 작성해 주세요.`;
+
+      const cacheKey = PaljaAiQuota.hashKey([
+        'counselor_lenormand_v1', feature, mode, clientId || '', displayName, question, note,
+        cards.map((c) => c.pos + ':' + c.num).join('|'),
+      ].join('::'));
+
+      try {
+        let streamed = '';
+        const { text, quota, stopReason } = await PaljaAiQuota.callAiStream({
+          feature,
+          cacheKey,
+          max_tokens: cards.length <= 3 ? 2800 : 4000,
+          messages: [{ role: 'user', content: prompt }],
+          onDelta: (chunk) => { streamed += chunk; out.textContent = streamed; },
+        });
+        lastText = (text || streamed || '').trim();
+        out.textContent = lastText || '해석을 만들지 못했습니다.';
+        if (copyBtn) copyBtn.style.display = lastText ? '' : 'none';
+        PaljaAiQuota.applyQuotaBadge(quotaEl, quota);
+        setAiMsg(lastText
+          ? (stopReason === 'max_tokens'
+            ? '해석이 길어 잘릴 수 있습니다. (크레딧 ' + cost + ')'
+            : '해석을 만들었습니다. (크레딧 ' + cost + ') 다듬어 복사해 쓰세요.')
+          : '응답이 비어 있습니다.', !lastText);
+      } catch (err) {
+        if (!(out.textContent || '').trim()) {
+          out.classList.add('is-empty');
+          out.textContent = '질문을 넣고 카드를 정한 뒤 해석을 생성해 보세요.';
+        }
+        if (err && err.quota) PaljaAiQuota.applyQuotaBadge(quotaEl, err.quota);
+        setAiMsg((err && err.message) || '해석 생성에 실패했습니다.', true);
+      } finally {
+        if (btn) { btn.disabled = false; btn.textContent = '해석 생성'; }
+      }
+    });
+
+    if (window.PaljaAiQuota) {
+      PaljaAiQuota.fetchQuota().then((q) => PaljaAiQuota.applyQuotaBadge(quotaEl, q));
+    }
+
+    setMode('three');
+  }
+
+  async function main() {
+    const session = await checkAccess();
+    if (!session || workspaceReady) return;
+    workspaceReady = true;
+
+    const { data: clients } = await sb.from('counselor_clients')
+      .select('id, display_name, legal_name, birth_date')
+      .order('display_name', { ascending: true });
+    clientRows = clients || [];
+
+    const { data: sessions } = await sb.from('counselor_sessions')
+      .select('id, client_id, session_date, topic')
+      .order('session_date', { ascending: false })
+      .limit(100);
+    sessionRows = sessions || [];
+
+    populateClientSelect();
+    initLenormandDraft(session.user.id);
+  }
+
+  main();
+  window.addEventListener('pageshow', (e) => {
+    if (e.persisted) { workspaceReady = false; main(); }
+  });
+})();
+</script>
+</body>
+</html>

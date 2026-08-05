@@ -164,7 +164,8 @@ async function updateNav() {
       if (isProfessionalAccess(profile)) {
         counselorNav =
           '<a href="counselor.html" class="btn-nav-ghost">상담사 허브</a>' +
-          '<a href="counselor-reading.html" class="btn-nav-ghost">AI리딩</a>'
+          '<a href="counselor-reading.html" class="btn-nav-ghost">AI리딩</a>' +
+          '<a href="counselor-lenormand.html" class="btn-nav-ghost">레노먼드</a>'
       }
     } catch (e) { /* ignore */ }
 
