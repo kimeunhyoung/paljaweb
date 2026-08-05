@@ -128,6 +128,6 @@ Invoke-RestMethod -Method POST -Uri "https://8code.kr/api/cron/verify-remind?dry
 
 같은 `CRON_SECRET`으로 호출하는 API:
 
-- `POST /api/cron/renew-subscriptions` — 구독 갱신
+- `POST /api/cron/renew-subscriptions` — 구독 갱신 + 만료된 해지 구독·단품/이용권(`plan` 잔상) free 정리
 - `POST /api/cron/counselor-morning-push` — 상담사 푸시
 - `POST /api/cron/verify-remind` — 이메일 인증 리마인드 (신규)

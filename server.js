@@ -328,6 +328,23 @@ async function listExpiredCancelledProfiles() {
   return res.json();
 }
 
+/** 단품·이용권 등 빌링키 없이 만료된 유료 plan 잔상 (DB plan 정리용) */
+async function listExpiredOneTimeProfiles() {
+  const base = process.env.SUPABASE_URL.replace(/\/$/, '');
+  const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  const now = new Date().toISOString();
+  const url =
+    `${base}/rest/v1/profiles` +
+    `?plan=neq.free` +
+    `&toss_billing_key=is.null` +
+    `&plan_active_until=not.is.null` +
+    `&plan_active_until=lte.${encodeURIComponent(now)}` +
+    '&select=id,plan,plan_active_until';
+  const res = await fetch(url, { headers: supabaseHeaders(key) });
+  if (!res.ok) return [];
+  return res.json();
+}
+
 async function insertCheckoutPending(paymentId, userId, plan, cycle) {
   const base = process.env.SUPABASE_URL.replace(/\/$/, '');
   const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
@@ -764,11 +781,16 @@ app.post('/api/cron/renew-subscriptions', async (req, res) => {
     for (const row of expired) {
       await planBilling.clearSubscriptionBilling(row.id);
     }
+    const expiredOneTime = await listExpiredOneTimeProfiles();
+    for (const row of expiredOneTime) {
+      await planBilling.clearSubscriptionBilling(row.id);
+    }
     res.json({
       ok: true,
       renewed: renewResults.filter((r) => r.ok).length,
       failed: renewResults.filter((r) => r.ok === false).length,
       downgraded: expired.length,
+      downgradedOneTime: expiredOneTime.length,
       details: renewResults,
     });
   } catch (e) {
