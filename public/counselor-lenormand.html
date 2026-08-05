@@ -12,7 +12,7 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="js/plan-access.js?v=1"></script>
   <script src="js/ai-quota-client.js?v=3"></script>
-  <script src="js/lenormand-deck.js?v=1"></script>
+  <script src="js/lenormand-deck.js?v=2"></script>
   <script src="js/attribution.js"></script>
   <script src="js/site-topbar.js?v=8" defer></script>
   <script src="js/topbar-session.js?v=6" defer></script>
@@ -77,6 +77,16 @@
     .ai-mode-btn strong { display: block; font-size: 13px; color: var(--deep); margin-bottom: 2px; }
     .ai-mode-btn span { font-size: 11px; line-height: 1.4; }
     .ai-mode-btn.active { border-color: var(--deep); background: var(--parchment); color: var(--deep); }
+    .ai-spread-preset-row {
+      display: none; align-items: center; gap: 10px; flex-wrap: wrap;
+      margin: -4px 0 14px; font-size: 13px; color: var(--muted);
+    }
+    .ai-spread-preset-row.is-visible { display: flex; }
+    .ai-spread-preset-row label { font-weight: 600; color: var(--deep); white-space: nowrap; }
+    .ai-spread-preset-row select {
+      flex: 1 1 220px; padding: 8px 10px; border-radius: 8px; border: 1px solid var(--border);
+      background: #fff; font-family: var(--font-body); font-size: 13px; color: var(--ink);
+    }
     .ai-draft-form { display: grid; gap: 10px; margin-bottom: 12px; }
     @media (min-width: 640px) {
       .ai-draft-form { grid-template-columns: 1fr 1fr; align-items: start; }
@@ -104,7 +114,11 @@
     .ai-card-slots { display: grid; gap: 10px; margin: 4px 0 8px; }
     @media (min-width: 640px) { .ai-card-slots { grid-template-columns: repeat(3, 1fr); } }
     .ai-card-slot { background: var(--parchment); border: 1px solid var(--border); border-radius: 10px; padding: 12px; }
-    .ai-card-slot h4 { font-size: 11px; color: var(--muted); margin: 0 0 8px; letter-spacing: .03em; }
+    .ai-card-slot h4 { font-size: 11px; color: var(--muted); margin: 0 0 6px; letter-spacing: .03em; }
+    .ai-card-slot .slot-pos {
+      width: 100%; margin-bottom: 8px; padding: 6px 8px; border: 1px dashed var(--border); border-radius: 6px;
+      font-family: var(--font-body); font-size: 12px; font-weight: 600; color: var(--deep); background: #fff;
+    }
     .ai-card-slot .slot-row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
     .ai-card-slot input[type="number"] {
       width: 72px; padding: 8px 10px; border: 1px solid var(--border); border-radius: 8px;
@@ -112,6 +126,21 @@
     }
     .ai-card-slot .slot-kw { font-size: 11px; color: var(--muted); margin-top: 4px; min-height: 1.2em; }
     .ai-card-slot.is-target { border-color: var(--deep); box-shadow: 0 0 0 2px rgba(44,31,14,.12); }
+    .leno-pick-panel { margin-top: 12px; padding-top: 12px; border-top: 1px dashed var(--border); }
+    .num-table-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 6px; }
+    @media (min-width: 520px) { .num-table-grid { grid-template-columns: repeat(9, 1fr); } }
+    .num-table-cell {
+      aspect-ratio: 1; display: flex; flex-direction: column; align-items: center; justify-content: center;
+      border: 1px solid var(--border); border-radius: 8px; background: var(--parchment);
+      font-size: 13px; font-weight: 700; color: var(--deep); font-family: var(--font-body);
+      cursor: pointer; padding: 2px; line-height: 1.15; gap: 1px;
+    }
+    .num-table-cell:hover { border-color: var(--deep); background: #fff; }
+    .num-table-cell.used { opacity: .4; }
+    .num-table-cell .nt-name {
+      font-size: 8px; font-weight: 500; color: var(--muted); max-width: 100%;
+      overflow: hidden; text-overflow: ellipsis; white-space: nowrap; padding: 0 2px;
+    }
     .slot-search-wrap { position: relative; margin-top: 8px; }
     .slot-search-wrap input[type="search"] {
       width: 100%; padding: 8px 10px; border: 1px solid var(--border); border-radius: 8px;
@@ -202,12 +231,22 @@
       <div class="ai-mode-row" role="tablist" aria-label="스프래드 모드">
         <button type="button" class="ai-mode-btn active" id="aiModeThree" data-mode="three" role="tab" aria-selected="true">
           <strong>3장 리딩</strong>
-          <span>과거 · 현재 · 전망</span>
+          <span id="aiModeThreeSub">과거 · 현재 · 전망</span>
         </button>
         <button type="button" class="ai-mode-btn" id="aiModeFive" data-mode="five" role="tab" aria-selected="false">
           <strong>5장 체인</strong>
           <span>상황 → 영향 → 전개 → 장애 → 결과</span>
         </button>
+      </div>
+      <div class="ai-spread-preset-row is-visible" id="aiThreePresetRow">
+        <label for="aiThreePreset">스프래드 (칸 이름)</label>
+        <select id="aiThreePreset" aria-label="3장 스프래드 칸 이름">
+          <option value="timeline">과거 · 현재 · 전망</option>
+          <option value="advice">상황 · 조언 · 결과</option>
+          <option value="relation">나 · 상대 · 관계</option>
+          <option value="action">원인 · 현황 · 다음 행동</option>
+          <option value="custom">직접 입력 (칸마다 수정)</option>
+        </select>
       </div>
       <form id="aiDraftForm" class="ai-draft-form" autocomplete="off">
         <div>
@@ -233,8 +272,12 @@
         </div>
         <div class="full">
           <label>레노먼드 카드 (1~36)</label>
-          <p class="ai-card-hint">번호 또는 이름으로 검색 · <strong>28 남자 / 29 여자</strong>는 질문자·상대 역할로 해석됩니다.</p>
+          <p class="ai-card-hint">칸 이름은 직접 수정할 수 있습니다. 번호·이름 검색 또는 아래 번호표를 누르세요. <strong>28 남자 / 29 여자</strong>는 질문자·상대 역할로 해석됩니다.</p>
           <div id="aiCardSlots" class="ai-card-slots"></div>
+          <div class="leno-pick-panel">
+            <p class="ai-card-hint">번호표 · 누르면 <strong>선택 중</strong> 칸에 들어갑니다.</p>
+            <div id="aiLenoGrid" class="num-table-grid" role="listbox" aria-label="레노먼드 번호표"></div>
+          </div>
         </div>
         <div class="full ai-draft-actions">
           <button type="button" class="btn-sm outline" id="aiDrawBtn">전체 랜덤 뽑기</button>
@@ -263,10 +306,24 @@
   let clientRows = [];
   let sessionRows = [];
 
-  const SPREADS = {
-    three: { labels: ['과거', '현재', '전망'], count: 3 },
-    five: { labels: ['상황', '영향', '전개', '장애', '결과'], count: 5 },
+  const THREE_PRESETS = {
+    timeline: { id: 'timeline', labels: ['과거', '현재', '전망'], title: '과거 · 현재 · 전망' },
+    advice: { id: 'advice', labels: ['상황', '조언', '결과'], title: '상황 · 조언 · 결과' },
+    relation: { id: 'relation', labels: ['나', '상대', '관계'], title: '나 · 상대 · 관계' },
+    action: { id: 'action', labels: ['원인', '현황', '다음 행동'], title: '원인 · 현황 · 다음 행동' },
+    custom: { id: 'custom', labels: ['1장', '2장', '3장'], title: '직접 입력 (칸마다 수정)' },
   };
+  const FIVE_SPREAD = { labels: ['상황', '영향', '전개', '장애', '결과'], count: 5 };
+
+  function parseCardNum(raw) {
+    const s = String(raw == null ? '' : raw)
+      .trim()
+      .replace(/[０-９]/g, (d) => String.fromCharCode(d.charCodeAt(0) - 65248));
+    if (!s) return null;
+    const v = Number(s);
+    if (!Number.isFinite(v) || !Number.isInteger(v) || v < 1 || v > 36) return null;
+    return v;
+  }
 
   function getLifecodeDeviceId() {
     const KEY = 'lifecode_device_id';
@@ -405,10 +462,14 @@
     }
 
     let mode = 'three';
+    let threePreset = 'timeline';
     let targetSlot = 0;
     let lastText = '';
     /** @type {{ num: number|null, label: string }[]} */
     let slots = [];
+    const threePresetRow = document.getElementById('aiThreePresetRow');
+    const threePresetSel = document.getElementById('aiThreePreset');
+    const modeThreeSub = document.getElementById('aiModeThreeSub');
 
     function setAiMsg(text, isErr) {
       if (!msg) return;
@@ -416,16 +477,50 @@
       msg.classList.toggle('err', !!isErr);
     }
 
-    function spreadDef() { return SPREADS[mode] || SPREADS.three; }
+    function currentThreePreset() {
+      return THREE_PRESETS[threePreset] || THREE_PRESETS.timeline;
+    }
 
-    function initSlots() {
+    function spreadDef() {
+      if (mode === 'five') {
+        const labels = slots.length === 5
+          ? slots.map((s, i) => (s.label && String(s.label).trim()) || FIVE_SPREAD.labels[i] || ((i + 1) + '장'))
+          : FIVE_SPREAD.labels.slice();
+        return { labels, count: 5, title: '5장 체인 · ' + labels.join(' · ') };
+      }
+      const fallback = currentThreePreset().labels;
+      const labels = slots.length === 3
+        ? slots.map((s, i) => (s.label && String(s.label).trim()) || fallback[i] || ((i + 1) + '장'))
+        : fallback.slice();
+      return { labels, count: 3, title: labels.join(' · ') };
+    }
+
+    function initSlots(preserveLabels) {
       const sp = spreadDef();
+      const baseLabels = (mode === 'five')
+        ? FIVE_SPREAD.labels.slice()
+        : (THREE_PRESETS[threePreset] || THREE_PRESETS.timeline).labels.slice();
       const prev = slots.slice();
-      slots = sp.labels.map((label, i) => ({
-        num: prev[i] ? prev[i].num : null,
-        label,
-      }));
+      const count = mode === 'five' ? 5 : 3;
+      slots = [];
+      for (let i = 0; i < count; i++) {
+        let label = baseLabels[i] || ((i + 1) + '장');
+        if (preserveLabels && prev[i] && prev[i].label) label = prev[i].label;
+        else if (threePreset === 'custom' && prev[i] && prev[i].label) label = prev[i].label;
+        slots.push({
+          num: prev[i] ? prev[i].num : null,
+          label,
+        });
+      }
       if (targetSlot >= slots.length) targetSlot = 0;
+    }
+
+    function markCustomIfNeeded() {
+      if (mode !== 'three') return;
+      if (threePreset === 'custom') return;
+      threePreset = 'custom';
+      if (threePresetSel) threePresetSel.value = 'custom';
+      syncModeButtons();
     }
 
     function syncModeButtons() {
@@ -435,14 +530,31 @@
         btn.classList.toggle('active', on);
         btn.setAttribute('aria-selected', on ? 'true' : 'false');
       });
+      if (threePresetRow) threePresetRow.classList.toggle('is-visible', mode === 'three');
+      if (modeThreeSub) {
+        modeThreeSub.textContent = threePreset === 'custom'
+          ? (slots.map((s) => s.label).filter(Boolean).join(' · ') || '직접 입력')
+          : currentThreePreset().title;
+      }
+      if (threePresetSel && threePresetSel.value !== threePreset) threePresetSel.value = threePreset;
     }
 
     function setMode(next) {
       mode = next === 'five' ? 'five' : 'three';
-      initSlots();
+      initSlots(false);
       syncModeButtons();
       renderSlots();
       updateCreditHint();
+    }
+
+    function setThreePreset(next) {
+      threePreset = THREE_PRESETS[next] ? next : 'timeline';
+      if (mode !== 'three') mode = 'three';
+      initSlots(threePreset === 'custom');
+      syncModeButtons();
+      renderSlots();
+      updateCreditHint();
+      setAiMsg('스프래드 칸 이름을 바꿨습니다.');
     }
 
     function cardFor(num) { return Deck.byDisplayNum(num); }
@@ -462,7 +574,7 @@
 
     function updateCreditHint() {
       if (!creditHintEl) return;
-      const n = readFilledCards().length || spreadDef().count;
+      const n = readFilledCards().length || (mode === 'five' ? 5 : 3);
       creditHintEl.textContent = '예상 크레딧 ' + resolveFeature(n).cost;
     }
 
@@ -479,8 +591,9 @@
         const src = card && card.imageSrc ? card.imageSrc : '';
         return (
           '<div class="ai-prev-card" data-preview="' + i + '" title="클릭하면 이 칸 선택">' +
-            '<div class="ai-prev-art">' +
-              (src ? '<img src="' + src + '" alt="' + escapeHtml(card ? card.name : '') + '" loading="lazy" onerror="this.style.display=\'none\'"/>' : '') +
+            '<div class="ai-prev-art" style="position:relative">' +
+              '<div class="ai-prev-fallback" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:700;color:var(--deep);opacity:.3;z-index:0">' + s.num + '</div>' +
+              (src ? '<img src="' + src + '" alt="' + escapeHtml(card ? card.name : '') + '" loading="lazy" style="position:relative;z-index:1" onerror="this.style.display=\'none\'"/>' : '') +
             '</div>' +
             '<div class="ai-prev-meta">' +
               '<div class="ai-prev-pos">' + escapeHtml(pos) + '</div>' +
@@ -498,19 +611,37 @@
       });
     }
 
+    function renderGrid() {
+      const grid = document.getElementById('aiLenoGrid');
+      if (!grid) return;
+      const used = usedNums();
+      grid.innerHTML = '';
+      for (let n = 1; n <= 36; n++) {
+        const card = cardFor(n);
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'num-table-cell' + (used.has(n) ? ' used' : '');
+        btn.setAttribute('data-pick-num', String(n));
+        btn.innerHTML = n + '<span class="nt-name">' + escapeHtml(card ? card.name : '') + '</span>';
+        grid.appendChild(btn);
+      }
+    }
+
     function applyCard(num, slotIndex) {
+      const n = parseCardNum(num);
+      if (n == null) return;
       let i = typeof slotIndex === 'number' ? slotIndex : targetSlot;
       if (i < 0 || i >= slots.length) {
         i = slots.findIndex((s) => s.num == null);
         if (i < 0) i = 0;
       }
-      slots[i].num = num;
+      slots[i].num = n;
       targetSlot = Math.min(i + 1, slots.length - 1);
       const empty = slots.findIndex((s) => s.num == null);
       if (empty >= 0) targetSlot = empty;
       renderSlots();
-      const c = cardFor(num);
-      setAiMsg((c ? c.name : num) + ' → ' + slots[i].label + '에 넣었습니다.');
+      const c = cardFor(n);
+      setAiMsg((c ? c.name : n) + ' → ' + slots[i].label + '에 넣었습니다.');
     }
 
     function drawOneSlot(i) {
@@ -519,23 +650,40 @@
       targetSlot = i;
       renderSlots();
       const c = cardFor(slots[i].num);
-      setAiMsg(slots[i].label + '에 ' + (c ? c.name : slots[i].num) + '을 뽑았습니다.');
+      setAiMsg(slots[i].label + '에 ' + (c ? c.name : slots[i].num) + '을(를) 뽑았습니다.');
+    }
+
+    function syncNumField(i, inp) {
+      const n = parseCardNum(inp.value);
+      targetSlot = i;
+      slots[i].num = n;
+      const root = inp.closest('.ai-card-slot');
+      const searchInp = root && root.querySelector('[data-search="' + i + '"]');
+      const kwEl = root && root.querySelector('.slot-kw');
+      const card = n != null ? cardFor(n) : null;
+      if (searchInp && document.activeElement !== searchInp) searchInp.value = card ? cardLabel(card) : '';
+      if (kwEl) kwEl.textContent = card ? card.keywords : '번호 · 이름 검색 · 뽑기 · 번호표';
+      renderPreview();
+      renderGrid();
+      updateCreditHint();
     }
 
     function renderSlots() {
       slotsEl.innerHTML = slots.map((s, i) => {
         const card = s.num != null ? cardFor(s.num) : null;
-        const kw = card ? card.keywords : '번호 · 이름 검색 · 뽑기';
+        const kw = card ? card.keywords : '번호 · 이름 검색 · 뽑기 · 번호표';
         return (
           '<div class="ai-card-slot' + (i === targetSlot ? ' is-target' : '') + '" data-i="' + i + '">' +
-            '<h4>' + escapeHtml(s.label) + (i === targetSlot ? ' · 선택 중' : '') + '</h4>' +
+            '<h4>포지션' + (i === targetSlot ? ' · 선택 중' : '') + '</h4>' +
+            '<input type="text" class="slot-pos" maxlength="40" data-label="' + i + '" value="' +
+              escapeHtml(s.label || ((i + 1) + '장')) + '" placeholder="역할 (예: 조언)" aria-label="카드 역할"/>' +
             '<div class="slot-row">' +
               '<input type="number" min="1" max="36" inputmode="numeric" placeholder="번호" ' +
                 'aria-label="카드 번호" value="' + (s.num != null ? s.num : '') + '" data-num="' + i + '"/>' +
             '</div>' +
             '<div class="slot-search-wrap">' +
               '<input type="search" data-search="' + i + '" autocomplete="off" spellcheck="false" ' +
-                'placeholder="28 남자 · 클로버 · 2" aria-label="카드 검색" value="' +
+                'placeholder="예: 구름 · 28 · 남자" aria-label="카드 검색" value="' +
                 escapeHtml(card ? cardLabel(card) : '') + '"/>' +
               '<div class="slot-suggest" data-suggest="' + i + '" hidden></div>' +
             '</div>' +
@@ -547,58 +695,6 @@
           '</div>'
         );
       }).join('');
-
-      slotsEl.querySelectorAll('.ai-card-slot').forEach((el) => {
-        el.addEventListener('click', (e) => {
-          if (e.target.closest('button, input, .slot-suggest')) return;
-          targetSlot = Number(el.getAttribute('data-i'));
-          renderSlots();
-        });
-      });
-
-      slotsEl.querySelectorAll('[data-draw-one]').forEach((btn) => {
-        btn.addEventListener('click', () => drawOneSlot(Number(btn.getAttribute('data-draw-one'))));
-      });
-      slotsEl.querySelectorAll('[data-clear-one]').forEach((btn) => {
-        btn.addEventListener('click', () => {
-          const i = Number(btn.getAttribute('data-clear-one'));
-          slots[i].num = null;
-          targetSlot = i;
-          renderSlots();
-        });
-      });
-
-      slotsEl.querySelectorAll('[data-num]').forEach((inp) => {
-        inp.addEventListener('focus', () => {
-          targetSlot = Number(inp.getAttribute('data-num'));
-          slotsEl.querySelectorAll('.ai-card-slot').forEach((el) => {
-            el.classList.toggle('is-target', Number(el.getAttribute('data-i')) === targetSlot);
-          });
-        });
-        inp.addEventListener('input', () => {
-          const i = Number(inp.getAttribute('data-num'));
-          const v = Number(inp.value);
-          targetSlot = i;
-          if (inp.value === '') slots[i].num = null;
-          else if (Number.isInteger(v) && v >= 1 && v <= 36) slots[i].num = v;
-          else slots[i].num = null;
-          const root = inp.closest('.ai-card-slot');
-          const searchInp = root && root.querySelector('[data-search="' + i + '"]');
-          const kwEl = root && root.querySelector('.slot-kw');
-          const card = slots[i].num != null ? cardFor(slots[i].num) : null;
-          if (searchInp && document.activeElement !== searchInp) searchInp.value = card ? cardLabel(card) : '';
-          if (kwEl) kwEl.textContent = card ? card.keywords : '번호 · 이름 검색 · 뽑기';
-          renderPreview();
-          updateCreditHint();
-        });
-        inp.addEventListener('keydown', (e) => {
-          if (e.key !== 'Enter') return;
-          e.preventDefault();
-          const i = Number(inp.getAttribute('data-num'));
-          const v = Number(inp.value);
-          if (inp.value !== '' && Number.isInteger(v) && v >= 1 && v <= 36) applyCard(v, i);
-        });
-      });
 
       slotsEl.querySelectorAll('[data-search]').forEach((inp) => {
         const i = Number(inp.getAttribute('data-search'));
@@ -616,7 +712,7 @@
           activeIdx = hits.length ? 0 : -1;
           if (!suggest) return;
           if (!hits.length) {
-            suggest.innerHTML = '<button type="button" disabled style="color:var(--muted);cursor:default">결과 없음 · 28 남자 / 클로버 / 12</button>';
+            suggest.innerHTML = '<button type="button" disabled style="color:var(--muted);cursor:default">결과 없음 · 구름 / 남자 / 12</button>';
             suggest.hidden = false;
             return;
           }
@@ -637,10 +733,9 @@
         function tryCommit(q) {
           const raw = String(q || '').trim();
           if (!raw) return false;
-          const onlyNum = raw.match(/^\d{1,2}$/);
-          if (onlyNum) {
-            const n = Number(onlyNum[0]);
-            if (n >= 1 && n <= 36) { applyCard(n, i); return true; }
+          const n = parseCardNum(raw);
+          if (n != null && /^\d{1,2}$/.test(raw.replace(/[０-９]/g, (d) => String.fromCharCode(d.charCodeAt(0) - 65248)))) {
+            applyCard(n, i); return true;
           }
           if (activeIdx >= 0 && lastHits[activeIdx]) { applyCard(lastHits[activeIdx].num, i); return true; }
           const hits = Deck.search(raw, 12);
@@ -659,6 +754,7 @@
             slots[i].num = null;
             hideSuggest();
             renderPreview();
+            renderGrid();
             updateCreditHint();
             return;
           }
@@ -694,7 +790,84 @@
       });
 
       renderPreview();
+      renderGrid();
       updateCreditHint();
+    }
+
+    // 이벤트 위임 — 뽑기/비우기/번호/칸이름 (재렌더 후에도 동작)
+    if (!slotsEl.dataset.bound) {
+      slotsEl.dataset.bound = '1';
+      slotsEl.addEventListener('click', (e) => {
+        const drawBtn = e.target.closest('[data-draw-one]');
+        if (drawBtn) {
+          e.preventDefault();
+          drawOneSlot(Number(drawBtn.getAttribute('data-draw-one')));
+          return;
+        }
+        const clearBtn = e.target.closest('[data-clear-one]');
+        if (clearBtn) {
+          e.preventDefault();
+          const i = Number(clearBtn.getAttribute('data-clear-one'));
+          if (slots[i]) {
+            slots[i].num = null;
+            targetSlot = i;
+            renderSlots();
+            setAiMsg((slots[i].label || (i + 1) + '장') + '을 비웠습니다.');
+          }
+          return;
+        }
+        if (e.target.closest('button, input, .slot-suggest')) return;
+        const slot = e.target.closest('.ai-card-slot');
+        if (slot) {
+          targetSlot = Number(slot.getAttribute('data-i'));
+          renderSlots();
+        }
+      });
+      slotsEl.addEventListener('input', (e) => {
+        const t = e.target;
+        if (t.matches('[data-num]')) {
+          syncNumField(Number(t.getAttribute('data-num')), t);
+        } else if (t.matches('[data-label]')) {
+          const i = Number(t.getAttribute('data-label'));
+          if (!slots[i]) return;
+          slots[i].label = t.value;
+          markCustomIfNeeded();
+          if (modeThreeSub && mode === 'three') {
+            modeThreeSub.textContent = slots.map((s) => s.label).filter(Boolean).join(' · ') || '직접 입력';
+          }
+          renderPreview();
+        }
+      });
+      slotsEl.addEventListener('change', (e) => {
+        const t = e.target;
+        if (t.matches('[data-num]')) syncNumField(Number(t.getAttribute('data-num')), t);
+      });
+      slotsEl.addEventListener('keydown', (e) => {
+        const t = e.target;
+        if (!t.matches('[data-num]') || e.key !== 'Enter') return;
+        e.preventDefault();
+        const i = Number(t.getAttribute('data-num'));
+        const n = parseCardNum(t.value);
+        if (n != null) applyCard(n, i);
+      });
+      slotsEl.addEventListener('focusin', (e) => {
+        const t = e.target;
+        if (t.matches('[data-num], [data-label], [data-search]')) {
+          const slot = t.closest('.ai-card-slot');
+          if (slot) targetSlot = Number(slot.getAttribute('data-i'));
+        }
+      });
+    }
+
+    const lenoGrid = document.getElementById('aiLenoGrid');
+    if (lenoGrid && !lenoGrid.dataset.bound) {
+      lenoGrid.dataset.bound = '1';
+      lenoGrid.addEventListener('click', (e) => {
+        const btn = e.target.closest('[data-pick-num]');
+        if (!btn) return;
+        e.preventDefault();
+        applyCard(Number(btn.getAttribute('data-pick-num')), targetSlot);
+      });
     }
 
     function drawRandom() {
@@ -771,6 +944,9 @@
 
     if (modeThree) modeThree.addEventListener('click', () => setMode('three'));
     if (modeFive) modeFive.addEventListener('click', () => setMode('five'));
+    if (threePresetSel) {
+      threePresetSel.addEventListener('change', () => setThreePreset(threePresetSel.value));
+    }
     if (drawBtn) drawBtn.addEventListener('click', drawRandom);
     if (clientSel) clientSel.addEventListener('change', updateClientHint);
 
@@ -844,7 +1020,7 @@ AI가 고객에게 직접 말하는 앱이 아닙니다. 상담사가 복사해 
 <context>
 - 호칭: ${displayName}
 ${client ? '- CRM 생년월일: ' + (client.birth_date || '미상') + ' / 최근 상담: ' + (ls.last || '없음') + (ls.topic ? ' · ' + ls.topic : '') + '\n' : ''}- 질문: ${question}
-${note ? '- 상담사 메모(고객에게 노출 금지, 반영만): ' + note + '\n' : ''}- 스프래드: ${mode === 'five' ? '5장 체인' : '3장 (과거·현재·전망)'}
+${note ? '- 상담사 메모(고객에게 노출 금지, 반영만): ' + note + '\n' : ''}- 스프래드: ${spreadDef().title} (${spreadDef().labels.join(' · ')})
 </context>
 
 <spread>
@@ -854,7 +1030,7 @@ ${cardLines}
 위 데이터를 바탕으로 레노먼드 조합·체인 리딩 초안을 작성해 주세요.`;
 
       const cacheKey = PaljaAiQuota.hashKey([
-        'counselor_lenormand_v1', feature, mode, clientId || '', displayName, question, note,
+        'counselor_lenormand_v3', feature, mode, threePreset, clientId || '', displayName, question, note,
         cards.map((c) => c.pos + ':' + c.num).join('|'),
       ].join('::'));
 
