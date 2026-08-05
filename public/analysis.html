@@ -374,6 +374,41 @@
     }
     .counselor-bar-btn:hover { background: var(--parchment); border-color: var(--warm-brown); color: var(--ink); box-shadow:none; transform:none; }
 
+    /* 상담사: 저장된 고객 바로 고르기 */
+    .client-pick-wrap {
+      display: none;
+      margin-bottom: 16px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid rgba(200,169,110,.18);
+    }
+    .client-pick-wrap.is-visible { display: block; }
+    .client-pick-row {
+      display: grid;
+      grid-template-columns: minmax(120px, 1fr) minmax(160px, 1.4fr);
+      gap: 10px;
+      align-items: end;
+    }
+    @media (max-width: 700px) {
+      .client-pick-row { grid-template-columns: 1fr; }
+    }
+    .client-pick-hint {
+      margin: 8px 0 0;
+      font-size: 12px;
+      line-height: 1.5;
+      color: rgba(245,240,232,.45);
+    }
+    .input-field.client-pick-select {
+      appearance: none;
+      -webkit-appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%23c8a96e' d='M1 1l5 5 5-5'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 12px center;
+      background-size: 10px 6px;
+      padding-right: 32px;
+      cursor: pointer;
+    }
+    .input-field.client-pick-select option { color: #2c1f0e; }
+
     /* 상담 준비 요약 카드 (상담사 모드 · 화면 전용) */
     .counselor-prep-card {
       background: linear-gradient(180deg, #fffdf8 0%, #fbf6ec 100%);
@@ -3915,7 +3950,7 @@
 
 <div id="counselorBar" class="counselor-bar" style="display:none;" aria-label="상담사 안내">
   <div class="counselor-bar-inner">
-    <p class="counselor-bar-text">고객 생년월일·이름으로 분석하세요. <strong>고객 표시 이름</strong> 칸에 상담용 표기를 적어 두면 구분에 도움이 됩니다. 결과 화면은 인쇄해 고객 자료로 쓸 수 있어요.</p>
+    <p class="counselor-bar-text">저장된 고객을 고르거나, 생년월일·이름을 직접 입력해 분석하세요. <strong>고객 표시 이름</strong>은 상담용 표기입니다. 결과는 인쇄·고객용 리포트로 쓸 수 있어요.</p>
     <div class="counselor-bar-actions">
       <button type="button" class="counselor-bar-btn" id="counselorReportBtn" onclick="exportCounselorReport()">고객용 리포트 PDF</button>
       <a href="counselor.html" class="counselor-bar-link">상담사 허브</a>
@@ -3930,6 +3965,21 @@
     <h1 class="hero-title">수비학 계산으로<br><em>삶의 코드</em> 읽기</h1>
     <p class="hero-desc">생년월일과 이름을 입력하면 <strong>수비학 계산</strong> 기반 심층 분석을 제공합니다. 처음이시면 <a href="guide/lifecode.html" style="color:var(--accent);text-decoration:underline">라이프코드 가이드</a>를 참고하세요. <strong>점성학 차트</strong>는 <a href="astrology.html" style="color:var(--accent);text-decoration:underline">여기</a>에서, 숫자 배경은 <a href="numerology-wallpaper.html" style="color:var(--accent);text-decoration:underline">에너지 배경</a>에서 무료로 만드세요.</p>
     <div class="input-card">
+      <div class="client-pick-wrap" id="clientPickWrap">
+        <div class="client-pick-row">
+          <div class="input-group">
+            <label class="input-label" for="clientPickSearch">고객 찾기</label>
+            <input class="input-field" id="clientPickSearch" type="search" placeholder="이름·생년월일" autocomplete="off"/>
+          </div>
+          <div class="input-group">
+            <label class="input-label" for="clientPickSelect">저장된 고객</label>
+            <select class="input-field client-pick-select" id="clientPickSelect" aria-label="저장된 고객 선택">
+              <option value="">— 직접 입력 —</option>
+            </select>
+          </div>
+        </div>
+        <p class="client-pick-hint">고객을 고르면 생년월일·이름이 채워집니다. 허브를 거치지 않아도 바로 분석할 수 있어요.</p>
+      </div>
       <div class="input-row">
         <div class="input-group">
           <label class="input-label">이름 (선택)</label>
@@ -4244,10 +4294,150 @@ const DEV_UNLOCK_PAID = false;
 // ── 상담사(Professional) 고객용 리포트 ──
 let COUNSELOR_REPORT_MODE = false;
 let COUNSELOR_CLIENT = null; // { id, displayName, recentSession }
+let COUNSELOR_CLIENT_ROWS = [];
 
 function readCounselorBrand() {
   try { return JSON.parse(localStorage.getItem('palja_counselor_brand_v1')) || {}; }
   catch { return {}; }
+}
+
+function escapeCounselorHtml(s) {
+  return String(s == null ? '' : s)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+
+function populateCounselorClientSelect(filterText) {
+  const sel = document.getElementById('clientPickSelect');
+  if (!sel) return;
+  const q = String(filterText || '').trim().toLowerCase().replace(/\s+/g, '');
+  const cur = sel.value;
+  const rows = !q
+    ? COUNSELOR_CLIENT_ROWS
+    : COUNSELOR_CLIENT_ROWS.filter((c) => {
+        const dn = String(c.display_name || '').toLowerCase().replace(/\s+/g, '');
+        const ln = String(c.legal_name || '').toLowerCase().replace(/\s+/g, '');
+        const birth = String(c.birth_date || '').toLowerCase();
+        return dn.includes(q) || ln.includes(q) || birth.includes(q);
+      });
+  sel.innerHTML = '<option value="">— 직접 입력 —</option>' + rows.map((c) => {
+    const label = (c.display_name || c.legal_name || '고객') +
+      (c.birth_date ? ' · ' + String(c.birth_date).slice(0, 10) : '');
+    return '<option value="' + c.id + '">' + escapeCounselorHtml(label) + '</option>';
+  }).join('');
+  if (cur && COUNSELOR_CLIENT_ROWS.some((c) => c.id === cur)) {
+    sel.value = cur;
+  }
+}
+
+async function loadRecentCounselorSession(clientId, counselorId) {
+  try {
+    const { data: sess } = await sb
+      .from('counselor_sessions')
+      .select('session_date,summary,topic,next_focus')
+      .eq('client_id', clientId)
+      .eq('counselor_id', counselorId)
+      .order('session_date', { ascending: false })
+      .limit(1);
+    if (sess && sess.length && (sess[0].summary || sess[0].topic || sess[0].next_focus)) {
+      return sess[0];
+    }
+  } catch (e) { /* ignore */ }
+  return null;
+}
+
+async function applyCounselorClientRecord(data, clientId, counselorId, opts) {
+  const birthEl = document.getElementById('inputBirth');
+  const nameEl = document.getElementById('inputName');
+  const clientEl = document.getElementById('inputClient');
+  const birth = data && data.birth_date ? String(data.birth_date).slice(0, 10) : '';
+  if (birthEl && birth) {
+    birthEl.value = birth;
+    birthEl.dispatchEvent(new Event('change', { bubbles: true }));
+  }
+  if (nameEl) nameEl.value = ((data && data.legal_name) || '').trim();
+  if (clientEl) clientEl.value = ((data && data.display_name) || '').trim();
+
+  COUNSELOR_CLIENT = {
+    id: clientId,
+    displayName: ((data && data.display_name) || '').trim(),
+    recentSession: null,
+  };
+  if (counselorId) {
+    COUNSELOR_CLIENT.recentSession = await loadRecentCounselorSession(clientId, counselorId);
+  }
+
+  const sel = document.getElementById('clientPickSelect');
+  if (sel && opts && opts.syncSelect !== false) {
+    if (![...sel.options].some((o) => o.value === clientId)) {
+      populateCounselorClientSelect(
+        (document.getElementById('clientPickSearch') || {}).value || ''
+      );
+    }
+    sel.value = clientId;
+  }
+
+  if (opts && opts.updateUrl) {
+    try {
+      const url = new URL(location.href);
+      url.searchParams.set('client', clientId);
+      history.replaceState({}, '', url.pathname + url.search + url.hash);
+    } catch (_) { /* ignore */ }
+  }
+}
+
+async function loadCounselorClientPicker(session) {
+  const wrap = document.getElementById('clientPickWrap');
+  const sel = document.getElementById('clientPickSelect');
+  const search = document.getElementById('clientPickSearch');
+  if (!wrap || !sel || !session?.user?.id) return;
+
+  wrap.classList.add('is-visible');
+
+  const { data, error } = await sb
+    .from('counselor_clients')
+    .select('id,display_name,legal_name,birth_date')
+    .eq('counselor_id', session.user.id)
+    .order('display_name', { ascending: true });
+
+  if (error) {
+    COUNSELOR_CLIENT_ROWS = [];
+    populateCounselorClientSelect('');
+    return;
+  }
+
+  COUNSELOR_CLIENT_ROWS = data || [];
+  populateCounselorClientSelect((search && search.value) || '');
+
+  if (!sel.dataset.bound) {
+    sel.dataset.bound = '1';
+    sel.addEventListener('change', async () => {
+      const id = sel.value;
+      if (!id) {
+        COUNSELOR_CLIENT = null;
+        try {
+          const url = new URL(location.href);
+          url.searchParams.delete('client');
+          history.replaceState({}, '', url.pathname + url.search + url.hash);
+        } catch (_) { /* ignore */ }
+        return;
+      }
+      const row = COUNSELOR_CLIENT_ROWS.find((c) => c.id === id);
+      if (!row) return;
+      const { data: { session: s } } = await sb.auth.getSession();
+      const counselorId = s?.user?.id || session.user.id;
+      await applyCounselorClientRecord(row, id, counselorId, { updateUrl: true, syncSelect: false });
+    });
+  }
+
+  if (search && !search.dataset.bound) {
+    search.dataset.bound = '1';
+    search.addEventListener('input', () => {
+      populateCounselorClientSelect(search.value);
+    });
+  }
 }
 
 /** 고객용 리포트 PDF: 상담사 브랜드 머리글 + 잠금/업셀 제외(기존 로직) 으로 내보내기 */
@@ -4622,14 +4812,12 @@ async function initAuth() {
 
   // 상담사 고객 입력 필드 표시 (Professional / Private + 이용 기간 유효)
   if (window.PaljaPlan && PaljaPlan.hasCounselorAccess({ plan: USER_PLAN })) {
-  document.getElementById('clientGroup').style.display = 'flex';
-  const bar = document.getElementById('counselorBar');
-  if (bar) bar.style.display = 'block';
-  const cluster = document.getElementById('topbarExportCluster');
-  if (cluster) cluster.classList.add('is-visible');
-}
-
-  if (window.PaljaPlan && PaljaPlan.hasCounselorAccess({ plan: USER_PLAN })) {
+    document.getElementById('clientGroup').style.display = 'flex';
+    const bar = document.getElementById('counselorBar');
+    if (bar) bar.style.display = 'block';
+    const cluster = document.getElementById('topbarExportCluster');
+    if (cluster) cluster.classList.add('is-visible');
+    await loadCounselorClientPicker(session);
     await loadPrefilledCounselorClient(session);
   }
 
@@ -4647,7 +4835,12 @@ async function initAuth() {
 
 async function loadPrefilledCounselorClient(session) {
   const clientId = new URLSearchParams(location.search).get('client');
-  if (!clientId) return;
+  if (!clientId || !session?.user?.id) return;
+  const fromList = COUNSELOR_CLIENT_ROWS.find((c) => c.id === clientId);
+  if (fromList) {
+    await applyCounselorClientRecord(fromList, clientId, session.user.id, { updateUrl: false });
+    return;
+  }
   const { data, error } = await sb
     .from('counselor_clients')
     .select('display_name,legal_name,birth_date')
@@ -4655,27 +4848,7 @@ async function loadPrefilledCounselorClient(session) {
     .eq('counselor_id', session.user.id)
     .maybeSingle();
   if (error || !data) return;
-  const birthEl = document.getElementById('inputBirth');
-  const nameEl = document.getElementById('inputName');
-  const clientEl = document.getElementById('inputClient');
-  if (birthEl && data.birth_date) birthEl.value = data.birth_date;
-  if (nameEl) nameEl.value = (data.legal_name || '').trim();
-  if (clientEl) clientEl.value = (data.display_name || '').trim();
-
-  COUNSELOR_CLIENT = { id: clientId, displayName: (data.display_name || '').trim(), recentSession: null };
-  // 최근 세션 메모(있으면) — 테이블이 없으면 조용히 무시
-  try {
-    const { data: sess } = await sb
-      .from('counselor_sessions')
-      .select('session_date,summary,topic,next_focus')
-      .eq('client_id', clientId)
-      .eq('counselor_id', session.user.id)
-      .order('session_date', { ascending: false })
-      .limit(1);
-    if (sess && sess.length && (sess[0].summary || sess[0].topic || sess[0].next_focus)) {
-      COUNSELOR_CLIENT.recentSession = sess[0];
-    }
-  } catch (e) { /* ignore */ }
+  await applyCounselorClientRecord(data, clientId, session.user.id, { updateUrl: false });
 }
 
 const PLANS = { free: 0, basic: 1, plus: 2, professional: 3, private: 4 };
