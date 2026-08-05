@@ -354,24 +354,34 @@
     .modal-close { background: none; border: none; font-size: 22px; line-height: 1; color: var(--muted); cursor: pointer; padding: 0 4px; }
     .modal-body { padding: 18px 20px; }
     .modal-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
-    .modal.preview-modal {
-      max-width: min(1100px, 96vw); height: min(90vh, 920px);
-      display: flex; flex-direction: column;
+    .tool-dock {
+      display: none; grid-column: 1 / -1;
+      margin-top: 4px; border: 1px solid var(--border); border-radius: 12px;
+      background: #fff; overflow: hidden;
     }
-    .modal.preview-modal .modal-body {
-      flex: 1; padding: 0; min-height: 0; display: flex; flex-direction: column;
+    .tool-dock.is-open { display: block; }
+    .tool-dock-head {
+      display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between;
+      gap: 8px; padding: 10px 12px; border-bottom: 1px solid var(--border);
+      background: var(--parchment);
     }
-    .preview-frame-wrap {
-      flex: 1; min-height: 0; background: #fff; position: relative;
+    .tool-dock-head strong { font-size: 13px; color: var(--deep); }
+    .tool-dock-head .sub { font-size: 11px; color: var(--muted); }
+    .tool-dock-actions { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+    .tool-dock-frame-wrap {
+      position: relative; height: min(48vh, 420px); background: #fff;
     }
-    .preview-frame-wrap iframe {
+    @media (min-width: 900px) {
+      .tool-dock-frame-wrap { height: min(56vh, 560px); }
+    }
+    .tool-dock-frame-wrap iframe {
       width: 100%; height: 100%; border: 0; display: block; background: #fff;
     }
-    .preview-frame-loading {
+    .tool-dock-loading {
       position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
       font-size: 13px; color: var(--muted); background: var(--cream); pointer-events: none;
     }
-    .preview-frame-loading.is-done { display: none; }
+    .tool-dock-loading.is-done { display: none; }
     
   </style>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css" crossorigin />
@@ -441,7 +451,7 @@
         <div class="full ai-client-tools">
           <button type="button" class="btn-sm outline" id="aiLinkNumerology" data-href="analysis.html" aria-disabled="true">수비학 분석</button>
           <button type="button" class="btn-sm outline" id="aiLinkAstro" data-href="astrology.html" aria-disabled="true">점성학 차트</button>
-          <span style="font-size:11px;color:var(--muted);align-self:center">이 페이지 안에서 열림 · 리딩 유지</span>
+          <span style="font-size:11px;color:var(--muted);align-self:center">카드 아래쪽에 펼쳐 같이 봄 · 새 탭도 가능</span>
         </div>
         <div class="ai-brief-stack full">
           <div class="ai-num-brief" id="aiNumBrief" hidden>
@@ -507,6 +517,22 @@
           <button type="button" class="btn-sm outline" id="aiSaveSessionBtn" style="display:none;">세션에 전문 남기기</button>
           <span class="ai-draft-quota" id="aiDraftQuota" hidden></span>
         </div>
+        <div class="tool-dock full" id="toolDock" hidden>
+          <div class="tool-dock-head">
+            <div>
+              <strong id="toolDockTitle">참고 보기</strong>
+              <div class="sub">위 카드·질문은 그대로 두고, 여기서 수비학·점성학을 같이 봅니다.</div>
+            </div>
+            <div class="tool-dock-actions">
+              <a class="btn-sm outline" id="toolDockNewTab" href="#" target="_blank" rel="noopener">새 탭</a>
+              <button type="button" class="btn-sm outline" id="toolDockClose">접기</button>
+            </div>
+          </div>
+          <div class="tool-dock-frame-wrap">
+            <div class="tool-dock-loading" id="toolDockLoading">불러오는 중…</div>
+            <iframe id="toolDockFrame" title="수비학·점성학 참고"></iframe>
+          </div>
+        </div>
       </form>
       <p class="ai-preview-label" id="aiPreviewLabel" hidden>뽑힌 카드 · 해석과 함께 보세요</p>
       <div id="aiCardPreview" class="ai-card-preview" aria-live="polite"></div>
@@ -530,27 +556,6 @@
     </div>
 
     
-  </div>
-</div>
-
-<div class="modal-overlay" id="toolPreviewModal">
-  <div class="modal preview-modal" role="dialog" aria-modal="true" aria-labelledby="toolPreviewTitle">
-    <div class="modal-head">
-      <div>
-        <h3 id="toolPreviewTitle">미리보기</h3>
-        <div class="sub">AI 리딩 화면은 그대로 둡니다. 닫으면 카드·질문 입력으로 돌아옵니다.</div>
-      </div>
-      <div class="modal-actions" style="margin:0;align-items:center">
-        <a class="btn-sm outline" id="toolPreviewNewTab" href="#" target="_blank" rel="noopener">새 탭에서 열기</a>
-        <button type="button" class="modal-close" id="toolPreviewClose" aria-label="닫기">×</button>
-      </div>
-    </div>
-    <div class="modal-body">
-      <div class="preview-frame-wrap">
-        <div class="preview-frame-loading" id="toolPreviewLoading">불러오는 중…</div>
-        <iframe id="toolPreviewFrame" title="수비학·점성학 미리보기"></iframe>
-      </div>
-    </div>
   </div>
 </div>
 
@@ -1817,34 +1822,40 @@
       }
 
       function openToolPreview(title, href) {
-        const modal = document.getElementById('toolPreviewModal');
-        const frame = document.getElementById('toolPreviewFrame');
-        const loading = document.getElementById('toolPreviewLoading');
-        const titleEl = document.getElementById('toolPreviewTitle');
-        const newTab = document.getElementById('toolPreviewNewTab');
-        if (!modal || !frame || !href) return;
-        if (titleEl) titleEl.textContent = title || '미리보기';
+        const dock = document.getElementById('toolDock');
+        const frame = document.getElementById('toolDockFrame');
+        const loading = document.getElementById('toolDockLoading');
+        const titleEl = document.getElementById('toolDockTitle');
+        const newTab = document.getElementById('toolDockNewTab');
+        if (!dock || !frame || !href) return;
+        if (titleEl) titleEl.textContent = title || '참고 보기';
         if (newTab) newTab.href = href;
+        dock.hidden = false;
+        dock.classList.add('is-open');
         if (loading) loading.classList.remove('is-done');
         frame.onload = () => {
           if (loading) loading.classList.add('is-done');
         };
         frame.src = href;
-        modal.classList.add('open');
+        try {
+          dock.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        } catch (_) {}
       }
 
       function closeToolPreview() {
-        const modal = document.getElementById('toolPreviewModal');
-        const frame = document.getElementById('toolPreviewFrame');
-        if (modal) modal.classList.remove('open');
+        const dock = document.getElementById('toolDock');
+        const frame = document.getElementById('toolDockFrame');
+        if (dock) {
+          dock.classList.remove('is-open');
+          dock.hidden = true;
+        }
         if (frame) frame.src = 'about:blank';
       }
 
       (function bindToolPreview() {
         const linkNum = document.getElementById('aiLinkNumerology');
         const linkAstro = document.getElementById('aiLinkAstro');
-        const modal = document.getElementById('toolPreviewModal');
-        const closeBtn = document.getElementById('toolPreviewClose');
+        const closeBtn = document.getElementById('toolDockClose');
         function onToolClick(ev) {
           ev.preventDefault();
           const btn = ev.currentTarget;
@@ -1860,14 +1871,6 @@
         if (linkNum) linkNum.addEventListener('click', onToolClick);
         if (linkAstro) linkAstro.addEventListener('click', onToolClick);
         if (closeBtn) closeBtn.addEventListener('click', closeToolPreview);
-        if (modal) {
-          modal.addEventListener('click', (e) => {
-            if (e.target === modal) closeToolPreview();
-          });
-        }
-        document.addEventListener('keydown', (e) => {
-          if (e.key === 'Escape' && modal && modal.classList.contains('open')) closeToolPreview();
-        });
       })();
 
       function syncClientContext(c) {
