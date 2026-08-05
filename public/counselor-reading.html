@@ -105,6 +105,27 @@
       font-family: var(--font-body); font-size: 13px; background: #fff; color: var(--ink);
     }
     .ai-draft-form textarea { min-height: 88px; resize: vertical; }
+    .ai-q-head {
+      display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between;
+      gap: 8px; margin-bottom: 5px;
+    }
+    .ai-q-head label { margin-bottom: 0; }
+    .ai-voice-btn {
+      border: 1px solid var(--border); background: #fff; color: var(--deep);
+      border-radius: 8px; padding: 6px 10px; font-size: 12px; font-family: var(--font-body);
+      cursor: pointer; display: inline-flex; align-items: center; gap: 5px;
+    }
+    .ai-voice-btn:hover { background: var(--parchment); }
+    .ai-voice-btn.is-listening {
+      border-color: #c0392b; background: rgba(192,57,43,.08); color: #a93226;
+      animation: aiVoicePulse 1.2s ease-in-out infinite;
+    }
+    .ai-voice-btn:disabled { opacity: .45; cursor: not-allowed; }
+    @keyframes aiVoicePulse {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(192,57,43,.2); }
+      50% { box-shadow: 0 0 0 4px rgba(192,57,43,.08); }
+    }
+    .ai-voice-hint { font-size: 11px; color: var(--muted); margin: 6px 0 0; line-height: 1.4; }
     .ai-client-tools { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin: 0; }
     .ai-client-tools .btn-sm { text-decoration: none; display: inline-flex; align-items: center; }
     .ai-client-tools .btn-sm[aria-disabled="true"] {
@@ -472,8 +493,12 @@
           </div>
         </div>
         <div class="full">
-          <label for="aiQuestion">질문 *</label>
-          <textarea id="aiQuestion" maxlength="800" required placeholder="키보드로 입력하거나, 카톡·메모에서 붙여넣기 하세요.&#10;예: 이직을 지금 해도 될까요? / 그 사람 마음이 궁금해요"></textarea>
+          <div class="ai-q-head">
+            <label for="aiQuestion">질문 *</label>
+            <button type="button" class="ai-voice-btn" id="aiVoiceBtn" title="마이크로 질문 받아쓰기">🎤 음성 입력</button>
+          </div>
+          <textarea id="aiQuestion" maxlength="800" required placeholder="키보드·붙여넣기 또는 🎤 음성 입력.&#10;예: 이직을 지금 해도 될까요? / 그 사람 마음이 궁금해요"></textarea>
+          <p class="ai-voice-hint" id="aiVoiceHint">크롬·엣지·안드로이드에서 잘 됩니다. 아이폰 사파리는 지원이 약할 수 있어요.</p>
         </div>
         <div>
           <label for="aiTopic">해석 주제</label>
@@ -1027,6 +1052,96 @@
         msg.textContent = text || '';
         msg.classList.toggle('err', !!isErr);
       }
+
+      (function initQuestionVoice() {
+        const btn = document.getElementById('aiVoiceBtn');
+        const qEl = document.getElementById('aiQuestion');
+        const hint = document.getElementById('aiVoiceHint');
+        if (!btn || !qEl) return;
+
+        const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
+        if (!SpeechRec) {
+          btn.disabled = true;
+          btn.title = '이 브라우저에서는 음성 입력을 지원하지 않습니다';
+          if (hint) hint.textContent = '이 브라우저에서는 음성 입력을 쓸 수 없어요. 크롬·엣지 또는 안드로이드 크롬을 권장합니다.';
+          return;
+        }
+
+        let recog = null;
+        let listening = false;
+        let baseText = '';
+
+        function setListening(on) {
+          listening = !!on;
+          btn.classList.toggle('is-listening', listening);
+          btn.textContent = listening ? '⏹ 듣는 중…' : '🎤 음성 입력';
+          btn.setAttribute('aria-pressed', listening ? 'true' : 'false');
+        }
+
+        function stopVoice() {
+          if (recog) {
+            try { recog.stop(); } catch (_) {}
+          }
+          setListening(false);
+        }
+
+        function startVoice() {
+          stopVoice();
+          recog = new SpeechRec();
+          recog.lang = 'ko-KR';
+          recog.continuous = true;
+          recog.interimResults = true;
+          baseText = (qEl.value || '').trim();
+          if (baseText) baseText += ' ';
+
+          recog.onstart = () => {
+            setListening(true);
+            setAiMsg('듣고 있어요. 다시 누르면 멈춥니다.');
+          };
+          recog.onerror = (ev) => {
+            const code = ev && ev.error;
+            setListening(false);
+            if (code === 'not-allowed' || code === 'service-not-allowed') {
+              setAiMsg('마이크 권한이 필요합니다. 브라우저 주소창에서 허용해 주세요.', true);
+            } else if (code === 'no-speech') {
+              setAiMsg('음성이 감지되지 않았어요. 다시 눌러 말해 주세요.', true);
+            } else if (code !== 'aborted') {
+              setAiMsg('음성 인식에 실패했습니다. (' + (code || '오류') + ')', true);
+            }
+          };
+          recog.onend = () => {
+            setListening(false);
+          };
+          recog.onresult = (ev) => {
+            let finalChunk = '';
+            let interim = '';
+            for (let i = ev.resultIndex; i < ev.results.length; i++) {
+              const r = ev.results[i];
+              const t = (r[0] && r[0].transcript) || '';
+              if (r.isFinal) finalChunk += t;
+              else interim += t;
+            }
+            if (finalChunk) {
+              baseText = (baseText + finalChunk).replace(/\s+/g, ' ');
+              if (baseText.length > 800) baseText = baseText.slice(0, 800);
+            }
+            const shown = (baseText + interim).trim();
+            qEl.value = shown.slice(0, 800);
+          };
+
+          try {
+            recog.start();
+          } catch (_) {
+            setAiMsg('음성 입력을 시작할 수 없어요. 잠시 후 다시 시도해 주세요.', true);
+            setListening(false);
+          }
+        }
+
+        btn.addEventListener('click', () => {
+          if (listening) stopVoice();
+          else startVoice();
+        });
+      })();
 
       function sessionDateKst() {
         return new Intl.DateTimeFormat('en-CA', {
