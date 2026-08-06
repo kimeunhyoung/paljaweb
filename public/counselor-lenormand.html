@@ -12,7 +12,7 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="js/plan-access.js?v=1"></script>
   <script src="js/ai-quota-client.js?v=3"></script>
-  <script src="js/lenormand-deck.js?v=3"></script>
+  <script src="js/lenormand-deck.js?v=4"></script>
   <script src="js/attribution.js"></script>
   <script src="js/site-topbar.js?v=10" defer></script>
   <script src="js/topbar-session.js?v=6" defer></script>
@@ -280,7 +280,7 @@
           </div>
         </div>
         <div class="full ai-draft-actions">
-          <button type="button" class="btn-sm outline" id="aiDrawBtn">전체 랜덤 뽑기</button>
+          <button type="button" class="btn-sm outline" id="aiDrawBtn" onclick="return window.__lenoDrawAll&&window.__lenoDrawAll()">전체 랜덤 뽑기</button>
           <button type="submit" class="btn-sm" id="aiDraftBtn">해석 생성</button>
           <span class="ai-draft-quota" id="aiCreditHint">예상 크레딧 2</span>
           <button type="button" class="btn-sm outline" id="aiCopyBtn" style="display:none;">복사</button>
@@ -645,12 +645,17 @@
     }
 
     function drawOneSlot(i) {
-      if (i < 0 || i >= slots.length) return;
-      slots[i].num = pickUnusedNum(i);
-      targetSlot = i;
-      renderSlots();
-      const c = cardFor(slots[i].num);
-      setAiMsg(slots[i].label + '에 ' + (c ? c.name : slots[i].num) + '을(를) 뽑았습니다.');
+      try {
+        if (i < 0 || i >= slots.length || !slots[i]) return;
+        slots[i].num = pickUnusedNum(i);
+        targetSlot = i;
+        renderSlots();
+        const c = cardFor(slots[i].num);
+        setAiMsg(slots[i].label + '에 ' + (c ? c.name : slots[i].num) + '을(를) 뽑았습니다.');
+      } catch (err) {
+        console.error('[lenormand] drawOneSlot', err);
+        setAiMsg('이 칸 뽑기에 실패했습니다. 새로고침 후 다시 시도해 주세요.', true);
+      }
     }
 
     function syncNumField(i, inp) {
@@ -688,8 +693,8 @@
               '<div class="slot-suggest" data-suggest="' + i + '" hidden></div>' +
             '</div>' +
             '<div class="slot-tools">' +
-              '<button type="button" data-draw-one="' + i + '">이 칸 뽑기</button>' +
-              '<button type="button" data-clear-one="' + i + '">비우기</button>' +
+              '<button type="button" data-draw-one="' + i + '" onclick="return window.__lenoDrawOne&&window.__lenoDrawOne(' + i + ')">이 칸 뽑기</button>' +
+              '<button type="button" data-clear-one="' + i + '" onclick="return window.__lenoClearOne&&window.__lenoClearOne(' + i + ')">비우기</button>' +
             '</div>' +
             '<div class="slot-kw">' + escapeHtml(kw) + '</div>' +
           '</div>'
@@ -789,99 +794,98 @@
         });
       });
 
-      renderPreview();
-      renderGrid();
-      updateCreditHint();
-    }
-
-    // 이벤트 위임 — 뽑기/비우기/번호/칸이름 (재렌더 후에도 동작)
-    if (!slotsEl.dataset.bound) {
-      slotsEl.dataset.bound = '1';
-      slotsEl.addEventListener('click', (e) => {
-        const drawBtn = e.target.closest('[data-draw-one]');
-        if (drawBtn) {
+      // 타로 AI와 동일: 재렌더마다 직접 바인딩 (dataset.bound 위임은 재초기화 시 끊길 수 있음)
+      slotsEl.querySelectorAll('[data-draw-one]').forEach((btn) => {
+        btn.addEventListener('click', (e) => {
           e.preventDefault();
-          drawOneSlot(Number(drawBtn.getAttribute('data-draw-one')));
-          return;
-        }
-        const clearBtn = e.target.closest('[data-clear-one]');
-        if (clearBtn) {
-          e.preventDefault();
-          const i = Number(clearBtn.getAttribute('data-clear-one'));
-          if (slots[i]) {
-            slots[i].num = null;
-            targetSlot = i;
-            renderSlots();
-            setAiMsg((slots[i].label || (i + 1) + '장') + '을 비웠습니다.');
-          }
-          return;
-        }
-        if (e.target.closest('button, input, .slot-suggest')) return;
-        const slot = e.target.closest('.ai-card-slot');
-        if (slot) {
-          targetSlot = Number(slot.getAttribute('data-i'));
-          renderSlots();
-        }
+          e.stopPropagation();
+          drawOneSlot(Number(btn.getAttribute('data-draw-one')));
+        });
       });
-      slotsEl.addEventListener('input', (e) => {
-        const t = e.target;
-        if (t.matches('[data-num]')) {
-          syncNumField(Number(t.getAttribute('data-num')), t);
-        } else if (t.matches('[data-label]')) {
-          const i = Number(t.getAttribute('data-label'));
+      slotsEl.querySelectorAll('[data-clear-one]').forEach((btn) => {
+        btn.addEventListener('click', (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          const i = Number(btn.getAttribute('data-clear-one'));
           if (!slots[i]) return;
-          slots[i].label = t.value;
+          slots[i].num = null;
+          targetSlot = i;
+          renderSlots();
+          setAiMsg((slots[i].label || (i + 1) + '장') + '을 비웠습니다.');
+        });
+      });
+      slotsEl.querySelectorAll('[data-num]').forEach((inp) => {
+        inp.addEventListener('focus', () => {
+          targetSlot = Number(inp.getAttribute('data-num'));
+          slotsEl.querySelectorAll('.ai-card-slot').forEach((el) => {
+            el.classList.toggle('is-target', Number(el.getAttribute('data-i')) === targetSlot);
+          });
+        });
+        inp.addEventListener('input', () => syncNumField(Number(inp.getAttribute('data-num')), inp));
+        inp.addEventListener('change', () => syncNumField(Number(inp.getAttribute('data-num')), inp));
+        inp.addEventListener('keydown', (e) => {
+          if (e.key !== 'Enter') return;
+          e.preventDefault();
+          const i = Number(inp.getAttribute('data-num'));
+          const n = parseCardNum(inp.value);
+          if (n != null) applyCard(n, i);
+        });
+      });
+      slotsEl.querySelectorAll('[data-label]').forEach((inp) => {
+        inp.addEventListener('focus', () => {
+          targetSlot = Number(inp.getAttribute('data-label'));
+        });
+        inp.addEventListener('input', () => {
+          const i = Number(inp.getAttribute('data-label'));
+          if (!slots[i]) return;
+          slots[i].label = inp.value;
           markCustomIfNeeded();
           if (modeThreeSub && mode === 'three') {
             modeThreeSub.textContent = slots.map((s) => s.label).filter(Boolean).join(' · ') || '직접 입력';
           }
           renderPreview();
-        }
+        });
       });
-      slotsEl.addEventListener('change', (e) => {
-        const t = e.target;
-        if (t.matches('[data-num]')) syncNumField(Number(t.getAttribute('data-num')), t);
+      slotsEl.querySelectorAll('.ai-card-slot').forEach((slot) => {
+        slot.addEventListener('click', (e) => {
+          if (e.target.closest('button, input, .slot-suggest')) return;
+          targetSlot = Number(slot.getAttribute('data-i'));
+          renderSlots();
+        });
       });
-      slotsEl.addEventListener('keydown', (e) => {
-        const t = e.target;
-        if (!t.matches('[data-num]') || e.key !== 'Enter') return;
-        e.preventDefault();
-        const i = Number(t.getAttribute('data-num'));
-        const n = parseCardNum(t.value);
-        if (n != null) applyCard(n, i);
-      });
-      slotsEl.addEventListener('focusin', (e) => {
-        const t = e.target;
-        if (t.matches('[data-num], [data-label], [data-search]')) {
-          const slot = t.closest('.ai-card-slot');
-          if (slot) targetSlot = Number(slot.getAttribute('data-i'));
-        }
-      });
+
+      renderPreview();
+      renderGrid();
+      updateCreditHint();
     }
 
     const lenoGrid = document.getElementById('aiLenoGrid');
-    if (lenoGrid && !lenoGrid.dataset.bound) {
-      lenoGrid.dataset.bound = '1';
-      lenoGrid.addEventListener('click', (e) => {
+    if (lenoGrid) {
+      lenoGrid.onclick = (e) => {
         const btn = e.target.closest('[data-pick-num]');
         if (!btn) return;
         e.preventDefault();
         applyCard(Number(btn.getAttribute('data-pick-num')), targetSlot);
-      });
+      };
     }
 
     function drawRandom() {
-      const used = new Set();
-      slots.forEach((s, i) => {
-        const pool = [];
-        for (let n = 1; n <= 36; n++) if (!used.has(n)) pool.push(n);
-        const num = pool[Math.floor(Math.random() * pool.length)];
-        used.add(num);
-        s.num = num;
-      });
-      targetSlot = 0;
-      renderSlots();
-      setAiMsg('스프래드 ' + slots.length + '장을 랜덤으로 뽑았습니다.');
+      try {
+        const used = new Set();
+        slots.forEach((s) => {
+          const pool = [];
+          for (let n = 1; n <= 36; n++) if (!used.has(n)) pool.push(n);
+          const num = pool[Math.floor(Math.random() * pool.length)];
+          used.add(num);
+          s.num = num;
+        });
+        targetSlot = 0;
+        renderSlots();
+        setAiMsg('스프래드 ' + slots.length + '장을 랜덤으로 뽑았습니다.');
+      } catch (err) {
+        console.error('[lenormand] drawRandom', err);
+        setAiMsg('전체 랜덤 뽑기에 실패했습니다. 새로고침 후 다시 시도해 주세요.', true);
+      }
     }
 
     function readFilledCards() {
@@ -947,7 +951,30 @@
     if (threePresetSel) {
       threePresetSel.addEventListener('change', () => setThreePreset(threePresetSel.value));
     }
-    if (drawBtn) drawBtn.addEventListener('click', drawRandom);
+    if (drawBtn) {
+      drawBtn.onclick = (e) => {
+        e.preventDefault();
+        drawRandom();
+        return false;
+      };
+    }
+    window.__lenoDrawOne = function (i) {
+      drawOneSlot(Number(i));
+      return false;
+    };
+    window.__lenoClearOne = function (i) {
+      i = Number(i);
+      if (!slots[i]) return false;
+      slots[i].num = null;
+      targetSlot = i;
+      renderSlots();
+      setAiMsg((slots[i].label || (i + 1) + '장') + '을 비웠습니다.');
+      return false;
+    };
+    window.__lenoDrawAll = function () {
+      drawRandom();
+      return false;
+    };
     if (clientSel) clientSel.addEventListener('change', updateClientHint);
 
     if (copyBtn) {
