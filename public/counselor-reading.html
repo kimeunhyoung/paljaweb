@@ -1590,7 +1590,7 @@
         if (i < 0 || i >= slots.length) return;
         const num = pickUnusedNum(i);
         slots[i].num = num;
-        slots[i].rev = Math.random() < 0.35;
+        slots[i].rev = false;
         targetSlot = i;
         renderSlots();
         const c = cardFor(num);
@@ -1908,7 +1908,7 @@
         }
         const base = pool.slice(0, n).map((num, i) => ({
           num,
-          rev: Math.random() < 0.35,
+          rev: false,
           label: slots[i] && !slots[i].extra && slots[i].label
             ? slots[i].label
             : (mode === 'basic' ? '카드' : (getSpread().positions[i] || ((i + 1) + '장'))),
