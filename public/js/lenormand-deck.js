@@ -49,9 +49,11 @@
   }
 
   function imageSrc(id) {
-    const card = byId(id);
-    if (!card) return '';
-    return 'lenormand/' + pad2(card.id) + '-' + card.en + '.webp';
+    const n = Number(id);
+    if (!Number.isInteger(n) || n < 1 || n > 36) return '';
+    const c = CARDS[n - 1];
+    if (!c) return '';
+    return 'lenormand/' + pad2(c.id) + '-' + c.en + '.webp';
   }
 
   function byId(id) {
