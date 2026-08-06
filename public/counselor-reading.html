@@ -2624,13 +2624,38 @@ ${astroLines}
 - 수비·점성 전용 소제목/섹션은 만들지 말 것
 </output_format>` + integratedDirective;
 
+        let choiceAbDirective = '';
+        if (spreadId === 'choice_ab' || /A\s*전개|B\s*전개|A\s*결과|B\s*결과/.test(cards.map((c) => c.pos).join('|'))) {
+          choiceAbDirective = `
+
+<choice_ab_spread_rule>
+이 리딩은 **선택 A/B 배열**이다. 일반 시간 흐름(과거→미래) 리딩처럼 쓰지 말 것.
+
+1) 구조
+- 「현재」: 선택의 출발점·지금 구도.
+- 「A 전개」「A 결과」: A를 택했을 때의 과정과 귀결.
+- 「B 전개」「B 결과」: B를 택했을 때의 과정과 귀결.
+- 추가 카드(조언·명확화 등)가 있으면 **A/B 비교 결론 뒤에** 실행·주의로만 연결. A/B 본체를 덮어쓰지 말 것.
+
+2) 반드시 비교
+- 흐름 분석에서 A 축과 B 축을 **나란히** 대조할 것. 한쪽만 길게 쓰고 다른 쪽을 흐리지 말 것.
+- 주도권·리스크·대가·속도·회복 가능성을 A vs B로 분명하게.
+
+3) 결론 회피 금지
+- 한 줄 요약과 전략적 조언에서 **어느 쪽이 질문 맥락상 더 유리/덜 해로운지**(또는 팽팽하면 그 사실)를 밝힐 것.
+- 「마음먹기에 달렸다」「둘 다 괜찮다」로만 끝내지 말 것. 팽팽하면 관망·리스크 관리 우선을 **카드 근거**로 말할 것.
+- 고객이 A/B를 질문에 명시한 경우 그 라벨을 그대로 쓸 것. 없으면 「선택지 A / 선택지 B」로.
+</choice_ab_spread_rule>`;
+        }
+
         const prompt =
-systemBlock + `
+systemBlock + choiceAbDirective + `
 
 <context>
 - 호칭: ${displayName}
 ${client ? '- CRM 생년월일: ' + (client.birth_date || '미상') + ' / 최근 상담: ' + (ls.last || '없음') + (ls.topic ? ' · ' + ls.topic : '') + '\n' : ''}- 질문: ${question}
 - 해석 주제: ${topicLabel}
+- 스프래드: ${getSpread().label || spreadId}
 ${note ? '- 상담사 메모(고객에게 노출 금지, 반영만): ' + note + '\n' : ''}${integratedContextXml}</context>
 
 <spread>
@@ -2640,9 +2665,10 @@ ${spreadXml}
 위 데이터를 바탕으로 시스템 지시를 엄격히 준수하여 지정된 마크다운 형식으로 타로 리딩을 분석해 주세요.`;
 
         const cacheKey = PaljaAiQuota.hashKey([
-          'counselor_reading_v19',
+          'counselor_reading_v20',
           feature,
           readingDepth,
+          spreadId,
           topic,
           clientId || '',
           displayName,
