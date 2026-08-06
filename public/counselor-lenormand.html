@@ -14,7 +14,7 @@
   <script src="js/ai-quota-client.js?v=3"></script>
   <script src="js/lenormand-deck.js?v=3"></script>
   <script src="js/attribution.js"></script>
-  <script src="js/site-topbar.js?v=8" defer></script>
+  <script src="js/site-topbar.js?v=10" defer></script>
   <script src="js/topbar-session.js?v=6" defer></script>
   <style>
     :root {
@@ -210,7 +210,7 @@
   <div class="hub-intro">
     <div class="back-row"><a href="counselor.html">← 상담사 허브</a></div>
     <h1>상담사 레노먼드 AI</h1>
-    <p><strong>준비중</strong> — 카드 선택·뽑기 점검 중이라 잠시 닫아 두었습니다. 내일 다시 열어 둘 예정입니다.</p>
+    <p>Petit Lenormand 36장. 상황·관계·진행 해석 초안. <strong>Professional</strong> 전용.</p>
     <p id="trialBadge" class="trial-badge" style="display:none" role="status"></p>
   </div>
   <div id="gate">
@@ -226,15 +226,7 @@
     <a class="cta" href="for-counselors.html">체험·구독 안내</a>
   </div>
   <div id="workspace">
-    <div class="ai-draft-panel" style="text-align:center;padding:48px 24px">
-      <p class="ai-draft-intro" style="font-size:15px;color:var(--deep);margin:0 0 10px"><strong>레노먼드 AI · 준비중</strong></p>
-      <p class="ai-draft-intro" style="margin:0">카드 선택·뽑기 점검을 위해 잠시 닫아 두었습니다. 내일 다시 열어 둘 예정입니다.</p>
-      <p style="margin-top:20px">
-        <a class="btn-sm" href="counselor.html">상담사 허브로</a>
-        <a class="btn-sm outline" href="counselor-reading.html" style="margin-left:8px">타로 AI 리딩</a>
-      </p>
-    </div>
-    <div id="lenormandWorkPanel" hidden>
+    <div class="ai-draft-panel">
       <p class="ai-draft-intro">스프래드 카드를 넣고 해석 초안을 만듭니다. 크레딧: <strong>1장 → 1</strong> · <strong>2~3장 → 2</strong> · <strong>4~6장 → 3</strong> (통합 없음).</p>
       <div class="ai-mode-row" role="tablist" aria-label="스프래드 모드">
         <button type="button" class="ai-mode-btn active" id="aiModeThree" data-mode="three" role="tab" aria-selected="true">
@@ -1096,8 +1088,7 @@ ${cardLines}
     sessionRows = sessions || [];
 
     populateClientSelect();
-    // 준비중: 작업 패널 숨김 — 내일 다시 열 때 initLenormandDraft 호출 복구
-    // initLenormandDraft(session.user.id);
+    initLenormandDraft(session.user.id);
   }
 
   main();
