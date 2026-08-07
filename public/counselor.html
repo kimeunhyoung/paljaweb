@@ -401,6 +401,16 @@
     .cal-day .dot-client { background: var(--teal); }
     .cal-day .dot-session { background: #9b5f72; }
     .cal-day .dot-event { background: var(--accent); }
+    .cal-legend { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 8px; }
+    .cal-legend-item { display: inline-flex; align-items: center; gap: 5px; }
+    .cal-legend-sep { color: var(--muted); opacity: .7; }
+    .cal-legend-dot {
+      width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0;
+      display: inline-block;
+    }
+    .cal-legend-dot.dot-session { background: #9b5f72; }
+    .cal-legend-dot.dot-client { background: var(--teal); }
+    .cal-legend-dot.dot-event { background: var(--accent); }
     .cal-day.selected { outline: 2px solid var(--teal); outline-offset: -1px; }
     .cal-detail { margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--border); }
     .cal-detail h4 { font-size: 12px; color: var(--muted); margin-bottom: 8px; font-weight: 600; }
@@ -913,7 +923,15 @@
         </div>
       </div>
       <div class="cal-weekdays" id="calWeekdays"></div>
-      <p class="event-hint" style="margin-bottom:8px;">● 장미 = 상담 완료(기록) · ● 청록 = 상담 약속(고객·일정) · ● 금색 = 개인 일정 · 지난 날짜도 남아 있어요</p>
+      <p class="event-hint cal-legend" style="margin-bottom:8px;">
+        <span class="cal-legend-item"><span class="cal-legend-dot dot-session" aria-hidden="true"></span>장미 = 상담 완료(기록)</span>
+        <span class="cal-legend-sep">·</span>
+        <span class="cal-legend-item"><span class="cal-legend-dot dot-client" aria-hidden="true"></span>청록 = 상담 약속(고객·일정)</span>
+        <span class="cal-legend-sep">·</span>
+        <span class="cal-legend-item"><span class="cal-legend-dot dot-event" aria-hidden="true"></span>금색 = 개인 일정</span>
+        <span class="cal-legend-sep">·</span>
+        <span>지난 날짜도 남아 있어요</span>
+      </p>
       <div class="cal-grid" id="calGrid"></div>
       <div class="cal-detail" id="calDetail">
         <h4 id="calDetailTitle">날짜를 선택하세요</h4>
