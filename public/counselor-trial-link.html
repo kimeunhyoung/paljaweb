@@ -157,14 +157,12 @@
 </div>
 
 <script src="js/attribution.js"></script>
-  <script src="js/site-topbar.js?v=7" defer></script>
-<script type="module">
-  import { getLifecodeDeviceId } from '/js/lifecode-device.js';
-
+<script src="js/site-topbar.js?v=7" defer></script>
+<script src="js/topbar-session.js?v=3" defer></script>
+<script>
+(function () {
   const SUPABASE_URL = 'https://sghsryumnrnftyjoqmwf.supabase.co';
   const SUPABASE_ANON_KEY = 'sb_publishable_6S3W_oWrzG-Nv8wLK98gmg_q_KcB2I1';
-  const { createClient } = supabase;
-  const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
   const guard = document.getElementById('guard');
   const mainContent = document.getElementById('mainContent');
@@ -176,72 +174,147 @@
   const successBox = document.getElementById('successBox');
   const successText = document.getElementById('successText');
 
+  function getLifecodeDeviceId() {
+    try {
+      var key = 'lifecode_device_id';
+      var id = localStorage.getItem(key);
+      if (!id) {
+        id = (window.crypto && crypto.randomUUID)
+          ? crypto.randomUUID()
+          : 'd' + Date.now().toString(36) + Math.random().toString(36).slice(2);
+        localStorage.setItem(key, id);
+      }
+      return id;
+    } catch (_) {
+      return 'd' + Date.now().toString(36);
+    }
+  }
+
   function showMsg(text, kind) {
     msgEl.textContent = text || '';
     msgEl.className = 'msg' + (kind === 'err' ? ' err' : kind === 'ok' ? ' ok' : '');
   }
 
-  const params = new URLSearchParams(location.search);
-  const qCode = params.get('code');
-  const stored = sessionStorage.getItem('counselor_trial_code');
-  if (qCode) codeInput.value = qCode;
-  else if (stored) codeInput.value = stored;
-
-  async function ensureSession() {
-    const { data: { session } } = await sb.auth.getSession();
-    if (session) return session;
-    const next = 'counselor-trial-link.html' + (qCode ? '?code=' + encodeURIComponent(qCode) : '');
-    location.replace('login.html?next=' + encodeURIComponent(next));
-    return null;
+  function loginUrl(code) {
+    var next = 'counselor-trial-link.html' + (code ? '?code=' + encodeURIComponent(code) : '');
+    return 'login.html?next=' + encodeURIComponent(next);
   }
 
-  const session = await ensureSession();
-  if (!session) return;
+  function showGuardError(html) {
+    if (!guard) return;
+    guard.innerHTML = html;
+  }
 
-  guard.style.display = 'none';
-  mainContent.style.display = 'block';
+  var params = new URLSearchParams(location.search);
+  var qCode = params.get('code');
+  var stored = '';
+  try { stored = sessionStorage.getItem('counselor_trial_code') || ''; } catch (_) {}
+  if (qCode) {
+    codeInput.value = qCode;
+    try { sessionStorage.setItem('counselor_trial_code', qCode); } catch (_) {}
+  } else if (stored) {
+    codeInput.value = stored;
+  }
 
-  form.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    showMsg('');
-    submitBtn.disabled = true;
-    try {
-      const { data: { session: s } } = await sb.auth.getSession();
-      if (!s) {
-        location.replace('login.html?next=counselor-trial-link.html');
-        return;
-      }
-      const res = await fetch('/api/counselor-trial/link', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: 'Bearer ' + s.access_token,
-        },
-        body: JSON.stringify({
-          code: codeInput.value.trim(),
-          deviceId: getLifecodeDeviceId(),
-        }),
-      });
-      const json = await res.json().catch(() => ({}));
-      if (!res.ok) {
-        showMsg(json.message || json.error || '연결에 실패했습니다.', 'err');
-        submitBtn.disabled = false;
-        return;
-      }
-      sessionStorage.removeItem('counselor_trial_code');
-      formPanel.classList.add('is-hidden');
-      successBox.classList.add('is-visible');
-      if (json.expiresAt) {
-        const exp = new Date(json.expiresAt);
-        const expStr = exp.getFullYear() + '년 ' + (exp.getMonth() + 1) + '월 ' + exp.getDate() + '일';
-        successText.textContent = 'Professional 전 기능을 ' + expStr + '까지 이용할 수 있습니다.';
-      }
-    } catch (err) {
-      console.error(err);
-      showMsg('서버에 연결할 수 없습니다.', 'err');
-      submitBtn.disabled = false;
+  async function boot() {
+    if (!window.supabase || typeof supabase.createClient !== 'function') {
+      showGuardError(
+        '인증 모듈을 불러오지 못했어요.<br><br>' +
+        '<a href="' + loginUrl(qCode || stored) + '" style="color:#4a3520;font-weight:700;">로그인 후 다시 시도</a>'
+      );
+      return;
     }
-  });
+
+    var sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+      auth: {
+        detectSessionInUrl: true,
+        flowType: 'pkce',
+        persistSession: true,
+      },
+    });
+
+    var session = null;
+    try {
+      var timed = Promise.race([
+        sb.auth.getSession(),
+        new Promise(function (_, reject) {
+          setTimeout(function () { reject(new Error('timeout')); }, 10000);
+        }),
+      ]);
+      var result = await timed;
+      session = result && result.data ? result.data.session : null;
+    } catch (e) {
+      console.error('[counselor-trial-link] getSession', e);
+      showGuardError(
+        '로그인 상태를 확인하지 못했어요.<br><br>' +
+        '<a href="' + loginUrl(qCode || codeInput.value.trim()) + '" style="color:#4a3520;font-weight:700;">로그인하기</a>' +
+        ' · <a href="javascript:location.reload()" style="color:#4a3520;font-weight:600;">새로고침</a>'
+      );
+      return;
+    }
+
+    if (!session) {
+      location.replace(loginUrl(qCode || codeInput.value.trim()));
+      showGuardError(
+        '로그인이 필요합니다. 잠시 후 로그인 페이지로 이동합니다.<br><br>' +
+        '<a href="' + loginUrl(qCode || codeInput.value.trim()) + '" style="color:#4a3520;font-weight:700;">지금 로그인</a>'
+      );
+      return;
+    }
+
+    guard.style.display = 'none';
+    mainContent.style.display = 'block';
+
+    form.addEventListener('submit', async function (e) {
+      e.preventDefault();
+      showMsg('');
+      submitBtn.disabled = true;
+      try {
+        var sRes = await sb.auth.getSession();
+        var s = sRes && sRes.data ? sRes.data.session : null;
+        if (!s) {
+          location.replace(loginUrl(codeInput.value.trim()));
+          return;
+        }
+        var res = await fetch('/api/counselor-trial/link', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: 'Bearer ' + s.access_token,
+          },
+          body: JSON.stringify({
+            code: codeInput.value.trim(),
+            deviceId: getLifecodeDeviceId(),
+          }),
+        });
+        var json = await res.json().catch(function () { return {}; });
+        if (!res.ok) {
+          showMsg(json.message || json.error || '연결에 실패했습니다.', 'err');
+          submitBtn.disabled = false;
+          return;
+        }
+        try { sessionStorage.removeItem('counselor_trial_code'); } catch (_) {}
+        formPanel.classList.add('is-hidden');
+        successBox.classList.add('is-visible');
+        if (json.expiresAt) {
+          var exp = new Date(json.expiresAt);
+          var expStr = exp.getFullYear() + '년 ' + (exp.getMonth() + 1) + '월 ' + exp.getDate() + '일';
+          successText.textContent = 'Professional 전 기능을 ' + expStr + '까지 이용할 수 있습니다.';
+        }
+      } catch (err) {
+        console.error(err);
+        showMsg('서버에 연결할 수 없습니다.', 'err');
+        submitBtn.disabled = false;
+      }
+    });
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', boot);
+  } else {
+    boot();
+  }
+})();
 </script>
 </body>
 </html>
