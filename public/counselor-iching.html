@@ -279,7 +279,7 @@
             <label for="aiQuestion">질문 *</label>
             <button type="button" class="ai-voice-btn" id="aiVoiceBtn" title="마이크로 질문 받아쓰기">🎤 음성 입력</button>
           </div>
-          <textarea id="aiQuestion" maxlength="800" required placeholder="예: 이번 학기 과목 A와 B 중 어디에 집중하는 게 유리한가?"></textarea>
+          <textarea id="aiQuestion" maxlength="800" required placeholder="예: 지금 이 상황에서 밀어붙일 때인가, 기다릴 때인가?"></textarea>
           <p class="ai-voice-hint" id="aiVoiceHint">한 문장씩 말하면 됩니다. 크롬·엣지·안드로이드 권장.</p>
         </div>
         <div class="full">
@@ -581,6 +581,14 @@
       renderSlots();
       renderYaoChecks();
       updateCreditHint();
+      const qEl = document.getElementById('aiQuestion');
+      if (qEl) {
+        qEl.placeholder = mode === 'choice'
+          ? '예: A(이직)와 B(현직 유지) 중 어디에 무게를 두는 게 유리한가?'
+          : mode === 'pair'
+            ? '예: 이 관계는 앞으로 어떻게 흘러갈까?'
+            : '예: 지금 이 상황에서 밀어붙일 때인가, 기다릴 때인가?';
+      }
     }
 
     function cardFor(num) { return Deck.byDisplayNum(num); }
