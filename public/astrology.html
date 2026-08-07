@@ -4,6 +4,15 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<script>
+  (function () {
+    try {
+      if (new URLSearchParams(location.search).get('embedded') === '1') {
+        document.documentElement.classList.add('palja-embedded');
+      }
+    } catch (_) {}
+  })();
+</script>
 <title>점성학 차트 무료 — 출생·네이탈 차트 계산 | 팔자연구소 8CODE</title>
 <meta name="description" content="점성학 차트를 무료로 계산하세요. 생년월일·출생 시간·출생지로 네이탈(출생) 차트, 태양·달·상승궁 빅3, 12하우스, 행성 위치, 어스펙트, 트랜짓·올해 운세.">
 <meta name="keywords" content="점성학, 점성학 차트, 점성학차트, 네이탈 차트, 출생 차트, 출생차트, 상승궁, 빅3, 12하우스, 어스펙트, 트랜짓">
@@ -53,7 +62,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="js/plan-access.js?v=8"></script>
-<script src="js/ai-quota-client.js?v=1"></script>
+<script src="js/ai-quota-client.js?v=2"></script>
 <script src="js/product-plan-bootstrap.js?v=1"></script>
 <script src="js/attribution.js"></script>
   <script src="js/site-topbar.js?v=7" defer></script>
@@ -305,6 +314,21 @@ table.astro-table td .glyph{font-size:16px;margin-right:4px;color:var(--accent);
   #astroPaper{max-width:min(100%,calc(100vw - 56px));}
 }
 
+/* AI 리딩 도구 독(iframe)용: 상단 크롬·히어로 숨김 */
+html.palja-embedded .site-top,
+html.palja-embedded .hero,
+html.palja-embedded .site-legal-footer,
+html.palja-embedded .astro-seo-intro {
+  display: none !important;
+}
+html.palja-embedded .wrap {
+  max-width: 100%;
+  padding: 10px 12px 24px;
+}
+html.palja-embedded #inputCard {
+  margin-top: 0;
+}
+
 /* 인쇄 시: 입력 폼·툴바·상단바·푸터 숨김 */
 @media print{
   @page{size:A4 portrait;margin:7mm;}
@@ -540,17 +564,10 @@ body.export-capturing #wheelCard .note{display:none !important;}
       <p class="transit-intro">출생 차트(타고난 성향) 맞춤 해석이에요. <strong>올해 운세</strong>와 <strong>지금·이번 주 흐름</strong>은 아래에서 따로 볼 수 있어요.
         고객이 연결되어 있으면 해석이 <strong>고객 카드에 자동 저장</strong>되어, 다음에 크레딧 없이 다시 볼 수 있어요.</p>
       <div class="ai-actions no-print">
-        <button type="button" class="rt-btn rt-btn--share" id="btnAiRun" disabled>✨ AI 차트 해석 (2크레딧)</button>
-        <button type="button" class="rt-btn" id="btnAiCopy">⧉ 프롬프트 복사</button>
-        <a class="rt-btn" id="btnOpenGpt" href="https://chatgpt.com/" target="_blank" rel="noopener">ChatGPT ↗</a>
-        <a class="rt-btn" id="btnOpenGemini" href="https://gemini.google.com/app" target="_blank" rel="noopener">Gemini ↗</a>
+        <button type="button" class="rt-btn rt-btn--share" id="btnAiRun" disabled>✨ AI 차트 해석 (3크레딧)</button>
       </div>
       <div id="aiResult" class="ai-result">차트를 계산한 뒤 <strong>AI 차트 해석</strong> 버튼을 눌러 주세요.</div>
-      <p class="ai-time-hint" id="aiTimeHint">차트 해석은 보통 30초~1분 정도 걸려요. 창을 닫지 말고 잠시만 기다려 주세요.</p>
-      <details class="ai-prompt-details no-print">
-        <summary>고급: 프롬프트 직접 보기</summary>
-        <textarea id="aiPrompt" class="ai-prompt-box" readonly rows="6" style="margin-top:8px;"></textarea>
-      </details>
+      <p class="ai-time-hint" id="aiTimeHint">차트 해석은 보통 30초~1분 정도 걸려요. 나오는 대로 바로 보여 드려요.</p>
     </div>
 
     <!-- 올해 운세 심화 -->
@@ -774,8 +791,8 @@ body.export-capturing #wheelCard .note{display:none !important;}
       refreshAiUi();
     } catch (e) { /* 게스트/오류 시 무료 권한 */ }
   })();
-  const LOCK_HTML = '<div class="astro-lock"><span class="lock-emoji">🔒</span><div><strong>Basic 이상 플랜</strong>에서 볼 수 있는 심화 분석이에요. 어스펙트 해설·트랜짓(오늘의 운세)·행성 상세 해석·AI 프롬프트가 열립니다.</div><a href="pricing.html">요금제 보기 →</a></div>';
-  const AI_LOCK_HTML = '<div class="astro-lock"><span class="lock-emoji">🔒</span><div><strong>AI 해석</strong>은 Basic 이상에서 이용하거나, 아래 1회 체험으로 먼저 써 볼 수 있어요.<br><span style="display:block;margin-top:8px;font-size:12.5px;line-height:1.55;color:#7a6b58"><strong>1,000원</strong> = 점성학 차트 AI 해석 1회(2크레딧) &nbsp;·&nbsp; <strong>2,500원 점성학 운세팩</strong> = 6크레딧(차트+올해+이번 주+오늘 운세 등)</span></div><div style="display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:12px"><a href="ai-buy.html?product=ai_chart" class="astro-lock-cta" style="display:inline-block;padding:10px 14px;border-radius:8px;background:#4a3520;color:#fff;text-decoration:none;font-weight:600;font-size:13px">점성학 차트 1회 · 1,000원</a><a href="ai-buy.html?product=ai_fortune" class="astro-lock-cta" style="display:inline-block;padding:10px 14px;border-radius:8px;background:rgba(74,53,32,.12);color:#4a3520;text-decoration:none;font-weight:600;font-size:13px">점성학 운세팩 · 2,500원</a><a href="pricing.html" style="display:inline-block;padding:10px 14px;border-radius:8px;border:1px solid rgba(74,53,32,.25);color:#4a3520;text-decoration:none;font-weight:600;font-size:13px">요금제 보기</a></div></div>';
+  const LOCK_HTML = '<div class="astro-lock"><span class="lock-emoji">🔒</span><div><strong>Basic 이상 플랜</strong>에서 볼 수 있는 심화 분석이에요. 어스펙트 해설·트랜짓(오늘의 운세)·행성 상세 해석·AI 해석이 열립니다.</div><a href="pricing.html">요금제 보기 →</a></div>';
+  const AI_LOCK_HTML = '<div class="astro-lock"><span class="lock-emoji">🔒</span><div><strong>AI 해석</strong>은 Basic 이상에서 이용하거나, 아래 AI 크레딧으로 먼저 써 볼 수 있어요.<br><span style="display:block;margin-top:8px;font-size:12.5px;line-height:1.55;color:#7a6b58"><strong>1,000원</strong> = +2(짧은 운세) &nbsp;·&nbsp; <strong>2,000원</strong> = +5(차트 가능) &nbsp;·&nbsp; <strong>2,500원</strong> = +10(가장 저렴)</span></div><div style="display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:12px"><a href="ai-buy.html?product=ai_5" class="astro-lock-cta" style="display:inline-block;padding:10px 14px;border-radius:8px;background:#4a3520;color:#fff;text-decoration:none;font-weight:600;font-size:13px">AI +5 · 2,000원</a><a href="ai-buy.html?product=ai_10" class="astro-lock-cta" style="display:inline-block;padding:10px 14px;border-radius:8px;background:rgba(74,53,32,.12);color:#4a3520;text-decoration:none;font-weight:600;font-size:13px">AI +10 · 2,500원</a><a href="pricing.html" style="display:inline-block;padding:10px 14px;border-radius:8px;border:1px solid rgba(74,53,32,.25);color:#4a3520;text-decoration:none;font-weight:600;font-size:13px">요금제 보기</a></div></div>';
 
   function hasAiAccess() {
     if (HAS_BASIC) return true;
@@ -926,7 +943,7 @@ body.export-capturing #wheelCard .note{display:none !important;}
       btn.disabled = true;
       if (!box.querySelector('.astro-lock')) {
         box.className = 'ai-result';
-        box.innerHTML = 'AI 자동 해석은 <strong>준비 중</strong>이에요. <strong>프롬프트 복사</strong> 후 ChatGPT·Gemini에서 이용해 주세요.';
+        box.innerHTML = 'AI 자동 해석은 <strong>준비 중</strong>이에요. 잠시 후 다시 시도해 주세요.';
       }
       return;
     }
@@ -947,9 +964,9 @@ body.export-capturing #wheelCard .note{display:none !important;}
     }
     box.className = 'ai-result';
     if (AI_SERVER_OK) {
-      box.innerHTML = '<strong>✨ AI 차트 해석</strong>을 누르면 타고난 성향(출생 차트)을 해석해 드려요. 서버가 응답하지 않으면 <strong>프롬프트 복사</strong>를 이용해 주세요.';
+      box.innerHTML = '<strong>✨ AI 차트 해석</strong>을 누르면 타고난 성향(출생 차트)을 해석해 드려요.';
     } else {
-      box.innerHTML = 'AI 서버가 아직 설정되지 않았어요. <strong>프롬프트 복사</strong> 후 ChatGPT·Gemini에서 이용해 주세요.';
+      box.innerHTML = 'AI 서버가 아직 준비되지 않았어요. 잠시 후 다시 시도해 주세요.';
     }
     refreshTransitAiUi();
     refreshYearAiUi();
@@ -1128,7 +1145,7 @@ body.export-capturing #wheelCard .note{display:none !important;}
     LAST_YEAR_FORECAST = null;
     resetTransitAiResults();
     resetYearAiResult();
-    $('aiPrompt').value = buildChartAiPrompt(LAST_CTX, aspects, knownKeys);
+    // 프롬프트는 서버 AI 호출 시에만 생성 (화면 노출·복사 없음)
 
     // 트랜짓 기준일 기본값 = 오늘, 결과 초기화
     const td = $('transitDate');
@@ -1183,9 +1200,6 @@ body.export-capturing #wheelCard .note{display:none !important;}
       $('btnTransitAiFast').hidden = true;
       $('btnTransitAiSlow').hidden = true;
       $('aiResult').innerHTML = AI_LOCK_HTML;
-      $('aiPrompt').value = '';
-      const det = document.querySelector('#aiCard .ai-prompt-details');
-      if (det) det.style.display = 'none';
       return;
     }
 
@@ -1201,8 +1215,6 @@ body.export-capturing #wheelCard .note{display:none !important;}
     const yBlock = $('yearAiBlock');
     if (yBlock) yBlock.hidden = false;
 
-    const det2 = document.querySelector('#aiCard .ai-prompt-details');
-    if (det2) det2.style.display = '';
     if ($('aiResult') && $('aiResult').querySelector('.astro-lock')) {
       $('aiResult').className = 'ai-result';
       $('aiResult').innerHTML = '구매한 AI 크레딧으로 <strong>AI 차트 해석</strong>·<strong>올해 운세</strong>·<strong>이번 주 운세</strong>를 이용할 수 있어요.';
@@ -1566,7 +1578,37 @@ body.export-capturing #wheelCard .note{display:none !important;}
     if (aspLines.length) { L.push('주요 어스펙트: ' + aspLines.join(', ')); }
   }
 
-  // ── AI 차트 해석 프롬프트 (출생 차트만) ──
+  // ── AI 차트: 서버로 보낼 차트 데이터만 (프롬프트 문장은 서버에서 조립) ──
+  function buildChartAiPayload(ctx, aspects, knownKeys) {
+    const aspKo = { conjunction: '합', opposition: '충', trine: '삼각', square: '사각', sextile: '육각' };
+    const aspectLines = [];
+    (aspects || []).forEach((a) => {
+      const kk = aspKo[a.aspectKey];
+      if (!kk) return;
+      if (knownKeys.indexOf(a.point1Key) < 0 || knownKeys.indexOf(a.point2Key) < 0) return;
+      const n1 = (M.PLANETS[a.point1Key] && M.PLANETS[a.point1Key].ko) || a.point1Key;
+      const n2 = (M.PLANETS[a.point2Key] && M.PLANETS[a.point2Key].ko) || a.point2Key;
+      aspectLines.push(n1 + ' ' + kk + ' ' + n2);
+    });
+    return {
+      displayName: ctx.displayName || '',
+      unknownTime: !!ctx.unknownTime,
+      sun: ctx.sunSign && ctx.sunSign.ko,
+      moon: ctx.moonSign && ctx.moonSign.ko,
+      asc: ctx.ascSign && ctx.ascSign.ko,
+      planets: (ctx.planetReads || []).map((p) => ({
+        ko: p.ko,
+        sign: p.sign,
+        house: p.house || null,
+        retro: !!p.retro,
+      })),
+      elements: LAST_BALANCE ? LAST_BALANCE.elements : null,
+      modal: LAST_BALANCE ? LAST_BALANCE.modal : null,
+      aspects: aspectLines,
+    };
+  }
+
+  // ── AI 차트 해석 프롬프트 (레거시·캐시키 보조 — 서버 조립 전환 후 미사용) ──
   function buildChartAiPrompt(ctx, aspects, knownKeys) {
     const L = [];
 
@@ -1948,28 +1990,40 @@ body.export-capturing #wheelCard .note{display:none !important;}
     const box = $('aiResult');
     if (!AI_SERVER_OK) {
       box.className = 'ai-result';
-      box.innerHTML = 'AI 서버가 아직 설정되지 않았어요. 아래 <strong>프롬프트 복사</strong>로 ChatGPT·Gemini를 이용해 주세요.';
+      box.innerHTML = 'AI 서버가 아직 준비되지 않았어요. 잠시 후 다시 시도해 주세요.';
       return;
     }
     const prev = btn.textContent;
     btn.textContent = '⏳ 해석 중…'; btn.disabled = true;
     box.className = 'ai-result';
-    box.textContent = '차트 해석을 생성하고 있어요…';
+    box.textContent = '';
     const timeHint = $('aiTimeHint');
-    if (timeHint) timeHint.classList.add('is-loading');
-    const prompt = buildChartAiPrompt(LAST_CTX, LAST_ASPECTS, LAST_KNOWN);
-    const cacheKey = window.PaljaAiQuota ? PaljaAiQuota.hashKey('v8:chart:' + prompt) : prompt.slice(0, 200);
+    if (timeHint) {
+      timeHint.textContent = '해석이 나오는 대로 바로 표시돼요. 창을 닫지 말고 기다려 주세요.';
+      timeHint.classList.add('is-loading');
+    }
+    const payload = buildChartAiPayload(LAST_CTX, LAST_ASPECTS, LAST_KNOWN);
+    const cacheKey = window.PaljaAiQuota
+      ? PaljaAiQuota.hashKey('v9:chart:' + JSON.stringify(payload))
+      : JSON.stringify(payload).slice(0, 200);
+    let streamed = '';
     try {
-      if (!window.PaljaAiQuota) throw new Error('no_quota_client');
-      const { text, quota, data } = await PaljaAiQuota.callAi({
+      if (!window.PaljaAiQuota || typeof PaljaAiQuota.callAiStream !== 'function') {
+        throw new Error('no_quota_client');
+      }
+      const { text, quota, data } = await PaljaAiQuota.callAiStream({
         feature: 'astro',
         cacheKey,
         max_tokens: 8192,
-        messages: [{ role: 'user', content: prompt }],
+        payload,
+        onDelta: (chunk) => {
+          streamed += chunk;
+          box.textContent = streamed;
+        },
       });
-      let out = text || '해석을 생성하지 못했어요.';
+      let out = text || streamed || '해석을 생성하지 못했어요.';
       if (data?.stop_reason === 'max_tokens') {
-        out += '\n\n(※ 아주 긴 해석이라 일부가 잘렸을 수 있어요. 프롬프트 복사로 이어서 보실 수도 있어요.)';
+        out += '\n\n(※ 아주 긴 해석이라 일부가 잘렸을 수 있어요. 같은 내용으로 다시 요청하면 이어서 받을 수 있어요.)';
       }
       box.textContent = out;
       LAST_AI_CHART_TEXT = out;
@@ -1989,20 +2043,26 @@ body.export-capturing #wheelCard .note{display:none !important;}
     } catch (e) {
       console.error(e);
       if (e.code === 'quota_exceeded' || e.status === 429) {
-        box.innerHTML = '이번 달 AI 크레딧을 모두 사용했어요. <strong>프롬프트 복사</strong>로 ChatGPT·Gemini를 이용해 주세요.';
+        box.innerHTML = '이번 달 AI 크레딧을 모두 사용했어요. <a href="ai-buy.html?product=ai_5">AI 크레딧 충전</a> 또는 <a href="pricing.html">요금제</a>를 확인해 주세요.';
         if (e.quota) {
           LAST_AI_QUOTA = e.quota;
           PaljaAiQuota.applyQuotaBadge($('aiQuotaBadge'), e.quota);
         }
       } else if (e.message === 'login_required') {
         box.textContent = 'AI 해석은 로그인 후 이용할 수 있어요.';
+      } else if (!streamed) {
+        box.textContent = 'AI 해석을 일시적으로 사용할 수 없어요. 잠시 후 다시 시도해 주세요.';
       } else {
-        box.textContent = 'AI 해석을 일시적으로 사용할 수 없어요. 프롬프트 복사를 이용해 주세요.';
+        showStatus('연결이 끊겼어요. 지금까지 받은 내용까지 표시해 두었어요.', 'err');
+        LAST_AI_CHART_TEXT = streamed;
+        refreshClientSaveBtn();
       }
     } finally {
       btn.textContent = prev; btn.disabled = false;
-      const timeHint = $('aiTimeHint');
-      if (timeHint) timeHint.classList.remove('is-loading');
+      if (timeHint) {
+        timeHint.textContent = '차트 해석은 보통 30초~1분 정도 걸려요. 나오는 대로 바로 보여 드려요.';
+        timeHint.classList.remove('is-loading');
+      }
     }
   }
 
@@ -2524,18 +2584,6 @@ body.export-capturing #wheelCard .note{display:none !important;}
       const card = h.closest('.accordion');
       if (card) card.classList.toggle('open');
     });
-  });
-
-  $('btnAiCopy').addEventListener('click', async () => {
-    const txt = $('aiPrompt').value;
-    if (!txt) return;
-    try {
-      await navigator.clipboard.writeText(txt);
-      flashBtn($('btnAiCopy'), '✓ 복사됨');
-    } catch (e) {
-      const ta = $('aiPrompt'); ta.focus(); ta.select();
-      try { document.execCommand('copy'); flashBtn($('btnAiCopy'), '✓ 복사됨'); } catch (_) {}
-    }
   });
 
   // ── 상담사 허브: AI 차트 해석(우선) 또는 기술 요약을 고객 카드에 저장 ──

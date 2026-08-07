@@ -82,9 +82,9 @@
 <body>
   <div class="wrap">
     <a class="back" href="/pricing.html" id="backLink">← 요금제</a>
-    <h1 id="pageTitle">1회 체험 결제</h1>
-    <p class="lede" id="pageLede">구독 전에 짧게 써 보세요. 결제 후 계정에 바로 반영됩니다.<br>
-      <strong>점성학</strong> AI 차트 1,000원 · 운세팩 2,500원 &nbsp;·&nbsp;
+    <h1 id="pageTitle">AI 크레딧 · 1회 결제</h1>
+    <p class="lede" id="pageLede">구독 없이 AI 크레딧만 충전할 수 있어요. 결제 후 계정에 바로 반영됩니다.<br>
+      <strong>AI 크레딧</strong> 1,000원(+2) · 2,000원(+5) · 2,500원(+10) &nbsp;·&nbsp;
       <strong>수비학 달력</strong> 3일 체험 1,900원(AI 3크레딧)</p>
 
     <div id="shop">
@@ -106,7 +106,7 @@
       <strong>결제 완료</strong>
       <p id="successText" style="margin:8px 0 0;color:var(--muted)"></p>
       <div class="links" id="successLinks">
-        <a href="/astrology.html">점성학에서 AI 해석하기 →</a>
+        <a href="/dashboard.html">마이페이지에서 잔여 확인 →</a>
         <a href="/pricing.html">요금제 보기</a>
       </div>
     </div>
@@ -127,13 +127,18 @@
     const authOk = document.getElementById('authOk');
 
     let products = [];
-    let selectedKey = 'ai_chart';
+    let selectedKey = 'ai_2';
     let cfg = null;
     let sessionUser = null;
     let accessToken = null;
+    const PRODUCT_ALIASES = {
+      ai_chart: 'ai_2', ai_3: 'ai_2',
+      ai_fortune: 'ai_5', ai_6: 'ai_5',
+      ai_topup: 'ai_10',
+    };
 
     function buyNextUrl() {
-      return 'ai-buy.html?product=' + encodeURIComponent(selectedKey || 'ai_chart');
+      return 'ai-buy.html?product=' + encodeURIComponent(selectedKey || 'ai_2');
     }
 
     function syncAuthLinks() {
@@ -167,7 +172,7 @@
     }
 
     function productMeta(p) {
-      if (!p) return { priceExtra: '', successHref: '/astrology.html', successLabel: '점성학에서 AI 해석하기 →' };
+      if (!p) return { priceExtra: '', successHref: '/dashboard.html', successLabel: '마이페이지에서 잔여 확인 →' };
       if (p.passDays) {
         return {
           priceExtra: p.passDays + '일 + AI ' + p.credits + '크레딧',
@@ -175,17 +180,10 @@
           successLabel: '수비학 달력 열기 →',
         };
       }
-      if (p.minPlan) {
-        return {
-          priceExtra: 'AI ' + p.credits + '크레딧 · 구독자',
-          successHref: '/dashboard.html',
-          successLabel: '마이페이지에서 잔여 확인 →',
-        };
-      }
       return {
         priceExtra: 'AI ' + p.credits + '크레딧',
-        successHref: '/astrology.html',
-        successLabel: '점성학에서 AI 해석하기 →',
+        successHref: '/dashboard.html',
+        successLabel: '마이페이지에서 잔여 확인 →',
       };
     }
 
@@ -196,12 +194,6 @@
       if (p && p.scope === 'calendar') {
         back.href = '/numerology-calendar.html';
         back.textContent = '← 수비학 달력';
-      } else if (p && p.scope === 'astrology') {
-        back.href = '/astrology.html';
-        back.textContent = '← 점성학';
-      } else if (p && p.minPlan) {
-        back.href = '/dashboard.html';
-        back.textContent = '← 마이페이지';
       } else {
         back.href = '/pricing.html';
         back.textContent = '← 요금제';
@@ -247,7 +239,8 @@
       cfg = await res.json().catch(() => ({}));
       products = cfg.products || [];
       const params = new URLSearchParams(location.search);
-      const q = params.get('product');
+      const qRaw = params.get('product');
+      const q = PRODUCT_ALIASES[qRaw] || qRaw;
       if (q && products.some((p) => p.key === q)) selectedKey = q;
       else if (products[0]) selectedKey = products[0].key;
       renderProducts();

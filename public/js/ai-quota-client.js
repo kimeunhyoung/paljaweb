@@ -100,18 +100,21 @@
     return data?._palja?.quota || null;
   }
 
-  async function callAi({ feature, cacheKey, model, max_tokens, messages }) {
+  async function callAi({ feature, cacheKey, model, max_tokens, messages, payload }) {
     const headers = await authHeaders();
+    const body = {
+      feature,
+      cacheKey: cacheKey || undefined,
+      model: model || DEFAULT_MODEL,
+      max_tokens,
+      stream: false,
+    };
+    if (payload != null) body.payload = payload;
+    else body.messages = messages;
     const res = await fetch('/api/ai/messages', {
       method: 'POST',
       headers,
-      body: JSON.stringify({
-        feature,
-        cacheKey: cacheKey || undefined,
-        model: model || DEFAULT_MODEL,
-        max_tokens,
-        messages,
-      }),
+      body: JSON.stringify(body),
     });
     const data = await res.json().catch(() => ({}));
     if (!res.ok) {
@@ -134,20 +137,22 @@
    * SSE 스트리밍. onDelta(chunk)로 조각 수신.
    * 실패 시 throw (err.quota 가능).
    */
-  async function callAiStream({ feature, cacheKey, model, max_tokens, messages, onDelta }) {
+  async function callAiStream({ feature, cacheKey, model, max_tokens, messages, payload, onDelta }) {
     const headers = await authHeaders();
     headers.Accept = 'text/event-stream';
+    const body = {
+      feature,
+      cacheKey: cacheKey || undefined,
+      model: model || DEFAULT_MODEL,
+      max_tokens,
+      stream: true,
+    };
+    if (payload != null) body.payload = payload;
+    else body.messages = messages;
     const res = await fetch('/api/ai/messages', {
       method: 'POST',
       headers,
-      body: JSON.stringify({
-        feature,
-        cacheKey: cacheKey || undefined,
-        model: model || DEFAULT_MODEL,
-        max_tokens,
-        messages,
-        stream: true,
-      }),
+      body: JSON.stringify(body),
     });
 
     const ct = String(res.headers.get('content-type') || '');

@@ -390,10 +390,13 @@
     .tool-dock-head .sub { font-size: 11px; color: var(--muted); }
     .tool-dock-actions { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
     .tool-dock-frame-wrap {
-      position: relative; height: min(48vh, 420px); background: #fff;
+      position: relative; height: min(78vh, 720px); background: #fff;
     }
     @media (min-width: 900px) {
-      .tool-dock-frame-wrap { height: min(56vh, 560px); }
+      .tool-dock-frame-wrap { height: min(82vh, 860px); }
+    }
+    @media (max-width: 640px) {
+      .tool-dock-frame-wrap { height: min(85vh, 780px); }
     }
     .tool-dock-frame-wrap iframe {
       width: 100%; height: 100%; border: 0; display: block; background: #fff;
@@ -2131,15 +2134,26 @@
         if (!dock || !frame || !href) return;
         if (titleEl) titleEl.textContent = title || '참고 보기';
         if (newTab) newTab.href = href;
+        function withEmbed(raw) {
+          try {
+            const u = new URL(raw, location.href);
+            u.searchParams.set('embedded', '1');
+            // 상대 경로로 유지 (같은 origin iframe)
+            const path = u.pathname.replace(/^.*\//, '');
+            return path + u.search + u.hash;
+          } catch (_) {
+            return raw + (raw.indexOf('?') >= 0 ? '&' : '?') + 'embedded=1';
+          }
+        }
         dock.hidden = false;
         dock.classList.add('is-open');
         if (loading) loading.classList.remove('is-done');
         frame.onload = () => {
           if (loading) loading.classList.add('is-done');
         };
-        frame.src = href;
+        frame.src = withEmbed(href);
         try {
-          dock.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+          dock.scrollIntoView({ behavior: 'smooth', block: 'start' });
         } catch (_) {}
       }
 

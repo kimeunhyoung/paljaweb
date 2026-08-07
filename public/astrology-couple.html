@@ -230,19 +230,12 @@ body{font-family:var(--font-body);background:var(--cream);color:var(--ink);min-h
     <div class="card" id="aiCard">
       <div class="card-title">✦ AI 궁합 해석</div>
       <span class="ai-quota-badge" id="aiQuotaBadge" hidden></span>
-      <p class="intro">궁합 분석 후 <strong>AI 궁합 해석</strong>으로 끌림·소통·연애·일·금전·건강·학업까지 풀어 볼 수 있어요. 서버가 응답하지 않으면 프롬프트 복사로 ChatGPT·Gemini를 이용해 주세요.</p>
+      <p class="intro">궁합 분석 후 <strong>AI 궁합 해석</strong>으로 끌림·소통·연애·일·금전·건강·학업까지 풀어 볼 수 있어요.</p>
       <div class="ai-actions no-print">
-        <button type="button" class="rt-btn rt-btn--share" id="btnAiRun" disabled>✨ AI 궁합 해석 (2크레딧)</button>
-        <button type="button" class="rt-btn" id="btnAiCopy">⧉ 프롬프트 복사</button>
-        <a class="rt-btn" href="https://chatgpt.com/" target="_blank" rel="noopener">ChatGPT ↗</a>
-        <a class="rt-btn" href="https://gemini.google.com/app" target="_blank" rel="noopener">Gemini ↗</a>
+        <button type="button" class="rt-btn rt-btn--share" id="btnAiRun" disabled>✨ AI 궁합 해석 (4크레딧)</button>
       </div>
       <div id="aiResult" class="ai-result empty">궁합 분석 후 <strong>AI 궁합 해석</strong> 버튼을 눌러 주세요.</div>
       <p class="ai-time-hint" id="aiTimeHint">궁합 해석은 보통 30초~1분 정도 걸려요. 창을 닫지 말고 잠시만 기다려 주세요.</p>
-      <details class="ai-prompt-details no-print">
-        <summary>고급: 프롬프트 직접 보기</summary>
-        <textarea id="aiPrompt" class="ai-prompt-box" readonly rows="8" style="margin-top:8px;"></textarea>
-      </details>
     </div>
 
     <div class="note">
@@ -311,7 +304,7 @@ body{font-family:var(--font-body);background:var(--cream);color:var(--ink);min-h
       btn.hidden = true;
       btn.disabled = true;
       box.className = 'ai-result';
-      box.innerHTML = 'AI 자동 해석은 <strong>준비 중</strong>이에요. <strong>프롬프트 복사</strong> 후 ChatGPT·Gemini에서 이용해 주세요.';
+      box.innerHTML = 'AI 자동 해석은 <strong>준비 중</strong>이에요. 잠시 후 다시 시도해 주세요.';
       return;
     }
     btn.hidden = false;
@@ -322,9 +315,9 @@ body{font-family:var(--font-body);background:var(--cream);color:var(--ink);min-h
     if (busy) return;
     box.className = 'ai-result';
     if (AI_SERVER_OK) {
-      box.innerHTML = '<strong>✨ AI 궁합 해석</strong>을 누르면 두 사람의 시너스트리를 풀어 드려요. 서버가 응답하지 않으면 <strong>프롬프트 복사</strong>를 이용해 주세요.';
+      box.innerHTML = '<strong>✨ AI 궁합 해석</strong>을 누르면 두 사람의 시너스트리를 풀어 드려요.';
     } else {
-      box.innerHTML = 'AI 서버가 아직 설정되지 않았어요. <strong>프롬프트 복사</strong> 후 ChatGPT·Gemini에서 이용해 주세요.';
+      box.innerHTML = 'AI 서버가 아직 준비되지 않았어요. 잠시 후 다시 시도해 주세요.';
     }
   }
 
@@ -352,7 +345,7 @@ body{font-family:var(--font-body);background:var(--cream);color:var(--ink);min-h
     const box = $('aiResult');
     if (!AI_SERVER_OK) {
       box.className = 'ai-result';
-      box.innerHTML = 'AI 서버가 아직 설정되지 않았어요. 아래 <strong>프롬프트 복사</strong>로 ChatGPT·Gemini를 이용해 주세요.';
+      box.innerHTML = 'AI 서버가 아직 준비되지 않았어요. 잠시 후 다시 시도해 주세요.';
       return;
     }
     const prev = btn.textContent;
@@ -373,19 +366,19 @@ body{font-family:var(--font-body);background:var(--cream);color:var(--ink);min-h
       });
       let out = text || '해석을 생성하지 못했어요.';
       if (data?.stop_reason === 'max_tokens') {
-        out += '\n\n(※ 아주 긴 해석이라 일부가 잘렸을 수 있어요. 프롬프트 복사로 이어서 보실 수도 있어요.)';
+        out += '\n\n(※ 아주 긴 해석이라 일부가 잘렸을 수 있어요. 같은 내용으로 다시 요청하면 이어서 받을 수 있어요.)';
       }
       box.textContent = out;
       if (quota) PaljaAiQuota.applyQuotaBadge($('aiQuotaBadge'), quota);
     } catch (e) {
       console.error(e);
       if (e.code === 'quota_exceeded' || e.status === 429) {
-        box.innerHTML = '이번 달 AI 크레딧을 모두 사용했어요. <strong>프롬프트 복사</strong>로 ChatGPT·Gemini를 이용해 주세요.';
+        box.innerHTML = '이번 달 AI 크레딧을 모두 사용했어요. <a href="ai-buy.html?product=ai_5">AI 크레딧 충전</a> 또는 <a href="pricing.html">요금제</a>를 확인해 주세요.';
         if (e.quota) PaljaAiQuota.applyQuotaBadge($('aiQuotaBadge'), e.quota);
       } else if (e.message === 'login_required') {
         box.textContent = 'AI 해석은 로그인 후 이용할 수 있어요.';
       } else {
-        box.textContent = 'AI 해석을 일시적으로 사용할 수 없어요. 프롬프트 복사를 이용해 주세요.';
+        box.textContent = 'AI 해석을 일시적으로 사용할 수 없어요. 잠시 후 다시 시도해 주세요.';
       }
     } finally {
       btn.textContent = prev; btn.disabled = false;
@@ -562,9 +555,8 @@ body{font-family:var(--font-body);background:var(--cream);color:var(--ink);min-h
     $('scoreLabel').textContent = label;
     $('scoreDetail').innerHTML = `조화로운 각 <strong>${easy + strong}</strong> · 긴장의 각 <strong>${tense}</strong><br>긴장의 각은 ‘나쁨’이 아니라 서로를 성장시키는 마찰이에요.`;
 
-    // AI 프롬프트
+    // AI 프롬프트는 서버 호출용으로만 보관 (화면 노출·복사 없음)
     LAST_AI_PROMPT = buildAiPrompt(nameA, nameB, ha, hb, A, B, hits, labelKo);
-    $('aiPrompt').value = LAST_AI_PROMPT;
     $('aiResult').className = 'ai-result empty';
     $('aiResult').innerHTML = '<strong>✨ AI 궁합 해석</strong>을 누르면 두 사람의 시너스트리를 풀어 드려요.';
     refreshAiUi();
@@ -623,7 +615,6 @@ body{font-family:var(--font-body);background:var(--cream);color:var(--ink);min-h
     catch (e) { const ta = document.createElement('textarea'); ta.value = txt; document.body.appendChild(ta); ta.select(); try { document.execCommand('copy'); flashBtn(btn, '✓ 복사됨'); } catch (_) {} document.body.removeChild(ta); }
   }
   $('btnCopy').addEventListener('click', () => copyText(LAST_SUMMARY, $('btnCopy')));
-  $('btnAiCopy').addEventListener('click', () => copyText($('aiPrompt').value, $('btnAiCopy')));
   $('btnPrint').addEventListener('click', () => window.print());
   $('btnImage').addEventListener('click', async () => {
     if (typeof html2canvas !== 'function') { showStatus('이미지 저장 도구를 불러오지 못했어요.', 'err'); return; }

@@ -19,6 +19,15 @@
   <link rel="manifest" href="/manifest.json">
   <meta name="theme-color" content="#c4603a">
   <link rel="apple-touch-icon" href="/icons/icon-192.png">
+  <script>
+    (function () {
+      try {
+        if (new URLSearchParams(location.search).get('embedded') === '1') {
+          document.documentElement.classList.add('palja-embedded');
+        }
+      } catch (_) {}
+    })();
+  </script>
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,500&family=Noto+Serif+KR:wght@400;500;600;700&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet"/>
@@ -3936,6 +3945,26 @@
         display: none;
       }
     }
+    /* AI 리딩 도구 독(iframe)용: 상단 크롬·마케팅 히어로 문구 숨김 */
+    html.palja-embedded .site-top,
+    html.palja-embedded .counselor-bar,
+    html.palja-embedded .site-legal-footer,
+    html.palja-embedded .hero-tag,
+    html.palja-embedded .hero-title,
+    html.palja-embedded .hero-desc {
+      display: none !important;
+    }
+    html.palja-embedded body {
+      padding-top: 0;
+    }
+    html.palja-embedded .hero {
+      padding: 10px 0 0;
+    }
+    html.palja-embedded .hero-inner {
+      max-width: 100%;
+      padding-left: 12px;
+      padding-right: 12px;
+    }
   </style>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css" crossorigin />
   <link rel="stylesheet" href="css/site-topbar.css?v=5" />
@@ -4927,7 +4956,7 @@ function gateHTML(planRequired, title, desc) {
   const onetimeLinks = planRequired === 'basic'
     ? `<a class="gate-onetime-primary" href="/ai-buy.html?product=cal_pass_3d">달력 3일 · 1,900원</a>
     <a class="gate-onetime" href="/lifecode/buy.html?product=basic30">베이직 7일 이용권 (4,900원 · AI 5) · 자동결제 없음</a>
-    <a class="gate-onetime" href="/pricing.html#onetime">AI 차트 1,000원 · 운세팩 등 단품 더보기</a>`
+    <a class="gate-onetime" href="/pricing.html#onetime">AI 크레딧 · 단품 더보기</a>`
     : `<a class="gate-onetime" href="/lifecode/buy.html?product=counselor30">상담사 15일 체험권 (29,900원) · 자동결제 없음</a>`;
   return `<div class="feature-gate">
     <div class="gate-icon">🔒</div>
