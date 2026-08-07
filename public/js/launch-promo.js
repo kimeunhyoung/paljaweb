@@ -18,7 +18,7 @@
     if (document.querySelector('link[data-palja-launch-promo-css]')) return;
     var link = document.createElement('link');
     link.rel = 'stylesheet';
-    link.href = '/css/launch-promo.css?v=4';
+    link.href = '/css/launch-promo.css?v=5';
     link.setAttribute('data-palja-launch-promo-css', '1');
     document.head.appendChild(link);
   }
@@ -56,7 +56,7 @@
       '    <button type="button" class="counselor-promo-close" id="launchPromoClose" aria-label="닫기">×</button>' +
       '    <p class="counselor-promo-kicker">Launch offer</p>' +
       '    <h2 class="counselor-promo-title" id="launchPromoTitle">출시 기간 한정 · 구독료 할인 중</h2>' +
-      '    <p class="counselor-promo-lead">지금 가입하시면 출시 기념 할인가가 적용됩니다. Plus·Professional을 부담 없이 먼저 경험해 보세요.</p>' +
+      '    <p class="counselor-promo-lead">팔자연구소의 첫 시작을 함께하시는 분들께 드리는 특별 혜택입니다. Plus·Professional을 부담 없이 먼저 경험해 보세요.<br>새로운 기능과 추가 업데이트도 함께 진행 중입니다. 불편한 점이나 요청 사항이 있으시면 <a href="https://pf.kakao.com/_HXxmwX/chat" target="_blank" rel="noopener noreferrer">카카오톡</a>으로 남겨 주세요.</p>' +
       '    <div class="launch-promo-prices">' +
       '      <div class="launch-promo-price-card">' +
       '        <span class="launch-promo-plan">Plus</span>' +

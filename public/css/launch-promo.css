@@ -81,6 +81,15 @@
   line-height: 1.55;
   margin: 0 0 18px;
 }
+.counselor-promo-lead a {
+  color: var(--lp-terracotta);
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.counselor-promo-lead a:hover {
+  color: #b85530;
+}
 .counselor-promo-actions {
   display: flex;
   flex-wrap: wrap;
