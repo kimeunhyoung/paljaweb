@@ -425,7 +425,17 @@ app.use((req, res, next) => {
   return res.redirect(301, `https://${CANONICAL_HOST}${req.originalUrl}`);
 });
 
-app.use(express.json({ limit: '512kb' }));
+app.use(
+  express.json({
+    limit: '512kb',
+    verify: (req, _res, buf) => {
+      // PortOne 웹훅 서명 검증용 원문 보존
+      if (req.originalUrl && req.originalUrl.split('?')[0] === '/api/portone/webhook') {
+        req.rawBody = buf.toString('utf8');
+      }
+    },
+  }),
+);
 
 app.get('/api/checkout-config', (req, res) => {
   res.json({
@@ -929,6 +939,9 @@ app.use((req, res) => {
 app.listen(PORT, () => {
   console.log(`paljaweb static server — http://localhost:${PORT}`);
   console.log('[palja] PortOne webhook URL: .../api/portone/webhook');
+  if (!process.env.PORTONE_WEBHOOK_SECRET) {
+    console.warn('[palja] PORTONE_WEBHOOK_SECRET 미설정 — 웹훅이 503으로 거부됩니다. PortOne 콘솔에서 시크릿 발급 후 Render env에 넣으세요.');
+  }
   console.log('[lifecode] Entry: /lifecode/  Admin: /lifecode/admin.html');
   startCounselorPushScheduler();
 });
