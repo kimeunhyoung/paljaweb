@@ -56,7 +56,7 @@
       '    <button type="button" class="counselor-promo-close" id="launchPromoClose" aria-label="닫기">×</button>' +
       '    <p class="counselor-promo-kicker">Launch offer</p>' +
       '    <h2 class="counselor-promo-title" id="launchPromoTitle">출시 기간 한정 · 구독료 할인 중</h2>' +
-      '    <p class="counselor-promo-lead">지금 가입하시면 출시 기념 할인가가 적용됩니다. 수요에 따라 <strong>정식가로 조정</strong>될 수 있으니, 이용을 검토 중이시라면 이 기간이 가장 유리합니다.</p>' +
+      '    <p class="counselor-promo-lead">지금 가입하시면 출시 기념 할인가가 적용됩니다. Plus·Professional을 부담 없이 먼저 경험해 보세요.</p>' +
       '    <div class="launch-promo-prices">' +
       '      <div class="launch-promo-price-card">' +
       '        <span class="launch-promo-plan">Plus</span>' +
