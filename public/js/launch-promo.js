@@ -18,7 +18,7 @@
     if (document.querySelector('link[data-palja-launch-promo-css]')) return;
     var link = document.createElement('link');
     link.rel = 'stylesheet';
-    link.href = '/css/launch-promo.css?v=3';
+    link.href = '/css/launch-promo.css?v=4';
     link.setAttribute('data-palja-launch-promo-css', '1');
     document.head.appendChild(link);
   }
@@ -71,10 +71,10 @@
       '    </div>' +
       '    <div class="launch-promo-counselor">' +
       '      <h3 class="launch-promo-counselor-title">상담사이신가요?</h3>' +
-      '      <p class="launch-promo-counselor-lead">Professional로 고객 CRM·일정·AI 리딩까지 한곳에서. 출시 기념가 <strong>29,900원/월</strong>입니다.</p>' +
+      '      <p class="launch-promo-counselor-lead">Professional로 고객 CRM·일정·<strong>AI 타로 리딩</strong>까지 한곳에서. 출시 기념가 <strong>29,900원/월</strong>입니다.</p>' +
       '      <ul class="launch-promo-counselor-points">' +
       '        <li>고객 CRM · 일정 캘린더 · 상담 기록</li>' +
-      '        <li>AI 리딩 · 레노먼드 · 주역 해석 초안</li>' +
+      '        <li>AI 타로 리딩 · 레노먼드 · 주역 해석 초안</li>' +
       '        <li>브랜디드 PDF · 재방문 관리</li>' +
       '      </ul>' +
       '      <a href="/for-counselors.html" class="launch-promo-counselor-cta">상담사 전용 안내 보기 →</a>' +
