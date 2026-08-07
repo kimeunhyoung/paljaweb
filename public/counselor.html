@@ -900,7 +900,7 @@
             <button type="button" class="btn-sm outline" id="eventResetBtn">새로</button>
           </div>
         </form>
-        <h5 class="event-upcoming-title">최근·예정 일정</h5>
+        <h5 class="event-upcoming-title">다가오는 개인 일정</h5>
         <div id="eventList" class="event-list"></div>
       </div>
     </div>
@@ -1956,14 +1956,34 @@
           : '<span class="up-kind">고객</span>';
         const timeLbl = it.time ? formatEventTimeLabel(it.time) : '';
         const time = timeLbl ? ' ' + escapeHtml(timeLbl) : '';
-        const btn = it.source === 'client'
-          ? '<button type="button" class="btn-sm outline" data-act="sessions" data-id="' + it.id + '" style="margin-left:auto;font-size:11px;padding:5px 10px;">상담 기록</button>'
-          : '';
+        let btn = '';
+        if (it.source === 'client') {
+          btn = '<button type="button" class="btn-sm outline" data-act="sessions" data-id="' + it.id + '" style="margin-left:auto;font-size:11px;padding:5px 10px;">상담 기록</button>';
+        } else if (it.source === 'event') {
+          btn = '<button type="button" class="btn-sm outline" data-dash-ev-edit="' + it.id + '" style="margin-left:auto;font-size:11px;padding:5px 10px;">수정</button>';
+        }
         return '<div class="up-item"><span class="up-date">' + escapeHtml(it.date) + time + '</span>' +
           kind +
           '<span>' + escapeHtml(it.name) + '</span>' + btn + '</div>';
       }).join('');
       host.querySelectorAll('button[data-act]').forEach((btn) => btn.addEventListener('click', onRowAction));
+      host.querySelectorAll('button[data-dash-ev-edit]').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          const ev = eventRows.find((x) => x.id === btn.getAttribute('data-dash-ev-edit'));
+          if (!ev) return;
+          calSelectedDate = ev.event_date;
+          document.getElementById('editEventId').value = ev.id;
+          document.getElementById('eventKind').value = eventKindOf(ev);
+          document.getElementById('eventDate').value = ev.event_date;
+          document.getElementById('eventTime').value = ev.event_time ? String(ev.event_time).slice(0, 5) : '';
+          document.getElementById('eventTitle').value = ev.title || '';
+          document.getElementById('eventNote').value = ev.note || '';
+          document.getElementById('eventSaveBtn').textContent = '수정 저장';
+          renderCalendar();
+          renderCalendarDetail();
+          document.getElementById('eventPanel')?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        });
+      });
     }
 
     // ── 일정 캘린더 ──
@@ -2324,8 +2344,10 @@
         if (dc !== 0) return dc;
         return String(a.event_time || '').localeCompare(String(b.event_time || ''));
       };
-      const upcoming = eventRows.filter((ev) => String(ev.event_date || '') >= today).sort(sortEv);
-      const pastRecent = eventRows.filter((ev) => String(ev.event_date || '') < today)
+      // 상담 약속은 위 '다가오는 약속'·캘린더에만 두고, 여기선 개인 일정만 (중복 방지)
+      const personalRows = eventRows.filter((ev) => eventKindOf(ev) === 'personal');
+      const upcoming = personalRows.filter((ev) => String(ev.event_date || '') >= today).sort(sortEv);
+      const pastRecent = personalRows.filter((ev) => String(ev.event_date || '') < today)
         .sort((a, b) => -sortEv(a, b))
         .slice(0, 5);
       const inWeek = upcoming.filter((ev) => daysFromToday(ev.event_date) <= 7);
@@ -2334,21 +2356,18 @@
 
       if (!upcoming.length && !pastRecent.length) {
         if (titleEl) titleEl.style.display = 'none';
-        host.innerHTML = '<div class="event-empty">등록된 일정이 없습니다.</div>';
+        host.innerHTML = '<div class="event-empty">등록된 개인 일정이 없습니다. 상담 약속은 위 <strong>다가오는 약속</strong>과 캘린더에서 확인하세요.</div>';
         return;
       }
       if (titleEl) titleEl.style.display = '';
 
       function rowHtml(ev, isPast) {
         const tl = formatEventTimeLabel(ev.event_time);
-        const kind = eventKindOf(ev);
-        const kindLabel = kind === 'appointment' ? '상담' : '개인';
-        const kindCls = kind === 'appointment' ? 'ev-kind-appointment' : 'ev-kind-personal';
         return '<div class="event-row' + (isPast ? ' is-past' : '') + '">' +
         '<span class="ev-date">' + escapeHtml(String(ev.event_date)) + (tl ? ' ' + escapeHtml(tl) : '') +
         (isPast ? ' <span style="color:var(--muted);font-size:10px;">지난</span>' : '') +
         '</span>' +
-        '<div><div class="ev-title"><span class="ev-kind ' + kindCls + '">' + kindLabel + '</span>' + escapeHtml(ev.title || '') + '</div>' +
+        '<div><div class="ev-title"><span class="ev-kind ev-kind-personal">개인</span>' + escapeHtml(ev.title || '') + '</div>' +
         (ev.note ? '<div class="ev-note">' + escapeHtml(ev.note) + '</div>' : '') +
         '</div>' +
         '<div class="ev-btns">' +
@@ -2361,10 +2380,10 @@
       if (shownUpcoming.length) {
         html += shownUpcoming.map((ev) => rowHtml(ev, false)).join('');
       } else if (upcoming.length) {
-        html += '<div class="event-empty">7일 안에 예정된 일정이 없습니다.</div>';
+        html += '<div class="event-empty">7일 안에 예정된 개인 일정이 없습니다.</div>';
       }
       if (pastRecent.length) {
-        html += '<div class="event-list-hint" style="margin-top:10px;">최근 지난 일정 (수정·삭제 가능)</div>';
+        html += '<div class="event-list-hint" style="margin-top:10px;">최근 지난 개인 일정</div>';
         html += pastRecent.map((ev) => rowHtml(ev, true)).join('');
       }
 
@@ -2375,7 +2394,7 @@
         if (moreInWeek > 0) parts.push('7일 안 ' + moreInWeek + '건 더');
         if (laterCount > 0) parts.push('7일 이후 ' + laterCount + '건');
         html += '<div class="event-list-hint">' + parts.join(' · ') +
-          ' — 위 <strong>캘린더</strong>에서 날짜를 눌러 보세요. 지난 날도 수정할 수 있습니다.</div>';
+          ' — 위 <strong>캘린더</strong>에서 날짜를 눌러 보세요.</div>';
       }
 
       host.innerHTML = html;
