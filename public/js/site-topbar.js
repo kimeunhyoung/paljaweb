@@ -11,6 +11,14 @@
     document.head.appendChild(a);
   }
 
+  if (!document.querySelector('script[data-palja-launch-promo]')) {
+    var lp = document.createElement('script');
+    lp.src = '/js/launch-promo.js?v=1';
+    lp.defer = true;
+    lp.setAttribute('data-palja-launch-promo', '1');
+    document.head.appendChild(lp);
+  }
+
   var NAV = [
     { id: 'lifecode', href: 'analysis.html', label: '라이프코드' },
     { id: 'astro', href: 'astrology.html', label: '점성학' },
