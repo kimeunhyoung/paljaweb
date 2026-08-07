@@ -1374,7 +1374,7 @@
       listEl.innerHTML = '<p class="list-loading">불러오는 중…</p>';
       const { data, error } = await sb
         .from('counselor_clients')
-        .select('id,display_name,legal_name,birth_date,birth_time,birth_city,tags,next_appointment,astro_summary,astro_updated_at,created_at,updated_at')
+        .select('id,display_name,legal_name,birth_date,birth_time,birth_city,tags,next_appointment,astro_summary,astro_updated_at,astro_deep,astro_deep_updated_at,created_at,updated_at')
         .order('updated_at', { ascending: false });
       if (error) {
         listEl.innerHTML = '';
@@ -2815,9 +2815,18 @@
         ? ('생일 ' + (c.birth_date || '—') + (c.birth_time ? ' ' + c.birth_time : '') + (c.legal_name ? ' · 본명 ' + c.legal_name : '')) : '';
       const astroEl = document.getElementById('sessionAstro');
       if (astroEl) {
-        if (c && c.astro_summary) {
+        const parts = [];
+        if (c && c.astro_summary) parts.push(String(c.astro_summary).trim());
+        if (c && c.astro_deep && typeof c.astro_deep === 'object') {
+          const labels = { money: '재물', love: '연애', career: '일', study: '학업' };
+          const savedTopics = Object.keys(labels).filter((k) => c.astro_deep[k] && String(c.astro_deep[k]).trim());
+          if (savedTopics.length) {
+            parts.push('──── 주제별 심화 저장 ────\n' + savedTopics.map((k) => '· ' + labels[k]).join('\n') + '\n(점성학 페이지에서 고객 선택 시 전문 확인)');
+          }
+        }
+        if (parts.length) {
           astroEl.style.display = 'block';
-          astroEl.textContent = c.astro_summary;
+          astroEl.textContent = parts.join('\n\n');
         } else {
           astroEl.style.display = 'none';
           astroEl.textContent = '';
