@@ -23,6 +23,7 @@
     { id: 'counselor', href: 'counselor.html', label: '상담사허브' },
     { id: 'counselor-reading', href: 'counselor-reading.html', label: 'AI리딩' },
     { id: 'counselor-lenormand', href: 'counselor-lenormand.html', label: '레노먼드' },
+    { id: 'counselor-iching', href: 'counselor-iching.html', label: '주역' },
     { id: 'pricing', href: 'pricing.html', label: '요금제' }
   ];
 

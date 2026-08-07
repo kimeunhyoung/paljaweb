@@ -5,14 +5,14 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <link rel="icon" href="/favicon.svg" type="image/svg+xml">
   <link rel="manifest" href="/manifest.json">
-  <title>상담사 레노먼드 AI — 팔자연구소 8CODE</title>
+  <title>상담사 주역 AI — 팔자연구소 8CODE</title>
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@400;500;600;700&display=swap" rel="stylesheet"/>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="js/plan-access.js?v=1"></script>
   <script src="js/ai-quota-client.js?v=3"></script>
-  <script src="js/lenormand-deck.js?v=5"></script>
+  <script src="js/iching-hexagram-deck.js?v=1"></script>
   <script src="js/attribution.js"></script>
   <script src="js/site-topbar.js?v=11" defer></script>
   <script src="js/topbar-session.js?v=6" defer></script>
@@ -127,8 +127,8 @@
     .ai-card-slot .slot-kw { font-size: 11px; color: var(--muted); margin-top: 4px; min-height: 1.2em; }
     .ai-card-slot.is-target { border-color: var(--deep); box-shadow: 0 0 0 2px rgba(44,31,14,.12); }
     .leno-pick-panel { margin-top: 12px; padding-top: 12px; border-top: 1px dashed var(--border); }
-    .num-table-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 6px; }
-    @media (min-width: 520px) { .num-table-grid { grid-template-columns: repeat(9, 1fr); } }
+    .num-table-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
+    @media (min-width: 640px) { .num-table-grid { grid-template-columns: repeat(8, 1fr); } }
     .num-table-cell {
       aspect-ratio: 1; display: flex; flex-direction: column; align-items: center; justify-content: center;
       border: 1px solid var(--border); border-radius: 8px; background: var(--parchment);
@@ -204,18 +204,18 @@
 <body>
 <div id="guard"><div class="spinner"></div><p class="guard-text">확인 중…</p></div>
 
-<div class="site-top" data-topbar-title="상담사 레노먼드 AI" data-nav-current="counselor-lenormand" data-login-next="counselor-lenormand.html"></div>
+<div class="site-top" data-topbar-title="상담사 주역 AI" data-nav-current="counselor-iching" data-login-next="counselor-iching.html"></div>
 
 <div id="app">
   <div class="hub-intro">
     <div class="back-row"><a href="counselor.html">← 상담사 허브</a></div>
-    <h1>상담사 레노먼드 AI</h1>
-    <p>Petit Lenormand 36장. 상황·관계·진행 해석 초안. <strong>Professional</strong> 전용.</p>
+    <h1>상담사 주역 AI</h1>
+    <p>주역 64괘. 단괘·본괘/지괘 해석 초안. <strong>Professional</strong> 전용.</p>
     <p id="trialBadge" class="trial-badge" style="display:none" role="status"></p>
   </div>
   <div id="gate">
     <h2>Professional 플랜 전용</h2>
-    <p>상담사 레노먼드 AI는 <strong>Professional</strong> 요금제에서 이용할 수 있어요.</p>
+    <p>상담사 주역 AI는 <strong>Professional</strong> 요금제에서 이용할 수 있어요.</p>
     <a class="cta" href="for-counselors.html">Professional 안내 보기</a>
     <a class="cta" href="/lifecode/buy.html?product=counselor30" style="margin-left:8px;background:transparent;border:1.5px solid var(--border);color:var(--deep);">15일 체험 구매</a>
     <a class="cta" href="pricing.html?checkout=professional" style="margin-left:8px;background:transparent;border:1.5px solid var(--border);color:var(--deep);">바로 구독</a>
@@ -227,26 +227,16 @@
   </div>
   <div id="workspace">
     <div class="ai-draft-panel">
-      <p class="ai-draft-intro">스프래드 카드를 넣고 해석 초안을 만듭니다. 크레딧: <strong>1장 → 1</strong> · <strong>2~3장 → 2</strong> · <strong>4~6장 → 3</strong> (통합 없음).</p>
-      <div class="ai-mode-row" role="tablist" aria-label="스프래드 모드">
-        <button type="button" class="ai-mode-btn active" id="aiModeThree" data-mode="three" role="tab" aria-selected="true">
-          <strong>3장 리딩</strong>
-          <span id="aiModeThreeSub">과거 · 현재 · 전망</span>
+      <p class="ai-draft-intro">주역 64괘를 넣고 해석 초안을 만듭니다. 크레딧: <strong>단괘 → 1</strong> · <strong>본괘·지괘 → 2</strong>.</p>
+      <div class="ai-mode-row" role="tablist" aria-label="리딩 모드">
+        <button type="button" class="ai-mode-btn active" id="aiModeSingle" data-mode="single" role="tab" aria-selected="true">
+          <strong>단괘</strong>
+          <span>한 괘로 현재 국면</span>
         </button>
-        <button type="button" class="ai-mode-btn" id="aiModeFive" data-mode="five" role="tab" aria-selected="false">
-          <strong>5장 체인</strong>
-          <span>상황 → 영향 → 전개 → 장애 → 결과</span>
+        <button type="button" class="ai-mode-btn" id="aiModePair" data-mode="pair" role="tab" aria-selected="false">
+          <strong>본괘 · 지괘</strong>
+          <span>현재 국면 → 전개·귀결</span>
         </button>
-      </div>
-      <div class="ai-spread-preset-row is-visible" id="aiThreePresetRow">
-        <label for="aiThreePreset">스프래드 (칸 이름)</label>
-        <select id="aiThreePreset" aria-label="3장 스프래드 칸 이름">
-          <option value="timeline">과거 · 현재 · 전망</option>
-          <option value="advice">상황 · 조언 · 결과</option>
-          <option value="relation">나 · 상대 · 관계</option>
-          <option value="action">원인 · 현황 · 다음 행동</option>
-          <option value="custom">직접 입력 (칸마다 수정)</option>
-        </select>
       </div>
       <form id="aiDraftForm" class="ai-draft-form" autocomplete="off">
         <div>
@@ -271,25 +261,25 @@
           <textarea id="aiNote" maxlength="500" placeholder="지난 회차 포인트, 상담사가 알고 있는 맥락 등"></textarea>
         </div>
         <div class="full">
-          <label>레노먼드 카드 (1~36)</label>
-          <p class="ai-card-hint">칸 이름은 직접 수정할 수 있습니다. 번호·이름 검색 또는 아래 번호표를 누르세요. <strong>28 남자 / 29 여자</strong>는 질문자·상대 역할로 해석됩니다.</p>
+          <label>주역 괘 (1~64 · 문왕 순서)</label>
+          <p class="ai-card-hint">번호·괘명 검색 또는 아래 번호표를 누르세요. 본괘·지괘 모드는 변효 계산 없이 <strong>두 괘를 직접</strong> 넣어도 됩니다.</p>
           <div id="aiCardSlots" class="ai-card-slots"></div>
           <div class="leno-pick-panel">
             <p class="ai-card-hint">번호표 · 누르면 <strong>선택 중</strong> 칸에 들어갑니다.</p>
-            <div id="aiLenoGrid" class="num-table-grid" role="listbox" aria-label="레노먼드 번호표"></div>
+            <div id="aiLenoGrid" class="num-table-grid" role="listbox" aria-label="주역 64괘 번호표"></div>
           </div>
         </div>
         <div class="full ai-draft-actions">
-          <button type="button" class="btn-sm outline" id="aiDrawBtn" onclick="return window.__lenoDrawAll&&window.__lenoDrawAll()">전체 랜덤 뽑기</button>
+          <button type="button" class="btn-sm outline" id="aiDrawBtn" onclick="return window.__ichingDrawAll&&window.__ichingDrawAll()">랜덤 뽑기</button>
           <button type="submit" class="btn-sm" id="aiDraftBtn">해석 생성</button>
-          <span class="ai-draft-quota" id="aiCreditHint">예상 크레딧 2</span>
+          <span class="ai-draft-quota" id="aiCreditHint">예상 크레딧 1</span>
           <button type="button" class="btn-sm outline" id="aiCopyBtn" style="display:none;">복사</button>
           <span class="ai-draft-quota" id="aiDraftQuota" hidden></span>
         </div>
       </form>
-      <p class="ai-preview-label" id="aiPreviewLabel" hidden>뽑힌 카드</p>
+      <p class="ai-preview-label" id="aiPreviewLabel" hidden>뽑힌 괘</p>
       <div id="aiCardPreview" class="ai-card-preview" aria-live="polite"></div>
-      <div id="aiDraftOut" class="ai-draft-out is-empty">질문을 넣고 카드를 정한 뒤 해석을 생성해 보세요.</div>
+      <div id="aiDraftOut" class="ai-draft-out is-empty">질문을 넣고 괘를 정한 뒤 해석을 생성해 보세요.</div>
       <p id="aiDraftMsg" class="ai-draft-msg"></p>
     </div>
   </div>
@@ -306,14 +296,8 @@
   let clientRows = [];
   let sessionRows = [];
 
-  const THREE_PRESETS = {
-    timeline: { id: 'timeline', labels: ['과거', '현재', '전망'], title: '과거 · 현재 · 전망' },
-    advice: { id: 'advice', labels: ['상황', '조언', '결과'], title: '상황 · 조언 · 결과' },
-    relation: { id: 'relation', labels: ['나', '상대', '관계'], title: '나 · 상대 · 관계' },
-    action: { id: 'action', labels: ['원인', '현황', '다음 행동'], title: '원인 · 현황 · 다음 행동' },
-    custom: { id: 'custom', labels: ['1장', '2장', '3장'], title: '직접 입력 (칸마다 수정)' },
-  };
-  const FIVE_SPREAD = { labels: ['상황', '영향', '전개', '장애', '결과'], count: 5 };
+  const SINGLE_SPREAD = { labels: ['본괘'], title: '단괘' };
+  const PAIR_SPREAD = { labels: ['본괘', '지괘'], title: '본괘 · 지괘' };
 
   function parseCardNum(raw) {
     const s = String(raw == null ? '' : raw)
@@ -321,7 +305,7 @@
       .replace(/[０-９]/g, (d) => String.fromCharCode(d.charCodeAt(0) - 65248));
     if (!s) return null;
     const v = Number(s);
-    if (!Number.isFinite(v) || !Number.isInteger(v) || v < 1 || v > 36) return null;
+    if (!Number.isFinite(v) || !Number.isInteger(v) || v < 1 || v > 64) return null;
     return v;
   }
 
@@ -388,7 +372,7 @@
     document.getElementById('app').style.display = 'block';
 
     if (!session) {
-      window.location.replace('login.html?next=' + encodeURIComponent('counselor-lenormand.html'));
+      window.location.replace('login.html?next=' + encodeURIComponent('counselor-iching.html'));
       return null;
     }
 
@@ -433,13 +417,13 @@
   }
 
   function resolveFeature(n) {
-    if (n <= 1) return { feature: 'counselor_lenormand_basic', cost: 1 };
-    if (n <= 3) return { feature: 'counselor_lenormand', cost: 2 };
-    return { feature: 'counselor_lenormand_plus', cost: 3 };
+    if (n <= 1) return { feature: 'counselor_iching_basic', cost: 1 };
+    if (n <= 2) return { feature: 'counselor_iching', cost: 2 };
+    return { feature: 'counselor_iching_plus', cost: 3 };
   }
 
-  function initLenormandDraft(uid) {
-    const Deck = window.CounselorLenormandDeck;
+  function initIchingDraft(uid) {
+    const Deck = window.CounselorIchingDeck;
     const form = document.getElementById('aiDraftForm');
     const out = document.getElementById('aiDraftOut');
     const msg = document.getElementById('aiDraftMsg');
@@ -451,25 +435,22 @@
     const creditHintEl = document.getElementById('aiCreditHint');
     const clientSel = document.getElementById('aiClient');
     const nickEl = document.getElementById('aiNickname');
-    const modeThree = document.getElementById('aiModeThree');
-    const modeFive = document.getElementById('aiModeFive');
+    const modeSingle = document.getElementById('aiModeSingle');
+    const modePair = document.getElementById('aiModePair');
     if (!form || !out || !slotsEl) return;
 
-    if (!Deck || Deck.size !== 36) {
+    if (!Deck || Deck.size !== 64) {
       out.classList.remove('is-empty');
-      out.textContent = '레노먼드 덱 데이터를 불러오지 못했습니다. 페이지를 새로고침해 주세요.';
+      out.textContent = '주역 괘 데이터를 불러오지 못했습니다. 페이지를 새로고침해 주세요.';
       return;
     }
 
-    let mode = 'three';
-    let threePreset = 'timeline';
+    let mode = 'single';
     let targetSlot = 0;
     let lastText = '';
     /** @type {{ num: number|null, label: string }[]} */
     let slots = [];
-    const threePresetRow = document.getElementById('aiThreePresetRow');
-    const threePresetSel = document.getElementById('aiThreePreset');
-    const modeThreeSub = document.getElementById('aiModeThreeSub');
+    
 
     function setAiMsg(text, isErr) {
       if (!msg) return;
@@ -477,84 +458,36 @@
       msg.classList.toggle('err', !!isErr);
     }
 
-    function currentThreePreset() {
-      return THREE_PRESETS[threePreset] || THREE_PRESETS.timeline;
-    }
-
     function spreadDef() {
-      if (mode === 'five') {
-        const labels = slots.length === 5
-          ? slots.map((s, i) => (s.label && String(s.label).trim()) || FIVE_SPREAD.labels[i] || ((i + 1) + '장'))
-          : FIVE_SPREAD.labels.slice();
-        return { labels, count: 5, title: '5장 체인 · ' + labels.join(' · ') };
-      }
-      const fallback = currentThreePreset().labels;
-      const labels = slots.length === 3
-        ? slots.map((s, i) => (s.label && String(s.label).trim()) || fallback[i] || ((i + 1) + '장'))
-        : fallback.slice();
-      return { labels, count: 3, title: labels.join(' · ') };
+      if (mode === 'pair') return { labels: PAIR_SPREAD.labels.slice(), count: 2, title: PAIR_SPREAD.title };
+      return { labels: SINGLE_SPREAD.labels.slice(), count: 1, title: SINGLE_SPREAD.title };
     }
 
-    function initSlots(preserveLabels) {
+    function initSlots() {
       const sp = spreadDef();
-      const baseLabels = (mode === 'five')
-        ? FIVE_SPREAD.labels.slice()
-        : (THREE_PRESETS[threePreset] || THREE_PRESETS.timeline).labels.slice();
       const prev = slots.slice();
-      const count = mode === 'five' ? 5 : 3;
-      slots = [];
-      for (let i = 0; i < count; i++) {
-        let label = baseLabels[i] || ((i + 1) + '장');
-        if (preserveLabels && prev[i] && prev[i].label) label = prev[i].label;
-        else if (threePreset === 'custom' && prev[i] && prev[i].label) label = prev[i].label;
-        slots.push({
-          num: prev[i] ? prev[i].num : null,
-          label,
-        });
-      }
+      slots = sp.labels.map((label, i) => ({
+        num: prev[i] ? prev[i].num : null,
+        label,
+      }));
       if (targetSlot >= slots.length) targetSlot = 0;
     }
 
-    function markCustomIfNeeded() {
-      if (mode !== 'three') return;
-      if (threePreset === 'custom') return;
-      threePreset = 'custom';
-      if (threePresetSel) threePresetSel.value = 'custom';
-      syncModeButtons();
-    }
-
     function syncModeButtons() {
-      [modeThree, modeFive].forEach((btn) => {
+      [modeSingle, modePair].forEach((btn) => {
         if (!btn) return;
         const on = btn.getAttribute('data-mode') === mode;
         btn.classList.toggle('active', on);
         btn.setAttribute('aria-selected', on ? 'true' : 'false');
       });
-      if (threePresetRow) threePresetRow.classList.toggle('is-visible', mode === 'three');
-      if (modeThreeSub) {
-        modeThreeSub.textContent = threePreset === 'custom'
-          ? (slots.map((s) => s.label).filter(Boolean).join(' · ') || '직접 입력')
-          : currentThreePreset().title;
-      }
-      if (threePresetSel && threePresetSel.value !== threePreset) threePresetSel.value = threePreset;
     }
 
     function setMode(next) {
-      mode = next === 'five' ? 'five' : 'three';
-      initSlots(false);
+      mode = next === 'pair' ? 'pair' : 'single';
+      initSlots();
       syncModeButtons();
       renderSlots();
       updateCreditHint();
-    }
-
-    function setThreePreset(next) {
-      threePreset = THREE_PRESETS[next] ? next : 'timeline';
-      if (mode !== 'three') mode = 'three';
-      initSlots(threePreset === 'custom');
-      syncModeButtons();
-      renderSlots();
-      updateCreditHint();
-      setAiMsg('스프래드 칸 이름을 바꿨습니다.');
     }
 
     function cardFor(num) { return Deck.byDisplayNum(num); }
@@ -567,14 +500,14 @@
       const used = usedNums();
       if (typeof excludeSlot === 'number' && slots[excludeSlot]) used.delete(slots[excludeSlot].num);
       const pool = [];
-      for (let n = 1; n <= 36; n++) if (!used.has(n)) pool.push(n);
-      if (!pool.length) { for (let n = 1; n <= 36; n++) pool.push(n); }
+      for (let n = 1; n <= 64; n++) if (!used.has(n)) pool.push(n);
+      if (!pool.length) { for (let n = 1; n <= 64; n++) pool.push(n); }
       return pool[Math.floor(Math.random() * pool.length)];
     }
 
     function updateCreditHint() {
       if (!creditHintEl) return;
-      const n = readFilledCards().length || (mode === 'five' ? 5 : 3);
+      const n = readFilledCards().length || (mode === 'pair' ? 2 : 1);
       creditHintEl.textContent = '예상 크레딧 ' + resolveFeature(n).cost;
     }
 
@@ -588,12 +521,11 @@
           return '<div class="ai-prev-empty">' + escapeHtml(pos) + '<br/>대기</div>';
         }
         const card = cardFor(s.num);
-        const src = card && card.imageSrc ? card.imageSrc : '';
         return (
           '<div class="ai-prev-card" data-preview="' + i + '" title="클릭하면 이 칸 선택">' +
-            '<div class="ai-prev-art" style="position:relative">' +
-              '<div class="ai-prev-fallback" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:700;color:var(--deep);opacity:.3;z-index:0">' + s.num + '</div>' +
-              (src ? '<img src="' + src + '" alt="' + escapeHtml(card ? card.name : '') + '" loading="lazy" style="position:relative;z-index:1" onerror="this.style.display=\'none\'"/>' : '') +
+            '<div class="ai-prev-art" style="display:flex;align-items:center;justify-content:center;flex-direction:column;gap:4px;background:linear-gradient(165deg,#2c1f0e,#4a3520)">' +
+              '<div style="font-size:28px;font-weight:700;color:#f7f1e6">' + s.num + '</div>' +
+              '<div style="font-size:18px;color:#c8a96e">' + escapeHtml(card && card.han ? card.han : '') + '</div>' +
             '</div>' +
             '<div class="ai-prev-meta">' +
               '<div class="ai-prev-pos">' + escapeHtml(pos) + '</div>' +
@@ -616,7 +548,7 @@
       if (!grid) return;
       const used = usedNums();
       grid.innerHTML = '';
-      for (let n = 1; n <= 36; n++) {
+      for (let n = 1; n <= 64; n++) {
         const card = cardFor(n);
         const btn = document.createElement('button');
         btn.type = 'button';
@@ -681,20 +613,20 @@
           '<div class="ai-card-slot' + (i === targetSlot ? ' is-target' : '') + '" data-i="' + i + '">' +
             '<h4>포지션' + (i === targetSlot ? ' · 선택 중' : '') + '</h4>' +
             '<input type="text" class="slot-pos" maxlength="40" data-label="' + i + '" value="' +
-              escapeHtml(s.label || ((i + 1) + '장')) + '" placeholder="역할 (예: 조언)" aria-label="카드 역할"/>' +
+              escapeHtml(s.label || ((i + 1) + '괘')) + '" placeholder="역할 (예: 본괘)" aria-label="괘 역할"/>' +
             '<div class="slot-row">' +
-              '<input type="number" min="1" max="36" inputmode="numeric" placeholder="번호" ' +
-                'aria-label="카드 번호" value="' + (s.num != null ? s.num : '') + '" data-num="' + i + '"/>' +
+              '<input type="number" min="1" max="64" inputmode="numeric" placeholder="번호" ' +
+                'aria-label="괘 번호" value="' + (s.num != null ? s.num : '') + '" data-num="' + i + '"/>' +
             '</div>' +
             '<div class="slot-search-wrap">' +
               '<input type="search" data-search="' + i + '" autocomplete="off" spellcheck="false" ' +
-                'placeholder="예: 구름 · 28 · 남자" aria-label="카드 검색" value="' +
+                'placeholder="예: 중천건 · 泰 · 태" aria-label="괘 검색" value="' +
                 escapeHtml(card ? cardLabel(card) : '') + '"/>' +
               '<div class="slot-suggest" data-suggest="' + i + '" hidden></div>' +
             '</div>' +
             '<div class="slot-tools">' +
-              '<button type="button" data-draw-one="' + i + '" onclick="return window.__lenoDrawOne&&window.__lenoDrawOne(' + i + ')">이 칸 뽑기</button>' +
-              '<button type="button" data-clear-one="' + i + '" onclick="return window.__lenoClearOne&&window.__lenoClearOne(' + i + ')">비우기</button>' +
+              '<button type="button" data-draw-one="' + i + '" onclick="return window.__ichingDrawOne&&window.__ichingDrawOne(' + i + ')">이 칸 뽑기</button>' +
+              '<button type="button" data-clear-one="' + i + '" onclick="return window.__ichingClearOne&&window.__ichingClearOne(' + i + ')">비우기</button>' +
             '</div>' +
             '<div class="slot-kw">' + escapeHtml(kw) + '</div>' +
           '</div>'
@@ -717,7 +649,7 @@
           activeIdx = hits.length ? 0 : -1;
           if (!suggest) return;
           if (!hits.length) {
-            suggest.innerHTML = '<button type="button" disabled style="color:var(--muted);cursor:default">결과 없음 · 구름 / 남자 / 12</button>';
+            suggest.innerHTML = '<button type="button" disabled style="color:var(--muted);cursor:default">결과 없음 · 건 / 곤 / 泰</button>';
             suggest.hidden = false;
             return;
           }
@@ -839,10 +771,6 @@
           const i = Number(inp.getAttribute('data-label'));
           if (!slots[i]) return;
           slots[i].label = inp.value;
-          markCustomIfNeeded();
-          if (modeThreeSub && mode === 'three') {
-            modeThreeSub.textContent = slots.map((s) => s.label).filter(Boolean).join(' · ') || '직접 입력';
-          }
           renderPreview();
         });
       });
@@ -874,7 +802,7 @@
         const used = new Set();
         slots.forEach((s) => {
           const pool = [];
-          for (let n = 1; n <= 36; n++) if (!used.has(n)) pool.push(n);
+          for (let n = 1; n <= 64; n++) if (!used.has(n)) pool.push(n);
           const num = pool[Math.floor(Math.random() * pool.length)];
           used.add(num);
           s.num = num;
@@ -884,7 +812,7 @@
         setAiMsg('스프래드 ' + slots.length + '장을 랜덤으로 뽑았습니다.');
       } catch (err) {
         console.error('[lenormand] drawRandom', err);
-        setAiMsg('전체 랜덤 뽑기에 실패했습니다. 새로고침 후 다시 시도해 주세요.', true);
+        setAiMsg('랜덤 뽑기에 실패했습니다. 새로고침 후 다시 시도해 주세요.', true);
       }
     }
 
@@ -946,11 +874,8 @@
       });
     })();
 
-    if (modeThree) modeThree.addEventListener('click', () => setMode('three'));
-    if (modeFive) modeFive.addEventListener('click', () => setMode('five'));
-    if (threePresetSel) {
-      threePresetSel.addEventListener('change', () => setThreePreset(threePresetSel.value));
-    }
+    if (modeSingle) modeSingle.addEventListener('click', () => setMode('single'));
+    if (modePair) modePair.addEventListener('click', () => setMode('pair'));
     if (drawBtn) {
       drawBtn.onclick = (e) => {
         e.preventDefault();
@@ -958,11 +883,11 @@
         return false;
       };
     }
-    window.__lenoDrawOne = function (i) {
+    window.__ichingDrawOne = function (i) {
       drawOneSlot(Number(i));
       return false;
     };
-    window.__lenoClearOne = function (i) {
+    window.__ichingClearOne = function (i) {
       i = Number(i);
       if (!slots[i]) return false;
       slots[i].num = null;
@@ -971,7 +896,7 @@
       setAiMsg((slots[i].label || (i + 1) + '장') + '을 비웠습니다.');
       return false;
     };
-    window.__lenoDrawAll = function () {
+    window.__ichingDrawAll = function () {
       drawRandom();
       return false;
     };
@@ -998,8 +923,8 @@
       const need = spreadDef().count;
 
       if (!question) { setAiMsg('질문을 입력해 주세요.', true); return; }
-      if (cards.length < need) { setAiMsg('카드를 ' + need + '장 모두 선택해 주세요.', true); return; }
-      if (cards.length > need) { setAiMsg('카드는 ' + need + '장만 필요합니다.', true); return; }
+      if (cards.length < need) { setAiMsg('괘를 ' + need + '개 모두 선택해 주세요.', true); return; }
+      if (cards.length > need) { setAiMsg('괘는 ' + need + '개만 필요합니다.', true); return; }
       if (!window.PaljaAiQuota) { setAiMsg('AI 클라이언트를 불러오지 못했습니다.', true); return; }
 
       const { feature, cost } = resolveFeature(cards.length);
@@ -1011,48 +936,45 @@
       out.classList.remove('is-empty');
       out.textContent = '';
 
-      const cardLines = cards.map((c) => c.pos + ': ' + c.num + '. ' + c.name + ' — ' + c.keywords).join('\n');
+      const cardLines = cards.map((c) => {
+        const h = Deck.byDisplayNum(c.num);
+        return c.pos + ': ' + c.num + '. ' + c.name + (h && h.han ? ' (' + h.han + ')' : '') + ' — ' + c.keywords;
+      }).join('\n');
 
       const systemBlock =
 `<role>
-당신은 상징의 맥락과 카드 간 조합을 통해 현실의 사건과 결과를 꿰뚫어 보는 수석 레노먼드(Lenormand) 마스터이자, 초보 상담사가 고객에게 바로 전달할 수 있는 **팩트 기반 리딩 초안**을 작성하는 프리미엄 컨설턴트다.
-전통 36장 레노먼드 체계를 기준으로 한다. AI가 고객에게 직접 말하는 앱이 아니다.
-상징을 왜곡하거나 뜬구름 잡는 심리 분석, "좋은 기회가 옵니다"류의 모호한 예측은 엄격히 금지한다.
+당신은 주역(周易) 64괘의 상징·본괘/지괘 관계를 통해 현실의 국면과 전개를 읽는 수석 주역 해석가이자, 초보 상담사가 고객에게 바로 전달할 수 있는 **팩트 기반 리딩 초안**을 작성하는 프리미엄 컨설턴트다.
+문왕 순서 64괘 체계를 기준으로 한다. AI가 고객에게 직접 말하는 앱이 아니다.
+점술적 운세 멘트·모호한 격언·뜬구름 잡는 심리 분석은 엄격히 금지한다.
 </role>
 
 <core_directives>
-1. 현실 사건 중심: 감정이나 내면 묘사보다 현실에서 벌어질 구체적인 사건, 인물, 이동, 계약, 손익을 1순위로 도출할 것.
-2. 조합(Combination)의 법칙: 개별 카드를 따로 놀게 두지 말고, 인접한 카드끼리 결합(예: 1번+2번, 2번+3번, 나아가 전체 흐름의 문장화)하여 의미를 확장·확정할 것.
-3. 포지션의 우선: 카드의 고유 상징보다 스프레드 내 놓인 포지션(예: 과거-현재-미래, 원인-장벽-결과)의 역할에 맞춰 해석을 조정할 것.
-4. 방향성과 인과 연결: 카드가 놓인 순서대로 사건의 전개 과정을 논리적 인과(원인→전개→귀결)로 엮어낼 것.
-5. 카드 정체성 유지: 카드 간 결합을 하더라도 A카드의 본래 고유 속성을 무시하고 B카드인 것처럼 둔갑시키지 말 것.
-6. 결론 회피 금지: 질문의 핵심(성사 여부, 이동 방향, 리스크 등)에 대해 "마음먹기 나름이다"라는 식의 회피형 결론 금지. 카드 조합의 결괏값을 명확한 시나리오로 제시할 것.
-7. 주도권과 흐름 파악: 누구에게 유리한 상황인지, 국면이 전환되는 지점이 어디인지 구조적으로 밝힐 것.
-8. 변동·절단 카드(낫·채찍·구름 등)가 인접할 때: 단순 흉조로 뭉개지 말고, **어디서 돌발 변수가 터지거나 국면이 급변하는지** 구체적 트리거로 해석할 것.
-9. 조건부 분기: 맹신적 예언 대신 "현재 상태로 방치 시 ~ / 특정 요소를 통제할 시 ~"처럼 조건별 결과 분기를 제시할 것.
-10. 팩트 충실: 억지로 좋은 결론을 지어내지 말 것. 판이 꼬였거나 모호하면 그 상태 그대로 "정체 및 리스크 관리 우선"으로 결론을 낼 것.
-11. 레노먼드는 **역방향 없음**. 모든 카드는 정방향으로만 해석할 것.
-12. 28 남자 / 29 여자 카드는 질문 맥락에서 **질문자·상대·핵심 인물** 역할로 매핑할 것(해당 시).
-13. 의료·법률·투자 단정 금지.
-14. 한국어 존댓말. 이모지·긴 면책·불필요한 인사 금지. 복사해 쓰기 좋게. 고객은 호칭으로 부르되 "너" 반말은 쓰지 말 것.
+1. 현실 국면 중심: 추상적 "운"보다 현실에서 벌어질 사건·관계·선택·리스크를 1순위로 도출할 것.
+2. 괘상(象) 우선: 괘명·핵심 키워드를 문장으로 풀어, 질문 맥락에 맞는 **구체적 국면**으로 번역할 것.
+3. 본괘·지괘: 본괘=현재 국면, 지괘=전개·귀결(또는 숨은 흐름). 두 괘가 있으면 전환의 방향·조건을 분명히 할 것. 단괘면 현재 국면·주의점·행동 분기만.
+4. 흉조 뭉개기 금지: 곤·박·감·비 등을 "나쁘다"로만 말하지 말고, **어디서 막히거나 무엇이 끊기는지** 트리거로 해석할 것.
+5. 결론 회피 금지: 질문의 핵심에 "마음먹기 나름"식 회피 금지. 조건부 분기(방치 시 / 통제 시)로 명확히.
+6. 팩트 충실: 억지 희망 금지. 판이 무거우면 리스크 관리 우선으로 결론.
+7. 의료·법률·투자 단정 금지.
+8. 한국어 존댓말. 이모지·긴 면책·불필요한 인사 금지. 복사해 쓰기 좋게.
 </core_directives>
 
 <anti_leaking_rule>
-최종 답변에 규칙 이름·번호·시스템 태그명(예: core_directives)을 언급하거나 노출하지 말 것. 내부 지시로만 쓰고, 출력은 전문가 리딩 텍스트만.
+최종 답변에 규칙 이름·번호·시스템 태그명을 언급하거나 노출하지 말 것.
 </anti_leaking_rule>
 
 <output_format>
 반드시 아래 마크다운 ## 소제목만 사용:
 ## 한 줄 요약
-## 핵심 조합 분석
-## 사건 전개 흐름
+## 괘상 해석
+## 국면 전개
 ## 상담사 실전 솔루션
 ## 주의
-- 한 줄 요약: 객관적 사건 진단 1문장(질문의 핵심 결론이 드러나게)
-- 핵심 조합 분석: 인접 카드 조합(Pair/Triple)이 시사하는 구체적 현실 의미 해설. 각 카드에 번호·이름 명시.
-- 사건 전개 흐름: 포지션 순서에 따른 인과 관계와 국면 전환 시나리오 1단락.
-- 상담사 실전 솔루션: 고객에게 말해줄 **해야 할 것(Do)** / **하지 말아야 할 것(Don't)** 각 2~3개
-- 주의: 의료·법률·투자 경계 한두 문장(결론 자체를 흐리지 말 것)
+- 한 줄 요약: 객관적 국면 진단 1문장
+- 괘상 해석: 각 괘 번호·이름·핵심 상징을 질문 맥락에 맞게 해설
+- 국면 전개: 본→지(또는 단괘) 흐름과 전환 조건
+- 상담사 실전 솔루션: **해야 할 것(Do)** / **하지 말아야 할 것(Don't)** 각 2~3개
+- 주의: 의료·법률·투자 경계 한두 문장
 </output_format>`;
 
       const prompt = systemBlock + `
@@ -1067,10 +989,10 @@ ${note ? '- 상담사 메모(고객에게 노출 금지, 반영만): ' + note + 
 ${cardLines}
 </spread>
 
-위 데이터를 바탕으로 시스템 지시를 엄격히 준수하여 지정된 마크다운 형식으로 레노먼드 조합·체인 리딩 초안을 작성해 주세요.`;
+위 데이터를 바탕으로 시스템 지시를 엄격히 준수하여 지정된 마크다운 형식으로 주역 리딩 초안을 작성해 주세요.`;
 
       const cacheKey = PaljaAiQuota.hashKey([
-        'counselor_lenormand_v5', feature, mode, threePreset, clientId || '', displayName, question, note,
+        'counselor_iching_v1', feature, mode, clientId || '', displayName, question, note,
         cards.map((c) => c.pos + ':' + c.num).join('|'),
       ].join('::'));
 
@@ -1089,13 +1011,13 @@ ${cardLines}
         PaljaAiQuota.applyQuotaBadge(quotaEl, quota);
         setAiMsg(lastText
           ? (stopReason === 'max_tokens'
-            ? '해석이 길어 잘릴 수 있습니다. (크레딧 ' + cost + ')'
+            ? '해석이 길어 잘릴 수 있습니다.'
             : '해석을 만들었습니다. 다듬어 복사해 쓰세요.')
           : '응답이 비어 있습니다.', !lastText);
       } catch (err) {
         if (!(out.textContent || '').trim()) {
           out.classList.add('is-empty');
-          out.textContent = '질문을 넣고 카드를 정한 뒤 해석을 생성해 보세요.';
+          out.textContent = '질문을 넣고 괘를 정한 뒤 해석을 생성해 보세요.';
         }
         if (err && err.quota) PaljaAiQuota.applyQuotaBadge(quotaEl, err.quota);
         setAiMsg((err && err.message) || '해석 생성에 실패했습니다.', true);
@@ -1108,7 +1030,7 @@ ${cardLines}
       PaljaAiQuota.fetchQuota().then((q) => PaljaAiQuota.applyQuotaBadge(quotaEl, q));
     }
 
-    setMode('three');
+    setMode('single');
   }
 
   async function main() {
@@ -1128,7 +1050,7 @@ ${cardLines}
     sessionRows = sessions || [];
 
     populateClientSelect();
-    initLenormandDraft(session.user.id);
+    initIchingDraft(session.user.id);
   }
 
   main();
