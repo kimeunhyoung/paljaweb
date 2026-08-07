@@ -438,7 +438,7 @@
         const badge = document.getElementById('trialBadge');
         if (badge && profile.plan_active_until) {
           const exp = new Date(profile.plan_active_until);
-          badge.textContent = '15일 체험 이용 중 · ' + exp.getFullYear() + '년 ' + (exp.getMonth() + 1) + '월 ' + exp.getDate() + '일까지 (기기 최대 4대)';
+          badge.textContent = '체험 이용 중 · ' + exp.getFullYear() + '년 ' + (exp.getMonth() + 1) + '월 ' + exp.getDate() + '일까지 (기기 최대 4대)';
           badge.style.display = 'inline-block';
         }
       }
