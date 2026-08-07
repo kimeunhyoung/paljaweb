@@ -414,19 +414,33 @@
     .event-panel h4 { font-family: var(--font-serif); font-size: 15px; color: var(--deep); margin-bottom: 6px; }
     .event-hint { font-size: 11px; color: var(--muted); margin-bottom: 12px; line-height: 1.5; }
     .event-form { display: grid; gap: 10px; margin-bottom: 14px; }
-    @media (min-width: 560px) { .event-form { grid-template-columns: 130px 110px 1fr 1fr auto; align-items: end; } .event-form .ef-actions { grid-column: 1 / -1; } }
+    @media (min-width: 560px) {
+      .event-form { grid-template-columns: 120px 120px 100px 1fr 1fr auto; align-items: end; }
+      .event-form .ef-actions { grid-column: 1 / -1; }
+    }
     .event-form label { font-size: 11px; color: var(--muted); display: block; margin-bottom: 5px; }
-    .event-form input { width: 100%; padding: 9px 11px; border: 1px solid var(--border); border-radius: 8px; font-family: var(--font-body); font-size: 13px; }
+    .event-form input,
+    .event-form select { width: 100%; padding: 9px 11px; border: 1px solid var(--border); border-radius: 8px; font-family: var(--font-body); font-size: 13px; background: #fff; }
     .event-form .ef-actions { display: flex; gap: 8px; flex-wrap: wrap; }
     .event-list { display: grid; gap: 8px; }
     .event-row { display: flex; align-items: flex-start; gap: 10px; background: var(--parchment); border: 1px solid var(--border); border-radius: 8px; padding: 10px 12px; font-size: 12.5px; }
     .event-row .ev-date { font-weight: 700; color: var(--accent); white-space: nowrap; }
+    .event-row .ev-kind {
+      display: inline-block; font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 999px;
+      margin-right: 6px; vertical-align: middle;
+    }
+    .event-row .ev-kind-appointment { background: rgba(46,139,122,.12); color: var(--teal); }
+    .event-row .ev-kind-personal { background: rgba(200,169,110,.18); color: #8a6b2e; }
     .event-row .ev-title { font-weight: 600; color: var(--deep); }
     .event-row .ev-note { font-size: 11px; color: var(--muted); margin-top: 3px; }
     .event-row .ev-btns { margin-left: auto; display: flex; gap: 6px; flex-shrink: 0; }
     .event-row .ev-btns button { font-size: 11px; padding: 4px 8px; }
     .event-empty { font-size: 12px; color: var(--muted); }
     .event-upcoming-title { font-size: 12px; font-weight: 600; color: var(--deep); margin: 4px 0 8px; }
+    .dash-upcoming .up-kind {
+      font-size: 10px; font-weight: 700; color: var(--teal);
+      background: rgba(46,139,122,.1); border-radius: 999px; padding: 2px 7px; white-space: nowrap;
+    }
     .event-list-hint { font-size: 11px; color: var(--muted); margin-top: 8px; line-height: 1.5; }
 
     /* 오전 알림 */
@@ -846,17 +860,24 @@
         </div>
       </div>
       <div class="cal-weekdays" id="calWeekdays"></div>
-      <p class="event-hint" style="margin-bottom:8px;">● 장미 = 상담 완료(기록) · ● 청록 = 상담 약속 · ● 금색 = 중요 일정 · 지난 날짜도 남아 있어요</p>
+      <p class="event-hint" style="margin-bottom:8px;">● 장미 = 상담 완료(기록) · ● 청록 = 상담 약속(고객·일정) · ● 금색 = 개인 일정 · 지난 날짜도 남아 있어요</p>
       <div class="cal-grid" id="calGrid"></div>
       <div class="cal-detail" id="calDetail">
         <h4 id="calDetailTitle">날짜를 선택하세요</h4>
         <div id="calDetailList"></div>
       </div>
       <div class="event-panel" id="eventPanel">
-        <h4>중요 일정 추가</h4>
-        <p class="event-hint">상담 약속 외 세미나·휴무·개인 일정 등을 따로 넣을 수 있습니다. <strong>시간</strong>을 넣으면 일정 알림 요약에 시각과 함께 표시됩니다.</p>
+        <h4>일정 추가</h4>
+        <p class="event-hint">고객 카드 없이도 <strong>상담 약속</strong>을 잡을 수 있습니다. 상담 후 기록을 남기면 같은 날 약속 일정은 「다가오는 약속」에서 자동으로 빠집니다. <strong>개인 일정</strong>은 세미나·휴무·명상 등에 쓰세요.</p>
         <form id="eventForm" class="event-form" autocomplete="off">
           <input type="hidden" id="editEventId" value=""/>
+          <div>
+            <label for="eventKind">유형 *</label>
+            <select id="eventKind" required>
+              <option value="appointment">상담 약속</option>
+              <option value="personal">개인 일정</option>
+            </select>
+          </div>
           <div>
             <label for="eventDate">날짜 *</label>
             <input id="eventDate" type="date" required/>
@@ -867,7 +888,7 @@
           </div>
           <div>
             <label for="eventTitle">제목 *</label>
-            <input id="eventTitle" type="text" required placeholder="예: 수비학 세미나"/>
+            <input id="eventTitle" type="text" required placeholder="예: 타로 전화 상담"/>
           </div>
           <div>
             <label for="eventNote">메모</label>
@@ -878,7 +899,7 @@
             <button type="button" class="btn-sm outline" id="eventResetBtn">새로</button>
           </div>
         </form>
-        <h5 class="event-upcoming-title">다가오는 7일</h5>
+        <h5 class="event-upcoming-title">다가오는 7일 (일정)</h5>
         <div id="eventList" class="event-list"></div>
       </div>
     </div>
@@ -1452,22 +1473,34 @@
     }
 
     async function loadEvents() {
-      const { data, error } = await sb
+      let { data, error } = await sb
         .from('counselor_events')
-        .select('id,event_date,event_time,title,note,created_at,updated_at')
+        .select('id,event_date,event_time,event_kind,title,note,created_at,updated_at')
         .order('event_date', { ascending: true });
+      if (error && /event_kind/i.test(String(error.message || ''))) {
+        ({ data, error } = await sb
+          .from('counselor_events')
+          .select('id,event_date,event_time,title,note,created_at,updated_at')
+          .order('event_date', { ascending: true }));
+        if (!error && data) {
+          data = data.map((row) => ({ ...row, event_kind: 'personal' }));
+        }
+      }
       if (error) {
         eventRows = [];
         eventsAvailable = false;
         const panel = document.getElementById('eventPanel');
         if (panel) {
           panel.querySelector('.event-hint').textContent =
-            '중요 일정 저장을 쓰려면 Supabase에서 counselor_events.sql을 실행해 주세요.';
+            '일정 저장을 쓰려면 Supabase에서 counselor_events.sql · counselor_events_kind.sql 을 실행해 주세요.';
         }
         return;
       }
       eventsAvailable = true;
-      eventRows = data || [];
+      eventRows = (data || []).map((row) => ({
+        ...row,
+        event_kind: row.event_kind === 'appointment' ? 'appointment' : 'personal',
+      }));
       renderEventList();
     }
 
@@ -1798,6 +1831,17 @@
       if (diff < 365) return Math.floor(diff / 30) + '개월 전';
       return Math.floor(diff / 365) + '년 전';
     }
+    function eventKindOf(ev) {
+      return ev && ev.event_kind === 'appointment' ? 'appointment' : 'personal';
+    }
+    function sessionDateSet() {
+      const set = new Set();
+      sessionRows.forEach((s) => {
+        const d = s.session_date ? String(s.session_date).slice(0, 10) : '';
+        if (d) set.add(d);
+      });
+      return set;
+    }
     function clientUpcomingDate(clientId, clientNext) {
       const cands = [];
       if (clientNext) cands.push(String(clientNext));
@@ -1806,31 +1850,65 @@
       const future = cands.filter((x) => x >= today).sort();
       return future.length ? future[0] : null;
     }
+    function collectUpcomingAppointments(todayStr, horizonStr) {
+      const items = [];
+      const clientDates = new Set();
+      const doneSessions = sessionDateSet();
+
+      clientRows.forEach((c) => {
+        const d = clientUpcomingDate(c.id, c.next_appointment);
+        if (d && d >= todayStr && d <= horizonStr) {
+          clientDates.add(d);
+          items.push({
+            source: 'client',
+            name: c.display_name || c.legal_name || '고객',
+            date: d,
+            id: c.id,
+          });
+        }
+      });
+
+      eventRows.forEach((ev) => {
+        if (eventKindOf(ev) !== 'appointment') return;
+        const d = String(ev.event_date || '');
+        if (!d || d < todayStr || d > horizonStr) return;
+        if (doneSessions.has(d)) return;
+        if (clientDates.has(d)) return;
+        items.push({
+          source: 'event',
+          name: ev.title || '상담 약속',
+          date: d,
+          id: ev.id,
+          time: ev.event_time || '',
+        });
+      });
+
+      items.sort((a, b) => {
+        const dc = a.date.localeCompare(b.date);
+        if (dc) return dc;
+        return String(a.time || '').localeCompare(String(b.time || ''));
+      });
+      return items;
+    }
     function renderDashboard() {
       const today = new Date();
       const todayStr = ymd(today);
       const horizon = new Date(today.getTime() + 14 * 86400000);
       const horizonStr = ymd(horizon);
-      let upcoming = 0;
-      clientRows.forEach((c) => {
-        const d = clientUpcomingDate(c.id, c.next_appointment);
-        if (d && d >= todayStr && d <= horizonStr) upcoming++;
-      });
+      const upcomingItems = collectUpcomingAppointments(todayStr, horizonStr);
       const recent = sessionRows.length
         ? sessionRows.map((s) => String(s.session_date)).sort().slice(-1)[0]
         : null;
       const ym = todayStr.slice(0, 7);
       const newCount = clientRows.filter((c) => String(c.created_at || '').slice(0, 7) === ym).length;
-      // 이번 달 상담 건수
       const monthSessions = sessionRows.filter((s) => String(s.session_date || '').slice(0, 7) === ym).length;
-      // 재방문율: 상담 기록이 있는 고객 중 2회 이상 상담한 비율
       const counts = {};
       sessionRows.forEach((s) => { counts[s.client_id] = (counts[s.client_id] || 0) + 1; });
       const seen = Object.keys(counts).length;
       const repeated = Object.values(counts).filter((n) => n >= 2).length;
       const repeatRate = seen ? Math.round((repeated / seen) * 100) : 0;
       document.getElementById('dashClients').textContent = String(clientRows.length);
-      document.getElementById('dashUpcoming').textContent = String(upcoming);
+      document.getElementById('dashUpcoming').textContent = String(upcomingItems.length);
       document.getElementById('dashRecent').textContent = recent || '—';
       document.getElementById('dashNew').textContent = String(newCount);
       document.getElementById('dashMonthSessions').textContent = String(monthSessions);
@@ -1840,30 +1918,30 @@
         .reduce((a, s) => a + (Number(s.amount) || 0), 0);
       const dashSales = document.getElementById('dashMonthSales');
       if (dashSales) dashSales.textContent = monthSales ? monthSales.toLocaleString('ko-KR') : '0';
-      renderUpcomingList(todayStr, horizonStr);
+      renderUpcomingList(upcomingItems);
       renderCalendar();
     }
 
-    function renderUpcomingList(todayStr, horizonStr) {
+    function renderUpcomingList(items) {
       const host = document.getElementById('dashUpcomingList');
       if (!host) return;
-      const items = [];
-      clientRows.forEach((c) => {
-        const d = clientUpcomingDate(c.id, c.next_appointment);
-        if (d && d >= todayStr && d <= horizonStr) {
-          items.push({ name: c.display_name || c.legal_name || '고객', date: d, id: c.id });
-        }
-      });
-      items.sort((a, b) => a.date.localeCompare(b.date));
       if (!items.length) {
         host.innerHTML = '<div class="up-empty">2주 내 예정된 약속이 없습니다.</div>';
         return;
       }
-      host.innerHTML = items.map((it) =>
-        '<div class="up-item"><span class="up-date">' + escapeHtml(it.date) + '</span>' +
-        '<span>' + escapeHtml(it.name) + '</span>' +
-        '<button type="button" class="btn-sm outline" data-act="sessions" data-id="' + it.id + '" style="margin-left:auto;font-size:11px;padding:5px 10px;">상담 기록</button></div>'
-      ).join('');
+      host.innerHTML = items.map((it) => {
+        const kind = it.source === 'event'
+          ? '<span class="up-kind">일정</span>'
+          : '<span class="up-kind">고객</span>';
+        const timeLbl = it.time ? formatEventTimeLabel(it.time) : '';
+        const time = timeLbl ? ' ' + escapeHtml(timeLbl) : '';
+        const btn = it.source === 'client'
+          ? '<button type="button" class="btn-sm outline" data-act="sessions" data-id="' + it.id + '" style="margin-left:auto;font-size:11px;padding:5px 10px;">상담 기록</button>'
+          : '';
+        return '<div class="up-item"><span class="up-date">' + escapeHtml(it.date) + time + '</span>' +
+          kind +
+          '<span>' + escapeHtml(it.name) + '</span>' + btn + '</div>';
+      }).join('');
       host.querySelectorAll('button[data-act]').forEach((btn) => btn.addEventListener('click', onRowAction));
     }
 
@@ -1887,7 +1965,7 @@
     function collectSchedule() {
       const byDate = {};
       function ensure(dateStr) {
-        if (!byDate[dateStr]) byDate[dateStr] = { clients: [], sessions: [], events: [] };
+        if (!byDate[dateStr]) byDate[dateStr] = { clients: [], sessions: [], appointments: [], personals: [] };
         return byDate[dateStr];
       }
       function addClient(dateStr, clientId, name) {
@@ -1921,12 +1999,15 @@
       eventRows.forEach((ev) => {
         const d = ev.event_date;
         if (!d) return;
-        ensure(d).events.push({
+        const item = {
           id: ev.id,
           title: ev.title || '일정',
           note: ev.note || '',
           event_time: ev.event_time || '',
-        });
+          event_kind: eventKindOf(ev),
+        };
+        if (item.event_kind === 'appointment') ensure(d).appointments.push(item);
+        else ensure(d).personals.push(item);
       });
       return byDate;
     }
@@ -1959,18 +2040,20 @@
         const dayData = scheduleMap[ds];
         const hasClient = dayData && dayData.clients.length;
         const hasSession = dayData && dayData.sessions.length;
-        const hasEvent = dayData && dayData.events.length;
+        const hasApptEvent = dayData && dayData.appointments && dayData.appointments.length;
+        const hasPersonal = dayData && dayData.personals && dayData.personals.length;
+        const showApptDot = hasClient || (hasApptEvent && !hasSession);
         const cls = ['cal-day'];
         if (ds === todayStr) cls.push('today');
-        if (hasClient || hasSession || hasEvent) cls.push('has-appt');
-        if (ds < todayStr && (hasClient || hasSession || hasEvent)) cls.push('past');
+        if (hasClient || hasSession || hasApptEvent || hasPersonal) cls.push('has-appt');
+        if (ds < todayStr && (hasClient || hasSession || hasApptEvent || hasPersonal)) cls.push('past');
         if (ds === calSelectedDate) cls.push('selected');
         let dots = '';
-        if (hasClient || hasSession || hasEvent) {
+        if (hasClient || hasSession || hasApptEvent || hasPersonal) {
           dots = '<div class="cal-dots">';
           if (hasSession) dots += '<div class="dot dot-session"></div>';
-          if (hasClient) dots += '<div class="dot dot-client"></div>';
-          if (hasEvent) dots += '<div class="dot dot-event"></div>';
+          if (showApptDot) dots += '<div class="dot dot-client"></div>';
+          if (hasPersonal) dots += '<div class="dot dot-event"></div>';
           dots += '</div>';
         }
         html += '<div class="' + cls.join(' ') + '" data-date="' + ds + '">' +
@@ -2005,10 +2088,20 @@
         return;
       }
       title.textContent = calSelectedDate + (calSelectedDate < ymd(new Date()) ? ' · 지난 일정' : '');
-      const dayData = scheduleMap[calSelectedDate] || { clients: [], sessions: [], events: [] };
-      if (!dayData.clients.length && !dayData.sessions.length && !dayData.events.length) {
-        list.innerHTML = '<div class="cal-empty">이 날 상담·일정이 없습니다. 아래에서 중요 일정을 추가할 수 있습니다.</div>';
+      const dayData = scheduleMap[calSelectedDate] || { clients: [], sessions: [], appointments: [], personals: [] };
+      const appts = dayData.appointments || [];
+      const personals = dayData.personals || [];
+      if (!dayData.clients.length && !dayData.sessions.length && !appts.length && !personals.length) {
+        list.innerHTML = '<div class="cal-empty">이 날 상담·일정이 없습니다. 아래에서 일정을 추가할 수 있습니다.</div>';
         return;
+      }
+      function eventItemHtml(it) {
+        const tl = formatEventTimeLabel(it.event_time);
+        return '<div class="cal-item"><span><strong>' + escapeHtml(it.title) + '</strong>' +
+          (tl ? ' <span style="color:var(--teal);font-size:11px;">' + escapeHtml(tl) + '</span>' : '') +
+          (it.note ? '<br><span style="font-size:11px;color:var(--muted)">' + escapeHtml(it.note) + '</span>' : '') +
+          '</span>' +
+          '<button type="button" class="btn-sm outline" data-ev-edit="' + it.id + '" style="margin-left:auto;font-size:11px;padding:4px 10px;">수정</button></div>';
       }
       let html = '';
       if (dayData.sessions.length) {
@@ -2020,24 +2113,21 @@
         }).join('');
         html += '</div>';
       }
-      if (dayData.clients.length) {
+      if (dayData.clients.length || appts.length) {
         html += '<div class="cal-section"><h5>상담 약속</h5>';
         html += dayData.clients.map((it) =>
-          '<div class="cal-item"><span>' + escapeHtml(it.name) + '</span>' +
+          '<div class="cal-item"><span>' + escapeHtml(it.name) + ' <span style="font-size:10px;color:var(--muted)">(고객)</span></span>' +
           '<button type="button" class="btn-sm outline" data-act="sessions" data-id="' + it.clientId + '" style="margin-left:auto;font-size:11px;padding:4px 10px;">상담 기록</button></div>'
         ).join('');
+        html += appts.map(eventItemHtml).join('');
+        if (dayData.sessions.length && appts.length) {
+          html += '<div class="cal-empty" style="margin-top:6px">같은 날 상담 기록이 있습니다. 예약 일정은 정리(삭제)해도 됩니다.</div>';
+        }
         html += '</div>';
       }
-      if (dayData.events.length) {
-        html += '<div class="cal-section"><h5>중요 일정</h5>';
-        html += dayData.events.map((it) => {
-          const tl = formatEventTimeLabel(it.event_time);
-          return '<div class="cal-item"><span><strong>' + escapeHtml(it.title) + '</strong>' +
-            (tl ? ' <span style="color:var(--teal);font-size:11px;">' + escapeHtml(tl) + '</span>' : '') +
-            (it.note ? '<br><span style="font-size:11px;color:var(--muted)">' + escapeHtml(it.note) + '</span>' : '') +
-            '</span>' +
-            '<button type="button" class="btn-sm outline" data-ev-edit="' + it.id + '" style="margin-left:auto;font-size:11px;padding:4px 10px;">수정</button></div>';
-        }).join('');
+      if (personals.length) {
+        html += '<div class="cal-section"><h5>개인 일정</h5>';
+        html += personals.map(eventItemHtml).join('');
         html += '</div>';
       }
       list.innerHTML = html;
@@ -2047,6 +2137,7 @@
           const ev = eventRows.find((x) => x.id === btn.getAttribute('data-ev-edit'));
           if (!ev) return;
           document.getElementById('editEventId').value = ev.id;
+          document.getElementById('eventKind').value = eventKindOf(ev);
           document.getElementById('eventDate').value = ev.event_date;
           document.getElementById('eventTime').value = ev.event_time ? String(ev.event_time).slice(0, 5) : '';
           document.getElementById('eventTitle').value = ev.title || '';
@@ -2107,7 +2198,7 @@
           if (it.summary) lines.push('DESCRIPTION:' + String(it.summary).replace(/[,;\\]/g, ' ').slice(0, 200));
           lines.push('END:VEVENT');
         });
-        dayData.events.forEach((it) => {
+        [...(dayData.appointments || []), ...(dayData.personals || [])].forEach((it) => {
           lines.push('BEGIN:VEVENT');
           lines.push('UID:event-' + it.id + '-' + compact + '@8code.kr');
           if (it.event_time) {
@@ -2138,6 +2229,7 @@
     function resetEventForm() {
       document.getElementById('editEventId').value = '';
       document.getElementById('eventForm').reset();
+      document.getElementById('eventKind').value = 'appointment';
       if (calSelectedDate) document.getElementById('eventDate').value = calSelectedDate;
       document.getElementById('eventSaveBtn').textContent = '저장';
     }
@@ -2164,7 +2256,7 @@
 
       if (!upcoming.length) {
         if (titleEl) titleEl.style.display = 'none';
-        host.innerHTML = '<div class="event-empty">등록된 중요 일정이 없습니다.</div>';
+        host.innerHTML = '<div class="event-empty">등록된 일정이 없습니다.</div>';
         return;
       }
       if (titleEl) titleEl.style.display = '';
@@ -2176,9 +2268,12 @@
 
       let html = shown.map((ev) => {
         const tl = formatEventTimeLabel(ev.event_time);
+        const kind = eventKindOf(ev);
+        const kindLabel = kind === 'appointment' ? '상담' : '개인';
+        const kindCls = kind === 'appointment' ? 'ev-kind-appointment' : 'ev-kind-personal';
         return '<div class="event-row">' +
         '<span class="ev-date">' + escapeHtml(String(ev.event_date)) + (tl ? ' ' + escapeHtml(tl) : '') + '</span>' +
-        '<div><div class="ev-title">' + escapeHtml(ev.title || '') + '</div>' +
+        '<div><div class="ev-title"><span class="ev-kind ' + kindCls + '">' + kindLabel + '</span>' + escapeHtml(ev.title || '') + '</div>' +
         (ev.note ? '<div class="ev-note">' + escapeHtml(ev.note) + '</div>' : '') +
         '</div>' +
         '<div class="ev-btns">' +
@@ -2204,6 +2299,7 @@
           if (!ev) return;
           calSelectedDate = ev.event_date;
           document.getElementById('editEventId').value = ev.id;
+          document.getElementById('eventKind').value = eventKindOf(ev);
           document.getElementById('eventDate').value = ev.event_date;
           document.getElementById('eventTime').value = ev.event_time ? String(ev.event_time).slice(0, 5) : '';
           document.getElementById('eventTitle').value = ev.title || '';
@@ -2220,7 +2316,7 @@
           const { error } = await sb.from('counselor_events').delete().eq('id', id);
           if (error) { alert('삭제하지 못했습니다: ' + error.message); return; }
           await loadEvents();
-          renderCalendar();
+          renderDashboard();
           renderCalendarDetail();
         });
       });
@@ -2234,8 +2330,10 @@
         return;
       }
       const editId = document.getElementById('editEventId').value;
+      const kindRaw = document.getElementById('eventKind').value;
       const payload = {
         counselor_id: uid,
+        event_kind: kindRaw === 'appointment' ? 'appointment' : 'personal',
         event_date: document.getElementById('eventDate').value,
         event_time: document.getElementById('eventTime').value || null,
         title: document.getElementById('eventTitle').value.trim(),
@@ -2253,13 +2351,18 @@
         ({ error } = await sb.from('counselor_events').insert(payload));
       }
       if (error) {
-        alert('저장하지 못했습니다: ' + error.message);
+        const msg = String(error.message || '');
+        if (/event_kind/i.test(msg)) {
+          alert('일정 유형 컬럼이 없습니다. Supabase에서 database/counselor_events_kind.sql 을 실행해 주세요.\n\n' + msg);
+        } else {
+          alert('저장하지 못했습니다: ' + msg);
+        }
         return;
       }
       calSelectedDate = payload.event_date;
       resetEventForm();
       await loadEvents();
-      renderCalendar();
+      renderDashboard();
       renderCalendarDetail();
     });
 
