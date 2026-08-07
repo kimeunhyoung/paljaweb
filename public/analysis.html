@@ -4955,9 +4955,9 @@ function gateHTML(planRequired, title, desc) {
   // 첫 결제는 저가 단품 → 그다음 베이직 7일 (구독 부담 완화)
   const onetimeLinks = planRequired === 'basic'
     ? `<a class="gate-onetime-primary" href="/ai-buy.html?product=cal_pass_3d">달력 3일 · 1,900원</a>
-    <a class="gate-onetime" href="/lifecode/buy.html?product=basic30">베이직 7일 이용권 (4,900원 · AI 5) · 자동결제 없음</a>
+    <a class="gate-onetime" href="/lifecode/buy.html?product=basic7">베이직 7일 이용권 (4,900원 · AI 5) · 자동결제 없음</a>
     <a class="gate-onetime" href="/pricing.html#onetime">AI 크레딧 · 단품 더보기</a>`
-    : `<a class="gate-onetime" href="/lifecode/buy.html?product=counselor30">상담사 15일 체험권 (29,900원) · 자동결제 없음</a>`;
+    : `<a class="gate-onetime" href="/lifecode/buy.html?product=counselor15">상담사 15일 체험권 (29,900원) · 자동결제 없음</a>`;
   return `<div class="feature-gate">
     <div class="gate-icon">🔒</div>
     <div class="gate-title">${title}</div>
@@ -8812,7 +8812,7 @@ async function runAnalysis() {
     }
     document.getElementById('coreAccordion').innerHTML =
       freeAcc +
-      '<p class="core-preview-note">나머지 숫자 해설(문 넘버·운명수·혼의수·성격수·완성수)과 통합 스토리는 <strong>Basic</strong> 이상에서 열립니다. <a href="/lifecode/buy.html?product=basic30" style="color:var(--warm-brown);text-decoration:underline;">구독 없이 7일 보기(4,900원)</a></p>';
+      '<p class="core-preview-note">나머지 숫자 해설(문 넘버·운명수·혼의수·성격수·완성수)과 통합 스토리는 <strong>Basic</strong> 이상에서 열립니다. <a href="/lifecode/buy.html?product=basic7" style="color:var(--warm-brown);text-decoration:underline;">구독 없이 7일 보기(4,900원)</a></p>';
   }
 
   const psychicHost = document.getElementById('psychicCompareContent');

@@ -133,7 +133,7 @@ ${cssModal}
     <h2>Professional 플랜 전용</h2>
     <p>상담사 AI 리딩은 <strong>Professional</strong> 요금제에서 이용할 수 있어요.</p>
     <a class="cta" href="for-counselors.html">Professional 안내 보기</a>
-    <a class="cta" href="/lifecode/buy.html?product=counselor30" style="margin-left:8px;background:transparent;border:1.5px solid var(--border);color:var(--deep);">15일 체험 구매</a>
+    <a class="cta" href="/lifecode/buy.html?product=counselor15" style="margin-left:8px;background:transparent;border:1.5px solid var(--border);color:var(--deep);">15일 체험 구매</a>
     <a class="cta" href="pricing.html?checkout=professional" style="margin-left:8px;background:transparent;border:1.5px solid var(--border);color:var(--deep);">바로 구독</a>
   </div>
   <div id="trialDeviceGate" style="display:none">

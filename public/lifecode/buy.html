@@ -293,7 +293,11 @@
   let sessionUser = null;
 
   function buyNextUrl() {
-    return '/lifecode/buy.html?product=' + encodeURIComponent(selectedKey || 'counselor30');
+    const urlKey =
+      selectedKey === 'counselor30' ? 'counselor15' :
+      selectedKey === 'basic30' ? 'basic7' :
+      selectedKey;
+    return '/lifecode/buy.html?product=' + encodeURIComponent(urlKey || 'counselor15');
   }
 
   function syncAuthLinks() {
@@ -509,7 +513,9 @@
 
   const params = new URLSearchParams(location.search);
   const qProduct = params.get('product');
-  if (qProduct === 'basic30' || qProduct === 'counselor30') selectedKey = qProduct;
+  // basic30/counselor30 = 레거시 키(실제 7일/15일). basic7/counselor15 = URL 별칭.
+  if (qProduct === 'basic30' || qProduct === 'basic7') selectedKey = 'basic30';
+  else if (qProduct === 'counselor30' || qProduct === 'counselor15') selectedKey = 'counselor30';
 
   init();
 })();
