@@ -211,50 +211,70 @@
 }
 
 .launch-promo-counselor {
-  margin: 0 0 16px;
-  padding: 14px 14px 12px;
+  margin: 0 0 18px;
+  padding: 16px 16px 14px;
   border-radius: var(--lp-radius);
-  background: rgba(255, 255, 255, 0.55);
-  border: 1px solid var(--lp-border2);
+  background: rgba(196, 96, 58, 0.1);
+  border: 1.5px solid rgba(196, 96, 58, 0.35);
+  box-shadow: inset 4px 0 0 var(--lp-terracotta);
 }
-.launch-promo-counselor-kicker {
-  margin: 0 0 4px;
-  font-size: 12px;
-  font-weight: 700;
-  letter-spacing: 0.04em;
-  color: var(--lp-terracotta);
+.launch-promo-counselor-title {
+  margin: 0 0 6px;
+  font-family: var(--lp-serif);
+  font-size: 22px;
+  font-weight: 600;
+  line-height: 1.25;
+  color: var(--lp-brown);
 }
 .launch-promo-counselor-lead {
-  margin: 0 0 10px;
-  font-size: 13px;
-  line-height: 1.45;
+  margin: 0 0 12px;
+  font-size: 14px;
+  line-height: 1.5;
   color: var(--lp-text2);
 }
-.launch-promo-counselor-grid {
-  margin: 0;
-  gap: 10px;
+.launch-promo-counselor-lead strong {
+  color: var(--lp-terracotta);
+  font-weight: 700;
 }
-.launch-promo-counselor-grid .counselor-promo-col h3 {
-  font-size: 13px;
-  margin-bottom: 6px;
-}
-.launch-promo-counselor-grid .counselor-promo-col ul {
-  margin: 0;
+.launch-promo-counselor-points {
+  margin: 0 0 12px;
   padding: 0;
   list-style: none;
 }
-.launch-promo-counselor-grid .counselor-promo-col li {
-  font-size: 12px;
-  line-height: 1.45;
-  color: var(--lp-text2);
-  margin-bottom: 4px;
+.launch-promo-counselor-points li {
+  position: relative;
+  margin: 0 0 6px;
+  padding: 0 0 0 18px;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.4;
+  color: var(--lp-brown);
 }
-.launch-promo .counselor-promo-actions {
-  flex-wrap: wrap;
+.launch-promo-counselor-points li::before {
+  content: '✓';
+  position: absolute;
+  left: 0;
+  top: 0;
+  color: var(--lp-terracotta);
+  font-weight: 700;
+}
+.launch-promo-counselor-cta {
+  display: inline-flex;
+  align-items: center;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--lp-terracotta);
+  text-decoration: none;
+  border-bottom: 1.5px solid rgba(196, 96, 58, 0.4);
+  padding-bottom: 1px;
+}
+.launch-promo-counselor-cta:hover {
+  color: #b85530;
+  border-bottom-color: #b85530;
 }
 
 @media (max-width: 520px) {
   .launch-promo-prices { grid-template-columns: 1fr; }
-  .launch-promo-counselor-grid { grid-template-columns: 1fr; }
+  .launch-promo-counselor-title { font-size: 20px; }
   .counselor-promo { padding: 24px 18px 18px; }
 }

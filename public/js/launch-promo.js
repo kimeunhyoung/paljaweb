@@ -18,7 +18,7 @@
     if (document.querySelector('link[data-palja-launch-promo-css]')) return;
     var link = document.createElement('link');
     link.rel = 'stylesheet';
-    link.href = '/css/launch-promo.css?v=2';
+    link.href = '/css/launch-promo.css?v=3';
     link.setAttribute('data-palja-launch-promo-css', '1');
     document.head.appendChild(link);
   }
@@ -70,28 +70,17 @@
       '      </div>' +
       '    </div>' +
       '    <div class="launch-promo-counselor">' +
-      '      <p class="launch-promo-counselor-kicker">상담사이신가요?</p>' +
-      '      <p class="launch-promo-counselor-lead">Professional로 고객 CRM·일정·AI 리딩까지 한곳에서 쓰실 수 있습니다.</p>' +
-      '      <div class="counselor-promo-grid launch-promo-counselor-grid">' +
-      '        <div class="counselor-promo-col">' +
-      '          <h3>상담 업무</h3>' +
-      '          <ul>' +
-      '            <li>고객 CRM · 일정 · 상담 기록</li>' +
-      '            <li>상담 준비 요약 · 브랜디드 PDF</li>' +
-      '          </ul>' +
-      '        </div>' +
-      '        <div class="counselor-promo-col">' +
-      '          <h3>AI 리딩</h3>' +
-      '          <ul>' +
-      '            <li>해석 초안 즉시 생성·복사</li>' +
-      '            <li>타로·레노먼드·주역 지원</li>' +
-      '          </ul>' +
-      '        </div>' +
-      '      </div>' +
+      '      <h3 class="launch-promo-counselor-title">상담사이신가요?</h3>' +
+      '      <p class="launch-promo-counselor-lead">Professional로 고객 CRM·일정·AI 리딩까지 한곳에서. 출시 기념가 <strong>29,900원/월</strong>입니다.</p>' +
+      '      <ul class="launch-promo-counselor-points">' +
+      '        <li>고객 CRM · 일정 캘린더 · 상담 기록</li>' +
+      '        <li>AI 리딩 · 레노먼드 · 주역 해석 초안</li>' +
+      '        <li>브랜디드 PDF · 재방문 관리</li>' +
+      '      </ul>' +
+      '      <a href="/for-counselors.html" class="launch-promo-counselor-cta">상담사 전용 안내 보기 →</a>' +
       '    </div>' +
       '    <div class="counselor-promo-actions">' +
       '      <a href="/pricing.html" class="counselor-promo-btn counselor-promo-btn-accent">요금제 · 할인가 보기</a>' +
-      '      <a href="/for-counselors.html" class="counselor-promo-btn">상담사 안내</a>' +
       '      <a href="/signup.html" class="counselor-promo-btn counselor-promo-btn-ghost">회원가입</a>' +
       '    </div>' +
       '    <button type="button" class="counselor-promo-dismiss" id="launchPromoDismiss">다시 보지 않기</button>' +
