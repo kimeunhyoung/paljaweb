@@ -47,7 +47,7 @@
 
   /** Private — 인생리듬·타로 타임라인 */
   function hasSpecialAccess(plan, devUnlock) {
-    if (devUnlock) return false;
+    if (devUnlock) return true;
     return effectivePlan({ plan: plan }) === 'private';
   }
 
@@ -61,16 +61,28 @@
     var can = hasSpecialAccess(plan, devUnlock);
     var el = document.getElementById('pyramidRhythmSection');
     if (el) {
-      el.classList.remove('lc-product-off');
-      el.style.display = '';
-      el.removeAttribute('aria-hidden');
+      if (can) {
+        el.classList.remove('lc-product-off');
+        el.style.display = '';
+        el.removeAttribute('aria-hidden');
+      } else {
+        el.classList.add('lc-product-off');
+        el.style.display = 'none';
+        el.setAttribute('aria-hidden', 'true');
+      }
     }
     document.querySelectorAll('a[href="#pyramidRhythmSection"]').forEach(function (a) {
       var row = a.closest('.lc-guide-row, li, .analysis-jump-item');
       var target = row || a;
-      target.classList.remove('lc-product-off');
-      if (row) row.style.display = '';
-      else a.style.display = '';
+      if (can) {
+        target.classList.remove('lc-product-off');
+        if (row) row.style.display = '';
+        else a.style.display = '';
+      } else {
+        target.classList.add('lc-product-off');
+        if (row) row.style.display = 'none';
+        else a.style.display = 'none';
+      }
     });
   }
 
