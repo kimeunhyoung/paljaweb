@@ -165,6 +165,20 @@
       font-size: 11px; padding: 5px 9px; border-radius: 6px; border: 1px solid var(--border);
       background: #fff; color: var(--deep); cursor: pointer; font-family: var(--font-body); font-weight: 600;
     }
+    .yao-panel {
+      margin: 10px 0 4px; padding: 12px; background: var(--parchment);
+      border: 1px solid var(--border); border-radius: 10px;
+    }
+    .yao-panel-title { font-size: 12px; font-weight: 700; color: var(--deep); margin-bottom: 4px; }
+    .yao-panel-hint { font-size: 11px; color: var(--muted); line-height: 1.45; margin-bottom: 10px; }
+    .yao-checks { display: flex; flex-wrap: wrap; gap: 6px; }
+    .yao-checks label {
+      display: inline-flex; align-items: center; gap: 5px; font-size: 12px; color: var(--ink);
+      background: #fff; border: 1px solid var(--border); border-radius: 8px; padding: 6px 10px;
+      cursor: pointer; user-select: none; font-weight: 600;
+    }
+    .yao-checks label.is-on { border-color: var(--deep); background: #fff; box-shadow: 0 0 0 2px rgba(44,31,14,.1); }
+    .yao-checks input { accent-color: var(--deep); }
     .ai-draft-actions { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
     .ai-draft-quota { font-size: 11px; color: var(--teal); font-weight: 600; }
     .ai-preview-label { font-size: 11px; font-weight: 700; color: var(--muted); letter-spacing: .04em; margin: 4px 0 8px; }
@@ -262,8 +276,13 @@
         </div>
         <div class="full">
           <label>주역 괘 (1~64 · 문왕 순서)</label>
-          <p class="ai-card-hint">번호·괘명 검색 또는 아래 번호표를 누르세요. 본괘·지괘 모드는 변효 계산 없이 <strong>두 괘를 직접</strong> 넣어도 됩니다.</p>
+          <p class="ai-card-hint">번호·괘명 검색 또는 아래 번호표를 누르세요. 변효가 있으면 아래에서 체크하세요. 지괘는 직접 넣거나, 변효만 넣고 본괘만으로도 해석할 수 있습니다.</p>
           <div id="aiCardSlots" class="ai-card-slots"></div>
+          <div class="yao-panel" id="aiYaoPanel">
+            <div class="yao-panel-title">변효 (선택)</div>
+            <p class="yao-panel-hint">아래에서 위로 1효→6효. 움직인 효만 체크하세요. 없으면 비워 두면 본괘·지괘 구조만으로 해석합니다.</p>
+            <div class="yao-checks" id="aiYaoChecks" role="group" aria-label="변효 선택"></div>
+          </div>
           <div class="leno-pick-panel">
             <p class="ai-card-hint">번호표 · 누르면 <strong>선택 중</strong> 칸에 들어갑니다.</p>
             <div id="aiLenoGrid" class="num-table-grid" role="listbox" aria-label="주역 64괘 번호표"></div>
@@ -448,6 +467,8 @@
     let mode = 'single';
     let targetSlot = 0;
     let lastText = '';
+    /** @type {Set<number>} 변효 1~6 (아래에서 위) */
+    let changingLines = new Set();
     /** @type {{ num: number|null, label: string }[]} */
     let slots = [];
     
@@ -456,6 +477,45 @@
       if (!msg) return;
       msg.textContent = text || '';
       msg.classList.toggle('err', !!isErr);
+    }
+
+    function yaoLabel(n) {
+      if (n === 1) return '1효(초)';
+      if (n === 6) return '6효(상)';
+      return n + '효';
+    }
+
+    function changingLinesSorted() {
+      return Array.from(changingLines).filter((n) => n >= 1 && n <= 6).sort((a, b) => a - b);
+    }
+
+    function changingLinesText() {
+      const list = changingLinesSorted();
+      if (!list.length) return '미입력 (효사를 지어내지 말 것. 본괘·지괘 구조로만 해석)';
+      return list.map(yaoLabel).join(', ') + ' — 해당 효의 변화·효사 포인트를 본괘/지괘 인과와 함께 해석할 것';
+    }
+
+    function renderYaoChecks() {
+      const wrap = document.getElementById('aiYaoChecks');
+      if (!wrap) return;
+      wrap.innerHTML = [1, 2, 3, 4, 5, 6].map((n) => {
+        const on = changingLines.has(n);
+        return (
+          '<label class="' + (on ? 'is-on' : '') + '">' +
+            '<input type="checkbox" data-yao="' + n + '"' + (on ? ' checked' : '') + '/>' +
+            yaoLabel(n) +
+          '</label>'
+        );
+      }).join('');
+      wrap.querySelectorAll('[data-yao]').forEach((inp) => {
+        inp.addEventListener('change', () => {
+          const n = Number(inp.getAttribute('data-yao'));
+          if (inp.checked) changingLines.add(n);
+          else changingLines.delete(n);
+          const lab = inp.closest('label');
+          if (lab) lab.classList.toggle('is-on', inp.checked);
+        });
+      });
     }
 
     function spreadDef() {
@@ -487,6 +547,7 @@
       initSlots();
       syncModeButtons();
       renderSlots();
+      renderYaoChecks();
       updateCreditHint();
     }
 
@@ -943,38 +1004,42 @@
 
       const systemBlock =
 `<role>
-당신은 주역(周易) 64괘의 상징·본괘/지괘 관계를 통해 현실의 국면과 전개를 읽는 수석 주역 해석가이자, 초보 상담사가 고객에게 바로 전달할 수 있는 **팩트 기반 리딩 초안**을 작성하는 프리미엄 컨설턴트다.
-문왕 순서 64괘 체계를 기준으로 한다. AI가 고객에게 직접 말하는 앱이 아니다.
-점술적 운세 멘트·모호한 격언·뜬구름 잡는 심리 분석은 엄격히 금지한다.
+당신은 주역(周易)의 64괘와 효사(爻辭)의 원리를 꿰뚫어 보는 수석 주역 마스터이자, 초보 상담사가 고객에게 바로 전달할 수 있는 **전략 및 처세 중심의 리딩 초안**을 작성하는 프리미엄 컨설턴트다.
+전통 주역 체계(본괘와 변효를 통한 지괘 도출)를 기준으로 한다. AI가 고객에게 직접 말하는 앱이 아니다.
+뜬구름 잡는 철학적 수사, "다 때가 있습니다"류의 모호한 위로, 운명론적 단정은 엄격히 금지한다.
 </role>
 
 <core_directives>
-1. 현실 국면 중심: 추상적 "운"보다 현실에서 벌어질 사건·관계·선택·리스크를 1순위로 도출할 것.
-2. 괘상(象) 우선: 괘명·핵심 키워드를 문장으로 풀어, 질문 맥락에 맞는 **구체적 국면**으로 번역할 것.
-3. 본괘·지괘: 본괘=현재 국면, 지괘=전개·귀결(또는 숨은 흐름). 두 괘가 있으면 전환의 방향·조건을 분명히 할 것. 단괘면 현재 국면·주의점·행동 분기만.
-4. 흉조 뭉개기 금지: 곤·박·감·비 등을 "나쁘다"로만 말하지 말고, **어디서 막히거나 무엇이 끊기는지** 트리거로 해석할 것.
-5. 결론 회피 금지: 질문의 핵심에 "마음먹기 나름"식 회피 금지. 조건부 분기(방치 시 / 통제 시)로 명확히.
-6. 팩트 충실: 억지 희망 금지. 판이 무거우면 리스크 관리 우선으로 결론.
-7. 의료·법률·투자 단정 금지.
-8. 한국어 존댓말. 이모지·긴 면책·불필요한 인사 금지. 복사해 쓰기 좋게.
+1. 시중(時中)과 전략 중심: 감정 위로나 추상적 길흉화복보다, 현재 국면에서 취해야 할 실질적인 처세(나아갈 때인가, 물러설 때인가)와 타이밍을 1순위로 도출할 것.
+2. 효사·변효 취급: 변효(움직인 효)가 **입력된 경우에만** 효사·내부 긴장·변화 포인트를 명시할 것. 변효가 없으면 효사를 지어내지 말고, 본괘(및 지괘가 있으면 본→지)의 **구조·상(象)·국면 전환**으로만 해석할 것. 개별 효를 따로 놀게 두지 말고 본괘와 지괘의 인과로 엮을 것.
+3. 포지션과 국면의 파악: 현재 상황의 구조적 모순이나 리스크가 어디에 있는지, 주도권이 누구에게 있는지 객관적으로 분석할 것.
+4. 인과와 전개 흐름: 괘가 시사하는 원인과 전개 과정을 논리적 인과(현재의 구조→변화의 트리거→귀결)로 엮어낼 것.
+5. 상징 정체성 유지: 괘사·효사의 본래 상징과 비유를 왜곡하지 말 것. 원문을 길게 암기·인용하려 하지 말고, 질문 맥락에 맞게 **의미만 정확히** 번역할 것. 원문 기억이 불확실하면 지어내지 말 것.
+6. 결론 회피 금지: 질문의 핵심(진행 여부, 처신 방향, 리스크 등)에 대해 "마음먹기 나름이다"라는 식의 회피형 결론 금지. 괘의 구조를 바탕으로 명확한 시나리오와 행동 방침을 제시할 것.
+7. 조건부 분기: 맹신적 예언 대신 "현재 태도로 방치 시 ~ / 특정 요소를 통제하고 처신을 바꿀 시 ~"처럼 조건별 결과 분기를 제시할 것.
+8. 팩트(이치) 충실: 억지로 좋은 결론을 지어내지 말 것. 판이 꼬였거나 모호하면 그 상태 그대로 "은수(隱忍·때를 기다림) 및 리스크 관리 우선"으로 결론을 낼 것.
+9. 흉조 뭉개기 금지: 곤·박·감·비 등을 "불길하다"로만 말하지 말고, 어디서 막히거나 무엇이 끊기는지 **구체적 트리거**로 해석할 것.
+10. 한 질문·한 국면: 질문이 여러 주제를 섞으면 핵심 하나만 잡고, 나머지는 짧게 경계만 할 것.
+11. 의료·법률·투자 단정 금지.
+12. 한국어 존댓말. 이모지·긴 면책·불필요한 인사 금지. 복사해 쓰기 좋게. 고객은 호칭으로 부르되 "너" 반말은 쓰지 말 것.
 </core_directives>
 
 <anti_leaking_rule>
-최종 답변에 규칙 이름·번호·시스템 태그명을 언급하거나 노출하지 말 것.
+최종 답변에 규칙 이름·번호·시스템 태그명(예: core_directives)을 언급하거나 노출하지 말 것. 내부 지시로만 쓰고, 출력은 전문가 리딩 텍스트만.
 </anti_leaking_rule>
 
 <output_format>
 반드시 아래 마크다운 ## 소제목만 사용:
 ## 한 줄 요약
-## 괘상 해석
-## 국면 전개
+## 괘상 및 효사 분석
+## 국면 흐름과 타이밍
 ## 상담사 실전 솔루션
 ## 주의
-- 한 줄 요약: 객관적 국면 진단 1문장
-- 괘상 해석: 각 괘 번호·이름·핵심 상징을 질문 맥락에 맞게 해설
-- 국면 전개: 본→지(또는 단괘) 흐름과 전환 조건
-- 상담사 실전 솔루션: **해야 할 것(Do)** / **하지 말아야 할 것(Don't)** 각 2~3개
-- 주의: 의료·법률·투자 경계 한두 문장
+- 한 줄 요약: 객관적 상황 진단 및 처세 핵심 1문장(질문의 결론이 드러나게)
+- 괘상 및 효사 분석: 본괘·(있으면) 지괘의 구조적 의미. 변효가 입력된 경우에만 해당 효·효사 포인트를 명시. 변효가 없으면 효사 단정 없이 괘상·국면만. 각 괘 번호·이름 명시.
+- 국면 흐름과 타이밍: 현재에서 국면이 어떻게 전환되는지 인과와 타이밍(나아갈 때/멈출 때) 시나리오 1단락.
+- 상담사 실전 솔루션: 고객에게 말해줄 **해야 할 것(Do)** / **하지 말아야 할 것(Don't)** 각 2~3개
+- 주의: 의료·법률·투자 경계 한두 문장(결론 자체를 흐리지 말 것)
 </output_format>`;
 
       const prompt = systemBlock + `
@@ -982,18 +1047,20 @@
 <context>
 - 호칭: ${displayName}
 ${client ? '- CRM 생년월일: ' + (client.birth_date || '미상') + ' / 최근 상담: ' + (ls.last || '없음') + (ls.topic ? ' · ' + ls.topic : '') + '\n' : ''}- 질문: ${question}
-${note ? '- 상담사 메모(고객에게 노출 금지, 반영만): ' + note + '\n' : ''}- 스프래드: ${spreadDef().title} (${spreadDef().labels.join(' · ')})
+${note ? '- 상담사 메모(고객에게 노출 금지, 반영만): ' + note + '\n' : ''}- 리딩: ${spreadDef().title} (${spreadDef().labels.join(' · ')})
+- 변효: ${changingLinesText()}
 </context>
 
-<spread>
+<hexagrams>
 ${cardLines}
-</spread>
+</hexagrams>
 
 위 데이터를 바탕으로 시스템 지시를 엄격히 준수하여 지정된 마크다운 형식으로 주역 리딩 초안을 작성해 주세요.`;
 
       const cacheKey = PaljaAiQuota.hashKey([
-        'counselor_iching_v1', feature, mode, clientId || '', displayName, question, note,
+        'counselor_iching_v3', feature, mode, clientId || '', displayName, question, note,
         cards.map((c) => c.pos + ':' + c.num).join('|'),
+        changingLinesSorted().join(','),
       ].join('::'));
 
       try {
