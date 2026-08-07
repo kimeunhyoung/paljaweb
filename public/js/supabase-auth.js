@@ -12,15 +12,28 @@ const supabase = createClient(SUPABASE_URL, SUPABASE_KEY, {
   }
 })
 
-// 메시지 표시 함수
+// 로그인 후 이동 경로 — 같은 사이트 .html 페이지만 허용 (오픈리다이렉트 방지)
 function readSafeNextUrl() {
   try {
     const raw = new URLSearchParams(window.location.search).get('next')
     if (!raw) return null
-    let n = decodeURIComponent(raw).trim()
-    if (!n || n.includes('..') || n.startsWith('//')) return null
-    if (/^https?:/i.test(n)) return null
-    return n
+    const n = String(raw).trim()
+    if (!n) return null
+    // 제어문자·백슬래시·상위 경로
+    if (/[\u0000-\u001F\u007F\\]/.test(n) || n.includes('..')) return null
+    // javascript: / data: / https: 등 스킴, // 프로토콜-상대
+    if (/^[a-zA-Z][a-zA-Z0-9+.\-]*\s*:/.test(n) || n.startsWith('//')) return null
+
+    const u = new URL(n, window.location.origin + '/')
+    if (u.origin !== window.location.origin) return null
+
+    const path = u.pathname || ''
+    if (!path || path === '/') return 'dashboard.html'
+    if (!/\.html$/i.test(path)) return null
+    if (path.split('/').some((seg) => seg === '..' || seg === '.')) return null
+
+    // 기존 리다이렉트와 동일하게 leading slash 없는 상대 경로
+    return path.replace(/^\//, '') + u.search + u.hash
   } catch {
     return null
   }
