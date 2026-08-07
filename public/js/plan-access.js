@@ -301,7 +301,28 @@
     );
   }
 
+  function planStillLoading() {
+    return global.PALJA_PLAN_READY === false;
+  }
+
+  function showPlanLoadingMessage(errEl) {
+    var msg = '플랜 정보를 확인하는 중입니다. 잠시 후 다시 시도해 주세요.';
+    if (errEl) {
+      errEl.textContent = msg;
+      if (errEl.scrollIntoView) {
+        errEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      }
+    } else {
+      alert(msg);
+    }
+  }
+
   function checkBasicProductAccess(product, plan, errEl, devUnlock) {
+    // bootstrap 진행 중이면 free로 오판하지 않음
+    if (planStillLoading()) {
+      showPlanLoadingMessage(errEl);
+      return false;
+    }
     if (hasProductAccess(product, plan, devUnlock)) return true;
     if (errEl) {
       errEl.innerHTML = productGatePanelHtml(product, { loggedIn: isLoggedInFlag() });
@@ -312,6 +333,19 @@
       alert(productGateMsg(product));
     }
     return false;
+  }
+
+  /** 플랜 로드 완료 후 게이트 — 클릭/자동실행 레이스 방지 */
+  async function ensureBasicProductAccess(product, errEl, devUnlock) {
+    if (global.PaljaProductBootstrap && typeof global.PaljaProductBootstrap.whenReady === 'function') {
+      await global.PaljaProductBootstrap.whenReady();
+    }
+    return checkBasicProductAccess(
+      product,
+      global.PALJA_USER_PLAN || 'free',
+      errEl,
+      devUnlock
+    );
   }
 
   global.PaljaPlan = {
@@ -350,5 +384,6 @@
     BASIC_PRODUCT_GATE_MSG: BASIC_PRODUCT_GATE_MSG,
     basicProductGateHtml: basicProductGateHtml,
     checkBasicProductAccess: checkBasicProductAccess,
+    ensureBasicProductAccess: ensureBasicProductAccess,
   };
 })(typeof window !== 'undefined' ? window : globalThis);

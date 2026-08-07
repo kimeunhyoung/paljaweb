@@ -1,10 +1,16 @@
 /**
  * 프로그램 페이지: 로그인 확인 + PALJA_USER_PLAN 설정
  * plan-access.js를 먼저 로드하세요.
+ *
+ * 레이스 방지: bootstrap() 동안 PALJA_PLAN_READY === false.
+ * 게이트는 PaljaPlan.ensureBasicProductAccess / whenReady 를 사용하세요.
  */
 (function (global) {
   var SB_URL = 'https://sghsryumnrnftyjoqmwf.supabase.co';
   var SB_KEY = 'sb_publishable_6S3W_oWrzG-Nv8wLK98gmg_q_KcB2I1';
+
+  var readyResolve = null;
+  var readyPromise = null;
 
   function getClient() {
     var g = global.supabase || globalThis.supabase;
@@ -24,6 +30,22 @@
     return (profile && profile.plan) || 'free';
   }
 
+  function markReady() {
+    global.PALJA_PLAN_READY = true;
+    if (readyResolve) {
+      readyResolve(global.PALJA_USER_PLAN || 'free');
+      readyResolve = null;
+    }
+  }
+
+  /** bootstrap 완료까지 대기. bootstrap이 없으면 즉시 resolve */
+  function whenReady() {
+    if (global.PALJA_PLAN_READY !== false) {
+      return Promise.resolve(global.PALJA_USER_PLAN || 'free');
+    }
+    return readyPromise || Promise.resolve(global.PALJA_USER_PLAN || 'free');
+  }
+
   async function bootstrap(options) {
     options = options || {};
     var product = options.product || 'harmony';
@@ -31,37 +53,46 @@
     global.PALJA_PRODUCT = product;
     global.PALJA_USER_PLAN = 'free';
     global.PALJA_LOGGED_IN = false;
+    global.PALJA_PLAN_READY = false;
+    readyPromise = new Promise(function (resolve) {
+      readyResolve = resolve;
+    });
 
-    var sb = getClient();
-    if (!sb) return global.PALJA_USER_PLAN;
+    try {
+      var sb = getClient();
+      if (!sb) return global.PALJA_USER_PLAN;
 
-    var res = await sb.auth.getSession();
-    var session = res.data && res.data.session;
-    if (!session) {
-      if (requireLogin) {
-        var next = loginNext();
-        var url = global.PaljaPlan && global.PaljaPlan.signupUrl
-          ? global.PaljaPlan.signupUrl(next)
-          : 'signup.html?next=' + encodeURIComponent(next);
-        global.location.replace(url);
+      var res = await sb.auth.getSession();
+      var session = res.data && res.data.session;
+      if (!session) {
+        if (requireLogin) {
+          var next = loginNext();
+          var url = global.PaljaPlan && global.PaljaPlan.signupUrl
+            ? global.PaljaPlan.signupUrl(next)
+            : 'signup.html?next=' + encodeURIComponent(next);
+          global.location.replace(url);
+        }
+        return global.PALJA_USER_PLAN;
+      }
+
+      global.PALJA_LOGGED_IN = true;
+
+      var pres = await sb
+        .from('profiles')
+        .select('plan, plan_active_until')
+        .eq('id', session.user.id)
+        .maybeSingle();
+      if (pres.data) {
+        global.PALJA_USER_PLAN = effectivePlan(pres.data);
       }
       return global.PALJA_USER_PLAN;
+    } finally {
+      markReady();
     }
-
-    global.PALJA_LOGGED_IN = true;
-
-    var pres = await sb
-      .from('profiles')
-      .select('plan, plan_active_until')
-      .eq('id', session.user.id)
-      .maybeSingle();
-    if (pres.data) {
-      global.PALJA_USER_PLAN = effectivePlan(pres.data);
-    }
-    return global.PALJA_USER_PLAN;
   }
 
   global.PaljaProductBootstrap = {
     bootstrap: bootstrap,
+    whenReady: whenReady,
   };
 })(typeof window !== 'undefined' ? window : globalThis);

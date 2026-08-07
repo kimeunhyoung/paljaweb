@@ -20,8 +20,8 @@
 <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.2/dist/jspdf.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="js/plan-access.js?v=10"></script>
-<script src="js/product-plan-bootstrap.js?v=2"></script>
+<script src="js/plan-access.js?v=12"></script>
+<script src="js/product-plan-bootstrap.js?v=3"></script>
 <script src="js/attribution.js"></script>
   <script src="js/site-topbar.js?v=7" defer></script>
 <script src="js/topbar-session.js?v=6" defer></script>
@@ -2108,7 +2108,7 @@ function renderDirectionScores(name1, name2, score12, score21, why12, why21) {
 }
 
 /* ── Main ── */
-function runAnalysis() {
+async function runAnalysis() {
   const name1 = document.getElementById('name1').value.trim();
   const name2 = document.getElementById('name2').value.trim();
   const dob1  = document.getElementById('dob1').value;
@@ -2116,7 +2116,7 @@ function runAnalysis() {
   const err   = document.getElementById('errMsg');
 
   if (!name1||!name2) { err.textContent='두 사람의 이름을 모두 입력해주세요'; return; }
-  if (window.PaljaPlan && !PaljaPlan.checkBasicProductAccess('harmony', window.PALJA_USER_PLAN || 'free', err)) {
+  if (window.PaljaPlan && !(await PaljaPlan.ensureBasicProductAccess('harmony', err))) {
     return;
   }
   err.textContent='';
@@ -2206,7 +2206,7 @@ document.addEventListener('keydown', e=>{ if(e.key==='Enter') runAnalysis(); });
     setVal('name1', n1); setVal('name2', n2);
     setVal('dob1', d1); setVal('dob2', d2);
     if (qs.get('auto') === '1' && n1 && n2) {
-      if (typeof runAnalysis === 'function') runAnalysis();
+      if (typeof runAnalysis === 'function') await runAnalysis();
     }
   } catch (e) { /* ignore */ }
 })();

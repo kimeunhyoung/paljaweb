@@ -115,9 +115,9 @@
     result.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
 
-  function runP48Compat() {
+  async function runP48Compat() {
     const err = document.getElementById('p48Err');
-    if (window.PaljaPlan && !PaljaPlan.checkBasicProductAccess('p48', window.PALJA_USER_PLAN || 'free', err)) {
+    if (window.PaljaPlan && !(await PaljaPlan.ensureBasicProductAccess('p48', err))) {
       return;
     }
     const dob1 = document.getElementById('p48Dob1')?.value;

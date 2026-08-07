@@ -21,9 +21,9 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="js/plan-access.js?v=8"></script>
+<script src="js/plan-access.js?v=12"></script>
 <script src="js/ai-quota-client.js?v=1"></script>
-<script src="js/product-plan-bootstrap.js?v=1"></script>
+<script src="js/product-plan-bootstrap.js?v=3"></script>
 <script src="js/attribution.js"></script>
   <script src="js/site-topbar.js?v=7" defer></script>
 <script src="js/topbar-session.js?v=6" defer></script>
@@ -1795,8 +1795,8 @@ function renderCompareTable(sortedResults, dist, purposeInput) {
 }
 
 // ── 메인 분석 ──
-function runAnalysis(){
-  if (window.PaljaPlan && !PaljaPlan.checkBasicProductAccess('name', window.PALJA_USER_PLAN || 'free', null)) {
+async function runAnalysis(){
+  if (window.PaljaPlan && !(await PaljaPlan.ensureBasicProductAccess('name', null))) {
     return;
   }
   const baseName=document.getElementById('baseName').value.trim();
@@ -1901,7 +1901,7 @@ ${results.length>1?`주의 이름: ${results[results.length-1]?.name} (${Math.mi
 
 // ── AI 이름 추천 (이름만 받아서 로컬 계산) ──
 async function runRecommend(){
-  if (window.PaljaPlan && !PaljaPlan.checkBasicProductAccess('name', window.PALJA_USER_PLAN || 'free', null)) {
+  if (window.PaljaPlan && !(await PaljaPlan.ensureBasicProductAccess('name', null))) {
     return;
   }
   const surname  = document.getElementById('recSurname').value.trim();
