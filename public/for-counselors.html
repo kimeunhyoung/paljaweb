@@ -169,7 +169,25 @@
       font-size: 22px;
     }
     .fc-feat h3 { font-size: 16px; color: var(--deep); margin-bottom: 6px; }
-    .fc-feat p { font-size: 14px; color: var(--muted); }
+    .fc-feat p { font-size: 14px; color: var(--muted); line-height: 1.6; }
+    .fc-feat-list {
+      margin: 10px 0 0;
+      padding: 0 0 0 18px;
+      font-size: 13.5px;
+      color: var(--ink);
+      line-height: 1.55;
+    }
+    .fc-feat-list li { margin-bottom: 5px; }
+    .fc-feat-link {
+      display: inline-block;
+      margin-top: 12px;
+      font-size: 13.5px;
+      font-weight: 700;
+      color: var(--deep);
+      text-decoration: none;
+      border-bottom: 1.5px solid rgba(74, 53, 32, 0.35);
+    }
+    .fc-feat-link:hover { color: var(--accent); border-bottom-color: var(--accent); }
     .fc-feat-tags { margin-top: 10px; display: flex; flex-wrap: wrap; gap: 6px; }
     .fc-tag {
       font-size: 11px;
@@ -405,9 +423,17 @@
       <div class="fc-feat">
         <div class="fc-feat-icon">✦</div>
         <div>
-          <h3>상담사 AI 리딩</h3>
-          <p>질문·카드·칸별 해석 요청으로 고객에게 붙여넣을 초안을 만듭니다. 신입용 세션 스크립트와 함께 <strong>단독 페이지</strong>로 제공됩니다. AI가 대신 상담하지 않고, 상담사가 다듬어 쓰는 Professional 전용 도구입니다.</p>
-          <div class="fc-feat-tags"><span class="fc-tag">Professional</span><span class="fc-tag">타로 리딩</span><span class="fc-tag">AI 크레딧</span></div>
+          <h3>상담사 AI 타로 리딩</h3>
+          <p>질문·카드·칸별 해석 요청으로, 고객에게 붙여넣을 수 있는 <strong>팩트 기반 초안</strong>을 만듭니다. AI가 대신 상담하지 않고, 상담사가 다듬어 쓰는 Professional 전용 도구입니다. 신입용 세션 스크립트와 함께 <strong>단독 페이지</strong>로 제공됩니다.</p>
+          <ul class="fc-feat-list">
+            <li>카드만 리딩 / 수비·점성 통합 리딩 모드 선택</li>
+            <li>스프래드 뒤에 조언·명확화 카드를 더 뽑아 보완</li>
+            <li>장수별 AI 크레딧 — 1장 1 · 2~3장 2 · 4~6장 3</li>
+            <li>생성 초안을 복사해 카톡·메시지로 바로 전달</li>
+            <li>레노먼드 AI · 주역 AI도 Professional에서 함께 이용</li>
+          </ul>
+          <a class="fc-feat-link" href="counselor-reading.html">AI 타로 리딩 페이지 열기 →</a>
+          <div class="fc-feat-tags"><span class="fc-tag">Professional</span><span class="fc-tag">AI 타로 리딩</span><span class="fc-tag">AI 크레딧</span><span class="fc-tag">초안 복사</span></div>
         </div>
       </div>
       <div class="fc-feat">
