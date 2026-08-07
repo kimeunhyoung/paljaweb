@@ -404,10 +404,62 @@
     .cal-day.selected { outline: 2px solid var(--teal); outline-offset: -1px; }
     .cal-detail { margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--border); }
     .cal-detail h4 { font-size: 12px; color: var(--muted); margin-bottom: 8px; font-weight: 600; }
-    .cal-detail .cal-item { display: flex; align-items: center; gap: 8px; font-size: 12.5px; padding: 6px 0; }
+    .cal-detail .cal-item {
+      display: flex; align-items: flex-start; gap: 10px; font-size: 12.5px;
+      padding: 10px 12px; border-radius: 10px; margin-bottom: 6px;
+      border: 1px solid var(--border); background: #fff;
+    }
+    .cal-detail .cal-item:last-child { margin-bottom: 0; }
+    .cal-detail .cal-item-body { flex: 1; min-width: 0; }
+    .cal-detail .cal-item-title { font-weight: 700; line-height: 1.4; }
+    .cal-detail .cal-item-time { font-size: 11px; font-weight: 600; margin-left: 6px; white-space: nowrap; }
+    .cal-detail .cal-item-note { font-size: 11px; margin-top: 4px; line-height: 1.45; }
+    .cal-detail .cal-item-btns { margin-left: auto; display: flex; gap: 4px; flex-shrink: 0; flex-wrap: wrap; justify-content: flex-end; }
+    .cal-detail .cal-item-btns .btn-sm { font-size: 11px; padding: 4px 10px; }
+    .cal-detail .cal-kind {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 22px; height: 22px; border-radius: 6px; flex-shrink: 0; margin-top: 1px;
+      font-size: 11px; font-weight: 800; letter-spacing: -.02em;
+    }
     .cal-detail .cal-empty { font-size: 12px; color: var(--muted); }
-    .cal-detail .cal-section { margin-top: 10px; }
-    .cal-detail .cal-section h5 { font-size: 11px; color: var(--muted); margin-bottom: 6px; font-weight: 600; letter-spacing: .03em; }
+    .cal-detail .cal-section { margin-top: 12px; }
+    .cal-detail .cal-section:first-child { margin-top: 0; }
+    .cal-detail .cal-section h5 {
+      display: flex; align-items: center; gap: 7px;
+      font-size: 11px; margin-bottom: 8px; font-weight: 700; letter-spacing: .02em;
+    }
+    .cal-detail .cal-section h5::before {
+      content: ''; width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0;
+    }
+    .cal-detail .cal-section.is-session h5 { color: #9b5f72; }
+    .cal-detail .cal-section.is-session h5::before { background: #9b5f72; }
+    .cal-detail .cal-section.is-appointment h5 { color: var(--teal); }
+    .cal-detail .cal-section.is-appointment h5::before { background: var(--teal); }
+    .cal-detail .cal-section.is-personal h5 { color: #8a6b2e; }
+    .cal-detail .cal-section.is-personal h5::before { background: var(--accent); }
+    .cal-detail .cal-item.is-session {
+      background: rgba(155,95,114,.07); border-color: rgba(155,95,114,.28);
+      border-left: 3px solid #9b5f72;
+    }
+    .cal-detail .cal-item.is-session .cal-kind { background: rgba(155,95,114,.16); color: #9b5f72; }
+    .cal-detail .cal-item.is-session .cal-item-title { color: #6e3d4c; }
+    .cal-detail .cal-item.is-session .cal-item-note { color: #8a6570; }
+    .cal-detail .cal-item.is-appointment {
+      background: rgba(46,139,122,.07); border-color: rgba(46,139,122,.28);
+      border-left: 3px solid var(--teal);
+    }
+    .cal-detail .cal-item.is-appointment .cal-kind { background: rgba(46,139,122,.14); color: var(--teal); }
+    .cal-detail .cal-item.is-appointment .cal-item-title { color: #1f6b5e; }
+    .cal-detail .cal-item.is-appointment .cal-item-time { color: var(--teal); }
+    .cal-detail .cal-item.is-appointment .cal-item-note { color: #4a7a70; }
+    .cal-detail .cal-item.is-personal {
+      background: rgba(200,169,110,.12); border-color: rgba(200,169,110,.4);
+      border-left: 3px solid var(--accent);
+    }
+    .cal-detail .cal-item.is-personal .cal-kind { background: rgba(200,169,110,.28); color: #8a6b2e; }
+    .cal-detail .cal-item.is-personal .cal-item-title { color: #6e5520; }
+    .cal-detail .cal-item.is-personal .cal-item-time { color: #8a6b2e; }
+    .cal-detail .cal-item.is-personal .cal-item-note { color: #8a7550; }
 
     /* 중요 일정 */
     .event-panel { margin-top: 16px; padding-top: 16px; border-top: 1px dashed var(--border); }
@@ -2139,46 +2191,58 @@
         list.innerHTML = '<div class="cal-empty">이 날 상담·일정이 없습니다. 아래에서 일정을 추가할 수 있습니다.</div>';
         return;
       }
-      function eventItemHtml(it) {
+      function eventItemHtml(it, kind) {
         const tl = formatEventTimeLabel(it.event_time);
-        return '<div class="cal-item"><span><strong>' + escapeHtml(it.title) + '</strong>' +
-          (tl ? ' <span style="color:var(--teal);font-size:11px;">' + escapeHtml(tl) + '</span>' : '') +
-          (it.note ? '<br><span style="font-size:11px;color:var(--muted)">' + escapeHtml(it.note) + '</span>' : '') +
-          '</span>' +
-          '<div class="cal-item-btns" style="margin-left:auto;display:flex;gap:4px;flex-shrink:0;">' +
-          '<button type="button" class="btn-sm outline" data-ev-edit="' + it.id + '" style="font-size:11px;padding:4px 10px;">수정</button>' +
-          '<button type="button" class="btn-sm outline" data-ev-del="' + it.id + '" style="font-size:11px;padding:4px 10px;">삭제</button>' +
+        const kindMark = kind === 'appointment' ? '상' : '개';
+        const kindCls = kind === 'appointment' ? 'is-appointment' : 'is-personal';
+        return '<div class="cal-item ' + kindCls + '">' +
+          '<span class="cal-kind" aria-hidden="true">' + kindMark + '</span>' +
+          '<div class="cal-item-body"><div class="cal-item-title">' + escapeHtml(it.title) +
+          (tl ? '<span class="cal-item-time">' + escapeHtml(tl) + '</span>' : '') +
+          '</div>' +
+          (it.note ? '<div class="cal-item-note">' + escapeHtml(it.note) + '</div>' : '') +
+          '</div>' +
+          '<div class="cal-item-btns">' +
+          '<button type="button" class="btn-sm outline" data-ev-edit="' + it.id + '">수정</button>' +
+          '<button type="button" class="btn-sm outline" data-ev-del="' + it.id + '">삭제</button>' +
           '</div></div>';
       }
       let html = '';
       if (dayData.sessions.length) {
-        html += '<div class="cal-section"><h5>상담 완료 (기록)</h5>';
+        html += '<div class="cal-section is-session"><h5>상담 완료 (기록)</h5>';
         html += dayData.sessions.map((it) => {
-          const sum = it.summary ? '<br><span style="font-size:11px;color:var(--muted)">' + escapeHtml(it.summary.slice(0, 80)) + (it.summary.length > 80 ? '…' : '') + '</span>' : '';
-          return '<div class="cal-item"><span>' + escapeHtml(it.name) + sum + '</span>' +
-            '<div class="cal-item-btns" style="margin-left:auto;display:flex;gap:4px;flex-shrink:0;">' +
-            '<button type="button" class="btn-sm outline" data-edit-session="' + it.sessionId + '" data-id="' + it.clientId + '" style="font-size:11px;padding:4px 10px;">수정</button>' +
-            '<button type="button" class="btn-sm outline" data-act="sessions" data-id="' + it.clientId + '" style="font-size:11px;padding:4px 10px;">기록</button>' +
+          const sum = it.summary
+            ? '<div class="cal-item-note">' + escapeHtml(it.summary.slice(0, 80)) + (it.summary.length > 80 ? '…' : '') + '</div>'
+            : '';
+          return '<div class="cal-item is-session">' +
+            '<span class="cal-kind" aria-hidden="true">완</span>' +
+            '<div class="cal-item-body"><div class="cal-item-title">' + escapeHtml(it.name) + '</div>' + sum + '</div>' +
+            '<div class="cal-item-btns">' +
+            '<button type="button" class="btn-sm outline" data-edit-session="' + it.sessionId + '" data-id="' + it.clientId + '">수정</button>' +
+            '<button type="button" class="btn-sm outline" data-act="sessions" data-id="' + it.clientId + '">기록</button>' +
             '</div></div>';
         }).join('');
         html += '</div>';
       }
       if (dayData.clients.length || appts.length) {
-        html += '<div class="cal-section"><h5>상담 약속</h5>';
+        html += '<div class="cal-section is-appointment"><h5>상담 약속</h5>';
         html += dayData.clients.map((it) =>
-          '<div class="cal-item"><span>' + escapeHtml(it.name) + ' <span style="font-size:10px;color:var(--muted)">(고객)</span></span>' +
-          '<div class="cal-item-btns" style="margin-left:auto;display:flex;gap:4px;flex-shrink:0;">' +
-          '<button type="button" class="btn-sm outline" data-edit-client="' + it.clientId + '" style="font-size:11px;padding:4px 10px;">날짜변경</button>' +
-          '<button type="button" class="btn-sm outline" data-clear-appt="' + it.clientId + '" style="font-size:11px;padding:4px 10px;">약속해제</button>' +
-          '<button type="button" class="btn-sm outline" data-act="sessions" data-id="' + it.clientId + '" style="font-size:11px;padding:4px 10px;">기록</button>' +
+          '<div class="cal-item is-appointment">' +
+          '<span class="cal-kind" aria-hidden="true">고</span>' +
+          '<div class="cal-item-body"><div class="cal-item-title">' + escapeHtml(it.name) +
+          ' <span style="font-size:10px;font-weight:600;opacity:.75">(고객)</span></div></div>' +
+          '<div class="cal-item-btns">' +
+          '<button type="button" class="btn-sm outline" data-edit-client="' + it.clientId + '">날짜변경</button>' +
+          '<button type="button" class="btn-sm outline" data-clear-appt="' + it.clientId + '">약속해제</button>' +
+          '<button type="button" class="btn-sm outline" data-act="sessions" data-id="' + it.clientId + '">기록</button>' +
           '</div></div>'
         ).join('');
-        html += appts.map(eventItemHtml).join('');
+        html += appts.map((it) => eventItemHtml(it, 'appointment')).join('');
         html += '</div>';
       }
       if (personals.length) {
-        html += '<div class="cal-section"><h5>개인 일정</h5>';
-        html += personals.map(eventItemHtml).join('');
+        html += '<div class="cal-section is-personal"><h5>개인 일정</h5>';
+        html += personals.map((it) => eventItemHtml(it, 'personal')).join('');
         html += '</div>';
       }
       list.innerHTML = html;
