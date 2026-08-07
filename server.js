@@ -8,7 +8,7 @@ const { registerLifecodeRoutes } = require('./lib/lifecode-api');
 const { registerNaverAuthRoutes } = require('./lib/naver-auth');
 const { registerCounselorPushRoutes, startCounselorPushScheduler } = require('./lib/counselor-push');
 const { registerCounselorTrialRoutes } = require('./lib/counselor-trial');
-const { registerAiUsageRoutes, isAiUpstreamAvailable, kstPeriod, aiCreditLimit, aiUsagePeriod } = require('./lib/ai-usage');
+const { registerAiUsageRoutes, isAiUpstreamAvailable, kstPeriod, resolveAiCreditLimit, aiUsagePeriod } = require('./lib/ai-usage');
 const { registerAiOneTimeRoutes } = require('./lib/ai-one-time');
 const { registerSignupNotifyRoutes, providerLabel } = require('./lib/signup-notify');
 const { buildSignupStats } = require('./lib/admin-signup-stats');
@@ -653,7 +653,7 @@ app.get('/api/admin/ai-credits/users', async (req, res) => {
       const email = (authUser?.email || '').toLowerCase();
       const usagePeriod = aiUsagePeriod(p);
       const used = await getAiMonthlyUsed(p.id, usagePeriod);
-      const limit = aiCreditLimit(p);
+      const limit = await resolveAiCreditLimit(p);
       return {
         userId: p.id,
         email,
@@ -745,7 +745,7 @@ app.post('/api/admin/ai-credits/adjust', async (req, res) => {
     const prev = await getAiMonthlyUsed(userId, period);
     const next = Math.max(0, prev + delta);
     const saved = await upsertAiMonthlyUsed(userId, period, next);
-    const limit = aiCreditLimit(profile || {});
+    const limit = await resolveAiCreditLimit(profile || {});
     res.json({
       ok: true,
       userId,

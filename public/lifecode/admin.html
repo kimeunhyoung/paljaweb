@@ -132,9 +132,9 @@
   <div id="mainUI" hidden>
     <div class="panel">
       <h2 style="font-size:1rem;margin-bottom:12px;">코드 발급</h2>
-      <label for="newNote">메모 (구매자)</label>
-      <input id="newNote" placeholder="홍길동 / 5/21 결제"/>
-      <label for="newExpires">만료일 (비우면 무기한)</label>
+      <label for="newNote">메모 (구매자·테스터명)</label>
+      <input id="newNote" placeholder="홍길동 / 유튜브 후기 테스터"/>
+      <label for="newExpires">만료일 (비우면 무기한 · 테스터 버튼은 자동 설정)</label>
       <input id="newExpires" type="datetime-local"/>
       <label for="newTier">상품 등급 (등록 가격)</label>
       <select id="newTier">
@@ -143,7 +143,15 @@
       </select>
       <label for="newCode">코드 (비우면 자동 생성)</label>
       <input id="newCode" placeholder="LC-ABCD-EF12"/>
-      <button type="button" id="createBtn">발급</button>
+      <div style="display:flex;flex-wrap:wrap;gap:8px;margin:12px 0 4px;">
+        <button type="button" id="createBtn">일반 발급</button>
+        <button type="button" id="createBeta5" style="background:#2e8b7a;">테스터 5일 · AI 10</button>
+        <button type="button" id="createBeta7" style="background:#c4603a;">테스터 7일 · AI 10</button>
+      </div>
+      <p style="font-size:12px;color:#7d6b56;margin:6px 0 0;line-height:1.5;">
+        테스터 코드 = <strong>Professional</strong> 전 기능 · AI <strong>10</strong>크레딧 · 기간 끝나면 자동 만료.
+        연동: <code>/counselor-trial-link.html</code>
+      </p>
       <div id="createFlash" class="flash" hidden></div>
     </div>
 
@@ -219,8 +227,10 @@
       return new Date(iso).toLocaleString('ko-KR');
     }
 
-    function tierLabel(tier) {
-      return tier === 'counselor' ? '상담사' : '기본';
+    function tierLabel(tier, note) {
+      const base = tier === 'counselor' ? '상담사' : '기본';
+      if (/\[beta_ai:/i.test(String(note || ''))) return base + '·테스터';
+      return base;
     }
 
     async function loadList() {
@@ -239,7 +249,7 @@
         const tier = row.productTier || 'basic';
         tr.innerHTML = `
           <td data-label=""><code>${row.codeHint || '—'}</code></td>
-          <td data-label="등급"><span class="badge tier-${tier}">${tierLabel(tier)}</span></td>
+          <td data-label="등급"><span class="badge tier-${tier}">${tierLabel(tier, row.note)}</span></td>
           <td data-label="상태"><span class="badge ${row.status}">${row.status}</span></td>
           <td data-label="만료">${exp}</td>
           <td data-label="기기">${row.deviceBound ? '등록됨' : '—'}</td>
@@ -337,15 +347,20 @@
     });
 
     document.getElementById('createBtn').addEventListener('click', async () => {
+      await createLicense({});
+    });
+
+    async function createLicense(extra) {
       const note = document.getElementById('newNote').value.trim();
       const code = document.getElementById('newCode').value.trim();
       const expRaw = document.getElementById('newExpires').value;
       const body = {
         note: note || null,
         productTier: document.getElementById('newTier').value,
+        ...extra,
       };
       if (code) body.code = code;
-      if (expRaw) body.expiresAt = new Date(expRaw).toISOString();
+      if (!extra.betaDays && expRaw) body.expiresAt = new Date(expRaw).toISOString();
       try {
         const data = await api('/api/lifecode/admin/licenses', {
           method: 'POST',
@@ -353,13 +368,21 @@
         });
         const flash = document.getElementById('createFlash');
         flash.hidden = false;
-        flash.innerHTML = `발급 완료 — 이 코드를 구매자에게 전달하세요 (다시 표시되지 않음):<br><span class="new-code">${data.code}</span>`;
+        const betaLine = data.beta
+          ? `<br><span style="font-size:13px;">Professional 테스터 ${data.betaDays}일 · AI ${data.aiCredits} · 만료 ${fmtDate(data.expiresAt)}</span>`
+          : '';
+        flash.innerHTML =
+          `발급 완료 — 이 코드를 테스터/구매자에게 전달하세요 (다시 표시되지 않음):<br>` +
+          `<span class="new-code">${data.code}</span>${betaLine}`;
         document.getElementById('newCode').value = '';
         loadList();
       } catch (e) {
         alert(e.message || '발급 실패');
       }
-    });
+    }
+
+    document.getElementById('createBeta5').addEventListener('click', () => createLicense({ betaDays: 5 }));
+    document.getElementById('createBeta7').addEventListener('click', () => createLicense({ betaDays: 7 }));
 
     document.getElementById('reloadBtn').addEventListener('click', () => loadList());
     document.getElementById('filterStatus').addEventListener('change', () => loadList());
