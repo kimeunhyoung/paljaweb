@@ -31,8 +31,8 @@
 }
 .counselor-promo {
   position: relative;
-  width: min(520px, 100%);
-  max-height: min(90vh, 640px);
+  width: min(560px, 100%);
+  max-height: min(92vh, 720px);
   overflow: auto;
   background: var(--lp-cream);
   border-radius: var(--lp-radius-lg);
@@ -125,6 +125,44 @@
 }
 .counselor-promo-dismiss:hover { color: var(--lp-brown); }
 
+.counselor-promo-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  margin-bottom: 20px;
+}
+.counselor-promo-col h3 {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--lp-brown);
+  margin: 0 0 8px;
+}
+.counselor-promo-col ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.counselor-promo-col li {
+  position: relative;
+  padding: 0 0 7px 14px;
+  font-size: 13px;
+  line-height: 1.45;
+  color: var(--lp-text2);
+}
+.counselor-promo-col li::before {
+  content: '·';
+  position: absolute;
+  left: 2px;
+  color: var(--lp-terracotta);
+  font-weight: 700;
+}
+.counselor-promo-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
 .launch-promo-prices {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -172,7 +210,51 @@
   color: var(--lp-text2);
 }
 
+.launch-promo-counselor {
+  margin: 0 0 16px;
+  padding: 14px 14px 12px;
+  border-radius: var(--lp-radius);
+  background: rgba(255, 255, 255, 0.55);
+  border: 1px solid var(--lp-border2);
+}
+.launch-promo-counselor-kicker {
+  margin: 0 0 4px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: var(--lp-terracotta);
+}
+.launch-promo-counselor-lead {
+  margin: 0 0 10px;
+  font-size: 13px;
+  line-height: 1.45;
+  color: var(--lp-text2);
+}
+.launch-promo-counselor-grid {
+  margin: 0;
+  gap: 10px;
+}
+.launch-promo-counselor-grid .counselor-promo-col h3 {
+  font-size: 13px;
+  margin-bottom: 6px;
+}
+.launch-promo-counselor-grid .counselor-promo-col ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.launch-promo-counselor-grid .counselor-promo-col li {
+  font-size: 12px;
+  line-height: 1.45;
+  color: var(--lp-text2);
+  margin-bottom: 4px;
+}
+.launch-promo .counselor-promo-actions {
+  flex-wrap: wrap;
+}
+
 @media (max-width: 520px) {
   .launch-promo-prices { grid-template-columns: 1fr; }
+  .launch-promo-counselor-grid { grid-template-columns: 1fr; }
   .counselor-promo { padding: 24px 18px 18px; }
 }

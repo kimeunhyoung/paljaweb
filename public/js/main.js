@@ -593,6 +593,15 @@ function initCounselorPromo() {
   const overlay = document.getElementById('counselorPromo')
   if (!overlay) return
 
+  // 출시 할인 기간에는 launch-promo 통합 팝업만 사용 (연속 팝업 방지)
+  try {
+    const launchEnd = new Date('2026-12-31T23:59:59+09:00')
+    const launchDismissed =
+      localStorage.getItem('palja_launch_promo_dismiss_v1') === '1' ||
+      sessionStorage.getItem('palja_launch_promo_session_v1') === '1'
+    if (Date.now() <= launchEnd.getTime() && !launchDismissed) return
+  } catch (_) { /* ignore */ }
+
   const closeBtn = document.getElementById('counselorPromoClose')
   const dismissBtn = document.getElementById('counselorPromoDismiss')
 

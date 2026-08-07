@@ -13,7 +13,7 @@
 
   if (!document.querySelector('script[data-palja-launch-promo]')) {
     var lp = document.createElement('script');
-    lp.src = '/js/launch-promo.js?v=1';
+    lp.src = '/js/launch-promo.js?v=2';
     lp.defer = true;
     lp.setAttribute('data-palja-launch-promo', '1');
     document.head.appendChild(lp);
