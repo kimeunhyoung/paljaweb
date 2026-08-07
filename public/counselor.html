@@ -430,16 +430,42 @@
     .event-list-hint { font-size: 11px; color: var(--muted); margin-top: 8px; line-height: 1.5; }
 
     /* 오전 알림 */
-    .push-panel { background: #fff; border: 1px solid var(--border); border-radius: 12px; padding: 16px 18px; box-shadow: 0 6px 18px rgba(44,31,14,.05); display: flex; flex-wrap: wrap; align-items: center; gap: 12px; justify-content: space-between; }
-    .push-panel p { font-size: 12.5px; color: var(--muted); line-height: 1.55; max-width: 520px; word-break: keep-all; overflow-wrap: break-word; }
+    .push-panel {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px 18px;
+      box-shadow: 0 6px 18px rgba(44,31,14,.05);
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+    .push-panel > p {
+      font-size: 12.5px;
+      color: var(--muted);
+      line-height: 1.55;
+      max-width: none;
+      width: 100%;
+      word-break: keep-all;
+      overflow-wrap: break-word;
+      margin: 0;
+    }
     .push-panel p strong { color: var(--deep); }
     .push-status { font-size: 11px; color: var(--teal); font-weight: 600; }
     .push-status.off { color: var(--muted); }
     .push-status.err { color: #8b3a3a; }
-    .push-time { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 4px; }
+    .push-time { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 0; }
     .push-time label { font-size: 11px; color: var(--muted); font-weight: 600; }
     .push-time select { padding: 7px 10px; border: 1px solid var(--border); border-radius: 8px; font-family: var(--font-body); font-size: 12px; background: #fff; color: var(--ink); }
-    .push-actions { display: flex; flex-direction: column; align-items: flex-end; gap: 10px; }
+    .push-actions {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: flex-start;
+      gap: 12px 16px;
+      width: 100%;
+    }
 
     /* 상담사 브랜드 */
     .brand-panel { background: #fff; border: 1px solid var(--border); border-radius: 12px; padding: 18px 20px; box-shadow: 0 6px 18px rgba(44,31,14,.05); }
