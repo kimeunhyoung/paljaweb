@@ -762,6 +762,7 @@
     .session-item { background: #fff; border: 1px solid var(--border); border-radius: 10px; padding: 12px 14px; }
     .session-item .s-date { font-size: 12px; font-weight: 700; color: var(--deep); display: flex; justify-content: space-between; align-items: center; gap: 8px; }
     .session-item .s-date button { font-size: 11px; color: #8b3a3a; background: none; border: none; cursor: pointer; }
+    .session-item .s-date button[data-edit-session] { color: var(--teal); }
     .session-item .s-topic { font-size: 12.5px; font-weight: 600; color: var(--deep); margin-top: 6px; }
     .session-item .s-sum { font-size: 13px; color: var(--ink); line-height: 1.65; margin-top: 6px; white-space: pre-wrap; }
     .session-item .s-focus { font-size: 12px; color: #6b5a40; margin-top: 6px; line-height: 1.5; }
@@ -867,8 +868,8 @@
         <div id="calDetailList"></div>
       </div>
       <div class="event-panel" id="eventPanel">
-        <h4>일정 추가</h4>
-        <p class="event-hint">고객 카드 없이도 <strong>상담 약속</strong>을 잡을 수 있습니다. 상담 후 기록을 남기면 같은 날 약속 일정은 「다가오는 약속」에서 자동으로 빠집니다. <strong>개인 일정</strong>은 세미나·휴무·명상 등에 쓰세요.</p>
+        <h4>일정 추가 · 수정</h4>
+        <p class="event-hint">고객 카드 없이 <strong>상담 약속</strong>을 먼저 잡아 두고, 상담 후 <strong>상담 기록</strong>을 남기면 그날은 완료로 표시됩니다. 기록에서 <strong>다음 약속</strong>을 넣으면 고객 카드·캘린더에 자동 반영됩니다. <strong>개인 일정</strong>은 세미나·휴무 등에 쓰세요.</p>
         <form id="eventForm" class="event-form" autocomplete="off">
           <input type="hidden" id="editEventId" value=""/>
           <div>
@@ -899,7 +900,7 @@
             <button type="button" class="btn-sm outline" id="eventResetBtn">새로</button>
           </div>
         </form>
-        <h5 class="event-upcoming-title">다가오는 7일 (일정)</h5>
+        <h5 class="event-upcoming-title">최근·예정 일정</h5>
         <div id="eventList" class="event-list"></div>
       </div>
     </div>
@@ -973,6 +974,7 @@
         <div class="ops-sum-chip">이번 달 건수<strong id="salesMonthCount">0건</strong></div>
       </div>
       <form id="salesForm" class="ops-form sales-form" autocomplete="off">
+        <input type="hidden" id="editSaleId" value=""/>
         <div>
           <label for="saleDate">날짜 *</label>
           <input id="saleDate" type="date" required/>
@@ -995,6 +997,7 @@
         </div>
         <div class="ops-actions">
           <button type="submit" class="btn-sm" id="saleSaveBtn">매출 저장</button>
+          <button type="button" class="btn-sm outline" id="saleResetBtn">새로</button>
         </div>
       </form>
       <div id="salesList" class="ops-list"></div>
@@ -1157,12 +1160,13 @@
         <div class="sl-focus" id="sessionLastFocus"></div>
       </div>
       <form id="sessionForm" class="session-add" autocomplete="off">
+        <input type="hidden" id="editSessionId" value=""/>
         <div>
           <label for="sDate">상담일</label>
           <input id="sDate" type="date" required/>
         </div>
         <div>
-          <label for="sNext">다음 약속 (선택)</label>
+          <label for="sNext">다음 약속 (선택) · 캘린더·고객 카드에 자동 반영</label>
           <input id="sNext" type="date"/>
         </div>
         <div class="full">
@@ -1178,7 +1182,8 @@
           <input id="sNextFocus" type="text" maxlength="300" placeholder="다음에 꼭 이어갈 말·확인할 것"/>
         </div>
         <div class="full modal-actions">
-          <button type="submit" class="btn-sm">기록 추가</button>
+          <button type="submit" class="btn-sm" id="sessionSaveBtn">기록 추가</button>
+          <button type="button" class="btn-sm outline" id="sessionResetBtn">새 기록</button>
           <a class="btn-sm outline" id="sessionAnalyzeLink" href="analysis.html">분석 열기</a>
         </div>
       </form>
@@ -1579,7 +1584,9 @@
           '<div class="ops-main"><div class="ops-meta">' + meta + '</div>' +
           (s.note ? '<div class="ops-body">' + escapeHtml(String(s.note)) + '</div>' : '') +
           '</div>' +
-          '<div class="ops-btns"><button type="button" data-del-sale="' + s.id + '">삭제</button></div>' +
+          '<div class="ops-btns">' +
+          '<button type="button" data-edit-sale="' + s.id + '">수정</button>' +
+          '<button type="button" data-del-sale="' + s.id + '">삭제</button></div>' +
           '</div>';
       }).join('');
       let moreHtml = '';
@@ -1590,6 +1597,21 @@
       }
       const scrollCls = (salesListExpanded && total > OPS_LIST_PREVIEW) ? ' ops-list-inner is-scroll' : ' ops-list-inner';
       host.innerHTML = '<div class="' + scrollCls.trim() + '">' + rowsHtml + '</div>' + moreHtml;
+      host.querySelectorAll('button[data-edit-sale]').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          const s = saleRows.find((x) => x.id === btn.getAttribute('data-edit-sale'));
+          if (!s) return;
+          document.getElementById('editSaleId').value = s.id;
+          document.getElementById('saleDate').value = s.sale_date || '';
+          document.getElementById('saleAmount').value = s.amount != null ? String(s.amount) : '';
+          document.getElementById('saleChannel').value = s.channel || '';
+          document.getElementById('saleClient').value = s.client_id || '';
+          document.getElementById('saleNote').value = s.note || '';
+          document.getElementById('saleSaveBtn').textContent = '수정 저장';
+          setSalesMsg('수정 중입니다. 저장하면 반영됩니다.');
+          document.getElementById('salesForm')?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        });
+      });
       host.querySelectorAll('button[data-del-sale]').forEach((btn) => {
         btn.addEventListener('click', async () => {
           if (!confirm('이 매출 기록을 삭제할까요?')) return;
@@ -1607,6 +1629,18 @@
           renderSalesList();
         });
       }
+    }
+
+    function resetSalesForm() {
+      const form = document.getElementById('salesForm');
+      if (!form) return;
+      document.getElementById('editSaleId').value = '';
+      form.reset();
+      populateSaleClientSelect();
+      const saleDate = document.getElementById('saleDate');
+      if (saleDate) saleDate.value = ymd(new Date());
+      document.getElementById('saleSaveBtn').textContent = '매출 저장';
+      setSalesMsg('');
     }
 
     function openCopySummary(clientId) {
@@ -1834,14 +1868,6 @@
     function eventKindOf(ev) {
       return ev && ev.event_kind === 'appointment' ? 'appointment' : 'personal';
     }
-    function sessionDateSet() {
-      const set = new Set();
-      sessionRows.forEach((s) => {
-        const d = s.session_date ? String(s.session_date).slice(0, 10) : '';
-        if (d) set.add(d);
-      });
-      return set;
-    }
     function clientUpcomingDate(clientId, clientNext) {
       const cands = [];
       if (clientNext) cands.push(String(clientNext));
@@ -1852,13 +1878,10 @@
     }
     function collectUpcomingAppointments(todayStr, horizonStr) {
       const items = [];
-      const clientDates = new Set();
-      const doneSessions = sessionDateSet();
 
       clientRows.forEach((c) => {
         const d = clientUpcomingDate(c.id, c.next_appointment);
         if (d && d >= todayStr && d <= horizonStr) {
-          clientDates.add(d);
           items.push({
             source: 'client',
             name: c.display_name || c.legal_name || '고객',
@@ -1872,8 +1895,6 @@
         if (eventKindOf(ev) !== 'appointment') return;
         const d = String(ev.event_date || '');
         if (!d || d < todayStr || d > horizonStr) return;
-        if (doneSessions.has(d)) return;
-        if (clientDates.has(d)) return;
         items.push({
           source: 'event',
           name: ev.title || '상담 약속',
@@ -2042,7 +2063,7 @@
         const hasSession = dayData && dayData.sessions.length;
         const hasApptEvent = dayData && dayData.appointments && dayData.appointments.length;
         const hasPersonal = dayData && dayData.personals && dayData.personals.length;
-        const showApptDot = hasClient || (hasApptEvent && !hasSession);
+        const showApptDot = hasClient || hasApptEvent;
         const cls = ['cal-day'];
         if (ds === todayStr) cls.push('today');
         if (hasClient || hasSession || hasApptEvent || hasPersonal) cls.push('has-appt');
@@ -2065,11 +2086,14 @@
         html += '<div class="cal-day other"><span>' + i + '</span></div>';
       }
       grid.innerHTML = html;
-      grid.querySelectorAll('.cal-day.has-appt').forEach((el) => {
+      grid.querySelectorAll('.cal-day:not(.other)').forEach((el) => {
         el.addEventListener('click', () => {
           calSelectedDate = el.getAttribute('data-date');
           const dateInput = document.getElementById('eventDate');
-          if (dateInput) dateInput.value = calSelectedDate;
+          // 새 일정 입력 중일 때만 날짜를 선택일로 맞추고, 수정 중이면 폼 날짜는 유지
+          if (dateInput && !document.getElementById('editEventId')?.value) {
+            dateInput.value = calSelectedDate;
+          }
           renderCalendarDetail();
           renderCalendar();
         });
@@ -2101,7 +2125,10 @@
           (tl ? ' <span style="color:var(--teal);font-size:11px;">' + escapeHtml(tl) + '</span>' : '') +
           (it.note ? '<br><span style="font-size:11px;color:var(--muted)">' + escapeHtml(it.note) + '</span>' : '') +
           '</span>' +
-          '<button type="button" class="btn-sm outline" data-ev-edit="' + it.id + '" style="margin-left:auto;font-size:11px;padding:4px 10px;">수정</button></div>';
+          '<div class="cal-item-btns" style="margin-left:auto;display:flex;gap:4px;flex-shrink:0;">' +
+          '<button type="button" class="btn-sm outline" data-ev-edit="' + it.id + '" style="font-size:11px;padding:4px 10px;">수정</button>' +
+          '<button type="button" class="btn-sm outline" data-ev-del="' + it.id + '" style="font-size:11px;padding:4px 10px;">삭제</button>' +
+          '</div></div>';
       }
       let html = '';
       if (dayData.sessions.length) {
@@ -2109,7 +2136,10 @@
         html += dayData.sessions.map((it) => {
           const sum = it.summary ? '<br><span style="font-size:11px;color:var(--muted)">' + escapeHtml(it.summary.slice(0, 80)) + (it.summary.length > 80 ? '…' : '') + '</span>' : '';
           return '<div class="cal-item"><span>' + escapeHtml(it.name) + sum + '</span>' +
-            '<button type="button" class="btn-sm outline" data-act="sessions" data-id="' + it.clientId + '" style="margin-left:auto;font-size:11px;padding:4px 10px;">상담 기록</button></div>';
+            '<div class="cal-item-btns" style="margin-left:auto;display:flex;gap:4px;flex-shrink:0;">' +
+            '<button type="button" class="btn-sm outline" data-edit-session="' + it.sessionId + '" data-id="' + it.clientId + '" style="font-size:11px;padding:4px 10px;">수정</button>' +
+            '<button type="button" class="btn-sm outline" data-act="sessions" data-id="' + it.clientId + '" style="font-size:11px;padding:4px 10px;">기록</button>' +
+            '</div></div>';
         }).join('');
         html += '</div>';
       }
@@ -2117,12 +2147,13 @@
         html += '<div class="cal-section"><h5>상담 약속</h5>';
         html += dayData.clients.map((it) =>
           '<div class="cal-item"><span>' + escapeHtml(it.name) + ' <span style="font-size:10px;color:var(--muted)">(고객)</span></span>' +
-          '<button type="button" class="btn-sm outline" data-act="sessions" data-id="' + it.clientId + '" style="margin-left:auto;font-size:11px;padding:4px 10px;">상담 기록</button></div>'
+          '<div class="cal-item-btns" style="margin-left:auto;display:flex;gap:4px;flex-shrink:0;">' +
+          '<button type="button" class="btn-sm outline" data-edit-client="' + it.clientId + '" style="font-size:11px;padding:4px 10px;">날짜변경</button>' +
+          '<button type="button" class="btn-sm outline" data-clear-appt="' + it.clientId + '" style="font-size:11px;padding:4px 10px;">약속해제</button>' +
+          '<button type="button" class="btn-sm outline" data-act="sessions" data-id="' + it.clientId + '" style="font-size:11px;padding:4px 10px;">기록</button>' +
+          '</div></div>'
         ).join('');
         html += appts.map(eventItemHtml).join('');
-        if (dayData.sessions.length && appts.length) {
-          html += '<div class="cal-empty" style="margin-top:6px">같은 날 상담 기록이 있습니다. 예약 일정은 정리(삭제)해도 됩니다.</div>';
-        }
         html += '</div>';
       }
       if (personals.length) {
@@ -2132,6 +2163,38 @@
       }
       list.innerHTML = html;
       list.querySelectorAll('button[data-act]').forEach((btn) => btn.addEventListener('click', onRowAction));
+      list.querySelectorAll('button[data-edit-client]').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          const fake = document.createElement('button');
+          fake.setAttribute('data-act', 'edit');
+          fake.setAttribute('data-id', btn.getAttribute('data-edit-client'));
+          onRowAction({ currentTarget: fake });
+          document.getElementById('clientForm')?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+          const nextEl = document.getElementById('cNext');
+          if (nextEl) setTimeout(() => nextEl.focus(), 400);
+        });
+      });
+      list.querySelectorAll('button[data-clear-appt]').forEach((btn) => {
+        btn.addEventListener('click', async () => {
+          const id = btn.getAttribute('data-clear-appt');
+          if (!confirm('이 고객의 다음 약속 날짜를 비울까요?')) return;
+          const { error } = await sb.from('counselor_clients')
+            .update({ next_appointment: null, updated_at: new Date().toISOString() })
+            .eq('id', id).eq('counselor_id', uid);
+          if (error) { alert(error.message); return; }
+          await loadClients();
+          renderDashboard();
+          renderCalendar();
+          renderCalendarDetail();
+        });
+      });
+      list.querySelectorAll('button[data-edit-session]').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          const clientId = btn.getAttribute('data-id');
+          const sessionId = btn.getAttribute('data-edit-session');
+          openSessionModal(clientId, sessionId);
+        });
+      });
       list.querySelectorAll('button[data-ev-edit]').forEach((btn) => {
         btn.addEventListener('click', () => {
           const ev = eventRows.find((x) => x.id === btn.getAttribute('data-ev-edit'));
@@ -2144,6 +2207,18 @@
           document.getElementById('eventNote').value = ev.note || '';
           document.getElementById('eventSaveBtn').textContent = '수정 저장';
           document.getElementById('eventPanel')?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        });
+      });
+      list.querySelectorAll('button[data-ev-del]').forEach((btn) => {
+        btn.addEventListener('click', async () => {
+          if (!confirm('이 일정을 삭제할까요?')) return;
+          const id = btn.getAttribute('data-ev-del');
+          const { error } = await sb.from('counselor_events').delete().eq('id', id);
+          if (error) { alert('삭제하지 못했습니다: ' + error.message); return; }
+          await loadEvents();
+          renderDashboard();
+          renderCalendar();
+          renderCalendarDetail();
         });
       });
     }
@@ -2244,35 +2319,35 @@
       const host = document.getElementById('eventList');
       if (!host) return;
       const today = ymd(new Date());
-      const upcoming = eventRows.filter((ev) => String(ev.event_date || '') >= today)
-        .sort((a, b) => {
-          const dc = String(a.event_date).localeCompare(String(b.event_date));
-          if (dc !== 0) return dc;
-          return String(a.event_time || '').localeCompare(String(b.event_time || ''));
-        });
+      const sortEv = (a, b) => {
+        const dc = String(a.event_date).localeCompare(String(b.event_date));
+        if (dc !== 0) return dc;
+        return String(a.event_time || '').localeCompare(String(b.event_time || ''));
+      };
+      const upcoming = eventRows.filter((ev) => String(ev.event_date || '') >= today).sort(sortEv);
+      const pastRecent = eventRows.filter((ev) => String(ev.event_date || '') < today)
+        .sort((a, b) => -sortEv(a, b))
+        .slice(0, 5);
       const inWeek = upcoming.filter((ev) => daysFromToday(ev.event_date) <= 7);
-      const shown = inWeek.slice(0, 5);
+      const shownUpcoming = inWeek.slice(0, 8);
       const titleEl = document.querySelector('.event-upcoming-title');
 
-      if (!upcoming.length) {
+      if (!upcoming.length && !pastRecent.length) {
         if (titleEl) titleEl.style.display = 'none';
         host.innerHTML = '<div class="event-empty">등록된 일정이 없습니다.</div>';
         return;
       }
       if (titleEl) titleEl.style.display = '';
 
-      if (!shown.length) {
-        host.innerHTML = '<div class="event-empty">7일 안에 예정된 일정이 없습니다. 캘린더에서 더 먼 날짜를 눌러 보세요.</div>';
-        return;
-      }
-
-      let html = shown.map((ev) => {
+      function rowHtml(ev, isPast) {
         const tl = formatEventTimeLabel(ev.event_time);
         const kind = eventKindOf(ev);
         const kindLabel = kind === 'appointment' ? '상담' : '개인';
         const kindCls = kind === 'appointment' ? 'ev-kind-appointment' : 'ev-kind-personal';
-        return '<div class="event-row">' +
-        '<span class="ev-date">' + escapeHtml(String(ev.event_date)) + (tl ? ' ' + escapeHtml(tl) : '') + '</span>' +
+        return '<div class="event-row' + (isPast ? ' is-past' : '') + '">' +
+        '<span class="ev-date">' + escapeHtml(String(ev.event_date)) + (tl ? ' ' + escapeHtml(tl) : '') +
+        (isPast ? ' <span style="color:var(--muted);font-size:10px;">지난</span>' : '') +
+        '</span>' +
         '<div><div class="ev-title"><span class="ev-kind ' + kindCls + '">' + kindLabel + '</span>' + escapeHtml(ev.title || '') + '</div>' +
         (ev.note ? '<div class="ev-note">' + escapeHtml(ev.note) + '</div>' : '') +
         '</div>' +
@@ -2280,16 +2355,27 @@
         '<button type="button" class="ghost" data-ev-edit="' + ev.id + '">수정</button>' +
         '<button type="button" data-ev-del="' + ev.id + '">삭제</button>' +
         '</div></div>';
-      }).join('');
+      }
 
-      const moreInWeek = inWeek.length - shown.length;
+      let html = '';
+      if (shownUpcoming.length) {
+        html += shownUpcoming.map((ev) => rowHtml(ev, false)).join('');
+      } else if (upcoming.length) {
+        html += '<div class="event-empty">7일 안에 예정된 일정이 없습니다.</div>';
+      }
+      if (pastRecent.length) {
+        html += '<div class="event-list-hint" style="margin-top:10px;">최근 지난 일정 (수정·삭제 가능)</div>';
+        html += pastRecent.map((ev) => rowHtml(ev, true)).join('');
+      }
+
+      const moreInWeek = inWeek.length - shownUpcoming.length;
       const laterCount = upcoming.length - inWeek.length;
       if (moreInWeek > 0 || laterCount > 0) {
         const parts = [];
         if (moreInWeek > 0) parts.push('7일 안 ' + moreInWeek + '건 더');
         if (laterCount > 0) parts.push('7일 이후 ' + laterCount + '건');
         html += '<div class="event-list-hint">' + parts.join(' · ') +
-          ' — 위 <strong>일정 캘린더</strong>에서 날짜를 눌러 보세요.</div>';
+          ' — 위 <strong>캘린더</strong>에서 날짜를 눌러 보세요. 지난 날도 수정할 수 있습니다.</div>';
       }
 
       host.innerHTML = html;
@@ -2307,6 +2393,7 @@
           document.getElementById('eventSaveBtn').textContent = '수정 저장';
           renderCalendar();
           renderCalendarDetail();
+          document.getElementById('eventPanel')?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
         });
       });
       host.querySelectorAll('[data-ev-del]').forEach((btn) => {
@@ -2317,6 +2404,7 @@
           if (error) { alert('삭제하지 못했습니다: ' + error.message); return; }
           await loadEvents();
           renderDashboard();
+          renderCalendar();
           renderCalendarDetail();
         });
       });
@@ -2759,6 +2847,7 @@
             return;
           }
           const clientVal = document.getElementById('saleClient').value || null;
+          const editId = document.getElementById('editSaleId').value;
           const payload = {
             counselor_id: uid,
             sale_date: document.getElementById('saleDate').value,
@@ -2767,17 +2856,23 @@
             client_id: clientVal,
             note: (document.getElementById('saleNote').value || '').trim() || null,
           };
-          const { error } = await sb.from('counselor_sales').insert(payload);
+          let error;
+          if (editId) {
+            ({ error } = await sb.from('counselor_sales').update(payload).eq('id', editId));
+          } else {
+            ({ error } = await sb.from('counselor_sales').insert(payload));
+          }
           if (error) { setSalesMsg(error.message, true); return; }
-          document.getElementById('saleAmount').value = '';
-          document.getElementById('saleChannel').value = '';
-          document.getElementById('saleNote').value = '';
-          document.getElementById('saleClient').value = '';
+          resetSalesForm();
           await loadSales();
           renderDashboard();
-          setSalesMsg('매출을 저장했습니다.');
+          setSalesMsg(editId ? '매출을 수정했습니다.' : '매출을 저장했습니다.');
         });
       }
+      document.getElementById('saleResetBtn')?.addEventListener('click', () => {
+        resetSalesForm();
+        setSalesMsg('');
+      });
     })();
 
     // ── 세션 시작 전 로컬 알림 (허브 탭이 열려 있을 때) ──
@@ -2855,6 +2950,7 @@
     function closeSessionModal() {
       sessionModal.classList.remove('open');
       activeClientId = null;
+      resetSessionForm();
     }
     document.getElementById('sessionModalClose').addEventListener('click', closeSessionModal);
     sessionModal.addEventListener('click', (e) => { if (e.target === sessionModal) closeSessionModal(); });
@@ -2914,29 +3010,60 @@
       listElS.innerHTML = rows.map((s) =>
         '<div class="session-item">' +
         '<div class="s-date"><span>' + escapeHtml(String(s.session_date)) + '</span>' +
-        '<button type="button" data-del-session="' + s.id + '">삭제</button></div>' +
+        '<div style="display:flex;gap:6px;">' +
+        '<button type="button" data-edit-session="' + s.id + '">수정</button>' +
+        '<button type="button" data-del-session="' + s.id + '">삭제</button></div></div>' +
         (s.topic ? '<div class="s-topic">' + escapeHtml(String(s.topic)) + '</div>' : '') +
         (s.summary ? '<div class="s-sum">' + escapeHtml(s.summary) + '</div>' : '') +
         (s.next_focus ? '<div class="s-focus">다음 포인트: ' + escapeHtml(String(s.next_focus)) + '</div>' : '') +
         (s.next_appointment ? '<div class="s-next">다음 약속: ' + escapeHtml(String(s.next_appointment)) + '</div>' : '') +
         '</div>'
       ).join('');
+      listElS.querySelectorAll('button[data-edit-session]').forEach((b) => {
+        b.addEventListener('click', () => fillSessionForm(b.getAttribute('data-edit-session')));
+      });
       listElS.querySelectorAll('button[data-del-session]').forEach((b) => {
         b.addEventListener('click', async () => {
           if (!confirm('이 세션 기록을 삭제할까요?')) return;
           const sid = b.getAttribute('data-del-session');
           const { error } = await sb.from('counselor_sessions').delete().eq('id', sid);
           if (error) { sessionMsgEl.textContent = error.message; sessionMsgEl.classList.add('err'); return; }
+          if (document.getElementById('editSessionId').value === sid) resetSessionForm();
           await loadSessions();
           renderSessionLastBox();
           renderSessionList();
           renderDashboard();
+          renderCalendar();
           applyClientFilter();
         });
       });
     }
 
-    function openSessionModal(clientId) {
+    function fillSessionForm(sessionId) {
+      const s = sessionRows.find((x) => x.id === sessionId);
+      if (!s) return;
+      document.getElementById('editSessionId').value = s.id;
+      document.getElementById('sDate').value = s.session_date || '';
+      document.getElementById('sNext').value = s.next_appointment || '';
+      document.getElementById('sTopic').value = s.topic || '';
+      document.getElementById('sSummary').value = s.summary || '';
+      document.getElementById('sNextFocus').value = s.next_focus || '';
+      document.getElementById('sessionSaveBtn').textContent = '수정 저장';
+      sessionMsgEl.textContent = '수정 중입니다. 저장하면 반영됩니다.';
+      sessionMsgEl.classList.remove('err');
+      document.getElementById('sessionForm')?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+
+    function resetSessionForm() {
+      document.getElementById('editSessionId').value = '';
+      sessionForm.reset();
+      document.getElementById('sDate').value = ymd(new Date());
+      document.getElementById('sessionSaveBtn').textContent = '기록 추가';
+      sessionMsgEl.textContent = '';
+      sessionMsgEl.classList.remove('err');
+    }
+
+    function openSessionModal(clientId, sessionId) {
       activeClientId = clientId;
       const c = clientRows.find((x) => x.id === clientId);
       document.getElementById('sessionModalTitle').textContent = '상담 기록 · ' + (c ? (c.display_name || '') : '');
@@ -2963,14 +3090,14 @@
       }
       const link = document.getElementById('sessionAnalyzeLink');
       link.href = 'analysis.html?client=' + encodeURIComponent(clientId);
-      sessionForm.reset();
-      document.getElementById('sDate').value = ymd(new Date());
-      sessionMsgEl.textContent = '';
-      sessionMsgEl.classList.remove('err');
+      resetSessionForm();
       renderSessionLastBox();
       renderSessionList();
       sessionModal.classList.add('open');
+      if (sessionId) fillSessionForm(sessionId);
     }
+
+    document.getElementById('sessionResetBtn')?.addEventListener('click', resetSessionForm);
 
     sessionForm.addEventListener('submit', async (ev) => {
       ev.preventDefault();
@@ -2988,6 +3115,7 @@
       const summary = document.getElementById('sSummary').value.trim() || null;
       const next_focus = document.getElementById('sNextFocus').value.trim() || null;
       if (!session_date) return;
+      const editId = document.getElementById('editSessionId').value;
       const payload = {
         counselor_id: uid,
         client_id: activeClientId,
@@ -2997,13 +3125,26 @@
         topic,
         next_focus,
       };
-      let { error } = await sb.from('counselor_sessions').insert(payload);
-      if (error && /topic|next_focus/i.test(error.message || '')) {
-        delete payload.topic;
-        delete payload.next_focus;
+      let error;
+      if (editId) {
+        ({ error } = await sb.from('counselor_sessions').update(payload).eq('id', editId));
+        if (error && /topic|next_focus/i.test(error.message || '')) {
+          delete payload.topic;
+          delete payload.next_focus;
+          ({ error } = await sb.from('counselor_sessions').update(payload).eq('id', editId));
+          if (!error) {
+            sessionMsgEl.textContent = '수정됨. 주제·다음 포인트 컬럼이 없어 요약만 저장했습니다. Supabase에서 counselor_sessions_extend.sql을 실행해 주세요.';
+          }
+        }
+      } else {
         ({ error } = await sb.from('counselor_sessions').insert(payload));
-        if (!error) {
-          sessionMsgEl.textContent = '저장됨. 주제·다음 포인트 컬럼이 없어 요약만 저장했습니다. Supabase에서 counselor_sessions_extend.sql을 실행해 주세요.';
+        if (error && /topic|next_focus/i.test(error.message || '')) {
+          delete payload.topic;
+          delete payload.next_focus;
+          ({ error } = await sb.from('counselor_sessions').insert(payload));
+          if (!error) {
+            sessionMsgEl.textContent = '저장됨. 주제·다음 포인트 컬럼이 없어 요약만 저장했습니다. Supabase에서 counselor_sessions_extend.sql을 실행해 주세요.';
+          }
         }
       }
       if (error) { sessionMsgEl.textContent = error.message; sessionMsgEl.classList.add('err'); return; }
@@ -3013,14 +3154,15 @@
           .update({ next_appointment, updated_at: new Date().toISOString() })
           .eq('id', activeClientId).eq('counselor_id', uid);
       }
-      document.getElementById('sSummary').value = '';
-      document.getElementById('sNext').value = '';
-      document.getElementById('sTopic').value = '';
-      document.getElementById('sNextFocus').value = '';
+      const wasEdit = !!editId;
+      resetSessionForm();
       await loadClients();
+      await loadSessions();
       renderSessionLastBox();
       renderSessionList();
-      if (!sessionMsgEl.textContent) sessionMsgEl.textContent = '기록을 추가했습니다.';
+      renderDashboard();
+      renderCalendar();
+      if (!sessionMsgEl.textContent) sessionMsgEl.textContent = wasEdit ? '기록을 수정했습니다.' : '기록을 추가했습니다.';
     });
 
     await loadClients();
