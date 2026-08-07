@@ -3,9 +3,11 @@
  * 만료 시 한 단계가 아니라 free
  */
 (function (global) {
-  /** DB plan 값 정규화 — legacy 값은 새 키로 변환 */
+  /** DB plan 값 정규화 — legacy `pro` → `plus` */
   function normalizeDbPlan(dbPlan) {
-    return String(dbPlan || 'free').toLowerCase();
+    var p = String(dbPlan || 'free').toLowerCase();
+    if (p === 'pro') return 'plus';
+    return p;
   }
 
   function effectivePlan(profile) {
@@ -197,9 +199,12 @@
   }
 
   function planKoLabel(plan) {
-    if (plan === 'plus') return 'Plus';
-    if (plan === 'professional') return 'Professional';
-    if (plan === 'private') return 'Private';
+    var p = normalizeDbPlan(plan);
+    if (p === 'free') return 'Free';
+    if (p === 'basic') return 'Basic';
+    if (p === 'plus') return 'Plus';
+    if (p === 'professional') return 'Professional';
+    if (p === 'private') return 'Private';
     return 'Basic';
   }
 

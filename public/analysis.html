@@ -32,11 +32,11 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,500&family=Noto+Serif+KR:wght@400;500;600;700&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet"/>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="js/plan-access.js?v=11" defer></script>
+  <script src="js/plan-access.js?v=13" defer></script>
   <script src="js/attribution.js"></script>
   <script src="js/analytics.js?v=1" defer></script>
   <script src="js/site-topbar.js?v=7" defer></script>
-  <script src="js/topbar-session.js?v=6" defer></script>
+  <script src="js/topbar-session.js?v=7" defer></script>
   <!-- PDF: jsPDF 전역 → html2pdf 번들 → html2canvas(전역 API는 마지막 로드가 우선) -->
   <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.2/dist/jspdf.umd.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/html2pdf.js@0.10.2/dist/html2pdf.bundle.min.js"></script>
@@ -4798,7 +4798,7 @@ async function initAuth() {
     // 비로그인 게스트: 무료 등급으로 즉시 이용 (하드 로그인 월 제거)
     USER_PLAN = 'free';
     CURRENT_USER_ID = 'guest';
-    if (DEV_UNLOCK_PAID) USER_PLAN = 'pro';
+    if (DEV_UNLOCK_PAID) USER_PLAN = 'plus';
     const badge = document.getElementById('plan-badge');
     if (badge) {
       badge.textContent = USER_PLAN.charAt(0).toUpperCase() + USER_PLAN.slice(1);

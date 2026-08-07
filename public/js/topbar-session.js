@@ -37,7 +37,11 @@
     var plan = window.PaljaPlan
       ? PaljaPlan.effectivePlan(profile)
       : ((profile && profile.plan) || 'free');
-    badge.textContent = plan.charAt(0).toUpperCase() + plan.slice(1);
+    if (plan === 'pro') plan = 'plus';
+    badge.textContent =
+      window.PaljaPlan && PaljaPlan.planKoLabel
+        ? PaljaPlan.planKoLabel(plan)
+        : plan.charAt(0).toUpperCase() + plan.slice(1);
     badge.className = 'plan-badge ' + plan;
   }
 
