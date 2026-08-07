@@ -83,10 +83,11 @@
     }
     .ai-spread-preset-row.is-visible { display: flex; }
     .ai-spread-preset-row label { font-weight: 600; color: var(--deep); white-space: nowrap; }
-    .ai-spread-preset-row select {
-      flex: 1 1 220px; padding: 8px 10px; border-radius: 8px; border: 1px solid var(--border);
+    .ai-spread-preset-row input {
+      flex: 1 1 140px; padding: 8px 10px; border-radius: 8px; border: 1px solid var(--border);
       background: #fff; font-family: var(--font-body); font-size: 13px; color: var(--ink);
     }
+    .yao-panel.is-hidden { display: none; }
     .ai-draft-form { display: grid; gap: 10px; margin-bottom: 12px; }
     @media (min-width: 640px) {
       .ai-draft-form { grid-template-columns: 1fr 1fr; align-items: start; }
@@ -112,7 +113,8 @@
     .client-session-hint { font-size: 11px; color: var(--teal); margin-top: 6px; line-height: 1.45; }
     .ai-card-hint { font-size: 11px; color: var(--muted); margin: 0 0 8px; line-height: 1.45; }
     .ai-card-slots { display: grid; gap: 10px; margin: 4px 0 8px; }
-    @media (min-width: 640px) { .ai-card-slots { grid-template-columns: repeat(3, 1fr); } }
+    @media (min-width: 640px) { .ai-card-slots { grid-template-columns: repeat(2, 1fr); } }
+    .ai-card-slots[data-count="1"] { grid-template-columns: 1fr; max-width: 320px; }
     .ai-card-slot { background: var(--parchment); border: 1px solid var(--border); border-radius: 10px; padding: 12px; }
     .ai-card-slot h4 { font-size: 11px; color: var(--muted); margin: 0 0 6px; letter-spacing: .03em; }
     .ai-card-slot .slot-pos {
@@ -241,7 +243,7 @@
   </div>
   <div id="workspace">
     <div class="ai-draft-panel">
-      <p class="ai-draft-intro">주역 64괘를 넣고 해석 초안을 만듭니다. 크레딧: <strong>단괘 → 1</strong> · <strong>본괘·지괘 → 2</strong>.</p>
+      <p class="ai-draft-intro">주역 64괘를 넣고 해석 초안을 만듭니다. 크레딧: <strong>단괘 → 1</strong> · <strong>본·지 / 선택 A·B → 2</strong>.</p>
       <div class="ai-mode-row" role="tablist" aria-label="리딩 모드">
         <button type="button" class="ai-mode-btn active" id="aiModeSingle" data-mode="single" role="tab" aria-selected="true">
           <strong>단괘</strong>
@@ -251,6 +253,16 @@
           <strong>본괘 · 지괘</strong>
           <span>현재 국면 → 전개·귀결</span>
         </button>
+        <button type="button" class="ai-mode-btn" id="aiModeChoice" data-mode="choice" role="tab" aria-selected="false">
+          <strong>선택 A / B</strong>
+          <span>둘 중 어디가 유리한지 비교</span>
+        </button>
+      </div>
+      <div class="ai-spread-preset-row" id="aiChoiceNamesRow">
+        <label for="aiOptA">선택 A</label>
+        <input id="aiOptA" type="text" maxlength="40" placeholder="예: 과목 A · 이직"/>
+        <label for="aiOptB">선택 B</label>
+        <input id="aiOptB" type="text" maxlength="40" placeholder="예: 과목 B · 현직 유지"/>
       </div>
       <form id="aiDraftForm" class="ai-draft-form" autocomplete="off">
         <div>
@@ -267,7 +279,7 @@
             <label for="aiQuestion">질문 *</label>
             <button type="button" class="ai-voice-btn" id="aiVoiceBtn" title="마이크로 질문 받아쓰기">🎤 음성 입력</button>
           </div>
-          <textarea id="aiQuestion" maxlength="800" required placeholder="예: 이 관계는 앞으로 어떻게 흘러갈까요? / 지금 이직 타이밍이 맞나요?"></textarea>
+          <textarea id="aiQuestion" maxlength="800" required placeholder="예: 이번 학기 과목 A와 B 중 어디에 집중하는 게 유리한가?"></textarea>
           <p class="ai-voice-hint" id="aiVoiceHint">한 문장씩 말하면 됩니다. 크롬·엣지·안드로이드 권장.</p>
         </div>
         <div class="full">
@@ -276,7 +288,7 @@
         </div>
         <div class="full">
           <label>주역 괘 (1~64 · 문왕 순서)</label>
-          <p class="ai-card-hint">번호·괘명 검색 또는 아래 번호표를 누르세요. 변효가 있으면 아래에서 체크하세요. 지괘는 직접 넣거나, 변효만 넣고 본괘만으로도 해석할 수 있습니다.</p>
+          <p class="ai-card-hint">번호·괘명 검색 또는 아래 번호표를 누르세요. <strong>선택 A/B</strong>는 각 선택지마다 괘 1개씩 넣고 비교합니다. 단괘·본지에서는 변효가 있으면 체크하세요.</p>
           <div id="aiCardSlots" class="ai-card-slots"></div>
           <div class="yao-panel" id="aiYaoPanel">
             <div class="yao-panel-title">변효 (선택)</div>
@@ -317,6 +329,7 @@
 
   const SINGLE_SPREAD = { labels: ['본괘'], title: '단괘' };
   const PAIR_SPREAD = { labels: ['본괘', '지괘'], title: '본괘 · 지괘' };
+  const CHOICE_SPREAD = { labels: ['선택 A', '선택 B'], title: '선택 A / B' };
 
   function parseCardNum(raw) {
     const s = String(raw == null ? '' : raw)
@@ -456,6 +469,11 @@
     const nickEl = document.getElementById('aiNickname');
     const modeSingle = document.getElementById('aiModeSingle');
     const modePair = document.getElementById('aiModePair');
+    const modeChoice = document.getElementById('aiModeChoice');
+    const choiceNamesRow = document.getElementById('aiChoiceNamesRow');
+    const optAEl = document.getElementById('aiOptA');
+    const optBEl = document.getElementById('aiOptB');
+    const yaoPanel = document.getElementById('aiYaoPanel');
     if (!form || !out || !slotsEl) return;
 
     if (!Deck || Deck.size !== 64) {
@@ -490,14 +508,23 @@
     }
 
     function changingLinesText() {
+      if (mode === 'choice') return '선택 A/B 모드 — 변효 미사용 (각 선택의 본괘 구조만 비교)';
       const list = changingLinesSorted();
       if (!list.length) return '미입력 (효사를 지어내지 말 것. 본괘·지괘 구조로만 해석)';
       return list.map(yaoLabel).join(', ') + ' — 해당 효의 변화·효사 포인트를 본괘/지괘 인과와 함께 해석할 것';
     }
 
+    function optionLabels() {
+      const a = (optAEl && optAEl.value || '').trim() || '선택 A';
+      const b = (optBEl && optBEl.value || '').trim() || '선택 B';
+      return { a, b };
+    }
+
     function renderYaoChecks() {
       const wrap = document.getElementById('aiYaoChecks');
       if (!wrap) return;
+      if (yaoPanel) yaoPanel.classList.toggle('is-hidden', mode === 'choice');
+      if (mode === 'choice') return;
       wrap.innerHTML = [1, 2, 3, 4, 5, 6].map((n) => {
         const on = changingLines.has(n);
         return (
@@ -520,6 +547,10 @@
 
     function spreadDef() {
       if (mode === 'pair') return { labels: PAIR_SPREAD.labels.slice(), count: 2, title: PAIR_SPREAD.title };
+      if (mode === 'choice') {
+        const { a, b } = optionLabels();
+        return { labels: [a, b], count: 2, title: '선택 A / B · ' + a + ' vs ' + b };
+      }
       return { labels: SINGLE_SPREAD.labels.slice(), count: 1, title: SINGLE_SPREAD.title };
     }
 
@@ -534,16 +565,17 @@
     }
 
     function syncModeButtons() {
-      [modeSingle, modePair].forEach((btn) => {
+      [modeSingle, modePair, modeChoice].forEach((btn) => {
         if (!btn) return;
         const on = btn.getAttribute('data-mode') === mode;
         btn.classList.toggle('active', on);
         btn.setAttribute('aria-selected', on ? 'true' : 'false');
       });
+      if (choiceNamesRow) choiceNamesRow.classList.toggle('is-visible', mode === 'choice');
     }
 
     function setMode(next) {
-      mode = next === 'pair' ? 'pair' : 'single';
+      mode = next === 'pair' ? 'pair' : next === 'choice' ? 'choice' : 'single';
       initSlots();
       syncModeButtons();
       renderSlots();
@@ -568,7 +600,7 @@
 
     function updateCreditHint() {
       if (!creditHintEl) return;
-      const n = readFilledCards().length || (mode === 'pair' ? 2 : 1);
+      const n = readFilledCards().length || (mode === 'single' ? 1 : 2);
       creditHintEl.textContent = '예상 크레딧 ' + resolveFeature(n).cost;
     }
 
@@ -667,6 +699,7 @@
     }
 
     function renderSlots() {
+      slotsEl.setAttribute('data-count', String(slots.length));
       slotsEl.innerHTML = slots.map((s, i) => {
         const card = s.num != null ? cardFor(s.num) : null;
         const kw = card ? card.keywords : '번호 · 이름 검색 · 뽑기 · 번호표';
@@ -937,6 +970,17 @@
 
     if (modeSingle) modeSingle.addEventListener('click', () => setMode('single'));
     if (modePair) modePair.addEventListener('click', () => setMode('pair'));
+    if (modeChoice) modeChoice.addEventListener('click', () => setMode('choice'));
+    function refreshChoiceLabels() {
+      if (mode !== 'choice') return;
+      const { a, b } = optionLabels();
+      if (slots[0]) slots[0].label = a;
+      if (slots[1]) slots[1].label = b;
+      renderSlots();
+      renderPreview();
+    }
+    if (optAEl) optAEl.addEventListener('input', refreshChoiceLabels);
+    if (optBEl) optBEl.addEventListener('input', refreshChoiceLabels);
     if (drawBtn) {
       drawBtn.onclick = (e) => {
         e.preventDefault();
@@ -1042,13 +1086,25 @@
 - 주의: 의료·법률·투자 경계 한두 문장(결론 자체를 흐리지 말 것)
 </output_format>`;
 
-      const prompt = systemBlock + `
+      const choiceDirective = mode === 'choice' ? `
+
+<choice_ab_rule>
+이 리딩은 **선택 A/B 비교**다. 본괘→지괘 시간 흐름처럼 쓰지 말 것.
+1) 「선택 A」「선택 B」는 각각 그 선택을 택했을 때의 국면·처세다.
+2) 반드시 A와 B를 **나란히 대조**할 것. 한쪽만 길게 쓰지 말 것.
+3) 한 줄 요약에서 **어느 쪽이 질문 맥락상 더 유리/덜 해로운지**(또는 팽팽하면 그 사실과 관망 조건)를 분명하게 밝힐 것.
+4) 「둘 다 괜찮다」「마음먹기 나름」으로만 끝내지 말 것. 팽팽하면 리스크·대가·실행 가능성 근거로 말할 것.
+5) 선택지 이름(아래 context)을 그대로 쓸 것.
+6) 변효는 이 모드에서 쓰지 않는다. 각 선택의 괘상·구조만으로 비교할 것.
+</choice_ab_rule>` : '';
+
+      const prompt = systemBlock + choiceDirective + `
 
 <context>
 - 호칭: ${displayName}
 ${client ? '- CRM 생년월일: ' + (client.birth_date || '미상') + ' / 최근 상담: ' + (ls.last || '없음') + (ls.topic ? ' · ' + ls.topic : '') + '\n' : ''}- 질문: ${question}
 ${note ? '- 상담사 메모(고객에게 노출 금지, 반영만): ' + note + '\n' : ''}- 리딩: ${spreadDef().title} (${spreadDef().labels.join(' · ')})
-- 변효: ${changingLinesText()}
+${mode === 'choice' ? '- 선택 A: ' + optionLabels().a + '\n- 선택 B: ' + optionLabels().b + '\n' : ''}- 변효: ${changingLinesText()}
 </context>
 
 <hexagrams>
@@ -1058,9 +1114,10 @@ ${cardLines}
 위 데이터를 바탕으로 시스템 지시를 엄격히 준수하여 지정된 마크다운 형식으로 주역 리딩 초안을 작성해 주세요.`;
 
       const cacheKey = PaljaAiQuota.hashKey([
-        'counselor_iching_v3', feature, mode, clientId || '', displayName, question, note,
+        'counselor_iching_v4', feature, mode, clientId || '', displayName, question, note,
+        mode === 'choice' ? optionLabels().a + '|' + optionLabels().b : '',
         cards.map((c) => c.pos + ':' + c.num).join('|'),
-        changingLinesSorted().join(','),
+        mode === 'choice' ? '' : changingLinesSorted().join(','),
       ].join('::'));
 
       try {
