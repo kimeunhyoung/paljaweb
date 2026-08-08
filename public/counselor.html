@@ -296,6 +296,14 @@
     .link-card .d { font-size: 12px; opacity: .78; line-height: 1.55; }
     .link-card.alt { background: white; color: var(--ink); border: 1px solid var(--border); }
     .link-card.alt .t { color: var(--deep); }
+    .link-card.soon {
+      background: #ebe4d8; color: var(--muted); border: 1px dashed var(--border);
+      cursor: default; pointer-events: none;
+    }
+    .link-card.soon:hover { transform: none; box-shadow: none; }
+    .link-card.soon .tag { color: var(--teal); opacity: 1; letter-spacing: .12em; }
+    .link-card.soon .t { color: var(--deep); opacity: .72; }
+    .link-card.soon .d { opacity: .7; }
     .notes-wrap { background: white; border: 1px solid var(--border); border-radius: 10px; padding: 18px; margin-top: 8px; }
     .notes-wrap label { font-size: 12px; color: var(--muted); display: block; margin-bottom: 8px; }
     .notes-wrap textarea {
@@ -1024,6 +1032,11 @@
         <div class="t">레노먼드 AI</div>
         <div class="d">Petit Lenormand 36장. 상황·관계·진행 체인 해석 초안. Professional 전용.</div>
       </a>
+      <div class="link-card soon" aria-disabled="true">
+        <div class="tag">준비중</div>
+        <div class="t">키르케타로 AI</div>
+        <div class="d">키르케신화타로 78장 · 해설 주입 리딩. 모집·덱 정리 후 오픈 예정입니다.</div>
+      </div>
       <a class="link-card" href="counselor-iching.html">
         <div class="tag">AI</div>
         <div class="t">주역 AI</div>

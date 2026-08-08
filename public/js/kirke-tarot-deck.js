@@ -111,6 +111,28 @@
     return card.upright || PLACEHOLDER_UPRIGHT;
   };
 
+  /** AI 프롬프트용 — 뽑힌 카드의 해설서 파트만 동적 주입 */
+  window.getKirkeGuideForAi = function (card, topic) {
+    if (!card) return '';
+    const resolved = window.resolveKirkeReadingTopic?.(topic) || 'general';
+    const topics = card.topics || {};
+    const picked = topics[resolved] || topics.general || {};
+    const lines = [
+      '카드: ' + (card.name || '') + (card.en ? ' (' + card.en + ')' : ''),
+      card.myth ? '신화: ' + card.myth : '',
+      card.keywords ? '키워드: ' + card.keywords : '',
+      card.story || '',
+      picked.you || '',
+      picked.advice || '',
+    ].filter(Boolean);
+    return lines.join('\n');
+  };
+
+  window.kirkeCardById = function (id) {
+    const n = Number(id);
+    return KIRKE_TAROT_DECK.find((c) => c.id === n) || null;
+  };
+
   function buildDeck() {
     const deck = [];
 
@@ -172,4 +194,75 @@
     return card?.image || '';
   };
   window.kirkeTarotDeckReady = KIRKE_TAROT_DECK.length === 78;
+
+  /** 상담사 AI 페이지용 — Lenormand Deck API와 동일 형태 (num = id 0~77) */
+  function toCounselorCard(c) {
+    if (!c) return null;
+    return {
+      id: c.id,
+      num: c.id,
+      name: c.name || '',
+      en: c.en || '',
+      keywords: c.keywords || '',
+      myth: c.myth || '',
+      imageSrc: c.image || '',
+      raw: c,
+    };
+  }
+
+  function byId(id) {
+    const n = Number(id);
+    if (!Number.isInteger(n) || n < 0 || n > 77) return null;
+    return toCounselorCard(KIRKE_TAROT_DECK.find((c) => c.id === n) || null);
+  }
+
+  function search(query, limit) {
+    const lim = Math.min(78, Math.max(1, Number(limit) || 12));
+    const raw = String(query || '').trim();
+    if (!raw) return KIRKE_TAROT_DECK.slice(0, lim).map((c) => toCounselorCard(c));
+
+    const q = raw.toLowerCase().replace(/\s+/g, '');
+    const asNum = Number(raw.replace(/[０-９]/g, (d) => String.fromCharCode(d.charCodeAt(0) - 65248)));
+    if (Number.isInteger(asNum) && asNum >= 0 && asNum <= 77 && String(asNum) === raw.replace(/\s/g, '')) {
+      const hit = byId(asNum);
+      return hit ? [hit] : [];
+    }
+
+    const scored = [];
+    for (let i = 0; i < KIRKE_TAROT_DECK.length; i++) {
+      const c = KIRKE_TAROT_DECK[i];
+      const ko = String(c.name || '').toLowerCase().replace(/\s+/g, '');
+      const en = String(c.en || '').toLowerCase().replace(/\s+/g, '');
+      const idStr = String(c.id);
+      let score = 0;
+      if (idStr === raw.trim() || idStr === q) score = 100;
+      else if (ko === q || en === q) score = 90;
+      else if (ko.indexOf(q) === 0 || en.indexOf(q) === 0) score = 80;
+      else if (ko.indexOf(q) >= 0 || en.indexOf(q) >= 0) score = 60;
+      else if ((c.keywords || '').toLowerCase().indexOf(q) >= 0) score = 40;
+      if (score > 0) scored.push({ score, card: toCounselorCard(c) });
+    }
+    scored.sort((a, b) => b.score - a.score || a.card.id - b.card.id);
+    return scored.slice(0, lim).map((x) => x.card);
+  }
+
+  window.CounselorKirkeDeck = {
+    size: 78,
+    cards: KIRKE_TAROT_DECK,
+    byId,
+    byDisplayNum: byId,
+    search,
+    label: function (card) {
+      if (!card) return '';
+      return card.num + '. ' + card.name + (card.en ? ' (' + card.en + ')' : '');
+    },
+    guideForAi: function (cardOrId, topic) {
+      const raw = cardOrId && cardOrId.raw
+        ? cardOrId.raw
+        : (typeof cardOrId === 'object' && cardOrId && cardOrId.id != null
+          ? KIRKE_TAROT_DECK.find((c) => c.id === cardOrId.id)
+          : window.kirkeCardById(cardOrId));
+      return window.getKirkeGuideForAi(raw, topic);
+    },
+  };
 })();
