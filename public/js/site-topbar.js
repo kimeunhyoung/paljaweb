@@ -48,6 +48,7 @@
       id: 'cards',
       label: 'AI카드리딩',
       items: [
+        { id: 'cards-all', href: 'services.html#cards', label: '전체 보기' },
         { id: 'tarot', href: 'Tarot.html', label: '타로코드' },
         { id: 'counselor-reading', href: 'counselor-reading.html', label: '상담사 AI 리딩' },
         { id: 'counselor-lenormand', href: 'counselor-lenormand.html', label: '레노먼드' },
