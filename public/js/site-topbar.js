@@ -50,7 +50,7 @@
       items: [
         { id: 'cards-all', href: 'services.html#cards', label: '전체 보기' },
         { id: 'tarot', href: 'Tarot.html', label: '타로코드' },
-        { id: 'counselor-reading', href: 'counselor-reading.html', label: '상담사 AI 리딩' },
+        { id: 'counselor-reading', href: 'counselor-reading.html', label: '타로 AI' },
         { id: 'counselor-lenormand', href: 'counselor-lenormand.html', label: '레노먼드' },
         { id: 'counselor-iching', href: 'counselor-iching.html', label: '주역' },
       ],
