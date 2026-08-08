@@ -689,11 +689,16 @@
     .custom-input {
       width: 100%; background: var(--parchment); border: 1px solid var(--border); border-radius: 8px; padding: 12px 16px;
       font-family: var(--font-body); font-size: 14px; color: var(--ink); outline: none; resize: none; line-height: 1.65;
-      min-height: 68px; display: none;
+      min-height: 68px; display: none; margin-top: 10px;
     }
     .custom-input.on { display: block; }
     .custom-input:focus { border-color: var(--accent); }
     .custom-input::placeholder { color: var(--muted); }
+    .question-q-hint {
+      display: none; margin-top: 8px; font-size: 12px; color: var(--muted); line-height: 1.5;
+    }
+    .question-q-hint.on { display: block; }
+    .question-q-hint strong { color: var(--deep-brown); }
 
     .step1-cta-wrap { margin-top: 20px; }
     .shuffle-hint {
@@ -2306,18 +2311,18 @@
   <div id="step1">
     <div class="step-card">
       <div class="step-title">어떤 것이 궁금하세요?</div>
-      <p class="step-note">생년월일은 <strong>선택</strong>입니다. 넣으면 올해·이달·오늘 수가 AI 리딩에 맥락으로 붙고, 없어도 질문·카드만으로 해석할 수 있어요. <strong>에너지 흐름</strong>·<strong>질문</strong>은 AI 리딩(Basic 크레딧), <strong>카드만 뽑기</strong>는 해석 없이 RWS 그림만 봅니다.</p>
+      <p class="step-note">생년월일은 <strong>선택</strong>입니다. 넣으면 올해·이달·오늘 수가 AI 리딩에 맥락으로 붙고, 없어도 질문·카드만으로 해석할 수 있어요. <strong>에너지 흐름</strong>·<strong>질문</strong>은 AI 리딩(<strong>1크레딧</strong>), <strong>카드만 뽑기</strong>는 해석 없이 RWS 그림만 봅니다.</p>
 
       <div class="mode-grid">
         <div class="mode-card" data-mode="energy" onclick="selectMode('energy', this)">
           <div class="mode-icon">〰</div>
           <div class="mode-title">에너지 흐름</div>
-          <div class="mode-desc" id="modeEnergyDesc">기간별 스프레드 + AI 리딩. 생일이 있으면 수비 맥락을 함께 읽어요.</div>
+          <div class="mode-desc" id="modeEnergyDesc">기간별 스프레드 + AI 리딩 · 1크레딧. 생일이 있으면 수비 맥락을 함께 읽어요.</div>
         </div>
         <div class="mode-card" data-mode="question" onclick="selectMode('question', this)">
           <div class="mode-icon">?</div>
           <div class="mode-title">질문</div>
-          <div class="mode-desc">주제·직접 질문 + 과거·현재·미래 3장 AI 리딩 (Basic 크레딧).</div>
+          <div class="mode-desc">주제·직접 질문 + 과거·현재·미래 3장 AI 리딩 · 1크레딧.</div>
         </div>
         <div class="mode-card" data-mode="draw" onclick="selectMode('draw', this)">
           <div class="mode-icon">✦</div>
@@ -2350,15 +2355,17 @@
 
       <div id="questionOpts" class="question-opts mode-follow">
         <div class="step-title">무엇이 궁금하신가요?</div>
+        <p class="step-note" style="margin-top:-6px;margin-bottom:12px;font-size:12.5px;">주제를 고른 뒤 <strong>구체 질문을 반드시</strong> 적어 주세요. 속으로만 생각하면 AI는 알 수 없어요.</p>
         <div class="topic-grid">
           <div class="topic-btn" data-topic="love" onclick="selectTopic('love', this)">사랑</div>
           <div class="topic-btn" data-topic="work" onclick="selectTopic('work', this)">일·커리어</div>
           <div class="topic-btn" data-topic="money" onclick="selectTopic('money', this)">재정</div>
           <div class="topic-btn" data-topic="relation" onclick="selectTopic('relation', this)">관계</div>
           <div class="topic-btn" data-topic="inner" onclick="selectTopic('inner', this)">내면·성장</div>
-          <div class="topic-btn" data-topic="custom" onclick="selectTopic('custom', this)">직접 입력</div>
+          <div class="topic-btn" data-topic="custom" onclick="selectTopic('custom', this)">기타</div>
         </div>
-        <textarea id="customQuestionInput" class="custom-input" placeholder="마음속 질문을 적어주세요. (예: 지금 이 관계를 계속해도 될까요?)"></textarea>
+        <textarea id="customQuestionInput" class="custom-input" maxlength="800" placeholder="구체 질문을 적어주세요. (예: 다음 달 빌려준 돈을 받을 수 있을까요?)"></textarea>
+        <p class="question-q-hint" id="questionQHint">AI는 여기에 적은 질문만 보고 리딩합니다.</p>
       </div>
 
       <div id="drawOpts" class="draw-opts mode-follow">
@@ -2769,7 +2776,15 @@ function onDrawFreeCountChange() {
   onDrawFreeCountCommit();
 }
 
-const TOPIC_LABELS = { love: '사랑', work: '일·커리어', money: '재정', relation: '관계', inner: '내면·성장' };
+const TOPIC_LABELS = { love: '사랑', work: '일·커리어', money: '재정', relation: '관계', inner: '내면·성장', custom: '기타' };
+const TOPIC_Q_PLACEHOLDERS = {
+  love: '예: 그 사람의 진심이 궁금해요 / 이 관계를 이어가도 될까요?',
+  work: '예: 지금 이직해도 될까요? / 이번 제안 받아도 될까요?',
+  money: '예: 다음 달 빌려준 돈을 받을 수 있을까요? / 이번 달 큰 지출해도 될까요?',
+  relation: '예: 이 갈등을 어떻게 풀면 좋을까요? / 그 사람과 거리를 두는 게 맞을까요?',
+  inner: '예: 지금 내가 붙잡고 있는 건 무엇일까요? / 이번 주 나를 지키는 한 가지는?',
+  custom: '예: 지금 가장 궁금한 것을 한 문장으로 적어 주세요.',
+};
 const EOPT_READING_TITLE = {
   daily: '데일리 · 오늘의 흐름',
   month: '이번 달 에너지',
@@ -2800,10 +2815,18 @@ let shuffledDeck = [];
 let drawnCards = [];
 let flippedCount = 0;
 
+function getSpecificQuestion() {
+  const el = document.getElementById('customQuestionInput');
+  return el ? (el.value || '').trim() : '';
+}
+
 function getQuestionLabel() {
   if (curMode !== 'question') return '';
-  if (curTopic === 'custom') return document.getElementById('customQuestionInput').value.trim();
-  if (!curTopic) return '';
+  return getSpecificQuestion();
+}
+
+function getQuestionTopicLabel() {
+  if (curMode !== 'question' || !curTopic) return '';
   return TOPIC_LABELS[curTopic] || '';
 }
 
@@ -2812,6 +2835,7 @@ function tarotReadingContext() {
     curMode: curMode,
     curTopic: curTopic,
     questionText: getQuestionLabel(),
+    topicLabel: getQuestionTopicLabel(),
   };
 }
 
@@ -2868,7 +2892,7 @@ function applySpreadCountFromMode() {
 function isShuffleReady() {
   if (!curMode) return false;
   if (curMode === 'draw') return true;
-  if (curMode === 'question') return !!curTopic;
+  if (curMode === 'question') return !!curTopic && !!getSpecificQuestion();
   return true;
 }
 
@@ -2900,8 +2924,8 @@ function handleShuffleCtaClick() {
       document.getElementById('questionOpts')?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
       return;
     }
-    if (curTopic === 'custom' && !document.getElementById('customQuestionInput').value.trim()) {
-      showShuffleNudge('마음속 질문을 입력해 주세요.');
+    if (!getSpecificQuestion()) {
+      showShuffleNudge('구체 질문을 적어 주세요. 속으로만 생각하면 AI는 알 수 없어요.');
       document.getElementById('customQuestionInput')?.focus();
       return;
     }
@@ -2940,7 +2964,9 @@ function syncShuffleBtn() {
       const sp = getDrawSpread();
       hint.textContent = '카드만 뽑기 · ' + sp.label + ' · ' + spreadCount + '장 · 해석 없이 배열합니다';
     } else if (curMode === 'question') {
-      hint.textContent = '주제를 고르셨어요 · 카드 뽑기를 시작하세요';
+      hint.textContent = getSpecificQuestion()
+        ? '질문이 준비됐어요 · 카드 뽑기를 시작하세요'
+        : '주제는 골랐어요 · 아래 칸에 구체 질문을 적어 주세요';
     } else {
       const labels = {
         daily: '데일리 5장',
@@ -2987,16 +3013,22 @@ function selectTopic(t, el) {
   document.querySelectorAll('#questionOpts .topic-btn').forEach(e => e.classList.remove('selected'));
   el.classList.add('selected');
   const ci = document.getElementById('customQuestionInput');
-  if (t === 'custom') {
+  const hint = document.getElementById('questionQHint');
+  if (ci) {
     ci.classList.add('on');
-    ci.focus();
-    syncShuffleBtn();
-    scrollToShuffleCta();
-  } else {
-    ci.classList.remove('on');
-    syncShuffleBtn();
-    scrollToShuffleCta();
+    ci.placeholder = TOPIC_Q_PLACEHOLDERS[t] || TOPIC_Q_PLACEHOLDERS.custom;
+    if (!getSpecificQuestion()) ci.focus();
   }
+  if (hint) {
+    hint.classList.add('on');
+    const topicName = TOPIC_LABELS[t] || '이 주제';
+    hint.innerHTML =
+      '주제 <strong>' +
+      escapeHtml(topicName) +
+      '</strong> · AI는 <strong>아래에 적은 질문</strong>만 보고 리딩합니다. 속으로만 생각하면 전달되지 않아요.';
+  }
+  syncShuffleBtn();
+  scrollToShuffleCta();
 }
 
 let birthReady = false;
@@ -3750,12 +3782,10 @@ function startSpread() {
       tarotAppAlert('주제를 하나 선택해주세요.');
       return;
     }
-    if (curTopic === 'custom') {
-      const t = document.getElementById('customQuestionInput').value.trim();
-      if (!t) {
-        tarotAppAlert('질문을 입력해주세요.');
-        return;
-      }
+    if (!getSpecificQuestion()) {
+      tarotAppAlert('구체 질문을 입력해주세요. 속으로만 생각하면 AI는 알 수 없어요.');
+      document.getElementById('customQuestionInput')?.focus();
+      return;
     }
   }
 
@@ -3768,6 +3798,13 @@ function startSpread() {
   if (instr) {
     if (curMode === 'draw') {
       instr.innerHTML = '실물 덱처럼 직관으로 골라 주세요.<br>카드를 <strong id="drawCountText">' + spreadCount + '장</strong> 선택하거나, 아래에서 자동으로 뽑을 수 있습니다. (해석 없음)';
+    } else if (curMode === 'question') {
+      const qShow = escapeHtml(getSpecificQuestion());
+      const topicShow = escapeHtml(getQuestionTopicLabel() || '');
+      instr.innerHTML =
+        (topicShow ? '<span style="display:block;font-size:12px;color:var(--warm-brown);margin-bottom:6px;">주제 · ' + topicShow + '</span>' : '') +
+        '<span style="display:block;font-size:14px;color:var(--deep-brown);font-weight:600;margin-bottom:8px;">「' + qShow + '」</span>' +
+        '이 질문을 마음에 두고, 직관이 이끄는 카드를 <strong id="drawCountText">' + spreadCount + '장</strong> 골라주세요. 자동 뽑기도 가능합니다.';
     } else {
       instr.innerHTML = '눈을 감고 오늘의 에너지나 질문을 마음에 두세요.<br>직관이 이끄는 카드를 <strong id="drawCountText">' + spreadCount + '장</strong> 골라주세요. 자동 뽑기도 가능합니다.';
     }
@@ -5405,9 +5442,10 @@ function readingPrimaryVoice(card, slotIndex) {
 
 function resolveTarotAiFeature(cardCount) {
   const n = Number(cardCount) || 1;
+  // 장수와 무관하게 1크레딧 (feature 키만 구분해 캐시·로그용)
   if (n <= 1) return { feature: 'tarot_reading_basic', cost: 1 };
-  if (n <= 3) return { feature: 'tarot_reading', cost: 2 };
-  return { feature: 'tarot_reading_plus', cost: 3 };
+  if (n <= 3) return { feature: 'tarot_reading', cost: 1 };
+  return { feature: 'tarot_reading_plus', cost: 1 };
 }
 
 function formatTarotAiHtml(text) {
@@ -5441,17 +5479,38 @@ function buildTarotAiPrompt(cards, positions, qTrim) {
     .join('\n');
 
   let modeLine = '';
+  let periodHint = '';
   if (curMode === 'energy') {
     modeLine =
       '- 모드: 에너지 흐름 · ' +
       (EOPT_READING_TITLE[curEopt] || curEopt || '흐름') +
       '\n';
+    if (curEopt === 'daily') {
+      periodHint =
+        '- 데일리: 앞 3장은 오늘 시간 흐름(시작→중심→이어짐), 4번째는 힘이 되는 에너지, 5번째는 오늘의 주의로 읽을 것.\n' +
+        '- 가능하면 오전/오후/저녁 중 어디에 힘이 모이는지 한 번씩만 짚을 것.\n';
+    } else if (curEopt === 'month' || curEopt === 'next_month') {
+      periodHint = '- 월간: 시작·핵심·정리 흐름으로 읽되, “이번/다음 달에 실제로 손대볼 일”이 보이게.\n';
+    } else if (curEopt === 'year') {
+      periodHint = '- 연간: 큰 테마와 분기점 위주로. 너무 잘게 쪼개지 말 것.\n';
+    }
   } else {
-    modeLine = '- 모드: 질문 리딩\n- 질문: ' + (qTrim || '종합 흐름') + '\n';
+    const topic = getQuestionTopicLabel();
+    modeLine =
+      '- 모드: 질문 리딩\n' +
+      (topic ? '- 주제 카테고리: ' + topic + '\n' : '') +
+      '- 고객이 적은 질문(이 문장에만 답할 것): ' +
+      (qTrim || '(질문 없음)') +
+      '\n';
+    periodHint =
+      '- 질문에 대한 결론을 피하지 말 것. “마음먹기에 달렸다”로 도망가지 말 것.\n' +
+      '- 주제 카테고리만 보고 일반론으로 쓰지 말 것. 반드시 위에 적힌 구체 질문을 중심으로.\n' +
+      '- 질문에 없는 상황(연애·직장 등)을 지어내지 말 것.\n';
   }
 
   let numXml = '';
   if (birthReady && calcPy) {
+    const dayPart = spreadSkipsTodayEnergy() ? '' : ', 오늘 ' + calcPd + '번';
     numXml =
       '<numerology_lens year="' +
       calcPy +
@@ -5462,38 +5521,50 @@ function buildTarotAiPrompt(cards, positions, qTrim) {
       '">\n' +
       '  올해 ' +
       calcPy +
-      '번, 이번 달 ' +
+      '번 · 이번 달 ' +
       calcPm +
       '번' +
-      (spreadSkipsTodayEnergy() ? '' : ', 오늘 ' + calcPd + '번') +
-      '을 렌즈로만 녹일 것. 수비 전용 섹션·나열 금지.\n' +
+      dayPart +
+      '.\n' +
+      '  수비 숫자를 따로 나열·전용 섹션으로 쓰지 말 것.\n' +
+      '  대신 한 줄 요약과 흐름 문장 안에 “왜 이 사람에게 이 카드가 더 세게/비틀려 오는지”를 수비 렌즈 1개로 녹일 것.\n' +
+      '  예: 이번 달 1번이 ‘새 판’을 재촉하는데 카드는 멈춤이면, 조급함이 결정을 망칠 수 있다고 연결.\n' +
       '</numerology_lens>\n';
   }
 
   return (
     '<role>\n' +
-    '당신은 라이더–웨이트 전통의 타로 리더다. 고객에게 바로 들려주는 존댓말(해요체)로 짧고 선명하게 쓴다.\n' +
-    '뜬구름 위로·백과사전식 나열·이모지·면책 장문은 금지.\n' +
+    '당신은 라이더–웨이트 전통의 타로 리더다. 고객에게 바로 말하는 존댓말(해요체).\n' +
+    '무료 사이트처럼 카드 사전 뜻을 나열하지 않는다. 이 자리·이 질문에만 맞는 장면을 그린다.\n' +
+    '뜬구름 위로·이모지·긴 면책·“좋은 일이 생깁니다”류 모호한 예언 금지.\n' +
     '</role>\n\n' +
+    '<quality_bar>\n' +
+    '1) 각 카드마다 (a) 자리 이름 (b) 카드 이름·정역 (c) “이 자리라서” 한 줄 — 세 가지가 있어야 함.\n' +
+    '2) 카드들을 따로 끊지 말고, 앞 카드 → 다음 카드로 인과가 이어지게.\n' +
+    '3) 조언은 오늘/이번 주에 바로 할 수 있는 행동 (예: “중요한 결정은 24시간 보류”).\n' +
+    '4) 추상어(“균형”“긍정”“흐름”)만 나열하지 말 것. 장면·선택·타이밍으로 말할 것.\n' +
+    '5) 의료·법률·투자 단정 금지. 주의 섹션 끝에 한 문장만.\n' +
+    '</quality_bar>\n\n' +
     '<output_format>\n' +
     '반드시 아래 ## 소제목만 사용:\n' +
     '## 한 줄 요약\n' +
     '## 흐름\n' +
     '## 지금 할 일\n' +
     '## 주의\n' +
-    '- 한 줄 요약: 질문/기간에 대한 결론 1문장\n' +
-    '- 흐름: 포지션 순서로 카드 인과를 연결. 각 카드에 자리·이름·정역을 짧게 명시\n' +
-    '- 지금 할 일: Do 2~3개 (구체적 행동)\n' +
-    '- 주의: Don\'t 1~2개 + 의료·법률·투자 단정 금지 한 문장\n' +
+    '- 한 줄 요약: 결론 1문장. 수비가 있으면 같은 문장에 렌즈 힌트 1개를 녹일 것.\n' +
+    '- 흐름: 포지션 순서. 카드마다 2~4문장. “자리 · 카드명(정/역)”으로 시작.\n' +
+    '- 지금 할 일: Do 2~3개. 번호 목록.\n' +
+    '- 주의: Don\'t 2개 + 경계 한 문장.\n' +
     '</output_format>\n\n' +
     '<context>\n' +
     modeLine +
-    (numXml || '- 생년월일 없음: 카드와 질문만으로 해석\n') +
+    periodHint +
+    (numXml || '- 생년월일 없음: 카드와 질문만으로 해석. 수비를 지어내지 말 것.\n') +
     '</context>\n\n' +
     '<spread>\n' +
     cardLines +
     '\n</spread>\n\n' +
-    '위 데이터를 바탕으로 지정 형식으로 타로 리딩을 작성해 주세요.'
+    '위 데이터를 바탕으로 품질 기준과 형식을 지켜 타로 리딩을 작성해 주세요.'
   );
 }
 
@@ -5559,7 +5630,7 @@ async function runTarotAiReading(outEl, msgEl, quotaEl) {
   const birthKey = birthReady ? [bY, bM, bD, calcPy, calcPm, calcPd].join('-') : 'nobirth';
   const cacheKey = PaljaAiQuota.hashKey(
     [
-      'tarot_code_v1',
+      'tarot_code_v3',
       feature,
       curMode,
       curEopt || '',
@@ -5579,7 +5650,7 @@ async function runTarotAiReading(outEl, msgEl, quotaEl) {
     const { text, quota, stopReason } = await PaljaAiQuota.callAiStream({
       feature: feature,
       cacheKey: cacheKey,
-      max_tokens: cards.length <= 3 ? 2200 : 2800,
+      max_tokens: cards.length <= 3 ? 2600 : 3200,
       messages: [{ role: 'user', content: prompt }],
       onDelta: function (chunk) {
         streamed += chunk;
@@ -5775,6 +5846,11 @@ function resetAll() {
     ci.value = '';
     ci.classList.remove('on');
   }
+  const qHint = document.getElementById('questionQHint');
+  if (qHint) {
+    qHint.classList.remove('on');
+    qHint.textContent = 'AI는 여기에 적은 질문만 보고 리딩합니다.';
+  }
 
   const dct = document.getElementById('drawCountText');
   if (dct) dct.textContent = '5장';
@@ -5812,6 +5888,13 @@ if (TAROT_STANDALONE) {
 
 initBirthDatePickers();
 initAuth();
+(function initQuestionInputSync() {
+  const ci = document.getElementById('customQuestionInput');
+  if (!ci) return;
+  ci.addEventListener('input', function () {
+    if (curMode === 'question') syncShuffleBtn();
+  });
+})();
 </script>
 </body>
 </html>
