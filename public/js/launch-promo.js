@@ -74,7 +74,7 @@
       '      <p class="launch-promo-counselor-lead">Professional로 고객 CRM·일정·<strong>AI 타로 리딩</strong>까지 한곳에서. 출시 기념가 <strong>29,900원/월</strong>입니다.</p>' +
       '      <ul class="launch-promo-counselor-points">' +
       '        <li>고객 CRM · 일정 캘린더 · 상담 기록</li>' +
-      '        <li>AI 타로 리딩 · 레노먼드 · 주역 해석 초안</li>' +
+      '        <li>타로 AI · 레노먼드 AI · 주역 AI 해석 초안</li>' +
       '        <li>브랜디드 PDF · 재방문 관리</li>' +
       '      </ul>' +
       '      <a href="/for-counselors.html" class="launch-promo-counselor-cta">상담사 전용 안내 보기 →</a>' +
