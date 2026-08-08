@@ -200,6 +200,59 @@
     .ai-draft-out.is-empty { color: var(--muted); }
     .ai-draft-msg { font-size: 12px; margin-top: 8px; color: var(--teal); }
     .ai-draft-msg.err { color: #8b3a3a; }
+    .ai-chip-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 6px; }
+    .ai-suggest-chip {
+      border: 1px solid var(--border); background: #fff; color: var(--deep);
+      border-radius: 999px; padding: 7px 12px; font-size: 12px; font-family: var(--font-body);
+      cursor: pointer; font-weight: 600; line-height: 1.3;
+    }
+    .ai-suggest-chip:hover { background: var(--parchment); }
+    .ai-suggest-chip.is-pick {
+      border-color: var(--deep); background: var(--parchment);
+      box-shadow: 0 0 0 2px rgba(44,31,14,.08);
+    }
+    .ai-suggest-chip .why {
+      display: block; font-size: 10px; font-weight: 500; color: var(--muted); margin-top: 2px;
+    }
+    .ai-suggest-hint { font-size: 11px; color: var(--muted); margin: 0; line-height: 1.45; }
+    .ai-thread {
+      display: flex; flex-direction: column; gap: 12px; margin: 12px 0 0;
+    }
+    .ai-thread[hidden] { display: none !important; }
+    .ai-thread-toolbar {
+      display: flex; flex-wrap: wrap; gap: 8px; align-items: center; justify-content: space-between;
+      margin-bottom: 2px;
+    }
+    .ai-thread-toolbar strong { font-size: 12px; color: var(--deep); }
+    .ai-turn {
+      background: #fff; border: 1px solid var(--border); border-radius: 12px; padding: 12px 14px;
+    }
+    .ai-turn-meta { font-size: 11px; color: var(--muted); margin-bottom: 6px; }
+    .ai-turn-q { font-size: 13px; font-weight: 700; color: var(--deep); margin-bottom: 6px; line-height: 1.45; }
+    .ai-turn-cards { font-size: 11px; color: var(--warm-brown); margin-bottom: 8px; line-height: 1.4; }
+    .ai-turn-body {
+      font-size: 12.5px; line-height: 1.65; color: var(--ink); white-space: pre-wrap;
+      max-height: 9.5em; overflow: hidden; position: relative;
+    }
+    .ai-turn.is-open .ai-turn-body { max-height: none; }
+    .ai-turn-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+    .ai-followups {
+      margin-top: 12px; padding: 12px 14px; background: #fff;
+      border: 1px solid var(--border); border-radius: 12px;
+    }
+    .ai-followups[hidden] { display: none !important; }
+    .ai-followups-head {
+      display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between;
+      gap: 6px; margin-bottom: 8px;
+    }
+    .ai-followups-head strong { font-size: 13px; color: var(--deep); }
+    .ai-followups-head span { font-size: 11px; color: var(--muted); }
+    .ai-follow-chip {
+      border: 1px solid var(--border); background: var(--parchment); color: var(--deep);
+      border-radius: 10px; padding: 9px 12px; font-size: 12.5px; font-family: var(--font-body);
+      cursor: pointer; text-align: left; font-weight: 600; line-height: 1.4;
+    }
+    .ai-follow-chip:hover { border-color: var(--deep); background: #fff; }
     .ai-card-slot.is-target { border-color: var(--deep); box-shadow: 0 0 0 2px rgba(44,31,14,.12); }
     .slot-search-wrap { position: relative; margin-top: 8px; }
     .slot-search-wrap input[type="search"] {
@@ -421,7 +474,7 @@
   <div class="hub-intro">
     <div class="back-row"><a href="counselor.html">← 상담사 허브</a></div>
     <h1>상담사 AI 리딩</h1>
-    <p>질문·카드로 고객에게 붙여넣을 초안을 만듭니다. 스프래드 뒤에 <strong>조언·명확화 카드를 더 뽑을</strong> 수 있습니다. <strong>Professional</strong> 전용.</p>
+    <p>질문·카드로 고객에게 붙여넣을 초안을 만듭니다. <strong>배열 추천</strong>·리딩이 쌓이는 <strong>이어서 보기</strong>·<strong>다음 질문</strong>을 쓸 수 있고, 스프래드 뒤 <strong>조언·명확화 카드</strong>도 더 뽑을 수 있습니다. <strong>Professional</strong> 전용.</p>
     <p id="trialBadge" class="trial-badge" style="display:none" role="status"></p>
   </div>
   <div id="gate">
@@ -439,7 +492,7 @@
   <div id="workspace">
 <div class="section-title" id="ai-draft" style="margin-top:28px">상담사 AI 리딩</div>
     <div class="ai-draft-panel">
-      <p class="ai-draft-intro">스프래드 카드를 넣은 뒤, 필요하면 <strong>조언·명확화 카드를 추가로 뽑을</strong> 수 있습니다. 뽑힌 카드는 <strong>해석 바로 위</strong>에 보입니다.
+      <p class="ai-draft-intro">질문을 넣으면 <strong>배열 추천</strong>이 뜨고, 해석 후 <strong>다음 질문</strong>으로 이어서 볼 수 있습니다. 이전 리딩은 위에 쌓입니다.
         크레딧: <strong>1장 → 1</strong> · <strong>2~3장 → 2</strong> · <strong>4~6장 → 3</strong>
         · 통합(수비·점성) 시 <strong>+1</strong>.</p>
       <div class="ai-mode-row" role="tablist" aria-label="리딩 모드">
@@ -502,6 +555,11 @@
           </div>
           <textarea id="aiQuestion" maxlength="800" required placeholder="키보드·붙여넣기 또는 🎤 음성 입력.&#10;예: 이직을 지금 해도 될까요? / 그 사람 마음이 궁금해요"></textarea>
           <p class="ai-voice-hint" id="aiVoiceHint">한 문장씩 말하면 됩니다. 크롬·엣지·안드로이드 권장. 더 쓰려면 버튼을 다시 누르세요.</p>
+          <div id="aiSpreadSuggestWrap" style="margin-top:10px">
+            <label>배열 추천</label>
+            <p class="ai-suggest-hint">질문을 보고 맞춰 둔 제안입니다. 누르면 <strong>심화 리딩</strong>으로 칸이 열립니다. 원하는 칸 이름은 스프래드에서 <strong>직접 입력</strong>을 고르세요.</p>
+            <div id="aiSpreadSuggest" class="ai-chip-row" role="group" aria-label="배열 추천"></div>
+          </div>
         </div>
         <div>
           <label for="aiTopic">해석 주제</label>
@@ -551,7 +609,15 @@
       </form>
       <p class="ai-preview-label" id="aiPreviewLabel" hidden>뽑힌 카드 · 해석과 함께 보세요</p>
       <div id="aiCardPreview" class="ai-card-preview" aria-live="polite"></div>
+      <div id="aiThread" class="ai-thread" hidden aria-live="polite"></div>
       <div id="aiDraftOut" class="ai-draft-out is-empty">질문을 넣고 카드를 정한 뒤 해석을 생성해 보세요.</div>
+      <div id="aiFollowUps" class="ai-followups" hidden>
+        <div class="ai-followups-head">
+          <strong>다음 질문 추천</strong>
+          <span>누르면 질문칸에 넣고, 카드만 다시 뽑으면 됩니다</span>
+        </div>
+        <div id="aiFollowUpChips" class="ai-chip-row" role="group" aria-label="다음 질문 추천"></div>
+      </div>
       <p id="aiDraftMsg" class="ai-draft-msg"></p>
       <div class="tool-dock" id="toolDock" hidden>
         <div class="tool-dock-head">
@@ -1010,9 +1076,15 @@
       let mode = 'basic'; // basic | advanced
       let spreadId = 'advice';
       let lastText = '';
+      let lastQuestion = '';
+      let lastCardsLine = '';
+      let lastSpreadLabel = '';
+      let lastTopic = 'general';
       let lastSessionId = null;
       let lastSessionClientId = null;
       let targetSlot = 0;
+      /** @type {{ question: string, cards: string, text: string, spread: string }[]} */
+      let threadTurns = [];
       /** @type {{ num: number|null, rev: boolean, label: string, extra?: boolean }[]} */
       let slots = [{ num: null, rev: false, label: '카드', extra: false }];
 
@@ -1021,6 +1093,11 @@
       const msg = document.getElementById('aiDraftMsg');
       const slotsEl = document.getElementById('aiCardSlots');
       const previewEl = document.getElementById('aiCardPreview');
+      const threadEl = document.getElementById('aiThread');
+      const followUpsEl = document.getElementById('aiFollowUps');
+      const followUpChipsEl = document.getElementById('aiFollowUpChips');
+      const spreadSuggestEl = document.getElementById('aiSpreadSuggest');
+      const qEl = document.getElementById('aiQuestion');
       const copyBtn = document.getElementById('aiCopyBtn');
       const saveSessionBtn = document.getElementById('aiSaveSessionBtn');
       const drawBtn = document.getElementById('aiDrawBtn');
@@ -1339,6 +1416,7 @@
         syncModeButtons();
         renderSlots();
         updateCreditHint();
+        if (typeof renderSpreadSuggest === 'function') renderSpreadSuggest();
       }
 
       function cardFor(num) {
@@ -1995,6 +2073,291 @@
         relation: '인간관계', inner: '내면·성장', general: '종합',
       };
 
+      const SPREAD_WHY = {
+        advice: '조언·지금 할 일',
+        choice_ab: '둘 중 고를 때',
+        choice: '선택과 결과',
+        time: '흐름·타이밍',
+        love: '관계·마음',
+        block: '막힘·원인',
+      };
+
+      function rankSpreadSuggestions(question) {
+        const q = String(question || '');
+        const scores = {
+          advice: 1.2,
+          time: 0.6,
+          love: 0.4,
+          choice_ab: 0.3,
+          choice: 0.2,
+          block: 0.3,
+        };
+        if (/A\s*[\/·,]?\s*B|둘\s*중|어느\s*쪽|선택|갈림|남을지|이직.*남을|남을.*이직|할까\s*말까|비교/.test(q)) {
+          scores.choice_ab += 5;
+          scores.choice += 2.5;
+        }
+        if (/연애|사랑|남친|여친|배우자|그\s*사람|썸|이별|재회|짝사랑|상대\s*마음|고백/.test(q)) {
+          scores.love += 4.5;
+        }
+        if (/왜|원인|막히|장애|안\s*되|풀리|돌파|반복|꼬이|정체/.test(q)) {
+          scores.block += 4;
+        }
+        if (/과거|앞으로|미래|언제|타이밍|흐름|올해|이번\s*달|앞으로의|전개/.test(q)) {
+          scores.time += 3.2;
+        }
+        if (/어떻|조언|뭐\s*하|해야|지금|괜찮|될까|방법|팁|행동/.test(q)) {
+          scores.advice += 3;
+        }
+        if (/돈|금전|재물|투자|수입|빚|재정/.test(q)) {
+          scores.advice += 1.5;
+          scores.block += 0.8;
+        }
+        if (/일|직장|이직|커리어|사업|면접|퇴사/.test(q) && scores.choice_ab < 4) {
+          scores.advice += 1.2;
+          scores.time += 0.6;
+        }
+        const order = Object.keys(scores)
+          .map((id) => {
+            const sp = SPREADS.find((s) => s.id === id);
+            return sp ? { id, score: scores[id], label: sp.label, why: SPREAD_WHY[id] || '' } : null;
+          })
+          .filter(Boolean)
+          .sort((a, b) => b.score - a.score);
+        const picked = [];
+        const fallback = ['advice', 'love', 'choice_ab', 'time', 'block', 'choice'];
+        for (const row of order) {
+          if (picked.length >= 3) break;
+          picked.push(row);
+        }
+        for (const id of fallback) {
+          if (picked.length >= 3) break;
+          if (picked.some((p) => p.id === id)) continue;
+          const sp = SPREADS.find((s) => s.id === id);
+          if (sp) picked.push({ id, score: 0, label: sp.label, why: SPREAD_WHY[id] || '' });
+        }
+        return picked;
+      }
+
+      function renderSpreadSuggest() {
+        if (!spreadSuggestEl) return;
+        const q = (qEl && qEl.value) || '';
+        const rows = rankSpreadSuggestions(q);
+        spreadSuggestEl.innerHTML = rows.map((r) =>
+          '<button type="button" class="ai-suggest-chip' + (mode === 'advanced' && spreadId === r.id ? ' is-pick' : '') +
+          '" data-spread="' + r.id + '">' + escapeHtml(r.label) +
+          (r.why ? '<span class="why">' + escapeHtml(r.why) + '</span>' : '') +
+          '</button>'
+        ).join('');
+      }
+
+      function applySuggestedSpread(id) {
+        const sp = SPREADS.find((s) => s.id === id);
+        if (!sp || id === 'custom') return;
+        setMode('advanced');
+        applySpreadLabels(id);
+        renderSlots();
+        updateCreditHint();
+        renderSpreadSuggest();
+        setAiMsg('「' + sp.label + '」배열로 맞춰 두었어요. 카드를 넣고 해석을 생성하세요.');
+        if (spreadRow) spreadRow.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      }
+
+      function archiveCurrentTurnIfNeeded() {
+        if (!lastText) return;
+        const last = threadTurns[threadTurns.length - 1];
+        if (last && last.text === lastText) return;
+        threadTurns.push({
+          question: lastQuestion || '(질문 없음)',
+          cards: lastCardsLine || '',
+          text: lastText,
+          spread: lastSpreadLabel || '',
+        });
+        renderThread();
+      }
+
+      function renderThread() {
+        if (!threadEl) return;
+        if (!threadTurns.length) {
+          threadEl.hidden = true;
+          threadEl.innerHTML = '';
+          return;
+        }
+        threadEl.hidden = false;
+        threadEl.innerHTML =
+          '<div class="ai-thread-toolbar">' +
+            '<strong>이전 리딩 · 이어서 보기</strong>' +
+            '<button type="button" class="btn-sm outline" id="aiClearThreadBtn">이어보기 비우기</button>' +
+          '</div>' +
+          threadTurns.map((t, i) =>
+            '<article class="ai-turn" data-turn="' + i + '">' +
+              '<div class="ai-turn-meta">턴 ' + (i + 1) +
+                (t.spread ? ' · ' + escapeHtml(t.spread) : '') + '</div>' +
+              '<div class="ai-turn-q">' + escapeHtml(t.question) + '</div>' +
+              (t.cards ? '<div class="ai-turn-cards">' + escapeHtml(t.cards) + '</div>' : '') +
+              '<div class="ai-turn-body">' + escapeHtml(t.text) + '</div>' +
+              '<div class="ai-turn-actions">' +
+                '<button type="button" class="btn-sm outline" data-turn-toggle="' + i + '">더 보기</button>' +
+                '<button type="button" class="btn-sm outline" data-turn-copy="' + i + '">이 턴 복사</button>' +
+              '</div>' +
+            '</article>'
+          ).join('');
+        const clearBtn = document.getElementById('aiClearThreadBtn');
+        if (clearBtn) {
+          clearBtn.addEventListener('click', () => {
+            threadTurns = [];
+            renderThread();
+            setAiMsg('이전 리딩 이어보기를 비웠습니다.');
+          });
+        }
+        threadEl.querySelectorAll('[data-turn-toggle]').forEach((btn) => {
+          btn.addEventListener('click', () => {
+            const i = Number(btn.getAttribute('data-turn-toggle'));
+            const art = threadEl.querySelector('.ai-turn[data-turn="' + i + '"]');
+            if (!art) return;
+            const open = art.classList.toggle('is-open');
+            btn.textContent = open ? '접기' : '더 보기';
+          });
+        });
+        threadEl.querySelectorAll('[data-turn-copy]').forEach((btn) => {
+          btn.addEventListener('click', async () => {
+            const i = Number(btn.getAttribute('data-turn-copy'));
+            const t = threadTurns[i];
+            if (!t) return;
+            const blob = (t.question ? 'Q. ' + t.question + '\n\n' : '') + t.text;
+            try {
+              await navigator.clipboard.writeText(blob);
+              setAiMsg((i + 1) + '턴 해석을 복사했습니다.');
+            } catch (_) {
+              setAiMsg('복사에 실패했습니다.', true);
+            }
+          });
+        });
+      }
+
+      function buildPriorContextXml() {
+        const prior = threadTurns.slice(-2);
+        if (!prior.length) return '';
+        return prior.map((t, i) => {
+          const one = extractOneLineSummary(t.text) || String(t.text || '').slice(0, 120);
+          return '  <prior_turn n="' + (i + 1) + '">\n    <q>' + String(t.question || '').slice(0, 200) +
+            '</q>\n    <summary>' + String(one).slice(0, 220) + '</summary>\n  </prior_turn>';
+        }).join('\n');
+      }
+
+      function suggestFollowUps(question, topic) {
+        const pools = {
+          love: [
+            '상대의 속마음은 어떤가요?',
+            '지금 내가 취해야 할 태도는?',
+            '이 관계를 이어가면 어떻게 전개될까요?',
+            '내가 조심해야 할 포인트는?',
+            '고백·연락 타이밍은 언제가 나을까요?',
+          ],
+          work: [
+            '지금 이 상황에서 내가 잡을 기회는?',
+            '방해되는 요인은 무엇인가요?',
+            '한 달 뒤 흐름은 어떻게 보일까요?',
+            '상사·동료와의 역학은?',
+            '지금 움직여야 할 일과 기다려야 할 일은?',
+          ],
+          money: [
+            '단기적으로 조심할 금전 리스크는?',
+            '수입·기회 쪽에서 열릴 흐름은?',
+            '지금 지출·투자를 줄여야 할 부분은?',
+            '한 달 재정 흐름의 핵심은?',
+          ],
+          relation: [
+            '상대가 나를 어떻게 보고 있을까요?',
+            '갈등을 풀 때 내가 먼저 할 일은?',
+            '경계로 지켜야 할 한 가지는?',
+            '이 관계가 나아지려면 무엇이 필요할까요?',
+          ],
+          inner: [
+            '지금 내 안의 진짜 필요는?',
+            '내려놓으면 가벼워질 것은?',
+            '나를 지키는 행동 한 가지는?',
+            '앞으로 2주, 성장 포인트는?',
+          ],
+          general: [
+            '지금 내가 놓치고 있는 포인트는?',
+            '앞으로 2주 흐름의 핵심은?',
+            '도움이 되는 행동 / 피해야 할 행동은?',
+            '이 상황의 숨은 원인은?',
+          ],
+        };
+        const base = (pools[topic] || pools.general).slice();
+        const q = String(question || '');
+        if (/선택|A\s*[/·]?\s*B|어느\s*쪽/.test(q)) {
+          base.unshift('선택하지 않은 쪽을 택하면 어떻게 될까요?', '결정을 미루면 어떤 대가가 올까요?');
+        }
+        if (/이직|퇴사|면접/.test(q)) {
+          base.unshift('지금 이직 타이밍은 빠른가요, 늦은가요?', '현 직장에 남을 때의 흐름은?');
+        }
+        const seen = new Set();
+        const outQ = [];
+        for (const item of base) {
+          const key = item.replace(/\s+/g, '');
+          if (seen.has(key)) continue;
+          if (q.replace(/\s+/g, '').includes(key.slice(0, 8))) continue;
+          seen.add(key);
+          outQ.push(item);
+          if (outQ.length >= 3) break;
+        }
+        return outQ;
+      }
+
+      function renderFollowUps(question, topic) {
+        if (!followUpsEl || !followUpChipsEl) return;
+        const rows = suggestFollowUps(question, topic);
+        if (!rows.length) {
+          followUpsEl.hidden = true;
+          followUpChipsEl.innerHTML = '';
+          return;
+        }
+        followUpsEl.hidden = false;
+        followUpChipsEl.innerHTML = rows.map((q) =>
+          '<button type="button" class="ai-follow-chip" data-follow-q="' + escapeHtml(q) + '">' +
+          escapeHtml(q) + '</button>'
+        ).join('');
+        followUpChipsEl.querySelectorAll('[data-follow-q]').forEach((btn) => {
+          btn.addEventListener('click', () => {
+            const nextQ = btn.getAttribute('data-follow-q') || '';
+            if (qEl) qEl.value = nextQ;
+            renderSpreadSuggest();
+            // 새 질문용으로 카드만 비움 (배열은 유지)
+            slots.forEach((s) => { s.num = null; s.rev = false; });
+            targetSlot = 0;
+            renderSlots();
+            updateCreditHint();
+            followUpsEl.hidden = true;
+            setAiMsg('다음 질문을 넣었어요. 카드를 다시 뽑은 뒤 해석 생성을 누르세요.');
+            if (slotsEl) slotsEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+          });
+        });
+      }
+
+      function hideFollowUps() {
+        if (followUpsEl) followUpsEl.hidden = true;
+        if (followUpChipsEl) followUpChipsEl.innerHTML = '';
+      }
+
+      if (spreadSuggestEl) {
+        spreadSuggestEl.addEventListener('click', (e) => {
+          const btn = e.target.closest('[data-spread]');
+          if (!btn) return;
+          applySuggestedSpread(btn.getAttribute('data-spread'));
+        });
+      }
+      if (qEl) {
+        let suggestTimer = null;
+        const bumpSuggest = () => {
+          clearTimeout(suggestTimer);
+          suggestTimer = setTimeout(renderSpreadSuggest, 180);
+        };
+        qEl.addEventListener('input', bumpSuggest);
+        qEl.addEventListener('change', bumpSuggest);
+      }
+
       if (modeBasic) modeBasic.addEventListener('click', () => setMode('basic'));
       if (modeAdv) modeAdv.addEventListener('click', () => setMode('advanced'));
       if (depthCardBtn) depthCardBtn.addEventListener('click', () => setReadingDepth('card'));
@@ -2087,6 +2450,7 @@
         spreadSel.addEventListener('change', () => {
           applySpreadLabels(spreadSel.value);
           renderSlots();
+          renderSpreadSuggest();
           setAiMsg('스프래드 칸 이름을 바꿨습니다.');
         });
       }
@@ -2487,12 +2851,15 @@
         const displayName = nickname || (client && (client.display_name || client.legal_name)) || '고객님';
         const btn = document.getElementById('aiDraftBtn');
         if (btn) { btn.disabled = true; btn.textContent = '생성 중…'; }
+        archiveCurrentTurnIfNeeded();
+        hideFollowUps();
         setAiMsg('해석을 생성하는 중… 나오는 대로 표시됩니다.');
         out.classList.remove('is-empty');
         out.textContent = '';
 
         const topic = resolveReadingTopic(question);
         const topicLabel = TOPIC_LABEL[topic] || topic;
+        const priorXml = buildPriorContextXml();
 
         function cardXmlLine(c) {
           return c.num + '. ' + c.name + (c.rev ? ' (역방향)' : ' (정방향)') +
@@ -2670,7 +3037,7 @@ systemBlock + choiceAbDirective + `
 ${client ? '- CRM 생년월일: ' + (client.birth_date || '미상') + ' / 최근 상담: ' + (ls.last || '없음') + (ls.topic ? ' · ' + ls.topic : '') + '\n' : ''}- 질문: ${question}
 - 해석 주제: ${topicLabel}
 - 스프래드: ${getSpread().label || spreadId}
-${note ? '- 상담사 메모(고객에게 노출 금지, 반영만): ' + note + '\n' : ''}${integratedContextXml}</context>
+${note ? '- 상담사 메모(고객에게 노출 금지, 반영만): ' + note + '\n' : ''}${priorXml ? '- 같은 상담에서 이어진 이전 리딩(참고만, 이번 카드 결론을 바꾸지 말 것):\n<prior_readings>\n' + priorXml + '\n</prior_readings>\n' : ''}${integratedContextXml}</context>
 
 <spread>
 ${spreadXml}
@@ -2679,7 +3046,7 @@ ${spreadXml}
 위 데이터를 바탕으로 시스템 지시를 엄격히 준수하여 지정된 마크다운 형식으로 타로 리딩을 분석해 주세요.`;
 
         const cacheKey = PaljaAiQuota.hashKey([
-          'counselor_reading_v20',
+          'counselor_reading_v21',
           feature,
           readingDepth,
           spreadId,
@@ -2688,6 +3055,7 @@ ${spreadXml}
           displayName,
           question,
           note,
+          priorXml ? priorXml.slice(0, 400) : '',
           cards.map((c) => (c.extra ? 'x' : 'b') + c.pos + ':' + c.num + (c.rev ? 'r' : 'u')).join('|'),
         ].join('::'));
 
@@ -2704,6 +3072,10 @@ ${spreadXml}
             },
           });
           lastText = (text || streamed || '').trim();
+          lastQuestion = question;
+          lastCardsLine = formatCardsLine(cards);
+          lastSpreadLabel = (mode === 'basic') ? '기본 1장' : (getSpread().label || spreadId);
+          lastTopic = topic;
           lastSessionId = null;
           lastSessionClientId = clientId || null;
           out.classList.remove('is-empty');
@@ -2712,6 +3084,8 @@ ${spreadXml}
           if (saveSessionBtn) saveSessionBtn.style.display = 'none';
           PaljaAiQuota.applyQuotaBadge(quotaEl, quota);
           const truncated = stopReason === 'max_tokens';
+          if (lastText) renderFollowUps(question, topic);
+          else hideFollowUps();
 
           let sessionNote = '';
           if (lastText && clientId) {
@@ -2736,7 +3110,7 @@ ${spreadXml}
             lastText
               ? (truncated
                 ? '해석이 길어 뒷부분이 잘릴 수 있습니다. 한 번 더 생성하거나 카드 수를 줄여 보세요. (크레딧 ' + costLabel + ')' + sessionNote
-                : '해석을 만들었습니다. 다듬어 복사해 쓰세요.' + sessionNote)
+                : '해석을 만들었습니다. 아래에서 다음 질문을 이어가거나 복사해 쓰세요.' + sessionNote)
               : '응답이 비어 있습니다.',
             !lastText || truncated || (sessionNote.indexOf('실패') >= 0)
           );
@@ -2754,6 +3128,8 @@ ${spreadXml}
 
       setMode('basic');
       syncDepthButtons();
+      renderSpreadSuggest();
+      hideFollowUps();
 
       if (location.hash === '#ai-draft') {
         setTimeout(() => {
