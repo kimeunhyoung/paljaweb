@@ -163,7 +163,10 @@
         var btn = dd.querySelector('.program-nav-dd-btn');
         var menu = dd.querySelector('.program-nav-dd-menu');
         if (btn) btn.setAttribute('aria-expanded', 'false');
-        if (menu) menu.hidden = true;
+        if (menu) {
+          menu.hidden = true;
+          menu.setAttribute('hidden', '');
+        }
       });
     }
 
@@ -171,6 +174,10 @@
       var btn = dd.querySelector('.program-nav-dd-btn');
       var menu = dd.querySelector('.program-nav-dd-menu');
       if (!btn || !menu) return;
+      // 초기 상태: 닫힘
+      menu.hidden = true;
+      menu.setAttribute('hidden', '');
+      dd.classList.remove('is-open');
       btn.addEventListener('click', function (e) {
         e.preventDefault();
         e.stopPropagation();
@@ -178,7 +185,13 @@
         closeAll(open ? dd : null);
         dd.classList.toggle('is-open', open);
         btn.setAttribute('aria-expanded', open ? 'true' : 'false');
-        menu.hidden = !open;
+        if (open) {
+          menu.hidden = false;
+          menu.removeAttribute('hidden');
+        } else {
+          menu.hidden = true;
+          menu.setAttribute('hidden', '');
+        }
       });
     });
 

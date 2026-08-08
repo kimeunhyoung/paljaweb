@@ -128,9 +128,13 @@
   border: 1px solid var(--tb-border);
   border-radius: 10px;
   box-shadow: 0 12px 28px rgba(44, 31, 14, 0.12);
-  display: grid;
+  display: none;
   gap: 2px;
   z-index: 120;
+}
+
+.site-top .program-nav-dd.is-open .program-nav-dd-menu {
+  display: grid;
 }
 
 .site-top .program-nav-dd-item {
