@@ -2365,7 +2365,7 @@
           <div class="topic-btn" data-topic="custom" onclick="selectTopic('custom', this)">기타</div>
         </div>
         <textarea id="customQuestionInput" class="custom-input" maxlength="800" placeholder="구체 질문을 적어주세요. (예: 다음 달 빌려준 돈을 받을 수 있을까요?)"></textarea>
-        <p class="question-q-hint" id="questionQHint">AI는 여기에 적은 질문만 보고 리딩합니다.</p>
+        <p class="question-q-hint" id="questionQHint">아래에 적은 질문으로 리딩합니다.</p>
       </div>
 
       <div id="drawOpts" class="draw-opts mode-follow">
@@ -5849,7 +5849,7 @@ function resetAll() {
   const qHint = document.getElementById('questionQHint');
   if (qHint) {
     qHint.classList.remove('on');
-    qHint.textContent = 'AI는 여기에 적은 질문만 보고 리딩합니다.';
+    qHint.textContent = '아래에 적은 질문으로 리딩합니다.';
   }
 
   const dct = document.getElementById('drawCountText');
