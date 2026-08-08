@@ -867,6 +867,17 @@ section { padding: 100px 0; }
   flex-shrink: 0;
 }
 .service-item-badge.soon { background: var(--cream3); color: var(--text3); }
+.service-item.soon {
+  cursor: default;
+  opacity: 0.88;
+  background: var(--cream2);
+  border: 1px dashed var(--border2);
+}
+.service-item.soon:hover { border-color: var(--border2); transform: none; }
+.service-item.soon .service-item-action {
+  opacity: 0.35;
+  border-style: dashed;
+}
 .service-item-action {
   width: 44px; height: 44px;
   border-radius: 50%;
