@@ -2787,7 +2787,7 @@ body.export-capturing #wheelCard .note{display:none !important;}
     }
     const payload = buildChartAiPayload(LAST_CTX, LAST_ASPECTS, LAST_KNOWN);
     const cacheKey = window.PaljaAiQuota
-      ? PaljaAiQuota.hashKey('v2:deep:' + meta.feature + ':' + JSON.stringify(payload))
+      ? PaljaAiQuota.hashKey('v3:deep:' + meta.feature + ':' + JSON.stringify(payload))
       : meta.feature + JSON.stringify(payload).slice(0, 120);
     let streamed = '';
     try {
