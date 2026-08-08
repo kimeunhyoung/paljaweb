@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <link rel="icon" href="/favicon.svg" type="image/svg+xml">
   <link rel="manifest" href="/manifest.json">
-  <title>상담사 키르케타로 AI — 팔자연구소 8CODE</title>
+  <title>상담사 오디세이신화타로 AI — 팔자연구소 8CODE</title>
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@400;500;600;700&display=swap" rel="stylesheet"/>
@@ -206,18 +206,18 @@
 <body>
 <div id="guard"><div class="spinner"></div><p class="guard-text">확인 중…</p></div>
 
-<div class="site-top" data-topbar-title="상담사 키르케타로 AI" data-nav-current="counselor-kirke" data-login-next="counselor-kirke.html"></div>
+<div class="site-top" data-topbar-title="상담사 오디세이신화타로 AI" data-nav-current="counselor-kirke" data-login-next="counselor-kirke.html"></div>
 
 <div id="app">
   <div class="hub-intro">
     <div class="back-row"><a href="counselor.html">← 상담사 허브</a></div>
-    <h1>상담사 키르케타로 AI</h1>
-    <p>키르케신화타로 78장. 뽑힌 카드 해설만 주입해 해석 초안. <strong>Professional</strong> 전용.</p>
+    <h1>상담사 오디세이신화타로 AI</h1>
+    <p>오디세이신화타로 78장. 뽑힌 카드 해설만 주입해 해석 초안. <strong>Professional</strong> 전용.</p>
     <p id="trialBadge" class="trial-badge" style="display:none" role="status"></p>
   </div>
   <div id="gate">
     <h2>Professional 플랜 전용</h2>
-    <p>상담사 키르케타로 AI는 <strong>Professional</strong> 요금제에서 이용할 수 있어요.</p>
+    <p>상담사 오디세이신화타로 AI는 <strong>Professional</strong> 요금제에서 이용할 수 있어요.</p>
     <a class="cta" href="for-counselors.html">Professional 안내 보기</a>
     <a class="cta" href="/lifecode/buy.html?product=counselor15" style="margin-left:8px;background:transparent;border:1.5px solid var(--border);color:var(--deep);">15일 체험 구매</a>
     <a class="cta" href="pricing.html?checkout=professional" style="margin-left:8px;background:transparent;border:1.5px solid var(--border);color:var(--deep);">바로 구독</a>
@@ -229,7 +229,7 @@
   </div>
   <div id="workspace">
     <div class="ai-draft-panel">
-      <p class="ai-draft-intro">뽑힌 카드의 <strong>키르케 해설서</strong>만 프롬프트에 주입합니다. 크레딧: <strong>1장 → 1</strong> · <strong>2~3장 → 2</strong> · <strong>4장+ → 3</strong>.</p>
+      <p class="ai-draft-intro">뽑힌 카드의 <strong>신화 해설 메모</strong>만 프롬프트에 주입합니다. 크레딧: <strong>1장 → 1</strong> · <strong>2~3장 → 2</strong> · <strong>4장+ → 3</strong>.</p>
       <div class="ai-mode-row" role="tablist" aria-label="스프래드 모드">
         <button type="button" class="ai-mode-btn active" id="aiModeThree" data-mode="three" role="tab" aria-selected="true">
           <strong>3장 리딩</strong>
@@ -262,7 +262,7 @@
         </div>
         <div>
           <label for="aiTopic">해설 주제 (주입용)</label>
-          <select id="aiTopic" aria-label="키르케 해설 주제">
+          <select id="aiTopic" aria-label="해설 주제">
             <option value="general">전반적인 흐름</option>
             <option value="love">사랑·연애</option>
             <option value="relation">관계 (가족·친구·대인)</option>
@@ -285,12 +285,12 @@
           <textarea id="aiNote" maxlength="500" placeholder="지난 회차 포인트, 상담사가 알고 있는 맥락 등"></textarea>
         </div>
         <div class="full">
-          <label>키르케타로 카드 (0~77)</label>
+          <label>오디세이신화타로 카드 (0~77)</label>
           <p class="ai-card-hint">칸 이름은 직접 수정할 수 있습니다. 번호·이름 검색 또는 아래 번호표를 누르세요. 주제별 해설이 프롬프트에만 주입됩니다.</p>
           <div id="aiCardSlots" class="ai-card-slots"></div>
           <div class="leno-pick-panel">
             <p class="ai-card-hint">번호표 · 누르면 <strong>선택 중</strong> 칸에 들어갑니다.</p>
-            <div id="aiLenoGrid" class="num-table-grid" role="listbox" aria-label="키르케타로 번호표"></div>
+            <div id="aiLenoGrid" class="num-table-grid" role="listbox" aria-label="오디세이신화타로 번호표"></div>
           </div>
         </div>
         <div class="full ai-draft-actions">
@@ -471,7 +471,7 @@
 
     if (!Deck || Deck.size !== 78) {
       out.classList.remove('is-empty');
-      out.textContent = '키르케타로 덱 데이터를 불러오지 못했습니다. 페이지를 새로고침해 주세요.';
+      out.textContent = '오디세이신화타로 덱 데이터를 불러오지 못했습니다. 페이지를 새로고침해 주세요.';
       return;
     }
 
@@ -1039,7 +1039,7 @@
 
       const systemBlock =
 `<role>
-당신은 키르케신화타로(Circe Tarot) 해설서를 근거로 상담사가 고객에게 바로 전달할 수 있는 **리딩 초안**을 쓰는 프리미엄 컨설턴트다.
+당신은 오디세이신화타로 해설 메모를 근거로 상담사가 고객에게 바로 전달할 수 있는 **리딩 초안**을 쓰는 프리미엄 컨설턴트다.
 AI가 고객에게 직접 말하는 앱이 아니다. 제공된 <guidebook_excerpts>만 근거로 삼는다. 해설서에 없는 신화·상징을 지어내지 말 것.
 </role>
 
@@ -1089,7 +1089,7 @@ ${cardLines}
 ${guideBlocks}
 </guidebook_excerpts>
 
-위 데이터를 바탕으로 시스템 지시를 엄격히 준수하여 지정된 마크다운 형식으로 키르케타로 리딩 초안을 작성해 주세요.`;
+위 데이터를 바탕으로 시스템 지시를 엄격히 준수하여 지정된 마크다운 형식으로 오디세이신화타로 리딩 초안을 작성해 주세요.`;
 
       const cacheKey = PaljaAiQuota.hashKey([
         'counselor_kirke_v1', feature, mode, threePreset, topicId, clientId || '', displayName, question, note,
