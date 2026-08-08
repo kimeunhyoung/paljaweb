@@ -19,21 +19,49 @@
     document.head.appendChild(lp);
   }
 
-  var NAV = [
-    { id: 'lifecode', href: 'analysis.html', label: '라이프코드' },
-    { id: 'astro', href: 'astrology.html', label: '점성학' },
-    { id: 'harmony', href: 'compatibility.html', label: '소울하모니' },
-    { id: 'p48', href: 'period48-compat.html', label: '48궁합' },
-    { id: 'name', href: 'name.html', label: '네임코드' },
-    { id: 'calendar', href: 'numerology-calendar.html', label: '수비학달력' },
-    { id: 'wallpaper', href: 'numerology-wallpaper.html', label: '에너지배경' },
-    { id: 'tarot', href: 'Tarot.html', label: '타로코드' },
-    { id: 'counselor', href: 'counselor.html', label: '상담사허브' },
-    { id: 'counselor-reading', href: 'counselor-reading.html', label: 'AI리딩' },
-    { id: 'counselor-lenormand', href: 'counselor-lenormand.html', label: '레노먼드' },
-    { id: 'counselor-iching', href: 'counselor-iching.html', label: '주역' },
-    { id: 'pricing', href: 'pricing.html', label: '요금제' }
+  /** 대분류 드롭다운 + 요금제 */
+  var NAV_GROUPS = [
+    {
+      id: 'destiny',
+      label: '운명설계',
+      items: [
+        { id: 'lifecode', href: 'analysis.html', label: '라이프코드' },
+        { id: 'astro', href: 'astrology.html', label: '점성학' },
+        { id: 'calendar', href: 'numerology-calendar.html', label: '수비학달력' },
+        { id: 'wallpaper', href: 'numerology-wallpaper.html', label: '에너지배경' },
+        { id: 'address', href: 'address-numerology.html', label: '주소·전화' },
+        { id: 'business', href: 'business-numerology.html', label: '상호·브랜드' },
+      ],
+    },
+    {
+      id: 'relation',
+      label: '관계·이름',
+      items: [
+        { id: 'harmony', href: 'compatibility.html', label: '소울하모니' },
+        { id: 'p48', href: 'period48-compat.html', label: '48궁합' },
+        { id: 'name', href: 'name.html', label: '네임코드' },
+      ],
+    },
+    {
+      id: 'cards',
+      label: 'AI카드리딩',
+      items: [
+        { id: 'tarot', href: 'Tarot.html', label: '타로코드' },
+        { id: 'counselor-reading', href: 'counselor-reading.html', label: '상담사 AI 리딩' },
+        { id: 'counselor-lenormand', href: 'counselor-lenormand.html', label: '레노먼드' },
+        { id: 'counselor-iching', href: 'counselor-iching.html', label: '주역' },
+      ],
+    },
+    {
+      id: 'counselor-group',
+      label: '상담사전용',
+      items: [
+        { id: 'counselor', href: 'counselor.html', label: '상담사 허브' },
+      ],
+    },
   ];
+
+  var NAV_FLAT = [{ id: 'pricing', href: 'pricing.html', label: '요금제' }];
 
   function esc(s) {
     return String(s)
@@ -80,13 +108,81 @@
     return html;
   }
 
+  function itemLink(item, current) {
+    if (item.id === current) {
+      return '<span class="program-nav-current" aria-current="page">' + esc(item.label) + '</span>';
+    }
+    return '<a href="' + esc(item.href) + '">' + esc(item.label) + '</a>';
+  }
+
   function buildNavHtml(current) {
-    return NAV.map(function (item) {
-      if (item.id === current) {
-        return '<span class="program-nav-current" aria-current="page">' + esc(item.label) + '</span>';
+    var parts = NAV_GROUPS.map(function (group) {
+      var active = group.items.some(function (it) { return it.id === current; });
+      var links = group.items.map(function (it) {
+        var cls = it.id === current ? ' is-current' : '';
+        if (it.id === current) {
+          return '<span class="program-nav-dd-item is-current" aria-current="page">' + esc(it.label) + '</span>';
+        }
+        return '<a class="program-nav-dd-item' + cls + '" href="' + esc(it.href) + '">' + esc(it.label) + '</a>';
+      }).join('');
+
+      // 항목이 1개면 드롭다운 없이 바로 링크
+      if (group.items.length === 1) {
+        return itemLink(group.items[0], current);
       }
-      return '<a href="' + esc(item.href) + '">' + esc(item.label) + '</a>';
-    }).join('\n    ');
+
+      return (
+        '<div class="program-nav-dd' + (active ? ' is-active' : '') + '" data-nav-dd>' +
+        '<button type="button" class="program-nav-dd-btn" aria-expanded="false" aria-haspopup="true">' +
+        esc(group.label) +
+        '<span class="program-nav-dd-caret" aria-hidden="true">▾</span>' +
+        '</button>' +
+        '<div class="program-nav-dd-menu" hidden>' + links + '</div>' +
+        '</div>'
+      );
+    });
+
+    NAV_FLAT.forEach(function (item) {
+      parts.push(itemLink(item, current));
+    });
+
+    return parts.join('\n    ');
+  }
+
+  function bindNavDropdowns(root) {
+    if (!root || root.getAttribute('data-nav-dd-bound') === '1') return;
+    root.setAttribute('data-nav-dd-bound', '1');
+
+    function closeAll(except) {
+      root.querySelectorAll('[data-nav-dd]').forEach(function (dd) {
+        if (except && dd === except) return;
+        dd.classList.remove('is-open');
+        var btn = dd.querySelector('.program-nav-dd-btn');
+        var menu = dd.querySelector('.program-nav-dd-menu');
+        if (btn) btn.setAttribute('aria-expanded', 'false');
+        if (menu) menu.hidden = true;
+      });
+    }
+
+    root.querySelectorAll('[data-nav-dd]').forEach(function (dd) {
+      var btn = dd.querySelector('.program-nav-dd-btn');
+      var menu = dd.querySelector('.program-nav-dd-menu');
+      if (!btn || !menu) return;
+      btn.addEventListener('click', function (e) {
+        e.preventDefault();
+        e.stopPropagation();
+        var open = !dd.classList.contains('is-open');
+        closeAll(open ? dd : null);
+        dd.classList.toggle('is-open', open);
+        btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+        menu.hidden = !open;
+      });
+    });
+
+    document.addEventListener('click', function () { closeAll(); });
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape') closeAll();
+    });
   }
 
   function buildAuthPeerHref(peerBase) {
@@ -163,6 +259,7 @@
       '</div>' +
       '</nav>';
 
+    bindNavDropdowns(mount.querySelector('.program-nav'));
     mount.setAttribute('data-topbar-rendered', '1');
   }
 
