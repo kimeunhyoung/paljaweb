@@ -273,6 +273,17 @@ table.astro-table td .glyph{font-size:16px;margin-right:4px;color:var(--accent);
 @media (max-width:680px){.client-pick-row{grid-template-columns:1fr;}}
 .ai-result{margin-top:14px;padding:14px 16px;background:rgba(255,255,255,.65);border:1px solid #e8ddcb;border-radius:12px;font-size:13.5px;line-height:1.75;white-space:pre-wrap;}
 .ai-result.empty{color:var(--muted);font-size:13px;}
+.ai-result--md{white-space:normal;}
+.ai-result--md .ai-md-h2{font-family:var(--font-serif);font-size:16px;font-weight:700;color:var(--deep-brown);margin:18px 0 8px;line-height:1.35;}
+.ai-result--md .ai-md-h2:first-child{margin-top:0;}
+.ai-result--md .ai-md-h3{font-size:14.5px;font-weight:700;color:var(--deep-brown);margin:16px 0 6px;line-height:1.4;}
+.ai-result--md .ai-md-quote{border-left:3px solid var(--accent);padding:8px 12px;margin:8px 0;color:var(--deep-brown);background:rgba(139,111,71,.07);border-radius:0 10px 10px 0;}
+.ai-result--md .ai-md-list{margin:6px 0 12px;padding-left:1.25em;}
+.ai-result--md .ai-md-list li{margin:5px 0;}
+.ai-result--md .ai-md-p{margin:0 0 8px;}
+.ai-result--md .ai-md-gap{height:8px;}
+.ai-result--md .ai-md-hr{border:none;border-top:1px solid #e8ddcb;margin:16px 0;}
+.ai-result--md strong{font-weight:700;color:#6b4f2a;background:rgba(201,162,39,.14);padding:0 3px;border-radius:3px;}
 .ai-time-hint{font-size:11.5px;line-height:1.55;color:var(--muted);margin:8px 0 0;}
 .ai-time-hint.is-loading{color:var(--warm-brown);}
 .ai-prompt-details{margin-top:12px;}
@@ -708,6 +719,70 @@ body.export-capturing #wheelCard .note{display:none !important;}
       .replace(/"/g, '&quot;');
   }
 
+  function aiInlineMarkdown(escapedLine) {
+    return String(escapedLine || '')
+      .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+      .replace(/`([^`]+)`/g, '<code>$1</code>');
+  }
+
+  function aiMarkdownToHtml(text) {
+    const lines = String(text || '').replace(/\r\n/g, '\n').split('\n');
+    const out = [];
+    let inList = false;
+    const flushList = () => {
+      if (inList) {
+        out.push('</ul>');
+        inList = false;
+      }
+    };
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i];
+      if (/^###\s+/.test(line)) {
+        flushList();
+        out.push('<h4 class="ai-md-h3">' + aiInlineMarkdown(escapeCounselorHtml(line.replace(/^###\s+/, ''))) + '</h4>');
+      } else if (/^##\s+/.test(line)) {
+        flushList();
+        out.push('<h3 class="ai-md-h2">' + aiInlineMarkdown(escapeCounselorHtml(line.replace(/^##\s+/, ''))) + '</h3>');
+      } else if (/^>\s?/.test(line)) {
+        flushList();
+        out.push('<div class="ai-md-quote">' + aiInlineMarkdown(escapeCounselorHtml(line.replace(/^>\s?/, ''))) + '</div>');
+      } else if (/^[-*]\s+/.test(line)) {
+        if (!inList) {
+          out.push('<ul class="ai-md-list">');
+          inList = true;
+        }
+        out.push('<li>' + aiInlineMarkdown(escapeCounselorHtml(line.replace(/^[-*]\s+/, ''))) + '</li>');
+      } else if (/^---+$/.test(line.trim())) {
+        flushList();
+        out.push('<hr class="ai-md-hr">');
+      } else if (line.trim() === '') {
+        flushList();
+        out.push('<div class="ai-md-gap"></div>');
+      } else {
+        flushList();
+        out.push('<p class="ai-md-p">' + aiInlineMarkdown(escapeCounselorHtml(line)) + '</p>');
+      }
+    }
+    flushList();
+    return out.join('');
+  }
+
+  /** AI 본문: 마크다운을 HTML로. 안내/에러 문구는 plain 옵션. */
+  function setAiResultBox(box, text, opts) {
+    if (!box) return;
+    const raw = String(text == null ? '' : text);
+    const empty = !!(opts && opts.empty);
+    const plain = !!(opts && opts.plain);
+    box.className = 'ai-result' + (empty ? ' empty' : '') + (plain || empty ? '' : ' ai-result--md');
+    if (plain || empty) {
+      box.textContent = raw;
+      delete box.dataset.aiRaw;
+      return;
+    }
+    box.dataset.aiRaw = raw;
+    box.innerHTML = aiMarkdownToHtml(raw);
+  }
+
   function refreshClientSaveBtn() {
     const btn = $('btnSaveClient');
     if (!btn) return;
@@ -734,8 +809,7 @@ body.export-capturing #wheelCard .note{display:none !important;}
     const t = String(text || '').trim();
     if (!t) return;
     LAST_AI_CHART_TEXT = t;
-    box.className = 'ai-result';
-    box.textContent = t;
+    setAiResultBox(box, t);
     const hint = $('aiTimeHint');
     if (hint) {
       if (opts && opts.fromCache) {
@@ -834,10 +908,7 @@ body.export-capturing #wheelCard .note{display:none !important;}
     if (!meta || !t) return;
     DEEP_AI_TOPIC = topic;
     DEEP_AI_CACHE[topic] = t;
-    if (box) {
-      box.className = 'ai-result';
-      box.textContent = t;
-    }
+    if (box) setAiResultBox(box, t);
     if (topicEl) {
       topicEl.hidden = false;
       topicEl.innerHTML = '주제: <strong>' + meta.label + '</strong>';
@@ -1063,8 +1134,7 @@ body.export-capturing #wheelCard .note{display:none !important;}
     if (busy) return;
     // 고객 카드에서 불러온·방금 생성한 AI 해석은 차트 재계산해도 유지
     if (LAST_AI_CHART_TEXT && LAST_AI_CHART_TEXT.trim()) {
-      box.className = 'ai-result';
-      box.textContent = LAST_AI_CHART_TEXT;
+      setAiResultBox(box, LAST_AI_CHART_TEXT);
       refreshClientSaveBtn();
       refreshTransitAiUi();
       refreshYearAiUi();
@@ -1106,8 +1176,7 @@ body.export-capturing #wheelCard .note{display:none !important;}
     if (!box || !hasAiAccess()) return;
     if (DEEP_AI_BUSY) return;
     if (DEEP_AI_TOPIC && DEEP_AI_CACHE[DEEP_AI_TOPIC]) {
-      box.className = 'ai-result';
-      box.textContent = DEEP_AI_CACHE[DEEP_AI_TOPIC];
+      setAiResultBox(box, DEEP_AI_CACHE[DEEP_AI_TOPIC]);
       if (topicEl) {
         topicEl.hidden = false;
         topicEl.innerHTML = '주제: <strong>' + DEEP_AI_META[DEEP_AI_TOPIC].label + '</strong>';
@@ -1115,12 +1184,10 @@ body.export-capturing #wheelCard .note{display:none !important;}
       return;
     }
     if (!LAST_CTX) {
-      box.className = 'ai-result empty';
-      box.textContent = '차트를 계산한 뒤 주제를 선택해 주세요.';
+      setAiResultBox(box, '차트를 계산한 뒤 주제를 선택해 주세요.', { empty: true });
       if (topicEl) topicEl.hidden = true;
-    } else if (!box.textContent.includes('생성하고') && !DEEP_AI_TOPIC) {
-      box.className = 'ai-result empty';
-      box.textContent = '주제를 선택해 주세요. 고객을 고른 뒤 생성하면 카드에 저장됩니다.';
+    } else if (!String(box.dataset.aiRaw || box.textContent || '').includes('생성하고') && !DEEP_AI_TOPIC) {
+      setAiResultBox(box, '주제를 선택해 주세요. 고객을 고른 뒤 생성하면 카드에 저장됩니다.', { empty: true });
       if (topicEl) topicEl.hidden = true;
     }
   }
@@ -2214,8 +2281,7 @@ body.export-capturing #wheelCard .note{display:none !important;}
     }
     const prev = btn.textContent;
     btn.textContent = '⏳ 해석 중…'; btn.disabled = true;
-    box.className = 'ai-result';
-    box.textContent = '';
+    setAiResultBox(box, '');
     const timeHint = $('aiTimeHint');
     if (timeHint) {
       timeHint.textContent = '해석이 나오는 대로 바로 표시돼요. 창을 닫지 말고 기다려 주세요.';
@@ -2237,14 +2303,14 @@ body.export-capturing #wheelCard .note{display:none !important;}
         payload,
         onDelta: (chunk) => {
           streamed += chunk;
-          box.textContent = streamed;
+          setAiResultBox(box, streamed);
         },
       });
       let out = text || streamed || '해석을 생성하지 못했어요.';
       if (data?.stop_reason === 'max_tokens') {
         out += '\n\n(※ 아주 긴 해석이라 일부가 잘렸을 수 있어요. 같은 내용으로 다시 요청하면 이어서 받을 수 있어요.)';
       }
-      box.textContent = out;
+      setAiResultBox(box, out);
       LAST_AI_CHART_TEXT = out;
       refreshClientSaveBtn();
       if (quota) {
@@ -2268,12 +2334,13 @@ body.export-capturing #wheelCard .note{display:none !important;}
           PaljaAiQuota.applyQuotaBadge($('aiQuotaBadge'), e.quota);
         }
       } else if (e.message === 'login_required') {
-        box.textContent = 'AI 해석은 로그인 후 이용할 수 있어요.';
+        setAiResultBox(box, 'AI 해석은 로그인 후 이용할 수 있어요.', { plain: true });
       } else if (!streamed) {
-        box.textContent = 'AI 해석을 일시적으로 사용할 수 없어요. 잠시 후 다시 시도해 주세요.';
+        setAiResultBox(box, 'AI 해석을 일시적으로 사용할 수 없어요. 잠시 후 다시 시도해 주세요.', { plain: true });
       } else {
         showStatus('연결이 끊겼어요. 지금까지 받은 내용까지 표시해 두었어요.', 'err');
         LAST_AI_CHART_TEXT = streamed;
+        setAiResultBox(box, streamed);
         refreshClientSaveBtn();
       }
     } finally {
@@ -2320,15 +2387,14 @@ body.export-capturing #wheelCard .note{display:none !important;}
     const btn = $('btnYearAi');
     const box = $('yearAiResult');
     if (btn) btn.disabled = !AI_SERVER_OK || YEAR_AI_BUSY;
-    if (!box || box.textContent.includes('생성하고')) return;
+    if (!box || String(box.dataset.aiRaw || box.textContent || '').includes('생성하고')) return;
     const yKey = currentYearKey();
     if (YEAR_AI_CACHE.key === yKey && YEAR_AI_CACHE.text) {
-      box.textContent = YEAR_AI_CACHE.text;
-      box.classList.remove('empty');
+      setAiResultBox(box, YEAR_AI_CACHE.text);
       return;
     }
     if (box.classList.contains('empty') && !box.querySelector('.astro-lock')) {
-      box.textContent = yKey + '년 올해 운세를 보려면 「AI 올해 운세」를 눌러 주세요.';
+      setAiResultBox(box, yKey + '년 올해 운세를 보려면 「AI 올해 운세」를 눌러 주세요.', { empty: true });
     }
   }
 
@@ -2343,8 +2409,7 @@ body.export-capturing #wheelCard .note{display:none !important;}
     const box = $('yearAiResult');
     const hint = $('yearAiHint');
     if (!AI_SERVER_OK) {
-      box.className = 'ai-result';
-      box.textContent = 'AI 서버가 아직 설정되지 않았어요.';
+      setAiResultBox(box, 'AI 서버가 아직 설정되지 않았어요.', { plain: true });
       return;
     }
     const yKey = currentYearKey();
@@ -2352,8 +2417,7 @@ body.export-capturing #wheelCard .note{display:none !important;}
     YEAR_AI_BUSY = true;
     btn.textContent = '⏳ 해석 중…';
     btn.disabled = true;
-    box.className = 'ai-result';
-    box.textContent = '해석을 생성하고 있어요…';
+    setAiResultBox(box, '해석을 생성하고 있어요…', { plain: true });
     if (hint) hint.classList.add('is-loading');
     const prompt = buildYearAiPrompt();
     const cacheKey = window.PaljaAiQuota
@@ -2370,8 +2434,7 @@ body.export-capturing #wheelCard .note{display:none !important;}
       let out = text || '해석을 생성하지 못했어요.';
       if (data?.stop_reason === 'max_tokens') out += '\n\n(※ 해석이 길어 일부가 잘렸을 수 있어요.)';
       YEAR_AI_CACHE = { key: yKey, text: out };
-      box.textContent = out;
-      box.classList.remove('empty');
+      setAiResultBox(box, out);
       if (quota) {
         LAST_AI_QUOTA = quota;
         PaljaAiQuota.applyQuotaBadge($('aiQuotaBadge'), quota);
@@ -2379,15 +2442,15 @@ body.export-capturing #wheelCard .note{display:none !important;}
     } catch (e) {
       console.error(e);
       if (e.code === 'quota_exceeded' || e.status === 429) {
-        box.textContent = '이번 달 AI 크레딧을 모두 사용했어요.';
+        setAiResultBox(box, '이번 달 AI 크레딧을 모두 사용했어요.', { plain: true });
         if (e.quota) {
           LAST_AI_QUOTA = e.quota;
           PaljaAiQuota.applyQuotaBadge($('aiQuotaBadge'), e.quota);
         }
       } else if (e.message === 'login_required') {
-        box.textContent = 'AI 해석은 로그인 후 이용할 수 있어요.';
+        setAiResultBox(box, 'AI 해석은 로그인 후 이용할 수 있어요.', { plain: true });
       } else {
-        box.textContent = 'AI 해석을 일시적으로 사용할 수 없어요.';
+        setAiResultBox(box, 'AI 해석을 일시적으로 사용할 수 없어요.', { plain: true });
       }
     } finally {
       YEAR_AI_BUSY = false;
@@ -2410,15 +2473,13 @@ body.export-capturing #wheelCard .note{display:none !important;}
     const box = $(isFast ? 'transitAiFastResult' : 'transitAiSlowResult');
     const hint = $(isFast ? 'transitAiFastHint' : 'transitAiSlowHint');
     if (!AI_SERVER_OK) {
-      box.className = 'ai-result';
-      box.textContent = 'AI 서버가 아직 설정되지 않았어요.';
+      setAiResultBox(box, 'AI 서버가 아직 설정되지 않았어요.', { plain: true });
       return;
     }
     const prev = btn.textContent;
     btn.textContent = '⏳ 해석 중…';
     btn.disabled = true;
-    box.className = 'ai-result';
-    box.textContent = '해석을 생성하고 있어요…';
+    setAiResultBox(box, '해석을 생성하고 있어요…', { plain: true });
     if (hint) hint.classList.add('is-loading');
     const prompt = buildTransitAiPrompt(mode);
     const cacheKey = window.PaljaAiQuota
@@ -2436,8 +2497,7 @@ body.export-capturing #wheelCard .note{display:none !important;}
       if (data?.stop_reason === 'max_tokens') {
         out += '\n\n(※ 해석이 길어 일부가 잘렸을 수 있어요.)';
       }
-      box.textContent = out;
-      box.classList.remove('empty');
+      setAiResultBox(box, out);
       if (quota) {
         LAST_AI_QUOTA = quota;
         PaljaAiQuota.applyQuotaBadge($('aiQuotaBadge'), quota);
@@ -2445,15 +2505,15 @@ body.export-capturing #wheelCard .note{display:none !important;}
     } catch (e) {
       console.error(e);
       if (e.code === 'quota_exceeded' || e.status === 429) {
-        box.textContent = '이번 달 AI 크레딧을 모두 사용했어요.';
+        setAiResultBox(box, '이번 달 AI 크레딧을 모두 사용했어요.', { plain: true });
         if (e.quota) {
           LAST_AI_QUOTA = e.quota;
           PaljaAiQuota.applyQuotaBadge($('aiQuotaBadge'), e.quota);
         }
       } else if (e.message === 'login_required') {
-        box.textContent = 'AI 해석은 로그인 후 이용할 수 있어요.';
+        setAiResultBox(box, 'AI 해석은 로그인 후 이용할 수 있어요.', { plain: true });
       } else {
-        box.textContent = 'AI 해석을 일시적으로 사용할 수 없어요.';
+        setAiResultBox(box, 'AI 해석을 일시적으로 사용할 수 없어요.', { plain: true });
       }
     } finally {
       btn.textContent = prev;
@@ -2778,10 +2838,7 @@ body.export-capturing #wheelCard .note{display:none !important;}
     if (DEEP_AI_BUSY) return;
     if (!AI_SERVER_OK) {
       const box = $('aiDeepResult');
-      if (box) {
-        box.className = 'ai-result';
-        box.textContent = 'AI 서버가 아직 준비되지 않았어요. 잠시 후 다시 시도해 주세요.';
-      }
+      if (box) setAiResultBox(box, 'AI 서버가 아직 준비되지 않았어요. 잠시 후 다시 시도해 주세요.', { plain: true });
       return;
     }
 
@@ -2791,7 +2848,7 @@ body.export-capturing #wheelCard .note{display:none !important;}
       !!savedText &&
       DEEP_AI_TOPIC === topic &&
       boxPreview &&
-      String(boxPreview.textContent || '').trim() === savedText;
+      String(boxPreview.dataset.aiRaw || boxPreview.textContent || '').trim() === savedText;
     if (savedText && !alreadyShowing) {
       showDeepAiResult(topic, savedText, { fromCache: true });
       return;
@@ -2808,10 +2865,7 @@ body.export-capturing #wheelCard .note{display:none !important;}
       if (b) b.disabled = true;
     });
     if (btn) btn.textContent = '⏳ 해석 중…';
-    if (box) {
-      box.className = 'ai-result';
-      box.textContent = '';
-    }
+    if (box) setAiResultBox(box, '');
     if (topicEl) {
       topicEl.hidden = false;
       topicEl.innerHTML = '주제: <strong>' + meta.label + '</strong> — 해석 중…';
@@ -2836,14 +2890,14 @@ body.export-capturing #wheelCard .note{display:none !important;}
         payload,
         onDelta: (chunk) => {
           streamed += chunk;
-          if (box) box.textContent = streamed;
+          if (box) setAiResultBox(box, streamed);
         },
       });
       let out = text || streamed || '해석을 생성하지 못했어요.';
       if (data?.stop_reason === 'max_tokens') {
         out += '\n\n(※ 일부가 잘렸을 수 있어요. 같은 주제로 다시 요청하면 이어 받을 수 있어요.)';
       }
-      if (box) box.textContent = out;
+      if (box) setAiResultBox(box, out);
       DEEP_AI_CACHE[topic] = out;
       if (quota) {
         LAST_AI_QUOTA = quota;
@@ -2874,12 +2928,13 @@ body.export-capturing #wheelCard .note{display:none !important;}
           PaljaAiQuota.applyQuotaBadge($('aiQuotaBadge'), e.quota);
         }
       } else if (e.message === 'login_required') {
-        if (box) box.textContent = 'AI 해석은 로그인 후 이용할 수 있어요.';
+        if (box) setAiResultBox(box, 'AI 해석은 로그인 후 이용할 수 있어요.', { plain: true });
       } else if (!streamed) {
-        if (box) box.textContent = 'AI 해석을 일시적으로 사용할 수 없어요. 잠시 후 다시 시도해 주세요.';
+        if (box) setAiResultBox(box, 'AI 해석을 일시적으로 사용할 수 없어요. 잠시 후 다시 시도해 주세요.', { plain: true });
       } else {
         showStatus('연결이 끊겼어요. 지금까지 받은 내용까지 표시해 두었어요.', 'err');
         DEEP_AI_CACHE[topic] = streamed;
+        if (box) setAiResultBox(box, streamed);
       }
     } finally {
       DEEP_AI_BUSY = false;
