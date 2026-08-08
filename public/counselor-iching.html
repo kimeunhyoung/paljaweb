@@ -288,7 +288,7 @@
         </div>
         <div class="full">
           <label>주역 괘 (1~64 · 문왕 순서)</label>
-          <p class="ai-card-hint">번호·괘명 검색 또는 아래 번호표를 누르세요. <strong>선택 A/B</strong>는 각 선택지마다 괘 1개씩 넣고 비교합니다. 단괘·본지에서는 변효가 있으면 체크하세요.</p>
+          <p class="ai-card-hint" id="aiCardHint">번호·괘명 검색 또는 아래 번호표를 누르세요. 단괘·본지에서는 변효가 있으면 체크하세요.</p>
           <div id="aiCardSlots" class="ai-card-slots"></div>
           <div class="yao-panel" id="aiYaoPanel">
             <div class="yao-panel-title">변효 (선택)</div>
@@ -572,6 +572,17 @@
         btn.setAttribute('aria-selected', on ? 'true' : 'false');
       });
       if (choiceNamesRow) choiceNamesRow.classList.toggle('is-visible', mode === 'choice');
+      updateCardHint();
+    }
+
+    function updateCardHint() {
+      const hint = document.getElementById('aiCardHint');
+      if (!hint) return;
+      if (mode === 'choice') {
+        hint.innerHTML = '번호·괘명 검색 또는 아래 번호표를 누르세요. <strong>선택 A/B</strong>는 각 선택지마다 괘 1개씩 넣고 비교합니다. 이 모드에서는 <strong>변효를 쓰지 않습니다</strong>(체크란 없음).';
+      } else {
+        hint.innerHTML = '번호·괘명 검색 또는 아래 번호표를 누르세요. 단괘·본지에서는 변효가 있으면 아래 체크란을 쓰세요. <strong>주역 타로카드</strong>로 뽑았다면 변효는 체크하지 마세요.';
+      }
     }
 
     function setMode(next) {
