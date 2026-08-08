@@ -25,6 +25,7 @@
       id: 'destiny',
       label: '운명설계',
       items: [
+        { id: 'destiny-all', href: 'services.html#destiny', label: '전체 보기' },
         { id: 'lifecode', href: 'analysis.html', label: '라이프코드' },
         { id: 'astro', href: 'astrology.html', label: '점성학' },
         { id: 'calendar', href: 'numerology-calendar.html', label: '수비학달력' },
@@ -37,6 +38,7 @@
       id: 'relation',
       label: '관계·이름',
       items: [
+        { id: 'relation-all', href: 'services.html#relation', label: '전체 보기' },
         { id: 'harmony', href: 'compatibility.html', label: '소울하모니' },
         { id: 'p48', href: 'period48-compat.html', label: '48궁합' },
         { id: 'name', href: 'name.html', label: '네임코드' },

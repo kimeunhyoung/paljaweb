@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <title>프로그램 — 팔자연구소 8CODE</title>
+  <meta name="description" content="팔자연구소 프로그램 목록. 운명 설계, 관계·이름, AI 카드 리딩, 상담사 전용 도구."/>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,400&family=Noto+Sans+KR:wght@300;400;500;700&family=Noto+Serif+KR:wght@400;600&display=swap" rel="stylesheet"/>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/plan-access.js?v=13"></script>
+  <script src="js/attribution.js"></script>
+  <script src="js/site-topbar.js?v=13" defer></script>
+  <script src="js/topbar-session.js?v=7" defer></script>
+  <link rel="stylesheet" href="css/style.css?v=20260808e"/>
+  <link rel="stylesheet" href="css/site-topbar.css?v=7"/>
+  <link rel="stylesheet" href="css/site-header.css?v=7"/>
+  <style>
+    body { margin: 0; background: var(--cream2, #f3eee6); color: var(--ink, #2c1f0e); }
+    .services-page { max-width: 820px; margin: 0 auto; padding: 28px 24px 80px; }
+    .services-back { margin-bottom: 18px; }
+    .services-back a { font-size: 13px; color: var(--text3, #8a7a68); text-decoration: none; font-weight: 600; }
+    .services-back a:hover { color: var(--brown, #4a3520); }
+    .services-page h1 {
+      font-family: var(--font-serif, 'Noto Serif KR', serif);
+      font-size: 28px; color: var(--brown, #4a3520); margin: 0 0 8px;
+    }
+    .services-lead { font-size: 14px; color: var(--text2, #6b5b4a); line-height: 1.65; margin: 0 0 22px; }
+    .service-panel { scroll-margin-top: 96px; margin-bottom: 28px; }
+    .service-panel .service-group-label { border-top: none; margin-top: 0; padding-top: 0; }
+    .tool-guide { margin: 8px 0 28px; }
+  </style>
+</head>
+<body>
+<div class="site-top" data-topbar-title="프로그램" data-login-next="services.html"></div>
+<main class="services-page">
+  <div class="services-back"><a href="index.html#services">← 메인 서비스로</a></div>
+  <h1>프로그램</h1>
+  <p class="services-lead">대분류를 고른 뒤, 아래에서 세부 프로그램을 선택하세요.</p>
+<section class="service-panel" id="destiny">
+  <div class="service-list">
+<div class="service-group-label" role="presentation">
+          나의 인생 · 운명 설계
+          <span class="service-group-desc">수비학·점성학으로 나의 패턴과 흐름을 읽습니다.</span>
+        </div>
+
+        <a href="analysis.html" class="service-item active link-reset">
+          <div class="service-item-num">01</div>
+          <div class="service-item-body">
+            <div class="service-item-name">라이프코드</div>
+            <div class="service-item-desc">수비학으로 분석하는 당신의 인생 설계도. 인생여정수부터 10년 타임라인까지.</div>
+            <div class="service-item-tags">
+              <span class="tag">인생여정수</span>
+              <span class="tag">표현수</span>
+              <span class="tag">10년 타임라인</span>
+              <span class="tag">개인 연도</span>
+            </div>
+          </div>
+          <div class="service-item-badge">지금 이용 가능</div>
+          <div class="service-item-action">→</div>
+        </a>
+
+        <a href="astrology.html" class="service-item active link-reset">
+          <div class="service-item-num">02</div>
+          <div class="service-item-body">
+            <div class="service-item-name">점성학 차트</div>
+            <div class="service-item-desc">네이탈 차트 계산부터 AI 차트 해석, 트랜짓 이번 주·큰 흐름 운세까지. 행성·하우스·별자리를 한곳에서.</div>
+            <div class="service-item-tags">
+              <span class="tag">출생 차트</span>
+              <span class="tag">트랜짓 운세</span>
+              <span class="tag">AI 해석</span>
+            </div>
+          </div>
+          <div class="service-item-badge">지금 이용 가능</div>
+          <div class="service-item-action">→</div>
+        </a>
+
+        <a href="numerology-calendar.html" class="service-item active link-reset">
+          <div class="service-item-num">03</div>
+          <div class="service-item-body">
+            <div class="service-item-name">수비학 달력</div>
+            <div class="service-item-desc">개인월수·개인일수 캘린더와 AI 오늘 운세·이번 달 흐름. 오늘의 에너지를 매일 확인하세요.</div>
+            <div class="service-item-tags">
+              <span class="tag">개인일수</span>
+              <span class="tag">AI 오늘 운세</span>
+              <span class="tag">일일 가이드</span>
+            </div>
+          </div>
+          <div class="service-item-badge">AI 추가</div>
+          <div class="service-item-action">→</div>
+        </a>
+
+        <a href="numerology-wallpaper.html" class="service-item active link-reset">
+          <div class="service-item-num">04</div>
+          <div class="service-item-body">
+            <div class="service-item-name">에너지 배경</div>
+            <div class="service-item-desc">로슈 빈 숫자·운명수·개인일수로 나만의 수비학 배경화면. 폰 9:16·정사각 1:1, 색 테마 선택, PNG 무료 저장.</div>
+            <div class="service-item-tags">
+              <span class="tag">네임코드</span>
+              <span class="tag">1:1 스토리</span>
+              <span class="tag">PNG 저장</span>
+            </div>
+          </div>
+          <div class="service-item-badge">무료</div>
+          <div class="service-item-action">→</div>
+        </a>
+
+        <a href="address-numerology.html" class="service-item active link-reset">
+          <div class="service-item-num">05</div>
+          <div class="service-item-body">
+            <div class="service-item-name">주소 · 전화 수비학</div>
+            <div class="service-item-desc">이사 전 번지·도로명·아파트 호수·전화 끝자리. 주택 수 1~9 해설과 체크리스트.</div>
+            <div class="service-item-tags">
+              <span class="tag">집 번호</span>
+              <span class="tag">전화 끝자리</span>
+              <span class="tag">이사</span>
+            </div>
+          </div>
+          <div class="service-item-badge">무료</div>
+          <div class="service-item-action">→</div>
+        </a>
+
+        <a href="business-numerology.html" class="service-item active link-reset">
+          <div class="service-item-num">06</div>
+          <div class="service-item-body">
+            <div class="service-item-name">상호 · 브랜드 수비학</div>
+            <div class="service-item-desc">사업명 운명수·성격수와 업종별 조화 수. 제조·서비스·금융·벤처 매칭.</div>
+            <div class="service-item-tags">
+              <span class="tag">상호 작명</span>
+              <span class="tag">업종</span>
+              <span class="tag">브랜드</span>
+            </div>
+          </div>
+          <div class="service-item-badge">무료</div>
+          <div class="service-item-action">→</div>
+        </a>
+  </div>
+</section>
+<section class="service-panel" id="relation">
+  <div class="service-list">
+<div class="service-group-label" role="presentation">
+          관계 · 이름
+          <span class="service-group-desc">사람과 이름의 에너지를 맞춰 봅니다.</span>
+        </div>
+
+        <a href="compatibility.html" class="service-item active link-reset">
+          <div class="service-item-num">01</div>
+          <div class="service-item-body">
+            <div class="service-item-name">소울하모니</div>
+            <div class="service-item-desc">두 사람의 수비학적 에너지 궁합. 연인, 파트너, 비즈니스 동반자까지.</div>
+            <div class="service-item-tags">
+              <span class="tag">궁합 분석</span>
+              <span class="tag">에너지 호환성</span>
+              <span class="tag">관계 가이드</span>
+            </div>
+          </div>
+          <div class="service-item-badge">지금 이용 가능</div>
+          <div class="service-item-action">→</div>
+        </a>
+
+        <a href="period48-compat.html" class="service-item active link-reset">
+          <div class="service-item-num">02</div>
+          <div class="service-item-body">
+            <div class="service-item-name">48궁합</div>
+            <div class="service-item-desc">48주기 성격학으로 두 사람의 원소·모달리티 궁합을 봅니다. 소울하모니와 별도 서비스입니다.</div>
+            <div class="service-item-tags">
+              <span class="tag">48주간</span>
+              <span class="tag">원소 궁합</span>
+              <span class="tag">성격 에너지</span>
+            </div>
+          </div>
+          <div class="service-item-badge">지금 이용 가능</div>
+          <div class="service-item-action">→</div>
+        </a>
+
+        <a href="name.html" class="service-item active link-reset">
+          <div class="service-item-num">03</div>
+          <div class="service-item-body">
+            <div class="service-item-name">네임코드</div>
+            <div class="service-item-desc">네임코드 — 수비학으로 읽는 이름의 에너지. 후보 최대 5개 비교 + AI 이름 추천.</div>
+            <div class="service-item-tags">
+              <span class="tag">운명수</span>
+              <span class="tag">궁합 점수</span>
+              <span class="tag">AI 추천</span>
+            </div>
+          </div>
+          <div class="service-item-badge">지금 이용 가능</div>
+          <div class="service-item-action">→</div>
+        </a>
+  </div>
+</section>
+<section class="service-panel" id="cards">
+  <div class="service-list">
+<div class="service-group-label" role="presentation">
+          AI 카드 리딩
+          <span class="service-group-desc">타로·레노먼드·주역으로 질문의 층에 맞는 해석 초안을 만듭니다.</span>
+        </div>
+
+        <a href="Tarot.html" class="service-item active link-reset">
+          <div class="service-item-num">01</div>
+          <div class="service-item-body">
+            <div class="service-item-name">타로코드</div>
+            <div class="service-item-desc">지금의 고민에 맞춘 카드 리딩과, 해석 없이 배치만 하는 상담용 카드 뽑기. 오늘의 흐름·선택 포인트까지.</div>
+            <div class="service-item-tags">
+              <span class="tag">오늘의 카드</span>
+              <span class="tag">상황별 리딩</span>
+              <span class="tag">상담용 카드 뽑기</span>
+            </div>
+          </div>
+          <div class="service-item-badge">지금 이용 가능</div>
+          <div class="service-item-action">→</div>
+        </a>
+
+        <a href="counselor-reading.html" class="service-item active link-reset">
+          <div class="service-item-num">02</div>
+          <div class="service-item-body">
+            <div class="service-item-name">상담사 AI 리딩</div>
+            <div class="service-item-desc">Professional 상담사용. 질문·카드로 해석 초안을 만들고 복사해 고객에게 전달. 신입 스크립트 포함.</div>
+            <div class="service-item-tags">
+              <span class="tag">Professional</span>
+              <span class="tag">타로 리딩</span>
+              <span class="tag">AI 초안</span>
+            </div>
+          </div>
+          <div class="service-item-badge">Professional</div>
+          <div class="service-item-action">→</div>
+        </a>
+
+        <a href="counselor-lenormand.html" class="service-item active link-reset">
+          <div class="service-item-num">03</div>
+          <div class="service-item-body">
+            <div class="service-item-name">레노먼드 AI</div>
+            <div class="service-item-desc">Petit Lenormand 36장. 상황·관계·진행 체인 해석 초안. Professional 전용.</div>
+            <div class="service-item-tags">
+              <span class="tag">Professional</span>
+              <span class="tag">레노먼드</span>
+              <span class="tag">AI 초안</span>
+            </div>
+          </div>
+          <div class="service-item-badge">Professional</div>
+          <div class="service-item-action">→</div>
+        </a>
+
+        <a href="counselor-iching.html" class="service-item active link-reset">
+          <div class="service-item-num">04</div>
+          <div class="service-item-body">
+            <div class="service-item-name">주역 AI</div>
+            <div class="service-item-desc">주역 64괘. 단괘·본괘/지괘로 국면·전개 해석 초안. Professional 전용.</div>
+            <div class="service-item-tags">
+              <span class="tag">Professional</span>
+              <span class="tag">주역</span>
+              <span class="tag">AI 초안</span>
+            </div>
+          </div>
+          <div class="service-item-badge">Professional</div>
+          <div class="service-item-action">→</div>
+        </a>
+
+        <div class="service-item soon" aria-disabled="true">
+          <div class="service-item-num">·</div>
+          <div class="service-item-body">
+            <div class="service-item-name">오디세이신화타로 AI</div>
+            <div class="service-item-desc">상담사 전용. 오디세이 신화 테마 78장 리딩 초안. 모집·덱 정리 후 오픈 예정입니다.</div>
+            <div class="service-item-tags">
+              <span class="tag">Professional</span>
+              <span class="tag">신화 타로</span>
+              <span class="tag">업데이트 예정</span>
+            </div>
+          </div>
+          <div class="service-item-badge soon">준비중</div>
+          <div class="service-item-action" aria-hidden="true">·</div>
+        </div>
+  </div>
+</section>
+
+<aside class="tool-guide" aria-label="AI 카드 리딩 선택 가이드">
+        <h3 class="tool-guide-title">어떤 질문에 어떤 도구를 쓸까</h3>
+        <p class="tool-guide-lead">겹쳐 보이지만 질문이 가리키는 층이 다릅니다. 한 줄로만 고르면 됩니다.</p>
+        <ul class="tool-guide-list">
+          <li>
+            <strong>타로코드 · 상담사 AI 리딩</strong>
+            <span>마음·선택·관계 — “왜 이렇게 느껴지고, 어떻게 다가갈까”</span>
+          </li>
+          <li>
+            <strong>레노먼드 AI</strong>
+            <span>사건·진행·현실 — “지금 뭐가 벌어지고, 다음은 무엇일까”</span>
+          </li>
+          <li>
+            <strong>주역 AI</strong>
+            <span>국면·타이밍·방향 — “지금 어떤 판이고, 밀지/기다릴지”</span>
+          </li>
+          <li>
+            <strong>오디세이신화타로 AI <em>준비중</em></strong>
+            <span>전환·정체성·큰 여정 — “무엇이 바뀌는 중이고, 어디로 가는가”</span>
+          </li>
+        </ul>
+      </aside>
+<section class="service-panel" id="counselor">
+<div class="service-list">
+        <div class="service-group-label" role="presentation">
+          상담사 전용
+          <span class="service-group-desc">고객·일정·매출 등 상담 업무 도구입니다. AI 카드 리딩은 위 그룹을 이용하세요.</span>
+        </div>
+
+        <a href="counselor.html" class="service-item active link-reset">
+          <div class="service-item-num">01</div>
+          <div class="service-item-body">
+            <div class="service-item-name">상담사 허브</div>
+            <div class="service-item-desc">고객 CRM·일정·상담 기록. 상담 준비 요약과 고객 간 궁합까지 한곳에서.</div>
+            <div class="service-item-tags">
+              <span class="tag">Professional</span>
+              <span class="tag">고객 CRM</span>
+              <span class="tag">일정</span>
+            </div>
+          </div>
+          <div class="service-item-badge">Professional</div>
+          <div class="service-item-action">→</div>
+        </a>
+      </div>
+    </div>
+  </section>
+</section>
+
+</main>
+<script>
+(function () {
+  function focusHash() {
+    var id = (location.hash || '').replace(/^#/, '');
+    if (!id) return;
+    var el = document.getElementById(id);
+    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+  window.addEventListener('hashchange', focusHash);
+  window.addEventListener('load', function () { setTimeout(focusHash, 80); });
+})();
+</script>
+</body>
+</html>
