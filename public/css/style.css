@@ -53,6 +53,7 @@ ul { list-style: none; }
   left: 0;
   right: 0;
   z-index: 100;
+  overflow: visible;
 }
 .navbar {
   position: relative;
@@ -80,6 +81,9 @@ ul { list-style: none; }
   backdrop-filter: blur(12px);
   padding: 0 32px;
   scroll-margin-top: 8px;
+  overflow: visible;
+  position: relative;
+  z-index: 20;
 }
 .site-chrome.scrolled .home-program-nav {
   background: rgba(255, 255, 255, 0.92);
@@ -88,16 +92,13 @@ ul { list-style: none; }
   max-width: 1140px;
   margin: 0 auto;
   display: flex;
-  flex-wrap: nowrap;
+  flex-wrap: wrap;
   align-items: center;
   gap: 6px 14px;
   padding: 8px 0 10px;
   font-size: 12px;
-  overflow-x: auto;
-  -webkit-overflow-scrolling: touch;
-  scrollbar-width: none;
+  overflow: visible;
 }
-.home-program-nav-inner::-webkit-scrollbar { display: none; }
 .home-program-nav-inner a {
   color: var(--text3, #8a7a68);
   text-decoration: none;
@@ -144,7 +145,7 @@ ul { list-style: none; }
   box-shadow: 0 12px 28px rgba(44, 31, 14, 0.12);
   display: grid;
   gap: 2px;
-  z-index: 40;
+  z-index: 120;
 }
 .home-nav-dd-menu a {
   display: block;
