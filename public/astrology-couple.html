@@ -630,16 +630,27 @@ body{font-family:var(--font-body);background:var(--cream);color:var(--ink);min-h
     finally { btn.textContent = prev; btn.disabled = false; }
   });
 
-  // URL 파라미터 프리필 (상담사 허브 등): a_name,a_date,a_time,a_city / b_*
+  // URL 파라미터 프리필 (상담사 허브 등): a_name,a_date,a_time,a_city,a_lat,a_lng / b_*
   (function prefill() {
     try {
       const qs = new URLSearchParams(location.search);
       function set(prefix, p) {
         const nm = qs.get(p + '_name'), dt = qs.get(p + '_date'), tm = qs.get(p + '_time'), city = qs.get(p + '_city');
+        const lat = qs.get(p + '_lat'), lng = qs.get(p + '_lng');
         if (nm) $(prefix + 'Name').value = nm;
         if (dt) $(prefix + 'Date').value = dt;
         if (tm && /^\d{1,2}:\d{2}/.test(tm)) $(prefix + 'Time').value = tm.slice(0, 5);
-        if (city) { const idx = CITIES.findIndex((c) => c.ko === city); if (idx >= 0) $(prefix + 'City').value = String(idx); }
+        const latN = parseFloat(lat), lngN = parseFloat(lng);
+        if (!Number.isNaN(latN) && !Number.isNaN(lngN)) {
+          $(prefix + 'City').value = 'manual';
+          const box = $(prefix + 'Manual');
+          if (box) box.classList.add('show');
+          $(prefix + 'Lat').value = String(latN);
+          $(prefix + 'Lng').value = String(lngN);
+        } else if (city) {
+          const idx = CITIES.findIndex((c) => c.ko === city);
+          if (idx >= 0) $(prefix + 'City').value = String(idx);
+        }
       }
       set('a', 'a'); set('b', 'b');
       if (qs.get('a_date') && qs.get('b_date')) showStatus('두 사람 정보를 불러왔어요. 출생지·시간을 확인한 뒤 “궁합 분석하기”를 눌러주세요.', 'info');

@@ -3060,11 +3060,23 @@ body.export-capturing #wheelCard .note{display:none !important;}
     return true;
   }
 
+  function applyCoordsPrefill(latRaw, lngRaw) {
+    const lat = parseFloat(latRaw);
+    const lng = parseFloat(lngRaw);
+    if (Number.isNaN(lat) || Number.isNaN(lng)) return false;
+    $('inCity').value = 'manual';
+    $('manualCoords').classList.add('show');
+    $('inLat').value = String(lat);
+    $('inLng').value = String(lng);
+    return true;
+  }
+
   function applyBirthPrefill(data) {
     const nm = (data.name || '').trim();
     const dt = normalizeIsoDate(data.date);
     const tm = normalizeTimeHm(data.time);
     const city = (data.city || '').trim();
+    const hasCoords = applyCoordsPrefill(data.lat, data.lng);
     if (nm) $('inName').value = nm;
     if (tm) {
       $('inTime').value = tm;
@@ -3075,13 +3087,14 @@ body.export-capturing #wheelCard .note{display:none !important;}
       }
     }
     if (dt) $('inDate').value = dt;
-    if (city) applyCityPrefill(city);
-    return { nm, dt, tm, city };
+    if (!hasCoords && city) applyCityPrefill(city);
+    const placeOk = hasCoords || !!city;
+    return { nm, dt, tm, city: placeOk ? (city || 'coords') : '', hasCoords };
   }
 
-  function counselorPrefillStatus({ dt, tm, city }) {
+  function counselorPrefillStatus({ dt, tm, city, hasCoords }) {
     if (!dt) return '고객 생년월일을 불러오지 못했어요. 직접 입력해 주세요.';
-    if (tm && city) {
+    if (tm && (city || hasCoords)) {
       return '저장된 고객에서 <strong>이름·생년월일·출생 시간·출생지</strong>를 불러왔어요. 확인 후 차트를 계산합니다.';
     }
     if (tm) {
@@ -3130,6 +3143,8 @@ body.export-capturing #wheelCard .note{display:none !important;}
       date: row.birth_date,
       time: row.birth_time,
       city: row.birth_city,
+      lat: row.birth_lat,
+      lng: row.birth_lng,
     });
     setActiveClientId(row.id, !!(opts && opts.updateUrl));
     const sel = $('clientPickSelect');
@@ -3151,7 +3166,7 @@ body.export-capturing #wheelCard .note{display:none !important;}
 
     const { data, error } = await sbClient
       .from('counselor_clients')
-      .select('id,display_name,legal_name,birth_date,birth_time,birth_city,astro_summary,astro_updated_at,astro_deep,astro_deep_updated_at')
+      .select('id,display_name,legal_name,birth_date,birth_time,birth_city,birth_lat,birth_lng,astro_summary,astro_updated_at,astro_deep,astro_deep_updated_at')
       .eq('counselor_id', COUNSELOR_UID)
       .order('display_name', { ascending: true });
 
@@ -3205,6 +3220,8 @@ body.export-capturing #wheelCard .note{display:none !important;}
         date: qs.get('date'),
         time: qs.get('time'),
         city: qs.get('city'),
+        lat: qs.get('lat'),
+        lng: qs.get('lng'),
       });
 
       const clientId = ACTIVE_CLIENT_ID || qs.get('client') || '';
@@ -3220,7 +3237,7 @@ body.export-capturing #wheelCard .note{display:none !important;}
           if (session) {
             const { data: row } = await sbClient
               .from('counselor_clients')
-              .select('id,display_name,legal_name,birth_date,birth_time,birth_city')
+              .select('id,display_name,legal_name,birth_date,birth_time,birth_city,birth_lat,birth_lng')
               .eq('id', clientId)
               .eq('counselor_id', session.user.id)
               .maybeSingle();
