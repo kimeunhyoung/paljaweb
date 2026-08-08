@@ -743,8 +743,9 @@ body.export-capturing #wheelCard .note{display:none !important;}
         inList = false;
       }
     };
-    const isNotesHeader = (line) =>
+    const isAnalystTitle = (line) =>
       /^##\s+/.test(line) && /분석가\s*노트|왜 이렇게 읽었나/.test(line);
+    const isNotesStart = (line) => isAnalystTitle(line) || /^###\s+근거\s*[123]/.test(line);
     const peekNonEmpty = (from) => {
       for (let j = from; j < lines.length; j++) {
         if (lines[j].trim()) return lines[j];
@@ -753,15 +754,15 @@ body.export-capturing #wheelCard .note{display:none !important;}
     };
     for (let i = 0; i < lines.length; i++) {
       const line = lines[i];
-      if (!notesOpen && isNotesHeader(line)) {
+      if (!notesOpen && isNotesStart(line)) {
         flushList();
         out.push(
           '<details class="ai-md-notes"><summary class="ai-md-notes-sum">분석가 노트 (차트 근거) · 펼쳐 보기</summary><div class="ai-md-notes-body">',
         );
         notesOpen = true;
-        continue;
+        if (isAnalystTitle(line)) continue;
       }
-      if (!notesOpen && /^---+$/.test(line.trim()) && isNotesHeader(peekNonEmpty(i + 1))) {
+      if (!notesOpen && /^---+$/.test(line.trim()) && isNotesStart(peekNonEmpty(i + 1))) {
         continue;
       }
       if (/^###\s+/.test(line)) {
@@ -2904,7 +2905,7 @@ body.export-capturing #wheelCard .note{display:none !important;}
     }
     const payload = buildChartAiPayload(LAST_CTX, LAST_ASPECTS, LAST_KNOWN);
     const cacheKey = window.PaljaAiQuota
-      ? PaljaAiQuota.hashKey('v15:deep:' + meta.feature + ':' + JSON.stringify(payload))
+      ? PaljaAiQuota.hashKey('v16:deep:' + meta.feature + ':' + JSON.stringify(payload))
       : meta.feature + JSON.stringify(payload).slice(0, 120);
     let streamed = '';
     try {
