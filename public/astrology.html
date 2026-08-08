@@ -576,7 +576,7 @@ body.export-capturing #wheelCard .note{display:none !important;}
     <!-- 주제별 심화 (전체 해석 없이 단독 이용 가능) -->
     <div class="card ai-deep-card" id="aiDeepCard">
       <div class="card-title">✦ 주제별 심화 해석</div>
-      <p class="transit-intro">전체 해석 없이도 <strong>재물·연애·일·학업</strong> 주제만 깊게 볼 수 있어요. 결과는 <strong>설계 진단 · 덜 버티고 되는 구간 · 유난히 안 되는 구간 · 작전 지시</strong> + <strong>왜 이렇게 읽었나(차트 근거)</strong>로 나옵니다. 위쪽은 쉬운 말, 아래쪽에만 행성·각도 이름이 나와요. 고객을 고른 뒤 생성하면 <strong>고객 카드에 저장</strong>되어, 다음에 크레딧 없이 다시 볼 수 있어요. <span class="ai-quota-cost">(최초 각 2크레딧)</span></p>
+      <p class="transit-intro">전체 해석 없이도 <strong>재물·연애·일·학업</strong> 주제만 깊게 볼 수 있어요. 결과는 <strong>설계 진단 · 남들보다 타고난 복 · 남들보다 유난히 안 되는 부분 · 작전 지시</strong> + <strong>왜 이렇게 읽었나(차트 근거)</strong>로 나옵니다. 위쪽은 쉬운 말, 아래쪽에만 행성·각도 이름이 나와요. 고객을 고른 뒤 생성하면 <strong>고객 카드에 저장</strong>되어, 다음에 크레딧 없이 다시 볼 수 있어요. <span class="ai-quota-cost">(최초 각 2크레딧)</span></p>
       <div class="ai-actions no-print">
         <button type="button" class="rt-btn rt-btn--share" id="btnAiMoney" disabled>💰 재물·금전 (2크레딧)</button>
         <button type="button" class="rt-btn rt-btn--share" id="btnAiLove" disabled>💕 연애·관계 (2크레딧)</button>
@@ -2822,7 +2822,7 @@ body.export-capturing #wheelCard .note{display:none !important;}
     }
     const payload = buildChartAiPayload(LAST_CTX, LAST_ASPECTS, LAST_KNOWN);
     const cacheKey = window.PaljaAiQuota
-      ? PaljaAiQuota.hashKey('v12:deep:' + meta.feature + ':' + JSON.stringify(payload))
+      ? PaljaAiQuota.hashKey('v13:deep:' + meta.feature + ':' + JSON.stringify(payload))
       : meta.feature + JSON.stringify(payload).slice(0, 120);
     let streamed = '';
     try {
