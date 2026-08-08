@@ -2355,7 +2355,7 @@
 
       <div id="questionOpts" class="question-opts mode-follow">
         <div class="step-title">무엇이 궁금하신가요?</div>
-        <p class="step-note" style="margin-top:-6px;margin-bottom:12px;font-size:12.5px;">주제를 고른 뒤 <strong>구체 질문을 반드시</strong> 적어 주세요. 속으로만 생각하면 AI는 알 수 없어요.</p>
+        <p class="step-note" style="margin-top:-6px;margin-bottom:12px;font-size:12.5px;">주제를 고른 뒤 <strong>구체 질문</strong>을 적어 주세요.</p>
         <div class="topic-grid">
           <div class="topic-btn" data-topic="love" onclick="selectTopic('love', this)">사랑</div>
           <div class="topic-btn" data-topic="work" onclick="selectTopic('work', this)">일·커리어</div>
@@ -2925,7 +2925,7 @@ function handleShuffleCtaClick() {
       return;
     }
     if (!getSpecificQuestion()) {
-      showShuffleNudge('구체 질문을 적어 주세요. 속으로만 생각하면 AI는 알 수 없어요.');
+      showShuffleNudge('구체 질문을 적어 주세요.');
       document.getElementById('customQuestionInput')?.focus();
       return;
     }
@@ -3025,7 +3025,7 @@ function selectTopic(t, el) {
     hint.innerHTML =
       '주제 <strong>' +
       escapeHtml(topicName) +
-      '</strong> · AI는 <strong>아래에 적은 질문</strong>만 보고 리딩합니다. 속으로만 생각하면 전달되지 않아요.';
+      '</strong> · 아래에 질문을 적으면 그 내용으로 리딩합니다.';
   }
   syncShuffleBtn();
   scrollToShuffleCta();
@@ -3783,7 +3783,7 @@ function startSpread() {
       return;
     }
     if (!getSpecificQuestion()) {
-      tarotAppAlert('구체 질문을 입력해주세요. 속으로만 생각하면 AI는 알 수 없어요.');
+      tarotAppAlert('구체 질문을 입력해주세요.');
       document.getElementById('customQuestionInput')?.focus();
       return;
     }
