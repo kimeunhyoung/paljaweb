@@ -635,7 +635,7 @@ body.export-capturing #wheelCard .note{display:none !important;}
         <div id="transitResult" class="transit-result"></div>
       </div>
       <div class="transit-ai-block no-print" id="transitAiBlock" hidden>
-        <p class="transit-ai-intro">트랜짓을 본 뒤 아래에서 <strong>이번 주·요즘 큰 흐름</strong>만 AI로 풀어 볼 수 있어요. 오늘의 운세처럼 자주 확인해 보세요. <span class="ai-quota-cost">(각 1크레딧)</span></p>
+        <p class="transit-ai-intro">트랜짓을 본 뒤 아래에서 <strong>이번 주·요즘 큰 흐름</strong>을 AI로 풀어 볼 수 있어요. <strong>같은 주·같은 달</strong>이면 다시 눌러도 크레딧이 안 깎이고, 저장된 해석을 바로 보여 드려요. <span class="ai-quota-cost">(최초 각 1크레딧)</span></p>
         <div class="transit-ai-row">
           <button type="button" class="rt-btn rt-btn--share" id="btnTransitAiFast" disabled>✨ AI 이번 주 운세</button>
         </div>
@@ -1086,6 +1086,103 @@ body.export-capturing #wheelCard .note{display:none !important;}
   let LAST_YEAR_FORECAST = null;
   let YEAR_AI_CACHE = { key: '', text: '' };
   let YEAR_AI_BUSY = false;
+  const TRANSIT_AI_MEM = { fast: { key: '', text: '' }, slow: { key: '', text: '' } };
+
+  function pad2(n) {
+    return String(n).padStart(2, '0');
+  }
+
+  /** ISO 주차 — 같은 주면 이번 주 운세 재사용 */
+  function isoWeekKeyFromYmd(y, mo, da) {
+    const d = new Date(Date.UTC(Number(y), Number(mo) - 1, Number(da)));
+    const day = d.getUTCDay() || 7;
+    d.setUTCDate(d.getUTCDate() + 4 - day);
+    const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
+    const week = Math.ceil((((d - yearStart) / 86400000) + 1) / 7);
+    return d.getUTCFullYear() + '-W' + pad2(week);
+  }
+
+  function chartStampForTransitAi() {
+    const b = LAST_BIRTH || {};
+    const lat = LAST_CTX && LAST_CTX.lat != null ? LAST_CTX.lat : '';
+    const lng = LAST_CTX && LAST_CTX.lng != null ? LAST_CTX.lng : '';
+    const name = (LAST_CTX && LAST_CTX.displayName) || '';
+    return [b.y, b.mo, b.da, b.hour, b.min, b.unknownTime ? 1 : 0, lat, lng, name].join('|');
+  }
+
+  function transitAiPeriodKey(mode) {
+    if (!LAST_TRANSIT || !LAST_TRANSIT.dstr) return '';
+    const parts = String(LAST_TRANSIT.dstr).split('.').map(Number);
+    const y = parts[0];
+    const mo = parts[1];
+    const da = parts[2];
+    if (!y || !mo || !da) return '';
+    if (mode === 'fast') return isoWeekKeyFromYmd(y, mo, da);
+    return y + '-' + pad2(mo);
+  }
+
+  function transitAiCacheRaw(mode) {
+    const period = transitAiPeriodKey(mode);
+    const stamp = chartStampForTransitAi();
+    if (!period || !stamp) return '';
+    return 'v3:' + mode + ':' + period + ':' + stamp;
+  }
+
+  function transitAiLocalKey(mode) {
+    const raw = transitAiCacheRaw(mode);
+    if (!raw || !window.PaljaAiQuota) return '';
+    return 'palja:astroTransit:' + PaljaAiQuota.hashKey(raw);
+  }
+
+  function loadTransitAiLocal(mode) {
+    try {
+      const k = transitAiLocalKey(mode);
+      if (!k) return '';
+      const raw = localStorage.getItem(k);
+      if (!raw) return '';
+      const obj = JSON.parse(raw);
+      if (!obj || !obj.text || !obj.period) return '';
+      if (obj.period !== transitAiPeriodKey(mode)) return '';
+      return String(obj.text);
+    } catch (e) {
+      return '';
+    }
+  }
+
+  function saveTransitAiLocal(mode, text) {
+    try {
+      const k = transitAiLocalKey(mode);
+      const period = transitAiPeriodKey(mode);
+      if (!k || !period || !text) return;
+      localStorage.setItem(
+        k,
+        JSON.stringify({ period: period, text: String(text), savedAt: Date.now() }),
+      );
+      TRANSIT_AI_MEM[mode] = { key: period, text: String(text) };
+    } catch (e) { /* ignore */ }
+  }
+
+  function applyStoredTransitAi(mode) {
+    const box = $(mode === 'fast' ? 'transitAiFastResult' : 'transitAiSlowResult');
+    if (!box) return false;
+    const period = transitAiPeriodKey(mode);
+    let text = '';
+    if (TRANSIT_AI_MEM[mode] && TRANSIT_AI_MEM[mode].key === period) {
+      text = TRANSIT_AI_MEM[mode].text;
+    }
+    if (!text) text = loadTransitAiLocal(mode);
+    if (!text) return false;
+    setAiResultBox(box, text);
+    const hint = $(mode === 'fast' ? 'transitAiFastHint' : 'transitAiSlowHint');
+    if (hint) {
+      hint.textContent =
+        mode === 'fast'
+          ? '이번 주 저장된 해석입니다. 같은 주면 크레딧 없이 다시 볼 수 있어요.'
+          : '이번 달 저장된 해석입니다. 같은 달이면 크레딧 없이 다시 볼 수 있어요.';
+      hint.classList.remove('is-loading');
+    }
+    return true;
+  }
   const DEEP_AI_META = {
     money: { feature: 'astro_money', btn: 'btnAiMoney', label: '재물·금전' },
     love: { feature: 'astro_love', btn: 'btnAiLove', label: '연애·관계' },
@@ -1806,17 +1903,23 @@ body.export-capturing #wheelCard .note{display:none !important;}
     };
     const fastBox = $('transitAiFastResult');
     const slowBox = $('transitAiSlowResult');
-    if (fastBox) {
-      fastBox.className = 'ai-result empty';
-      fastBox.textContent = fastHits.length
-        ? `${dstr} 기준 이번 주 운세를 보려면 「AI 이번 주 운세」를 눌러 주세요.`
-        : '이번 주는 빠른 트랜짓 각이 거의 없어요. 「AI 이번 주 운세」로 잔잔한 한 주 조언을 받을 수 있어요.';
+    if (!applyStoredTransitAi('fast') && fastBox) {
+      setAiResultBox(
+        fastBox,
+        fastHits.length
+          ? `${dstr} 기준 이번 주 운세를 보려면 「AI 이번 주 운세」를 눌러 주세요.`
+          : '이번 주는 빠른 트랜짓 각이 거의 없어요. 「AI 이번 주 운세」로 잔잔한 한 주 조언을 받을 수 있어요.',
+        { empty: true },
+      );
     }
-    if (slowBox) {
-      slowBox.className = 'ai-result empty';
-      slowBox.textContent = slowHits.length
-        ? `${dstr} 기준 요즘 큰 흐름을 보려면 「AI 요즘 큰 흐름」을 눌러 주세요.`
-        : '요즘 느린 트랜짓 각이 거의 없어요. 「AI 요즘 큰 흐름」으로 장기 테마를 짧게 볼 수 있어요.';
+    if (!applyStoredTransitAi('slow') && slowBox) {
+      setAiResultBox(
+        slowBox,
+        slowHits.length
+          ? `${dstr} 기준 요즘 큰 흐름을 보려면 「AI 요즘 큰 흐름」을 눌러 주세요.`
+          : '요즘 느린 트랜짓 각이 거의 없어요. 「AI 요즘 큰 흐름」으로 장기 테마를 짧게 볼 수 있어요.',
+        { empty: true },
+      );
     }
     renderCounselorReport();
     refreshTransitAiUi();
@@ -2508,15 +2611,31 @@ body.export-capturing #wheelCard .note{display:none !important;}
     const prev = btn.textContent;
     btn.textContent = '⏳ 해석 중…';
     btn.disabled = true;
+    const stored = loadTransitAiLocal(mode);
+    if (stored) {
+      setAiResultBox(box, stored);
+      saveTransitAiLocal(mode, stored);
+      if (hint) {
+        hint.textContent = isFast
+          ? '이번 주 저장된 해석입니다. 같은 주면 크레딧이 다시 차감되지 않아요.'
+          : '이번 달 저장된 해석입니다. 같은 달이면 크레딧이 다시 차감되지 않아요.';
+        hint.classList.remove('is-loading');
+      }
+      btn.textContent = prev;
+      btn.disabled = false;
+      refreshTransitAiUi();
+      return;
+    }
     setAiResultBox(box, '해석을 생성하고 있어요…', { plain: true });
     if (hint) hint.classList.add('is-loading');
     const prompt = buildTransitAiPrompt(mode);
+    const cacheRaw = transitAiCacheRaw(mode) || `v3:${mode}:fallback:` + prompt.slice(0, 120);
     const cacheKey = window.PaljaAiQuota
-      ? PaljaAiQuota.hashKey(`v2:${mode}:${LAST_TRANSIT.dstr}:` + prompt)
-      : prompt.slice(0, 200);
+      ? PaljaAiQuota.hashKey(cacheRaw)
+      : cacheRaw.slice(0, 200);
     try {
       if (!window.PaljaAiQuota) throw new Error('no_quota_client');
-      const { text, quota, data } = await PaljaAiQuota.callAi({
+      const { text, quota, data, cached } = await PaljaAiQuota.callAi({
         feature: 'astro_transit',
         cacheKey,
         max_tokens: 8192,
@@ -2527,6 +2646,17 @@ body.export-capturing #wheelCard .note{display:none !important;}
         out += '\n\n(※ 해석이 길어 일부가 잘렸을 수 있어요.)';
       }
       setAiResultBox(box, out);
+      if (out && out !== '해석을 생성하지 못했어요.') saveTransitAiLocal(mode, out);
+      if (hint) {
+        hint.textContent = cached
+          ? (isFast
+            ? '서버 캐시에서 불러왔어요. 같은 주면 크레딧이 다시 차감되지 않아요.'
+            : '서버 캐시에서 불러왔어요. 같은 달이면 크레딧이 다시 차감되지 않아요.')
+          : (isFast
+            ? '이번 주 해석을 저장해 두었어요. 같은 주면 다시 볼 때 크레딧이 안 깎여요.'
+            : '이번 달 해석을 저장해 두었어요. 같은 달이면 다시 볼 때 크레딧이 안 깎여요.');
+        hint.classList.remove('is-loading');
+      }
       if (quota) {
         LAST_AI_QUOTA = quota;
         PaljaAiQuota.applyQuotaBadge($('aiQuotaBadge'), quota);
