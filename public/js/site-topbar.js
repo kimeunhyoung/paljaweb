@@ -22,31 +22,25 @@
   /** 대분류 드롭다운 + 요금제 */
   var NAV_GROUPS = [
     {
-      id: 'destiny',
-      label: '운명설계',
+      id: 'numerology',
+      label: '수비학',
       items: [
-        { id: 'destiny-all', href: 'services.html#destiny', label: '전체 보기' },
+        { id: 'numerology-all', href: 'services.html#numerology', label: '전체 보기' },
         { id: 'lifecode', href: 'analysis.html', label: '라이프코드' },
-        { id: 'astro', href: 'astrology.html', label: '점성학' },
         { id: 'calendar', href: 'numerology-calendar.html', label: '수비학달력' },
-        { id: 'wallpaper', href: 'numerology-wallpaper.html', label: '에너지배경' },
-        { id: 'address', href: 'address-numerology.html', label: '주소·전화' },
-        { id: 'business', href: 'business-numerology.html', label: '상호·브랜드' },
       ],
     },
     {
-      id: 'relation',
-      label: '관계·이름',
+      id: 'astrology',
+      label: '점성학',
       items: [
-        { id: 'relation-all', href: 'services.html#relation', label: '전체 보기' },
-        { id: 'harmony', href: 'compatibility.html', label: '소울하모니' },
-        { id: 'p48', href: 'period48-compat.html', label: '48궁합' },
-        { id: 'name', href: 'name.html', label: '네임코드' },
+        { id: 'astrology-all', href: 'services.html#astrology', label: '전체 보기' },
+        { id: 'astro', href: 'astrology.html', label: '점성학 차트' },
       ],
     },
     {
       id: 'cards',
-      label: 'AI카드리딩',
+      label: '타로AI',
       items: [
         { id: 'cards-all', href: 'services.html#cards', label: '전체 보기' },
         { id: 'tarot', href: 'Tarot.html', label: '타로코드' },
@@ -56,8 +50,28 @@
       ],
     },
     {
+      id: 'relation',
+      label: '관계',
+      items: [
+        { id: 'relation-all', href: 'services.html#relation', label: '전체 보기' },
+        { id: 'harmony', href: 'compatibility.html', label: '소울하모니' },
+        { id: 'p48', href: 'period48-compat.html', label: '48궁합' },
+      ],
+    },
+    {
+      id: 'life',
+      label: '생활수비학',
+      items: [
+        { id: 'life-all', href: 'services.html#life', label: '전체 보기' },
+        { id: 'address', href: 'address-numerology.html', label: '주소·전화' },
+        { id: 'business', href: 'business-numerology.html', label: '상호·브랜드' },
+        { id: 'name', href: 'name.html', label: '네임코드' },
+        { id: 'wallpaper', href: 'numerology-wallpaper.html', label: '에너지배경' },
+      ],
+    },
+    {
       id: 'counselor-group',
-      label: '상담사전용',
+      label: '상담사',
       items: [
         { id: 'counselor', href: 'counselor.html', label: '상담사 허브' },
       ],
