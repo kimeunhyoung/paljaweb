@@ -67,9 +67,9 @@
       if (!session) {
         if (requireLogin) {
           var next = loginNext();
-          var url = global.PaljaPlan && global.PaljaPlan.signupUrl
-            ? global.PaljaPlan.signupUrl(next)
-            : 'signup.html?next=' + encodeURIComponent(next);
+          var url = global.PaljaPlan && global.PaljaPlan.loginUrl
+            ? global.PaljaPlan.loginUrl(next)
+            : 'login.html?next=' + encodeURIComponent(next);
           global.location.replace(url);
         }
         return global.PALJA_USER_PLAN;

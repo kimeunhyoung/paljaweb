@@ -3,7 +3,7 @@
 create table if not exists public.checkout_pending (
   payment_id text primary key,
   user_id uuid not null references auth.users (id) on delete cascade,
-  plan text not null check (plan in ('basic', 'pro', 'professional')),
+  plan text not null check (plan in ('basic', 'plus', 'professional')),
   cycle text not null check (cycle in ('monthly', 'annual')),
   created_at timestamptz not null default now()
 );
