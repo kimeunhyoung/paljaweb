@@ -328,13 +328,16 @@
   const isTossApp =
     document.documentElement.classList.contains('toss-app') ||
     new URLSearchParams(window.location.search).get('source') === 'toss';
+  const isPlayNative = typeof window.PaljaPlayAds !== 'undefined';
   const AD_SKIP_MS = 10 * 60 * 1000;
   let tossAdPending = false;
   let tossAdTimer = 0;
+  let playAdPending = false;
+  let playAdTimer = 0;
 
-  function shouldSkipTossAd(dateStr) {
+  function shouldSkipAd(storageKey, dateStr) {
     try {
-      const raw = sessionStorage.getItem('lc_toss_ad_skip');
+      const raw = sessionStorage.getItem(storageKey);
       if (!raw) return false;
       const { date, t } = JSON.parse(raw);
       return date === dateStr && Date.now() - t < AD_SKIP_MS;
@@ -343,15 +346,31 @@
     }
   }
 
-  function markTossAd(dateStr) {
+  function markAdSkip(storageKey, dateStr) {
     try {
       sessionStorage.setItem(
-        'lc_toss_ad_skip',
+        storageKey,
         JSON.stringify({ date: dateStr, t: Date.now() }),
       );
     } catch {
       /* ignore */
     }
+  }
+
+  function shouldSkipTossAd(dateStr) {
+    return shouldSkipAd('lc_toss_ad_skip', dateStr);
+  }
+
+  function markTossAd(dateStr) {
+    markAdSkip('lc_toss_ad_skip', dateStr);
+  }
+
+  function shouldSkipPlayAd(dateStr) {
+    return shouldSkipAd('lc_play_ad_skip', dateStr);
+  }
+
+  function markPlayAd(dateStr) {
+    markAdSkip('lc_play_ad_skip', dateStr);
   }
 
   function requestTossAdThenRun() {
@@ -366,11 +385,40 @@
     window.parent.postMessage({ source: TOSS_MSG, type: 'run-analysis-ad' }, '*');
   }
 
-  /** 확인하기·기록 탭 공통 — 토스에선 전면 광고 후 결과 */
+  function requestPlayAdThenRun() {
+    if (playAdPending) return;
+    playAdPending = true;
+    window.clearTimeout(playAdTimer);
+    playAdTimer = window.setTimeout(() => {
+      if (!playAdPending) return;
+      playAdPending = false;
+      runAnalysis();
+    }, 12000);
+    window.__paljaOnPlayAdDone = () => {
+      playAdPending = false;
+      window.clearTimeout(playAdTimer);
+      const dateStr = $('inputBirth').value;
+      if (dateStr) markPlayAd(dateStr);
+      runAnalysis();
+    };
+    try {
+      window.PaljaPlayAds.requestInterstitial();
+    } catch {
+      playAdPending = false;
+      window.clearTimeout(playAdTimer);
+      runAnalysis();
+    }
+  }
+
+  /** 확인하기·기록 탭 공통 — Play·토스는 전면 광고 후 결과 */
   function startAnalysis() {
     const dateStr = $('inputBirth').value;
     if (!dateStr) {
       $('inputBirth').focus();
+      return;
+    }
+    if (isPlayNative && !shouldSkipPlayAd(dateStr)) {
+      requestPlayAdThenRun();
       return;
     }
     if (

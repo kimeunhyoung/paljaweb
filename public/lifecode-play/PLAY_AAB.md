@@ -101,16 +101,21 @@ bubblewrap validate --url https://8code.kr/.well-known/assetlinks.json
 
 ---
 
-## 7. (나중) AdMob
+## 7. AdMob (전면)
 
-프로덕션 출시 후 [AdMob](https://admob.google.com) → 앱 추가 → `kr.co.palja.app`
+| 항목 | 값 |
+|------|-----|
+| 앱 ID | `ca-app-pub-7451075921625740~5129794869` |
+| 전면 광고 단위 | `ca-app-pub-7451075921625740/6850904792` |
 
-인증 파일: `https://8code.kr/app-ads.txt`  
-(`google.com, pub-7451075921625740, DIRECT, f08c47fec0942fa0`)
+- Play 앱은 **WebView + AdMob SDK** (`LauncherActivity.java`, `PlayAdManager.java`)
+- **확인하기** 누르면 전면 → 같은 생년월일 **10분** 안 재조회는 스킵 (`app.js`)
+- TWA(Chrome)만 쓰면 네이티브 광고 불가 → WebView로 전환함
+- `app-ads.txt`: `https://8code.kr/app-ads.txt`
+- Play Console **광고 포함: 예** (이 AAB 업로드 후)
+- 새 광고 단위는 **최대 1시간** 후 게재 시작 (테스트 기기 등록 권장)
 
-Play Console 개발자 웹사이트도 `https://8code.kr` 이어야 AdMob이 이 파일을 찾습니다.
-
-**AdSense와 무관.** (웹 수익은 `ads.txt`)
+빌드 후 `versionCode`는 Play에 올린 것보다 **큰 숫자** (현재 **8**).
 
 ---
 
