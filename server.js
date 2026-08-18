@@ -894,6 +894,13 @@ app.get('/.well-known/assetlinks.json', (req, res) => {
   res.sendFile(path.join(pathPublic, '.well-known', 'assetlinks.json'));
 });
 
+// AdSense(ads.txt) · AdMob(app-ads.txt). SPA fallback이 HTML을 주지 않게 명시.
+app.get(['/ads.txt', '/app-ads.txt'], (req, res) => {
+  const name = req.path === '/app-ads.txt' ? 'app-ads.txt' : 'ads.txt';
+  res.type('text/plain; charset=utf-8');
+  res.sendFile(path.join(pathPublic, name));
+});
+
 app.use(
   express.static(pathPublic, {
     etag: isProd,

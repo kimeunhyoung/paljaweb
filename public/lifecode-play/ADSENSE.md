@@ -18,7 +18,8 @@
 ```
 
 4. 사이트 등록 URL: **`https://8code.kr`** (또는 `https://8code.kr/lifecode-play/`)
-5. `public/ads.txt` — 이미 `pub-7451075921625740` 등록됨
+5. `public/ads.txt` — 이미 `pub-7451075921625740` 등록됨  
+   Play/AdMob 앱 인증은 `https://8code.kr/app-ads.txt` (같은 한 줄)
 6. 배포 후 **검토 요청**
 
 ## 심사용 확인 URL

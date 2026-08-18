@@ -105,7 +105,12 @@ bubblewrap validate --url https://8code.kr/.well-known/assetlinks.json
 
 프로덕션 출시 후 [AdMob](https://admob.google.com) → 앱 추가 → `kr.co.palja.app`
 
-**AdSense와 무관.**
+인증 파일: `https://8code.kr/app-ads.txt`  
+(`google.com, pub-7451075921625740, DIRECT, f08c47fec0942fa0`)
+
+Play Console 개발자 웹사이트도 `https://8code.kr` 이어야 AdMob이 이 파일을 찾습니다.
+
+**AdSense와 무관.** (웹 수익은 `ads.txt`)
 
 ---
 
