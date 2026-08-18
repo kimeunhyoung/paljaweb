@@ -249,6 +249,10 @@ ul { list-style: none; }
   transition: color 0.2s;
 }
 .nav-links a:hover { color: var(--brown); }
+.nav-links a[aria-current="page"] {
+  color: var(--brown);
+  font-weight: 600;
+}
 .nav-actions { display: flex; gap: 10px; align-items: center; }
 .nav-menu-btn {
   display: none;

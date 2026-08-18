@@ -37,6 +37,16 @@
   margin: 1rem 0 0.4rem;
   color: #5c451f;
 }
+.content-group-title {
+  font-family: 'Noto Serif KR', serif;
+  font-size: 1.02rem;
+  font-weight: 600;
+  color: #4a3520;
+  margin: 1.6rem 0 0.7rem;
+  padding-bottom: 0.25rem;
+  border-bottom: 1px solid rgba(139, 111, 71, 0.18);
+}
+.content-group-title:first-child { margin-top: 0.35rem; }
 .content-section p { margin-bottom: 0.75rem; }
 .content-section ul,
 .content-section ol {
