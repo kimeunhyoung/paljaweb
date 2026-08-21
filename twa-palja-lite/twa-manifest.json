@@ -12,15 +12,15 @@
   "navigationDividerColorDark": "#000000",
   "backgroundColor": "#090A10",
   "enableNotifications": true,
-  "startUrl": "/lifrcode-play/",
+  "startUrl": "/lifecode-play/?source=play",
   "iconUrl": "https://8code.kr/lifecode-play/icon-512.png",
   "splashScreenFadeOutDuration": 300,
   "signingKey": {
-    "path": "B:\\앱설계\\라이프코드내꺼\\paljaweb\\twa-palja-lite\\android.keystore",
-    "alias": "android"
+    "path": "B:\\앱설계\\라이프코드내꺼\\paljaweb\\twa-palja-lite\\upload-key.jks",
+    "alias": "upload"
   },
-  "appVersionName": "2",
-  "appVersionCode": 2,
+  "appVersionName": "1.0.8",
+  "appVersionCode": 8,
   "shortcuts": [],
   "generatorApp": "bubblewrap-cli",
   "webManifestUrl": "https://8code.kr/lifecode-play/manifest.webmanifest",
@@ -42,5 +42,5 @@
   "fileHandlers": [],
   "launchHandlerClientMode": "",
   "displayOverride": [],
-  "appVersion": "2"
+  "appVersion": "8"
 }

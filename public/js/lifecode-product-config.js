@@ -40,7 +40,7 @@ export const LIFECODE_PRODUCT = {
       href: '#nav-at-a-glance',
       title: '먼저 보는 수',
       tier: 'free',
-      desc: '별자리·핵심 수·이름 수·올해·이번 달 요약 그리드.',
+      desc: '별자리·핵심 수·이름 수·올해·이번 달·대주기·절정수·도전수 요약 그리드(숫자). 상세 해설은 각 섹션.',
     },
     { href: '#nav-core', title: '핵심 수', tier: 'free', desc: '생년월일·이름에서 뽑은 대표 수비학 숫자와 해석.' },
     { href: '#wealthMatrixContent', title: '재물 매트릭스', tier: 'free', desc: '인생여정수 아코디언 안 — 재물 사분면·직업·금전·애정·컨디션.' },

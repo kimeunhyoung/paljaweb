@@ -132,8 +132,8 @@
   <div id="mainUI" hidden>
     <div class="panel">
       <h2 style="font-size:1rem;margin-bottom:12px;">코드 발급</h2>
-      <label for="newNote">메모 (구매자·테스터명)</label>
-      <input id="newNote" placeholder="홍길동 / 유튜브 후기 테스터"/>
+      <label for="newNote">메모 (카페·테스터명 — 나중에 검색용)</label>
+      <input id="newNote" placeholder="예: 네이버카페 ○○ / 홍길동 후기 테스터"/>
       <label for="newExpires">만료일 (비우면 무기한 · 테스터 버튼은 자동 설정)</label>
       <input id="newExpires" type="datetime-local"/>
       <label for="newTier">상품 등급 (등록 가격)</label>
@@ -150,10 +150,9 @@
       </div>
       <p style="font-size:12px;color:#7d6b56;margin:6px 0 0;line-height:1.5;">
         테스터 코드 = <strong>Professional</strong> 전 기능 · AI <strong>10</strong>크레딧 ·
-        <strong>연결한 날부터</strong> 5일/7일 후 만료(미리 발급해 둬도 기간은 연결 시 시작).
-        연동: <code>/counselor-trial-link.html</code><br>
-        유료 체험 URL 키: <code>basic7</code>=베이직 7일(내부키 basic30),
-        <code>counselor15</code>=상담사 15일(내부키 counselor30). 키 이름에 30이 있어도 실제 일수와 무관.
+        <strong>연결한 날부터</strong> 5일/7일 후 만료(미리 발급해 둬도 기간은 연결 시 시작).<br>
+        목록에서 <strong>만료연장 · AI늘리기 · 메모</strong>로 같은 코드를 관리하세요 (코드 재발급 없이).<br>
+        연동: <code>/counselor-trial-link.html</code>
       </p>
       <div id="createFlash" class="flash" hidden></div>
     </div>
@@ -184,7 +183,8 @@
             <th>등급</th>
             <th>상태</th>
             <th>만료</th>
-            <th>기기</th>
+            <th>AI</th>
+            <th>연결</th>
             <th>메모</th>
             <th>마지막 접속</th>
             <th></th>
@@ -236,6 +236,11 @@
       return base;
     }
 
+    function shortId(id) {
+      if (!id) return '—';
+      return String(id).slice(0, 8) + '…';
+    }
+
     async function loadList() {
       const status = document.getElementById('filterStatus').value;
       const q = document.getElementById('searchQ').value.trim();
@@ -250,13 +255,19 @@
           ? `<span style="color:#c0392b">${fmtDate(row.expiresAt)}</span>`
           : fmtDate(row.expiresAt);
         const tier = row.productTier || 'basic';
+        const aiLabel = row.betaAi != null ? String(row.betaAi) : '—';
+        const linkLabel = row.linkedUserId
+          ? `<span title="${row.linkedUserId}">연결됨 ${shortId(row.linkedUserId)}</span>`
+          : '미연결';
+        const memoText = row.memo || '—';
         tr.innerHTML = `
           <td data-label=""><code>${row.codeHint || '—'}</code></td>
           <td data-label="등급"><span class="badge tier-${tier}">${tierLabel(tier, row.note)}</span></td>
           <td data-label="상태"><span class="badge ${row.status}">${row.status}</span></td>
           <td data-label="만료">${exp}</td>
-          <td data-label="기기">${row.deviceBound ? '등록됨' : '—'}</td>
-          <td data-label="메모">${row.note || '—'}</td>
+          <td data-label="AI">${aiLabel}</td>
+          <td data-label="연결">${linkLabel}</td>
+          <td data-label="메모">${memoText}</td>
           <td data-label="마지막 접속">${fmtDate(row.lastSeenAt)}</td>
           <td class="row-actions" data-label="작업"></td>
         `;
@@ -273,11 +284,92 @@
         } else {
           addBtn('해제', 'secondary', () => unrevoke(row.id));
         }
+        addBtn('만료연장', 'secondary', () => extendExpiry(row));
+        addBtn('AI늘리기', 'secondary', () => bumpAi(row));
+        addBtn('메모', 'secondary', () => editMemo(row));
         addBtn('코드재설정', 'secondary', () => regenerateCode(row.id));
         addBtn(tier === 'counselor' ? '허브끄기' : '허브켜기', 'secondary', () => toggleTier(row.id, tier));
         addBtn('기기초기화', 'secondary', () => resetDevice(row.id));
         addBtn('삭제', 'danger', () => removeLicense(row.id));
         tbody.appendChild(tr);
+      }
+    }
+
+    async function extendExpiry(row) {
+      const cur = row.expiresAt ? fmtDate(row.expiresAt) : '없음';
+      const raw = prompt(
+        `만료 연장 — 현재: ${cur}\n\n추가할 일수를 입력하세요 (예: 7)\n또는 절대 만료일 YYYY-MM-DD`,
+        '7',
+      );
+      if (raw == null || !String(raw).trim()) return;
+      const t = String(raw).trim();
+      let body;
+      if (/^\d{4}-\d{2}-\d{2}/.test(t)) {
+        body = { expiresAt: new Date(t).toISOString() };
+      } else {
+        const days = Number(t);
+        if (!Number.isInteger(days) || days < 1) {
+          alert('일수는 1 이상 정수로 입력하세요.');
+          return;
+        }
+        body = { days };
+      }
+      try {
+        const data = await api(`/api/lifecode/admin/licenses/${row.id}/extend`, {
+          method: 'POST',
+          body: JSON.stringify(body),
+        });
+        alert(
+          `만료일 변경: ${fmtDate(data.expiresAt)}` +
+            (data.profileSynced ? '\n(연결된 계정 이용기간도 함께 반영됨)' : '\n(아직 미연결 — 라이선스 만료만 변경)'),
+        );
+        loadList();
+      } catch (e) {
+        alert(e.message || '연장 실패');
+      }
+    }
+
+    async function bumpAi(row) {
+      const cur = row.betaAi != null ? row.betaAi : 0;
+      const raw = prompt(
+        `AI 크레딧 — 현재 한도: ${cur || '없음'}\n\n추가할 개수 (예: 10)\n또는 =숫자 로 절대값 설정 (예: =25)`,
+        '10',
+      );
+      if (raw == null || !String(raw).trim()) return;
+      const t = String(raw).trim();
+      let body;
+      if (t.startsWith('=')) {
+        body = { set: Number(t.slice(1)) };
+      } else {
+        body = { add: Number(t) };
+      }
+      try {
+        const data = await api(`/api/lifecode/admin/licenses/${row.id}/ai-credits`, {
+          method: 'POST',
+          body: JSON.stringify(body),
+        });
+        alert(`AI 한도: ${data.previousBetaAi || 0} → ${data.betaAi}`);
+        loadList();
+      } catch (e) {
+        alert(e.message || 'AI 변경 실패');
+      }
+    }
+
+    async function editMemo(row) {
+      const cur = row.memo || '';
+      const next = prompt(
+        '운영 메모 (카페·테스터명 등)\n시스템 태그([beta_ai] 등)는 자동 유지됩니다.',
+        cur,
+      );
+      if (next == null) return;
+      try {
+        await api(`/api/lifecode/admin/licenses/${row.id}`, {
+          method: 'PATCH',
+          body: JSON.stringify({ memo: next.trim() }),
+        });
+        loadList();
+      } catch (e) {
+        alert(e.message || '메모 저장 실패');
       }
     }
 

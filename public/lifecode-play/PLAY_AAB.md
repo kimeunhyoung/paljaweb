@@ -49,20 +49,25 @@ bubblewrap init --manifest https://8code.kr/lifecode-play/manifest.webmanifest
 
 ## 3. AAB 빌드
 
-```powershell
-cd twa-palja-lite
-bubblewrap build
-```
+업로드 키: `twa-palja-lite/upload-key.jks` (alias `upload`)  
+로컬에 `keystore.properties` 필요 (`keystore.properties.example` 복사 후 비밀번호 입력). Git에는 올라가지 않음.
 
-비밀번호 매번 묻지 않게 (선택):
+**JDK 17** 권장. Java 25 등 최신 버전이면 Gradle 오류(`major version 69`) 날 수 있음.
 
 ```powershell
-$env:BUBBLEWRAP_KEYSTORE_PASSWORD = "keystore비밀번호"
-$env:BUBBLEWRAP_KEY_PASSWORD = "key비밀번호"
-bubblewrap build
+cd "B:\앱설계\라이프코드내꺼\paljaweb\twa-palja-lite"
+# JDK 17 (Temurin) — 설치 경로 예시
+$env:JAVA_HOME = "C:\Program Files\Eclipse Adoptium\jdk-17.0.20.8-hotspot"
+$env:Path = "$env:JAVA_HOME\bin;" + $env:Path
+# Android SDK — local.properties 또는 ANDROID_HOME (예: C:\Android\Sdk)
+Copy-Item keystore.properties.example keystore.properties   # 최초 1회
+# keystore.properties 에 storePassword / keyPassword 수정
+.\gradlew.bat bundleRelease
 ```
 
-결과 파일: **`app-release-bundle.aab`**
+결과 파일: **`app\build\outputs\bundle\release\app-release.aab`**
+
+bubblewrap 대신 gradlew 사용 (AdMob WebView 빌드는 `twa-palja-lite` Gradle 프로젝트 기준).
 
 ---
 

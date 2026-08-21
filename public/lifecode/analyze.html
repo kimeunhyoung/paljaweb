@@ -5294,7 +5294,7 @@ window.NUMEROLOGY_DATA = (() => {
       7: "본질을 파고드는 탐구와 고독이 길을 밝혀요.",
       8: "현실에서 결과를 만들고 다스리는 축을 따라 성숙해요.",
       9: "통합과 베풂으로 더 큰 가치를 향해 나아가요.",
-      11: "영감과 직관의 길을 믿고 사람들에게 불을 전해요.",
+      11: "영감과 직관의 길을 믿고 사람들에게 빛을 전해요.",
       22: "큰 그림을 실제 시스템으로 옮기는 길이 삶을 관통해요.",
       33: "사랑과 가르침으로 치유하는 길이 깊어져요."
     },
@@ -8593,8 +8593,9 @@ async function runAnalysis() {
     pinnacle: cycleGlance.pinnacle,
     challenge: cycleGlance.challenge,
     stageSub: cycleGlance.stageSub,
-    cycleLocked: !hasAccess('basic'),
-    flowLocked: !hasBasicFlowAccess(),
+    // Lite와 동일: 먼저 보는 수 그리드는 숫자만 무료 공개 (상세 섹션은 Basic+)
+    cycleLocked: false,
+    flowLocked: false,
   });
 
   // ── 11. PDF (Plus+) ──
