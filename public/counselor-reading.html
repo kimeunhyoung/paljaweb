@@ -1148,6 +1148,7 @@
         { id: 'love', label: '내 마음 · 상대 · 관계', positions: ['내 마음', '상대 마음', '관계 흐름'] },
         { id: 'block', label: '원인 · 장애 · 돌파', positions: ['원인', '장애', '돌파'] },
         { id: 'horseshoe', label: '말편자 (7장)', positions: ['과거', '현재', '미래', '조언', '외부 영향', '희망·두려움', '결과'] },
+        { id: 'seven', label: '세븐 배열 (7장)', positions: ['과거', '현재', '미래', '장애', '환경', '조언', '결과'] },
         { id: 'custom', label: '직접 입력 (칸마다 수정)', positions: ['1장', '2장', '3장'] },
       ];
       const GROUPS = [
@@ -2184,6 +2185,7 @@
         love: '관계·마음',
         block: '막힘·원인',
         horseshoe: '전체 흐름·윤곽',
+        seven: '문제·장애·조언',
       };
 
       /**
@@ -2238,6 +2240,7 @@
           choice: 0.2,
           block: 0.3,
           horseshoe: 0.25,
+          seven: 0.2,
         };
         const choiceQ = isChoiceQuestion(q);
         if (choiceQ) {
@@ -2253,6 +2256,9 @@
         if (/과거|앞으로|미래|언제|타이밍|흐름|올해|이번\s*달|이번\s*주|앞으로의|전개|전체|윤곽/.test(q) && !choiceQ) {
           scores.time += 3.2;
           scores.horseshoe += 2.4;
+        }
+        if (/왜|원인|막히|장애|안\s*되|풀리|돌파|반복|꼬이|정체|문제/.test(q) && !choiceQ) {
+          scores.seven += 2.2;
         }
         // 선택 질문이면 advice의 「될까」 가중치를 올리지 않음
         if (!choiceQ && /어떻|조언|뭐\s*하|해야|지금|괜찮|될까|방법|팁|행동/.test(q)) {
@@ -2281,7 +2287,7 @@
           return forced.slice(0, 3);
         }
         const picked = [];
-        const fallback = ['advice', 'love', 'choice_ab', 'time', 'block', 'choice', 'horseshoe'];
+        const fallback = ['advice', 'love', 'choice_ab', 'time', 'block', 'choice', 'horseshoe', 'seven'];
         for (const row of order) {
           if (picked.length >= 3) break;
           picked.push(row);
@@ -3301,7 +3307,7 @@ ${astroLines}
 ## 상담사 실전 솔루션
 ## 주의
 - 한 줄 요약: 객관적 진단 1문장(질문의 핵심 결론이 드러나게)${readingDepth === 'integrated' ? '. 통합 시 같은 문장에 (카드 결론)+(수비/점성 긴장·왜곡 렌즈 1개) 필수. 렌즈 없는 한 줄은 실패.' : ''}
-- 흐름 분석: 포지션 순서 인과·긴장·보완 + 주도권 이동. 각 카드에 포지션·번호·이름·정역 명시. 끝에 귀결 시나리오 1단락.${readingDepth === 'integrated' ? ' 통합 시 수비 주기와 카드가 당기면 「좋은 타이밍」으로만 풀지 말고 긴장을 쓴 뒤 해소는 카드 쪽으로.' : ''}
+- 흐름 분석: 포지션 순서 인과·긴장·보완 + 주도권 이동. **뽑힌 카드마다** 포지션·번호·이름·정역을 빠짐없이 명시(7장이면 7장 모두). 끝에 귀결 시나리오 1단락.${readingDepth === 'integrated' ? ' 통합 시 수비 주기와 카드가 당기면 「좋은 타이밍」으로만 풀지 말고 긴장을 쓴 뒤 해소는 카드 쪽으로.' : ''}
 - 전략적 조언: helpful/unhelpful(또는 조언·장애 포지션) 조합 + 방치 시/대응 시 분기. 없으면 본 스프래드만으로.${readingDepth === 'integrated' ? ' 통합 시 실행 기준에도 렌즈를 녹일 것.' : ''}
 - 상담사 실전 솔루션: 고객에게 말해줄 **해야 할 것(Do)** / **하지 말아야 할 것(Don't)** 각 2~3개
 - 주의: 의료·법률·투자 경계 한두 문장(결론 자체를 흐리지 말 것)
@@ -3367,7 +3373,7 @@ ${spreadXml}
           const { text, quota, stopReason } = await PaljaAiQuota.callAiStream({
             feature,
             cacheKey,
-            max_tokens: cards.length <= 1 ? 1800 : cards.length <= 3 ? 2800 : 4000,
+            max_tokens: cards.length <= 1 ? 1800 : cards.length <= 3 ? 2800 : cards.length <= 5 ? 4000 : 4096,
             messages: [{ role: 'user', content: prompt }],
             onDelta: (chunk) => {
               streamed += chunk;
