@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ko">
 <head>
   <meta charset="UTF-8"/>
@@ -253,6 +253,30 @@
       cursor: pointer; text-align: left; font-weight: 600; line-height: 1.4;
     }
     .ai-follow-chip:hover { border-color: var(--deep); background: #fff; }
+    .ai-client-sessions {
+      margin-top: 10px; padding: 12px 14px; background: #fff;
+      border: 1px dashed rgba(74,53,32,.22); border-radius: 12px;
+    }
+    .ai-client-sessions[hidden] { display: none !important; }
+    .ai-client-sessions-head {
+      display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between;
+      gap: 6px; margin-bottom: 8px;
+    }
+    .ai-client-sessions-head strong { font-size: 12.5px; color: var(--deep); }
+    .ai-client-sessions-head span { font-size: 11px; color: var(--muted); }
+    .ai-client-session-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+    .ai-client-session-item {
+      width: 100%; text-align: left; border: 1px solid var(--border); background: var(--parchment);
+      border-radius: 10px; padding: 10px 12px; cursor: pointer; font-family: var(--font-body);
+    }
+    .ai-client-session-item:hover { border-color: var(--deep); background: #fff; }
+    .ai-client-session-item .d { font-size: 11px; color: var(--muted); margin-bottom: 3px; }
+    .ai-client-session-item .t { font-size: 13px; font-weight: 700; color: var(--deep); line-height: 1.4; }
+    .ai-client-session-item .s {
+      font-size: 12px; color: var(--ink); line-height: 1.45; margin-top: 4px;
+      display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+    }
+    .ai-client-sessions-empty { font-size: 12px; color: var(--muted); margin: 0; }
     .ai-card-slot.is-target { border-color: var(--deep); box-shadow: 0 0 0 2px rgba(44,31,14,.12); }
     .slot-search-wrap { position: relative; margin-top: 8px; }
     .slot-search-wrap input[type="search"] {
@@ -525,6 +549,14 @@
           <label for="aiNickname">호칭 / 닉네임</label>
           <input id="aiNickname" type="text" maxlength="40" placeholder="예: 민지님 · 고객님"/>
         </div>
+        <div class="full ai-client-sessions" id="aiClientSessions" hidden>
+          <div class="ai-client-sessions-head">
+            <strong>이 고객 · 최근 세션</strong>
+            <span>누르면 질문칸에 넣고 이어서 볼 수 있습니다</span>
+          </div>
+          <ul class="ai-client-session-list" id="aiClientSessionList"></ul>
+          <p class="ai-client-sessions-empty" id="aiClientSessionsEmpty" hidden>아직 저장된 세션이 없습니다. 해석 생성 시 짧은 기록이 남습니다.</p>
+        </div>
         <div class="full ai-client-tools">
           <button type="button" class="btn-sm outline" id="aiLinkNumerology" data-href="analysis.html" aria-disabled="true">수비학 분석</button>
           <button type="button" class="btn-sm outline" id="aiLinkAstro" data-href="astrology.html" aria-disabled="true">점성학 차트</button>
@@ -614,7 +646,7 @@
       <div id="aiFollowUps" class="ai-followups" hidden>
         <div class="ai-followups-head">
           <strong>다음 질문 추천</strong>
-          <span>누르면 질문칸에 넣고, 카드만 다시 뽑으면 됩니다</span>
+          <span>지금 질문·카드에 맞춰 제안합니다 · 누르면 질문칸에 넣습니다</span>
         </div>
         <div id="aiFollowUpChips" class="ai-chip-row" role="group" aria-label="다음 질문 추천"></div>
       </div>
@@ -725,16 +757,27 @@
       .replace(/"/g, '&quot;');
   }
 
-  function clientLastSession(clientId) {
-    const rows = sessionRows
+  function clientSessionsFor(clientId, limit) {
+    const lim = Math.max(1, Number(limit) || 5);
+    return sessionRows
       .filter((s) => s.client_id === clientId)
       .slice()
-      .sort((a, b) => String(b.session_date || '').localeCompare(String(a.session_date || '')));
+      .sort((a, b) => {
+        const da = String(b.session_date || '').localeCompare(String(a.session_date || ''));
+        if (da) return da;
+        return String(b.created_at || '').localeCompare(String(a.created_at || ''));
+      })
+      .slice(0, lim);
+  }
+
+  function clientLastSession(clientId) {
+    const rows = clientSessionsFor(clientId, 1);
     if (!rows.length) return { last: '', topic: '', count: 0 };
+    const all = sessionRows.filter((s) => s.client_id === clientId);
     return {
       last: rows[0].session_date || '',
       topic: rows[0].topic || '',
-      count: rows.length,
+      count: all.length,
     };
   }
 
@@ -839,11 +882,18 @@
       .order('display_name', { ascending: true });
     clientRows = clients || [];
 
-    const { data: sessions } = await sb
+    let { data: sessions, error: sessErr } = await sb
       .from('counselor_sessions')
-      .select('id, client_id, session_date, topic')
+      .select('id, client_id, session_date, topic, summary')
       .order('session_date', { ascending: false })
       .limit(200);
+    if (sessErr) {
+      ({ data: sessions } = await sb
+        .from('counselor_sessions')
+        .select('id, client_id, session_date, topic')
+        .order('session_date', { ascending: false })
+        .limit(200));
+    }
     sessionRows = sessions || [];
 
     populateAiClientSelect();
@@ -1298,7 +1348,9 @@
             client_id: clientId,
             session_date: payload.session_date,
             topic: payload.topic || null,
+            summary: summary || null,
           }].concat(sessionRows || []);
+          try { renderClientSessions(clientId); } catch (_) {}
         }
         return { ok: true, id };
       }
@@ -2244,87 +2296,102 @@
         }).join('\n');
       }
 
-      function suggestFollowUps(question, topic) {
-        const pools = {
-          love: [
-            '상대의 속마음은 어떤가요?',
-            '지금 내가 취해야 할 태도는?',
-            '이 관계를 이어가면 어떻게 전개될까요?',
-            '내가 조심해야 할 포인트는?',
-            '고백·연락 타이밍은 언제가 나을까요?',
-          ],
-          work: [
-            '지금 이 상황에서 내가 잡을 기회는?',
-            '방해되는 요인은 무엇인가요?',
-            '한 달 뒤 흐름은 어떻게 보일까요?',
-            '상사·동료와의 역학은?',
-            '지금 움직여야 할 일과 기다려야 할 일은?',
-          ],
-          money: [
-            '단기적으로 조심할 금전 리스크는?',
-            '수입·기회 쪽에서 열릴 흐름은?',
-            '지금 지출·투자를 줄여야 할 부분은?',
-            '한 달 재정 흐름의 핵심은?',
-          ],
-          relation: [
-            '상대가 나를 어떻게 보고 있을까요?',
-            '갈등을 풀 때 내가 먼저 할 일은?',
-            '경계로 지켜야 할 한 가지는?',
-            '이 관계가 나아지려면 무엇이 필요할까요?',
-          ],
-          inner: [
-            '지금 내 안의 진짜 필요는?',
-            '내려놓으면 가벼워질 것은?',
-            '나를 지키는 행동 한 가지는?',
-            '앞으로 2주, 성장 포인트는?',
-          ],
-          general: [
-            '지금 내가 놓치고 있는 포인트는?',
-            '앞으로 2주 흐름의 핵심은?',
-            '도움이 되는 행동 / 피해야 할 행동은?',
-            '이 상황의 숨은 원인은?',
-          ],
-        };
-        const base = (pools[topic] || pools.general).slice();
-        const q = String(question || '');
-        if (/선택|A\s*[/·]?\s*B|어느\s*쪽/.test(q)) {
-          base.unshift('선택하지 않은 쪽을 택하면 어떻게 될까요?', '결정을 미루면 어떤 대가가 올까요?');
-        }
-        if (/이직|퇴사|면접/.test(q)) {
-          base.unshift('지금 이직 타이밍은 빠른가요, 늦은가요?', '현 직장에 남을 때의 흐름은?');
-        }
-        const seen = new Set();
-        const outQ = [];
-        for (const item of base) {
-          const key = item.replace(/\s+/g, '');
-          if (seen.has(key)) continue;
-          if (q.replace(/\s+/g, '').includes(key.slice(0, 8))) continue;
-          seen.add(key);
-          outQ.push(item);
-          if (outQ.length >= 3) break;
-        }
-        return outQ;
+      function compressQuestionCore(question) {
+        let s = String(question || '').replace(/\s+/g, ' ').trim();
+        s = s.replace(/[?？!！.。…]+$/g, '').trim();
+        s = s.replace(/^(제가|저는|나|내가|우리|저희)\s*/i, '');
+        s = s.replace(/(이|가|을|를|은|는|도)?\s*(될까요|인가요|일까요|할까요|좋을까요|어떤가요|어떨까요|어떻게\s*될까요|도움\s*될까요|도움이\s*될까요)\s*$/i, '');
+        s = s.replace(/\s+/g, ' ').trim();
+        if (s.length > 32) s = s.slice(0, 32).replace(/\s+\S*$/, '') || s.slice(0, 32);
+        return s;
       }
 
-      function renderFollowUps(question, topic) {
+      function cardHintNames(cards) {
+        if (!Array.isArray(cards) || !cards.length) return [];
+        return cards.slice(0, 3).map((c) => {
+          const name = (c && (c.nameKr || c.name || c.label)) || '';
+          return String(name).replace(/\s*\(역\)\s*$/, '').trim();
+        }).filter(Boolean);
+      }
+
+      /** 질문·카드에 맞춘 다음 질문 (고정 풀이 아님) */
+      function suggestFollowUps(question, topic, opts) {
+        const q = String(question || '').trim();
+        const core = compressQuestionCore(q);
+        const cards = (opts && opts.cards) || [];
+        const cardNames = cardHintNames(cards);
+        const firstCard = cardNames[0] || '';
+        const out = [];
+        const push = (item) => {
+          const t = String(item || '').replace(/\s+/g, ' ').trim();
+          if (!t || t.length < 6) return;
+          if (out.some((x) => x.replace(/\s+/g, '') === t.replace(/\s+/g, ''))) return;
+          // 원질문과 거의 같으면 제외
+          if (q.replace(/\s+/g, '').includes(t.replace(/\s+/g, '').slice(0, 10)) && t.length < q.length + 4) return;
+          out.push(t);
+        };
+
+        if (/특강|수업|강의|세미나|워크숍|클래스|교육|과정/.test(q)) {
+          push(core ? `${core}에 참석했을 때 / 안 했을 때 차이는?` : '참석했을 때와 안 했을 때 흐름 차이는?');
+          push(core ? `${core}에서 가장 챙겨야 할 포인트는?` : '이 자리에서 가장 챙겨야 할 포인트는?');
+          push('참석 전후로 내가 준비·정리할 행동은?');
+        } else if (/이직|퇴사|면접|취업|직장|회사|커리어/.test(q)) {
+          push(core ? `${core} — 지금 타이밍이 빠른가요, 늦은가요?` : '지금 타이밍이 빠른가요, 늦은가요?');
+          push('현 직장에 남을 때와 떠날 때, 각각 흐름은?');
+          push('결정 전에 확인해야 할 한 가지는?');
+        } else if (/연애|사랑|이별|재회|고백|썸|남친|여친|배우자|그\s*사람/.test(q)) {
+          push(core ? `${core}에 대한 상대의 속마음은?` : '상대의 속마음은 어떤가요?');
+          push('내가 지금 취해야 할 태도 / 피해야 할 태도는?');
+          push('앞으로 2~4주, 이 관계의 흐름은?');
+        } else if (/돈|금전|재물|투자|수입|빚|재정|월급/.test(q)) {
+          push(core ? `${core}에서 단기적으로 조심할 리스크는?` : '단기적으로 조심할 금전 리스크는?');
+          push('수입·기회 쪽에서 열릴 흐름은?');
+          push('지금 줄이거나 미뤄야 할 지출은?');
+        } else if (/선택|A\s*[/·]?\s*B|어느\s*쪽|둘\s*중|할까\s*말까/.test(q)) {
+          push('선택하지 않은 쪽을 택하면 어떻게 될까요?');
+          push('결정을 미루면 어떤 대가가 올까요?');
+          push(core ? `${core} — 결정에 필요한 한 가지 신호는?` : '결정에 필요한 한 가지 신호는?');
+        } else if (core) {
+          push(`${core} — 했을 때 / 안 했을 때 흐름 차이는?`);
+          push(`${core}에서 내가 놓치면 안 되는 포인트는?`);
+          push(`${core} 전후로 도움이 되는 행동 / 피해야 할 행동은?`);
+        } else {
+          push('지금 내가 놓치고 있는 포인트는?');
+          push('앞으로 2주 흐름의 핵심은?');
+          push('도움이 되는 행동 / 피해야 할 행동은?');
+        }
+
+        if (firstCard && out.length < 3) {
+          push(`방금 나온 「${firstCard}」이 이 질문에 주는 메시지는?`);
+        } else if (firstCard && out.length >= 3) {
+          // 3번째를 카드 메시지로 교체해 해석과 연결
+          out[2] = `방금 나온 「${firstCard}」이 이 질문에 주는 메시지는?`;
+        }
+        if (/왜|원인|막히|안\s*되/.test(q) && out.length < 3) {
+          push(core ? `${core}의 숨은 원인은?` : '이 상황의 숨은 원인은?');
+        }
+
+        return out.slice(0, 3);
+      }
+
+      function renderFollowUps(question, topic, opts) {
         if (!followUpsEl || !followUpChipsEl) return;
-        const rows = suggestFollowUps(question, topic);
+        const rows = suggestFollowUps(question, topic, opts || {});
         if (!rows.length) {
           followUpsEl.hidden = true;
           followUpChipsEl.innerHTML = '';
           return;
         }
         followUpsEl.hidden = false;
-        followUpChipsEl.innerHTML = rows.map((q) =>
-          '<button type="button" class="ai-follow-chip" data-follow-q="' + escapeHtml(q) + '">' +
-          escapeHtml(q) + '</button>'
+        followUpChipsEl.innerHTML = rows.map((qq) =>
+          '<button type="button" class="ai-follow-chip" data-follow-q="' + escapeHtml(qq) + '">' +
+          escapeHtml(qq) + '</button>'
         ).join('');
         followUpChipsEl.querySelectorAll('[data-follow-q]').forEach((btn) => {
           btn.addEventListener('click', () => {
             const nextQ = btn.getAttribute('data-follow-q') || '';
             if (qEl) qEl.value = nextQ;
             renderSpreadSuggest();
-            // 새 질문용으로 카드만 비움 (배열은 유지)
             slots.forEach((s) => { s.num = null; s.rev = false; });
             targetSlot = 0;
             renderSlots();
@@ -2467,6 +2534,60 @@
         });
       }
 
+      function renderClientSessions(clientId) {
+        const wrap = document.getElementById('aiClientSessions');
+        const list = document.getElementById('aiClientSessionList');
+        const empty = document.getElementById('aiClientSessionsEmpty');
+        if (!wrap || !list) return;
+        if (!clientId) {
+          wrap.hidden = true;
+          list.innerHTML = '';
+          if (empty) empty.hidden = true;
+          return;
+        }
+        const rows = clientSessionsFor(clientId, 5);
+        wrap.hidden = false;
+        if (!rows.length) {
+          list.innerHTML = '';
+          if (empty) empty.hidden = false;
+          return;
+        }
+        if (empty) empty.hidden = true;
+        list.innerHTML = rows.map((s) => {
+          const topic = String(s.topic || '세션').replace(/^타로\s*·\s*/, '');
+          const sum = String(s.summary || '').replace(/^\[타로 AI 짧은 기록\]\s*/m, '').trim();
+          const sumOne = sum.split(/\n+/).filter(Boolean).slice(0, 2).join(' · ').slice(0, 140);
+          return '<li><button type="button" class="ai-client-session-item" data-session-topic="' +
+            escapeHtml(topic) + '" data-session-summary="' + escapeHtml(sumOne) + '">' +
+            '<div class="d">' + escapeHtml(s.session_date || '') + '</div>' +
+            '<div class="t">' + escapeHtml(topic.slice(0, 80) || '세션') + '</div>' +
+            (sumOne ? '<div class="s">' + escapeHtml(sumOne) + '</div>' : '') +
+            '</button></li>';
+        }).join('');
+        list.querySelectorAll('[data-session-topic]').forEach((btn) => {
+          btn.addEventListener('click', () => {
+            const topic = btn.getAttribute('data-session-topic') || '';
+            const sum = btn.getAttribute('data-session-summary') || '';
+            if (qEl && topic) {
+              qEl.value = topic.length > 12 ? ('이어서: ' + topic) : topic;
+            }
+            const noteEl = document.getElementById('aiNote');
+            if (noteEl && sum) {
+              const prev = (noteEl.value || '').trim();
+              const block = '[이전 세션 요약]\n' + sum;
+              if (!prev.includes(sum.slice(0, 24))) {
+                noteEl.value = prev ? (prev + '\n\n' + block) : block;
+              }
+            }
+            renderSpreadSuggest();
+            setAiMsg('이전 세션을 질문·메모에 넣었습니다. 카드를 뽑고 해석을 이어가세요.');
+            if (qEl) {
+              try { qEl.focus(); } catch (_) {}
+            }
+          });
+        });
+      }
+
       if (clientSel && nickEl) {
         clientSel.addEventListener('change', () => {
           const c = clientRows.find((x) => x.id === clientSel.value);
@@ -2476,10 +2597,12 @@
             nickEl.value = '';
           }
           syncClientContext(c || null);
+          renderClientSessions(clientSel.value || '');
         });
         const initial = clientRows.find((x) => x.id === clientSel.value) || null;
         if (initial) nickEl.value = (initial.display_name || initial.legal_name || '').trim();
         syncClientContext(initial);
+        renderClientSessions(clientSel.value || '');
       }
 
       function setClientLink(el, href, enabled) {
@@ -3084,7 +3207,7 @@ ${spreadXml}
           if (saveSessionBtn) saveSessionBtn.style.display = 'none';
           PaljaAiQuota.applyQuotaBadge(quotaEl, quota);
           const truncated = stopReason === 'max_tokens';
-          if (lastText) renderFollowUps(question, topic);
+          if (lastText) renderFollowUps(question, topic, { cards });
           else hideFollowUps();
 
           let sessionNote = '';
