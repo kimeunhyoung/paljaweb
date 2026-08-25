@@ -3388,7 +3388,11 @@ ${astroLines}
 </output_format>` + integratedDirective;
 
         let choiceAbDirective = '';
-        if (spreadId === 'choice_ab' || /A\s*전개|B\s*전개|A\s*결과|B\s*결과/.test(cards.map((c) => c.pos).join('|'))) {
+        const activeSpreadId = mode === 'advanced' ? spreadId : 'basic_one';
+        if (
+          mode === 'advanced' &&
+          (spreadId === 'choice_ab' || /A\s*전개|B\s*전개|A\s*결과|B\s*결과/.test(cards.map((c) => c.pos).join('|')))
+        ) {
           choiceAbDirective = `
 
 <choice_ab_spread_rule>
@@ -3413,8 +3417,11 @@ ${astroLines}
 
         let love9Directive = '';
         if (
-          spreadId === 'love9' ||
-          /내가\s*상대를\s*보는\s*눈|상대가\s*나를\s*보는\s*눈|내가\s*상대에게\s*바라는/.test(cards.map((c) => c.pos).join('|'))
+          mode === 'advanced' &&
+          (
+            spreadId === 'love9' ||
+            /내가\s*상대를\s*보는\s*눈|상대가\s*나를\s*보는\s*눈|내가\s*상대에게\s*바라는/.test(cards.map((c) => c.pos).join('|'))
+          )
         ) {
           love9Directive = `
 
@@ -3439,6 +3446,11 @@ ${astroLines}
 </love9_spread_rule>`;
         }
 
+        const spreadLabelForPrompt =
+          mode === 'basic'
+            ? '기본 1장 (스프래드 없음 · 관계 배열·선택 A/B 등 다장 규칙을 적용하지 말 것)'
+            : (getSpread().label || spreadId);
+
         const prompt =
 systemBlock + choiceAbDirective + love9Directive + `
 
@@ -3446,7 +3458,9 @@ systemBlock + choiceAbDirective + love9Directive + `
 - 호칭: ${displayName}
 ${client ? '- CRM 생년월일: ' + (client.birth_date || '미상') + ' / 최근 상담: ' + (ls.last || '없음') + (ls.topic ? ' · ' + ls.topic : '') + '\n' : ''}- 질문: ${question}
 - 해석 주제: ${topicLabel}
-- 스프래드: ${getSpread().label || spreadId}
+- 모드: ${mode === 'basic' ? '기본(1장)' : '심화(스프래드)'}
+- 스프래드: ${spreadLabelForPrompt}
+- 이번 뽑힌 카드 수: ${cards.length}장 (이 장수만으로 해석. 부족한 포지션을 요구하거나 미완성으로 회피하지 말 것)
 ${note ? '- 상담사 메모(고객에게 노출 금지, 반영만): ' + note + '\n' : ''}${priorXml ? '- 같은 상담에서 이어진 이전 리딩(참고만, 이번 카드 결론을 바꾸지 말 것):\n<prior_readings>\n' + priorXml + '\n</prior_readings>\n' : ''}${integratedContextXml}</context>
 
 <spread>
@@ -3456,10 +3470,10 @@ ${spreadXml}
 위 데이터를 바탕으로 시스템 지시를 엄격히 준수하여 지정된 마크다운 형식으로 타로 리딩을 분석해 주세요.`;
 
         const cacheKey = PaljaAiQuota.hashKey([
-          'counselor_reading_v21',
+          'counselor_reading_v22',
           feature,
           readingDepth,
-          spreadId,
+          activeSpreadId,
           topic,
           clientId || '',
           displayName,
