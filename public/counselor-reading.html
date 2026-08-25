@@ -617,7 +617,7 @@
 <div class="section-title" id="ai-draft" style="margin-top:28px">타로 AI · 상담사용 기본 리딩</div>
     <div class="ai-draft-panel">
       <p class="ai-draft-intro">질문을 넣으면 <strong>배열 추천</strong>이 뜨고, 해석 후 <strong>다음 질문</strong>으로 이어서 볼 수 있습니다. 이전 리딩은 위에 쌓입니다.
-        크레딧: <strong>1장 → 1</strong> · <strong>2~3장 → 2</strong> · <strong>4~9장 → 3</strong>
+        크레딧: <strong>1장 → 1</strong> · <strong>2~3장 → 2</strong> · <strong>4~6장 → 3</strong> · <strong>7~9장 → 4</strong>
         · 통합(수비·점성) 시 <strong>+1</strong>.</p>
       <div class="ai-mode-row" role="tablist" aria-label="리딩 모드">
         <button type="button" class="ai-mode-btn active" id="aiModeBasic" data-mode="basic" role="tab" aria-selected="true">
@@ -1218,10 +1218,10 @@
         { id: 'choice', label: '상황 · 선택 · 결과', positions: ['상황', '선택', '결과'] },
         { id: 'time', label: '과거 · 현재 · 미래', positions: ['과거', '현재', '미래'] },
         { id: 'love', label: '내 마음 · 상대 · 관계', positions: ['내 마음', '상대 마음', '관계 흐름'] },
-        { id: 'love9', label: '관계 시선 (9장)', positions: [
-          '내가 보는 나', '상대가 보는 나', '실제의 나',
-          '내가 보는 상대', '상대가 보는 상대', '실제의 상대',
-          '내가 보는 관계', '상대가 보는 관계', '관계의 흐름',
+        { id: 'love9', label: '관계 배열 (9장)', positions: [
+          '나', '상대', '현재', '장애',
+          '내가 상대를 보는 눈', '상대가 나를 보는 눈',
+          '내가 상대에게 바라는 것', '상대가 나에게 바라는 것', '결과',
         ] },
         { id: 'block', label: '원인 · 장애 · 돌파', positions: ['원인', '장애', '돌파'] },
         { id: 'horseshoe', label: '말편자 (7장)', positions: ['과거', '현재', '미래', '조언', '외부 영향', '희망·두려움', '결과'] },
@@ -1561,9 +1561,15 @@
             cost: integrated ? 3 : 2,
           };
         }
+        if (cardCount <= 6) {
+          return {
+            feature: integrated ? 'counselor_integrated_plus' : 'counselor_session_plus',
+            cost: integrated ? 4 : 3,
+          };
+        }
         return {
-          feature: integrated ? 'counselor_integrated_plus' : 'counselor_session_plus',
-          cost: integrated ? 4 : 3,
+          feature: integrated ? 'counselor_integrated_full' : 'counselor_session_full',
+          cost: integrated ? 5 : 4,
         };
       }
 
@@ -2260,7 +2266,7 @@
         choice: '선택과 결과',
         time: '흐름·타이밍',
         love: '관계·마음',
-        love9: '시선·서로 보는 나',
+        love9: '관계·서로 보는 눈·바람',
         block: '막힘·원인',
         horseshoe: '전체 흐름·윤곽',
         seven: '문제·장애·조언',
@@ -2330,7 +2336,7 @@
           scores.love += 4.5;
           scores.love9 += 3.8;
         }
-        if (/상대가\s*생각|내가\s*생각|보는\s*나|보는\s*상대|시선|서로\s*보|상대\s*눈|내\s*눈/.test(q) && !choiceQ) {
+        if (/상대가\s*생각|내가\s*생각|보는\s*눈|서로\s*보|상대\s*눈|내\s*눈|바라|원하|장애|관계\s*배열|서로\s*어떻게/.test(q) && !choiceQ) {
           scores.love9 += 5;
         }
         if (/왜|원인|막히|장애|안\s*되|풀리|돌파|반복|꼬이|정체/.test(q) && !choiceQ) {
@@ -3406,25 +3412,30 @@ ${astroLines}
         }
 
         let love9Directive = '';
-        if (spreadId === 'love9' || /내가\s*보는\s*나|상대가\s*보는\s*나|내가\s*보는\s*상대/.test(cards.map((c) => c.pos).join('|'))) {
+        if (
+          spreadId === 'love9' ||
+          /내가\s*상대를\s*보는\s*눈|상대가\s*나를\s*보는\s*눈|내가\s*상대에게\s*바라는/.test(cards.map((c) => c.pos).join('|'))
+        ) {
           love9Directive = `
 
 <love9_spread_rule>
-이 리딩은 **관계 시선 9장**이다. 단순 과거→미래 타임라인이 아니라 **시선의 어긋남**을 읽는 배열이다.
+이 리딩은 **관계 배열 9장**이다. 흐름은 다음 순서로 읽는다.
+1 나 · 2 상대 · 3 현재 · 4 장애 · 5 내가 상대를 보는 눈 · 6 상대가 나를 보는 눈 · 7 내가 상대에게 바라는 것 · 8 상대가 나에게 바라는 것 · 9 결과
 
-1) 3×3 구조로 읽을 것
-- 나 축: 내가 보는 나 / 상대가 보는 나 / 실제의 나
-- 상대 축: 내가 보는 상대 / 상대가 보는 상대 / 실제의 상대
-- 관계 축: 내가 보는 관계 / 상대가 보는 관계 / 관계의 흐름
-- 흐름 분석에서 축별로 묶어, **자기상 vs 타인상 vs 실제** 간극을 분명히 쓸 것.
+1) 구조
+- 1~2: 각자의 상태·태도 (주체)
+- 3~4: 지금 관계의 장면과 막힘
+- 5~6: **서로 보는 눈** — 인식이 맞는지·어긋나는지 반드시 대조
+- 7~8: **서로 바라는 것** — 욕구의 합·충돌을 분명히
+- 9: 이 조건들이 이어질 때의 **결과** (모호한 「흐름」이 아니라 귀결)
 
-2) 반드시 대비
-- 「내가 보는 ○」와 「상대가 보는 ○」가 맞는지·어긋나는지 카드로 대조.
-- 실제의 나/상대는 이상화·왜곡을 걷어낸 진단으로.
+2) 반드시 연결
+- 장애(4)가 시선(5·6)·바람(7·8)과 어떻게 맞물리는지 쓸 것.
+- 5↔6, 7↔8을 짝으로 비교한 뒤 9로 수렴.
 
-3) 결론
-- 한 줄 요약에 시선 간극 1개 + 관계 흐름의 귀결을 넣을 것.
-- 「서로 알아서」로 끝내지 말고, 상담사가 고객에게 말할 경계·확인 포인트를 제시.
+3) 상담 포인트
+- 한 줄 요약에 「시선 또는 바람의 간극 1개 + 결과」를 넣을 것.
+- 「서로 알아서」로 끝내지 말고, 고객에게 말할 태도·경계·확인할 말을 제시.
 </love9_spread_rule>`;
         }
 
@@ -3463,7 +3474,11 @@ ${spreadXml}
           const { text, quota, stopReason } = await PaljaAiQuota.callAiStream({
             feature,
             cacheKey,
-            max_tokens: cards.length <= 1 ? 1800 : cards.length <= 3 ? 2800 : cards.length <= 5 ? 4000 : 4096,
+            max_tokens:
+              cards.length <= 1 ? 1800
+              : cards.length <= 3 ? 2800
+              : cards.length <= 6 ? 4096
+              : 8192,
             messages: [{ role: 'user', content: prompt }],
             onDelta: (chunk) => {
               streamed += chunk;
