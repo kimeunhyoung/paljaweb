@@ -3,6 +3,8 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"/>
+  <!-- tarot-reading-build: 20260825d -->
   <link rel="icon" href="/favicon.svg" type="image/svg+xml">
   <link rel="manifest" href="/manifest.json">
   <title>타로 AI — 팔자연구소 8CODE</title>
@@ -222,7 +224,21 @@
     .ai-suggest-chip .why {
       display: block; font-size: 10px; font-weight: 500; color: var(--muted); margin-top: 2px;
     }
-    .ai-suggest-hint { font-size: 11px; color: var(--muted); margin: 0; line-height: 1.45; }
+    .ai-pick-accordion {
+      margin-top: 12px; border: 1px solid var(--border); border-radius: 12px;
+      background: #fff; padding: 0 12px;
+    }
+    .ai-pick-accordion > summary {
+      cursor: pointer; list-style: none; padding: 12px 4px; font-size: 13px; font-weight: 700;
+      color: var(--deep); display: flex; align-items: center; justify-content: space-between; gap: 8px;
+    }
+    .ai-pick-accordion > summary::-webkit-details-marker { display: none; }
+    .ai-pick-accordion > summary::after {
+      content: '펼치기'; font-size: 11px; font-weight: 500; color: var(--muted);
+    }
+    .ai-pick-accordion[open] > summary::after { content: '접기'; }
+    .ai-pick-accordion .ai-pick-body { padding: 0 2px 14px; }
+    .ai-pick-accordion .num-table-grid { margin-top: 8px; max-height: 320px; overflow: auto; }
     .ai-thread {
       display: flex; flex-direction: column; gap: 12px; margin: 12px 0 0;
     }
@@ -638,6 +654,14 @@
             <button type="button" class="btn-sm outline" id="aiAddClarify">+ 명확화 카드</button>
             <button type="button" class="btn-sm outline" id="aiAddCustom">+ 추가 카드</button>
           </div>
+          <details class="ai-pick-accordion" id="aiPickAccordion">
+            <summary>번호표로 카드 고르기 (0~77)</summary>
+            <div class="ai-pick-body">
+              <p class="ai-card-hint" style="margin-top:0">레노먼드처럼 <strong>번호를 누르면</strong> 선택 중·빈 칸에 들어갑니다. 정·역은 칸에서 바꿉니다.</p>
+              <div id="aiInlineNumGrid" class="num-table-grid" role="listbox" aria-label="타로 번호표"></div>
+              <button type="button" class="btn-sm outline" id="aiNumTableDetailBtn" style="margin-top:10px">이름 검색 · 고객용 인쇄</button>
+            </div>
+          </details>
         </div>
         <div class="full ai-draft-actions">
           <button type="button" class="btn-sm outline" id="aiNumTableBtn">카드 고르기</button>
@@ -2070,6 +2094,9 @@
         });
         renderPreview();
         updateCreditHint();
+        if (typeof window.__paljaRefreshTarotPickers === 'function') {
+          try { window.__paljaRefreshTarotPickers(); } catch (_) {}
+        }
       }
 
       function drawRandom() {
@@ -2180,17 +2207,13 @@
           // 4) 「V지 말지 / Vㄹ까 말까」
           || /([가-힣]{1,8})(?:을|ㄹ)?지\s*말지|([가-힣]{1,8})까\s*말까/.test(s)
           || /([가-힣]{1,8})(?:을|ㄹ)?지말지|([가-힣]{1,8})까말까/.test(compact)
-          // 5) 평가형 대비 — 게/것, 좋을까·좋은지·나을까·나은지 (동사 무관)
-          //    a) ~게/것이 … 안 ~게/것 …
-          || /(?:게|것(?:이)?)\s*(좋을|나을|좋은|나은)[까지].{0,48}안\s*[가-힣]{0,14}(?:을|를|는)?\s*(?:게|것)/.test(s)
-          || /(?:게|것이?)(좋을|나을|좋은|나은)[까지].{0,40}안[가-힣]{0,14}(?:을|를|는)?(?:게|것)/.test(compact)
-          //    b) ~게/것 … ~지 않는 게/것
+          // 5) 게/것 나란히 대비 (동사 무관). 「어떻게」오탐 방지: 는/은 게 또는 평가어 필요
+          || /([가-힣]{1,10})(?:는|은)\s*게.{0,40}안\s*\1(?:는|은)\s*게/.test(s)
+          || /([가-힣]{1,10})(?:는|은)게.{0,32}안\1(?:는|은)게/.test(compact)
+          || /(?:게|것(?:이)?)\s*(좋을|나을|좋은|나은)[까지].{0,48}안\s*[가-힣]{0,14}(?:을|를|는|은)?\s*(?:게|것)/.test(s)
+          || /(?:게|것이?)(좋을|나을|좋은|나은)[까지].{0,40}안[가-힣]{0,14}(?:을|를|는|은)?(?:게|것)/.test(compact)
           || /(?:게|것(?:이)?)\s*(좋을|나을|좋은|나은)[까지].{0,48}지\s*않(?:는)?\s*(?:게|것)/.test(s)
           || /(?:게|것이?)(좋을|나을|좋은|나은)[까지].{0,40}지않(?:는)?(?:게|것)/.test(compact)
-          //    c) 같은 어간 보조
-          || /([가-힣]{1,10})(?:는)?\s*게\s*(좋을|나을|좋은|나은)[까지].{0,36}안\s*\1/.test(s)
-          || /([가-힣]{1,8})(?:는)?\s*게\s*(좋을|나을|좋은|나은)[까지].{0,48}\1지\s*않/.test(s)
-          //    d) 서로 다른 선택지 두 개 (남는 게 / 이직하는 게)
           || /([가-힣]{2,12})(?:는)?\s*(?:게|것(?:이)?)\s*(좋을|나을|좋은|나은)[까지].{0,48}(?!\1)([가-힣]{2,12})(?:는)?\s*(?:게|것(?:이)?)\s*\2/.test(s)
           || /([가-힣]{2,12})(?:는)?(?:게|것이?)(좋을|나을|좋은|나은)[까지].{0,40}(?!\1)([가-힣]{2,12})(?:는)?(?:게|것이?)\2/.test(compact)
           // 6) 「차이」+ 양쪽「때」대비
@@ -2275,21 +2298,11 @@
       function renderSpreadSuggest() {
         if (!spreadSuggestEl) return;
         const wrap = document.getElementById('aiSpreadSuggestWrap');
-        // 기본 리딩(1장)에서는 배열 추천 숨김 — 심화에서만
-        if (mode !== 'advanced') {
-          if (wrap) wrap.hidden = true;
-          spreadSuggestEl.innerHTML = '';
-          return;
-        }
-        if (wrap) wrap.hidden = false;
         const q = (qEl && qEl.value) || '';
-        const rows = rankSpreadSuggestions(q);
-        // 선택형 질문이고 카드가 아직 없으면 선택 A/B로 자동 맞춤
-        const top = rows[0];
         const cardsEmpty = slots.every((s) => s.num == null);
+
+        // 기본/심화 공통: 선택형이고 칸이 비어 있으면 선택 A/B로 맞춤(심화로 전환)
         if (
-          top &&
-          top.id === 'choice_ab' &&
           isChoiceQuestion(q) &&
           cardsEmpty &&
           spreadId !== 'choice_ab'
@@ -2297,6 +2310,15 @@
           applySuggestedSpread('choice_ab');
           return;
         }
+
+        // 기본 리딩(1장)에서는 배열 추천 UI만 숨김
+        if (mode !== 'advanced') {
+          if (wrap) wrap.hidden = true;
+          spreadSuggestEl.innerHTML = '';
+          return;
+        }
+        if (wrap) wrap.hidden = false;
+        const rows = rankSpreadSuggestions(q);
         spreadSuggestEl.innerHTML = rows.map((r) =>
           '<button type="button" class="ai-suggest-chip' + (spreadId === r.id ? ' is-pick' : '') +
           '" data-spread="' + r.id + '">' + escapeHtml(r.label) +
@@ -2913,7 +2935,7 @@
         });
       }
 
-      // 카드 고르기 모달 (이름 / 번호 클릭 / 고객용 인쇄)
+      // 카드 고르기: 인라인 번호표(아코디언) + 모달(이름/인쇄)
       (function initNumTable() {
         const modal = document.getElementById('numTableModal');
         const grid = document.getElementById('numTableGrid');
@@ -2921,15 +2943,18 @@
         const nameList = document.getElementById('numNameList');
         const searchEl = document.getElementById('numTableSearch');
         const openBtn = document.getElementById('aiNumTableBtn');
+        const detailBtn = document.getElementById('aiNumTableDetailBtn');
+        const accordion = document.getElementById('aiPickAccordion');
+        const inlineGrid = document.getElementById('aiInlineNumGrid');
         const paneName = document.getElementById('numPaneName');
         const paneNum = document.getElementById('numPaneNum');
         const panePrint = document.getElementById('numPanePrint');
         const hintEl = document.getElementById('numTableHint');
-        if (!modal || !openBtn || !Deck) return;
+        if (!openBtn || !Deck) return;
 
         let tab = 'name';
 
-        function close() { modal.classList.remove('open'); }
+        function close() { if (modal) modal.classList.remove('open'); }
 
         function setTab(next) {
           tab = next;
@@ -2950,28 +2975,31 @@
           refreshPickers();
         }
 
-        function onPick(num) {
-          if (tab === 'print') return;
+        function onPick(num, fromModal) {
+          if (fromModal && tab === 'print') return;
           assignCard(num);
           refreshPickers();
-          if (slots.every((s) => s.num != null)) close();
+          if (fromModal && slots.every((s) => s.num != null)) close();
+        }
+
+        function paintGrid(el, fromModal) {
+          if (!el) return;
+          const used = usedNums();
+          el.innerHTML = Array.from({ length: 78 }, (_, i) => {
+            const c = cardFor(i);
+            const u = used.has(i);
+            return '<button type="button" class="num-table-cell' + (u ? ' used' : '') +
+              '" data-pick-num="' + i + '" title="' + escapeHtml(c ? c.name : '') + '">' +
+              i + '<span class="nt-name">' + escapeHtml(c ? c.name : '') + '</span></button>';
+          }).join('');
+          el.querySelectorAll('[data-pick-num]').forEach((btn) => {
+            btn.addEventListener('click', () => onPick(Number(btn.getAttribute('data-pick-num')), !!fromModal));
+          });
         }
 
         function refreshPickers() {
-          const used = usedNums();
-          if (grid) {
-            grid.innerHTML = Array.from({ length: 78 }, (_, i) => {
-              const n = i; // 0~77 (메이저 관례 번호)
-              const c = cardFor(n);
-              const u = used.has(n);
-              return '<button type="button" class="num-table-cell' + (u ? ' used' : '') +
-                '" data-pick-num="' + n + '" title="' + escapeHtml(c ? c.name : '') + '">' +
-                n + '<span class="nt-name">' + escapeHtml(c ? c.name : '') + '</span></button>';
-            }).join('');
-            grid.querySelectorAll('[data-pick-num]').forEach((btn) => {
-              btn.addEventListener('click', () => onPick(Number(btn.getAttribute('data-pick-num'))));
-            });
-          }
+          paintGrid(inlineGrid, false);
+          if (grid) paintGrid(grid, true);
           if (printGrid && !printGrid.dataset.ready) {
             printGrid.innerHTML = Array.from({ length: 78 }, (_, i) =>
               '<div class="num-table-cell" style="cursor:default">' + i + '</div>'
@@ -2979,6 +3007,7 @@
             printGrid.dataset.ready = '1';
           }
           if (nameList) {
+            const used = usedNums();
             const rawQ = (searchEl && searchEl.value) || '';
             nameList.innerHTML = GROUPS.map((g) => {
               const rows = [];
@@ -3002,9 +3031,32 @@
                 rows.join('');
             }).join('') || '<p class="num-table-hint">검색 결과가 없습니다. 슈트는 소드·완드·컵·펜타클로 적어 보세요.</p>';
             nameList.querySelectorAll('[data-pick-num]').forEach((btn) => {
-              btn.addEventListener('click', () => onPick(Number(btn.getAttribute('data-pick-num'))));
+              btn.addEventListener('click', () => onPick(Number(btn.getAttribute('data-pick-num')), true));
             });
           }
+        }
+
+        function openAccordion() {
+          if (slots[targetSlot] && slots[targetSlot].num != null) {
+            targetSlot = nextEmptySlot();
+            renderSlots();
+          }
+          if (accordion) {
+            accordion.open = true;
+            refreshPickers();
+            try { accordion.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); } catch (_) {}
+          }
+        }
+
+        function openModal() {
+          if (!modal) return;
+          if (slots[targetSlot] && slots[targetSlot].num != null) {
+            targetSlot = nextEmptySlot();
+            renderSlots();
+          }
+          setTab(tab === 'print' ? 'name' : tab);
+          modal.classList.add('open');
+          if (searchEl && tab === 'name') setTimeout(() => searchEl.focus(), 50);
         }
 
         document.getElementById('numTabName')?.addEventListener('click', () => setTab('name'));
@@ -3012,21 +3064,19 @@
         document.getElementById('numTabPrint')?.addEventListener('click', () => setTab('print'));
         if (searchEl) searchEl.addEventListener('input', refreshPickers);
 
-        openBtn.addEventListener('click', () => {
-          if (slots[targetSlot] && slots[targetSlot].num != null) {
-            const empty = nextEmptySlot();
-            targetSlot = empty;
-            renderSlots();
-          }
-          setTab(tab === 'print' ? 'name' : tab);
-          modal.classList.add('open');
-          if (searchEl && tab === 'name') setTimeout(() => searchEl.focus(), 50);
-        });
+        openBtn.addEventListener('click', openAccordion);
+        if (detailBtn) detailBtn.addEventListener('click', openModal);
+        if (accordion) {
+          accordion.addEventListener('toggle', () => {
+            if (accordion.open) refreshPickers();
+          });
+        }
+
         const c1 = document.getElementById('numTableClose');
         const c2 = document.getElementById('numTableCloseBtn');
         if (c1) c1.addEventListener('click', close);
         if (c2) c2.addEventListener('click', close);
-        modal.addEventListener('click', (e) => { if (e.target === modal) close(); });
+        if (modal) modal.addEventListener('click', (e) => { if (e.target === modal) close(); });
 
         const printBtn = document.getElementById('numTablePrintBtn');
         if (printBtn) {
@@ -3041,18 +3091,22 @@
               i + '</div>'
             ).join('');
             w.document.write(
-              '<!doctype html><html><head><meta charset="utf-8"><title>타로 번호표 0~77</title>' +
-              '<style>body{font-family:sans-serif;padding:24px;color:#2c1f0e}h1{font-size:20px;margin:0 0 8px}' +
-              'p{font-size:13px;color:#666;margin:0 0 16px;line-height:1.5}' +
+              '<!DOCTYPE html><html><head><meta charset="utf-8"><title>타로 번호표 0–77</title>' +
+              '<style>body{font-family:sans-serif;padding:16px;background:#f5f0e8;color:#2c1f0e}' +
+              'h1{font-size:18px;margin:0 0 8px}p{font-size:12px;color:#6b5a45;margin:0 0 14px}' +
               '.g{display:grid;grid-template-columns:repeat(10,1fr);gap:6px}</style></head><body>' +
-              '<h1>타로 번호표 (0~77)</h1>' +
-              '<p>마음에 드는 숫자를 골라 상담사에게 알려 주세요. 메이저: 0=바보, 12=매달린 남자. (인쇄 · PDF 저장 가능)</p>' +
-              '<div class="g">' + cells + '</div>' +
-              '<' + 'script>setTimeout(function(){window.print()},300)<' + '/script></body></html>'
+              '<h1>타로 카드 번호표 (0–77)</h1>' +
+              '<p>메이저 관례: 0 바보 · 12 매달린 남자. 원하는 번호를 골라 상담사에게 알려 주세요.</p>' +
+              '<div class="g">' + cells + '</div></body></html>'
             );
             w.document.close();
+            w.focus();
+            setTimeout(() => { try { w.print(); } catch (_) {} }, 300);
           });
         }
+
+        window.__paljaRefreshTarotPickers = refreshPickers;
+        refreshPickers();
       })();
 
       if (window.PaljaAiQuota) {
