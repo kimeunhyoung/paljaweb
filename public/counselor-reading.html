@@ -450,7 +450,7 @@
     .num-table-cell:hover { border-color: var(--deep); background: #fff; }
     .num-table-cell.used { opacity: .45; }
     .num-table-cell .nt-name { font-size: 8px; font-weight: 500; color: var(--muted); max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; padding: 0 2px; }
-    /* 번호표 모달: 0~77 한눈에 (스크롤 최소화) */
+    /* 번호표 모달: 메이저 → 완드 → 컵 → 소드 → 펜타클 */
     #numTableModal.modal-overlay {
       align-items: center; padding: 10px 12px;
     }
@@ -466,8 +466,23 @@
     #numTableModal .num-table-hint { margin-bottom: 8px; font-size: 12px; }
     #numTableModal .num-table-tabs { margin-bottom: 8px; }
     #numTableModal .num-table-grid {
-      grid-template-columns: repeat(13, minmax(0, 1fr));
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    #numTableModal .num-table-suit-label {
+      font-size: 11px; font-weight: 700; color: var(--muted);
+      letter-spacing: .04em; margin-bottom: 4px;
+    }
+    #numTableModal .num-table-suit-row {
+      display: grid;
       gap: 3px;
+    }
+    #numTableModal .num-table-suit-row.is-major {
+      grid-template-columns: repeat(11, minmax(0, 1fr));
+    }
+    #numTableModal .num-table-suit-row.is-minor {
+      grid-template-columns: repeat(14, minmax(0, 1fr));
     }
     #numTableModal .num-table-cell {
       aspect-ratio: auto;
@@ -480,11 +495,19 @@
     #numTableModal .num-table-cell .nt-name { font-size: 7px; }
     #numTableModal .copy-sum-actions { margin-top: 10px; }
     @media (max-width: 720px) {
-      #numTableModal .num-table-grid { grid-template-columns: repeat(10, minmax(0, 1fr)); }
+      #numTableModal .num-table-suit-row.is-major {
+        grid-template-columns: repeat(8, minmax(0, 1fr));
+      }
+      #numTableModal .num-table-suit-row.is-minor {
+        grid-template-columns: repeat(7, minmax(0, 1fr));
+      }
       #numTableModal .num-table-cell { min-height: 34px; font-size: 10px; }
     }
     @media (max-width: 480px) {
-      #numTableModal .num-table-grid { grid-template-columns: repeat(8, minmax(0, 1fr)); }
+      #numTableModal .num-table-suit-row.is-major,
+      #numTableModal .num-table-suit-row.is-minor {
+        grid-template-columns: repeat(7, minmax(0, 1fr));
+      }
     }
     .num-name-list { max-height: min(52vh, 420px); overflow-y: auto; display: grid; gap: 4px; }
     .num-name-group { font-size: 11px; font-weight: 700; color: var(--muted); margin: 8px 0 4px; letter-spacing: .04em; }
@@ -806,7 +829,7 @@
       <p class="num-table-hint" id="numTableHint">카드를 누르면 <strong>비어 있는 칸</strong>(또는 선택한 칸)에 들어갑니다. 정·역은 칸에서 바꿀 수 있습니다.</p>
       <div class="num-table-tabs" role="tablist" aria-label="선택 방식">
         <button type="button" id="numTabName" data-tab="name">이름으로<span class="tab-sub">검색해서 고르기</span></button>
-        <button type="button" class="active" id="numTabNum" data-tab="num">번호로<span class="tab-sub">0~77 번호표</span></button>
+        <button type="button" class="active" id="numTabNum" data-tab="num">번호로<span class="tab-sub">메이저·슈트별</span></button>
       </div>
       <div id="numPaneName" style="display:none">
         <input type="search" class="num-table-search" id="numTableSearch" placeholder="예: 소드7 · 검7 · 컵5 · 탑" autocomplete="off"/>
@@ -2962,12 +2985,24 @@
         function paintNumGrid(el, fromModal) {
           if (!el) return;
           const used = usedNums();
-          el.innerHTML = Array.from({ length: 78 }, (_, i) => {
-            const c = cardFor(i);
-            const u = used.has(i);
-            return '<button type="button" class="num-table-cell' + (u ? ' used' : '') +
-              '" data-pick-num="' + i + '" title="' + escapeHtml(c ? c.name : '') + '">' +
-              i + '<span class="nt-name">' + escapeHtml(c ? c.name : '') + '</span></button>';
+          el.innerHTML = GROUPS.map((g) => {
+            const cells = [];
+            for (let n = g.from; n <= g.to; n++) {
+              const c = cardFor(n);
+              const u = used.has(n);
+              cells.push(
+                '<button type="button" class="num-table-cell' + (u ? ' used' : '') +
+                '" data-pick-num="' + n + '" title="' + escapeHtml(c ? c.name : '') + '">' +
+                n + '<span class="nt-name">' + escapeHtml(c ? c.name : '') + '</span></button>'
+              );
+            }
+            const rowClass = g.from === 0 ? 'is-major' : 'is-minor';
+            return (
+              '<div class="num-table-suit">' +
+                '<div class="num-table-suit-label">' + escapeHtml(g.label) + '</div>' +
+                '<div class="num-table-suit-row ' + rowClass + '">' + cells.join('') + '</div>' +
+              '</div>'
+            );
           }).join('');
           el.querySelectorAll('[data-pick-num]').forEach((btn) => {
             btn.addEventListener('click', () => onPick(Number(btn.getAttribute('data-pick-num')), !!fromModal));
