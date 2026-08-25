@@ -598,7 +598,7 @@
   <div class="hub-intro">
     <div class="back-row"><a href="counselor.html">← 상담사 허브</a></div>
     <h1>타로 AI</h1>
-    <p>상담사용 기본 타로 리딩. 질문·카드로 고객에게 붙여넣을 초안을 만듭니다. <strong>배열 추천</strong>·리딩이 쌓이는 <strong>이어서 보기</strong>·<strong>다음 질문</strong>을 쓸 수 있고, 스프래드 뒤 <strong>조언·명확화 카드</strong>도 더 뽑을 수 있습니다. <strong>Professional</strong> 전용.</p>
+    <p>상담사용 기본 타로 리딩. 질문·카드로 고객에게 붙여넣을 초안을 만듭니다. <strong>배열 추천</strong>·리딩이 쌓이는 <strong>이어서 보기</strong>를 쓸 수 있고, 스프래드 뒤 <strong>조언·명확화 카드</strong>도 더 뽑을 수 있습니다. <strong>Professional</strong> 전용.</p>
     <p id="trialBadge" class="trial-badge" style="display:none" role="status"></p>
   </div>
   <div id="gate">
@@ -616,7 +616,7 @@
   <div id="workspace">
 <div class="section-title" id="ai-draft" style="margin-top:28px">타로 AI · 상담사용 기본 리딩</div>
     <div class="ai-draft-panel">
-      <p class="ai-draft-intro">질문을 넣으면 <strong>배열 추천</strong>이 뜨고, 해석 후 <strong>다음 질문</strong>으로 이어서 볼 수 있습니다. 이전 리딩은 위에 쌓입니다.
+      <p class="ai-draft-intro">질문을 넣으면 <strong>배열 추천</strong>이 뜨고, 해석을 이어서 볼 수 있습니다. 이전 리딩은 위에 쌓입니다.
         크레딧: <strong>1장 → 1</strong> · <strong>2~3장 → 2</strong> · <strong>4~6장 → 3</strong> · <strong>7~9장 → 4</strong>
         · 통합(수비·점성) 시 <strong>+1</strong>.</p>
       <div class="ai-mode-row" role="tablist" aria-label="리딩 모드">
@@ -755,13 +755,6 @@
       <div id="aiCardPreview" class="ai-card-preview" aria-live="polite"></div>
       <div id="aiThread" class="ai-thread" hidden aria-live="polite"></div>
       <div id="aiDraftOut" class="ai-draft-out is-empty">질문을 넣고 카드를 정한 뒤 해석을 생성해 보세요.</div>
-      <div id="aiFollowUps" class="ai-followups" hidden>
-        <div class="ai-followups-head">
-          <strong>다음 질문 추천</strong>
-          <span>지금 질문·카드에 맞춰 제안합니다 · 누르면 질문칸에 넣습니다</span>
-        </div>
-        <div id="aiFollowUpChips" class="ai-chip-row" role="group" aria-label="다음 질문 추천"></div>
-      </div>
       <p id="aiDraftMsg" class="ai-draft-msg"></p>
       <div class="tool-dock" id="toolDock" hidden>
         <div class="tool-dock-head">
@@ -1257,8 +1250,6 @@
       const slotsEl = document.getElementById('aiCardSlots');
       const previewEl = document.getElementById('aiCardPreview');
       const threadEl = document.getElementById('aiThread');
-      const followUpsEl = document.getElementById('aiFollowUps');
-      const followUpChipsEl = document.getElementById('aiFollowUpChips');
       const spreadSuggestEl = document.getElementById('aiSpreadSuggest');
       const qEl = document.getElementById('aiQuestion');
       const copyBtn = document.getElementById('aiCopyBtn');
@@ -1307,7 +1298,6 @@
         clearBtn.addEventListener('click', () => {
           qEl.value = '';
           try { renderSpreadSuggest(); } catch (_) {}
-          try { hideFollowUps(); } catch (_) {}
           setAiMsg('질문을 비웠습니다. 새 질문을 입력하세요.');
           try { qEl.focus(); } catch (_) {}
         });
@@ -2516,118 +2506,6 @@
         }).join('\n');
       }
 
-      function compressQuestionCore(question) {
-        let s = String(question || '').replace(/\s+/g, ' ').trim();
-        s = s.replace(/[?？!！.。…]+$/g, '').trim();
-        s = s.replace(/^(제가|저는|나|내가|우리|저희)\s*/i, '');
-        s = s.replace(/(이|가|을|를|은|는|도)?\s*(될까요|인가요|일까요|할까요|좋을까요|어떤가요|어떨까요|어떻게\s*될까요|도움\s*될까요|도움이\s*될까요)\s*$/i, '');
-        s = s.replace(/\s+/g, ' ').trim();
-        if (s.length > 32) s = s.slice(0, 32).replace(/\s+\S*$/, '') || s.slice(0, 32);
-        return s;
-      }
-
-      function cardHintNames(cards) {
-        if (!Array.isArray(cards) || !cards.length) return [];
-        return cards.slice(0, 3).map((c) => {
-          const name = (c && (c.nameKr || c.name || c.label)) || '';
-          return String(name).replace(/\s*\(역\)\s*$/, '').trim();
-        }).filter(Boolean);
-      }
-
-      /** 질문·카드에 맞춘 다음 질문 (고정 풀이 아님) */
-      function suggestFollowUps(question, topic, opts) {
-        const q = String(question || '').trim();
-        const core = compressQuestionCore(q);
-        const cards = (opts && opts.cards) || [];
-        const cardNames = cardHintNames(cards);
-        const firstCard = cardNames[0] || '';
-        const out = [];
-        const push = (item) => {
-          const t = String(item || '').replace(/\s+/g, ' ').trim();
-          if (!t || t.length < 6) return;
-          if (out.some((x) => x.replace(/\s+/g, '') === t.replace(/\s+/g, ''))) return;
-          // 원질문과 거의 같으면 제외
-          if (q.replace(/\s+/g, '').includes(t.replace(/\s+/g, '').slice(0, 10)) && t.length < q.length + 4) return;
-          out.push(t);
-        };
-
-        if (/특강|수업|강의|세미나|워크숍|클래스|교육|과정/.test(q)) {
-          push(core ? `${core}에 참석했을 때 / 안 했을 때 차이는?` : '참석했을 때와 안 했을 때 흐름 차이는?');
-          push(core ? `${core}에서 가장 챙겨야 할 포인트는?` : '이 자리에서 가장 챙겨야 할 포인트는?');
-          push('참석 전후로 내가 준비·정리할 행동은?');
-        } else if (/이직|퇴사|면접|취업|직장|회사|커리어/.test(q)) {
-          push(core ? `${core} — 지금 타이밍이 빠른가요, 늦은가요?` : '지금 타이밍이 빠른가요, 늦은가요?');
-          push('현 직장에 남을 때와 떠날 때, 각각 흐름은?');
-          push('결정 전에 확인해야 할 한 가지는?');
-        } else if (/연애|사랑|이별|재회|고백|썸|남친|여친|배우자|그\s*사람/.test(q)) {
-          push(core ? `${core}에 대한 상대의 속마음은?` : '상대의 속마음은 어떤가요?');
-          push('내가 지금 취해야 할 태도 / 피해야 할 태도는?');
-          push('앞으로 2~4주, 이 관계의 흐름은?');
-        } else if (/돈|금전|재물|투자|수입|빚|재정|월급/.test(q)) {
-          push(core ? `${core}에서 단기적으로 조심할 리스크는?` : '단기적으로 조심할 금전 리스크는?');
-          push('수입·기회 쪽에서 열릴 흐름은?');
-          push('지금 줄이거나 미뤄야 할 지출은?');
-        } else if (/선택|A\s*[/·]?\s*B|어느\s*쪽|둘\s*중|할까\s*말까/.test(q)) {
-          push('선택하지 않은 쪽을 택하면 어떻게 될까요?');
-          push('결정을 미루면 어떤 대가가 올까요?');
-          push(core ? `${core} — 결정에 필요한 한 가지 신호는?` : '결정에 필요한 한 가지 신호는?');
-        } else if (core) {
-          push(`${core} — 했을 때 / 안 했을 때 흐름 차이는?`);
-          push(`${core}에서 내가 놓치면 안 되는 포인트는?`);
-          push(`${core} 전후로 도움이 되는 행동 / 피해야 할 행동은?`);
-        } else {
-          push('지금 내가 놓치고 있는 포인트는?');
-          push('앞으로 2주 흐름의 핵심은?');
-          push('도움이 되는 행동 / 피해야 할 행동은?');
-        }
-
-        if (firstCard && out.length < 3) {
-          push(`방금 나온 「${firstCard}」이 이 질문에 주는 메시지는?`);
-        } else if (firstCard && out.length >= 3) {
-          // 3번째를 카드 메시지로 교체해 해석과 연결
-          out[2] = `방금 나온 「${firstCard}」이 이 질문에 주는 메시지는?`;
-        }
-        if (/왜|원인|막히|안\s*되/.test(q) && out.length < 3) {
-          push(core ? `${core}의 숨은 원인은?` : '이 상황의 숨은 원인은?');
-        }
-
-        return out.slice(0, 3);
-      }
-
-      function renderFollowUps(question, topic, opts) {
-        if (!followUpsEl || !followUpChipsEl) return;
-        const rows = suggestFollowUps(question, topic, opts || {});
-        if (!rows.length) {
-          followUpsEl.hidden = true;
-          followUpChipsEl.innerHTML = '';
-          return;
-        }
-        followUpsEl.hidden = false;
-        followUpChipsEl.innerHTML = rows.map((qq) =>
-          '<button type="button" class="ai-follow-chip" data-follow-q="' + escapeHtml(qq) + '">' +
-          escapeHtml(qq) + '</button>'
-        ).join('');
-        followUpChipsEl.querySelectorAll('[data-follow-q]').forEach((btn) => {
-          btn.addEventListener('click', () => {
-            const nextQ = btn.getAttribute('data-follow-q') || '';
-            if (qEl) qEl.value = nextQ;
-            renderSpreadSuggest();
-            slots.forEach((s) => { s.num = null; s.rev = false; });
-            targetSlot = 0;
-            renderSlots();
-            updateCreditHint();
-            followUpsEl.hidden = true;
-            setAiMsg('다음 질문을 넣었어요. 카드를 다시 뽑은 뒤 해석 생성을 누르세요.');
-            if (slotsEl) slotsEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-          });
-        });
-      }
-
-      function hideFollowUps() {
-        if (followUpsEl) followUpsEl.hidden = true;
-        if (followUpChipsEl) followUpChipsEl.innerHTML = '';
-      }
-
       if (spreadSuggestEl) {
         spreadSuggestEl.addEventListener('click', (e) => {
           const btn = e.target.closest('[data-spread]');
@@ -3234,7 +3112,6 @@
         const btn = document.getElementById('aiDraftBtn');
         if (btn) { btn.disabled = true; btn.textContent = '생성 중…'; }
         archiveCurrentTurnIfNeeded();
-        hideFollowUps();
         setAiMsg('해석을 생성하는 중… 나오는 대로 표시됩니다.');
         out.classList.remove('is-empty');
         out.textContent = '';
@@ -3512,8 +3389,6 @@ ${spreadXml}
           if (saveSessionBtn) saveSessionBtn.style.display = 'none';
           PaljaAiQuota.applyQuotaBadge(quotaEl, quota);
           const truncated = stopReason === 'max_tokens';
-          if (lastText) renderFollowUps(question, topic, { cards });
-          else hideFollowUps();
 
           let sessionNote = '';
           if (lastText && clientId) {
@@ -3538,7 +3413,7 @@ ${spreadXml}
             lastText
               ? (truncated
                 ? '해석이 길어 뒷부분이 잘릴 수 있습니다. 한 번 더 생성하거나 카드 수를 줄여 보세요. (크레딧 ' + costLabel + ')' + sessionNote
-                : '해석을 만들었습니다. 아래에서 다음 질문을 이어가거나 복사해 쓰세요.' + sessionNote)
+                : '해석을 만들었습니다. 복사하거나 세션에 남겨 쓰세요.' + sessionNote)
               : '응답이 비어 있습니다.',
             !lastText || truncated || (sessionNote.indexOf('실패') >= 0)
           );
@@ -3557,7 +3432,6 @@ ${spreadXml}
       setMode('basic');
       syncDepthButtons();
       renderSpreadSuggest();
-      hideFollowUps();
 
       if (location.hash === '#ai-draft') {
         setTimeout(() => {
