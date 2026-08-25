@@ -110,11 +110,19 @@
       gap: 8px; margin-bottom: 5px;
     }
     .ai-q-head label { margin-bottom: 0; }
+    .ai-q-actions { display: inline-flex; flex-wrap: wrap; gap: 6px; align-items: center; }
     .ai-voice-btn {
       border: 1px solid var(--border); background: #fff; color: var(--deep);
       border-radius: 8px; padding: 6px 10px; font-size: 12px; font-family: var(--font-body);
       cursor: pointer; display: inline-flex; align-items: center; gap: 5px;
     }
+    .ai-voice-btn:hover { background: var(--parchment); }
+    .ai-clear-q-btn {
+      border: 1px solid var(--border); background: #fff; color: var(--muted);
+      border-radius: 8px; padding: 6px 10px; font-size: 12px; font-family: var(--font-body);
+      cursor: pointer;
+    }
+    .ai-clear-q-btn:hover { color: var(--deep); background: var(--parchment); }
     .ai-voice-btn:hover { background: var(--parchment); }
     .ai-voice-btn.is-listening {
       border-color: #c0392b; background: rgba(192,57,43,.08); color: #a93226;
@@ -583,7 +591,10 @@
         <div class="full">
           <div class="ai-q-head">
             <label for="aiQuestion">질문 *</label>
-            <button type="button" class="ai-voice-btn" id="aiVoiceBtn" title="마이크로 질문 받아쓰기">🎤 음성 입력</button>
+            <div class="ai-q-actions">
+              <button type="button" class="ai-clear-q-btn" id="aiClearQBtn" title="질문칸 비우기">지우기</button>
+              <button type="button" class="ai-voice-btn" id="aiVoiceBtn" title="마이크로 질문 받아쓰기">🎤 음성 입력</button>
+            </div>
           </div>
           <textarea id="aiQuestion" maxlength="800" required placeholder="키보드·붙여넣기 또는 🎤 음성 입력.&#10;예: 이직을 지금 해도 될까요? / 그 사람 마음이 궁금해요"></textarea>
           <p class="ai-voice-hint" id="aiVoiceHint">한 문장씩 말하면 됩니다. 크롬·엣지·안드로이드 권장. 더 쓰려면 버튼을 다시 누르세요.</p>
