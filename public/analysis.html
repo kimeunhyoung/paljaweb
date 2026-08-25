@@ -4942,6 +4942,8 @@ function hasFullTimelineAccess() {
 function gateHTML(planRequired, title, desc) {
   const labels = { basic: 'Basic', plus: 'Plus', private: 'Private', professional: 'Professional' };
   const nextEnc = encodeURIComponent('analysis.html' + (window.location.hash || ''));
+  const quiet = !!(window.PaljaSiteMode && window.PaljaSiteMode.testerQuiet)
+    || (typeof document !== 'undefined' && document.documentElement.classList.contains('palja-tester-quiet'));
   const guestCta = CURRENT_USER_ID === 'guest'
     ? `<a class="gate-btn" style="margin-top:10px;background:#fff;color:var(--deep-brown);border:1px solid rgba(139,111,71,.35);" href="signup.html?next=${nextEnc}">무료 가입 · 결과 저장</a>`
     : '';
@@ -4950,6 +4952,15 @@ function gateHTML(planRequired, title, desc) {
     <div class="gate-icon">🔒</div>
     <div class="gate-title">${title}</div>
     <div class="gate-desc">${desc}<br><br><strong>Private</strong> 플랜 전용입니다. 결제하는 <strong>Professional(상담사)</strong> 플랜과는 별개예요.</div>
+  </div>`;
+  }
+  if (quiet) {
+    return `<div class="feature-gate">
+    <div class="gate-icon">🔒</div>
+    <div class="gate-title">${title}</div>
+    <div class="gate-desc">${desc}<br><br><strong>${labels[planRequired]} 플랜</strong> 이상에서 이용할 수 있어요.</div>
+    ${guestCta}
+    <p class="gate-quiet-note">테스터 모집 기간에는 결제 없이, 받으신 <strong>체험 코드</strong>로 이용해 주세요.<br>문의: <a href="https://pf.kakao.com/_HXxmwX/chat" target="_blank" rel="noopener noreferrer">카카오톡</a></p>
   </div>`;
   }
   // 첫 결제는 저가 단품 → 그다음 베이직 7일 (구독 부담 완화)

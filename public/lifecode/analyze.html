@@ -4442,6 +4442,8 @@ function hasFullTimelineAccess() {
 
 function gateHTML(planRequired, title, desc) {
   const labels = { basic: 'Basic', plus: 'Plus', private: 'Private', professional: 'Professional' };
+  const quiet = !!(window.PaljaSiteMode && window.PaljaSiteMode.testerQuiet)
+    || (typeof document !== 'undefined' && document.documentElement.classList.contains('palja-tester-quiet'));
   if (planRequired === 'private') {
     return `<div class="feature-gate">
       <div class="gate-icon">🔒</div>
@@ -4455,6 +4457,14 @@ function gateHTML(planRequired, title, desc) {
       <div class="gate-title">${title}</div>
       <div class="gate-desc">${desc}</div>
     </div>`;
+  }
+  if (quiet) {
+    return `<div class="feature-gate">
+    <div class="gate-icon">🔒</div>
+    <div class="gate-title">${title}</div>
+    <div class="gate-desc">${desc}<br><br><strong>${labels[planRequired]} 플랜</strong> 이상에서 이용할 수 있어요.</div>
+    <p class="gate-quiet-note">테스터 모집 기간에는 결제 없이, 받으신 <strong>체험 코드</strong>로 이용해 주세요.<br>문의: <a href="https://pf.kakao.com/_HXxmwX/chat" target="_blank" rel="noopener noreferrer">카카오톡</a></p>
+  </div>`;
   }
   return `<div class="feature-gate">
     <div class="gate-icon">🔒</div>

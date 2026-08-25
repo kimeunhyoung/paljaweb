@@ -100,7 +100,16 @@
     } catch (_) { /* ignore */ }
   }
 
+  function isTesterQuiet() {
+    try {
+      if (window.PaljaSiteMode && window.PaljaSiteMode.testerQuiet) return true;
+      if (document.documentElement.classList.contains('palja-tester-quiet')) return true;
+    } catch (_) { /* ignore */ }
+    return false;
+  }
+
   function initLaunchPromo() {
+    if (isTesterQuiet()) return;
     if (!isPromoActive() || shouldSkipPage()) return;
 
     ensureStyles();

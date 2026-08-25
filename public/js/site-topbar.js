@@ -11,9 +11,16 @@
     document.head.appendChild(a);
   }
 
+  if (!document.querySelector('script[data-palja-site-mode]')) {
+    var sm = document.createElement('script');
+    sm.src = '/js/site-mode.js?v=1';
+    sm.setAttribute('data-palja-site-mode', '1');
+    document.head.appendChild(sm);
+  }
+
   if (!document.querySelector('script[data-palja-launch-promo]')) {
     var lp = document.createElement('script');
-    lp.src = '/js/launch-promo.js?v=6';
+    lp.src = '/js/launch-promo.js?v=7';
     lp.defer = true;
     lp.setAttribute('data-palja-launch-promo', '1');
     document.head.appendChild(lp);

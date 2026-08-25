@@ -590,6 +590,11 @@ function initCounselorPromo() {
   const overlay = document.getElementById('counselorPromo')
   if (!overlay) return
 
+  try {
+    if (window.PaljaSiteMode && window.PaljaSiteMode.testerQuiet) return
+    if (document.documentElement.classList.contains('palja-tester-quiet')) return
+  } catch (_) { /* ignore */ }
+
   // 출시 할인 기간에는 launch-promo 통합 팝업만 사용 (연속 팝업 방지)
   try {
     const launchEnd = new Date('2026-12-31T23:59:59+09:00')

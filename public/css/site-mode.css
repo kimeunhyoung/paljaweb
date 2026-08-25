@@ -1,0 +1,62 @@
+/* 테스터 조용 모드 — 팝업·결제 유도 UI 숨김 */
+html.palja-tester-quiet #launchPromo,
+html.palja-tester-quiet #counselorPromo {
+  display: none !important;
+}
+
+/* 메인·요금제 결제 CTA */
+html.palja-tester-quiet .plan-btn:not(.plan-btn-outline),
+html.palja-tester-quiet button.plan-btn,
+html.palja-tester-quiet .onetime-row,
+html.palja-tester-quiet .pricing-pro-btn,
+html.palja-tester-quiet a[href*="pricing.html?checkout"],
+html.palja-tester-quiet a[href*="/lifecode/buy.html"],
+html.palja-tester-quiet a[href*="lifecode/buy.html"],
+html.palja-tester-quiet a[href*="/ai-buy.html"],
+html.palja-tester-quiet a[href*="ai-buy.html"] {
+  display: none !important;
+}
+
+/* 상단·푸터 요금제 링크 */
+html.palja-tester-quiet .site-top a[href*="pricing.html"],
+html.palja-tester-quiet .site-nav a[href*="pricing.html"],
+html.palja-tester-quiet footer a[href*="pricing.html"] {
+  display: none !important;
+}
+
+/* 기능 잠금 게이트의 결제 버튼·단품 링크 */
+html.palja-tester-quiet .feature-gate .gate-btn,
+html.palja-tester-quiet .feature-gate .gate-onetime,
+html.palja-tester-quiet .feature-gate .gate-onetime-primary {
+  display: none !important;
+}
+
+html.palja-tester-quiet .feature-gate .gate-quiet-note {
+  display: block !important;
+  margin-top: 12px;
+  font-size: 13px;
+  line-height: 1.55;
+  color: inherit;
+  opacity: 0.9;
+}
+
+html.palja-tester-quiet .feature-gate .gate-quiet-note[hidden] {
+  display: block !important;
+}
+
+/* 요금제 페이지 결제 버튼 */
+html.palja-tester-quiet .plan-card button.plan-btn,
+html.palja-tester-quiet .plan-card .plan-btn-cream,
+html.palja-tester-quiet .plan-card .plan-btn-accent,
+html.palja-tester-quiet .plan-card .plan-btn-dark {
+  display: none !important;
+}
+
+html.palja-tester-quiet .palja-tester-banner {
+  display: block !important;
+}
+
+/* 요금제 히어로의 결제·할인 강조 문구도 완화 */
+html.palja-tester-quiet .hero-note {
+  display: none;
+}
