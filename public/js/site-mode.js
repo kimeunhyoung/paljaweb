@@ -26,7 +26,7 @@
     if (document.querySelector('link[data-palja-site-mode-css]')) return;
     var link = document.createElement('link');
     link.rel = 'stylesheet';
-    link.href = '/css/site-mode.css?v=1';
+    link.href = '/css/site-mode.css?v=2';
     link.setAttribute('data-palja-site-mode-css', '1');
     document.head.appendChild(link);
   }

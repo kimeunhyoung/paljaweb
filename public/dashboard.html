@@ -11,6 +11,7 @@
 
   <!-- Supabase CDN -->
   <script src="js/attribution.js"></script>
+  <script src="js/site-mode.js?v=2"></script>
   <script src="js/analytics.js?v=1" defer></script>
   <script src="js/account-device-client.js?v=1"></script>
   <script src="js/ai-quota-client.js?v=1"></script>
@@ -162,18 +163,19 @@
       text-transform: uppercase;
       color: var(--muted);
       padding: 0 12px;
-      margin-bottom: 8px;
-      margin-top: 20px;
+      margin-bottom: 6px;
+      margin-top: 16px;
     }
+    .nav-label:first-child { margin-top: 4px; }
     .nav-link {
       display: flex;
       align-items: center;
       gap: 10px;
-      padding: 10px 12px;
+      padding: 8px 12px;
       border-radius: 9px;
       text-decoration: none;
       color: var(--deep-brown);
-      font-size: 14px;
+      font-size: 13.5px;
       font-weight: 400;
       transition: background .15s, color .15s;
       cursor: pointer;
@@ -186,6 +188,12 @@
     .nav-link.active { background: rgba(200,169,110,.22); color: var(--deep-brown); font-weight: 600; }
     .nav-link svg { opacity: .65; flex-shrink: 0; }
     .nav-link.active svg { opacity: 1; }
+    .nav-link.nav-link-all {
+      font-size: 12px;
+      color: var(--muted);
+      padding-top: 6px;
+      padding-bottom: 6px;
+    }
 
     .nav-badge {
       margin-left: auto;
@@ -883,15 +891,45 @@
     </div>
 
     <nav class="nav-section">
-      <div class="nav-label">핵심 서비스</div>
+      <div class="nav-label">수비학</div>
+      <a class="nav-link nav-link-all" href="services.html#numerology">전체 보기</a>
       <a class="nav-link" href="analysis.html">
         <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.6" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v4l3 3"/></svg>
         라이프코드
       </a>
+      <a class="nav-link" href="numerology-calendar.html">
+        <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.6" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+        수비학달력
+      </a>
+
+      <div class="nav-label">점성학</div>
+      <a class="nav-link nav-link-all" href="services.html#astrology">전체 보기</a>
       <a class="nav-link" href="astrology.html">
         <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.6" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 2v4M12 18v4M2 12h4M18 12h4"/></svg>
-        점성학
+        점성학 차트
       </a>
+
+      <div class="nav-label">타로AI</div>
+      <a class="nav-link nav-link-all" href="services.html#cards">전체 보기</a>
+      <a class="nav-link" href="Tarot.html">
+        <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.6" viewBox="0 0 24 24"><path d="M12 3v18"/><path d="M8 7h8"/><path d="M7 12h10"/><path d="M8 17h8"/></svg>
+        타로코드
+      </a>
+      <a class="nav-link" href="counselor-reading.html">
+        <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.6" viewBox="0 0 24 24"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 8h6M9 12h6M9 16h4"/></svg>
+        타로 AI
+      </a>
+      <a class="nav-link" href="counselor-lenormand.html">
+        <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.6" viewBox="0 0 24 24"><rect x="4" y="4" width="7" height="10" rx="1"/><rect x="13" y="8" width="7" height="10" rx="1"/></svg>
+        레노먼드 AI
+      </a>
+      <a class="nav-link" href="counselor-iching.html">
+        <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.6" viewBox="0 0 24 24"><path d="M5 6h14M5 10h14M5 14h14M5 18h14"/></svg>
+        주역 AI
+      </a>
+
+      <div class="nav-label">관계</div>
+      <a class="nav-link nav-link-all" href="services.html#relation">전체 보기</a>
       <a class="nav-link" href="compatibility.html">
         <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.6" viewBox="0 0 24 24"><path d="M12 21s-6.5-4.4-9-8.2C.8 9.3 2.2 5 6 5c2.1 0 3.3 1.1 4 2.2C10.7 6.1 11.9 5 14 5c3.8 0 5.2 4.3 3 7.8-2.5 3.8-9 8.2-9 8.2z"/></svg>
         소울하모니
@@ -900,31 +938,34 @@
         <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.6" viewBox="0 0 24 24"><circle cx="8" cy="8" r="3"/><circle cx="16" cy="16" r="3"/><path d="M10.5 10.5l3 3"/></svg>
         48궁합
       </a>
+
+      <div class="nav-label">생활수비학</div>
+      <a class="nav-link nav-link-all" href="services.html#life">전체 보기</a>
+      <a class="nav-link" href="address-numerology.html">
+        <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.6" viewBox="0 0 24 24"><path d="M3 10.5L12 3l9 7.5"/><path d="M5 10v10h14V10"/><path d="M10 20v-6h4v6"/></svg>
+        주소·전화
+      </a>
+      <a class="nav-link" href="business-numerology.html">
+        <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.6" viewBox="0 0 24 24"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+        상호·브랜드
+      </a>
       <a class="nav-link" href="name.html">
         <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.6" viewBox="0 0 24 24"><path d="M4 19h16"/><path d="M6 17V5h8l4 4v8"/><path d="M14 5v4h4"/></svg>
         네임코드
       </a>
-      <a class="nav-link" href="numerology-calendar.html">
-        <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.6" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
-        수비학 달력
-      </a>
       <a class="nav-link" href="numerology-wallpaper.html">
         <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.6" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="8.5" cy="10.5" r="1.5"/><path d="M21 16l-5-5-4 4-2-2-5 5"/></svg>
-        에너지 배경
-      </a>
-      <a class="nav-link" href="Tarot.html">
-        <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.6" viewBox="0 0 24 24"><path d="M12 3v18"/><path d="M8 7h8"/><path d="M7 12h10"/><path d="M8 17h8"/></svg>
-        타로코드
+        에너지배경
       </a>
 
-      <div class="nav-label" id="navCounselorLabel" style="display:none;">상담사</div>
-      <a class="nav-link" id="navCounselor" href="counselor.html" style="display:none;">
+      <div class="nav-label">상담사</div>
+      <a class="nav-link" id="navCounselor" href="counselor.html">
         <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.6" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
         상담사 허브
       </a>
 
       <div class="nav-label">계정</div>
-      <a class="nav-link" href="pricing.html">
+      <a class="nav-link" id="navPricing" href="pricing.html">
         <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.6" viewBox="0 0 24 24"><path d="M12 1v22"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
         요금제
       </a>
@@ -1551,10 +1592,7 @@
         descEl.innerHTML = descEl.dataset.baseHtml;
       }
       if (isCounselorPlan && planActive) {
-        const nl = document.getElementById('navCounselorLabel');
-        const nv = document.getElementById('navCounselor');
-        if (nl) nl.style.display = 'block';
-        if (nv) nv.style.display = 'flex';
+        /* no-op: 상담사 허브는 사이드바 상시 노출 */
       }
 
       const cancelBtn = document.getElementById('cancelSubBtn');

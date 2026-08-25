@@ -17,10 +17,12 @@ html.palja-tester-quiet a[href*="ai-buy.html"] {
   display: none !important;
 }
 
-/* 상단·푸터 요금제 링크 */
+/* 상단·푸터·마이페이지 사이드바 요금제 링크 */
 html.palja-tester-quiet .site-top a[href*="pricing.html"],
 html.palja-tester-quiet .site-nav a[href*="pricing.html"],
-html.palja-tester-quiet footer a[href*="pricing.html"] {
+html.palja-tester-quiet footer a[href*="pricing.html"],
+html.palja-tester-quiet .sidebar a[href*="pricing.html"],
+html.palja-tester-quiet #navPricing {
   display: none !important;
 }
 
