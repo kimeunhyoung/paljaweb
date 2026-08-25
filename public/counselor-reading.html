@@ -238,7 +238,36 @@
     }
     .ai-pick-accordion[open] > summary::after { content: '접기'; }
     .ai-pick-accordion .ai-pick-body { padding: 0 2px 14px; }
-    .ai-pick-accordion .num-table-grid { margin-top: 8px; max-height: 320px; overflow: auto; }
+    .ai-deck-toolbar {
+      display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin: 0 0 10px;
+    }
+    .ai-deck-grid {
+      display: grid;
+      grid-template-columns: repeat(13, minmax(0, 1fr));
+      gap: 5px;
+    }
+    @media (max-width: 640px) {
+      .ai-deck-grid { grid-template-columns: repeat(8, minmax(0, 1fr)); }
+    }
+    .ai-deck-card {
+      aspect-ratio: 2 / 3;
+      border: none; border-radius: 5px; padding: 0; cursor: pointer;
+      background:
+        linear-gradient(145deg, rgba(255,255,255,.08), transparent 40%),
+        repeating-linear-gradient(-45deg, rgba(200,169,110,.14) 0 2px, transparent 2px 6px),
+        linear-gradient(160deg, #4a3520 0%, #2c1f0e 55%, #1a1208 100%);
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,.12), 0 1px 2px rgba(44,31,14,.2);
+      transition: transform .12s ease, box-shadow .12s ease, opacity .12s ease;
+    }
+    .ai-deck-card:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,.22), 0 4px 8px rgba(44,31,14,.28);
+    }
+    .ai-deck-card:disabled,
+    .ai-deck-card.is-used {
+      opacity: .22; cursor: default; transform: none; pointer-events: none;
+    }
+    .num-table-grid { max-height: none; }
     .ai-thread {
       display: flex; flex-direction: column; gap: 12px; margin: 12px 0 0;
     }
@@ -655,16 +684,19 @@
             <button type="button" class="btn-sm outline" id="aiAddCustom">+ 추가 카드</button>
           </div>
           <details class="ai-pick-accordion" id="aiPickAccordion">
-            <summary>번호표로 카드 고르기 (0~77)</summary>
+            <summary>덱에서 뽑기 · 뒷면 클릭</summary>
             <div class="ai-pick-body">
-              <p class="ai-card-hint" style="margin-top:0">레노먼드처럼 <strong>번호를 누르면</strong> 선택 중·빈 칸에 들어갑니다. 정·역은 칸에서 바꿉니다.</p>
-              <div id="aiInlineNumGrid" class="num-table-grid" role="listbox" aria-label="타로 번호표"></div>
-              <button type="button" class="btn-sm outline" id="aiNumTableDetailBtn" style="margin-top:10px">이름 검색 · 고객용 인쇄</button>
+              <p class="ai-card-hint" style="margin-top:0">무작위로 깔린 <strong>뒷면</strong>을 누르면 선택 중·빈 칸에 들어갑니다. 정·역은 칸에서 바꿉니다.</p>
+              <div class="ai-deck-toolbar">
+                <button type="button" class="btn-sm outline" id="aiDeckShuffleBtn">다시 섞기</button>
+                <button type="button" class="btn-sm outline" id="aiNumTableDetailBtn">번호·이름 검색</button>
+              </div>
+              <div id="aiDeckGrid" class="ai-deck-grid" role="listbox" aria-label="타로 덱 뒷면"></div>
             </div>
           </details>
         </div>
         <div class="full ai-draft-actions">
-          <button type="button" class="btn-sm outline" id="aiNumTableBtn">카드 고르기</button>
+          <button type="button" class="btn-sm outline" id="aiNumTableBtn">덱에서 뽑기</button>
           <button type="button" class="btn-sm outline" id="aiDrawBtn">전체 랜덤 뽑기</button>
           <button type="submit" class="btn-sm" id="aiDraftBtn">해석 생성</button>
           <span class="ai-draft-quota" id="aiCreditHint" aria-live="polite">예상 크레딧 1</span>
@@ -723,7 +755,7 @@
 </div>
 
 <div class="modal-overlay" id="numTableModal">
-  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="numTableTitle" style="max-width:640px">
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="numTableTitle" style="max-width:720px">
     <div class="modal-head">
       <div>
         <h3 id="numTableTitle">카드 고르기</h3>
@@ -2941,7 +2973,7 @@
         });
       }
 
-      // 카드 고르기: 인라인 번호표(아코디언) + 모달(이름/인쇄)
+      // 덱에서 뽑기(뒷면) + 모달(번호·이름·인쇄)
       (function initNumTable() {
         const modal = document.getElementById('numTableModal');
         const grid = document.getElementById('numTableGrid');
@@ -2950,8 +2982,9 @@
         const searchEl = document.getElementById('numTableSearch');
         const openBtn = document.getElementById('aiNumTableBtn');
         const detailBtn = document.getElementById('aiNumTableDetailBtn');
+        const shuffleBtn = document.getElementById('aiDeckShuffleBtn');
         const accordion = document.getElementById('aiPickAccordion');
-        const inlineGrid = document.getElementById('aiInlineNumGrid');
+        const deckGrid = document.getElementById('aiDeckGrid');
         const paneName = document.getElementById('numPaneName');
         const paneNum = document.getElementById('numPaneNum');
         const panePrint = document.getElementById('numPanePrint');
@@ -2959,8 +2992,20 @@
         if (!openBtn || !Deck) return;
 
         let tab = 'name';
+        /** @type {number[]} */
+        let deckOrder = [];
 
         function close() { if (modal) modal.classList.remove('open'); }
+
+        function shuffleDeck() {
+          const order = [];
+          for (let n = 0; n <= 77; n++) order.push(n);
+          for (let i = order.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            const t = order[i]; order[i] = order[j]; order[j] = t;
+          }
+          deckOrder = order;
+        }
 
         function setTab(next) {
           tab = next;
@@ -2988,7 +3033,7 @@
           if (fromModal && slots.every((s) => s.num != null)) close();
         }
 
-        function paintGrid(el, fromModal) {
+        function paintNumGrid(el, fromModal) {
           if (!el) return;
           const used = usedNums();
           el.innerHTML = Array.from({ length: 78 }, (_, i) => {
@@ -3003,9 +3048,27 @@
           });
         }
 
+        function paintDeck() {
+          if (!deckGrid) return;
+          if (!deckOrder.length) shuffleDeck();
+          const used = usedNums();
+          deckGrid.innerHTML = deckOrder.map((n) => {
+            const u = used.has(n);
+            return '<button type="button" class="ai-deck-card' + (u ? ' is-used' : '') +
+              '" data-deck-num="' + n + '" aria-label="뒷면 카드" ' + (u ? 'disabled' : '') + '></button>';
+          }).join('');
+          deckGrid.querySelectorAll('[data-deck-num]').forEach((btn) => {
+            btn.addEventListener('click', () => {
+              const n = Number(btn.getAttribute('data-deck-num'));
+              if (usedNums().has(n)) return;
+              onPick(n, false);
+            });
+          });
+        }
+
         function refreshPickers() {
-          paintGrid(inlineGrid, false);
-          if (grid) paintGrid(grid, true);
+          paintDeck();
+          if (grid) paintNumGrid(grid, true);
           if (printGrid && !printGrid.dataset.ready) {
             printGrid.innerHTML = Array.from({ length: 78 }, (_, i) =>
               '<div class="num-table-cell" style="cursor:default">' + i + '</div>'
@@ -3042,11 +3105,12 @@
           }
         }
 
-        function openAccordion() {
+        function openDeckPanel() {
           if (slots[targetSlot] && slots[targetSlot].num != null) {
             targetSlot = nextEmptySlot();
             renderSlots();
           }
+          if (!deckOrder.length) shuffleDeck();
           if (accordion) {
             accordion.open = true;
             refreshPickers();
@@ -3070,11 +3134,21 @@
         document.getElementById('numTabPrint')?.addEventListener('click', () => setTab('print'));
         if (searchEl) searchEl.addEventListener('input', refreshPickers);
 
-        openBtn.addEventListener('click', openAccordion);
+        openBtn.addEventListener('click', openDeckPanel);
         if (detailBtn) detailBtn.addEventListener('click', openModal);
+        if (shuffleBtn) {
+          shuffleBtn.addEventListener('click', () => {
+            shuffleDeck();
+            refreshPickers();
+            setAiMsg('덱을 다시 섞었습니다. 뒷면을 눌러 칸에 넣으세요.');
+          });
+        }
         if (accordion) {
           accordion.addEventListener('toggle', () => {
-            if (accordion.open) refreshPickers();
+            if (accordion.open) {
+              if (!deckOrder.length) shuffleDeck();
+              refreshPickers();
+            }
           });
         }
 
@@ -3112,6 +3186,7 @@
         }
 
         window.__paljaRefreshTarotPickers = refreshPickers;
+        shuffleDeck();
         refreshPickers();
       })();
 
