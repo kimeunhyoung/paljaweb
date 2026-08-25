@@ -1198,6 +1198,19 @@
         msg.classList.toggle('err', !!isErr);
       }
 
+      (function initQuestionClear() {
+        const clearBtn = document.getElementById('aiClearQBtn');
+        const qEl = document.getElementById('aiQuestion');
+        if (!clearBtn || !qEl) return;
+        clearBtn.addEventListener('click', () => {
+          qEl.value = '';
+          try { renderSpreadSuggest(); } catch (_) {}
+          try { hideFollowUps(); } catch (_) {}
+          setAiMsg('질문을 비웠습니다. 새 질문을 입력하세요.');
+          try { qEl.focus(); } catch (_) {}
+        });
+      })();
+
       (function initQuestionVoice() {
         const btn = document.getElementById('aiVoiceBtn');
         const qEl = document.getElementById('aiQuestion');
