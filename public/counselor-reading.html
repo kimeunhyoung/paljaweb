@@ -1229,19 +1229,24 @@
       const Deck = window.CounselorTarotDeck;
       const POS_BASIC = ['카드'];
       const SPREADS = [
+        // 3장
         { id: 'advice', label: '상황 · 핵심 메시지 · 조언', positions: ['상황', '핵심 메시지', '조언'] },
-        { id: 'choice_ab', label: '선택 A/B (5장)', positions: ['현재', 'A 선택', 'A 결과', 'B 선택', 'B 결과'] },
         { id: 'choice', label: '상황 · 선택 · 결과', positions: ['상황', '선택', '결과'] },
         { id: 'time', label: '과거 · 현재 · 미래', positions: ['과거', '현재', '미래'] },
         { id: 'love', label: '내 마음 · 상대 · 관계', positions: ['내 마음', '상대 마음', '관계 흐름'] },
+        { id: 'block', label: '원인 · 장애 · 돌파', positions: ['원인', '장애', '돌파'] },
+        // 5장
+        { id: 'choice_ab', label: '선택 A/B (5장)', positions: ['현재', 'A 선택', 'A 결과', 'B 선택', 'B 결과'] },
+        // 7장
+        { id: 'horseshoe', label: '말편자 (7장)', positions: ['과거', '현재', '미래', '조언', '외부 영향', '희망·두려움', '결과'] },
+        { id: 'seven', label: '세븐 배열 (7장)', positions: ['과거', '현재', '미래', '장애', '환경', '조언', '결과'] },
+        // 9장
         { id: 'love9', label: '관계 배열 (9장)', positions: [
           '나', '상대', '현재', '장애',
           '내가 상대를 보는 눈', '상대가 나를 보는 눈',
           '내가 상대에게 바라는 것', '상대가 나에게 바라는 것', '결과',
         ] },
-        { id: 'block', label: '원인 · 장애 · 돌파', positions: ['원인', '장애', '돌파'] },
-        { id: 'horseshoe', label: '말편자 (7장)', positions: ['과거', '현재', '미래', '조언', '외부 영향', '희망·두려움', '결과'] },
-        { id: 'seven', label: '세븐 배열 (7장)', positions: ['과거', '현재', '미래', '장애', '환경', '조언', '결과'] },
+        // 유틸
         { id: 'custom', label: '직접 입력 (칸마다 수정)', positions: ['1장', '2장', '3장'] },
       ];
       const GROUPS = [
