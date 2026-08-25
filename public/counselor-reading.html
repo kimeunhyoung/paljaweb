@@ -696,7 +696,6 @@
           </details>
         </div>
         <div class="full ai-draft-actions">
-          <button type="button" class="btn-sm outline" id="aiNumTableBtn">덱에서 뽑기</button>
           <button type="button" class="btn-sm outline" id="aiDrawBtn">전체 랜덤 뽑기</button>
           <button type="submit" class="btn-sm" id="aiDraftBtn">해석 생성</button>
           <span class="ai-draft-quota" id="aiCreditHint" aria-live="polite">예상 크레딧 1</span>
@@ -758,8 +757,8 @@
   <div class="modal" role="dialog" aria-modal="true" aria-labelledby="numTableTitle" style="max-width:720px">
     <div class="modal-head">
       <div>
-        <h3 id="numTableTitle">카드 고르기</h3>
-        <div class="sub" id="numTableSub">뽑힌 카드 칸에 넣습니다. 이름을 모르면 번호로, 원격용은 인쇄 탭을 쓰세요.</div>
+        <h3 id="numTableTitle">번호·이름 검색</h3>
+        <div class="sub" id="numTableSub">뽑힌 카드 칸에 넣습니다. 이름 검색 또는 번호표를 누르세요.</div>
       </div>
       <button type="button" class="modal-close" id="numTableClose" aria-label="닫기">×</button>
     </div>
@@ -768,7 +767,6 @@
       <div class="num-table-tabs" role="tablist">
         <button type="button" class="active" id="numTabName" data-tab="name">이름으로</button>
         <button type="button" id="numTabNum" data-tab="num">번호로</button>
-        <button type="button" id="numTabPrint" data-tab="print">고객용 인쇄</button>
       </div>
       <div id="numPaneName">
         <input type="search" class="num-table-search" id="numTableSearch" placeholder="예: 소드7 · 검7 · 컵5 · 탑" autocomplete="off"/>
@@ -780,12 +778,7 @@
       <div id="numPaneNum" style="display:none">
         <div id="numTableGrid" class="num-table-grid"></div>
       </div>
-      <div id="numPanePrint" style="display:none">
-        <p class="num-table-hint">고객에게 보낼 0~77 번호표입니다. 메이저는 관례 번호(0 바보 · 12 매달린 남자). 인쇄·PDF·캡처로 공유하세요.</p>
-        <div id="numTablePrintGrid" class="num-table-grid"></div>
-      </div>
       <div class="copy-sum-actions" style="margin-top:14px">
-        <button type="button" class="btn-sm" id="numTablePrintBtn">인쇄 / PDF 저장</button>
         <button type="button" class="btn-sm outline" id="numTableCloseBtn">닫기</button>
       </div>
     </div>
@@ -2973,23 +2966,20 @@
         });
       }
 
-      // 덱에서 뽑기(뒷면) + 모달(번호·이름·인쇄)
+      // 덱에서 뽑기(뒷면) + 모달(번호·이름)
       (function initNumTable() {
         const modal = document.getElementById('numTableModal');
         const grid = document.getElementById('numTableGrid');
-        const printGrid = document.getElementById('numTablePrintGrid');
         const nameList = document.getElementById('numNameList');
         const searchEl = document.getElementById('numTableSearch');
-        const openBtn = document.getElementById('aiNumTableBtn');
         const detailBtn = document.getElementById('aiNumTableDetailBtn');
         const shuffleBtn = document.getElementById('aiDeckShuffleBtn');
         const accordion = document.getElementById('aiPickAccordion');
         const deckGrid = document.getElementById('aiDeckGrid');
         const paneName = document.getElementById('numPaneName');
         const paneNum = document.getElementById('numPaneNum');
-        const panePrint = document.getElementById('numPanePrint');
         const hintEl = document.getElementById('numTableHint');
-        if (!openBtn || !Deck) return;
+        if (!Deck || !deckGrid) return;
 
         let tab = 'name';
         /** @type {number[]} */
@@ -3008,26 +2998,20 @@
         }
 
         function setTab(next) {
-          tab = next;
-          ['name', 'num', 'print'].forEach((t) => {
-            const btn = document.getElementById(t === 'name' ? 'numTabName' : t === 'num' ? 'numTabNum' : 'numTabPrint');
-            if (btn) btn.classList.toggle('active', t === tab);
-          });
+          tab = next === 'num' ? 'num' : 'name';
+          const tabName = document.getElementById('numTabName');
+          const tabNum = document.getElementById('numTabNum');
+          if (tabName) tabName.classList.toggle('active', tab === 'name');
+          if (tabNum) tabNum.classList.toggle('active', tab === 'num');
           if (paneName) paneName.style.display = tab === 'name' ? '' : 'none';
           if (paneNum) paneNum.style.display = tab === 'num' ? '' : 'none';
-          if (panePrint) panePrint.style.display = tab === 'print' ? '' : 'none';
           if (hintEl) {
-            if (tab === 'print') {
-              hintEl.innerHTML = '원격 고객에게 보내 숫자를 고르게 하세요. 「0~77 중 ○개 골라 알려 주세요.」(메이저 0=바보, 12=매달린 남자)';
-            } else {
-              hintEl.innerHTML = '카드를 누르면 <strong>비어 있는 칸</strong>(또는 선택한 칸)에 들어갑니다. 정·역은 칸에서 바꿀 수 있습니다.';
-            }
+            hintEl.innerHTML = '카드를 누르면 <strong>비어 있는 칸</strong>(또는 선택한 칸)에 들어갑니다. 정·역은 칸에서 바꿀 수 있습니다.';
           }
           refreshPickers();
         }
 
         function onPick(num, fromModal) {
-          if (fromModal && tab === 'print') return;
           assignCard(num);
           refreshPickers();
           if (fromModal && slots.every((s) => s.num != null)) close();
@@ -3049,7 +3033,6 @@
         }
 
         function paintDeck() {
-          if (!deckGrid) return;
           if (!deckOrder.length) shuffleDeck();
           const used = usedNums();
           deckGrid.innerHTML = deckOrder.map((n) => {
@@ -3069,12 +3052,6 @@
         function refreshPickers() {
           paintDeck();
           if (grid) paintNumGrid(grid, true);
-          if (printGrid && !printGrid.dataset.ready) {
-            printGrid.innerHTML = Array.from({ length: 78 }, (_, i) =>
-              '<div class="num-table-cell" style="cursor:default">' + i + '</div>'
-            ).join('');
-            printGrid.dataset.ready = '1';
-          }
           if (nameList) {
             const used = usedNums();
             const rawQ = (searchEl && searchEl.value) || '';
@@ -3105,36 +3082,20 @@
           }
         }
 
-        function openDeckPanel() {
-          if (slots[targetSlot] && slots[targetSlot].num != null) {
-            targetSlot = nextEmptySlot();
-            renderSlots();
-          }
-          if (!deckOrder.length) shuffleDeck();
-          if (accordion) {
-            accordion.open = true;
-            refreshPickers();
-            try { accordion.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); } catch (_) {}
-          }
-        }
-
         function openModal() {
           if (!modal) return;
           if (slots[targetSlot] && slots[targetSlot].num != null) {
             targetSlot = nextEmptySlot();
             renderSlots();
           }
-          setTab(tab === 'print' ? 'name' : tab);
+          setTab(tab === 'num' ? 'num' : 'name');
           modal.classList.add('open');
           if (searchEl && tab === 'name') setTimeout(() => searchEl.focus(), 50);
         }
 
         document.getElementById('numTabName')?.addEventListener('click', () => setTab('name'));
         document.getElementById('numTabNum')?.addEventListener('click', () => setTab('num'));
-        document.getElementById('numTabPrint')?.addEventListener('click', () => setTab('print'));
         if (searchEl) searchEl.addEventListener('input', refreshPickers);
-
-        openBtn.addEventListener('click', openDeckPanel);
         if (detailBtn) detailBtn.addEventListener('click', openModal);
         if (shuffleBtn) {
           shuffleBtn.addEventListener('click', () => {
@@ -3157,33 +3118,6 @@
         if (c1) c1.addEventListener('click', close);
         if (c2) c2.addEventListener('click', close);
         if (modal) modal.addEventListener('click', (e) => { if (e.target === modal) close(); });
-
-        const printBtn = document.getElementById('numTablePrintBtn');
-        if (printBtn) {
-          printBtn.addEventListener('click', () => {
-            const w = window.open('', '_blank', 'noopener,width=720,height=900');
-            if (!w) {
-              setAiMsg('팝업이 차단되었습니다. 허용 후 다시 시도해 주세요.', true);
-              return;
-            }
-            const cells = Array.from({ length: 78 }, (_, i) =>
-              '<div style="aspect-ratio:1;display:flex;align-items:center;justify-content:center;border:1px solid #c9b89a;border-radius:8px;background:#f7f1e6;font:700 14px/1 sans-serif;color:#2c1f0e">' +
-              i + '</div>'
-            ).join('');
-            w.document.write(
-              '<!DOCTYPE html><html><head><meta charset="utf-8"><title>타로 번호표 0–77</title>' +
-              '<style>body{font-family:sans-serif;padding:16px;background:#f5f0e8;color:#2c1f0e}' +
-              'h1{font-size:18px;margin:0 0 8px}p{font-size:12px;color:#6b5a45;margin:0 0 14px}' +
-              '.g{display:grid;grid-template-columns:repeat(10,1fr);gap:6px}</style></head><body>' +
-              '<h1>타로 카드 번호표 (0–77)</h1>' +
-              '<p>메이저 관례: 0 바보 · 12 매달린 남자. 원하는 번호를 골라 상담사에게 알려 주세요.</p>' +
-              '<div class="g">' + cells + '</div></body></html>'
-            );
-            w.document.close();
-            w.focus();
-            setTimeout(() => { try { w.print(); } catch (_) {} }, 300);
-          });
-        }
 
         window.__paljaRefreshTarotPickers = refreshPickers;
         shuffleDeck();
