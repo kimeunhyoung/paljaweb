@@ -2158,6 +2158,11 @@
         block: '막힘·원인',
       };
 
+      function isChoiceQuestion(q) {
+        const s = String(q || '');
+        return /A\s*[\/·,]?\s*B|둘\s*중|어느\s*쪽|선택|갈림|남을지|이직.*남을|남을.*이직|할까\s*말까|비교|vs\.?|대비|차이|했을\s*때\s*[\/·,]?\s*안\s*했을|안\s*했을\s*때\s*[\/·,]?\s*했을|참석.*안\s*했|안\s*했.*참석|들을지|말지|갈지\s*말지|할지\s*말지|갈까\s*말까|참석할지|안\s*들을|안\s*갈|갈지\s*말|할지\s*안\s*할지/.test(s);
+      }
+
       function rankSpreadSuggestions(question) {
         const q = String(question || '');
         const scores = {
@@ -2168,20 +2173,22 @@
           choice: 0.2,
           block: 0.3,
         };
-        if (/A\s*[\/·,]?\s*B|둘\s*중|어느\s*쪽|선택|갈림|남을지|이직.*남을|남을.*이직|할까\s*말까|비교/.test(q)) {
-          scores.choice_ab += 5;
-          scores.choice += 2.5;
+        const choiceQ = isChoiceQuestion(q);
+        if (choiceQ) {
+          scores.choice_ab += 8;
+          scores.choice += 3.5;
         }
         if (/연애|사랑|남친|여친|배우자|그\s*사람|그\s*남자|그\s*여자|남자친구|여자친구|남자|여자|썸|이별|헤어|재회|만날|짝사랑|상대\s*마음|고백|잘\s*될|다시\s*만|좋아요|좋아하/.test(q)) {
           scores.love += 4.5;
         }
-        if (/왜|원인|막히|장애|안\s*되|풀리|돌파|반복|꼬이|정체/.test(q)) {
+        if (/왜|원인|막히|장애|안\s*되|풀리|돌파|반복|꼬이|정체/.test(q) && !choiceQ) {
           scores.block += 4;
         }
-        if (/과거|앞으로|미래|언제|타이밍|흐름|올해|이번\s*달|앞으로의|전개/.test(q)) {
+        if (/과거|앞으로|미래|언제|타이밍|흐름|올해|이번\s*달|이번\s*주|앞으로의|전개/.test(q) && !choiceQ) {
           scores.time += 3.2;
         }
-        if (/어떻|조언|뭐\s*하|해야|지금|괜찮|될까|방법|팁|행동/.test(q)) {
+        // 선택 질문이면 advice의 「될까」 가중치를 올리지 않음
+        if (!choiceQ && /어떻|조언|뭐\s*하|해야|지금|괜찮|될까|방법|팁|행동/.test(q)) {
           scores.advice += 3;
         }
         if (/돈|금전|재물|투자|수입|빚|재정/.test(q)) {
@@ -2200,7 +2207,9 @@
           .filter(Boolean)
           .sort((a, b) => b.score - a.score);
         const picked = [];
-        const fallback = ['advice', 'love', 'choice_ab', 'time', 'block', 'choice'];
+        const fallback = choiceQ
+          ? ['choice_ab', 'choice', 'advice', 'time', 'block', 'love']
+          : ['advice', 'love', 'choice_ab', 'time', 'block', 'choice'];
         for (const row of order) {
           if (picked.length >= 3) break;
           picked.push(row);
@@ -2218,6 +2227,19 @@
         if (!spreadSuggestEl) return;
         const q = (qEl && qEl.value) || '';
         const rows = rankSpreadSuggestions(q);
+        // 선택형 질문이고 카드가 아직 없으면 선택 A/B로 자동 맞춤
+        const top = rows[0];
+        const cardsEmpty = slots.every((s) => s.num == null);
+        if (
+          top &&
+          top.id === 'choice_ab' &&
+          isChoiceQuestion(q) &&
+          cardsEmpty &&
+          spreadId !== 'choice_ab'
+        ) {
+          applySuggestedSpread('choice_ab');
+          return;
+        }
         spreadSuggestEl.innerHTML = rows.map((r) =>
           '<button type="button" class="ai-suggest-chip' + (mode === 'advanced' && spreadId === r.id ? ' is-pick' : '') +
           '" data-spread="' + r.id + '">' + escapeHtml(r.label) +
