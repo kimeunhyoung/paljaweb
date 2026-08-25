@@ -13,7 +13,7 @@
 
   if (!document.querySelector('script[data-palja-site-mode]')) {
     var sm = document.createElement('script');
-    sm.src = '/js/site-mode.js?v=1';
+    sm.src = '/js/site-mode.js?v=2';
     sm.setAttribute('data-palja-site-mode', '1');
     document.head.appendChild(sm);
   }

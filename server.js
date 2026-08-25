@@ -447,9 +447,9 @@ app.get('/api/checkout-config', (req, res) => {
 });
 
 app.get('/api/site-config', (req, res) => {
-  // 테스터 모집용 조용 모드 — 미설정/1이면 ON, 0·false면 OFF
-  const quietRaw = String(process.env.PALJA_TESTER_QUIET ?? '1').trim().toLowerCase();
-  const testerQuiet = !(quietRaw === '0' || quietRaw === 'false' || quietRaw === 'off' || quietRaw === 'no');
+  // 테스터 조용 모드 — 기본 OFF. PALJA_TESTER_QUIET=1|true 일 때만 ON
+  const quietRaw = String(process.env.PALJA_TESTER_QUIET ?? '0').trim().toLowerCase();
+  const testerQuiet = quietRaw === '1' || quietRaw === 'true' || quietRaw === 'on' || quietRaw === 'yes';
   res.json({
     gaMeasurementId: String(process.env.GA_MEASUREMENT_ID || '').trim(),
     testerQuiet,

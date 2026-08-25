@@ -5,8 +5,8 @@
  * - URL ?tester_quiet=1|0 으로 임시 확인 가능
  */
 (function () {
-  // 모집 기간 기본 ON — 끝나면 Render에서 PALJA_TESTER_QUIET=0
-  var DEFAULT_QUIET = true;
+  // 기본 OFF — 테스터 모집 때 Render에서 PALJA_TESTER_QUIET=1
+  var DEFAULT_QUIET = false;
 
   function apply(quiet) {
     quiet = !!quiet;
