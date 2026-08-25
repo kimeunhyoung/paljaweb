@@ -600,7 +600,7 @@
           <p class="ai-voice-hint" id="aiVoiceHint">한 문장씩 말하면 됩니다. 크롬·엣지·안드로이드 권장. 더 쓰려면 버튼을 다시 누르세요.</p>
           <div id="aiSpreadSuggestWrap" style="margin-top:10px">
             <label>배열 추천</label>
-            <p class="ai-suggest-hint">질문 키워드로 <strong>추천 순서가 바뀝니다</strong>(연애·선택·타이밍 등). 진한 테두리는 <strong>지금 선택된 배열</strong>입니다. 누르면 심화 리딩 칸이 열리고, 칸 이름은 스프래드에서 직접 입력할 수 있어요.</p>
+            <p class="ai-suggest-hint">질문 키워드로 <strong>추천 순서가 바뀝니다</strong>. <strong>했을 때 / 안 했을 때·차이·vs</strong> 같은 선택형이면 <strong>선택 A/B</strong>가 맨 앞에 옵니다. 진한 테두리는 지금 선택된 배열입니다.</p>
             <div id="aiSpreadSuggest" class="ai-chip-row" role="group" aria-label="배열 추천"></div>
           </div>
         </div>
@@ -2160,7 +2160,10 @@
 
       function isChoiceQuestion(q) {
         const s = String(q || '');
-        return /A\s*[\/·,]?\s*B|둘\s*중|어느\s*쪽|선택|갈림|남을지|이직.*남을|남을.*이직|할까\s*말까|비교|vs\.?|대비|차이|했을\s*때\s*[\/·,]?\s*안\s*했을|안\s*했을\s*때\s*[\/·,]?\s*했을|참석.*안\s*했|안\s*했.*참석|들을지|말지|갈지\s*말지|할지\s*말지|갈까\s*말까|참석할지|안\s*들을|안\s*갈|갈지\s*말|할지\s*안\s*할지/.test(s);
+        const compact = s.replace(/\s+/g, '');
+        // A vs B · 했을 때/안 했을 · 들었/듣지 · 차이 · 할까말까 등
+        return /A\s*[\/·,]?\s*B|둘\s*중|어느\s*쪽|선택|갈림|남을지|이직.*남을|남을.*이직|할까\s*말까|비교|vs\.?|대비|차이|했을\s*때.{0,16}안\s*했|안\s*했을.{0,16}했|들었을\s*때.{0,16}듣지|듣지\s*않.{0,16}들었|참석.{0,14}안\s*했|안\s*했.{0,14}참석|들을지|말지|갈지\s*말지|할지\s*말지|갈까\s*말까|참석할지|안\s*들을|안\s*갈|갈지\s*말|할지\s*안\s*할지|때와\s*안|와\s*안\s*했|와\s*듣지/.test(s)
+          || /했을때.{0,16}안했|안했을.{0,16}했을|들었을때.{0,16}듣지|듣지않.{0,16}들었|참석.{0,12}안했|차이는|차이점|어느쪽|둘중|할까말까|할지말지|들을지말지/.test(compact);
       }
 
       function rankSpreadSuggestions(question) {
@@ -2175,10 +2178,10 @@
         };
         const choiceQ = isChoiceQuestion(q);
         if (choiceQ) {
-          scores.choice_ab += 8;
-          scores.choice += 3.5;
+          scores.choice_ab += 20;
+          scores.choice += 6;
         }
-        if (/연애|사랑|남친|여친|배우자|그\s*사람|그\s*남자|그\s*여자|남자친구|여자친구|남자|여자|썸|이별|헤어|재회|만날|짝사랑|상대\s*마음|고백|잘\s*될|다시\s*만|좋아요|좋아하/.test(q)) {
+        if (/연애|사랑|남친|여친|배우자|그\s*사람|그\s*남자|그\s*여자|남자친구|여자친구|남자|여자|썸|이별|헤어|재회|만날|짝사랑|상대\s*마음|고백|잘\s*될|다시\s*만|좋아요|좋아하/.test(q) && !choiceQ) {
           scores.love += 4.5;
         }
         if (/왜|원인|막히|장애|안\s*되|풀리|돌파|반복|꼬이|정체/.test(q) && !choiceQ) {
@@ -2191,11 +2194,11 @@
         if (!choiceQ && /어떻|조언|뭐\s*하|해야|지금|괜찮|될까|방법|팁|행동/.test(q)) {
           scores.advice += 3;
         }
-        if (/돈|금전|재물|투자|수입|빚|재정/.test(q)) {
+        if (/돈|금전|재물|투자|수입|빚|재정/.test(q) && !choiceQ) {
           scores.advice += 1.5;
           scores.block += 0.8;
         }
-        if (/일|직장|이직|커리어|사업|면접|퇴사/.test(q) && scores.choice_ab < 4) {
+        if (/일|직장|이직|커리어|사업|면접|퇴사/.test(q) && !choiceQ) {
           scores.advice += 1.2;
           scores.time += 0.6;
         }
@@ -2206,10 +2209,15 @@
           })
           .filter(Boolean)
           .sort((a, b) => b.score - a.score);
+        // 선택형이면 무조건 선택 A/B를 1순위로 고정
+        if (choiceQ) {
+          const cab = order.find((r) => r.id === 'choice_ab');
+          const rest = order.filter((r) => r.id !== 'choice_ab');
+          const forced = cab ? [cab, ...rest] : order;
+          return forced.slice(0, 3);
+        }
         const picked = [];
-        const fallback = choiceQ
-          ? ['choice_ab', 'choice', 'advice', 'time', 'block', 'love']
-          : ['advice', 'love', 'choice_ab', 'time', 'block', 'choice'];
+        const fallback = ['advice', 'love', 'choice_ab', 'time', 'block', 'choice'];
         for (const row of order) {
           if (picked.length >= 3) break;
           picked.push(row);
