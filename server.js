@@ -909,7 +909,13 @@ app.use(
   express.static(pathPublic, {
     etag: isProd,
     lastModified: isProd,
-    setHeaders(res) {
+    setHeaders(res, filePath) {
+      // HTML은 배포 직후 구버전이 남지 않게 (타로 AI 배열 추천 등 인라인 JS)
+      if (/\.html?$/i.test(filePath)) {
+        res.setHeader('Cache-Control', 'no-cache, must-revalidate');
+        res.setHeader('Pragma', 'no-cache');
+        return;
+      }
       if (isProd) return;
       res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
       res.setHeader('Pragma', 'no-cache');
