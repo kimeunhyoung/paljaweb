@@ -525,7 +525,7 @@
 <div class="section-title" id="ai-draft" style="margin-top:28px">타로 AI · 상담사용 기본 리딩</div>
     <div class="ai-draft-panel">
       <p class="ai-draft-intro">질문을 넣으면 <strong>배열 추천</strong>이 뜨고, 해석 후 <strong>다음 질문</strong>으로 이어서 볼 수 있습니다. 이전 리딩은 위에 쌓입니다.
-        크레딧: <strong>1장 → 1</strong> · <strong>2~3장 → 2</strong> · <strong>4~6장 → 3</strong>
+        크레딧: <strong>1장 → 1</strong> · <strong>2~3장 → 2</strong> · <strong>4~7장 → 3</strong>
         · 통합(수비·점성) 시 <strong>+1</strong>.</p>
       <div class="ai-mode-row" role="tablist" aria-label="리딩 모드">
         <button type="button" class="ai-mode-btn active" id="aiModeBasic" data-mode="basic" role="tab" aria-selected="true">
@@ -534,7 +534,7 @@
         </button>
         <button type="button" class="ai-mode-btn" id="aiModeAdv" data-mode="advanced" role="tab" aria-selected="false">
           <strong>심화 리딩</strong>
-          <span>스프래드 프리셋(3~5장) · 추가 시 최대 6장</span>
+          <span>스프래드 프리셋(3~7장) · 추가 시 최대 7장</span>
         </button>
       </div>
       <p class="ai-depth-hint" id="aiDepthHint">해석 깊이: 카드만 = 타로만. 통합 = 수비·점성을 렌즈로 전 문장에 녹임(전용 섹션 없음) · +1.</p>
@@ -598,9 +598,8 @@
           </div>
           <textarea id="aiQuestion" maxlength="800" required placeholder="키보드·붙여넣기 또는 🎤 음성 입력.&#10;예: 이직을 지금 해도 될까요? / 그 사람 마음이 궁금해요"></textarea>
           <p class="ai-voice-hint" id="aiVoiceHint">한 문장씩 말하면 됩니다. 크롬·엣지·안드로이드 권장. 더 쓰려면 버튼을 다시 누르세요.</p>
-          <div id="aiSpreadSuggestWrap" style="margin-top:10px">
+          <div id="aiSpreadSuggestWrap" style="margin-top:10px" hidden>
             <label>배열 추천</label>
-            <p class="ai-suggest-hint">질문 키워드로 <strong>추천 순서가 바뀝니다</strong>. <strong>두 갈래 비교</strong>(A vs B, ~때와 안 ~때, ~는 게/~지 않는 게 좋을까 등)일 때만 <strong>선택 A/B</strong>가 맨 앞입니다. 「안 ~으면 어땠을까」같은 가정형은 해당 없습니다.</p>
             <div id="aiSpreadSuggest" class="ai-chip-row" role="group" aria-label="배열 추천"></div>
           </div>
         </div>
@@ -1124,6 +1123,7 @@
         { id: 'time', label: '과거 · 현재 · 미래', positions: ['과거', '현재', '미래'] },
         { id: 'love', label: '내 마음 · 상대 · 관계', positions: ['내 마음', '상대 마음', '관계 흐름'] },
         { id: 'block', label: '원인 · 장애 · 돌파', positions: ['원인', '장애', '돌파'] },
+        { id: 'horseshoe', label: '말편자 (7장)', positions: ['과거', '현재', '미래', '조언', '외부 영향', '희망·두려움', '결과'] },
         { id: 'custom', label: '직접 입력 (칸마다 수정)', positions: ['1장', '2장', '3장'] },
       ];
       const GROUPS = [
@@ -1133,7 +1133,7 @@
         { label: '소드 (검)', from: 50, to: 63 },
         { label: '펜타클 (동전)', from: 64, to: 77 },
       ];
-      const MAX_CARDS = 6;
+      const MAX_CARDS = 7;
       let mode = 'basic'; // basic | advanced
       let spreadId = 'advice';
       let lastText = '';
@@ -2156,12 +2156,12 @@
         time: '흐름·타이밍',
         love: '관계·마음',
         block: '막힘·원인',
+        horseshoe: '전체 흐름·윤곽',
       };
 
       /**
        * 선택 A/B: 두 갈래를 나란히 비교하는 구조만 true.
-       * 특정 동사(듣/가/하…)에 의존하지 않음.
-       * 가정형(안 ~으면 어땠을까)만 있으면 false.
+       * 특정 동사에 의존하지 않음. 가정형(안 ~으면)만 있으면 false.
        */
       function isChoiceQuestion(q) {
         const s = String(q || '');
@@ -2171,7 +2171,7 @@
           // 1) 명시적 양자택일
           /A\s*[\/·,]?\s*B|둘\s*중|어느\s*쪽|갈림|할까\s*말까|갈까\s*말까|할지\s*말지|갈지\s*말지|들을지\s*말지|남을지|이직.*남을|남을.*이직|vs\.?|비교|대비/.test(s)
           || /둘중|어느쪽|할까말까|갈까말까|할지말지|갈지말지|들을지말지/.test(compact)
-          // 2) 「V을/ㄹ 때 와·/ 안 V…」 (갔을 때와 안 갔을, 샀을때와 안샀을)
+          // 2) 「V을/ㄹ 때 와·/ 안 V…」
           || /([가-힣]{1,10})(?:으)?ㄹ?\s*때\s*[와\/·,]\s*안\s*\1/.test(s)
           || /([가-힣]{1,10})(?:을|ㄹ)때[와\/·,]안\1/.test(compact)
           // 3) 「V했을 때 … 안 (V)했」
@@ -2180,24 +2180,23 @@
           // 4) 「V지 말지 / Vㄹ까 말까」
           || /([가-힣]{1,8})(?:을|ㄹ)?지\s*말지|([가-힣]{1,8})까\s*말까/.test(s)
           || /([가-힣]{1,8})(?:을|ㄹ)?지말지|([가-힣]{1,8})까말까/.test(compact)
-          // 5) 「~는 게 좋을까/나을까」 대비 — 동사 무관
-          //    a) ~게 … 안 ~게 (가는게 좋을까 안가는게 좋을까)
-          || /(?:는)?\s*게\s*(좋을|나을)까.{0,40}안\s*[가-힣]{1,12}(?:는)?\s*게\s*(좋을|나을)까/.test(s)
-          || /(?:는)?게(좋을|나을)까.{0,32}안[가-힣]{1,12}(?:는)?게(좋을|나을)까/.test(compact)
-          //    b) ~는 게 … ~지 않는 게 (듣는게/듣지않는게, 사는게/사지않는게, 가는게/가지않는게)
-          || /(?:는)?\s*게\s*(좋을|나을)까.{0,48}지\s*않(?:는)?\s*게\s*(좋을|나을)까/.test(s)
-          || /(?:는)?게(좋을|나을)까.{0,40}지않(?:는)?게(좋을|나을)까/.test(compact)
-          //    c) 같은 어간 반복 확인(보조)
-          || /([가-힣]{1,10})(?:는)?\s*게\s*(좋을|나을)까.{0,36}안\s*\1/.test(s)
-          || /([가-힣]{1,8})(?:는)?\s*게\s*(좋을|나을)까.{0,48}\1지\s*않/.test(s)
-          //    d) 서로 다른 선택지 두 개 (남는 게 나을까 이직하는 게 나을까)
-          || /([가-힣]{2,12})(?:는)?\s*게\s*(좋을|나을)까.{0,48}(?!\1)([가-힣]{2,12})(?:는)?\s*게\s*\2/.test(s)
-          || /([가-힣]{2,12})(?:는)?게(좋을|나을)까.{0,40}(?!\1)([가-힣]{2,12})(?:는)?게\2/.test(compact)
+          // 5) 평가형 대비 — 게/것, 좋을까·좋은지·나을까·나은지 (동사 무관)
+          //    a) ~게/것이 … 안 ~게/것 …
+          || /(?:게|것(?:이)?)\s*(좋을|나을|좋은|나은)[까지].{0,48}안\s*[가-힣]{0,14}(?:을|를|는)?\s*(?:게|것)/.test(s)
+          || /(?:게|것이?)(좋을|나을|좋은|나은)[까지].{0,40}안[가-힣]{0,14}(?:을|를|는)?(?:게|것)/.test(compact)
+          //    b) ~게/것 … ~지 않는 게/것
+          || /(?:게|것(?:이)?)\s*(좋을|나을|좋은|나은)[까지].{0,48}지\s*않(?:는)?\s*(?:게|것)/.test(s)
+          || /(?:게|것이?)(좋을|나을|좋은|나은)[까지].{0,40}지않(?:는)?(?:게|것)/.test(compact)
+          //    c) 같은 어간 보조
+          || /([가-힣]{1,10})(?:는)?\s*게\s*(좋을|나을|좋은|나은)[까지].{0,36}안\s*\1/.test(s)
+          || /([가-힣]{1,8})(?:는)?\s*게\s*(좋을|나을|좋은|나은)[까지].{0,48}\1지\s*않/.test(s)
+          //    d) 서로 다른 선택지 두 개 (남는 게 / 이직하는 게)
+          || /([가-힣]{2,12})(?:는)?\s*(?:게|것(?:이)?)\s*(좋을|나을|좋은|나은)[까지].{0,48}(?!\1)([가-힣]{2,12})(?:는)?\s*(?:게|것(?:이)?)\s*\2/.test(s)
+          || /([가-힣]{2,12})(?:는)?(?:게|것이?)(좋을|나을|좋은|나은)[까지].{0,40}(?!\1)([가-힣]{2,12})(?:는)?(?:게|것이?)\2/.test(compact)
           // 6) 「차이」+ 양쪽「때」대비
           || (/차이/.test(s) && /([가-힣]{1,10})(?:으)?ㄹ?\s*때.{0,36}안\s*\1/.test(s))
           || (/차이/.test(compact) && /([가-힣]{1,10})(?:을|ㄹ)때.{0,28}안\1/.test(compact));
 
-        // 가정형만 있고 대비 구조가 없으면 선택 아님
         const isHypothetical =
           /안\s*[가-힣]{1,10}(?:으)?면|(았|었)더라면|지\s*않았다면|않았다면|안\s*했더라면|만약.{0,20}안\s*[가-힣]{1,8}/.test(s)
           || /안[가-힣]{1,10}으면|지않았다면|었더라면|안했더라면|만약.{0,16}안[가-힣]{1,8}/.test(compact);
@@ -2215,6 +2214,7 @@
           choice_ab: 0.3,
           choice: 0.2,
           block: 0.3,
+          horseshoe: 0.25,
         };
         const choiceQ = isChoiceQuestion(q);
         if (choiceQ) {
@@ -2227,8 +2227,9 @@
         if (/왜|원인|막히|장애|안\s*되|풀리|돌파|반복|꼬이|정체/.test(q) && !choiceQ) {
           scores.block += 4;
         }
-        if (/과거|앞으로|미래|언제|타이밍|흐름|올해|이번\s*달|이번\s*주|앞으로의|전개/.test(q) && !choiceQ) {
+        if (/과거|앞으로|미래|언제|타이밍|흐름|올해|이번\s*달|이번\s*주|앞으로의|전개|전체|윤곽/.test(q) && !choiceQ) {
           scores.time += 3.2;
+          scores.horseshoe += 2.4;
         }
         // 선택 질문이면 advice의 「될까」 가중치를 올리지 않음
         if (!choiceQ && /어떻|조언|뭐\s*하|해야|지금|괜찮|될까|방법|팁|행동/.test(q)) {
@@ -2257,7 +2258,7 @@
           return forced.slice(0, 3);
         }
         const picked = [];
-        const fallback = ['advice', 'love', 'choice_ab', 'time', 'block', 'choice'];
+        const fallback = ['advice', 'love', 'choice_ab', 'time', 'block', 'choice', 'horseshoe'];
         for (const row of order) {
           if (picked.length >= 3) break;
           picked.push(row);
@@ -2273,6 +2274,14 @@
 
       function renderSpreadSuggest() {
         if (!spreadSuggestEl) return;
+        const wrap = document.getElementById('aiSpreadSuggestWrap');
+        // 기본 리딩(1장)에서는 배열 추천 숨김 — 심화에서만
+        if (mode !== 'advanced') {
+          if (wrap) wrap.hidden = true;
+          spreadSuggestEl.innerHTML = '';
+          return;
+        }
+        if (wrap) wrap.hidden = false;
         const q = (qEl && qEl.value) || '';
         const rows = rankSpreadSuggestions(q);
         // 선택형 질문이고 카드가 아직 없으면 선택 A/B로 자동 맞춤
@@ -2289,7 +2298,7 @@
           return;
         }
         spreadSuggestEl.innerHTML = rows.map((r) =>
-          '<button type="button" class="ai-suggest-chip' + (mode === 'advanced' && spreadId === r.id ? ' is-pick' : '') +
+          '<button type="button" class="ai-suggest-chip' + (spreadId === r.id ? ' is-pick' : '') +
           '" data-spread="' + r.id + '">' + escapeHtml(r.label) +
           (r.why ? '<span class="why">' + escapeHtml(r.why) + '</span>' : '') +
           '</button>'
