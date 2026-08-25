@@ -416,12 +416,23 @@
       font-family: var(--font-body); font-size: 12px; font-weight: 600; color: var(--deep); background: #fff;
     }
     .ai-card-slot h4 { font-size: 11px; color: var(--muted); margin: 0 0 6px; letter-spacing: .03em; display: flex; justify-content: space-between; gap: 6px; }
-    .num-table-tabs { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
-    .num-table-tabs button {
-      font-size: 12px; padding: 6px 12px; border-radius: 999px; border: 1px solid var(--border);
-      background: #fff; color: var(--muted); cursor: pointer; font-family: var(--font-body);
+    .num-table-tabs {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 12px;
     }
-    .num-table-tabs button.active { background: var(--deep); color: #fff; border-color: var(--deep); }
+    .num-table-tabs button {
+      font-size: 14px; font-weight: 700; padding: 12px 14px; border-radius: 10px;
+      border: 2px solid var(--warm-brown); background: #fff; color: var(--deep);
+      cursor: pointer; font-family: var(--font-body); line-height: 1.25;
+      box-shadow: 0 1px 0 rgba(44,31,14,.06);
+    }
+    .num-table-tabs button .tab-sub {
+      display: block; font-size: 11px; font-weight: 500; color: var(--muted); margin-top: 3px;
+    }
+    .num-table-tabs button.active {
+      background: var(--deep); color: #fff; border-color: var(--deep);
+      box-shadow: 0 2px 8px rgba(44,31,14,.2);
+    }
+    .num-table-tabs button.active .tab-sub { color: rgba(255,255,255,.78); }
     .num-table-search {
       width: 100%; padding: 9px 11px; border: 1px solid var(--border); border-radius: 8px;
       font-family: var(--font-body); font-size: 13px; margin-bottom: 10px; background: #fff; color: var(--ink);
@@ -725,7 +736,7 @@
               <p class="ai-card-hint" style="margin-top:0">무작위로 깔린 <strong>뒷면</strong>을 누르면 선택 중·빈 칸에 들어갑니다. 정·역은 칸에서 바꿉니다.</p>
               <div class="ai-deck-toolbar">
                 <button type="button" class="btn-sm outline" id="aiDeckShuffleBtn">다시 섞기</button>
-                <button type="button" class="btn-sm outline" id="aiNumTableDetailBtn">번호·이름 검색</button>
+                <button type="button" class="btn-sm outline" id="aiNumTableDetailBtn">번호·이름으로 선택</button>
               </div>
               <div id="aiDeckGrid" class="ai-deck-grid" role="listbox" aria-label="타로 덱 뒷면"></div>
             </div>
@@ -793,25 +804,25 @@
   <div class="modal" role="dialog" aria-modal="true" aria-labelledby="numTableTitle">
     <div class="modal-head">
       <div>
-        <h3 id="numTableTitle">번호·이름 검색</h3>
-        <div class="sub" id="numTableSub">뽑힌 카드 칸에 넣습니다. 이름 검색 또는 번호표를 누르세요.</div>
+        <h3 id="numTableTitle">번호·이름으로 선택</h3>
+        <div class="sub" id="numTableSub">뽑힌 카드 칸에 넣습니다. 아래 탭에서 <strong>이름</strong> 또는 <strong>번호표</strong>로 고르세요.</div>
       </div>
       <button type="button" class="modal-close" id="numTableClose" aria-label="닫기">×</button>
     </div>
     <div class="modal-body">
       <p class="num-table-hint" id="numTableHint">카드를 누르면 <strong>비어 있는 칸</strong>(또는 선택한 칸)에 들어갑니다. 정·역은 칸에서 바꿀 수 있습니다.</p>
-      <div class="num-table-tabs" role="tablist">
-        <button type="button" class="active" id="numTabName" data-tab="name">이름으로</button>
-        <button type="button" id="numTabNum" data-tab="num">번호로</button>
+      <div class="num-table-tabs" role="tablist" aria-label="선택 방식">
+        <button type="button" id="numTabName" data-tab="name">이름으로<span class="tab-sub">검색해서 고르기</span></button>
+        <button type="button" class="active" id="numTabNum" data-tab="num">번호로<span class="tab-sub">0~77 번호표</span></button>
       </div>
-      <div id="numPaneName">
+      <div id="numPaneName" style="display:none">
         <input type="search" class="num-table-search" id="numTableSearch" placeholder="예: 소드7 · 검7 · 컵5 · 탑" autocomplete="off"/>
         <p class="num-table-hint" style="margin-top:-4px;margin-bottom:10px">슈트 이름: <strong>메이저</strong> · <strong>완드</strong> · <strong>컵</strong> · <strong>소드</strong> · <strong>펜타클</strong>
           <span style="display:block;margin-top:4px;font-size:11px">별칭 가능 — 검/칼=소드, 지팡이=완드, 성배=컵, 동전=펜타클 · 띄어쓰기 없어도 됩니다 (소드7)</span>
         </p>
         <div id="numNameList" class="num-name-list"></div>
       </div>
-      <div id="numPaneNum" style="display:none">
+      <div id="numPaneNum">
         <div id="numTableGrid" class="num-table-grid"></div>
       </div>
       <div class="copy-sum-actions" style="margin-top:14px">
@@ -3017,7 +3028,7 @@
         const hintEl = document.getElementById('numTableHint');
         if (!Deck || !deckGrid) return;
 
-        let tab = 'name';
+        let tab = 'num';
         /** @type {number[]} */
         let deckOrder = [];
 
@@ -3124,7 +3135,7 @@
             targetSlot = nextEmptySlot();
             renderSlots();
           }
-          setTab(tab === 'num' ? 'num' : 'name');
+          setTab(tab === 'name' ? 'name' : 'num');
           modal.classList.add('open');
           if (searchEl && tab === 'name') setTimeout(() => searchEl.focus(), 50);
         }
