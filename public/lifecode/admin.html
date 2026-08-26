@@ -145,12 +145,11 @@
       <input id="newCode" placeholder="LC-ABCD-EF12"/>
       <div style="display:flex;flex-wrap:wrap;gap:8px;margin:12px 0 4px;">
         <button type="button" id="createBtn">일반 발급</button>
-        <button type="button" id="createBeta5" style="background:#2e8b7a;">테스터 5일 · AI 10</button>
-        <button type="button" id="createBeta7" style="background:#c4603a;">테스터 7일 · AI 10</button>
+        <button type="button" id="createBeta15" style="background:#c4603a;">테스터 15일 · AI 25</button>
       </div>
       <p style="font-size:12px;color:#7d6b56;margin:6px 0 0;line-height:1.5;">
-        테스터 코드 = <strong>Professional</strong> 전 기능 · AI <strong>10</strong>크레딧 ·
-        <strong>연결한 날부터</strong> 5일/7일 후 만료(미리 발급해 둬도 기간은 연결 시 시작).<br>
+        테스터 코드 = 유료 상담사 체험과 동일 · <strong>Professional</strong> 전 기능 · AI <strong>25</strong>크레딧 ·
+        <strong>연결한 날부터</strong> 15일 후 만료(미리 발급해 둬도 기간은 연결 시 시작).<br>
         목록에서 <strong>만료연장 · AI늘리기 · 메모</strong>로 같은 코드를 관리하세요 (코드 재발급 없이).<br>
         연동: <code>/counselor-trial-link.html</code>
       </p>
@@ -476,8 +475,7 @@
       }
     }
 
-    document.getElementById('createBeta5').addEventListener('click', () => createLicense({ betaDays: 5 }));
-    document.getElementById('createBeta7').addEventListener('click', () => createLicense({ betaDays: 7 }));
+    document.getElementById('createBeta15').addEventListener('click', () => createLicense({ betaDays: 15 }));
 
     document.getElementById('reloadBtn').addEventListener('click', () => loadList());
     document.getElementById('filterStatus').addEventListener('change', () => loadList());
