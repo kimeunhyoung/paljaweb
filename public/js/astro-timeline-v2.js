@@ -1164,6 +1164,7 @@
     if (!data || !data.months) return '';
     var L = [];
     L.push('[5년 장기 운 타임라인 v2 · ' + data.fromYm + ' ~ ' + data.toYm + ']');
+    L.push('※ 아래는 모델용 내부 요약이다. 사용자 최종 답변에 필드명·영문 primary·theme★ 표기를 그대로 쓰지 말고, 한국어 headline/생활 언어로만 풀어 쓸 것.');
     L.push('축: opportunity/stability/pressure/change · 상태는 확장기·안정기·압박기·전환기·도약·재편기');
     L.push('별점=60개월 상대 세기 · 판정(headline)=별점을 어떻게 읽을지(길흉 단정 아님)');
     if (data.hasProgMoon) L.push('프로그레스 달 반영됨');
@@ -1171,7 +1172,7 @@
 
     var kt = data.keyTimings || {};
     L.push('');
-    L.push('[엔진 판정 · keyTimings — AI는 이 판정명/헤드라인을 뒤집지 말 것]');
+    L.push('[엔진 판정 · keyTimings — AI는 이 판정명/헤드라인을 뒤집지 말 것. 출력에는 영문 ID 대신 한국어 headline 사용]');
     L.push('규칙: 아래에 없는 타이밍 종류는 「없다」「결핍」으로 강조하지 말 것. 잡힌 항목만 해석에 사용.');
 
     function emitTiming(key, pack, labelOverride) {
