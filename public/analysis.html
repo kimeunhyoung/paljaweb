@@ -468,7 +468,7 @@
     .prep-memo .memo-focus { margin-bottom: 6px; font-size: 13px; line-height: 1.55; }
     .prep-memo .memo-topic strong,
     .prep-memo .memo-focus strong { color: var(--warm-brown); margin-right: 4px; }
-    .prep-memo-acc { display: grid; gap: 6px; margin-top: 8px; }
+    .prep-memo-acc { margin-top: 8px; }
     .prep-memo-acc .accordion { margin-bottom: 0; box-shadow: none; }
     .prep-memo-acc .accordion-header { padding: 11px 14px; }
     .prep-memo-acc .accordion-header h4 { font-size: 13.5px; }
@@ -477,16 +477,13 @@
       word-break: keep-all;
       overflow-wrap: anywhere;
     }
-    .prep-memo-toolbar {
-      display: flex; gap: 8px; flex-wrap: wrap; align-items: center;
-      margin: 4px 0 2px;
+    .prep-memo-acc .prep-memo-h {
+      display: block;
+      margin: 12px 0 4px;
+      font-size: 13px;
+      color: var(--warm-brown);
     }
-    .prep-memo-toolbar button {
-      font-size: 11px; font-weight: 600; color: var(--warm-brown);
-      background: var(--parchment); border: 1px solid var(--border);
-      border-radius: 14px; padding: 4px 10px; cursor: pointer;
-    }
-    .prep-memo-toolbar button:hover { background: var(--accent-lt); }
+    .prep-memo-acc .prep-memo-h:first-child { margin-top: 0; }
     .prep-note { font-size: 11px; color: var(--muted); margin-top: 12px; }
     .export-brand-header { text-align: center; padding: 4px 0 10px; margin-bottom: 6px; border-bottom: 1px solid var(--border); }
 
@@ -6928,43 +6925,22 @@ function prepExtractDeep(html) {
   };
 }
 
-/** 최근 상담 메모 본문: escape + **굵게** */
+/** 최근 상담 메모 본문: escape + ##제목 + **굵게** */
 function formatPrepMemoBody(text) {
   const esc = (typeof escapeHtml === 'function') ? escapeHtml : (x) => String(x);
-  return esc(String(text || '').trim()).replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+  return esc(String(text || '').trim())
+    .replace(/^##\s+(.+)$/gm, '<strong class="prep-memo-h">$1</strong>')
+    .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
 }
 
-/** ## 제목 단위로 아코디언 분할 (첫 섹션만 기본 펼침) */
-function buildPrepMemoAccordions(summary) {
+/** 상담 하나 = 아코디언 하나 (기본 접힘) */
+function buildPrepMemoAccordion(summary) {
   const raw = String(summary || '').trim();
   if (!raw) return '';
-  const esc = (typeof escapeHtml === 'function') ? escapeHtml : (x) => String(x);
-  const chunks = raw.split(/(?=^##\s+)/m).map((s) => s.trim()).filter(Boolean);
-  const sections = [];
-  for (const chunk of chunks) {
-    const m = chunk.match(/^##\s+(.+?)(?:\r?\n|$)([\s\S]*)$/);
-    if (m) sections.push({ title: m[1].trim(), body: (m[2] || '').trim() });
-    else sections.push({ title: '상담 메모', body: chunk });
-  }
-  if (!sections.length) return '';
   const makeAcc = (typeof accordion === 'function')
     ? accordion
     : (title, body, open) => `<div class="accordion ${open ? 'open' : ''}" onclick="this.classList.toggle('open')"><div class="accordion-header"><h4>${title}</h4><span class="accordion-arrow">▼</span></div><div class="accordion-body">${body}</div></div>`;
-  const onlyPlain = sections.length === 1 && sections[0].title === '상담 메모';
-  const html = sections.map((sec, i) =>
-    makeAcc(
-      onlyPlain ? '전체 메모' : esc(sec.title),
-      formatPrepMemoBody(sec.body),
-      i === 0
-    )
-  ).join('');
-  const toolbar = sections.length > 1
-    ? `<div class="prep-memo-toolbar">
-        <button type="button" onclick="event.stopPropagation(); document.querySelectorAll('#counselorPrepCard .prep-memo-acc .accordion').forEach(a=>a.classList.add('open'))">모두 펼치기</button>
-        <button type="button" onclick="event.stopPropagation(); document.querySelectorAll('#counselorPrepCard .prep-memo-acc .accordion').forEach(a=>a.classList.remove('open'))">모두 접기</button>
-      </div>`
-    : '';
-  return `${toolbar}<div class="prep-memo-acc">${html}</div>`;
+  return `<div class="prep-memo-acc">${makeAcc('상담 내용 보기', formatPrepMemoBody(raw), false)}</div>`;
 }
 
 /** 상담 준비 요약 카드(상담사 모드 · 화면 전용). 기존 계산값을 템플릿으로 재구성. */
@@ -7051,14 +7027,14 @@ function renderCounselorPrepCard(p) {
     arrowGridHtml = buildGrid([[3, 6, 9], [2, 5, 8], [1, 4, 7]]) + arrowSummary(seqArrows) + noteHtml;
   }
 
-  // 최근 세션 메모 — 전폭 + ## 섹션 아코디언
+  // 최근 세션 메모 — 전폭 + 상담 하나당 아코디언 하나
   let memoHtml = '';
   if (COUNSELOR_CLIENT && COUNSELOR_CLIENT.recentSession) {
     const rs = COUNSELOR_CLIENT.recentSession;
     const bits = [];
     if (rs.topic) bits.push(`<div class="memo-topic"><strong>주제</strong> ${esc(String(rs.topic))}</div>`);
     if (rs.next_focus) bits.push(`<div class="memo-focus"><strong>다음 포인트</strong> ${esc(String(rs.next_focus))}</div>`);
-    if (rs.summary) bits.push(buildPrepMemoAccordions(rs.summary));
+    if (rs.summary) bits.push(buildPrepMemoAccordion(rs.summary));
     if (bits.length) {
       memoHtml = `<div class="prep-box prep-box--wide"><h4>최근 상담 · 이어가기</h4><div class="prep-memo"><span class="memo-date">${esc(String(rs.session_date || ''))}</span>${bits.join('')}</div></div>`;
     }

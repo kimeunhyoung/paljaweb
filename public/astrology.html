@@ -332,6 +332,13 @@ table.astro-table td .glyph{font-size:16px;margin-right:4px;color:var(--accent);
 .ai-result--md .ai-md-notes[open] .ai-md-notes-sum::before{content:'▾ ';}
 .ai-result--md .ai-md-notes-sum:hover{background:rgba(139,111,71,.12);}
 .ai-result--md .ai-md-notes-body{padding:4px 14px 14px;}
+.ai-result-acc{margin:0;}
+.ai-result-acc > .ai-result-acc-head{
+  font-family:var(--font-serif);font-size:15px;font-weight:600;color:var(--deep-brown);
+  padding:2px 0;
+}
+.ai-result-acc > .ai-result-acc-body{margin-top:12px;}
+.ai-result:has(> .ai-result-acc:not(.open)){padding-top:12px;padding-bottom:12px;}
 .ai-time-hint{font-size:11.5px;line-height:1.55;color:var(--muted);margin:8px 0 0;}
 .ai-time-hint.is-loading{color:var(--warm-brown);}
 .ai-prompt-details{margin-top:12px;}
@@ -884,7 +891,7 @@ body.export-capturing #wheelCard .note{display:none !important;}
     return out.join('');
   }
 
-  /** AI 본문: 마크다운을 HTML로. 안내/에러 문구는 plain 옵션. */
+  /** AI 본문: 마크다운을 HTML로. 긴 해석은 아코디언으로 접음. 안내/에러는 plain. */
   function setAiResultBox(box, text, opts) {
     if (!box) return;
     const raw = String(text == null ? '' : text);
@@ -897,7 +904,22 @@ body.export-capturing #wheelCard .note{display:none !important;}
       return;
     }
     box.dataset.aiRaw = raw;
-    box.innerHTML = aiMarkdownToHtml(raw);
+    const html = aiMarkdownToHtml(raw);
+    const useAcc = !(opts && opts.accordion === false) && raw.trim().length > 60;
+    if (!useAcc) {
+      box.innerHTML = html;
+      return;
+    }
+    let open;
+    if (opts && typeof opts.open === 'boolean') open = opts.open;
+    else {
+      const prev = box.querySelector(':scope > .ai-result-acc');
+      open = prev ? prev.classList.contains('open') : false;
+    }
+    box.innerHTML =
+      `<div class="ai-result-acc accordion${open ? ' open' : ''}">` +
+      `<button type="button" class="acc-head ai-result-acc-head"><span>해석 결과 보기</span><span class="acc-chev" aria-hidden="true">⌄</span></button>` +
+      `<div class="acc-body ai-result-acc-body">${html}</div></div>`;
   }
 
   function refreshClientSaveBtn() {
@@ -926,7 +948,8 @@ body.export-capturing #wheelCard .note{display:none !important;}
     const t = String(text || '').trim();
     if (!t) return;
     LAST_AI_CHART_TEXT = t;
-    setAiResultBox(box, t);
+    /* 저장된 해석은 접고, 방금 생성한 해석은 펼침 */
+    setAiResultBox(box, t, { open: !(opts && opts.fromCache) });
     const hint = $('aiTimeHint');
     if (hint) {
       if (opts && opts.fromCache) {
@@ -1025,7 +1048,7 @@ body.export-capturing #wheelCard .note{display:none !important;}
     if (!meta || !t) return;
     DEEP_AI_TOPIC = topic;
     DEEP_AI_CACHE[topic] = t;
-    if (box) setAiResultBox(box, t);
+    if (box) setAiResultBox(box, t, { open: !(opts && opts.fromCache) });
     if (topicEl) {
       topicEl.hidden = false;
       topicEl.innerHTML = '주제: <strong>' + meta.label + '</strong>';
@@ -2561,14 +2584,14 @@ body.export-capturing #wheelCard .note{display:none !important;}
         payload,
         onDelta: (chunk) => {
           streamed += chunk;
-          setAiResultBox(box, streamed);
+          setAiResultBox(box, streamed, { open: true });
         },
       });
       let out = text || streamed || '해석을 생성하지 못했어요.';
       if (data?.stop_reason === 'max_tokens') {
         out += '\n\n(※ 아주 긴 해석이라 일부가 잘렸을 수 있어요. 같은 내용으로 다시 요청하면 이어서 받을 수 있어요.)';
       }
-      setAiResultBox(box, out);
+      setAiResultBox(box, out, { open: true });
       LAST_AI_CHART_TEXT = out;
       refreshClientSaveBtn();
       if (quota) {
@@ -3833,14 +3856,14 @@ body.export-capturing #wheelCard .note{display:none !important;}
         payload,
         onDelta: (chunk) => {
           streamed += chunk;
-          if (box) setAiResultBox(box, streamed);
+          if (box) setAiResultBox(box, streamed, { open: true });
         },
       });
       let out = text || streamed || '해석을 생성하지 못했어요.';
       if (data?.stop_reason === 'max_tokens') {
         out += '\n\n(※ 일부가 잘렸을 수 있어요. 같은 주제로 다시 요청하면 이어 받을 수 있어요.)';
       }
-      if (box) setAiResultBox(box, out);
+      if (box) setAiResultBox(box, out, { open: true });
       DEEP_AI_CACHE[topic] = out;
       if (quota) {
         LAST_AI_QUOTA = quota;
@@ -3926,12 +3949,12 @@ body.export-capturing #wheelCard .note{display:none !important;}
     w.print();
   });
 
-  // 아코디언 토글
-  document.querySelectorAll('.accordion .acc-head').forEach((h) => {
-    h.addEventListener('click', () => {
-      const card = h.closest('.accordion');
-      if (card) card.classList.toggle('open');
-    });
+  // 아코디언 토글 (카드·AI 결과 동적 아코디언 공통)
+  document.addEventListener('click', (e) => {
+    const head = e.target.closest('.accordion .acc-head');
+    if (!head) return;
+    const card = head.closest('.accordion');
+    if (card) card.classList.toggle('open');
   });
 
   // ── 상담사 허브: AI 차트 해석(우선) 또는 기술 요약을 고객 카드에 저장 ──
