@@ -767,6 +767,7 @@
         </div>
         <div class="full ai-draft-actions">
           <button type="button" class="btn-sm outline" id="aiDrawBtn">전체 랜덤 뽑기</button>
+          <button type="button" class="btn-sm outline" id="aiClearAllCardsBtn">모든 카드 비우기</button>
           <button type="submit" class="btn-sm" id="aiDraftBtn">해석 생성</button>
           <span class="ai-draft-quota" id="aiCreditHint" aria-live="polite">예상 크레딧 1</span>
           <button type="button" class="btn-sm outline" id="aiCopyBtn" style="display:none;">복사</button>
@@ -2236,6 +2237,18 @@
         setAiMsg('스프래드 ' + n + '장을 랜덤으로 뽑았습니다.' + (extras.length ? ' (추가 카드는 유지)' : ''));
       }
 
+      function clearAllCards() {
+        const hadAny = slots.some((s) => s.num != null);
+        slots.forEach((s) => {
+          s.num = null;
+          s.rev = false;
+        });
+        targetSlot = 0;
+        renderSlots();
+        updateCreditHint();
+        setAiMsg(hadAny ? '모든 카드 칸을 비웠습니다. 새로 뽑거나 선택하세요.' : '이미 비어 있습니다.');
+      }
+
       function readFilledCards() {
         const labels = posLabels();
         const outCards = [];
@@ -2556,6 +2569,8 @@
       if (depthCardBtn) depthCardBtn.addEventListener('click', () => setReadingDepth('card'));
       if (depthIntegratedBtn) depthIntegratedBtn.addEventListener('click', () => setReadingDepth('integrated'));
       if (drawBtn) drawBtn.addEventListener('click', drawRandom);
+      const clearAllCardsBtn = document.getElementById('aiClearAllCardsBtn');
+      if (clearAllCardsBtn) clearAllCardsBtn.addEventListener('click', clearAllCards);
 
       (function initCardVoice() {
         const btn = document.getElementById('aiCardVoiceBtn');
