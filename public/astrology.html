@@ -76,6 +76,9 @@
 <script src="js/astro-cities.js?v=1"></script>
 <script src="js/astro-meanings.js?v=2"></script>
 <script src="js/astro-timeline.js?v=1"></script>
+<script src="js/astro-timeline-v2.js?v=1"></script>
+<script src="js/astro-house-rulers.js?v=1"></script>
+<script src="js/astro-life-timeline.js?v=1"></script>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css" crossorigin />
 <link rel="stylesheet" href="css/site-topbar.css?v=8" />
 <link rel="stylesheet" href="css/site-header.css?v=7" />
@@ -267,24 +270,36 @@ table.astro-table td .glyph{font-size:16px;margin-right:4px;color:var(--accent);
 .year-block h4{margin:0 0 8px;font-size:13.5px;color:var(--deep-brown);}
 .year-block p{margin:0 0 6px;font-size:13px;line-height:1.65;color:var(--text);}
 .tl-guide{font-size:12.5px;line-height:1.65;color:var(--muted);background:rgba(139,111,71,.06);border-radius:10px;padding:9px 12px;margin-bottom:12px;}
-.tl-legend{display:flex;gap:14px;font-size:11.5px;color:var(--muted);margin-bottom:8px;}
+.tl-legend{display:flex;flex-wrap:wrap;gap:10px 14px;font-size:11.5px;color:var(--muted);margin-bottom:8px;}
 .tl-leg{display:inline-flex;align-items:center;gap:6px;}
-.tl-leg::before{content:'';width:10px;height:10px;border-radius:2px;display:inline-block;}
-.tl-leg--up::before{background:#5a9a72;}
-.tl-leg--down::before{background:#c07858;}
+.tl-dot{width:10px;height:10px;border-radius:2px;display:inline-block;}
+.tl-filter{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px;}
+.tl-filter-btn{border:1px solid #e0d4c0;background:#fff;border-radius:999px;padding:5px 12px;font-size:12px;font-weight:600;color:var(--warm-brown);cursor:pointer;font-family:inherit;}
+.tl-filter-btn.is-on{background:var(--accent);border-color:var(--accent);color:#fff;}
 .tl-chart{display:flex;align-items:flex-end;gap:2px;height:120px;padding:8px 4px 18px;background:rgba(255,255,255,.55);border:1px solid #e8ddcb;border-radius:12px;overflow-x:auto;margin-bottom:16px;}
 .tl-col{flex:1 0 6px;min-width:5px;max-width:14px;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;position:relative;}
+.tl-col--dim{opacity:.28;}
 .tl-bar-wrap{width:100%;height:100%;display:flex;align-items:flex-end;justify-content:center;}
 .tl-bar{width:70%;min-height:3px;border-radius:2px 2px 0 0;}
-.tl-bar--up{background:#5a9a72;}
-.tl-bar--down{background:#c07858;}
+.tl-state--expansion,.tl-bar.tl-state--expansion{background:#5a9a72;}
+.tl-state--stability,.tl-bar.tl-state--stability{background:#7a90a8;}
+.tl-state--pressure,.tl-bar.tl-state--pressure{background:#c07858;}
+.tl-state--transition,.tl-bar.tl-state--transition{background:#b89a4a;}
+.tl-state--leap,.tl-bar.tl-state--leap{background:#8b6bb5;}
+.tl-dot.tl-state--expansion{background:#5a9a72;}
+.tl-dot.tl-state--stability{background:#7a90a8;}
+.tl-dot.tl-state--pressure{background:#c07858;}
+.tl-dot.tl-state--transition{background:#b89a4a;}
+.tl-dot.tl-state--leap{background:#8b6bb5;}
 .tl-year{position:absolute;bottom:-16px;left:50%;transform:translateX(-50%);font-size:9px;color:var(--muted);white-space:nowrap;}
-.tl-sections{display:grid;gap:14px;}
-@media (min-width:720px){.tl-sections{grid-template-columns:1fr 1fr;}}
 .tl-sec h4{margin:0 0 8px;font-size:13.5px;color:var(--deep-brown);}
 .tl-win{padding:10px 12px;border-radius:10px;border:1px solid #e8ddcb;background:rgba(255,255,255,.55);margin-bottom:8px;}
-.tl-win--good{border-color:rgba(90,154,114,.35);background:rgba(90,154,114,.06);}
-.tl-win--hard{border-color:rgba(192,120,88,.35);background:rgba(192,120,88,.06);}
+.tl-win-state{border-left:4px solid #c8a96e;}
+.tl-win-state.tl-state--expansion{border-left-color:#5a9a72;background:rgba(90,154,114,.06);}
+.tl-win-state.tl-state--stability{border-left-color:#7a90a8;background:rgba(122,144,168,.06);}
+.tl-win-state.tl-state--pressure{border-left-color:#c07858;background:rgba(192,120,88,.06);}
+.tl-win-state.tl-state--transition{border-left-color:#b89a4a;background:rgba(184,154,74,.08);}
+.tl-win-state.tl-state--leap{border-left-color:#8b6bb5;background:rgba(139,107,181,.07);}
 .tl-win-range{font-size:13px;font-weight:700;color:var(--deep-brown);}
 .tl-win-len{font-weight:500;font-size:11.5px;color:var(--muted);}
 .tl-win-tags{margin-top:6px;display:flex;flex-wrap:wrap;gap:4px;}
@@ -649,11 +664,34 @@ body.export-capturing #wheelCard .note{display:none !important;}
       </div>
     </div>
 
+    <!-- 인생 운의 흐름 (만 20~80) -->
+    <div class="card" id="lifeTimelineCard">
+      <div class="card-title">✦ 인생 운의 흐름 (만 20~80세)</div>
+      <p class="transit-intro">느린 행성 트랜짓으로 <strong>인생 전체의 큰 줄기·변곡점</strong>을 봅니다.
+        기회·결실·변화·압력·활동을 서로 다른 종류로 구분하며, 확정 예언이 아닙니다.
+        월별 상세는 아래 <strong>앞으로 5년</strong>을 이용하세요.</p>
+      <div id="lifeTimelineDataBlock">
+        <div class="transit-controls">
+          <button type="button" class="rt-btn rt-btn--share" id="btnLifeTimeline" disabled>인생 흐름 보기</button>
+        </div>
+        <div id="lifeTimelineResult" class="transit-result"><div class="transit-empty">차트를 계산한 뒤 「인생 흐름 보기」를 눌러 주세요.</div></div>
+      </div>
+      <div class="transit-ai-block no-print" id="lifeTimelineAiBlock" hidden>
+        <p class="transit-ai-intro">인생 구간·하이라이트를 AI로 풀 수 있어요. <span class="ai-quota-cost">(최초 3크레딧)</span></p>
+        <div class="transit-ai-row">
+          <button type="button" class="rt-btn rt-btn--share" id="btnLifeTimelineAi" disabled>✨ AI 인생 흐름 풀기 (3크레딧)</button>
+        </div>
+        <div id="lifeTimelineAiResult" class="ai-result empty">위에서 인생 흐름을 계산한 뒤 AI를 이용해 주세요.</div>
+        <p class="ai-time-hint" id="lifeTimelineAiHint">보통 30~50초 정도 걸려요.</p>
+      </div>
+    </div>
+
     <!-- 장기 운 타임라인 (5년) -->
     <div class="card" id="timelineCard">
-      <div class="card-title">✦ 장기 운의 흐름 · 좋은 시기 (5년)</div>
-      <p class="transit-intro">목성·토성·천왕성·해왕성·명왕성 트랜짓으로 <strong>앞으로 5년</strong>의 큰 흐름을 월별로 봅니다.
-        출생 시간이 있으면 상승궁·중천 기준이 더 정확해요. 확정 예언이 아니라 <strong>타이밍 가이드</strong>입니다.</p>
+      <div class="card-title">✦ 장기 운의 흐름 · 상태 타임라인 (5년)</div>
+      <p class="transit-intro">목성·토성·천왕성·해왕성·명왕성 트랜짓으로 <strong>앞으로 5년</strong>을
+        <strong>확장기·안정기·압박기·전환기·도약·재편기</strong>로 봅니다.
+        출생 시간이 있으면 프로그레스 달(하우스 이동)도 반영돼요. 확정 예언이 아니라 <strong>상태·타이밍 가이드</strong>입니다.</p>
       <div id="timelineDataBlock">
         <div class="transit-controls">
           <button type="button" class="rt-btn rt-btn--share" id="btnTimeline" disabled>5년 타임라인 보기</button>
@@ -661,10 +699,10 @@ body.export-capturing #wheelCard .note{display:none !important;}
         <div id="timelineResult" class="transit-result"><div class="transit-empty">차트를 계산한 뒤 「5년 타임라인 보기」를 눌러 주세요.</div></div>
       </div>
       <div class="transit-ai-block no-print" id="timelineAiBlock" hidden>
-        <p class="transit-ai-intro">타임라인을 본 뒤 <strong>AI 좋은 시기 찾기</strong>로 연애·일·금전 타이밍을 풀어 볼 수 있어요.
+        <p class="transit-ai-intro">타임라인을 본 뒤 <strong>AI로 상태·타이밍 풀기</strong>로 연애·일·금전 흐름을 풀어 볼 수 있어요.
           같은 차트·같은 기간이면 다시 눌러도 크레딧이 안 깎입니다. <span class="ai-quota-cost">(최초 2크레딧)</span></p>
         <div class="transit-ai-row">
-          <button type="button" class="rt-btn rt-btn--share" id="btnTimelineAi" disabled>✨ AI 좋은 시기 찾기 (2크레딧)</button>
+          <button type="button" class="rt-btn rt-btn--share" id="btnTimelineAi" disabled>✨ AI로 상태·타이밍 풀기 (2크레딧)</button>
         </div>
         <div id="timelineAiResult" class="ai-result empty">위에서 타임라인을 계산한 뒤 AI를 이용해 주세요.</div>
         <p class="ai-time-hint" id="timelineAiHint">보통 20~40초 정도 걸려요.</p>
@@ -1140,6 +1178,12 @@ body.export-capturing #wheelCard .note{display:none !important;}
   let TIMELINE_AI_CACHE = { key: '', text: '' };
   let TIMELINE_AI_BUSY = false;
   let TIMELINE_SCAN_BUSY = false;
+  let TIMELINE_FILTER = 'all';
+  let TIMELINE_PREV_PROG_HOUSE = null;
+  let LAST_LIFE_TIMELINE = null;
+  let LIFE_AI_CACHE = { key: '', text: '' };
+  let LIFE_AI_BUSY = false;
+  let LIFE_SCAN_BUSY = false;
   const TRANSIT_AI_MEM = { fast: { key: '', text: '' }, slow: { key: '', text: '' } };
 
   /** 트랜짓 히트 배열 → 캐시용 각 구성 지문 (행성·본명·각 종류) */
@@ -1570,6 +1614,9 @@ body.export-capturing #wheelCard .note{display:none !important;}
 
     const btnTl = $('btnTimeline');
     if (btnTl) btnTl.disabled = !LAST_HOROSCOPE || !LAST_COORDS || libError;
+    const btnLife = $('btnLifeTimeline');
+    if (btnLife) btnLife.disabled = !LAST_HOROSCOPE || !LAST_COORDS || libError;
+    resetLifeTimelineUi();
 
     renderCounselorReport();
 
@@ -1604,8 +1651,12 @@ body.export-capturing #wheelCard .note{display:none !important;}
       $('yearForecast').innerHTML = LOCK_HTML;
       const tlRes = $('timelineResult');
       if (tlRes) tlRes.innerHTML = LOCK_HTML;
+      const lifeRes = $('lifeTimelineResult');
+      if (lifeRes) lifeRes.innerHTML = LOCK_HTML;
       const tlControls = document.querySelector('#timelineCard .transit-controls');
       if (tlControls) tlControls.style.display = 'none';
+      const lifeControls = document.querySelector('#lifeTimelineCard .transit-controls');
+      if (lifeControls) lifeControls.style.display = 'none';
       const yBlock = $('yearAiBlock');
       if (yBlock) yBlock.hidden = true;
       $('btnYearAi').hidden = true;
@@ -1613,6 +1664,10 @@ body.export-capturing #wheelCard .note{display:none !important;}
       if (tlAi) tlAi.hidden = true;
       const btnTlAi = $('btnTimelineAi');
       if (btnTlAi) btnTlAi.hidden = true;
+      const lifeAi = $('lifeTimelineAiBlock');
+      if (lifeAi) lifeAi.hidden = true;
+      const btnLifeAi = $('btnLifeTimelineAi');
+      if (btnLifeAi) btnLifeAi.hidden = true;
       $('btnAiRun').hidden = true;
       $('btnAiRun').disabled = true;
       const tBlock = $('transitAiBlock');
@@ -1635,11 +1690,15 @@ body.export-capturing #wheelCard .note{display:none !important;}
     if (controls) controls.style.display = '';
     const tlControls = document.querySelector('#timelineCard .transit-controls');
     if (tlControls) tlControls.style.display = '';
+    const lifeControls = document.querySelector('#lifeTimelineCard .transit-controls');
+    if (lifeControls) lifeControls.style.display = '';
     $('btnAiRun').hidden = false;
     $('btnAiRun').disabled = !LAST_CTX;
     $('btnYearAi').hidden = false;
     const btnTlAi = $('btnTimelineAi');
     if (btnTlAi) btnTlAi.hidden = false;
+    const btnLifeAi = $('btnLifeTimelineAi');
+    if (btnLifeAi) btnLifeAi.hidden = false;
     const tBlock = $('transitAiBlock');
     if (tBlock) tBlock.hidden = false;
     $('btnTransitAiFast').hidden = false;
@@ -1658,6 +1717,9 @@ body.export-capturing #wheelCard .note{display:none !important;}
     }
     if ($('timelineResult') && $('timelineResult').querySelector('.astro-lock')) {
       $('timelineResult').innerHTML = '<div class="transit-empty">「5년 타임라인 보기」를 눌러 장기 흐름을 계산해 주세요.</div>';
+    }
+    if ($('lifeTimelineResult') && $('lifeTimelineResult').querySelector('.astro-lock')) {
+      $('lifeTimelineResult').innerHTML = '<div class="transit-empty">「인생 흐름 보기」를 눌러 만 20~80세 흐름을 계산해 주세요.</div>';
     }
     if ($('yearForecast') && $('yearForecast').querySelector('.astro-lock')) {
       if (LAST_BIRTH && !LAST_BIRTH.unknownTime) computeYearForecast();
@@ -2591,13 +2653,13 @@ body.export-capturing #wheelCard .note{display:none !important;}
   function timelineCacheKey() {
     if (!LAST_TIMELINE) return '';
     const stamp = chartStampForTransitAi();
-    return `v1:timeline:${stamp}:${LAST_TIMELINE.fromYm}:${LAST_TIMELINE.toYm}`;
+    return `v2:timeline:${stamp}:${LAST_TIMELINE.fromYm}:${LAST_TIMELINE.toYm}`;
   }
 
   function timelineAiLocalKey() {
     const raw = timelineCacheKey();
     if (!raw || !window.PaljaAiQuota) return '';
-    return 'palja:astroTimeline:' + PaljaAiQuota.hashKey(raw);
+    return 'palja:astroTimelineV2:' + PaljaAiQuota.hashKey(raw);
   }
 
   function loadTimelineAiLocal() {
@@ -2624,6 +2686,19 @@ body.export-capturing #wheelCard .note{display:none !important;}
     } catch (e) { /* ignore */ }
   }
 
+  function paintTimelineResult(filter) {
+    const AT = window.AstroTimelineV2;
+    const box = $('timelineResult');
+    if (!AT || !box || !LAST_TIMELINE) return;
+    TIMELINE_FILTER = filter || 'all';
+    box.innerHTML = AT.renderHtml(LAST_TIMELINE, TIMELINE_FILTER);
+    box.querySelectorAll('[data-tl-filter] .tl-filter-btn').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        paintTimelineResult(btn.getAttribute('data-theme') || 'all');
+      });
+    });
+  }
+
   function refreshTimelineAiUi() {
     const block = $('timelineAiBlock');
     if (!block) return;
@@ -2646,12 +2721,51 @@ body.export-capturing #wheelCard .note{display:none !important;}
       return;
     }
     if (box.classList.contains('empty') && !box.querySelector('.astro-lock')) {
-      setAiResultBox(box, '타임라인을 바탕으로 「AI 좋은 시기 찾기」를 눌러 주세요.', { empty: true });
+      setAiResultBox(box, '타임라인을 바탕으로 「AI로 상태·타이밍 풀기」를 눌러 주세요.', { empty: true });
     }
   }
 
+  function buildProgMoonSample(sampleY, sampleMo, prevHouse) {
+    if (!LAST_BIRTH || LAST_BIRTH.unknownTime || !LAST_COORDS || !Origin || !Horoscope) return null;
+    const sample = new Date(sampleY, sampleMo - 1, 15, 12, 0, 0);
+    const birth = new Date(LAST_BIRTH.y, LAST_BIRTH.mo - 1, LAST_BIRTH.da, LAST_BIRTH.hh || 12, LAST_BIRTH.mi || 0, 0);
+    const ageYears = (sample.getTime() - birth.getTime()) / (365.25 * 24 * 3600 * 1000);
+    if (ageYears < 0) return null;
+    const ageDays = Math.floor(ageYears);
+    const prog = addDays(LAST_BIRTH.y, LAST_BIRTH.mo, LAST_BIRTH.da, ageDays);
+    const progOrigin = new Origin({
+      year: prog.y, month: prog.mo - 1, date: prog.da,
+      hour: LAST_BIRTH.hh, minute: LAST_BIRTH.mi,
+      latitude: LAST_COORDS.lat, longitude: LAST_COORDS.lng,
+    });
+    const progH = new Horoscope({
+      origin: progOrigin, houseSystem: 'placidus', zodiac: 'tropical',
+      aspectPoints: ['bodies'], aspectWithPoints: ['bodies'], aspectTypes: ['major'], language: 'en',
+    });
+    const moonDeg = deg(progH.CelestialBodies.moon);
+    if (moonDeg == null) return null;
+    const house = LAST_HOROSCOPE ? houseOfDeg(moonDeg, LAST_HOROSCOPE) : '';
+    const houseNum = house ? Number(house) : null;
+    const natalKeys = ['sun', 'moon', 'venus', 'mars', 'asc', 'mc'];
+    const aspects = [];
+    natalKeys.forEach((nk) => {
+      if (NATAL_DEGS[nk] == null) return;
+      const asp = findAspect(moonDeg, NATAL_DEGS[nk]);
+      if (!asp) return;
+      aspects.push({ nk, key: asp.key, orbOff: asp.orbOff });
+    });
+    const houseChanged = prevHouse != null && houseNum != null && prevHouse !== houseNum;
+    return {
+      lon: moonDeg,
+      house: houseNum || house || '',
+      houseChanged: !!houseChanged,
+      prevHouse: prevHouse,
+      aspects: aspects,
+    };
+  }
+
   async function computeTimelineScan() {
-    const AT = window.AstroTimeline;
+    const AT = window.AstroTimelineV2;
     if (!AT) {
       showStatus('타임라인 도구를 불러오지 못했어요. 새로고침 후 다시 시도해 주세요.', 'err');
       return;
@@ -2669,11 +2783,12 @@ body.export-capturing #wheelCard .note{display:none !important;}
     const box = $('timelineResult');
     const prev = btn ? btn.textContent : '';
     TIMELINE_SCAN_BUSY = true;
+    TIMELINE_PREV_PROG_HOUSE = null;
     if (btn) { btn.disabled = true; btn.textContent = '계산 중…'; }
     const monthsTotal = AT.MONTHS || 60;
-    const chunk = AT.CHUNK || 8;
+    const chunk = AT.CHUNK || 6;
     const slowKeys = AT.SLOW_KEYS || ['jupiter', 'saturn', 'uranus', 'neptune', 'pluto'];
-    const months = [];
+    const samples = [];
     const now = new Date();
     let y = now.getFullYear();
     let mo = now.getMonth() + 1;
@@ -2693,10 +2808,16 @@ body.export-capturing #wheelCard .note{display:none !important;}
             aspectPoints: ['bodies'], aspectWithPoints: ['bodies'], aspectTypes: ['major'], language: 'en',
           });
           const hits = [];
+          const transitMeta = {};
           slowKeys.forEach((tk) => {
             const b = th.CelestialBodies[tk];
             const td = b ? deg(b) : null;
             if (td == null) return;
+            let isRetro = false;
+            try {
+              isRetro = (typeof b.isRetrograde === 'function') ? !!b.isRetrograde() : !!b.isRetrograde;
+            } catch (e) { isRetro = false; }
+            transitMeta[tk] = { lon: td, retro: isRetro };
             Object.keys(NATAL_DEGS).forEach((nk) => {
               if (['chiron', 'northnode', 'southnode', 'lilith', 'fortune', 'vertex'].includes(nk)) return;
               const asp = findAspect(td, NATAL_DEGS[nk]);
@@ -2704,26 +2825,31 @@ body.export-capturing #wheelCard .note{display:none !important;}
               hits.push({ tk, nk, key: asp.key, orbOff: asp.orbOff });
             });
           });
-          const scored = AT.scoreMonth(hits);
-          months.push({
+          const progMoon = buildProgMoonSample(yy, mm, TIMELINE_PREV_PROG_HOUSE);
+          if (progMoon && progMoon.house) {
+            const hn = Number(progMoon.house);
+            if (!Number.isNaN(hn)) TIMELINE_PREV_PROG_HOUSE = hn;
+          }
+          samples.push({
             y: yy,
             mo: mm,
             ym: AT.ymLabel(yy, mm),
-            score: scored.score,
-            themes: scored.themes,
-            topHits: scored.topHits,
+            hits: hits,
+            transitMeta: transitMeta,
+            progMoon: progMoon,
           });
           mo += 1;
           if (mo > 12) { mo = 1; y += 1; }
         }
         if (box) {
-          box.innerHTML = '<div class="transit-empty">5년 타임라인 계산 중… ' + months.length + '/' + monthsTotal + '</div>';
+          box.innerHTML = '<div class="transit-empty">트랜짓+프로그레스 계산 중… ' + samples.length + '/' + monthsTotal + '</div>';
         }
         await new Promise((r) => setTimeout(r, 0));
       }
-      const data = AT.buildResult(months);
+      const data = AT.buildResult(samples);
       LAST_TIMELINE = data;
-      if (box) box.innerHTML = AT.renderHtml(data);
+      TIMELINE_FILTER = 'all';
+      paintTimelineResult('all');
       TIMELINE_AI_CACHE = { key: '', text: '' };
       refreshTimelineAiUi();
     } catch (e) {
@@ -2741,11 +2867,12 @@ body.export-capturing #wheelCard .note{display:none !important;}
   }
 
   function buildTimelineAiPrompt() {
-    const AT = window.AstroTimeline;
+    const AT = window.AstroTimelineV2;
     const L = [];
     L.push(
-      '당신은 따뜻하고 통찰력 있는 전문 점성가입니다. 아래 출생 차트 요약과 5년 장기 운 타임라인(느린 행성 트랜짓 스캔)을 바탕으로 ' +
-      '한국어로 「좋은 시기 찾기」 해석을 써 주세요. 확정·공포·단정은 피하고, 타이밍 가이드로 말하세요.'
+      '당신은 따뜻하고 통찰력 있는 전문 점성가입니다. 아래 출생 차트와 5년 장기 운 타임라인 v2(4축·상태 구간·에피소드)를 바탕으로 ' +
+      '한국어로 상태·타이밍 해석을 써 주세요. 「좋은/나쁜 운」 이분법 대신 확장기·안정기·압박기·전환기·도약·재편기 상태를 활용하세요. ' +
+      '확정·공포·단정은 피하세요.'
     );
     L.push('');
     if (LAST_CTX) {
@@ -2761,14 +2888,14 @@ body.export-capturing #wheelCard .note{display:none !important;}
     L.push(AT && LAST_TIMELINE ? AT.buildAiSummary(LAST_TIMELINE) : '');
     L.push('');
     L.push('출력 형식(마크다운 ## 제목 사용):');
-    L.push('## 1. 5년 전체 큰 줄기 — 3~5문장');
-    L.push('## 2. 좋은 시기 — 연애');
-    L.push('## 3. 좋은 시기 — 일·커리어');
-    L.push('## 4. 좋은 시기 — 금전');
-    L.push('## 5. 조심·정리 구간 — 과하지 않게, 활용법 포함');
+    L.push('## 1. 5년 큰 줄기 — 상태 전환 서사 (3~5문장)');
+    L.push('## 2. 확장기·도약기에 쓰기 좋은 타이밍 — 연애');
+    L.push('## 3. 확장기·도약기에 쓰기 좋은 타이밍 — 일·커리어');
+    L.push('## 4. 확장기·도약기에 쓰기 좋은 타이밍 — 금전');
+    L.push('## 5. 압박·전환기에 가져갈 태도 — 과하지 않게, 활용법 포함');
     L.push('## 6. 올해 안에 쓸 수 있는 한 줄 액션');
     L.push('');
-    L.push('규칙: 각 좋은 시기 섹션에 구체적 연월 구간을 최소 1개 쓰고, 타임라인에 나온 각·행성을 쉬운 말로 연결하세요. 없는 구간을 지어내지 마세요.');
+    L.push('규칙: 각 주제 섹션에 구체적 연월 구간을 최소 1개 쓰고, 타임라인의 상태·에피소드만 근거로 쓰세요. 없는 구간을 지어내지 마세요.');
     return L.join('\n');
   }
 
@@ -3312,9 +3439,336 @@ body.export-capturing #wheelCard .note{display:none !important;}
     }
   });
 
+  function resetLifeTimelineUi() {
+    LAST_LIFE_TIMELINE = null;
+    LIFE_AI_CACHE = { key: '', text: '' };
+    const box = $('lifeTimelineResult');
+    if (box && !box.querySelector('.astro-lock')) {
+      box.innerHTML = '<div class="transit-empty">차트를 계산한 뒤 「인생 흐름 보기」를 눌러 주세요.</div>';
+    }
+    const aiBox = $('lifeTimelineAiResult');
+    if (aiBox) {
+      aiBox.className = 'ai-result empty';
+      aiBox.textContent = '위에서 인생 흐름을 계산한 뒤 AI를 이용해 주세요.';
+      delete aiBox.dataset.aiRaw;
+    }
+    refreshLifeTimelineAiUi();
+  }
+
+  function lifeCacheKey() {
+    if (!LAST_LIFE_TIMELINE) return '';
+    return 'v1:life:' + chartStampForTransitAi();
+  }
+
+  function refreshLifeTimelineAiUi() {
+    const block = $('lifeTimelineAiBlock');
+    if (!block) return;
+    if (!hasAiAccess() || !LAST_CTX || !LAST_LIFE_TIMELINE) {
+      block.hidden = true;
+      return;
+    }
+    block.hidden = false;
+    const btn = $('btnLifeTimelineAi');
+    if (btn) btn.disabled = !AI_SERVER_OK || LIFE_AI_BUSY || LIFE_SCAN_BUSY;
+  }
+
+  function buildLifeNatalContext() {
+    const LT = window.AstroLifeTimeline;
+    const HR = window.AstroHouseRulers;
+    if (!LT || !LAST_BIRTH) return null;
+    const houses = [];
+    if (LAST_HOROSCOPE && LAST_HOROSCOPE.Houses && !LAST_BIRTH.unknownTime) {
+      LAST_HOROSCOPE.Houses.forEach((h, i) => {
+        const hd = houseStart(h);
+        const sign = hd != null && HR ? HR.signKeyFromDegree(hd) : null;
+        houses.push({ id: h.id != null ? Number(h.id) : i + 1, cuspDeg: hd, sign: sign });
+      });
+    }
+    return LT.buildNatalContext({
+      birth: LAST_BIRTH,
+      coords: LAST_COORDS,
+      natalDegs: NATAL_DEGS,
+      houses: houses,
+    });
+  }
+
+  function sampleTransitHitsAt(y, mo, da, slowKeys) {
+    const origin = new Origin({
+      year: y, month: mo - 1, date: da || 15, hour: 12, minute: 0,
+      latitude: LAST_COORDS.lat, longitude: LAST_COORDS.lng,
+    });
+    const th = new Horoscope({
+      origin, houseSystem: 'placidus', zodiac: 'tropical',
+      aspectPoints: ['bodies'], aspectWithPoints: ['bodies'], aspectTypes: ['major'], language: 'en',
+    });
+    const hits = [];
+    slowKeys.forEach((tk) => {
+      const b = th.CelestialBodies[tk];
+      const td = b ? deg(b) : null;
+      if (td == null) return;
+      let isRetro = false;
+      try {
+        isRetro = (typeof b.isRetrograde === 'function') ? !!b.isRetrograde() : !!b.isRetrograde;
+      } catch (e) { isRetro = false; }
+      Object.keys(NATAL_DEGS).forEach((nk) => {
+        if (['chiron', 'northnode', 'southnode', 'lilith', 'fortune', 'vertex'].includes(nk)) return;
+        if (LAST_BIRTH && LAST_BIRTH.unknownTime && (nk === 'asc' || nk === 'mc')) return;
+        const asp = findAspect(td, NATAL_DEGS[nk]);
+        if (!asp) return;
+        hits.push({ tk, nk, key: asp.key, orbOff: asp.orbOff, retro: isRetro });
+      });
+    });
+    return hits;
+  }
+
+  function ageExactOn(y, mo, da) {
+    const birth = new Date(LAST_BIRTH.y, LAST_BIRTH.mo - 1, LAST_BIRTH.da);
+    const at = new Date(y, mo - 1, da || 15);
+    return (at.getTime() - birth.getTime()) / (365.25 * 24 * 3600 * 1000);
+  }
+
+  async function computeLifeTimelineScan() {
+    const LT = window.AstroLifeTimeline;
+    if (!LT) {
+      showStatus('인생 흐름 도구를 불러오지 못했어요. 새로고침 후 다시 시도해 주세요.', 'err');
+      return;
+    }
+    if (!LAST_HOROSCOPE || !LAST_COORDS || !LAST_BIRTH || !Object.keys(NATAL_DEGS).length) {
+      showStatus('차트를 먼저 계산해 주세요.', 'err');
+      return;
+    }
+    if (libError || !Origin || !Horoscope) {
+      $('lifeTimelineResult').innerHTML = '<div class="transit-empty">계산 도구를 불러오지 못했어요.</div>';
+      return;
+    }
+    if (LIFE_SCAN_BUSY) return;
+    const btn = $('btnLifeTimeline');
+    const box = $('lifeTimelineResult');
+    const prev = btn ? btn.textContent : '';
+    LIFE_SCAN_BUSY = true;
+    if (btn) { btn.disabled = true; btn.textContent = '계산 중…'; }
+
+    try {
+      const natalCtx = buildLifeNatalContext();
+      const c = LT.getConfig();
+      const slowKeys = LT.SLOW_KEYS;
+      const coarse = [];
+      // age 20..80 every 3 months
+      for (let ageMo = c.AGE_FROM * 12; ageMo <= c.AGE_TO * 12; ageMo += c.COARSE_STEP_MONTHS) {
+        const prog = addDays(LAST_BIRTH.y, LAST_BIRTH.mo, LAST_BIRTH.da, Math.floor(ageMo * 365.25 / 12));
+        // use calendar month of that date, day 15
+        const y = prog.y;
+        const mo = prog.mo;
+        const hits = sampleTransitHitsAt(y, mo, 15, slowKeys);
+        coarse.push({
+          y: y,
+          mo: mo,
+          ym: LT.ymLabel(y, mo),
+          ageExact: ageExactOn(y, mo, 15),
+          hits: hits,
+        });
+        if (coarse.length % 24 === 0) {
+          box.innerHTML = '<div class="transit-empty">인생 장거리 스캔 중… ' + coarse.length + '샘플</div>';
+          await new Promise((r) => setTimeout(r, 0));
+        }
+      }
+
+      const coarseResult = LT.processCoarseSamples(coarse, natalCtx);
+      const fineMap = {};
+      const candidates = coarseResult.candidates || [];
+      for (let ci = 0; ci < candidates.length; ci++) {
+        const cand = candidates[ci];
+        if (cand.skipFine || !cand.fineRanges || !cand.fineRanges.length) continue;
+        for (const range of cand.fineRanges) {
+          let ym = range.fromYm;
+          const guard = 0;
+          let steps = 0;
+          while (ym <= range.toYm && steps < 48) {
+            if (!fineMap[ym]) {
+              const p = ym.split('-').map(Number);
+              fineMap[ym] = {
+                y: p[0],
+                mo: p[1],
+                ym: ym,
+                ageExact: ageExactOn(p[0], p[1], 15),
+                hits: sampleTransitHitsAt(p[0], p[1], 15, slowKeys),
+              };
+            }
+            ym = LT.addMonthsYm(ym, 1);
+            steps++;
+          }
+        }
+        if (ci % 3 === 0) {
+          box.innerHTML = '<div class="transit-empty">후보 정밀 계산 중… ' + (ci + 1) + '/' + candidates.length + '</div>';
+          await new Promise((r) => setTimeout(r, 0));
+        }
+      }
+
+      // light SP confirm for A/B peaks (Moon only samples into confirmation meta)
+      const confirmations = [];
+      candidates.forEach((cand) => {
+        const plan = LT.spPlanForCandidate(cand);
+        if (!plan.bodies.length || LAST_BIRTH.unknownTime) return;
+        let boost = 1;
+        // theme agreement heuristic: if peak fine sample career/money high and prog moon house matches later — skip heavy; mark boost if any SP body
+        if (plan.bodies.indexOf('moon') >= 0) boost = 1 + (c.SP_THEME_BONUS || 0.04);
+        confirmations.push({
+          periodId: null,
+          candidateId: cand.id,
+          importanceBoost: boost,
+          // importanceBoost: compute_priority_only — NOT fortune score
+        });
+      });
+
+      const fineSamples = Object.keys(fineMap).sort().map((k) => fineMap[k]);
+      const result = LT.finalizeWithFine(coarseResult, fineSamples, confirmations);
+      const now = new Date();
+      const nowYm = LT.ymLabel(now.getFullYear(), now.getMonth() + 1);
+      result.now = { ym: nowYm, ageExact: ageExactOn(now.getFullYear(), now.getMonth() + 1, now.getDate()) };
+      result.linkToFiveYear = {
+        enabled: true,
+        fromYm: nowYm,
+        toYm: LT.addMonthsYm(nowYm, 60),
+        action: 'open_existing_five_year_card',
+      };
+
+      // map confirmations onto periods by peak proximity
+      result.periods.forEach((p) => {
+        const near = candidates.find((cand) => p.peakYm >= cand.startYm && p.peakYm <= cand.endYm);
+        if (near && near.strengthBand === 'strong') {
+          /* keep */
+        }
+      });
+
+      LAST_LIFE_TIMELINE = result;
+      box.innerHTML = LT.renderHtml(result, nowYm);
+      const fiveBtn = $('btnLifeOpenFiveYear');
+      if (fiveBtn) {
+        fiveBtn.addEventListener('click', () => {
+          const card = $('timelineCard');
+          if (card) card.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          showStatus('아래에서 「5년 타임라인 보기」로 월별 상세를 볼 수 있어요.', 'ok');
+        });
+      }
+      LIFE_AI_CACHE = { key: '', text: '' };
+      refreshLifeTimelineAiUi();
+    } catch (e) {
+      console.error(e);
+      LAST_LIFE_TIMELINE = null;
+      box.innerHTML = '<div class="transit-empty">인생 흐름 계산 중 오류가 났어요.</div>';
+    } finally {
+      LIFE_SCAN_BUSY = false;
+      if (btn) {
+        btn.textContent = prev || '인생 흐름 보기';
+        btn.disabled = !LAST_HOROSCOPE || !LAST_COORDS;
+      }
+      refreshLifeTimelineAiUi();
+    }
+  }
+
+  function buildLifeAiPrompt() {
+    const L = [];
+    L.push(
+      '당신은 전문 점성가입니다. 아래 인생 운의 흐름(만 20~80) 요약을 바탕으로 한국어로 해석하세요. ' +
+      '기회·결실·변화·압력·활동을 같은 종류의 대운으로 뭉개지 마세요. 확정·공포 금지. ' +
+      'importance/점수는 길흉이 아니라 계산 우선순위 메타입니다.'
+    );
+    if (LAST_CTX) {
+      L.push('빅3: 태양 ' + LAST_CTX.sunSign.ko + ' · 달 ' + LAST_CTX.moonSign.ko +
+        (LAST_CTX.ascSign ? ' · 상승 ' + LAST_CTX.ascSign.ko : ''));
+    }
+    const r = LAST_LIFE_TIMELINE;
+    if (r) {
+      L.push('현재: ' + (r.now && r.now.ym));
+      L.push('주요 인생 구간:');
+      (r.periods || []).slice(0, 12).forEach((p) => {
+        L.push(' - ' + p.startYm + '~' + p.endYm + ' ' + p.stateKo + ' | ' + p.summaryLine +
+          (p.strengthBand === 'relative_soft' ? ' (상대적 고점)' : ''));
+      });
+      L.push('하이라이트:');
+      const hl = r.highlights || {};
+      Object.keys(hl).forEach((k) => {
+        (hl[k] || []).slice(0, 2).forEach((h) => {
+          L.push(' - [' + k + '] ' + h.ymRange + ' ' + (h.why || ''));
+        });
+      });
+    }
+    L.push('## 1. 인생 큰 줄기');
+    L.push('## 2. 과거 변곡점과 현재 위치');
+    L.push('## 3. 기회·결실 vs 압력·전환 (구분해서)');
+    L.push('## 4. 재물·커리어·관계 타이밍');
+    L.push('## 5. 앞으로 가져갈 태도 한 줄');
+    return L.join('\n');
+  }
+
+  async function callLifeTimelineAi() {
+    if (!ASTRO_AI_API_ENABLED) return;
+    if (!hasAiAccess()) { showStatus('AI 해석은 Basic 이상 요금제 또는 AI 크레딧이 필요해요.', 'err'); return; }
+    if (!LAST_LIFE_TIMELINE) {
+      showStatus('먼저 「인생 흐름 보기」를 눌러 주세요.', 'err');
+      return;
+    }
+    const btn = $('btnLifeTimelineAi');
+    const box = $('lifeTimelineAiResult');
+    const hint = $('lifeTimelineAiHint');
+    if (!AI_SERVER_OK) {
+      setAiResultBox(box, 'AI 서버가 아직 설정되지 않았어요.', { plain: true });
+      return;
+    }
+    const cacheKeyRaw = lifeCacheKey();
+    if (LIFE_AI_CACHE.key === cacheKeyRaw && LIFE_AI_CACHE.text) {
+      setAiResultBox(box, LIFE_AI_CACHE.text);
+      return;
+    }
+    const prev = btn.textContent;
+    LIFE_AI_BUSY = true;
+    btn.textContent = '⏳ 해석 중…';
+    btn.disabled = true;
+    setAiResultBox(box, '해석을 생성하고 있어요…', { plain: true });
+    if (hint) hint.classList.add('is-loading');
+    const prompt = buildLifeAiPrompt();
+    const cacheKey = window.PaljaAiQuota
+      ? PaljaAiQuota.hashKey(cacheKeyRaw + ':' + prompt.slice(0, 500))
+      : cacheKeyRaw;
+    try {
+      if (!window.PaljaAiQuota) throw new Error('no_quota_client');
+      const { text, quota, data } = await PaljaAiQuota.callAi({
+        feature: 'astro_life_timeline',
+        cacheKey,
+        max_tokens: 6144,
+        messages: [{ role: 'user', content: prompt }],
+      });
+      let out = text || '해석을 생성하지 못했어요.';
+      if (data?.stop_reason === 'max_tokens') out += '\n\n(※ 해석이 길어 일부가 잘렸을 수 있어요.)';
+      LIFE_AI_CACHE = { key: cacheKeyRaw, text: out };
+      setAiResultBox(box, out);
+      if (quota) {
+        LAST_AI_QUOTA = quota;
+        PaljaAiQuota.applyQuotaBadge($('aiQuotaBadge'), quota);
+      }
+    } catch (e) {
+      console.error(e);
+      if (e.code === 'quota_exceeded' || e.status === 429) {
+        setAiResultBox(box, '이번 달 AI 크레딧을 모두 사용했어요.', { plain: true });
+      } else if (e.message === 'login_required') {
+        setAiResultBox(box, 'AI 해석은 로그인 후 이용할 수 있어요.', { plain: true });
+      } else {
+        setAiResultBox(box, 'AI 해석을 일시적으로 사용할 수 없어요.', { plain: true });
+      }
+    } finally {
+      LIFE_AI_BUSY = false;
+      btn.textContent = prev;
+      btn.disabled = !AI_SERVER_OK;
+      if (hint) hint.classList.remove('is-loading');
+      refreshLifeTimelineAiUi();
+    }
+  }
+
   $('btnTransit').addEventListener('click', computeTransit);
   $('btnTimeline').addEventListener('click', computeTimelineScan);
   $('btnTimelineAi').addEventListener('click', callTimelineAi);
+  $('btnLifeTimeline').addEventListener('click', computeLifeTimelineScan);
+  $('btnLifeTimelineAi').addEventListener('click', callLifeTimelineAi);
 
   async function callAstroDeepAi(topic) {
     const meta = DEEP_AI_META[topic];
