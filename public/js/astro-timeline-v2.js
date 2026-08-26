@@ -269,6 +269,17 @@
     }
 
     top.sort(function (a, b) { return b.mag - a.mag; });
+    var rawAxesSnap = {
+      opportunity: Math.round((rawAxes.opportunity || 0) * 1000) / 1000,
+      stability: Math.round((rawAxes.stability || 0) * 1000) / 1000,
+      pressure: Math.round((rawAxes.pressure || 0) * 1000) / 1000,
+      change: Math.round((rawAxes.change || 0) * 1000) / 1000,
+    };
+    var rawThemesSnap = {
+      money: Math.round((rawThemes.money || 0) * 1000) / 1000,
+      career: Math.round((rawThemes.career || 0) * 1000) / 1000,
+      relationship: Math.round((rawThemes.relationship || 0) * 1000) / 1000,
+    };
     var axes = normalizeAxes(rawAxes);
     var themes = normalizeThemes(rawThemes);
     var state = classifyState(axes, { uranusPluto: uranusPluto });
@@ -278,7 +289,9 @@
       mo: sample.mo,
       ym: sample.ym || ymLabel(sample.y, sample.mo),
       axes: axes,
+      rawAxes: rawAxesSnap,
       themes: themes,
+      rawThemes: rawThemesSnap,
       state: state,
       topHits: top.slice(0, 5),
       progNote: progNote,
@@ -476,19 +489,501 @@
     });
   }
 
+  /** 정렬된 배열에서 value의 백분위(0~1). */
+  function percentileOf(sortedAsc, value) {
+    var n = sortedAsc.length;
+    if (!n) return 0;
+    var lo = 0;
+    var hi = n;
+    while (lo < hi) {
+      var mid = (lo + hi) >> 1;
+      if (sortedAsc[mid] < value) lo = mid + 1;
+      else hi = mid;
+    }
+    var first = lo;
+    while (lo < n && sortedAsc[lo] === value) lo += 1;
+    var last = lo - 1;
+    if (first >= n) return 1;
+    if (last < 0) return 0;
+    var rank = (first + last) / 2;
+    return n <= 1 ? 1 : rank / (n - 1);
+  }
+
+  function percentileToStars(p) {
+    if (p >= 0.9) return 5;
+    if (p >= 0.75) return 4;
+    if (p >= 0.5) return 3;
+    if (p >= 0.25) return 2;
+    return 1;
+  }
+
+  var FLAG_LABEL = {
+    opportunity: '기회·활용',
+    stability: '안정·결실',
+    pressure: '주의·점검',
+    change: '중요 변화',
+  };
+
+  function groupConsecutiveMonths(indices, months, similarFn) {
+    if (!indices.length) return [];
+    var sorted = indices.slice().sort(function (a, b) { return a - b; });
+    var ranges = [];
+    var start = sorted[0];
+    var prev = sorted[0];
+    for (var i = 1; i < sorted.length; i++) {
+      var idx = sorted[i];
+      var contiguous = idx === prev + 1;
+      var similar = !similarFn || similarFn(months[prev], months[idx]);
+      if (contiguous && similar) {
+        prev = idx;
+        continue;
+      }
+      ranges.push({
+        startIdx: start,
+        endIdx: prev,
+        startYm: months[start].ym,
+        endYm: months[prev].ym,
+        months: prev - start + 1,
+      });
+      start = idx;
+      prev = idx;
+    }
+    ranges.push({
+      startIdx: start,
+      endIdx: prev,
+      startYm: months[start].ym,
+      endYm: months[prev].ym,
+      months: prev - start + 1,
+    });
+    return ranges;
+  }
+
+  function ymRangeLabel(r) {
+    if (!r) return '';
+    if (r.startYm === r.endYm) return String(r.startYm).replace('-', '.');
+    return String(r.startYm).replace('-', '.') + '~' + String(r.endYm).replace('-', '.');
+  }
+
+  function pickTopIndex(months, scoreFn) {
+    var best = -1;
+    var bestV = -Infinity;
+    months.forEach(function (m, i) {
+      var v = scoreFn(m);
+      if (v > bestV) {
+        bestV = v;
+        best = i;
+      }
+    });
+    return best;
+  }
+
+  var OUTER_BODY = { uranus: 1, neptune: 1, pluto: 1 };
+  var HARD_ASP = { square: 1, opposition: 1, conjunction: 1 };
+
+  var JUDGMENT_META = {
+    stableUtilize: {
+      ko: '안정적으로 활용하기 좋은 시기',
+      note: '기회가 있고 부담·변화가 크지 않아 움직이기 좋은 편입니다. 과신은 금물입니다.',
+    },
+    utilizeInChange: {
+      ko: '기회는 크지만 변화가 큰 시기',
+      note: '확장 기회는 있으나 변수가 커서, 과잉확장보다 선택적으로 움직이세요.',
+    },
+    opportunityWithLoad: {
+      ko: '기회와 부담이 함께 큰 시기',
+      note: '성과 가능성은 있으나 부담이 큽니다. 무리한 확장은 주의하세요.',
+    },
+    cautionChange: {
+      ko: '주의가 필요한 큰 변화 시기',
+      note: '기존 흐름이 크게 흔들리기 쉽습니다. 결정·계약을 평소보다 꼼꼼히 보세요.',
+    },
+    caution: {
+      ko: '주의가 필요한 시기',
+      note: '부담이 앞서는 때입니다. 결정·갈등·계약에 신중하세요.',
+    },
+    bigChange: {
+      ko: '변화가 큰 시기',
+      note: '길흉을 단정하기보다, 전환·재편 가능성에 초점을 두세요.',
+    },
+    quiet: {
+      ko: '비교적 잔잔한 흐름',
+      note: '특정 타이밍으로 강조할 정도는 아닙니다.',
+    },
+  };
+
+  function isOuterRelatedHard(h) {
+    return !!(h && HARD_ASP[h.key] && (OUTER_BODY[h.tk] || OUTER_BODY[h.nk]));
+  }
+
+  function isSaturnHard(h) {
+    return !!(h && h.tk === 'saturn' && HARD_ASP[h.key]);
+  }
+
+  function isJupiterHard(h) {
+    return !!(h && h.tk === 'jupiter' && (h.key === 'square' || h.key === 'opposition'));
+  }
+
+  /** 별점(상대) + raw 비율·히트 성격(절대) → 월 판정. rawAxes/state 자체는 변경하지 않음. */
+  function classifyMonthJudgment(m) {
+    var s = m.stars || {};
+    var raw = m.rawAxes || emptyAxes();
+    var oStar = s.opportunity || 0;
+    var pStar = s.pressure || 0;
+    var cStar = s.change || 0;
+    var rawO = Math.max(0.001, raw.opportunity || 0);
+    var rawP = raw.pressure || 0;
+    var rawC = raw.change || 0;
+    var rawPO = rawP / rawO;
+    var rawCO = rawC / rawO;
+
+    var ranked = (m.topHits && m.topHits.length)
+      ? m.topHits
+      : (m.hits || []).slice().sort(function (a, b) {
+        var ma = AXES.reduce(function (sum, k) { return sum + ((contribForHit(a)[k]) || 0); }, 0);
+        var mb = AXES.reduce(function (sum, k) { return sum + ((contribForHit(b)[k]) || 0); }, 0);
+        return mb - ma;
+      }).slice(0, 5);
+
+    var outerHardTop3 = 0;
+    var saturnHardTop3 = 0;
+    var jupiterHard = false;
+    ranked.slice(0, 3).forEach(function (h) {
+      if (isOuterRelatedHard(h)) outerHardTop3 += 1;
+      if (isSaturnHard(h)) saturnHardTop3 += 1;
+    });
+    (m.hits || ranked).forEach(function (h) {
+      if (isJupiterHard(h)) jupiterHard = true;
+    });
+
+    var opportunityOn = oStar >= 4;
+    // 기본: 별점(+약한 raw 보정). 숨은 하드 보정은 기회성 ON일 때만(가짜 stableUtilize 방지)
+    var loadOn = pStar >= 4 || (pStar >= 3 && rawPO >= 0.7);
+    var changeOn = cStar >= 4 || (cStar >= 3 && rawCO >= 0.75);
+
+    if (opportunityOn) {
+      if (!loadOn && (
+        rawPO >= 0.85
+        || (saturnHardTop3 >= 1 && rawPO >= 0.55)
+        || (outerHardTop3 >= 2 && rawPO >= 0.7)
+      )) loadOn = true;
+      if (!changeOn && (
+        outerHardTop3 >= 2
+        || (rawCO >= 0.75 && outerHardTop3 >= 1)
+        || rawCO >= 0.85
+      )) changeOn = true;
+    }
+
+    var stableUtilize = opportunityOn && !loadOn && !changeOn;
+    // utilizeInChange: 기회성 ON일 때만 (변화만 크다고 켜지지 않음)
+    var utilizeInChange = opportunityOn && changeOn && !loadOn;
+    var opportunityWithLoad = opportunityOn && loadOn;
+
+    var primary = 'quiet';
+    if (opportunityWithLoad) primary = 'opportunityWithLoad';
+    else if (utilizeInChange) primary = 'utilizeInChange';
+    else if (stableUtilize) primary = 'stableUtilize';
+    else if (!opportunityOn && loadOn && changeOn) primary = 'cautionChange';
+    else if (!opportunityOn && loadOn) primary = 'caution';
+    else if (!opportunityOn && changeOn) primary = 'bigChange';
+
+    var meta = JUDGMENT_META[primary] || JUDGMENT_META.quiet;
+    var note = meta.note;
+    if (jupiterHard && (primary === 'stableUtilize' || primary === 'utilizeInChange' || primary === 'opportunityWithLoad')) {
+      note += ' 목성 하드: 확장 기회와 과장·과잉 리스크가 함께 있습니다.';
+    }
+
+    return {
+      primary: primary,
+      headline: meta.ko,
+      note: note,
+      signals: {
+        opportunity: opportunityOn,
+        load: loadOn,
+        change: changeOn,
+        stableUtilize: stableUtilize,
+        utilizeInChange: utilizeInChange,
+        opportunityWithLoad: opportunityWithLoad,
+      },
+      ratios: {
+        rawPO: Math.round(rawPO * 1000) / 1000,
+        rawCO: Math.round(rawCO * 1000) / 1000,
+      },
+      hitHints: {
+        outerHardTop3: outerHardTop3,
+        saturnHardTop3: saturnHardTop3,
+        jupiterHard: jupiterHard,
+      },
+    };
+  }
+
+  function rangePack(r) {
+    if (!r) return null;
+    return {
+      range: ymRangeLabel(r),
+      startYm: r.startYm,
+      endYm: r.endYm,
+      months: r.months,
+    };
+  }
+
+  function buildKeyTimings(months) {
+    var stableIdx = [];
+    var changeUtilizeIdx = [];
+    var loadOppIdx = [];
+    var cautionIdx = [];
+    var bigChangeIdx = [];
+
+    months.forEach(function (m, i) {
+      var j = m.judgment || classifyMonthJudgment(m);
+      m.judgment = j;
+      if (j.signals.stableUtilize) stableIdx.push(i);
+      if (j.signals.utilizeInChange) changeUtilizeIdx.push(i);
+      if (j.signals.opportunityWithLoad) loadOppIdx.push(i);
+      if (j.primary === 'caution' || j.primary === 'cautionChange') cautionIdx.push(i);
+      // 변화가 큰 시기: 기회 OFF인 변화. utilizeInChange와 분리
+      if (j.primary === 'bigChange' || j.primary === 'cautionChange') bigChangeIdx.push(i);
+    });
+
+    function catSimilar(a, b) {
+      var ja = a.judgment && a.judgment.primary;
+      var jb = b.judgment && b.judgment.primary;
+      return ja === jb;
+    }
+
+    function bestRange(ranges, scoreFn) {
+      if (!ranges.length) return null;
+      var best = null;
+      var bestV = -Infinity;
+      ranges.forEach(function (r) {
+        var sum = 0;
+        for (var i = r.startIdx; i <= r.endIdx; i++) sum += scoreFn(months[i]);
+        var avg = sum / Math.max(1, r.months);
+        if (avg > bestV) {
+          bestV = avg;
+          best = r;
+        }
+      });
+      return best;
+    }
+
+    var topOpp = pickTopIndex(months, function (m) { return (m.rawAxes && m.rawAxes.opportunity) || 0; });
+    var topPre = pickTopIndex(months, function (m) { return (m.rawAxes && m.rawAxes.pressure) || 0; });
+    var topChg = pickTopIndex(months, function (m) { return (m.rawAxes && m.rawAxes.change) || 0; });
+
+    var bothHigh = months
+      .map(function (m) {
+        return {
+          ym: m.ym,
+          opportunityStars: (m.stars && m.stars.opportunity) || 0,
+          pressureStars: (m.stars && m.stars.pressure) || 0,
+          changeStars: (m.stars && m.stars.change) || 0,
+          state: m.state,
+          primary: (m.judgment && m.judgment.primary) || '',
+          headline: (m.judgment && m.judgment.headline) || '',
+        };
+      })
+      .filter(function (x) { return x.opportunityStars >= 4 && x.pressureStars >= 4; });
+
+    function themePeak(theme) {
+      var idx = pickTopIndex(months, function (m) {
+        return (m.rawThemes && m.rawThemes[theme]) || 0;
+      });
+      if (idx < 0) return null;
+      var m = months[idx];
+      return {
+        ym: m.ym,
+        themeStars: (m.themeStars && m.themeStars[theme]) || 1,
+        stars: m.stars,
+        state: m.state,
+        stateKo: (STATE_META[m.state] || {}).ko || m.state,
+        judgment: m.judgment ? { primary: m.judgment.primary, headline: m.judgment.headline } : null,
+        note: '주제 활성도(좋음/나쁨 방향 아님). 기회·주의는 stars·judgment 참고.',
+      };
+    }
+
+    var stableBest = bestRange(
+      groupConsecutiveMonths(stableIdx, months, catSimilar),
+      function (m) {
+        return ((m.stars && m.stars.opportunity) || 0)
+          - ((m.stars && m.stars.pressure) || 0) * 0.3
+          - ((m.stars && m.stars.change) || 0) * 0.2;
+      }
+    );
+    var changeUtilizeBest = bestRange(
+      groupConsecutiveMonths(changeUtilizeIdx, months, catSimilar),
+      function (m) {
+        return ((m.stars && m.stars.opportunity) || 0) + ((m.stars && m.stars.change) || 0) * 0.5;
+      }
+    );
+    var loadOppBest = bestRange(
+      groupConsecutiveMonths(loadOppIdx, months, catSimilar),
+      function (m) {
+        return ((m.stars && m.stars.opportunity) || 0) + ((m.stars && m.stars.pressure) || 0);
+      }
+    );
+    var cautionBest = bestRange(
+      groupConsecutiveMonths(cautionIdx, months, catSimilar),
+      function (m) { return (m.stars && m.stars.pressure) || 0; }
+    );
+    var changeBest = bestRange(
+      groupConsecutiveMonths(bigChangeIdx, months, catSimilar),
+      function (m) { return (m.stars && m.stars.change) || 0; }
+    );
+
+    function peakPack(idx) {
+      if (idx < 0) return null;
+      return {
+        ym: months[idx].ym,
+        stars: months[idx].stars,
+        rawAxes: months[idx].rawAxes,
+        state: months[idx].state,
+        judgment: months[idx].judgment
+          ? { primary: months[idx].judgment.primary, headline: months[idx].judgment.headline }
+          : null,
+      };
+    }
+
+    function fallbackYm(idx) {
+      if (idx < 0) return null;
+      return {
+        range: String(months[idx].ym).replace('-', '.'),
+        startYm: months[idx].ym,
+        endYm: months[idx].ym,
+        months: 1,
+      };
+    }
+
+    var stablePack = rangePack(stableBest);
+    var dist = {};
+    months.forEach(function (m) {
+      var p = (m.judgment && m.judgment.primary) || 'quiet';
+      dist[p] = (dist[p] || 0) + 1;
+    });
+
+    return {
+      stableUtilize: stablePack,
+      utilizeInChange: rangePack(changeUtilizeBest),
+      opportunityWithLoad: rangePack(loadOppBest),
+      // 하위 호환: bestUtilize = 안정 활용
+      bestUtilize: stablePack,
+      mostCaution: rangePack(cautionBest) || fallbackYm(topPre),
+      biggestChange: rangePack(changeBest) || fallbackYm(topChg),
+      peaks: {
+        opportunity: peakPack(topOpp),
+        pressure: peakPack(topPre),
+        change: peakPack(topChg),
+      },
+      opportunityAndPressureHigh: bothHigh.slice(0, 12),
+      themeActivation: {
+        career: themePeak('career'),
+        money: themePeak('money'),
+        relationship: themePeak('relationship'),
+      },
+      categoryCounts: dist,
+      copy: {
+        stableUtilize: JUDGMENT_META.stableUtilize.ko,
+        utilizeInChange: JUDGMENT_META.utilizeInChange.ko,
+        opportunityWithLoad: JUDGMENT_META.opportunityWithLoad.ko,
+        mostCaution: '주의가 필요한 시기',
+        biggestChange: '변화가 큰 시기',
+      },
+    };
+  }
+
+  /**
+   * 판정 데이터층: rawAxes 60개월 분위수 별점 + flags + 조합 판정 + keyTimings.
+   * 기존 state / 월내 axes / themes / rawAxes 계산은 변경하지 않음.
+   */
+  function attachJudgmentLayer(months) {
+    var meta = {
+      starMethod: 'percentile_raw_60m',
+      starThresholds: {
+        '5': 'raw ≥ 해당 축 60개월 p90',
+        '4': 'raw ≥ p75',
+        '3': 'raw ≥ p50',
+        '2': 'raw ≥ p25',
+        '1': 'raw < p25',
+      },
+      flagRule: 'stars>=4 이면 해당 축 플래그 ON (한 달에 여러 개 가능)',
+      categoryRule:
+        '기회·부담·변화 신호 조합 → stableUtilize / utilizeInChange / opportunityWithLoad / caution* / bigChange',
+      keyTimings: {},
+    };
+    if (!months || !months.length) return meta;
+
+    var axisLists = {};
+    AXES.forEach(function (k) {
+      axisLists[k] = months
+        .map(function (m) { return (m.rawAxes && m.rawAxes[k]) || 0; })
+        .slice()
+        .sort(function (a, b) { return a - b; });
+    });
+    var themeKeys = ['money', 'career', 'relationship'];
+    var themeLists = {};
+    themeKeys.forEach(function (k) {
+      themeLists[k] = months
+        .map(function (m) { return (m.rawThemes && m.rawThemes[k]) || 0; })
+        .slice()
+        .sort(function (a, b) { return a - b; });
+    });
+
+    months.forEach(function (m) {
+      var raw = m.rawAxes || emptyAxes();
+      var stars = {};
+      var pct = {};
+      AXES.forEach(function (k) {
+        var p = percentileOf(axisLists[k], raw[k] || 0);
+        pct[k] = Math.round(p * 1000) / 1000;
+        stars[k] = percentileToStars(p);
+      });
+      var flags = {
+        opportunity: stars.opportunity >= 4,
+        stability: stars.stability >= 4,
+        pressure: stars.pressure >= 4,
+        change: stars.change >= 4,
+        labels: [],
+      };
+      AXES.forEach(function (k) {
+        if (flags[k]) flags.labels.push(FLAG_LABEL[k]);
+      });
+      var themeStars = {};
+      var themePct = {};
+      themeKeys.forEach(function (k) {
+        var tv = (m.rawThemes && m.rawThemes[k]) || 0;
+        var tp = percentileOf(themeLists[k], tv);
+        themePct[k] = Math.round(tp * 1000) / 1000;
+        themeStars[k] = percentileToStars(tp);
+      });
+      m.stars = stars;
+      m.axisPercentile = pct;
+      m.flags = flags;
+      m.themeStars = themeStars;
+      m.themePercentile = themePct;
+      m.judgment = classifyMonthJudgment(m);
+    });
+
+    meta.keyTimings = buildKeyTimings(months);
+    meta.categoryCounts = meta.keyTimings.categoryCounts || {};
+    return meta;
+  }
+
   function buildResult(samples) {
     var months = (samples || []).map(aggregateMonth);
     var episodes = buildEpisodes(months);
     var segments = buildSegments(months);
     attachEpisodesToSegments(segments, episodes);
+    var judgment = attachJudgmentLayer(months);
     return {
       version: 2,
+      judgmentVersion: 2,
       months: months,
       episodes: episodes.slice(0, 24),
       segments: segments,
       fromYm: months[0] ? months[0].ym : '',
       toYm: months.length ? months[months.length - 1].ym : '',
-      hasProgMoon: samples.some(function (s) { return !!s.progMoon; }),
+      hasProgMoon: !!(samples || []).some(function (s) { return !!s.progMoon; }),
+      judgment: judgment,
+      keyTimings: judgment.keyTimings,
     };
   }
 
@@ -500,6 +995,90 @@
       .replace(/"/g, '&quot;');
   }
 
+  function starLine(stars) {
+    if (!stars) return '';
+    return (
+      '기회★' + (stars.opportunity || 0) +
+      ' · 부담★' + (stars.pressure || 0) +
+      ' · 변화★' + (stars.change || 0) +
+      ' · 안정★' + (stars.stability || 0)
+    );
+  }
+
+  function monthAtYm(months, ym) {
+    if (!ym || !months) return null;
+    for (var i = 0; i < months.length; i++) {
+      if (months[i].ym === ym) return months[i];
+    }
+    return null;
+  }
+
+  function packTimingStars(months, pack) {
+    if (!pack || !pack.startYm) return null;
+    var m = monthAtYm(months, pack.startYm);
+    return m ? m.stars : null;
+  }
+
+  /**
+   * keyTimings UI 카드. 값이 있는 항목만 노출.
+   * stableUtilize가 없으면 「없다」고 쓰지 않고 카드를 생략한다.
+   */
+  function renderKeyTimingsHtml(data) {
+    var kt = data.keyTimings || {};
+    var months = data.months || [];
+    var items = [];
+
+    function pushCard(key, pack, forceTitle) {
+      if (!pack || !pack.range) return;
+      var meta = JUDGMENT_META[key] || {};
+      var stars = packTimingStars(months, pack);
+      var m0 = monthAtYm(months, pack.startYm);
+      var j = m0 && m0.judgment;
+      // 별점·판정명·헤드라인 일치: 월 판정 headline 우선
+      var title = (j && j.headline) || forceTitle || meta.ko || (kt.copy && kt.copy[key]) || key;
+      var note = (j && j.note) || meta.note || '';
+      var clsKey = (j && j.primary) || key;
+      var hits = (m0 && m0.topHits)
+        ? m0.topHits.slice(0, 2).map(function (h) { return h.line; }).join(' · ')
+        : '';
+      items.push(
+        '<div class="tl-judge-card tl-judge--' + escapeHtml(clsKey) + '">' +
+        '<div class="tl-judge-label">' + escapeHtml(title) + '</div>' +
+        '<div class="tl-judge-range">' + escapeHtml(String(pack.range).replace(/-/g, '.')) +
+        (pack.months > 1 ? ' <span class="tl-win-len">(' + pack.months + '개월)</span>' : '') +
+        '</div>' +
+        (stars ? '<div class="tl-judge-stars">' + escapeHtml(starLine(stars)) + '</div>' : '') +
+        (note ? '<div class="tl-judge-note">' + escapeHtml(note) + '</div>' : '') +
+        (hits ? '<div class="tl-judge-hits">' + escapeHtml(hits) + '</div>' : '') +
+        '</div>'
+      );
+    }
+
+    // 노출 순서: 잡힌 타이밍만. stableUtilize는 있을 때만.
+    pushCard('utilizeInChange', kt.utilizeInChange);
+    pushCard('opportunityWithLoad', kt.opportunityWithLoad);
+    pushCard('stableUtilize', kt.stableUtilize);
+    pushCard('caution', kt.mostCaution, (JUDGMENT_META.caution && JUDGMENT_META.caution.ko) || '주의가 필요한 시기');
+    // biggestChange: 주의 구간과 동일하면 중복 카드 생략
+    if (kt.biggestChange && kt.mostCaution
+      && kt.biggestChange.startYm === kt.mostCaution.startYm
+      && kt.biggestChange.endYm === kt.mostCaution.endYm) {
+      /* skip duplicate */
+    } else {
+      pushCard('bigChange', kt.biggestChange, (JUDGMENT_META.bigChange && JUDGMENT_META.bigChange.ko) || '변화가 큰 시기');
+    }
+
+    if (!items.length) return '';
+
+    return (
+      '<div class="tl-sec tl-judge-sec">' +
+      '<h4>엔진 판정 · 주목할 타이밍</h4>' +
+      '<p class="tl-judge-intro">별점은 5년 안에서의 <strong>세기</strong>이고, 아래 문장은 그 세기를 어떻게 읽을지의 <strong>판정</strong>입니다. ' +
+      '기회★가 높아도 곧바로 「좋은 달」은 아닙니다.</p>' +
+      '<div class="tl-judge-grid">' + items.join('') + '</div></div>'
+    );
+  }
+
   function renderHtml(data, filterTheme) {
     if (!data || !data.months || !data.months.length) {
       return '<div class="transit-empty">타임라인을 계산하지 못했어요.</div>';
@@ -508,6 +1087,12 @@
     var bars = data.months.map(function (m, idx) {
       var meta = STATE_META[m.state] || STATE_META.stability;
       var h = Math.max(12, m.intensity || 40);
+      var j = m.judgment;
+      var tip = m.ym + ' · ' + meta.ko;
+      if (j && j.headline && j.primary && j.primary !== 'quiet') {
+        tip += ' · ' + j.headline;
+      }
+      if (m.stars) tip += ' · ' + starLine(m.stars);
       var yearTick = m.mo === 1 || idx === 0
         ? '<span class="tl-year">' + m.y + '</span>'
         : '';
@@ -517,15 +1102,14 @@
         if (tv < 0.25) dim = ' tl-col--dim';
       }
       return (
-        '<div class="tl-col' + dim + '" title="' + escapeHtml(m.ym + ' · ' + meta.ko) + '">' +
+        '<div class="tl-col' + dim + '" title="' + escapeHtml(tip) + '">' +
         '<div class="tl-bar-wrap">' +
         '<div class="tl-bar ' + meta.cls + '" style="height:' + h + '%"></div>' +
         '</div>' + yearTick + '</div>'
       );
     }).join('');
 
-    var legend = AXES.map(function () { return ''; }).join('');
-    legend = Object.keys(STATE_META).map(function (id) {
+    var legend = Object.keys(STATE_META).map(function (id) {
       var m = STATE_META[id];
       return '<span class="tl-leg"><i class="tl-dot ' + m.cls + '"></i>' + escapeHtml(m.ko) + '</span>';
     }).join('');
@@ -563,6 +1147,7 @@
       '<div class="tl-guide">느린 행성 트랜짓을 <strong>확장기·안정기·압박기·전환기·도약·재편기</strong>로 읽습니다. ' +
       '조화각이 무조건 좋은 운이 아니고, 긴장각이 무조건 나쁜 운도 아니에요.' + progHint +
       ' (' + escapeHtml(data.fromYm) + ' ~ ' + escapeHtml(data.toYm) + ')</div>' +
+      renderKeyTimingsHtml(data) +
       '<div class="tl-filter" data-tl-filter>' +
       '<button type="button" class="tl-filter-btn' + (filter === 'all' ? ' is-on' : '') + '" data-theme="all">전체</button>' +
       '<button type="button" class="tl-filter-btn' + (filter === 'relationship' ? ' is-on' : '') + '" data-theme="relationship">연애</button>' +
@@ -580,7 +1165,64 @@
     var L = [];
     L.push('[5년 장기 운 타임라인 v2 · ' + data.fromYm + ' ~ ' + data.toYm + ']');
     L.push('축: opportunity/stability/pressure/change · 상태는 확장기·안정기·압박기·전환기·도약·재편기');
+    L.push('별점=60개월 상대 세기 · 판정(headline)=별점을 어떻게 읽을지(길흉 단정 아님)');
     if (data.hasProgMoon) L.push('프로그레스 달 반영됨');
+    if (data.judgmentVersion) L.push('judgmentVersion: ' + data.judgmentVersion);
+
+    var kt = data.keyTimings || {};
+    L.push('');
+    L.push('[엔진 판정 · keyTimings — AI는 이 판정명/헤드라인을 뒤집지 말 것]');
+    L.push('규칙: 아래에 없는 타이밍 종류는 「없다」「결핍」으로 강조하지 말 것. 잡힌 항목만 해석에 사용.');
+
+    function emitTiming(key, pack, labelOverride) {
+      if (!pack || !pack.range) return;
+      var meta = JUDGMENT_META[key] || {};
+      var label = labelOverride || meta.ko || key;
+      var stars = packTimingStars(data.months, pack);
+      var m0 = monthAtYm(data.months, pack.startYm);
+      L.push('· ' + label + ' | ' + pack.range + (pack.months > 1 ? ' (' + pack.months + '개월)' : ''));
+      if (stars) L.push('  stars: ' + starLine(stars));
+      if (m0 && m0.judgment) {
+        L.push('  primary: ' + m0.judgment.primary + ' | headline: ' + m0.judgment.headline);
+        if (m0.judgment.note) L.push('  note: ' + m0.judgment.note);
+      } else if (meta.note) {
+        L.push('  note: ' + meta.note);
+      }
+      if (m0 && m0.state) L.push('  state(참고): ' + ((STATE_META[m0.state] || {}).ko || m0.state));
+      if (m0 && m0.topHits && m0.topHits.length) {
+        L.push('  topHits: ' + m0.topHits.slice(0, 3).map(function (h) { return h.line; }).join(' / '));
+      }
+    }
+
+    emitTiming('utilizeInChange', kt.utilizeInChange);
+    emitTiming('opportunityWithLoad', kt.opportunityWithLoad);
+    emitTiming('stableUtilize', kt.stableUtilize);
+    emitTiming('caution', kt.mostCaution, '주의가 필요한 시기');
+    if (!(kt.biggestChange && kt.mostCaution
+      && kt.biggestChange.startYm === kt.mostCaution.startYm
+      && kt.biggestChange.endYm === kt.mostCaution.endYm)) {
+      emitTiming('bigChange', kt.biggestChange, '변화가 큰 시기');
+    }
+    if (!kt.utilizeInChange && !kt.opportunityWithLoad && !kt.stableUtilize && !kt.mostCaution && !kt.biggestChange) {
+      L.push('· (강조할 keyTimings 없음 — 상태 구간·에피소드 중심으로 설명)');
+    }
+
+    if (kt.themeActivation) {
+      L.push('');
+      L.push('[주제 활성 peak — 활성도일 뿐 길흉 아님]');
+      ['relationship', 'career', 'money'].forEach(function (theme) {
+        var t = kt.themeActivation[theme];
+        if (!t) return;
+        L.push(
+          '· ' + (THEME_KR[theme] || theme) + ': ' + t.ym +
+          ' theme★' + (t.themeStars || '') +
+          (t.stars ? ' | ' + starLine(t.stars) : '') +
+          (t.judgment && t.judgment.headline ? ' | ' + t.judgment.headline : '')
+        );
+      });
+    }
+
+    L.push('');
     L.push('상태 구간:');
     (data.segments || []).slice(0, 8).forEach(function (s) {
       var th = (s.themes || []).map(function (t) { return THEME_KR[t] || t; }).join('/');
@@ -598,16 +1240,6 @@
         ' (정점 ' + ep.peakYm + ', 접촉≈' + ep.contactsApprox + ')'
       );
     });
-    ['relationship', 'career', 'money'].forEach(function (theme) {
-      var ranked = data.months
-        .map(function (m) { return { ym: m.ym, v: (m.themes && m.themes[theme]) || 0, state: m.state }; })
-        .sort(function (a, b) { return b.v - a.v; })
-        .slice(0, 3);
-      L.push('주제 peak · ' + (THEME_KR[theme] || theme) + ':');
-      ranked.forEach(function (r) {
-        L.push('  · ' + r.ym + ' (' + r.v + ', ' + ((STATE_META[r.state] || {}).ko || r.state) + ')');
-      });
-    });
     return L.join('\n');
   }
 
@@ -617,12 +1249,16 @@
     CHUNK: CHUNK,
     STATE_META: STATE_META,
     THEME_KR: THEME_KR,
+    JUDGMENT_META: JUDGMENT_META,
     ymLabel: ymLabel,
     aggregateMonth: aggregateMonth,
     buildEpisodes: buildEpisodes,
     buildSegments: buildSegments,
     buildResult: buildResult,
+    attachJudgmentLayer: attachJudgmentLayer,
+    classifyMonthJudgment: classifyMonthJudgment,
     renderHtml: renderHtml,
+    renderKeyTimingsHtml: renderKeyTimingsHtml,
     buildAiSummary: buildAiSummary,
     classifyState: classifyState,
   };

@@ -76,7 +76,7 @@
 <script src="js/astro-cities.js?v=1"></script>
 <script src="js/astro-meanings.js?v=2"></script>
 <script src="js/astro-timeline.js?v=1"></script>
-<script src="js/astro-timeline-v2.js?v=1"></script>
+<script src="js/astro-timeline-v2.js?v=2"></script>
 <script src="js/astro-house-rulers.js?v=1"></script>
 <script src="js/astro-life-timeline.js?v=1"></script>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css" crossorigin />
@@ -306,6 +306,21 @@ table.astro-table td .glyph{font-size:16px;margin-right:4px;color:var(--accent);
 .tl-tag{font-size:10.5px;font-weight:600;padding:1px 8px;border-radius:999px;background:rgba(139,111,71,.12);color:var(--warm-brown);}
 .tl-win-hits{margin-top:6px;font-size:11.5px;line-height:1.5;color:var(--muted);}
 .tl-empty-win{font-size:12.5px;color:var(--muted);margin:0;}
+.tl-judge-sec{margin:0 0 14px;}
+.tl-judge-intro{margin:0 0 10px;font-size:12px;line-height:1.6;color:var(--muted);}
+.tl-judge-grid{display:grid;gap:8px;}
+@media (min-width:640px){.tl-judge-grid{grid-template-columns:1fr 1fr;}}
+.tl-judge-card{padding:10px 12px;border-radius:10px;border:1px solid #e8ddcb;background:rgba(255,255,255,.7);border-left:4px solid #c8a96e;}
+.tl-judge--stableUtilize{border-left-color:#5a9a72;background:rgba(90,154,114,.07);}
+.tl-judge--utilizeInChange{border-left-color:#8b6bb5;background:rgba(139,107,181,.07);}
+.tl-judge--opportunityWithLoad{border-left-color:#c07858;background:rgba(192,120,88,.07);}
+.tl-judge--caution,.tl-judge--cautionChange{border-left-color:#b85a4a;background:rgba(184,90,74,.06);}
+.tl-judge--bigChange{border-left-color:#b89a4a;background:rgba(184,154,74,.08);}
+.tl-judge-label{font-size:13px;font-weight:700;color:var(--deep-brown);line-height:1.4;}
+.tl-judge-range{margin-top:3px;font-size:12px;font-weight:600;color:var(--warm-brown);}
+.tl-judge-stars{margin-top:5px;font-size:11px;color:var(--muted);letter-spacing:.01em;}
+.tl-judge-note{margin-top:6px;font-size:12px;line-height:1.55;color:var(--text);}
+.tl-judge-hits{margin-top:4px;font-size:11px;line-height:1.45;color:var(--muted);}
 .counselor-report{white-space:pre-wrap;font-size:13px;line-height:1.7;background:rgba(255,255,255,.6);border:1px solid #e8ddcb;border-radius:12px;padding:14px 16px;max-height:420px;overflow:auto;}
 .client-pick-wrap{display:none;margin:0 0 16px;padding:0 0 14px;border-bottom:1px solid #e8ddcb;}
 .client-pick-wrap.is-visible{display:block;}
@@ -2678,7 +2693,7 @@ body.export-capturing #wheelCard .note{display:none !important;}
   function timelineCacheKey() {
     if (!LAST_TIMELINE) return '';
     const stamp = chartStampForTransitAi();
-    return `v3:timeline:${stamp}:${LAST_TIMELINE.fromYm}:${LAST_TIMELINE.toYm}`;
+    return `v5:timeline:${stamp}:${LAST_TIMELINE.fromYm}:${LAST_TIMELINE.toYm}`;
   }
 
   function timelineAiLocalKey() {
@@ -2893,11 +2908,12 @@ body.export-capturing #wheelCard .note{display:none !important;}
 
   function buildTimelineAiPrompt() {
     const AT = window.AstroTimelineV2;
+    const currentDate = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Seoul' }).format(new Date());
     const L = [];
     L.push('당신은 출생 차트와 장기 트랜짓을 근거로 현실적인 해석을 제공하는 전문 점성가입니다.');
     L.push('');
     L.push(
-      '아래 출생 차트와 5년 장기 운 타임라인 v2(4축·상태 구간·에피소드)를 바탕으로,\n' +
+      '아래 출생 차트와 5년 장기 운 타임라인 v2(4축·상태 구간·에피소드·엔진 판정 keyTimings)를 바탕으로,\n' +
       '앞으로 5년 동안 삶의 어떤 영역이 언제 중요해지는지 일반 사용자도 쉽게 이해할 수 있도록 한국어로 설명하세요.'
     );
     L.push('');
@@ -2908,8 +2924,11 @@ body.export-capturing #wheelCard .note{display:none !important;}
     L.push('');
     L.push(
       '「좋은 운 / 나쁜 운」으로 단순화하지 말고\n' +
-      '확장기·안정기·압박기·전환기·도약·재편기의 성격을 현실적인 생활 언어로 번역하세요.'
+      '확장기·안정기·압박기·전환기·도약·재편기 + 엔진 판정(headline)의 성격을 현실적인 생활 언어로 번역하세요.'
     );
+    L.push('');
+    L.push('[현재 기준 날짜]');
+    L.push(currentDate);
     L.push('');
     if (LAST_CTX) {
       L.push('[출생 차트]');
@@ -2933,9 +2952,11 @@ body.export-capturing #wheelCard .note{display:none !important;}
     );
     L.push('');
     L.push(
-      '2. 높은 점수나 강한 활성도를 자동으로 \'좋은 운\'으로 해석하지 마세요.\n' +
+      '2. 높은 점수·별점·강한 활성도를 자동으로 \'좋은 운\'으로 해석하지 마세요.\n' +
       '압박이나 긴장 역시 자동으로 \'나쁜 운\'으로 해석하지 마세요.\n' +
-      '어떤 주제가 강해지는지와 관련 에피소드의 성격을 함께 판단하세요.'
+      '별점은 5년 안에서의 세기(강도)일 뿐이며, 어떻게 읽을지는 엔진 판정(primary/headline/note)이 우선입니다.\n' +
+      '예: 기회★5여도 primary가 utilizeInChange/opportunityWithLoad면 \'최고의 호재 달\'이라고 쓰지 마세요.\n' +
+      '어떤 주제가 강해지는지와 관련 에피소드·판정 헤드라인을 함께 보세요.'
     );
     L.push('');
     L.push(
@@ -2948,9 +2969,16 @@ body.export-capturing #wheelCard .note{display:none !important;}
     );
     L.push('');
     L.push(
-      '4. 데이터에 없는 사건을 만들어내지 마세요.\n' +
-      '취업, 이직, 승진, 사업 성공, 수익 증가, 투자 수익, 결혼, 이별,\n' +
-      '새로운 연인 등장, 재산 증가 등의 사건을 확정적으로 예측하지 마세요.'
+      '4. 데이터에 없는 사건을 만들어내지 마세요. 확정 예측뿐 아니라 **예시로도** 쓰지 마세요.\n' +
+      '직접 뒷받침하는 입력 데이터가 없으면 아래를 언급하지 마세요:\n' +
+      '이직, 퇴사, 승진, 창업, 이사, 동거, 결혼, 이별,\n' +
+      '새로운 연인 등장, 보증, 대출, 공동투자, 유산, 큰 지출,\n' +
+      '취업, 사업 성공, 수익 증가, 투자 수익, 재산 증가 등.\n\n' +
+      '예:\n' +
+      '"이사나 직업 변화가 관계에 영향을 줄 수 있습니다" → 금지\n' +
+      '"생활 환경이나 일상의 변화가 관계의 안정감에 영향을 줄 수 있습니다" → 허용\n' +
+      '"동거나 공식적인 관계 전환을 서두르지 마세요" → 금지\n' +
+      '"관계에 관한 중요한 결정을 서두르지 않는 편이 좋습니다" → 허용'
     );
     L.push('');
     L.push(
@@ -2966,6 +2994,36 @@ body.export-capturing #wheelCard .note{display:none !important;}
     );
     L.push('');
     L.push('7. 점성학 용어를 사용할 경우 반드시 바로 현실적인 의미를 설명하세요. 근거는 짧게 한 줄로.');
+    L.push('');
+    L.push(
+      '8. topic peak와 episode의 역할을 분리하세요.\n' +
+      '- topic peak는 "언제 해당 주제가 강하게 활성화되는가"를 찾는 보조 지표다.\n' +
+      '- peak 점수만으로 사건의 종류나 성격을 결정하지 않는다.\n' +
+      '- "무엇이 어떻게 활성화되는가"는 반드시 그 시기에 겹치는 주요 episode의 행성·포인트·aspect 성격을 중심으로 해석한다.\n' +
+      '- peak는 WHEN, episode는 WHAT/HOW의 근거다.\n' +
+      '- peak가 높다는 이유만으로 성공, 수익, 연애 성사, 역할 변화 등을 자동으로 추론하지 않는다.'
+    );
+    L.push('');
+    L.push(
+      '9. 시제·시점 표현은 반드시 [현재 기준 날짜](' + currentDate + ')를 기준으로 하세요.\n' +
+      '- 현재 기준 날짜보다 이전인 시점은 미래처럼 표현하지 않는다.\n' +
+      '- 현재 월이 이미 진행 중이면 "앞두고", "오기 전", "시작되기 전"이라고 표현하지 않는다.\n' +
+      '- 이미 시작된 흐름은 "현재 시작된", "지금 진행 중인"처럼 표현한다.\n' +
+      '- 올해 안 액션도 현재 날짜 기준으로 실제 남은 기간 안에서 제안한다.\n' +
+      '- 과거/현재/미래 시제를 currentDate 기준으로 검증한 뒤 출력한다.'
+    );
+    L.push('');
+    L.push(
+      '10. 엔진 판정(keyTimings · primary · headline · note · stars)은 타이밍 라벨의 권위 있는 기준입니다. AI는 설명만 합니다.\n' +
+      '- 입력에 나온 primary/headline과 모순되는 길흉·호재·불운 단정을 하지 마세요.\n' +
+      '- UI에 표시되는 판정명·별점·헤드라인과 같은 방향으로 쓰세요.\n' +
+      '- stableUtilize / 「안정적으로 활용하기 좋은 시기」는 입력 keyTimings에 실제로 있을 때만 언급하세요.\n' +
+      '- 입력에 stableUtilize가 없으면 「안정 활용 시기가 없다」「호재 구간이 부족하다」처럼 결핍·부재를 강조하지 마세요. 그냥 생략하세요.\n' +
+      '- utilizeInChange = 기회는 있으나 변화가 큼 → 선택적 활용, 과잉확장 주의.\n' +
+      '- opportunityWithLoad = 기회와 부담이 함께 → 성과 가능하나 무리한 확장 주의.\n' +
+      '- caution / cautionChange / bigChange = 주의·전환 초점. 자동으로 재앙·실패로 쓰지 마세요.\n' +
+      '- 판정 문장과 별점이 같이 있으면: 별점=세기, headline=읽는 법. 둘을 뒤바꾸지 마세요.'
+    );
     L.push('');
     L.push('────────────────────');
     L.push('[문체 규칙]');
@@ -3007,48 +3065,58 @@ body.export-capturing #wheelCard .note{display:none !important;}
     L.push('## 1. 앞으로 5년, 이렇게 흘러갑니다');
     L.push('');
     L.push(
-      '5년을 하나의 추상적인 이야기로 요약하지 말고\n' +
-      '시간 순서에 따라 중요한 변화 구간을 설명하세요.\n\n' +
-      '각 구간마다\n' +
-      '- 언제\n' +
-      '- 무엇이 중요해지는지\n' +
-      '- 왜 그런 흐름으로 읽는지\n' +
-      '를 연결하세요.\n\n' +
-      '가장 중요한 변화가 있는 시기만 골라 3~5문단으로 작성하세요.\n\n' +
-      '점성학을 모르는 사람도 이 부분만 읽으면\n' +
-      '앞으로 5년의 전체적인 흐름을 이해할 수 있어야 합니다.\n\n' +
-      '마지막에 반드시 다음 형식으로 한 줄을 추가하세요.\n\n' +
-      '**한마디로:** ○○○○○○.'
+      '상세 해석이 아니라 5년 전체를 빠르게 파악하기 위한 요약입니다.\n\n' +
+      '규칙:\n' +
+      '- 2~4개의 핵심 기간만 나눈다.\n' +
+      '- keyTimings에 잡힌 구간이 있으면 그중 중요 타이밍을 우선 반영하고, 기간 제목은 엔진 headline/판정 성격과 모순되지 않게 쓴다.\n' +
+      '- 각 기간은 2~3문장 이내.\n' +
+      '- 점성학 전문용어는 최소화.\n' +
+      '- 연애·커리어·금전의 세부 내용은 뒤 섹션과 중복하지 않는다.\n' +
+      '- 사용자가 읽고 "초반 → 중간 → 후반 흐름"을 바로 이해할 수 있게 쓴다.\n' +
+      '- 문학적 비유나 추상적 표현으로 핵심을 대신하지 않는다.\n' +
+      '- stableUtilize가 입력에 없으면 요약에서 \'안정 활용 구간 없음\'을 언급하지 않는다.\n' +
+      '- 마지막에 반드시:\n' +
+      '  **한마디로:** ...\n' +
+      '  형식으로 1문장 요약.\n\n' +
+      '형식 예(내용은 예시일 뿐 — 그대로 출력하지 말고 실제 입력 데이터에 맞게 작성):\n' +
+      '2026~2028 | 방향을 다시 잡는 시기\n' +
+      '여러 삶의 영역이 동시에 중요해지며, 현재 원하는 방향과 현실 조건이 맞는지 점검하는 흐름입니다.\n\n' +
+      '2028~2029 | 중간 점검과 조정\n' +
+      '앞서 진행한 변화의 방향을 확인하고 필요한 부분을 수정하는 시기입니다.'
     );
     L.push('');
     L.push('## 2. 연애·관계에서 주목할 시기');
     L.push('');
     L.push(
-      '실제 데이터에서 의미 있는 시점만 2~4개 선택하세요. 신호가 약하면 억지로 채우지 마세요.\n\n' +
+      '실제 데이터에서 의미 있는 시점만 2~4개 선택하세요. 신호가 약하면 억지로 채우지 마세요.\n' +
+      '시점 선택은 topic peak를 WHEN 보조로 쓰고, 해석(WHAT/HOW)은 겹치는 episode 중심으로 하세요.\n\n' +
       '각 시점마다 다음을 설명하세요.\n' +
       '- 시기\n' +
       '- 관계에서 어떤 주제가 강해지는지\n' +
-      '- 기존 관계 / 새로운 관계 / 관계 조정 중 무엇과 관련될 가능성이 높은지\n' +
+      '- 기존 관계 / 새로운 관계 / 관계 조정 중 무엇과 관련될 가능성이 높은지 (구체 사건 예시 금지)\n' +
       '- 활용하거나 주의할 점\n' +
-      '- 핵심 점성학적 근거 (짧게 한 줄)\n\n' +
-      '\'연애운이 좋다\'처럼 단순화하지 마세요.'
+      '- 핵심 점성학적 근거 (짧게 한 줄, episode 기반)\n\n' +
+      '\'연애운이 좋다\'처럼 단순화하지 마세요.\n' +
+      '해당 시점에 엔진 판정(headline)이 있으면 길흉 표현이 판정과 모순되지 않게 쓰세요.'
     );
     L.push('');
     L.push('## 3. 일·커리어에서 주목할 시기');
     L.push('');
     L.push(
-      '의미 있는 시점만 2~4개 선택하세요. 신호가 약하면 억지로 채우지 마세요.\n\n' +
+      '의미 있는 시점만 2~4개 선택하세요. 신호가 약하면 억지로 채우지 마세요.\n' +
+      'peak는 WHEN, episode는 WHAT/HOW.\n\n' +
       '각 시점마다\n' +
       '시작, 확장, 역할 변화, 방향 재검토, 외부 활동,\n' +
       '책임 증가, 결과를 보여주는 시기 등\n' +
       '어떤 종류의 움직임과 관련되는지 구체적으로 설명하세요.\n\n' +
-      '높은 점수만으로 성공·승진·취업을 예측하지 마세요.'
+      '높은 점수만으로 성공·승진·취업을 예측하지 마세요. 구체 사건 예시도 금지.'
     );
     L.push('');
     L.push('## 4. 금전에서 주목할 시기');
     L.push('');
     L.push(
-      '의미 있는 시점만 2~4개 선택하세요. 신호가 약하면 억지로 채우지 마세요.\n\n' +
+      '의미 있는 시점만 2~4개 선택하세요. 신호가 약하면 억지로 채우지 마세요.\n' +
+      'peak는 WHEN, episode는 WHAT/HOW.\n\n' +
       '금전 활성도를 곧바로 \'돈이 들어오는 시기\'로 해석하지 마세요.\n\n' +
       '수입 구조,\n' +
       '지출,\n' +
@@ -3058,17 +3126,18 @@ body.export-capturing #wheelCard .note{display:none !important;}
       '재정적 책임,\n' +
       '돈에 대한 가치관 변화 등\n' +
       '어떤 금전 주제가 활성화되는지를 구분해서 설명하세요.\n\n' +
-      '수익 증가나 재산 증가를 말하려면\n' +
-      '입력 데이터 안에 이를 뒷받침할 충분한 근거가 있어야 합니다.'
+      '수익 증가나 재산 증가·대출·보증 등을 말하려면\n' +
+      '입력 데이터 안에 이를 뒷받침할 충분한 근거가 있어야 합니다. 없으면 예시로도 쓰지 마세요.'
     );
     L.push('');
     L.push('## 5. 주의해서 지나갈 시기');
     L.push('');
     L.push(
-      '실제 압박·긴장·전환 신호가 의미 있게 나타나는 시기만 선택하세요.\n\n' +
-      '압박기가 별도로 없다면\n' +
-      '"뚜렷한 압박기는 없지만 다음 시기에는 조정이 필요합니다"\n' +
-      '처럼 솔직하게 설명하세요.\n\n' +
+      '실제 압박·긴장·전환 신호가 의미 있게 나타나는 시기만 선택하세요.\n' +
+      'keyTimings의 mostCaution / biggestChange(및 해당 headline)가 있으면 우선 근거로 삼으세요.\n\n' +
+      '압박·주의 타이밍이 입력에 뚜렷하지 않다면\n' +
+      '"이 구간에서는 특별히 강조할 주의 타이밍이 두드러지지 않습니다"\n' +
+      '처럼 솔직하게 설명하세요. (없는 것을 결핍으로 과장하지 마세요.)\n\n' +
       '긴장각이 있다는 이유만으로\n' +
       '손실·실패·이별·갈등 등의 사건을 예측하지 마세요.\n\n' +
       '무엇이 부담이 될 수 있는지와\n' +
@@ -3079,13 +3148,14 @@ body.export-capturing #wheelCard .note{display:none !important;}
     L.push('');
     L.push(
       '앞으로 5년 전체 흐름을 고려해\n' +
-      '현재부터 실행할 수 있는 행동 하나만 제안하세요.\n\n' +
+      '현재 기준 날짜(' + currentDate + ')부터 실행할 수 있는 행동 하나만 제안하세요.\n' +
+      '올해 안 액션은 현재 날짜 기준으로 실제 남은 기간 안에서만 제안하세요.\n\n' +
       '\'기회를 잡으세요\'\n' +
       '\'자신을 믿으세요\'\n' +
       '\'변화를 받아들이세요\'\n' +
       '같은 추상적인 조언은 금지합니다.\n\n' +
-      '사용자가 실제로 이번 달 또는 올해 안에 실행할 수 있을 정도로\n' +
-      '구체적인 행동이어야 합니다.'
+      '사용자가 실제로 이번 달 또는 올해 남은 기간 안에 실행할 수 있을 정도로\n' +
+      '구체적인 행동이어야 합니다. (구체 사건 예시 금지 원칙 준수)'
     );
     L.push('');
     L.push('────────────────────');
@@ -3094,10 +3164,12 @@ body.export-capturing #wheelCard .note{display:none !important;}
     L.push('');
     L.push(
       '출력하기 전에 스스로 확인하세요.\n\n' +
-      '- 입력 데이터에 없는 사건을 만들어내지 않았는가?\n' +
+      '- 입력 데이터에 없는 사건을 만들거나 예시로 쓰지 않았는가?\n' +
       '- 높은 점수를 좋은 운으로 단순 번역하지 않았는가?\n' +
+      '- peak만으로 사건 종류를 추론하지 않고 episode로 WHAT/HOW를 읽었는가?\n' +
       '- 서로 다른 시점을 임의의 인과관계로 연결하지 않았는가?\n' +
       '- 각 연월은 실제 입력 데이터에 존재하는가?\n' +
+      '- 시제·시점 표현이 현재 기준 날짜(' + currentDate + ')와 맞는가?\n' +
       '- 일반인이 읽고 \'그래서 언제 무엇이 중요하다는 건데?\'라는 의문이 남지 않는가?\n' +
       '- 추상적인 비유를 걷어내도 내용이 구체적으로 남는가?\n\n' +
       '위 조건을 만족하지 않는 문장은 수정한 뒤 출력하세요.'
