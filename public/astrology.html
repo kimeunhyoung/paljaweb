@@ -2678,7 +2678,7 @@ body.export-capturing #wheelCard .note{display:none !important;}
   function timelineCacheKey() {
     if (!LAST_TIMELINE) return '';
     const stamp = chartStampForTransitAi();
-    return `v2:timeline:${stamp}:${LAST_TIMELINE.fromYm}:${LAST_TIMELINE.toYm}`;
+    return `v3:timeline:${stamp}:${LAST_TIMELINE.fromYm}:${LAST_TIMELINE.toYm}`;
   }
 
   function timelineAiLocalKey() {
@@ -2894,10 +2894,21 @@ body.export-capturing #wheelCard .note{display:none !important;}
   function buildTimelineAiPrompt() {
     const AT = window.AstroTimelineV2;
     const L = [];
+    L.push('당신은 출생 차트와 장기 트랜짓을 근거로 현실적인 해석을 제공하는 전문 점성가입니다.');
+    L.push('');
     L.push(
-      '당신은 따뜻하고 통찰력 있는 전문 점성가입니다. 아래 출생 차트와 5년 장기 운 타임라인 v2(4축·상태 구간·에피소드)를 바탕으로 ' +
-      '한국어로 상태·타이밍 해석을 써 주세요. 「좋은/나쁜 운」 이분법 대신 확장기·안정기·압박기·전환기·도약·재편기 상태를 활용하세요. ' +
-      '확정·공포·단정은 피하세요.'
+      '아래 출생 차트와 5년 장기 운 타임라인 v2(4축·상태 구간·에피소드)를 바탕으로,\n' +
+      '앞으로 5년 동안 삶의 어떤 영역이 언제 중요해지는지 일반 사용자도 쉽게 이해할 수 있도록 한국어로 설명하세요.'
+    );
+    L.push('');
+    L.push(
+      '이 해석의 목적은 미래 사건을 예언하는 것이 아니라,\n' +
+      '각 시기에 어떤 주제가 활성화되고 어떤 선택·조정·활용이 중요해지는지를 알려주는 것입니다.'
+    );
+    L.push('');
+    L.push(
+      '「좋은 운 / 나쁜 운」으로 단순화하지 말고\n' +
+      '확장기·안정기·압박기·전환기·도약·재편기의 성격을 현실적인 생활 언어로 번역하세요.'
     );
     L.push('');
     if (LAST_CTX) {
@@ -2912,15 +2923,185 @@ body.export-capturing #wheelCard .note{display:none !important;}
     L.push('');
     L.push(AT && LAST_TIMELINE ? AT.buildAiSummary(LAST_TIMELINE) : '');
     L.push('');
-    L.push('출력 형식(마크다운 ## 제목 사용):');
-    L.push('## 1. 5년 큰 줄기 — 상태 전환 서사 (3~5문장)');
-    L.push('## 2. 확장기·도약기에 쓰기 좋은 타이밍 — 연애');
-    L.push('## 3. 확장기·도약기에 쓰기 좋은 타이밍 — 일·커리어');
-    L.push('## 4. 확장기·도약기에 쓰기 좋은 타이밍 — 금전');
-    L.push('## 5. 압박·전환기에 가져갈 태도 — 과하지 않게, 활용법 포함');
-    L.push('## 6. 올해 안에 쓸 수 있는 한 줄 액션');
+    L.push('────────────────────');
+    L.push('[가장 중요한 해석 원칙]');
+    L.push('────────────────────');
     L.push('');
-    L.push('규칙: 각 주제 섹션에 구체적 연월 구간을 최소 1개 쓰고, 타임라인의 상태·에피소드만 근거로 쓰세요. 없는 구간을 지어내지 마세요.');
+    L.push(
+      '1. 입력 데이터가 보여주는 것은 특정 시기에 어떤 주제가 강하게 활성화되는지와 그 시기의 성격입니다.\n' +
+      '특정 사건의 발생을 확정하는 데이터가 아닙니다.'
+    );
+    L.push('');
+    L.push(
+      '2. 높은 점수나 강한 활성도를 자동으로 \'좋은 운\'으로 해석하지 마세요.\n' +
+      '압박이나 긴장 역시 자동으로 \'나쁜 운\'으로 해석하지 마세요.\n' +
+      '어떤 주제가 강해지는지와 관련 에피소드의 성격을 함께 판단하세요.'
+    );
+    L.push('');
+    L.push(
+      '3. 시간적으로 A가 먼저 나타나고 B가 나중에 나타난다는 이유만으로\n' +
+      '\'A 때문에 B가 발생한다\'는 인과관계를 만들지 마세요.\n\n' +
+      '예:\n' +
+      '"커리어에서 뿌린 씨앗이 금전이라는 열매로 돌아온다"\n' +
+      '"앞선 노력이 수익으로 연결된다"\n' +
+      '같은 표현은 실제 점성학적 근거가 명확하지 않다면 사용하지 마세요.'
+    );
+    L.push('');
+    L.push(
+      '4. 데이터에 없는 사건을 만들어내지 마세요.\n' +
+      '취업, 이직, 승진, 사업 성공, 수익 증가, 투자 수익, 결혼, 이별,\n' +
+      '새로운 연인 등장, 재산 증가 등의 사건을 확정적으로 예측하지 마세요.'
+    );
+    L.push('');
+    L.push(
+      '5. 특정 시기에 신호가 약하거나 뚜렷한 특징이 없다면\n' +
+      '억지로 의미를 만들어내지 말고\n' +
+      '"이 기간에는 이 주제에서 특별히 강한 신호가 두드러지지 않습니다"라고 설명할 수 있습니다.'
+    );
+    L.push('');
+    L.push(
+      '6. 같은 행성 에피소드가 여러 주제에 영향을 미치더라도\n' +
+      '연애·커리어·금전에서 똑같은 설명을 반복하지 마세요.\n' +
+      '각 삶의 영역에서 어떻게 다르게 체감될 수 있는지 구분하세요.'
+    );
+    L.push('');
+    L.push('7. 점성학 용어를 사용할 경우 반드시 바로 현실적인 의미를 설명하세요. 근거는 짧게 한 줄로.');
+    L.push('');
+    L.push('────────────────────');
+    L.push('[문체 규칙]');
+    L.push('────────────────────');
+    L.push('');
+    L.push('점성학을 전혀 모르는 사람이 읽는다고 가정하세요.');
+    L.push('');
+    L.push(
+      '\'삶의 지층\'\n' +
+      '\'안개 속에서 새 지형을 그린다\'\n' +
+      '\'파도가 밀려온다\'\n' +
+      '\'재편의 에너지\'\n' +
+      '\'관계의 문이 열린다\'\n' +
+      '\'금전의 씨앗이 열매가 된다\'\n' +
+      '같은 추상적·문학적 비유로 핵심 내용을 대신하지 마세요.'
+    );
+    L.push('');
+    L.push(
+      '사용자가 읽은 뒤 반드시 다음 세 가지를 알 수 있어야 합니다.\n\n' +
+      '① 언제\n' +
+      '② 어떤 삶의 영역에서\n' +
+      '③ 무엇이 중요해지는지'
+    );
+    L.push('');
+    L.push(
+      '점성학 용어를 나열하기보다\n' +
+      '"그래서 실제 생활에서는 무엇을 의미하는가"를 중심으로 설명하세요.'
+    );
+    L.push('');
+    L.push(
+      '확정적·공포적인 표현은 피하되,\n' +
+      '지나치게 모호하거나 모든 사람에게 적용될 수 있는 말도 피하세요.'
+    );
+    L.push('');
+    L.push('────────────────────');
+    L.push('[출력 형식]');
+    L.push('────────────────────');
+    L.push('');
+    L.push('## 1. 앞으로 5년, 이렇게 흘러갑니다');
+    L.push('');
+    L.push(
+      '5년을 하나의 추상적인 이야기로 요약하지 말고\n' +
+      '시간 순서에 따라 중요한 변화 구간을 설명하세요.\n\n' +
+      '각 구간마다\n' +
+      '- 언제\n' +
+      '- 무엇이 중요해지는지\n' +
+      '- 왜 그런 흐름으로 읽는지\n' +
+      '를 연결하세요.\n\n' +
+      '가장 중요한 변화가 있는 시기만 골라 3~5문단으로 작성하세요.\n\n' +
+      '점성학을 모르는 사람도 이 부분만 읽으면\n' +
+      '앞으로 5년의 전체적인 흐름을 이해할 수 있어야 합니다.\n\n' +
+      '마지막에 반드시 다음 형식으로 한 줄을 추가하세요.\n\n' +
+      '**한마디로:** ○○○○○○.'
+    );
+    L.push('');
+    L.push('## 2. 연애·관계에서 주목할 시기');
+    L.push('');
+    L.push(
+      '실제 데이터에서 의미 있는 시점만 2~4개 선택하세요. 신호가 약하면 억지로 채우지 마세요.\n\n' +
+      '각 시점마다 다음을 설명하세요.\n' +
+      '- 시기\n' +
+      '- 관계에서 어떤 주제가 강해지는지\n' +
+      '- 기존 관계 / 새로운 관계 / 관계 조정 중 무엇과 관련될 가능성이 높은지\n' +
+      '- 활용하거나 주의할 점\n' +
+      '- 핵심 점성학적 근거 (짧게 한 줄)\n\n' +
+      '\'연애운이 좋다\'처럼 단순화하지 마세요.'
+    );
+    L.push('');
+    L.push('## 3. 일·커리어에서 주목할 시기');
+    L.push('');
+    L.push(
+      '의미 있는 시점만 2~4개 선택하세요. 신호가 약하면 억지로 채우지 마세요.\n\n' +
+      '각 시점마다\n' +
+      '시작, 확장, 역할 변화, 방향 재검토, 외부 활동,\n' +
+      '책임 증가, 결과를 보여주는 시기 등\n' +
+      '어떤 종류의 움직임과 관련되는지 구체적으로 설명하세요.\n\n' +
+      '높은 점수만으로 성공·승진·취업을 예측하지 마세요.'
+    );
+    L.push('');
+    L.push('## 4. 금전에서 주목할 시기');
+    L.push('');
+    L.push(
+      '의미 있는 시점만 2~4개 선택하세요. 신호가 약하면 억지로 채우지 마세요.\n\n' +
+      '금전 활성도를 곧바로 \'돈이 들어오는 시기\'로 해석하지 마세요.\n\n' +
+      '수입 구조,\n' +
+      '지출,\n' +
+      '투자 판단,\n' +
+      '자산 관리,\n' +
+      '공동 재정,\n' +
+      '재정적 책임,\n' +
+      '돈에 대한 가치관 변화 등\n' +
+      '어떤 금전 주제가 활성화되는지를 구분해서 설명하세요.\n\n' +
+      '수익 증가나 재산 증가를 말하려면\n' +
+      '입력 데이터 안에 이를 뒷받침할 충분한 근거가 있어야 합니다.'
+    );
+    L.push('');
+    L.push('## 5. 주의해서 지나갈 시기');
+    L.push('');
+    L.push(
+      '실제 압박·긴장·전환 신호가 의미 있게 나타나는 시기만 선택하세요.\n\n' +
+      '압박기가 별도로 없다면\n' +
+      '"뚜렷한 압박기는 없지만 다음 시기에는 조정이 필요합니다"\n' +
+      '처럼 솔직하게 설명하세요.\n\n' +
+      '긴장각이 있다는 이유만으로\n' +
+      '손실·실패·이별·갈등 등의 사건을 예측하지 마세요.\n\n' +
+      '무엇이 부담이 될 수 있는지와\n' +
+      '어떻게 활용하면 좋은지를 함께 설명하세요.'
+    );
+    L.push('');
+    L.push('## 6. 지금부터 준비할 한 가지');
+    L.push('');
+    L.push(
+      '앞으로 5년 전체 흐름을 고려해\n' +
+      '현재부터 실행할 수 있는 행동 하나만 제안하세요.\n\n' +
+      '\'기회를 잡으세요\'\n' +
+      '\'자신을 믿으세요\'\n' +
+      '\'변화를 받아들이세요\'\n' +
+      '같은 추상적인 조언은 금지합니다.\n\n' +
+      '사용자가 실제로 이번 달 또는 올해 안에 실행할 수 있을 정도로\n' +
+      '구체적인 행동이어야 합니다.'
+    );
+    L.push('');
+    L.push('────────────────────');
+    L.push('[최종 검증]');
+    L.push('────────────────────');
+    L.push('');
+    L.push(
+      '출력하기 전에 스스로 확인하세요.\n\n' +
+      '- 입력 데이터에 없는 사건을 만들어내지 않았는가?\n' +
+      '- 높은 점수를 좋은 운으로 단순 번역하지 않았는가?\n' +
+      '- 서로 다른 시점을 임의의 인과관계로 연결하지 않았는가?\n' +
+      '- 각 연월은 실제 입력 데이터에 존재하는가?\n' +
+      '- 일반인이 읽고 \'그래서 언제 무엇이 중요하다는 건데?\'라는 의문이 남지 않는가?\n' +
+      '- 추상적인 비유를 걷어내도 내용이 구체적으로 남는가?\n\n' +
+      '위 조건을 만족하지 않는 문장은 수정한 뒤 출력하세요.'
+    );
     return L.join('\n');
   }
 
@@ -4159,13 +4340,27 @@ body.export-capturing #wheelCard .note{display:none !important;}
     return true;
   }
 
-  function applyBirthPrefill(data) {
+  /** 출생지 입력을 폼 기본(서울)으로 되돌림 — 이전 고객 좌표가 남지 않게 */
+  function resetBirthPlaceFields() {
+    const city = $('inCity');
+    if (city) city.value = '0';
+    const wrap = $('manualCoords');
+    if (wrap) wrap.classList.remove('show');
+    if ($('inLat')) $('inLat').value = '';
+    if ($('inLng')) $('inLng').value = '';
+  }
+
+  function applyBirthPrefill(data, opts) {
+    /* partial: URL 쿼리처럼 있는 값만 채움. 기본은 고객 전환용 — 없는 필드는 비움 */
+    const partial = !!(opts && opts.partial);
     const nm = (data.name || '').trim();
     const dt = normalizeIsoDate(data.date);
     const tm = normalizeTimeHm(data.time);
     const city = (data.city || '').trim();
-    const hasCoords = applyCoordsPrefill(data.lat, data.lng);
-    if (nm) $('inName').value = nm;
+
+    if (nm || !partial) $('inName').value = nm;
+    if (dt) $('inDate').value = dt;
+
     if (tm) {
       $('inTime').value = tm;
       const unk = $('timeUnknown');
@@ -4173,9 +4368,24 @@ body.export-capturing #wheelCard .note{display:none !important;}
         unk.checked = false;
         $('inTime').disabled = false;
       }
+    } else if (!partial) {
+      $('inTime').value = '';
+      const unk = $('timeUnknown');
+      if (unk) {
+        unk.checked = false;
+        if ($('inTime')) $('inTime').disabled = false;
+      }
     }
-    if (dt) $('inDate').value = dt;
-    if (!hasCoords && city) applyCityPrefill(city);
+
+    let hasCoords = false;
+    if (!partial) resetBirthPlaceFields();
+    hasCoords = applyCoordsPrefill(data.lat, data.lng);
+    if (!hasCoords && city) {
+      applyCityPrefill(city);
+    } else if (partial && !hasCoords && !city) {
+      /* URL에 출생지 없으면 기존 값 유지 */
+    }
+
     const placeOk = hasCoords || !!city;
     return { nm, dt, tm, city: placeOk ? (city || 'coords') : '', hasCoords };
   }
@@ -4310,7 +4520,7 @@ body.export-capturing #wheelCard .note{display:none !important;}
         city: qs.get('city'),
         lat: qs.get('lat'),
         lng: qs.get('lng'),
-      });
+      }, { partial: true });
 
       const clientId = ACTIVE_CLIENT_ID || qs.get('client') || '';
       let merged = fromQs;
