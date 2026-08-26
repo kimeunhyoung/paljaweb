@@ -668,7 +668,7 @@ body.export-capturing #wheelCard .note{display:none !important;}
           <button type="button" class="rt-btn rt-btn--share" id="btnYearAi" disabled>✨ AI 올해 운세 (1크레딧)</button>
         </div>
         <div id="yearAiResult" class="ai-result empty">올해 운세가 계산되면 「AI 올해 운세」를 눌러 주세요.</div>
-        <p class="ai-time-hint" id="yearAiHint">보통 20~40초 정도 걸려요.</p>
+        <p class="ai-time-hint" id="yearAiHint">보통 20~40초 정도 걸려요. 나오는 대로 바로 보여 드려요.</p>
       </div>
     </div>
 
@@ -691,7 +691,7 @@ body.export-capturing #wheelCard .note{display:none !important;}
           <button type="button" class="rt-btn rt-btn--share" id="btnLifeTimelineAi" disabled>✨ AI 인생 흐름 풀기 (3크레딧)</button>
         </div>
         <div id="lifeTimelineAiResult" class="ai-result empty">위에서 인생 흐름을 계산한 뒤 AI를 이용해 주세요.</div>
-        <p class="ai-time-hint" id="lifeTimelineAiHint">보통 30~50초 정도 걸려요.</p>
+        <p class="ai-time-hint" id="lifeTimelineAiHint">보통 30~50초 정도 걸려요. 나오는 대로 바로 보여 드려요.</p>
       </div>
     </div>
 
@@ -714,7 +714,7 @@ body.export-capturing #wheelCard .note{display:none !important;}
           <button type="button" class="rt-btn rt-btn--share" id="btnTimelineAi" disabled>✨ AI로 상태·타이밍 풀기 (2크레딧)</button>
         </div>
         <div id="timelineAiResult" class="ai-result empty">위에서 타임라인을 계산한 뒤 AI를 이용해 주세요.</div>
-        <p class="ai-time-hint" id="timelineAiHint">보통 20~40초 정도 걸려요.</p>
+        <p class="ai-time-hint" id="timelineAiHint">보통 20~40초 정도 걸려요. 나오는 대로 바로 보여 드려요.</p>
       </div>
     </div>
 
@@ -2950,24 +2950,34 @@ body.export-capturing #wheelCard .note{display:none !important;}
     TIMELINE_AI_BUSY = true;
     btn.textContent = '⏳ 해석 중…';
     btn.disabled = true;
-    setAiResultBox(box, '해석을 생성하고 있어요…', { plain: true });
-    if (hint) hint.classList.add('is-loading');
+    setAiResultBox(box, '');
+    if (hint) {
+      hint.textContent = '해석이 나오는 대로 바로 표시돼요. 창을 닫지 말고 기다려 주세요.';
+      hint.classList.add('is-loading');
+    }
     const prompt = buildTimelineAiPrompt();
     const cacheKey = window.PaljaAiQuota
       ? PaljaAiQuota.hashKey(cacheKeyRaw + ':' + prompt.slice(0, 400))
       : cacheKeyRaw;
+    let streamed = '';
     try {
-      if (!window.PaljaAiQuota) throw new Error('no_quota_client');
-      const { text, quota, data } = await PaljaAiQuota.callAi({
+      if (!window.PaljaAiQuota || typeof PaljaAiQuota.callAiStream !== 'function') {
+        throw new Error('no_quota_client');
+      }
+      const { text, quota, data } = await PaljaAiQuota.callAiStream({
         feature: 'astro_timeline',
         cacheKey,
         max_tokens: 6144,
         messages: [{ role: 'user', content: prompt }],
+        onDelta: (chunk) => {
+          streamed += chunk;
+          setAiResultBox(box, streamed, { open: true });
+        },
       });
-      let out = text || '해석을 생성하지 못했어요.';
+      let out = text || streamed || '해석을 생성하지 못했어요.';
       if (data?.stop_reason === 'max_tokens') out += '\n\n(※ 해석이 길어 일부가 잘렸을 수 있어요.)';
       saveTimelineAiLocal(out);
-      setAiResultBox(box, out);
+      setAiResultBox(box, out, { open: true });
       if (quota) {
         LAST_AI_QUOTA = quota;
         PaljaAiQuota.applyQuotaBadge($('aiQuotaBadge'), quota);
@@ -2982,14 +2992,21 @@ body.export-capturing #wheelCard .note{display:none !important;}
         }
       } else if (e.message === 'login_required') {
         setAiResultBox(box, 'AI 해석은 로그인 후 이용할 수 있어요.', { plain: true });
-      } else {
+      } else if (!streamed) {
         setAiResultBox(box, 'AI 해석을 일시적으로 사용할 수 없어요.', { plain: true });
+      } else {
+        showStatus('연결이 끊겼어요. 지금까지 받은 내용까지 표시해 두었어요.', 'err');
+        saveTimelineAiLocal(streamed);
+        setAiResultBox(box, streamed, { open: true });
       }
     } finally {
       TIMELINE_AI_BUSY = false;
       btn.textContent = prev;
       btn.disabled = !AI_SERVER_OK;
-      if (hint) hint.classList.remove('is-loading');
+      if (hint) {
+        hint.textContent = '보통 20~40초 정도 걸려요. 나오는 대로 바로 보여 드려요.';
+        hint.classList.remove('is-loading');
+      }
       refreshTimelineAiUi();
     }
   }
@@ -3035,24 +3052,34 @@ body.export-capturing #wheelCard .note{display:none !important;}
     YEAR_AI_BUSY = true;
     btn.textContent = '⏳ 해석 중…';
     btn.disabled = true;
-    setAiResultBox(box, '해석을 생성하고 있어요…', { plain: true });
-    if (hint) hint.classList.add('is-loading');
+    setAiResultBox(box, '');
+    if (hint) {
+      hint.textContent = '해석이 나오는 대로 바로 표시돼요. 창을 닫지 말고 기다려 주세요.';
+      hint.classList.add('is-loading');
+    }
     const prompt = buildYearAiPrompt();
     const cacheKey = window.PaljaAiQuota
       ? PaljaAiQuota.hashKey(`v2:year:${yKey}:` + prompt)
       : prompt.slice(0, 200);
+    let streamed = '';
     try {
-      if (!window.PaljaAiQuota) throw new Error('no_quota_client');
-      const { text, quota, data } = await PaljaAiQuota.callAi({
+      if (!window.PaljaAiQuota || typeof PaljaAiQuota.callAiStream !== 'function') {
+        throw new Error('no_quota_client');
+      }
+      const { text, quota, data } = await PaljaAiQuota.callAiStream({
         feature: 'astro_year',
         cacheKey,
         max_tokens: 6144,
         messages: [{ role: 'user', content: prompt }],
+        onDelta: (chunk) => {
+          streamed += chunk;
+          setAiResultBox(box, streamed, { open: true });
+        },
       });
-      let out = text || '해석을 생성하지 못했어요.';
+      let out = text || streamed || '해석을 생성하지 못했어요.';
       if (data?.stop_reason === 'max_tokens') out += '\n\n(※ 해석이 길어 일부가 잘렸을 수 있어요.)';
       YEAR_AI_CACHE = { key: yKey, text: out };
-      setAiResultBox(box, out);
+      setAiResultBox(box, out, { open: true });
       if (quota) {
         LAST_AI_QUOTA = quota;
         PaljaAiQuota.applyQuotaBadge($('aiQuotaBadge'), quota);
@@ -3067,14 +3094,21 @@ body.export-capturing #wheelCard .note{display:none !important;}
         }
       } else if (e.message === 'login_required') {
         setAiResultBox(box, 'AI 해석은 로그인 후 이용할 수 있어요.', { plain: true });
-      } else {
+      } else if (!streamed) {
         setAiResultBox(box, 'AI 해석을 일시적으로 사용할 수 없어요.', { plain: true });
+      } else {
+        showStatus('연결이 끊겼어요. 지금까지 받은 내용까지 표시해 두었어요.', 'err');
+        YEAR_AI_CACHE = { key: yKey, text: streamed };
+        setAiResultBox(box, streamed, { open: true });
       }
     } finally {
       YEAR_AI_BUSY = false;
       btn.textContent = prev;
       btn.disabled = !AI_SERVER_OK;
-      if (hint) hint.classList.remove('is-loading');
+      if (hint) {
+        hint.textContent = '보통 20~40초 정도 걸려요. 나오는 대로 바로 보여 드려요.';
+        hint.classList.remove('is-loading');
+      }
       refreshYearAiUi();
     }
   }
@@ -3110,26 +3144,36 @@ body.export-capturing #wheelCard .note{display:none !important;}
       refreshTransitAiUi();
       return;
     }
-    setAiResultBox(box, '해석을 생성하고 있어요…', { plain: true });
-    if (hint) hint.classList.add('is-loading');
+    setAiResultBox(box, '');
+    if (hint) {
+      hint.textContent = '해석이 나오는 대로 바로 표시돼요. 창을 닫지 말고 기다려 주세요.';
+      hint.classList.add('is-loading');
+    }
     const prompt = buildTransitAiPrompt(mode);
     const cacheRaw = transitAiCacheRaw(mode) || `v4:${mode}:fallback:` + prompt.slice(0, 120);
     const cacheKey = window.PaljaAiQuota
       ? PaljaAiQuota.hashKey(cacheRaw)
       : cacheRaw.slice(0, 200);
+    let streamed = '';
     try {
-      if (!window.PaljaAiQuota) throw new Error('no_quota_client');
-      const { text, quota, data, cached } = await PaljaAiQuota.callAi({
+      if (!window.PaljaAiQuota || typeof PaljaAiQuota.callAiStream !== 'function') {
+        throw new Error('no_quota_client');
+      }
+      const { text, quota, data, cached } = await PaljaAiQuota.callAiStream({
         feature: 'astro_transit',
         cacheKey,
         max_tokens: 8192,
         messages: [{ role: 'user', content: prompt }],
+        onDelta: (chunk) => {
+          streamed += chunk;
+          setAiResultBox(box, streamed, { open: true });
+        },
       });
-      let out = text || '해석을 생성하지 못했어요.';
+      let out = text || streamed || '해석을 생성하지 못했어요.';
       if (data?.stop_reason === 'max_tokens') {
         out += '\n\n(※ 해석이 길어 일부가 잘렸을 수 있어요.)';
       }
-      setAiResultBox(box, out);
+      setAiResultBox(box, out, { open: true });
       if (out && out !== '해석을 생성하지 못했어요.') saveTransitAiLocal(mode, out);
       if (hint) {
         hint.textContent = cached
@@ -3151,8 +3195,12 @@ body.export-capturing #wheelCard .note{display:none !important;}
         }
       } else if (e.message === 'login_required') {
         setAiResultBox(box, 'AI 해석은 로그인 후 이용할 수 있어요.', { plain: true });
-      } else {
+      } else if (!streamed) {
         setAiResultBox(box, 'AI 해석을 일시적으로 사용할 수 없어요.', { plain: true });
+      } else {
+        showStatus('연결이 끊겼어요. 지금까지 받은 내용까지 표시해 두었어요.', 'err');
+        saveTransitAiLocal(mode, streamed);
+        setAiResultBox(box, streamed, { open: true });
       }
     } finally {
       btn.textContent = prev;
@@ -3749,24 +3797,34 @@ body.export-capturing #wheelCard .note{display:none !important;}
     LIFE_AI_BUSY = true;
     btn.textContent = '⏳ 해석 중…';
     btn.disabled = true;
-    setAiResultBox(box, '해석을 생성하고 있어요…', { plain: true });
-    if (hint) hint.classList.add('is-loading');
+    setAiResultBox(box, '');
+    if (hint) {
+      hint.textContent = '해석이 나오는 대로 바로 표시돼요. 창을 닫지 말고 기다려 주세요.';
+      hint.classList.add('is-loading');
+    }
     const prompt = buildLifeAiPrompt();
     const cacheKey = window.PaljaAiQuota
       ? PaljaAiQuota.hashKey(cacheKeyRaw + ':' + prompt.slice(0, 500))
       : cacheKeyRaw;
+    let streamed = '';
     try {
-      if (!window.PaljaAiQuota) throw new Error('no_quota_client');
-      const { text, quota, data } = await PaljaAiQuota.callAi({
+      if (!window.PaljaAiQuota || typeof PaljaAiQuota.callAiStream !== 'function') {
+        throw new Error('no_quota_client');
+      }
+      const { text, quota, data } = await PaljaAiQuota.callAiStream({
         feature: 'astro_life_timeline',
         cacheKey,
         max_tokens: 6144,
         messages: [{ role: 'user', content: prompt }],
+        onDelta: (chunk) => {
+          streamed += chunk;
+          setAiResultBox(box, streamed, { open: true });
+        },
       });
-      let out = text || '해석을 생성하지 못했어요.';
+      let out = text || streamed || '해석을 생성하지 못했어요.';
       if (data?.stop_reason === 'max_tokens') out += '\n\n(※ 해석이 길어 일부가 잘렸을 수 있어요.)';
       LIFE_AI_CACHE = { key: cacheKeyRaw, text: out };
-      setAiResultBox(box, out);
+      setAiResultBox(box, out, { open: true });
       if (quota) {
         LAST_AI_QUOTA = quota;
         PaljaAiQuota.applyQuotaBadge($('aiQuotaBadge'), quota);
@@ -3777,14 +3835,21 @@ body.export-capturing #wheelCard .note{display:none !important;}
         setAiResultBox(box, '이번 달 AI 크레딧을 모두 사용했어요.', { plain: true });
       } else if (e.message === 'login_required') {
         setAiResultBox(box, 'AI 해석은 로그인 후 이용할 수 있어요.', { plain: true });
-      } else {
+      } else if (!streamed) {
         setAiResultBox(box, 'AI 해석을 일시적으로 사용할 수 없어요.', { plain: true });
+      } else {
+        showStatus('연결이 끊겼어요. 지금까지 받은 내용까지 표시해 두었어요.', 'err');
+        LIFE_AI_CACHE = { key: cacheKeyRaw, text: streamed };
+        setAiResultBox(box, streamed, { open: true });
       }
     } finally {
       LIFE_AI_BUSY = false;
       btn.textContent = prev;
       btn.disabled = !AI_SERVER_OK;
-      if (hint) hint.classList.remove('is-loading');
+      if (hint) {
+        hint.textContent = '보통 30~50초 정도 걸려요. 나오는 대로 바로 보여 드려요.';
+        hint.classList.remove('is-loading');
+      }
       refreshLifeTimelineAiUi();
     }
   }
