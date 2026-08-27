@@ -1,7 +1,8 @@
 /**
  * 점성학 5년 장기 운 타임라인 v2
  * — Opportunity / Stability / Pressure / Change 4축
- * — money / career / relationship 주제 분리
+ * — money / career / relationship 코어 주제 + health/family/movement/growth 확장(표시·AI)
+ * — period/phase/event 타이밍·병합은 코어 테마만 사용 (확장 테마가 날짜를 바꾸지 않음)
  * — aspect×행성 기여 (조화≠무조건 좋음)
  * — episode · state segment
  */
@@ -37,7 +38,19 @@
     leap: { ko: '도약·재편기', cls: 'tl-state--leap' },
   };
 
-  var THEME_KR = { relationship: '연애·관계', career: '일·커리어', money: '금전', general: '전반' };
+  var THEME_KR = {
+    relationship: '연애·관계',
+    career: '일·커리어',
+    money: '금전',
+    health: '건강·컨디션',
+    family: '가족·가정',
+    movement: '이동·환경',
+    growth: '학습·성장',
+    general: '전반',
+  };
+  var CORE_THEME_KEYS = ['money', 'career', 'relationship'];
+  var EXT_THEME_KEYS = ['health', 'family', 'movement', 'growth'];
+  var ALL_THEME_KEYS = CORE_THEME_KEYS.concat(EXT_THEME_KEYS);
 
   var AXES = ['opportunity', 'stability', 'pressure', 'change'];
 
@@ -85,7 +98,34 @@
   }
 
   function emptyThemes() {
-    return { money: 0, career: 0, relationship: 0 };
+    return {
+      money: 0, career: 0, relationship: 0,
+      health: 0, family: 0, movement: 0, growth: 0,
+    };
+  }
+
+  function emptyThemeEvidence() {
+    return {
+      healthNatal: false,
+      healthTransit: false,
+      healthProg6: false,
+      healthProg1: false,
+      healthProg12: false,
+      healthAsc: false,
+      familyMoon: false,
+      familyNatalOther: false,
+      familyTransit: false,
+      familyProg4: false,
+      familyProgAux: false,
+      movementNatal: false,
+      movementUranus: false,
+      movementTransitOther: false,
+      movementProg39: false,
+      movementProg4: false,
+      growthNatal: false,
+      growthTransit: false,
+      growthProg: false,
+    };
   }
 
   function ymLabel(y, m) {
@@ -125,13 +165,13 @@
 
   function normalizeThemes(raw) {
     var max = 0.0001;
-    ['money', 'career', 'relationship'].forEach(function (k) {
-      max = Math.max(max, raw[k] || 0);
+    CORE_THEME_KEYS.forEach(function (k) {
+      max = Math.max(max, (raw && raw[k]) || 0);
     });
     return {
-      money: Math.round(clamp01((raw.money || 0) / max) * 1000) / 1000,
-      career: Math.round(clamp01((raw.career || 0) / max) * 1000) / 1000,
-      relationship: Math.round(clamp01((raw.relationship || 0) / max) * 1000) / 1000,
+      money: Math.round(clamp01(((raw && raw.money) || 0) / max) * 1000) / 1000,
+      career: Math.round(clamp01(((raw && raw.career) || 0) / max) * 1000) / 1000,
+      relationship: Math.round(clamp01(((raw && raw.relationship) || 0) / max) * 1000) / 1000,
     };
   }
 
@@ -140,15 +180,139 @@
     return 1 + Math.max(0, (base - (orbOff || 0)) * 0.08);
   }
 
+  /** 코어 3 가산식은 고정. 확장 4는 hit된 nk/tk에만 가산. */
   function themeWeightsForHit(tk, nk) {
     var t = emptyThemes();
+    // —— 코어 (변경 금지) ——
     if (nk === 'venus' || nk === 'moon' || nk === 'mars') t.relationship += 1.2;
     if (nk === 'sun' || nk === 'mc' || nk === 'saturn' || nk === 'mars' || nk === 'mercury') t.career += 1.2;
     if (nk === 'venus' || nk === 'jupiter' || nk === 'pluto' || nk === 'saturn' || nk === 'fortune') t.money += 1.2;
     if (tk === 'saturn' || tk === 'uranus') t.career += 0.6;
     if (tk === 'jupiter' || tk === 'pluto' || tk === 'saturn') t.money += 0.5;
     if (tk === 'neptune') t.relationship += 0.4;
+    // —— 확장 natal ——
+    if (nk === 'asc') t.health += 1.0;
+    if (nk === 'mars') {
+      t.health += 0.8;
+      t.movement += 0.45;
+    }
+    if (nk === 'moon') {
+      t.health += 0.55;
+      t.family += 1.0;
+      t.movement += 0.35;
+    }
+    if (nk === 'sun') {
+      t.health += 0.45;
+      t.growth += 0.55;
+    }
+    if (nk === 'saturn') t.family += 0.65;
+    if (nk === 'venus') t.family += 0.30;
+    if (nk === 'mercury') {
+      t.movement += 0.75;
+      t.growth += 0.85;
+    }
+    if (nk === 'jupiter') t.growth += 0.30;
+    // —— 확장 transit ——
+    if (tk === 'saturn') {
+      t.health += 0.40;
+      t.family += 0.35;
+      t.growth += 0.25;
+    }
+    if (tk === 'neptune') {
+      t.health += 0.30;
+      t.family += 0.20;
+    }
+    if (tk === 'pluto') t.health += 0.30;
+    if (tk === 'uranus') {
+      t.movement += 0.70;
+      t.growth += 0.20;
+    }
+    if (tk === 'jupiter') {
+      t.family += 0.25;
+      t.movement += 0.30;
+      t.growth += 0.45;
+    }
     return t;
+  }
+
+  function markThemeEvidence(ev, tk, nk) {
+    if (!ev) return;
+    if (nk === 'asc' || nk === 'mars' || nk === 'moon' || nk === 'sun') ev.healthNatal = true;
+    if (nk === 'asc') ev.healthAsc = true;
+    if (tk === 'saturn' || tk === 'neptune' || tk === 'pluto') ev.healthTransit = true;
+    if (nk === 'moon') ev.familyMoon = true;
+    if (nk === 'saturn' || nk === 'venus') ev.familyNatalOther = true;
+    if (tk === 'saturn' || tk === 'jupiter' || tk === 'neptune') ev.familyTransit = true;
+    if (nk === 'mercury' || nk === 'mars' || nk === 'moon') ev.movementNatal = true;
+    if (tk === 'uranus') ev.movementUranus = true;
+    if (tk === 'jupiter') ev.movementTransitOther = true;
+    if (nk === 'mercury' || nk === 'sun' || nk === 'jupiter') ev.growthNatal = true;
+    if (tk === 'jupiter' || tk === 'saturn' || tk === 'uranus') ev.growthTransit = true;
+  }
+
+  function gateHealth(ev) {
+    if (!ev) return false;
+    var axis = !!(ev.healthAsc || ev.healthProg1 || ev.healthProg6);
+    var kinds = 0;
+    if (ev.healthNatal) kinds += 1;
+    if (ev.healthTransit) kinds += 1;
+    if (ev.healthProg6 || ev.healthProg1) kinds += 1;
+    if (ev.healthProg12) kinds += 1;
+    // 본선: ASC/1/6 + 다른 근거
+    if (axis && kinds >= 2) return true;
+    // 예외: ASC/1/6 없어도 natal+transit+추가(종류≥3). 단독 외행성·단독 12H 금지
+    if (!axis && ev.healthNatal && ev.healthTransit && kinds >= 3) return true;
+    return false;
+  }
+
+  function gateFamily(ev) {
+    if (!ev) return false;
+    if (!(ev.familyMoon || ev.familyProg4)) return false;
+    var kinds = 0;
+    if (ev.familyMoon) kinds += 1;
+    if (ev.familyProg4) kinds += 1;
+    if (ev.familyNatalOther) kinds += 1;
+    if (ev.familyTransit) kinds += 1;
+    if (ev.familyProgAux) kinds += 1;
+    return kinds >= 2;
+  }
+
+  function gateMovement(ev) {
+    if (!ev) return false;
+    if (!(ev.movementUranus || ev.movementProg39)) return false;
+    var kinds = 0;
+    if (ev.movementUranus) kinds += 1;
+    if (ev.movementProg39) kinds += 1;
+    if (ev.movementNatal) kinds += 1;
+    if (ev.movementTransitOther) kinds += 1;
+    if (ev.movementProg4) kinds += 1;
+    return kinds >= 2;
+  }
+
+  function gateGrowth(ev) {
+    if (!ev) return false;
+    // natal(수성·태양·목성 nk) 필수 + (transit 또는 prog) — 목성 tk 단독 금지
+    if (!ev.growthNatal) return false;
+    if (!(ev.growthTransit || ev.growthProg)) return false;
+    return true;
+  }
+
+  function evalThemeGates(ev) {
+    return {
+      health: gateHealth(ev),
+      family: gateFamily(ev),
+      movement: gateMovement(ev),
+      growth: gateGrowth(ev),
+    };
+  }
+
+  function mergeThemeEvidence(a, b) {
+    var o = emptyThemeEvidence();
+    if (!a && !b) return o;
+    Object.keys(o).forEach(function (k) {
+      o[k] = !!(a && a[k]) || !!(b && b[k]);
+    });
+    return o;
   }
 
   function contribForHit(h) {
@@ -207,6 +371,7 @@
   function aggregateMonth(sample) {
     var rawAxes = emptyAxes();
     var rawThemes = emptyThemes();
+    var themeEv = emptyThemeEvidence();
     var top = [];
     var uranusPluto = 0;
     var hits = sample.hits || [];
@@ -215,7 +380,8 @@
       var vec = contribForHit(h);
       addAxes(rawAxes, vec, 1);
       var tw = themeWeightsForHit(h.tk, h.nk);
-      ['money', 'career', 'relationship'].forEach(function (k) {
+      markThemeEvidence(themeEv, h.tk, h.nk);
+      ALL_THEME_KEYS.forEach(function (k) {
         rawThemes[k] += (tw[k] || 0) * (1 + Math.max(vec.opportunity, vec.pressure, vec.change) * 0.3);
       });
       if (h.tk === 'uranus' || h.tk === 'pluto') {
@@ -240,9 +406,48 @@
       if (sample.progMoon.houseChanged) {
         pmAxes.change += 1.4;
         var hnum = Number(sample.progMoon.house) || 0;
+        // —— 코어 prog (변경 금지) ——
         if ([2, 8].indexOf(hnum) >= 0) rawThemes.money += 0.8;
         if ([10, 6, 2].indexOf(hnum) >= 0) rawThemes.career += 0.8;
         if ([5, 7, 8, 4].indexOf(hnum) >= 0) rawThemes.relationship += 0.8;
+        // —— 확장 prog ——
+        if (hnum === 6) {
+          rawThemes.health += 0.90;
+          themeEv.healthProg6 = true;
+        }
+        if (hnum === 1) {
+          rawThemes.health += 0.55;
+          themeEv.healthProg1 = true;
+        }
+        if (hnum === 12) {
+          rawThemes.health += 0.30;
+          themeEv.healthProg12 = true;
+        }
+        if (hnum === 4) {
+          rawThemes.family += 0.90;
+          themeEv.familyProg4 = true;
+        }
+        // family 3/10: 코어(family moon|다른 natal|transit|prog4) 있을 때만
+        if ((hnum === 3 || hnum === 10) &&
+            (themeEv.familyMoon || themeEv.familyNatalOther || themeEv.familyTransit || themeEv.familyProg4)) {
+          rawThemes.family += 0.25;
+          themeEv.familyProgAux = true;
+        }
+        if (hnum === 3 || hnum === 9) {
+          rawThemes.movement += 0.80;
+          themeEv.movementProg39 = true;
+          rawThemes.growth += 0.55;
+          themeEv.growthProg = true;
+        }
+        if (hnum === 11) {
+          rawThemes.growth += 0.25;
+          themeEv.growthProg = true;
+        }
+        // movement prog4: movement 코어(uranus|prog3/9) 있을 때만
+        if (hnum === 4 && (themeEv.movementUranus || themeEv.movementProg39)) {
+          rawThemes.movement += 0.30;
+          themeEv.movementProg4 = true;
+        }
         progNote = '프로그레스 달 ' + (sample.progMoon.house || '?') + '하우스 진입';
       }
       (sample.progMoon.aspects || []).forEach(function (a) {
@@ -257,7 +462,8 @@
           pmAxes.opportunity += 0.35;
         }
         var tw = themeWeightsForHit('moon', a.nk);
-        ['money', 'career', 'relationship'].forEach(function (k) {
+        markThemeEvidence(themeEv, 'moon', a.nk);
+        ALL_THEME_KEYS.forEach(function (k) {
           rawThemes[k] += (tw[k] || 0) * 0.5;
         });
       });
@@ -275,14 +481,14 @@
       pressure: Math.round((rawAxes.pressure || 0) * 1000) / 1000,
       change: Math.round((rawAxes.change || 0) * 1000) / 1000,
     };
-    var rawThemesSnap = {
-      money: Math.round((rawThemes.money || 0) * 1000) / 1000,
-      career: Math.round((rawThemes.career || 0) * 1000) / 1000,
-      relationship: Math.round((rawThemes.relationship || 0) * 1000) / 1000,
-    };
+    var rawThemesSnap = emptyThemes();
+    ALL_THEME_KEYS.forEach(function (k) {
+      rawThemesSnap[k] = Math.round((rawThemes[k] || 0) * 1000) / 1000;
+    });
     var axes = normalizeAxes(rawAxes);
     var themes = normalizeThemes(rawThemes);
     var state = classifyState(axes, { uranusPluto: uranusPluto });
+    var themeGate = evalThemeGates(themeEv);
 
     return {
       y: sample.y,
@@ -292,6 +498,8 @@
       rawAxes: rawAxesSnap,
       themes: themes,
       rawThemes: rawThemesSnap,
+      themeEvidence: themeEv,
+      themeGate: themeGate,
       state: state,
       topHits: top.slice(0, 5),
       progNote: progNote,
@@ -786,10 +994,17 @@
 
     function themePeak(theme) {
       var idx = pickTopIndex(months, function (m) {
+        if (EXT_THEME_KEYS.indexOf(theme) >= 0) {
+          if (!(m.themeGate && m.themeGate[theme])) return -Infinity;
+          if (((m.themeStars && m.themeStars[theme]) || 0) < 4) return -Infinity;
+        }
         return (m.rawThemes && m.rawThemes[theme]) || 0;
       });
       if (idx < 0) return null;
       var m = months[idx];
+      if (EXT_THEME_KEYS.indexOf(theme) >= 0 && !(m.themeGate && m.themeGate[theme])) return null;
+      if (((m.rawThemes && m.rawThemes[theme]) || 0) <= 0) return null;
+      if (EXT_THEME_KEYS.indexOf(theme) >= 0 && ((m.themeStars && m.themeStars[theme]) || 0) < 4) return null;
       return {
         ym: m.ym,
         themeStars: (m.themeStars && m.themeStars[theme]) || 1,
@@ -878,6 +1093,10 @@
         career: themePeak('career'),
         money: themePeak('money'),
         relationship: themePeak('relationship'),
+        health: themePeak('health'),
+        family: themePeak('family'),
+        movement: themePeak('movement'),
+        growth: themePeak('growth'),
       },
       categoryCounts: dist,
       copy: {
@@ -1211,15 +1430,57 @@
       sum.money += raw.money || 0;
       sum.relationship += raw.relationship || 0;
     }
-    return ['career', 'money', 'relationship']
+    return CORE_THEME_KEYS
       .map(function (k) {
         return {
           k: k,
           ko: THEME_KR[k] || k,
           avgRaw: Math.round((sum[k] / n) * 1000) / 1000,
+          core: true,
         };
       })
       .sort(function (a, b) { return b.avgRaw - a.avgRaw; });
+  }
+
+  /** 표시·제목·AI용. 확장 테마는 게이트 + 상대 세기(theme★≥4 월 또는 코어 대비)일 때만. */
+  function aggregatePeriodThemesDisplay(months, startIdx, endIdx) {
+    var core = aggregatePeriodThemes(months, startIdx, endIdx);
+    var n = Math.max(1, endIdx - startIdx + 1);
+    var sum = emptyThemes();
+    var ev = emptyThemeEvidence();
+    var strongCount = { health: 0, family: 0, movement: 0, growth: 0 };
+    var i;
+    for (i = startIdx; i <= endIdx; i++) {
+      var raw = months[i].rawThemes || emptyThemes();
+      var gate = months[i].themeGate || {};
+      var stars = months[i].themeStars || {};
+      EXT_THEME_KEYS.forEach(function (k) {
+        sum[k] += raw[k] || 0;
+        if (gate[k] && (stars[k] || 0) >= 4) strongCount[k] += 1;
+      });
+      ev = mergeThemeEvidence(ev, months[i].themeEvidence);
+    }
+    var gates = evalThemeGates(ev);
+    var topCore = core[0] ? core[0].avgRaw : 0;
+    var coreSecond = core[1] ? core[1].avgRaw : 0;
+    var ext = EXT_THEME_KEYS.map(function (k) {
+      return {
+        k: k,
+        ko: THEME_KR[k] || k,
+        avgRaw: Math.round((sum[k] / n) * 1000) / 1000,
+        core: false,
+        gated: !!gates[k],
+        strongMonths: strongCount[k] || 0,
+      };
+    }).filter(function (t) {
+      if (!t.gated || t.avgRaw <= 0) return false;
+      // 강한 월이 있거나, 코어 1~2위와 견줄 만큼 커야 제목/테마 목록에 포함
+      if (t.strongMonths >= 1) return true;
+      if (topCore > 0 && t.avgRaw >= topCore * 0.85) return true;
+      if (coreSecond > 0 && t.avgRaw >= coreSecond * 0.95 && t.avgRaw >= 0.5) return true;
+      return false;
+    }).sort(function (a, b) { return b.avgRaw - a.avgRaw; }).slice(0, 2);
+    return core.concat(ext).sort(function (a, b) { return b.avgRaw - a.avgRaw; }).slice(0, 4);
   }
 
   function aggregatePeriodStars(months, startIdx, endIdx) {
@@ -1896,7 +2157,8 @@
 
   function buildCandidateFromRange(months, r, id) {
     var evidence = aggregatePeriodEvidence(months, r.startIdx, r.endIdx);
-    var themes = aggregatePeriodThemes(months, r.startIdx, r.endIdx);
+    var themesCore = aggregatePeriodThemes(months, r.startIdx, r.endIdx);
+    var themes = aggregatePeriodThemesDisplay(months, r.startIdx, r.endIdx);
     var starsAgg = aggregatePeriodStars(months, r.startIdx, r.endIdx);
     var axisFlags = periodAxisFlags(months, r.startIdx, r.endIdx);
     var phases = buildPeriodPhases(months, r.startIdx, r.endIdx);
@@ -1925,6 +2187,7 @@
       splitNote: r.splitNote || '',
       evidence: evidence,
       themes: themes,
+      themesCore: themesCore,
       stars: starsAgg,
       axisFlags: axisFlags,
       primaries: primaries,
@@ -2172,7 +2435,7 @@
         .slice()
         .sort(function (a, b) { return a - b; });
     });
-    var themeKeys = ['money', 'career', 'relationship'];
+    var themeKeys = ALL_THEME_KEYS;
     var themeLists = {};
     themeKeys.forEach(function (k) {
       themeLists[k] = months
@@ -2570,6 +2833,9 @@
       L.push('※ 아래 period/phase/event 목록은 엔진 원본이다. 합치거나 삭제·기간 변경 금지. 상담문에서만 이야기로 연결한다.');
       L.push('서술 규칙: 화면/입력을 그대로 읽어 주지 말 것. 직전 period와 비교해 「무엇이 달라졌는지」를 상담 문장으로 이어서 말할 것.');
       L.push('서술 규칙: 같은 주제(예: 금전)가 이어지는 연속 period는 연도별로 따로 나열하지 말고, 「금전 이슈가 커짐 → 조율·선택 → 일로 무게 이동」처럼 한 이야기로 연결할 것.');
+      L.push('서술 규칙: themes/areas에 나온 삶의 영역만 언급. 7영역을 매 연도 강제로 채우지 말 것.');
+      L.push('서술 규칙: 건강·가족은 확정 질병·가정 파탄 등으로 단정하지 말 것. 약한 신호면 생략.');
+      L.push('서술 규칙: 이동·환경은 약한 신호로 「이사」를 단정하지 말 것.');
       L.push('서술 규칙: phase는 챕터 안 세부 결로만 짧게. 별도 장기 챕터처럼 과장하지 말 것.');
       L.push('출력 금지 라벨(사용자 문장에 반복 금지): 확장, 부담, 변화, 전환, 재편, 확장과 부담, 주의가 필요한 변화, 선택적 실행, 확장기, 압박기, 도약·재편기.');
       L.push('대신 생활어: 속도를 내기 / 속도를 줄이기 / 선택적으로 실행 / 결정·계약을 미루기 / 역할·업무 조율 / 재정 점검 / 방향 재확인 등.');
@@ -2637,8 +2903,8 @@
 
     if (kt.themeActivation) {
       L.push('');
-      L.push('[주제 활성 peak — 활성도일 뿐 길흉 아님]');
-      ['relationship', 'career', 'money'].forEach(function (theme) {
+      L.push('[주제 활성 peak — 활성도일 뿐 길흉 아님. 게이트 통과분만]');
+      ALL_THEME_KEYS.forEach(function (theme) {
         var t = kt.themeActivation[theme];
         if (!t) return;
         L.push(
@@ -2677,6 +2943,9 @@
     CHUNK: CHUNK,
     STATE_META: STATE_META,
     THEME_KR: THEME_KR,
+    CORE_THEME_KEYS: CORE_THEME_KEYS,
+    EXT_THEME_KEYS: EXT_THEME_KEYS,
+    ALL_THEME_KEYS: ALL_THEME_KEYS,
     JUDGMENT_META: JUDGMENT_META,
     ymLabel: ymLabel,
     aggregateMonth: aggregateMonth,
