@@ -1242,6 +1242,43 @@ body.export-capturing #wheelCard .note{display:none !important;}
         seen += 1;
         if (seen >= 2) { s = s.slice(0, m.index).trim(); break; }
       }
+      const blocks = s.split(/\n\n+/);
+      const keptBlocks = [];
+      const blockNorms = [];
+      for (let bi = 0; bi < blocks.length; bi += 1) {
+        const block = blocks[bi];
+        const n = block.replace(/\*\*/g, '').replace(/\s+/g, ' ').trim();
+        if (!n) continue;
+        let dup = false;
+        for (let pi = 0; pi < blockNorms.length; pi += 1) {
+          const prev = blockNorms[pi];
+          if (n === prev) { dup = true; break; }
+          if (n.length > 28 && prev.length > 28 && (n.startsWith(prev) || prev.startsWith(n))) {
+            dup = true; break;
+          }
+        }
+        if (!dup) { keptBlocks.push(block); blockNorms.push(n); }
+      }
+      s = keptBlocks.join('\n\n');
+      const sm = s.match(/([\s\S]*^##\s+(?:일정|5년 중 언제)[^\n]*\n)([\s\S]*)$/m);
+      if (sm) {
+        const schedLines = sm[2].split('\n');
+        let lastTiming = -1;
+        for (let i = 0; i < schedLines.length; i += 1) {
+          const t = schedLines[i].trim();
+          if (/—\s*20\d{2}|20\d{2}년[\s\d~월\.]*(—|$)/.test(t)) lastTiming = i;
+        }
+        if (lastTiming >= 0) {
+          s = sm[1] + schedLines.slice(0, lastTiming + 1).join('\n').trim();
+        }
+      }
+      let weakSeen = 0;
+      s = s.split('\n').filter((line) => {
+        const t = line.trim();
+        if (!/건강|금전/.test(t) || !/별도|큰\s*흐름|뚜렷하지|약해|없어/.test(t)) return true;
+        weakSeen += 1;
+        return weakSeen <= 1;
+      }).join('\n');
     }
     return s.trim();
   }
@@ -1708,9 +1745,8 @@ body.export-capturing #wheelCard .note{display:none !important;}
       return;
     }
     renderTimelineYearTabs(TIMELINE_AI_SECTIONS);
-    const md = parsedOk
-      ? (getTimelineFullMarkdown(TIMELINE_AI_SECTIONS) || TIMELINE_AI_FULL_TEXT)
-      : TIMELINE_AI_FULL_TEXT;
+    const md = (formatOk || parsedOk) ? TIMELINE_AI_FULL_TEXT
+      : (getTimelineFullMarkdown(TIMELINE_AI_SECTIONS) || TIMELINE_AI_FULL_TEXT);
     setAiResultBox(box, md, Object.assign({}, o, {
       timelineMode: true,
       accordion: false,
