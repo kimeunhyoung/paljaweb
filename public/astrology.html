@@ -3463,7 +3463,7 @@ body.export-capturing #wheelCard .note{display:none !important;}
   function timelineCacheKey() {
     const stamp = chartStampForTransitAi();
     if (!stamp) return '';
-    const prefix = isAiRawTimelineV1Enabled() ? 'raw_v38' : 'v7';
+    const prefix = isAiRawTimelineV1Enabled() ? 'raw_v39' : 'v7';
     if (LAST_TIMELINE && LAST_TIMELINE.fromYm && LAST_TIMELINE.toYm) {
       return `${prefix}:timeline:${stamp}:${LAST_TIMELINE.fromYm}:${LAST_TIMELINE.toYm}`;
     }
@@ -3763,7 +3763,7 @@ body.export-capturing #wheelCard .note{display:none !important;}
       '위 JSON에서 **' + y + '년** 구간만 다룹니다.\n' +
       '출력은 반드시 아래 3섹션만:\n' +
       '## 이 해 한 줄기\n## 시기별로\n## 일정·활용 참고\n' +
-      '5년 전체 스토리(연도별 해석) 형식 금지. 짧고 쉬운 문장. **~쪽** 금지. 시기는 줄 시작 `봄(3~5월)` 형태. 본문 핵심·조언만 **굵게**.\n' +
+      '5년 전체 스토리(연도별 해석) 형식 금지. 짧고 쉬운 문장. **~쪽** 금지. 시기는 줄 시작 `봄(3~5월)` 형태. **굵게는 조언·주의 한 구절만**(사실·시기·주제명 금지).\n' +
       '「시기별로」는 몇 달·계절 단위로 묶어 쓰고, 12개월을 빠짐없이 일일 단위로 채우지 마세요.\n' +
       '**domainScan(8영역) — 연도 상세에서는 적용 안 함:** `domainScan`은 5년 전체 기준 판정이다. **재점수·재순위·8영역 나열·weakOptional 출력 금지.** ' +
       y + '년 **transitEpisodes·progMoon·해당 연도 utilizeRecommendations**만 근거로 쓸 것. eps가 있는 축만 쓰고 약한 영역은 생략.'
