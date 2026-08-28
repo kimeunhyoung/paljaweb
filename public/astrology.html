@@ -412,7 +412,8 @@ table.astro-table td .glyph{font-size:16px;margin-right:4px;color:var(--accent);
 .ai-result--timeline .ai-md-timing-label strong{background:none;color:inherit;padding:0;}
 .ai-result--timeline .ai-md-h2 strong,.ai-result--timeline .ai-md-h3 strong{background:none;color:inherit;padding:0;}
 .ai-result--timeline .ai-md-p{margin:0 0 10px;}
-.ai-result--timeline .ai-md-p strong,.ai-result--timeline .ai-md-list strong{font-weight:700;color:#7a4f12;background:linear-gradient(180deg,transparent 55%,rgba(255,220,130,.55) 55%);padding:0 2px;border-radius:2px;box-decoration-break:clone;-webkit-box-decoration-break:clone;}
+.ai-result--timeline .ai-md-p strong,.ai-result--timeline .ai-md-list strong{font-weight:700;color:var(--deep-brown);}
+.ai-result--timeline .ai-md-p strong.ai-md-kw,.ai-result--timeline .ai-md-list strong.ai-md-kw{font-weight:700;color:#7a4f12;background:linear-gradient(180deg,transparent 55%,rgba(255,220,130,.55) 55%);padding:0 2px;border-radius:2px;box-decoration-break:clone;-webkit-box-decoration-break:clone;}
 .ai-result--timeline strong{font-weight:700;color:var(--deep-brown);}
 .timeline-year-tabs{display:flex;flex-wrap:wrap;gap:6px;margin:0;}
 .timeline-year-tab-bar{background:rgba(255,248,235,.95);border:1px solid #e0d4c0;border-radius:12px;padding:10px 12px;margin:14px 0 0;}
@@ -944,12 +945,59 @@ body.export-capturing #wheelCard .note{display:none !important;}
       .replace(/"/g, '&quot;');
   }
 
+  function isTimelineAdviceBold(inner) {
+    const t = String(inner || '').trim();
+    if (!t || t.length > 28) return true;
+    return /편이\s*(?:좋|나)|않는\s*편|좋을\s*수|나을\s*수|집중|조심|미루|지켜보|살펴보|밀어|결론|일정을\s*잡|방향이\s*잡|한꺼번에|우선순위/.test(t);
+  }
+
+  function stripTimelineAdviceBold(text) {
+    return String(text || '').replace(/\*\*([^*\n]+)\*\*/g, (full, inner) => {
+      if (isTimelineAdviceBold(inner)) return inner;
+      return full;
+    });
+  }
+
+  function prepareTimelineYearDetailMarkdown(year, text) {
+    const y = String(year || '').trim();
+    if (!/^\d{4}$/.test(y)) return String(text || '');
+    let s = stripTimelineAdviceBold(sanitizeAiTimelineCustomerText(text));
+    const lines = s.split('\n');
+    const kept = [];
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i];
+      const t = line.trim();
+      if (!t) { kept.push(line); continue; }
+      const ym = parseTimelineYearLineMeta(line);
+      if (ym && ym.year !== y && (/^(★|◆)/.test(t) || /^\*\*\d{4}\s*년/.test(t))) break;
+      const otherYear = t.match(/^(?:★|◆)\s*\*{0,2}(\d{4})\s*년/);
+      if (otherYear && otherYear[1] !== y) break;
+      if (/^\*\*(\d{4})\s*년/.test(t)) {
+        const m = t.match(/^\*\*(\d{4})\s*년/);
+        if (m && m[1] !== y) break;
+      }
+      kept.push(line);
+    }
+    s = kept.join('\n').trim();
+    const head = '**' + y + '년**';
+    if (!new RegExp('\\*\\*' + y + '\\s*년\\*\\*').test(s.slice(0, 240))) {
+      s = head + '\n\n' + s;
+    }
+    return s;
+  }
+
   function aiInlineMarkdown(escapedLine, inlineOpts) {
     const timelineMode = inlineOpts && inlineOpts.timelineMode;
     return String(escapedLine || '')
       .replace(/\*\*(.+?)\*\*/g, (full, inner) => {
         if (timelineMode && isTimingInlineText(inner)) {
           return '<span class="ai-md-when">' + inner + '</span>';
+        }
+        if (timelineMode && isTimelineAdviceBold(inner)) {
+          return inner;
+        }
+        if (timelineMode) {
+          return '<strong class="ai-md-kw">' + inner + '</strong>';
         }
         return '<strong>' + inner + '</strong>';
       })
@@ -1729,7 +1777,8 @@ body.export-capturing #wheelCard .note{display:none !important;}
     }
     box.dataset.aiRaw = raw;
     const cleaned = sanitizeAiTimelineCustomerText(raw);
-    const html = aiMarkdownToHtml(cleaned, { timelineMode });
+    const mdSource = timelineMode ? stripTimelineAdviceBold(cleaned) : cleaned;
+    const html = aiMarkdownToHtml(mdSource, { timelineMode });
     const useAcc = !(opts && opts.accordion === false) &&
       !timelineMode &&
       raw.trim().length > 60;
@@ -3570,7 +3619,7 @@ body.export-capturing #wheelCard .note{display:none !important;}
   function timelineCacheKey() {
     const stamp = chartStampForTransitAi();
     if (!stamp) return '';
-    const prefix = isAiRawTimelineV1Enabled() ? 'raw_v42' : 'v7';
+    const prefix = isAiRawTimelineV1Enabled() ? 'raw_v43' : 'v7';
     if (LAST_TIMELINE && LAST_TIMELINE.fromYm && LAST_TIMELINE.toYm) {
       return `${prefix}:timeline:${stamp}:${LAST_TIMELINE.fromYm}:${LAST_TIMELINE.toYm}`;
     }
@@ -3887,10 +3936,11 @@ body.export-capturing #wheelCard .note{display:none !important;}
     return (
       base +
       '\n\n[연도 상세 모드 — ' + y + '년만]\n' +
-      '위 JSON에서 **' + y + '년** 구간만 다룹니다.\n' +
-      '출력은 반드시 아래 3섹션만:\n' +
+      '위 JSON에서 **' + y + '년** 구간만 다룹니다. **다른 연도(2027·2028 등) 제목·★/◆ 마크·해석 절대 금지.**\n' +
+      '출력 첫 줄은 반드시 **' + y + '년** (단독 줄). 그다음 3섹션:\n' +
       '## 이 해 한 줄기\n## 시기별로\n## 일정·활용 참고\n' +
-      '5년 전체 스토리(연도별 해석) 형식 금지. 짧고 쉬운 문장. **~쪽** 금지. 시기는 줄 시작 `봄(3~5월)` 형태. **굵게는 조언·주의 한 구절만**(사실·시기·주제명 금지).\n' +
+      '5년 전체 스토리(연도별 해석) 형식 금지. 짧고 쉬운 문장. **~쪽** 금지. 시기는 줄 시작 `' + y + '년 봄(3~5월)` 형태(연도 포함).\n' +
+      '**굵게(`**…**`) = 그 시기 핵심 키워드 1~2개(명사)만.** 조언·~하는 편·~좋을 수 **굵게 금지**.\n' +
       '「시기별로」는 몇 달·계절 단위로 묶어 쓰고, 12개월을 빠짐없이 일일 단위로 채우지 마세요.\n' +
       '**domainScan(8영역) — 연도 상세에서는 적용 안 함:** `domainScan`은 5년 전체 기준 판정이다. **재점수·재순위·8영역 나열·weakOptional 출력 금지.** ' +
       y + '년 **transitEpisodes·progMoon·해당 연도 utilizeRecommendations**만 근거로 쓸 것. eps가 있는 축만 쓰고 약한 영역은 생략.'
@@ -4880,7 +4930,7 @@ body.export-capturing #wheelCard .note{display:none !important;}
     const cached = TIMELINE_YEAR_AI_CACHE[year];
     if (cached && cached.key === cacheKeyRaw && cached.text) {
       box.hidden = false;
-      setAiResultBox(box, cached.text, { open: true, timelineMode: true });
+      setAiResultBox(box, prepareTimelineYearDetailMarkdown(year, cached.text), { open: true, timelineMode: true });
       box.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
       return;
     }
@@ -4913,10 +4963,10 @@ body.export-capturing #wheelCard .note{display:none !important;}
         messages: [{ role: 'user', content: prompt }],
         onDelta: (chunk) => {
           streamed += chunk;
-          setAiResultBox(box, streamed, { open: true, timelineMode: true });
+          setAiResultBox(box, prepareTimelineYearDetailMarkdown(year, streamed), { open: true, timelineMode: true });
         },
       });
-      let out = text || streamed || '해석을 생성하지 못했어요.';
+      let out = prepareTimelineYearDetailMarkdown(year, text || streamed || '해석을 생성하지 못했어요.');
       if (data?.stop_reason === 'max_tokens') out += '\n\n(※ 해석이 길어 일부가 잘렸을 수 있어요.)';
       TIMELINE_YEAR_AI_CACHE[year] = { key: cacheKeyRaw, text: out };
       setAiResultBox(box, out, { open: true, timelineMode: true });
@@ -4932,7 +4982,7 @@ body.export-capturing #wheelCard .note{display:none !important;}
         setAiResultBox(box, 'AI 해석을 일시적으로 사용할 수 없어요.', { plain: true });
       } else {
         TIMELINE_YEAR_AI_CACHE[year] = { key: cacheKeyRaw, text: streamed };
-        setAiResultBox(box, streamed, { open: true, timelineMode: true });
+        setAiResultBox(box, prepareTimelineYearDetailMarkdown(year, streamed), { open: true, timelineMode: true });
       }
     } finally {
       TIMELINE_YEAR_AI_BUSY = false;
