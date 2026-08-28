@@ -139,7 +139,7 @@
    * SSE 스트리밍. onDelta(chunk)로 조각 수신.
    * 실패 시 throw (err.quota 가능).
    */
-  async function callAiStream({ feature, cacheKey, model, max_tokens, messages, payload, onDelta, continuePartial }) {
+  async function callAiStream({ feature, cacheKey, cacheKeyRaw, model, max_tokens, messages, payload, onDelta, continuePartial }) {
     const headers = await authHeaders();
     headers.Accept = 'text/event-stream';
     const body = {
@@ -149,6 +149,7 @@
       max_tokens,
       stream: true,
     };
+    if (cacheKeyRaw) body.cacheKeyRaw = cacheKeyRaw;
     if (payload != null) body.payload = payload;
     else body.messages = messages;
     if (continuePartial) body.continuePartial = continuePartial;
@@ -249,6 +250,22 @@
     }
 
     if (streamError) {
+      if (fullText.trim()) {
+        const partialData = {
+          content: [{ type: 'text', text: fullText }],
+          stop_reason: 'stream_cut',
+          _palja: { incomplete: true },
+        };
+        return {
+          data: partialData,
+          text: fullText,
+          quota: quotaFromResponse(partialData),
+          cached: false,
+          stopReason: 'stream_cut',
+          streamIncomplete: true,
+          doneReceived: false,
+        };
+      }
       const err = new Error(streamError.error || 'AI 스트리밍에 실패했습니다.');
       err.status = streamError.status || 502;
       err.code = streamError.code;
