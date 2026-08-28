@@ -79,6 +79,8 @@
 <script src="js/astro-timeline-v2.js?v=7"></script>
 <script src="js/astro-house-rulers.js?v=1"></script>
 <script src="js/astro-life-timeline.js?v=1"></script>
+<script src="js/ai-raw-timeline-v1.js?v=1"></script>
+<script src="js/ai-raw-timeline-prompt-v2.js?v=3"></script>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css" crossorigin />
 <link rel="stylesheet" href="css/site-topbar.css?v=8" />
 <link rel="stylesheet" href="css/site-header.css?v=7" />
@@ -243,6 +245,21 @@ table.astro-table td .glyph{font-size:16px;margin-right:4px;color:var(--accent);
 .transit-ai-block{margin-top:18px;padding-top:16px;border-top:1px dashed #e0d4c0;}
 .transit-ai-intro{font-size:13px;line-height:1.65;color:var(--muted);margin:0 0 12px;}
 .transit-ai-row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;}
+/* raw timeline signal calendar (flag ON only) */
+.timeline-raw-cal{margin:12px 0 14px;padding:12px 14px;background:rgba(139,111,71,.05);border:1px solid #e8ddcb;border-radius:12px;}
+.timeline-raw-cal-h{margin:0 0 4px;font-size:13.5px;font-weight:700;color:var(--deep-brown);}
+.timeline-raw-cal-sub{margin:0 0 10px;font-size:11.5px;line-height:1.5;color:var(--muted);}
+.timeline-raw-cal-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px;}
+.timeline-raw-cal-item{display:grid;grid-template-columns:6.5em 1fr;gap:4px 10px;align-items:start;padding:10px 12px;background:rgba(255,255,255,.72);border-radius:10px;border:1px solid #eee4d6;}
+.timeline-raw-cal-when{font-size:12px;font-weight:700;color:var(--warm-brown);font-variant-numeric:tabular-nums;line-height:1.45;}
+.timeline-raw-cal-line{font-size:13.5px;font-weight:500;color:var(--deep-brown);line-height:1.55;}
+.timeline-raw-cal-meta,.timeline-raw-cal-peaks{display:none;}
+.timeline-raw-cal-prog{margin:10px 0 0;padding-top:8px;border-top:1px dashed #e0d4c0;font-size:11.5px;color:var(--muted);line-height:1.55;}
+.timeline-raw-cal-prog strong{color:var(--deep-brown);font-weight:700;}
+@media (max-width:560px){
+  .timeline-raw-cal-item{grid-template-columns:1fr auto;}
+  .timeline-raw-cal-when{grid-column:1/-1;}
+}
 /* 아코디언 */
 .accordion .acc-head{width:100%;display:flex;align-items:center;justify-content:space-between;gap:8px;background:none;border:0;padding:0;margin:0;cursor:pointer;text-align:left;color:inherit;}
 .accordion .acc-chev{font-size:18px;line-height:1;color:var(--muted);transition:transform .2s ease;}
@@ -373,6 +390,15 @@ table.astro-table td .glyph{font-size:16px;margin-right:4px;color:var(--accent);
 .ai-result--md .ai-md-list li{margin:5px 0;}
 .ai-result--md .ai-md-p{margin:0 0 8px;}
 .ai-result--md .ai-md-gap{height:8px;}
+.ai-result--md .ai-md-timing{margin:10px 0;padding:8px 10px;border-radius:10px;background:rgba(255,255,255,.4);}
+.ai-result--md .ai-md-timing-label{font-weight:700;font-size:14px;color:var(--deep-brown);margin-bottom:4px;line-height:1.35;}
+.ai-result--md .ai-md-timing-body .ai-md-p:last-child{margin-bottom:0;}
+.ai-result--md .ai-md-timing--key{background:rgba(139,111,71,.11);border-left:3px solid var(--accent);padding-left:12px;}
+.ai-result--md .ai-md-timing--key .ai-md-timing-label{color:var(--warm-brown);display:flex;flex-wrap:wrap;align-items:center;gap:6px 8px;}
+.ai-result--md .ai-md-timing--major{background:rgba(180,83,45,.1);border-left:3px solid #b4532d;padding-left:12px;}
+.ai-result--md .ai-md-timing--major .ai-md-timing-label{color:#8b3a1f;display:flex;flex-wrap:wrap;align-items:center;gap:6px 8px;}
+.ai-result--md .ai-md-timing-badge{display:inline-block;font-size:11px;font-weight:700;color:var(--warm-brown);background:rgba(201,162,39,.2);padding:2px 8px;border-radius:999px;letter-spacing:-0.01em;line-height:1.4;flex-shrink:0;}
+.ai-result--md .ai-md-timing-badge--major{color:#8b3a1f;background:rgba(180,83,45,.18);}
 .ai-result--md .ai-md-hr{border:none;border-top:1px solid #e8ddcb;margin:16px 0;}
 .ai-result--md strong{font-weight:700;color:#6b4f2a;background:rgba(201,162,39,.14);padding:0 3px;border-radius:3px;}
 .ai-result--md .ai-md-notes{margin-top:16px;border:1px solid #e8ddcb;border-radius:12px;background:rgba(255,255,255,.55);overflow:hidden;}
@@ -763,6 +789,7 @@ body.export-capturing #wheelCard .note{display:none !important;}
         <div class="transit-ai-row">
           <button type="button" class="rt-btn rt-btn--share" id="btnTimelineAi" disabled>✨ AI로 상태·타이밍 풀기 (2크레딧)</button>
         </div>
+        <div id="timelineRawSignalCal" class="timeline-raw-cal" hidden></div>
         <div id="timelineAiResult" class="ai-result empty">위에서 타임라인을 계산한 뒤 AI를 이용해 주세요.</div>
         <p class="ai-time-hint" id="timelineAiHint">보통 20~40초 정도 걸려요. 나오는 대로 바로 보여 드려요.</p>
       </div>
@@ -838,6 +865,9 @@ body.export-capturing #wheelCard .note{display:none !important;}
     const CNH = await import('https://cdn.jsdelivr.net/npm/circular-natal-horoscope-js@1.1.0/+esm');
     Origin = CNH.Origin || (CNH.default && CNH.default.Origin);
     Horoscope = CNH.Horoscope || (CNH.default && CNH.default.Horoscope);
+    // raw timeline builder (public/js/ai-raw-timeline-v1.js) reads globals
+    window.Origin = Origin;
+    window.Horoscope = Horoscope;
   } catch (e) {
     libError = e;
     console.error('점성 계산 라이브러리 로드 실패', e);
@@ -884,12 +914,25 @@ body.export-capturing #wheelCard .note{display:none !important;}
     const out = [];
     let inList = false;
     let notesOpen = false;
+    let timingOpen = false;
+    let timingKey = false;
+    let timingMajor = false;
     const flushList = () => {
       if (inList) {
         out.push('</ul>');
         inList = false;
       }
     };
+    const flushTiming = () => {
+      if (!timingOpen) return;
+      out.push('</div></div>');
+      timingOpen = false;
+      timingKey = false;
+      timingMajor = false;
+    };
+    const isTimingLabel = (line) => /^(?:★|◆)\s+\*\*.+\*\*\s*$/.test(line.trim());
+    const isMajorTimingLabel = (line) => /^★\s+/.test(line.trim());
+    const isKeyTimingLabel = (line) => /^◆\s+/.test(line.trim());
     const isAnalystTitle = (line) =>
       /^##\s+/.test(line) && /분석가\s*노트|왜 이렇게 읽었나/.test(line);
     const isNotesStart = (line) => isAnalystTitle(line) || /^###\s+근거\s*[123]/.test(line);
@@ -903,6 +946,7 @@ body.export-capturing #wheelCard .note{display:none !important;}
       const line = lines[i];
       if (!notesOpen && isNotesStart(line)) {
         flushList();
+        flushTiming();
         out.push(
           '<details class="ai-md-notes"><summary class="ai-md-notes-sum">분석가 노트 (차트 근거) · 펼쳐 보기</summary><div class="ai-md-notes-body">',
         );
@@ -914,14 +958,18 @@ body.export-capturing #wheelCard .note{display:none !important;}
       }
       if (/^###\s+/.test(line)) {
         flushList();
+        flushTiming();
         out.push('<h4 class="ai-md-h3">' + aiInlineMarkdown(escapeCounselorHtml(line.replace(/^###\s+/, ''))) + '</h4>');
       } else if (/^##\s+/.test(line)) {
         flushList();
+        flushTiming();
         out.push('<h3 class="ai-md-h2">' + aiInlineMarkdown(escapeCounselorHtml(line.replace(/^##\s+/, ''))) + '</h3>');
       } else if (/^>\s?/.test(line)) {
         flushList();
+        flushTiming();
         out.push('<div class="ai-md-quote">' + aiInlineMarkdown(escapeCounselorHtml(line.replace(/^>\s?/, ''))) + '</div>');
       } else if (/^[-*]\s+/.test(line)) {
+        flushTiming();
         if (!inList) {
           out.push('<ul class="ai-md-list">');
           inList = true;
@@ -929,16 +977,44 @@ body.export-capturing #wheelCard .note{display:none !important;}
         out.push('<li>' + aiInlineMarkdown(escapeCounselorHtml(line.replace(/^[-*]\s+/, ''))) + '</li>');
       } else if (/^---+$/.test(line.trim())) {
         flushList();
+        flushTiming();
         out.push('<hr class="ai-md-hr">');
       } else if (line.trim() === '') {
         flushList();
+        flushTiming();
         out.push('<div class="ai-md-gap"></div>');
+      } else if (isTimingLabel(line)) {
+        flushList();
+        flushTiming();
+        timingOpen = true;
+        timingMajor = isMajorTimingLabel(line);
+        timingKey = timingMajor || isKeyTimingLabel(line);
+        const label = line.trim().replace(/^(?:★|◆)\s+/, '');
+        const isYearLabel = /\d{4}\s*년/.test(label);
+        let badge = '';
+        if (timingMajor) {
+          badge = '<span class="ai-md-timing-badge ai-md-timing-badge--major">' + (isYearLabel ? '핵심 변곡' : '핵심 변곡') + '</span>';
+        } else if (timingKey) {
+          badge = '<span class="ai-md-timing-badge">' + (isYearLabel ? '기억해둘 해' : '기억해둘 시기') + '</span>';
+        }
+        const timingClass =
+          ' ai-md-timing' +
+          (timingMajor ? ' ai-md-timing--major' : timingKey ? ' ai-md-timing--key' : '');
+        out.push(
+          '<div class="' +
+            timingClass.trim() +
+            '"><div class="ai-md-timing-label">' +
+            badge +
+            aiInlineMarkdown(escapeCounselorHtml(label)) +
+            '</div><div class="ai-md-timing-body">',
+        );
       } else {
         flushList();
         out.push('<p class="ai-md-p">' + aiInlineMarkdown(escapeCounselorHtml(line)) + '</p>');
       }
     }
     flushList();
+    flushTiming();
     if (notesOpen) out.push('</div></details>');
     return out.join('');
   }
@@ -1354,6 +1430,27 @@ body.export-capturing #wheelCard .note{display:none !important;}
   let DEEP_AI_BUSY = false;
   let AI_SERVER_OK = false;
   const ASTRO_AI_API_ENABLED = true;
+  /**
+   * Raw timeline AI (compression v1.2 + customer prompt v2) — default ON for all users.
+   * Override OFF: ?rawTimeline=0 or localStorage palja:aiRawTimelineV1=0
+   * V3 score engine / timeline chart UI unchanged (AI prompt path only).
+   */
+  const AI_RAW_TIMELINE_V1_FORCE = true;
+  let LAST_AI_RAW_PAYLOAD = null;
+  function isAiRawTimelineV1Enabled() {
+    if (AI_RAW_TIMELINE_V1_FORCE) {
+      try {
+        if (/[?&]rawTimeline=0(?:&|$)/.test(location.search)) return false;
+        if (localStorage.getItem('palja:aiRawTimelineV1') === '0') return false;
+      } catch (e) { /* */ }
+      return true;
+    }
+    try {
+      if (/[?&]rawTimeline=1(?:&|$)/.test(location.search)) return true;
+      if (localStorage.getItem('palja:aiRawTimelineV1') === '1') return true;
+    } catch (e) { /* */ }
+    return false;
+  }
 
   async function loadAiQuota() {
     if (!window.PaljaAiQuota) return;
@@ -2712,9 +2809,15 @@ body.export-capturing #wheelCard .note{display:none !important;}
   function resetTimelineUi() {
     LAST_TIMELINE = null;
     TIMELINE_AI_CACHE = { key: '', text: '' };
+    LAST_AI_RAW_PAYLOAD = null;
     const box = $('timelineResult');
     if (box && !box.querySelector('.astro-lock')) {
       box.innerHTML = '<div class="transit-empty">차트를 계산한 뒤 「5년 타임라인 보기」를 눌러 주세요.</div>';
+    }
+    const cal = $('timelineRawSignalCal');
+    if (cal) {
+      cal.hidden = true;
+      cal.innerHTML = '';
     }
     const aiBox = $('timelineAiResult');
     if (aiBox) {
@@ -2728,7 +2831,8 @@ body.export-capturing #wheelCard .note{display:none !important;}
   function timelineCacheKey() {
     if (!LAST_TIMELINE) return '';
     const stamp = chartStampForTransitAi();
-    return `v7:timeline:${stamp}:${LAST_TIMELINE.fromYm}:${LAST_TIMELINE.toYm}`;
+    const prefix = isAiRawTimelineV1Enabled() ? 'raw_v22' : 'v7';
+    return `${prefix}:timeline:${stamp}:${LAST_TIMELINE.fromYm}:${LAST_TIMELINE.toYm}`;
   }
 
   function timelineAiLocalKey() {
@@ -2785,6 +2889,11 @@ body.export-capturing #wheelCard .note{display:none !important;}
     const btn = $('btnTimelineAi');
     const box = $('timelineAiResult');
     if (btn) btn.disabled = !AI_SERVER_OK || TIMELINE_AI_BUSY || TIMELINE_SCAN_BUSY;
+    if (isAiRawTimelineV1Enabled() && LAST_TIMELINE && !TIMELINE_SCAN_BUSY) {
+      ensureRawSignalCalendar();
+    } else if (!isAiRawTimelineV1Enabled()) {
+      renderRawSignalCalendar(null);
+    }
     if (!box || String(box.dataset.aiRaw || box.textContent || '').includes('생성하고')) return;
     const key = timelineCacheKey();
     let text = '';
@@ -2926,6 +3035,7 @@ body.export-capturing #wheelCard .note{display:none !important;}
       TIMELINE_FILTER = 'all';
       paintTimelineResult('all');
       TIMELINE_AI_CACHE = { key: '', text: '' };
+      LAST_AI_RAW_PAYLOAD = null;
       refreshTimelineAiUi();
     } catch (e) {
       console.error(e);
@@ -2941,7 +3051,194 @@ body.export-capturing #wheelCard .note{display:none !important;}
     }
   }
 
+  function parseYmParts(ym) {
+    const m = String(ym || '').match(/^(\d{4})-(\d{2})/);
+    if (!m) return null;
+    return { y: Number(m[1]), mo: Number(m[2]) };
+  }
+
+  function buildAiRawTimelineCustomerPrompt() {
+    if (!window.AiRawTimelineV1 || typeof AiRawTimelineV1.build !== 'function') {
+      throw new Error('ai_raw_builder_missing');
+    }
+    if (!window.AiRawTimelinePromptV2 || typeof AiRawTimelinePromptV2.buildCustomerPrompt !== 'function') {
+      throw new Error('ai_raw_prompt_missing');
+    }
+    if (!LAST_BIRTH || !LAST_COORDS) throw new Error('no_birth');
+    const from = parseYmParts(LAST_TIMELINE && LAST_TIMELINE.fromYm) || (() => {
+      const n = new Date();
+      return { y: n.getFullYear(), mo: n.getMonth() + 1 };
+    })();
+    let months = 60;
+    if (LAST_TIMELINE && LAST_TIMELINE.fromYm && LAST_TIMELINE.toYm) {
+      const a = parseYmParts(LAST_TIMELINE.fromYm);
+      const b = parseYmParts(LAST_TIMELINE.toYm);
+      if (a && b) months = Math.max(1, (b.y - a.y) * 12 + (b.mo - a.mo) + 1);
+    }
+    const chart = {
+      id: (LAST_CTX && LAST_CTX.displayName) || 'chart',
+      y: LAST_BIRTH.y,
+      mo: LAST_BIRTH.mo,
+      da: LAST_BIRTH.da,
+      hh: LAST_BIRTH.hh,
+      mi: LAST_BIRTH.mi,
+      unknownTime: !!LAST_BIRTH.unknownTime,
+      lat: LAST_COORDS.lat,
+      lng: LAST_COORDS.lng,
+      place: (LAST_CTX && LAST_CTX.coordLabel) || (LAST_COORDS.label || ''),
+      timezone: 'Asia/Seoul',
+    };
+    const full = AiRawTimelineV1.build(chart, { y: from.y, mo: from.mo, months: months });
+    const payload = AiRawTimelineV1.stripDebug(full);
+    LAST_AI_RAW_PAYLOAD = payload;
+    return AiRawTimelinePromptV2.buildCustomerPrompt(payload);
+  }
+
+  function formatYmShort(ym) {
+    const m = String(ym || '').match(/^(\d{4})-(\d{2})/);
+    if (!m) return String(ym || '');
+    return m[1] + '.' + Number(m[2]);
+  }
+
+  function aspectNaturePlain(aspect) {
+    const a = String(aspect || '');
+    if (a === 'conjunction') return '겹치면서';
+    if (a === 'opposition') return '양쪽에서 당기면서';
+    if (a === 'square') return '현실적으로 맞추면서';
+    if (a === 'trine') return '순조롭게';
+    if (a === 'sextile') return '기회가 열리면서';
+    return '';
+  }
+
+  function natalLifeTheme(nk) {
+    const map = {
+      venus: '친구·호감·취향',
+      moon: '감정·마음',
+      sun: '자기 방향·자신감',
+      mercury: '공부·말·생각',
+      mars: '행동·에너지',
+      asc: '내 모습·태도',
+      dsc: '가까운 사람·관계',
+      mc: '역할·방향·책임',
+      ic: '집·안정·뿌리',
+    };
+    return map[String(nk || '').toLowerCase()] || '삶의 한 축';
+  }
+
+  function transitFeelPlain(tk) {
+    const map = {
+      jupiter: '넓어지거나 기회가 오는',
+      saturn: '현실적으로 맞춰야 하는',
+      uranus: '갑자기 바뀔 수 있는',
+      neptune: '흐려졌다 다시 묻게 되는',
+      pluto: '깊게 바뀌는',
+    };
+    return map[String(tk || '').toLowerCase()] || '움직이는';
+  }
+
+  function episodePlainSentence(ep) {
+    const n = String(ep.natal || '').toLowerCase();
+    const t = String(ep.transit || '').toLowerCase();
+    if (n === 'asc' || n === 'dsc' || (ep.lineKo && ep.lineKo.indexOf('축') >= 0)) {
+      if (t === 'saturn') return '내 모습이나 사람과의 거리를 현실에 맞게 다시 맞추게 될 수 있어요.';
+      if (t === 'jupiter') return '내 모습·관계 쪽에 여유나 기회가 잠깐 열릴 수 있어요.';
+      if (t === 'uranus') return '태도나 관계 거리가 갑자기 바뀔 수 있어요.';
+      return '나와 사람 사이의 거리·태도가 달라질 수 있어요.';
+    }
+    if (n === 'mc' || n === 'ic') {
+      if (t === 'saturn') return '역할·방향·책임에 현실적인 압박이 올 수 있어요.';
+      if (t === 'jupiter') return '역할·방향 쪽에 기회나 확장감이 올 수 있어요.';
+      return '역할·방향·책임 감각이 움직일 수 있어요.';
+    }
+    const theme = natalLifeTheme(n);
+    const feel = transitFeelPlain(t);
+    const how = aspectNaturePlain(ep.aspect);
+    if (how) return theme + ' 쪽이 ' + feel + ' ' + how + ' 달라질 수 있어요.';
+    return theme + ' 쪽이 ' + feel + ' 달라질 수 있어요.';
+  }
+
+  function progMoonPlain(house) {
+    const map = {
+      1: '내 모습·자기표현',
+      2: '돈·가치·소유',
+      3: '말·학습·주변',
+      4: '집·안정·가족',
+      5: '취미·호감·즐거움',
+      6: '루틴·건강·일상',
+      7: '친구·관계·상대',
+      8: '깊은 감정·친밀',
+      9: '배움·멀리 보는 관심',
+      10: '바깥 역할·평판',
+      11: '친구 무리·꿈',
+      12: '혼자만의 시간·마음 정리',
+    };
+    return map[Number(house)] || ('삶의 ' + house + '번째 주제');
+  }
+
+  function renderRawSignalCalendar(payload) {
+    const el = $('timelineRawSignalCal');
+    if (!el) return;
+    if (!isAiRawTimelineV1Enabled() || !payload) {
+      el.hidden = true;
+      el.innerHTML = '';
+      return;
+    }
+    const eps = Array.isArray(payload.transitEpisodes) ? payload.transitEpisodes.slice() : [];
+    eps.sort((a, b) => (Number(a.peakOrb) || 99) - (Number(b.peakOrb) || 99));
+    const top = eps.slice(0, 8);
+    if (!top.length) {
+      el.hidden = true;
+      el.innerHTML = '';
+      return;
+    }
+    const items = top.map((ep) => {
+      const when = ep.startYm === ep.endYm
+        ? formatYmShort(ep.peakYm || ep.startYm) + '쯤'
+        : formatYmShort(ep.startYm) + '~' + formatYmShort(ep.endYm);
+      const line = episodePlainSentence(ep);
+      return (
+        '<li class="timeline-raw-cal-item">' +
+          '<span class="timeline-raw-cal-when">' + when + '</span>' +
+          '<span class="timeline-raw-cal-line">' + line + '</span>' +
+        '</li>'
+      );
+    }).join('');
+    const prog = Array.isArray(payload.progMoonEvents) ? payload.progMoonEvents : [];
+    const progHtml = prog.length
+      ? '<p class="timeline-raw-cal-prog"><strong>마음의 관심이 옮겨가는 때</strong> · ' +
+        prog.map((e) => formatYmShort(e.ym) + '쯤 ' + progMoonPlain(e.house)).join(' · ') +
+        '</p>'
+      : '';
+    el.innerHTML =
+      '<div class="timeline-raw-cal-h">중요한 시기 미리보기</div>' +
+      '<p class="timeline-raw-cal-sub">앞으로 5년 중 특히 눈여겨볼 때예요. AI 해석과 함께 보면 더 쉽게 이해돼요.</p>' +
+      '<ul class="timeline-raw-cal-list">' + items + '</ul>' +
+      progHtml;
+    el.hidden = false;
+  }
+
+  function ensureRawSignalCalendar() {
+    if (!isAiRawTimelineV1Enabled()) {
+      renderRawSignalCalendar(null);
+      return;
+    }
+    if (LAST_AI_RAW_PAYLOAD) {
+      renderRawSignalCalendar(LAST_AI_RAW_PAYLOAD);
+      return;
+    }
+    try {
+      buildAiRawTimelineCustomerPrompt();
+      renderRawSignalCalendar(LAST_AI_RAW_PAYLOAD);
+    } catch (e) {
+      console.warn('[rawSignalCal]', e);
+      renderRawSignalCalendar(null);
+    }
+  }
+
   function buildTimelineAiPrompt() {
+    if (isAiRawTimelineV1Enabled()) {
+      return buildAiRawTimelineCustomerPrompt();
+    }
     const AT = window.AstroTimelineV2;
     const currentDate = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Seoul' }).format(new Date());
     const fromYm = (LAST_TIMELINE && LAST_TIMELINE.fromYm) || '';
@@ -3279,6 +3576,7 @@ body.export-capturing #wheelCard .note{display:none !important;}
     if ((TIMELINE_AI_CACHE.key === cacheKeyRaw && TIMELINE_AI_CACHE.text) || localHit) {
       const t = TIMELINE_AI_CACHE.text || localHit;
       TIMELINE_AI_CACHE = { key: cacheKeyRaw, text: t };
+      if (isAiRawTimelineV1Enabled()) ensureRawSignalCalendar();
       setAiResultBox(box, t);
       return;
     }
@@ -3291,7 +3589,18 @@ body.export-capturing #wheelCard .note{display:none !important;}
       hint.textContent = '해석이 나오는 대로 바로 표시돼요. 창을 닫지 말고 기다려 주세요.';
       hint.classList.add('is-loading');
     }
-    const prompt = buildTimelineAiPrompt();
+    let prompt;
+    try {
+      prompt = buildTimelineAiPrompt();
+      if (isAiRawTimelineV1Enabled()) renderRawSignalCalendar(LAST_AI_RAW_PAYLOAD);
+    } catch (e) {
+      console.error(e);
+      TIMELINE_AI_BUSY = false;
+      btn.textContent = prev;
+      btn.disabled = !AI_SERVER_OK;
+      setAiResultBox(box, '타임라인 데이터를 준비하지 못했어요. 차트를 다시 계산해 주세요.', { plain: true });
+      return;
+    }
     const cacheKey = window.PaljaAiQuota
       ? PaljaAiQuota.hashKey(cacheKeyRaw + ':' + prompt.slice(0, 400))
       : cacheKeyRaw;
