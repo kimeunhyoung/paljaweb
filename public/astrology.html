@@ -1280,6 +1280,9 @@ body.export-capturing #wheelCard .note{display:none !important;}
         return weakSeen <= 1;
       }).join('\n');
     }
+    s = s.replace(/(\d{4}년\s*\d{1,2}월(?:부터|부터는)?)\s*창구가\s*열[^\n.]*/g, '$1부터 변화 신호가 뚜렷해질 수 있어요');
+    s = s.replace(/창구가\s*열/g, '흐름이 열');
+    s = s.replace(/창구/g, '');
     return s.trim();
   }
 
@@ -1711,7 +1714,7 @@ body.export-capturing #wheelCard .note{display:none !important;}
     if (!opts || opts.resetTab !== false) TIMELINE_YEAR_TAB = 'overview';
     const parsedOk = timelineSectionsHaveContent(TIMELINE_AI_SECTIONS);
     let o = opts ? Object.assign({}, opts) : {};
-    const formatOk = TIMELINE_AI_FULL_TEXT && validateTimelineAiCustomerFormat(TIMELINE_AI_FULL_TEXT);
+    const formatOk = !!(TIMELINE_AI_FULL_TEXT && validateTimelineAiCustomerFormat(TIMELINE_AI_FULL_TEXT));
     if (!o.formatWarn && TIMELINE_AI_FULL_TEXT && !formatOk) {
       o.formatWarn = true;
     }
@@ -1725,7 +1728,7 @@ body.export-capturing #wheelCard .note{display:none !important;}
         timelineMode: true,
         accordion: false,
       });
-      return;
+      return { formatOk, parsedOk };
     }
     if (!parsedOk) {
       TIMELINE_AI_SECTIONS = null;
@@ -1742,7 +1745,7 @@ body.export-capturing #wheelCard .note{display:none !important;}
       if (o.formatWarn && box) {
         appendTimelineFormatWarn(box, '※ 해석이 중간에 끊겼어요. 「AI로 5년 흐름 풀기」를 다시 눌러 주세요. (같은 차트·기간이면 크레딧 재차감 없음)');
       }
-      return;
+      return { formatOk, parsedOk };
     }
     renderTimelineYearTabs(TIMELINE_AI_SECTIONS);
     const md = (formatOk || parsedOk) ? TIMELINE_AI_FULL_TEXT
@@ -1756,6 +1759,7 @@ body.export-capturing #wheelCard .note{display:none !important;}
         ? '※ 생성 중… 잠시만 기다려 주세요.'
         : '※ 해석이 중간에 끊겼어요. 「AI로 5년 흐름 풀기」를 다시 눌러 주세요. (같은 차트·기간이면 크레딧 재차감 없음)');
     }
+    return { formatOk, parsedOk };
   }
 
   function aiMarkdownToHtml(text, renderOpts) {
@@ -2231,6 +2235,7 @@ body.export-capturing #wheelCard .note{display:none !important;}
   let LAST_TIMELINE = null;
   let TIMELINE_AI_CACHE = { key: '', text: '' };
   let TIMELINE_AI_BUSY = false;
+  let TIMELINE_AI_GEN = 0;
   let TIMELINE_AI_FULL_TEXT = '';
   let TIMELINE_AI_SECTIONS = null;
   let TIMELINE_YEAR_TAB = 'overview';
@@ -3760,6 +3765,7 @@ body.export-capturing #wheelCard .note{display:none !important;}
 
   function resetTimelineUi() {
     LAST_TIMELINE = null;
+    TIMELINE_AI_GEN += 1;
     TIMELINE_AI_CACHE = { key: '', text: '' };
     LAST_AI_RAW_PAYLOAD = null;
     const box = $('timelineResult');
@@ -4026,6 +4032,7 @@ body.export-capturing #wheelCard .note{display:none !important;}
       LAST_TIMELINE = data;
       TIMELINE_FILTER = 'all';
       paintTimelineResult('all');
+      TIMELINE_AI_GEN += 1;
       TIMELINE_AI_CACHE = { key: '', text: '' };
       LAST_AI_RAW_PAYLOAD = null;
       refreshTimelineAiUi();
@@ -4095,9 +4102,10 @@ body.export-capturing #wheelCard .note{display:none !important;}
         for (let y = y0; y <= y1; y++) years.push(y + '년');
         prompt +=
           '\n\n[연도·시기 필수]\n' +
-          '- window: ' + w.fromYm + ' ~ ' + w.toYm + '\n' +
+          '- 기간(fromYm~toYm): ' + w.fromYm + ' ~ ' + w.toYm + '\n' +
           '- `## 연도별 해석`에 **' + years.join(', ') + '** 를 모두 오름차순으로 포함 (첫 해 생략 금지).\n' +
-          '- 계절·월만 쓸 때 **연도 필수** (✗ `가을부터` ✓ `2026년 가을(9~11월)부터`).';
+          '- 계절·월만 쓸 때 **연도 필수** (✗ `가을부터` ✓ `2026년 가을(9~11월)부터`).\n' +
+          '- JSON 키 `window`는 기간 데이터일 뿐 — 고객 문장에 `창구`·`창이 열` 등으로 쓰지 마라.';
       }
     }
     return prompt;
@@ -4984,6 +4992,7 @@ body.export-capturing #wheelCard .note{display:none !important;}
       }
     }
     const prev = btn.textContent;
+    const myGen = ++TIMELINE_AI_GEN;
     TIMELINE_AI_BUSY = true;
     refreshTimelineAiUi();
     btn.textContent = '⏳ 해석 중…';
@@ -5018,6 +5027,7 @@ body.export-capturing #wheelCard .note{display:none !important;}
       let formatOk = false;
       let truncated = false;
       for (let attempt = 0; attempt < maxAttempts; attempt += 1) {
+        if (myGen !== TIMELINE_AI_GEN) return;
         const continueFrom = attempt > 0 ? accumulated : '';
         let attemptDelta = '';
         if (attempt > 0) {
@@ -5028,8 +5038,9 @@ body.export-capturing #wheelCard .note{display:none !important;}
         }
         try {
           const onDelta = (chunk) => {
+            if (myGen !== TIMELINE_AI_GEN) return;
             attemptDelta += chunk;
-            accumulated = cleanTimelineAiText(continueFrom + attemptDelta, { streaming: true });
+            accumulated = cleanTimelineAiText(continueFrom, { streaming: true, append: attemptDelta });
             setTimelineAiResult(accumulated, { open: true, timelineMode: true, accordion: false, resetTab: false });
           };
           const result = await requestTimelineAiOnce(
@@ -5039,12 +5050,18 @@ body.export-capturing #wheelCard .note{display:none !important;}
             onDelta,
             continueFrom || undefined
           );
+          if (myGen !== TIMELINE_AI_GEN) return;
           quota = result.quota;
           lastData = result.data;
           const piece = result.text || attemptDelta || '';
           accumulated = cleanTimelineAiText(continueFrom, { append: piece });
           truncated = lastData && (lastData.stop_reason === 'max_tokens' || lastData.stop_reason === 'stream_cut');
-          formatOk = validateTimelineAiCustomerFormat(accumulated);
+          formatOk = setTimelineAiResult(accumulated, {
+            open: true,
+            timelineMode: true,
+            accordion: false,
+            resetTab: false,
+          }).formatOk;
           if (formatOk) break;
         } catch (attemptErr) {
           console.error('[timelineAi attempt]', attempt + 1, attemptErr);
@@ -5052,23 +5069,24 @@ body.export-capturing #wheelCard .note{display:none !important;}
           if (attempt >= maxAttempts - 1) throw attemptErr;
         }
       }
+      if (myGen !== TIMELINE_AI_GEN) return;
       const out = cleanTimelineAiText(accumulated || '해석을 생성하지 못했어요.');
       truncated = lastData && (lastData.stop_reason === 'max_tokens' || lastData.stop_reason === 'stream_cut');
-      formatOk = validateTimelineAiCustomerFormat(out);
+      TIMELINE_AI_BUSY = false;
+      formatOk = setTimelineAiResult(out, { open: true, formatWarn: truncated }).formatOk;
       if (truncated && formatOk) truncated = false;
       if (formatOk && !truncated) {
-        saveTimelineAiLocal(out);
+        saveTimelineAiLocal(TIMELINE_AI_FULL_TEXT);
       } else if (!formatOk || truncated) {
         showStatus('해석이 아직 완성되지 않았어요. 잠시 후 「AI로 5년 흐름 풀기」를 다시 눌러 주세요. (완성본이면 크레딧 재차감 없음)', 'err');
       }
-      TIMELINE_AI_BUSY = false;
-      setTimelineAiResult(out, { open: true, formatWarn: !formatOk || truncated });
       if (quota) {
         LAST_AI_QUOTA = quota;
         PaljaAiQuota.applyQuotaBadge($('aiQuotaBadge'), quota);
       }
     } catch (e) {
       console.error(e);
+      if (myGen !== TIMELINE_AI_GEN) return;
       const partial = accumulated || TIMELINE_AI_FULL_TEXT || '';
       if (e.code === 'quota_exceeded' || e.status === 429) {
         setAiResultBox(box, '이번 달 AI 크레딧을 모두 사용했어요.', { plain: true });
