@@ -400,6 +400,19 @@ table.astro-table td .glyph{font-size:16px;margin-right:4px;color:var(--accent);
 .ai-result--md .ai-md-timing-badge{display:none;}
 .ai-result--md .ai-md-hr{border:none;border-top:1px solid #e8ddcb;margin:16px 0;}
 .ai-result--md strong{font-weight:700;color:#6b4f2a;background:rgba(201,162,39,.14);padding:0 3px;border-radius:3px;}
+.ai-result--timeline{font-size:14px;line-height:1.85;color:var(--deep-brown);}
+.ai-result--timeline .ai-md-h2{font-family:inherit;font-size:15px;font-weight:700;color:var(--warm-brown);margin:14px 0 8px;padding-bottom:4px;border-bottom:1px dashed rgba(139,111,71,.25);}
+.ai-result--timeline .ai-md-h2:first-child{margin-top:0;}
+.ai-result--timeline .ai-md-h3{font-size:14px;margin:12px 0 4px;}
+.ai-result--timeline .ai-md-p{margin:0 0 10px;}
+.ai-result--timeline strong{font-weight:700;color:#7a4f12;background:linear-gradient(180deg,transparent 55%,rgba(255,220,130,.55) 55%);padding:0 2px;border-radius:2px;box-decoration-break:clone;-webkit-box-decoration-break:clone;}
+.timeline-year-tabs{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 10px;}
+.timeline-year-tab{border:1px solid #e0d4c0;background:rgba(255,255,255,.65);color:var(--deep-brown);font-size:12px;font-weight:600;padding:6px 11px;border-radius:999px;cursor:pointer;line-height:1.3;}
+.timeline-year-tab.is-on{background:var(--accent);border-color:var(--accent);color:#fff;}
+.timeline-year-tab--major{border-color:#d4a574;}
+.timeline-year-tab--major.is-on{background:#b4532d;border-color:#b4532d;}
+.timeline-year-detail-row{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:0 0 10px;}
+.timeline-year-detail-hint{margin:0;font-size:11.5px;color:var(--muted);line-height:1.5;}
 .ai-result--md .ai-md-notes{margin-top:16px;border:1px solid #e8ddcb;border-radius:12px;background:rgba(255,255,255,.55);overflow:hidden;}
 .ai-result--md .ai-md-notes-sum{cursor:pointer;list-style:none;padding:12px 14px;font-size:13.5px;font-weight:700;color:var(--deep-brown);background:rgba(139,111,71,.08);user-select:none;}
 .ai-result--md .ai-md-notes-sum::-webkit-details-marker{display:none;}
@@ -775,7 +788,8 @@ body.export-capturing #wheelCard .note{display:none !important;}
       <div class="card-title">✦ 장기 운의 흐름 · 상태 타임라인 (5년)</div>
       <p class="transit-intro">목성·토성·천왕성·해왕성·명왕성 트랜짓으로 <strong>앞으로 5년</strong>을
         <strong>확장기·안정기·압박기·전환기·도약·재편기</strong>로 봅니다.
-        출생 시간이 있으면 프로그레스 달(하우스 이동)도 반영돼요. 확정 예언이 아니라 <strong>상태·타이밍 가이드</strong>입니다.</p>
+        출생 시간이 있으면 프로그레스 달(하우스 이동)도 반영돼요. <strong>차트만 계산해도 AI 해석은 가능</strong>하고,
+        「5년 타임라인 보기」는 막대·연도별 목차 <strong>미리보기(선택)</strong>예요.</p>
       <div id="timelineDataBlock">
         <div class="transit-controls">
           <button type="button" class="rt-btn rt-btn--share" id="btnTimeline" disabled>5년 타임라인 보기</button>
@@ -785,12 +799,18 @@ body.export-capturing #wheelCard .note{display:none !important;}
       </div>
       <div class="transit-ai-block no-print" id="timelineAiBlock" hidden>
         <p class="transit-ai-intro">위 목차만으로는 <strong>왜·어떻게 이어지는지</strong>까지는 안 보여요.
-          <strong>AI로 5년 흐름 풀기</strong>를 누르면 한눈에 · 연도별 · ★변곡 · 일정·활용까지 이어서 읽을 수 있어요.
+          <strong>AI로 5년 흐름 풀기</strong> 후 <strong>연도 탭</strong>으로 해를 골라 보고, 필요하면 <strong>월별 자세히</strong>까지 볼 수 있어요.
           같은 차트·같은 기간이면 다시 눌러도 크레딧이 안 깎입니다. <span class="ai-quota-cost">(최초 2크레딧)</span></p>
         <div class="transit-ai-row">
           <button type="button" class="rt-btn rt-btn--share" id="btnTimelineAi" disabled>✨ AI로 5년 흐름 풀기 (2크레딧)</button>
         </div>
-        <div id="timelineAiResult" class="ai-result empty">위에서 타임라인을 계산한 뒤 AI를 이용해 주세요.</div>
+        <div id="timelineYearTabs" class="timeline-year-tabs" hidden></div>
+        <div id="timelineYearDetailRow" class="timeline-year-detail-row" hidden>
+          <button type="button" class="rt-btn" id="btnTimelineYearDetail" disabled>📅 선택한 해 월별 자세히 (2크레딧)</button>
+          <span class="timeline-year-detail-hint">시기별·일정·활용까지 한 해 단위로 풀어요.</span>
+        </div>
+        <div id="timelineAiResult" class="ai-result empty">차트를 계산한 뒤 「AI로 5년 흐름 풀기」를 눌러 주세요.</div>
+        <div id="timelineYearDetailResult" class="ai-result empty" hidden></div>
         <p class="ai-time-hint" id="timelineAiHint">보통 20~40초 정도 걸려요. 나오는 대로 바로 보여 드려요.</p>
       </div>
     </div>
@@ -940,6 +960,133 @@ body.export-capturing #wheelCard .note{display:none !important;}
     return out.join('\n').trim();
   }
 
+  function parseTimelineAiSections(text) {
+    const cleaned = sanitizeAiTimelineCustomerText(text);
+    const lines = cleaned.split('\n');
+    const sections = {
+      overview: '',
+      years: {},
+      yearsHead: {},
+      yearsMeta: {},
+      schedule: '',
+    };
+    let mode = 'pre';
+    let currentYear = null;
+    let buf = [];
+    const flush = () => {
+      const chunk = buf.join('\n').trim();
+      if (!chunk) { buf = []; return; }
+      if (mode === 'overview') sections.overview = chunk;
+      else if (mode === 'year' && currentYear) sections.years[currentYear] = chunk;
+      else if (mode === 'schedule') sections.schedule = chunk;
+      buf = [];
+    };
+    const yearLineMeta = (line) => {
+      const m = line.match(/^(★|◆)?\s+\*\*(\d{4})\s*년/);
+      if (!m) return null;
+      return { year: m[2], major: m[1] === '★', key: m[1] === '◆' };
+    };
+    for (const line of lines) {
+      if (/^##\s+한눈에/.test(line)) { flush(); mode = 'overview'; continue; }
+      if (/^##\s+연도별/.test(line)) { flush(); mode = 'year'; continue; }
+      if (/^##\s+일정/.test(line)) { flush(); mode = 'schedule'; continue; }
+      if (mode === 'year') {
+        const ym = yearLineMeta(line);
+        if (ym) {
+          flush();
+          currentYear = ym.year;
+          sections.yearsHead[currentYear] = line.trim();
+          sections.yearsMeta[currentYear] = { major: ym.major, key: ym.key };
+          continue;
+        }
+      }
+      if (mode === 'pre' || mode === 'overview' || mode === 'year' || mode === 'schedule') buf.push(line);
+    }
+    flush();
+    return sections;
+  }
+
+  function getTimelineTabMarkdown(sections, tab) {
+    if (!sections) return TIMELINE_AI_FULL_TEXT || '';
+    if (tab === 'overview') {
+      return '## 한눈에\n\n' + (sections.overview || '');
+    }
+    if (tab === 'schedule') {
+      return '## 일정·활용 참고\n\n' + (sections.schedule || '');
+    }
+    if (sections.years[tab]) {
+      return (sections.yearsHead[tab] || ('**' + tab + '년**')) + '\n\n' + sections.years[tab];
+    }
+    return TIMELINE_AI_FULL_TEXT || '';
+  }
+
+  function renderTimelineYearTabs(sections) {
+    const el = $('timelineYearTabs');
+    const detailRow = $('timelineYearDetailRow');
+    const yearDetailBox = $('timelineYearDetailResult');
+    if (!el) return;
+    const years = Object.keys(sections && sections.years ? sections.years : {}).sort();
+    const hasTabs = !!(sections && (sections.overview || years.length || sections.schedule));
+    el.hidden = !hasTabs;
+    if (detailRow) detailRow.hidden = !hasTabs;
+    if (!hasTabs) {
+      el.innerHTML = '';
+      return;
+    }
+    const mk = (id, label, extra) =>
+      '<button type="button" class="timeline-year-tab' +
+      (extra || '') +
+      (TIMELINE_YEAR_TAB === id ? ' is-on' : '') +
+      '" data-tab="' + id + '">' + label + '</button>';
+    let html = mk('overview', '한눈에', '');
+    years.forEach((y) => {
+      const meta = (sections.yearsMeta && sections.yearsMeta[y]) || {};
+      html += mk(y, y + '년', meta.major ? ' timeline-year-tab--major' : '');
+    });
+    if (sections.schedule) html += mk('schedule', '일정·활용', '');
+    el.innerHTML = html;
+    el.querySelectorAll('.timeline-year-tab').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        TIMELINE_YEAR_TAB = btn.getAttribute('data-tab') || 'overview';
+        showTimelineYearTab();
+        if (yearDetailBox) yearDetailBox.hidden = true;
+      });
+    });
+    const isYear = /^\d{4}$/.test(String(TIMELINE_YEAR_TAB || ''));
+    if (detailRow) detailRow.hidden = !isYear;
+    const dbtn = $('btnTimelineYearDetail');
+    if (dbtn) {
+      dbtn.disabled = !isYear || TIMELINE_YEAR_AI_BUSY || !AI_SERVER_OK;
+      dbtn.textContent = isYear
+        ? ('📅 ' + TIMELINE_YEAR_TAB + '년 월별 자세히 (2크레딧)')
+        : '📅 선택한 해 월별 자세히 (2크레딧)';
+    }
+  }
+
+  function showTimelineYearTab() {
+    if (!TIMELINE_AI_SECTIONS) return;
+    const box = $('timelineAiResult');
+    const md = getTimelineTabMarkdown(TIMELINE_AI_SECTIONS, TIMELINE_YEAR_TAB);
+    setAiResultBox(box, md, {
+      open: true,
+      timelineMode: true,
+      accordion: TIMELINE_YEAR_TAB === 'overview',
+    });
+    renderTimelineYearTabs(TIMELINE_AI_SECTIONS);
+  }
+
+  function setTimelineAiResult(text, opts) {
+    const box = $('timelineAiResult');
+    TIMELINE_AI_FULL_TEXT = String(text || '').trim();
+    TIMELINE_AI_SECTIONS = TIMELINE_AI_FULL_TEXT ? parseTimelineAiSections(TIMELINE_AI_FULL_TEXT) : null;
+    if (!opts || opts.resetTab !== false) TIMELINE_YEAR_TAB = 'overview';
+    renderTimelineYearTabs(TIMELINE_AI_SECTIONS);
+    const md = TIMELINE_AI_SECTIONS
+      ? getTimelineTabMarkdown(TIMELINE_AI_SECTIONS, TIMELINE_YEAR_TAB)
+      : TIMELINE_AI_FULL_TEXT;
+    setAiResultBox(box, md, Object.assign({}, opts || {}, { timelineMode: true }));
+  }
+
   function aiMarkdownToHtml(text) {
     const lines = String(text || '').replace(/\r\n/g, '\n').split('\n');
     const out = [];
@@ -1040,7 +1187,11 @@ body.export-capturing #wheelCard .note{display:none !important;}
     const raw = String(text == null ? '' : text);
     const empty = !!(opts && opts.empty);
     const plain = !!(opts && opts.plain);
-    box.className = 'ai-result' + (empty ? ' empty' : '') + (plain || empty ? '' : ' ai-result--md');
+    const timelineMode = !!(opts && opts.timelineMode);
+    box.className = 'ai-result' +
+      (empty ? ' empty' : '') +
+      (plain || empty ? '' : ' ai-result--md') +
+      (timelineMode && !empty && !plain ? ' ai-result--timeline' : '');
     if (plain || empty) {
       box.textContent = raw;
       delete box.dataset.aiRaw;
@@ -1344,6 +1495,11 @@ body.export-capturing #wheelCard .note{display:none !important;}
   let LAST_TIMELINE = null;
   let TIMELINE_AI_CACHE = { key: '', text: '' };
   let TIMELINE_AI_BUSY = false;
+  let TIMELINE_AI_FULL_TEXT = '';
+  let TIMELINE_AI_SECTIONS = null;
+  let TIMELINE_YEAR_TAB = 'overview';
+  let TIMELINE_YEAR_AI_CACHE = {};
+  let TIMELINE_YEAR_AI_BUSY = false;
   let TIMELINE_SCAN_BUSY = false;
   let TIMELINE_FILTER = 'all';
   let TIMELINE_PREV_PROG_HOUSE = null;
@@ -2845,10 +3001,23 @@ body.export-capturing #wheelCard .note{display:none !important;}
   }
 
   function timelineCacheKey() {
-    if (!LAST_TIMELINE) return '';
     const stamp = chartStampForTransitAi();
-    const prefix = isAiRawTimelineV1Enabled() ? 'raw_v22' : 'v7';
-    return `${prefix}:timeline:${stamp}:${LAST_TIMELINE.fromYm}:${LAST_TIMELINE.toYm}`;
+    if (!stamp) return '';
+    const prefix = isAiRawTimelineV1Enabled() ? 'raw_v23' : 'v7';
+    if (LAST_TIMELINE && LAST_TIMELINE.fromYm && LAST_TIMELINE.toYm) {
+      return `${prefix}:timeline:${stamp}:${LAST_TIMELINE.fromYm}:${LAST_TIMELINE.toYm}`;
+    }
+    if (isAiRawTimelineV1Enabled()) {
+      const n = new Date();
+      const fromYm = n.getFullYear() + '-' + String(n.getMonth() + 1).padStart(2, '0');
+      return `${prefix}:timeline:${stamp}:${fromYm}:60m`;
+    }
+    return '';
+  }
+
+  function timelineYearCacheKey(year) {
+    const base = timelineCacheKey();
+    return base ? `${base}:year:${year}` : '';
   }
 
   function timelineAiLocalKey() {
@@ -2901,7 +3070,10 @@ body.export-capturing #wheelCard .note{display:none !important;}
   function refreshTimelineAiUi() {
     const block = $('timelineAiBlock');
     if (!block) return;
-    if (!hasAiAccess() || !LAST_CTX || !LAST_TIMELINE) {
+    const chartReady = LAST_HOROSCOPE && LAST_COORDS && LAST_BIRTH;
+    const timelineReady = !!LAST_TIMELINE;
+    const rawReady = isAiRawTimelineV1Enabled() && chartReady;
+    if (!hasAiAccess() || !LAST_CTX || (!timelineReady && !rawReady)) {
       block.hidden = true;
       return;
     }
@@ -2909,23 +3081,27 @@ body.export-capturing #wheelCard .note{display:none !important;}
     const btn = $('btnTimelineAi');
     const box = $('timelineAiResult');
     if (btn) btn.disabled = !AI_SERVER_OK || TIMELINE_AI_BUSY || TIMELINE_SCAN_BUSY;
-    if (isAiRawTimelineV1Enabled() && LAST_TIMELINE && !TIMELINE_SCAN_BUSY) {
+    if (rawReady && timelineReady && !TIMELINE_SCAN_BUSY) {
       ensureRawSignalCalendar();
     } else if (!isAiRawTimelineV1Enabled()) {
       renderRawSignalCalendar(null);
+    } else if (rawReady && !TIMELINE_SCAN_BUSY) {
+      try { ensureRawSignalCalendar(); } catch (e) { /* chart-only */ }
     }
-    if (!box || String(box.dataset.aiRaw || box.textContent || '').includes('생성하고')) return;
+    if (!box) return;
     const key = timelineCacheKey();
     let text = '';
     if (TIMELINE_AI_CACHE.key === key && TIMELINE_AI_CACHE.text) text = TIMELINE_AI_CACHE.text;
     if (!text) text = loadTimelineAiLocal();
     if (text) {
       TIMELINE_AI_CACHE = { key: key, text: text };
-      setAiResultBox(box, text);
+      setTimelineAiResult(text, { open: !(TIMELINE_AI_BUSY) });
       return;
     }
     if (box.classList.contains('empty') && !box.querySelector('.astro-lock')) {
-      setAiResultBox(box, '타임라인을 바탕으로 「AI로 5년 흐름 풀기」를 눌러 주세요.', { empty: true });
+      setAiResultBox(box, '차트를 계산한 뒤 「AI로 5년 흐름 풀기」를 눌러 주세요.', { empty: true });
+      const tabs = $('timelineYearTabs');
+      if (tabs) { tabs.hidden = true; tabs.innerHTML = ''; }
     }
   }
 
@@ -3112,6 +3288,20 @@ body.export-capturing #wheelCard .note{display:none !important;}
     const payload = AiRawTimelineV1.stripDebug(full);
     LAST_AI_RAW_PAYLOAD = payload;
     return AiRawTimelinePromptV2.buildCustomerPrompt(payload);
+  }
+
+  function buildAiRawTimelineYearPrompt(year) {
+    const y = String(year || '').trim();
+    if (!/^\d{4}$/.test(y)) throw new Error('bad_year');
+    const base = buildAiRawTimelineCustomerPrompt();
+    return (
+      base +
+      '\n\n[연도 상세 모드 — ' + y + '년만]\n' +
+      '위 JSON에서 **' + y + '년** 구간만 다룹니다.\n' +
+      '출력은 반드시 아래 3섹션만:\n' +
+      '## 이 해 한 줄기\n## 시기별로\n## 일정·활용 참고\n' +
+      '5년 총운(한눈에·연도별) 형식 금지. 짧고 쉬운 문장. 시기·핵심·조언 키워드 **굵게**.'
+    );
   }
 
   function formatYmShort(ym) {
@@ -3641,8 +3831,9 @@ body.export-capturing #wheelCard .note{display:none !important;}
   async function callTimelineAi() {
     if (!ASTRO_AI_API_ENABLED) return;
     if (!hasAiAccess()) { showStatus('AI 해석은 Basic 이상 요금제 또는 1회 체험 크레딧이 필요해요.', 'err'); return; }
-    if (!LAST_CTX || !LAST_TIMELINE) {
-      showStatus('먼저 「5년 타임라인 보기」로 장기 흐름을 계산해 주세요.', 'err');
+    const chartReady = LAST_HOROSCOPE && LAST_COORDS && LAST_BIRTH;
+    if (!LAST_CTX || (!LAST_TIMELINE && !(isAiRawTimelineV1Enabled() && chartReady))) {
+      showStatus('먼저 차트를 계산해 주세요.', 'err');
       return;
     }
     const btn = $('btnTimelineAi');
@@ -3658,7 +3849,7 @@ body.export-capturing #wheelCard .note{display:none !important;}
       const t = TIMELINE_AI_CACHE.text || localHit;
       TIMELINE_AI_CACHE = { key: cacheKeyRaw, text: t };
       if (isAiRawTimelineV1Enabled()) ensureRawSignalCalendar();
-      setAiResultBox(box, t);
+      setTimelineAiResult(t);
       return;
     }
     const prev = btn.textContent;
@@ -3697,13 +3888,13 @@ body.export-capturing #wheelCard .note{display:none !important;}
         messages: [{ role: 'user', content: prompt }],
         onDelta: (chunk) => {
           streamed += chunk;
-          setAiResultBox(box, streamed, { open: true });
+          setAiResultBox(box, streamed, { open: true, timelineMode: true, accordion: false });
         },
       });
       let out = text || streamed || '해석을 생성하지 못했어요.';
       if (data?.stop_reason === 'max_tokens') out += '\n\n(※ 해석이 길어 일부가 잘렸을 수 있어요.)';
       saveTimelineAiLocal(out);
-      setAiResultBox(box, out, { open: true });
+      setTimelineAiResult(out, { open: true });
       if (quota) {
         LAST_AI_QUOTA = quota;
         PaljaAiQuota.applyQuotaBadge($('aiQuotaBadge'), quota);
@@ -3723,7 +3914,7 @@ body.export-capturing #wheelCard .note{display:none !important;}
       } else {
         showStatus('연결이 끊겼어요. 지금까지 받은 내용까지 표시해 두었어요.', 'err');
         saveTimelineAiLocal(streamed);
-        setAiResultBox(box, streamed, { open: true });
+        setTimelineAiResult(streamed, { open: true });
       }
     } finally {
       TIMELINE_AI_BUSY = false;
@@ -3734,6 +3925,85 @@ body.export-capturing #wheelCard .note{display:none !important;}
         hint.classList.remove('is-loading');
       }
       refreshTimelineAiUi();
+    }
+  }
+
+  async function callTimelineYearAi() {
+    if (!ASTRO_AI_API_ENABLED || !isAiRawTimelineV1Enabled()) return;
+    if (!hasAiAccess()) { showStatus('AI 해석은 Basic 이상 요금제 또는 1회 체험 크레딧이 필요해요.', 'err'); return; }
+    const year = TIMELINE_YEAR_TAB;
+    if (!/^\d{4}$/.test(String(year || ''))) {
+      showStatus('연도 탭에서 해를 먼저 선택해 주세요.', 'err');
+      return;
+    }
+    const btn = $('btnTimelineYearDetail');
+    const box = $('timelineYearDetailResult');
+    const hint = $('timelineAiHint');
+    if (!AI_SERVER_OK || !box) return;
+    const cacheKeyRaw = timelineYearCacheKey(year);
+    const cached = TIMELINE_YEAR_AI_CACHE[year];
+    if (cached && cached.key === cacheKeyRaw && cached.text) {
+      box.hidden = false;
+      setAiResultBox(box, cached.text, { open: true, timelineMode: true });
+      return;
+    }
+    const prev = btn ? btn.textContent : '';
+    TIMELINE_YEAR_AI_BUSY = true;
+    if (btn) { btn.disabled = true; btn.textContent = '⏳ ' + year + '년 해석 중…'; }
+    box.hidden = false;
+    setAiResultBox(box, '');
+    if (hint) hint.classList.add('is-loading');
+    let prompt;
+    try {
+      prompt = buildAiRawTimelineYearPrompt(year);
+    } catch (e) {
+      console.error(e);
+      TIMELINE_YEAR_AI_BUSY = false;
+      if (btn) { btn.textContent = prev; btn.disabled = !AI_SERVER_OK; }
+      setAiResultBox(box, '연도 데이터를 준비하지 못했어요.', { plain: true });
+      return;
+    }
+    const cacheKey = window.PaljaAiQuota
+      ? PaljaAiQuota.hashKey(cacheKeyRaw + ':' + prompt.slice(0, 400))
+      : cacheKeyRaw;
+    let streamed = '';
+    try {
+      const { text, quota, data } = await PaljaAiQuota.callAiStream({
+        feature: 'astro_timeline',
+        cacheKey,
+        max_tokens: 6144,
+        messages: [{ role: 'user', content: prompt }],
+        onDelta: (chunk) => {
+          streamed += chunk;
+          setAiResultBox(box, streamed, { open: true, timelineMode: true });
+        },
+      });
+      let out = text || streamed || '해석을 생성하지 못했어요.';
+      if (data?.stop_reason === 'max_tokens') out += '\n\n(※ 해석이 길어 일부가 잘렸을 수 있어요.)';
+      TIMELINE_YEAR_AI_CACHE[year] = { key: cacheKeyRaw, text: out };
+      setAiResultBox(box, out, { open: true, timelineMode: true });
+      if (quota) {
+        LAST_AI_QUOTA = quota;
+        PaljaAiQuota.applyQuotaBadge($('aiQuotaBadge'), quota);
+      }
+    } catch (e) {
+      console.error(e);
+      if (e.code === 'quota_exceeded' || e.status === 429) {
+        setAiResultBox(box, '이번 달 AI 크레딧을 모두 사용했어요.', { plain: true });
+      } else if (!streamed) {
+        setAiResultBox(box, 'AI 해석을 일시적으로 사용할 수 없어요.', { plain: true });
+      } else {
+        TIMELINE_YEAR_AI_CACHE[year] = { key: cacheKeyRaw, text: streamed };
+        setAiResultBox(box, streamed, { open: true, timelineMode: true });
+      }
+    } finally {
+      TIMELINE_YEAR_AI_BUSY = false;
+      if (btn) {
+        btn.textContent = '📅 ' + year + '년 월별 자세히 (2크레딧)';
+        btn.disabled = !AI_SERVER_OK;
+      }
+      if (hint) hint.classList.remove('is-loading');
+      renderTimelineYearTabs(TIMELINE_AI_SECTIONS);
     }
   }
 
@@ -4583,6 +4853,7 @@ body.export-capturing #wheelCard .note{display:none !important;}
   $('btnTransit').addEventListener('click', computeTransit);
   $('btnTimeline').addEventListener('click', computeTimelineScan);
   $('btnTimelineAi').addEventListener('click', callTimelineAi);
+  $('btnTimelineYearDetail').addEventListener('click', callTimelineYearAi);
   $('btnLifeTimeline').addEventListener('click', computeLifeTimelineScan);
   $('btnLifeTimelineAi').addEventListener('click', callLifeTimelineAi);
 
