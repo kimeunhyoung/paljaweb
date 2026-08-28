@@ -931,7 +931,7 @@ body.export-capturing #wheelCard .note{display:none !important;}
 
   function sanitizeAiTimelineCustomerText(text) {
     let s = String(text || '').replace(/\r\n/g, '\n');
-    const startIdx = s.search(/^##\s+한눈에/m);
+    const startIdx = s.search(/^##\s+(?:5년 전체 스토리|한눈에)/m);
     if (startIdx > 0) {
       const pre = s.slice(0, startIdx);
       if (/내부|교차\s*확인|출력\s*생략|RAW PAYLOAD|transitEpisodes|★\s*판정|◆\s*판정|명왕성|토성[-–]|#+\s*운성/i.test(pre)) {
@@ -987,8 +987,8 @@ body.export-capturing #wheelCard .note{display:none !important;}
       return { year: m[2], major: m[1] === '★', key: m[1] === '◆' };
     };
     for (const line of lines) {
-      if (/^##\s+한눈에/.test(line)) { flush(); mode = 'overview'; continue; }
-      if (/^##\s+연도별/.test(line)) { flush(); mode = 'year'; continue; }
+      if (/^##\s+(?:5년 전체 스토리|한눈에)/.test(line)) { flush(); mode = 'overview'; continue; }
+      if (/^##\s+(?:연도별 해석|연도별로)/.test(line)) { flush(); mode = 'year'; continue; }
       if (/^##\s+일정/.test(line)) { flush(); mode = 'schedule'; continue; }
       if (mode === 'year') {
         const ym = yearLineMeta(line);
@@ -1009,7 +1009,7 @@ body.export-capturing #wheelCard .note{display:none !important;}
   function getTimelineTabMarkdown(sections, tab) {
     if (!sections) return TIMELINE_AI_FULL_TEXT || '';
     if (tab === 'overview') {
-      return '## 한눈에\n\n' + (sections.overview || '');
+      return '## 5년 전체 스토리\n\n' + (sections.overview || '');
     }
     if (tab === 'schedule') {
       return '## 일정·활용 참고\n\n' + (sections.schedule || '');
@@ -1038,7 +1038,7 @@ body.export-capturing #wheelCard .note{display:none !important;}
       (extra || '') +
       (TIMELINE_YEAR_TAB === id ? ' is-on' : '') +
       '" data-tab="' + id + '">' + label + '</button>';
-    let html = mk('overview', '한눈에', '');
+    let html = mk('overview', '5년 스토리', '');
     years.forEach((y) => {
       const meta = (sections.yearsMeta && sections.yearsMeta[y]) || {};
       html += mk(y, y + '년', meta.major ? ' timeline-year-tab--major' : '');
@@ -3300,7 +3300,7 @@ body.export-capturing #wheelCard .note{display:none !important;}
       '위 JSON에서 **' + y + '년** 구간만 다룹니다.\n' +
       '출력은 반드시 아래 3섹션만:\n' +
       '## 이 해 한 줄기\n## 시기별로\n## 일정·활용 참고\n' +
-      '5년 총운(한눈에·연도별) 형식 금지. 짧고 쉬운 문장. 시기·핵심·조언 키워드 **굵게**.'
+      '5년 전체 스토리(연도별 해석) 형식 금지. 짧고 쉬운 문장. 시기·핵심·조언 키워드 **굵게**.'
     );
   }
 

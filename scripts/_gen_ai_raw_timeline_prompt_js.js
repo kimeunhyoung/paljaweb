@@ -20,7 +20,7 @@ const out = [
   "    var json = typeof payload === 'string' ? payload : JSON.stringify(payload, null, 2);",
   "    return SYSTEM + '\\n\\n' + USER_HEAD + '\\n\\n--- RAW PAYLOAD (JSON) ---\\n' + json + '\\n--- END ---';",
   '  }',
-  "  global.AiRawTimelinePromptV2 = { version: 'v2.10', SYSTEM: SYSTEM, buildCustomerPrompt: buildCustomerPrompt };",
+  "  global.AiRawTimelinePromptV2 = { version: 'v2.11', SYSTEM: SYSTEM, buildCustomerPrompt: buildCustomerPrompt };",
   '})(typeof window !== \'undefined\' ? window : global);',
   '',
 ].join('\n');
