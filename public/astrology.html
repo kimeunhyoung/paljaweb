@@ -1037,10 +1037,11 @@ body.export-capturing #wheelCard .note{display:none !important;}
     const yearDetailBox = $('timelineYearDetailResult');
     if (!el) return;
     const years = Object.keys(sections && sections.years ? sections.years : {}).sort();
-    const hasTabs = !!(sections && (sections.overview || years.length || sections.schedule));
-    el.hidden = !hasTabs;
-    if (detailRow) detailRow.hidden = !hasTabs;
-    if (!hasTabs) {
+    const hasSchedule = !!(sections && String(sections.schedule || '').trim());
+    const hasSubTabs = years.length > 0 || hasSchedule;
+    el.hidden = !hasSubTabs;
+    if (detailRow) detailRow.hidden = !hasSubTabs;
+    if (!hasSubTabs) {
       el.innerHTML = '';
       return;
     }
@@ -1079,7 +1080,7 @@ body.export-capturing #wheelCard .note{display:none !important;}
     setAiResultBox(box, md, {
       open: true,
       timelineMode: true,
-      accordion: TIMELINE_YEAR_TAB === 'overview',
+      accordion: false,
     });
     renderTimelineYearTabs(TIMELINE_AI_SECTIONS);
   }
