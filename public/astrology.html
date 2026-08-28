@@ -179,6 +179,7 @@ table.astro-table td .glyph{font-size:16px;margin-right:4px;color:var(--accent);
 .result-actions{display:flex;gap:8px;flex-wrap:wrap;}
 .rt-btn{background:#fff;border:1px solid var(--border);border-radius:10px;padding:9px 14px;font-family:inherit;font-size:13px;font-weight:600;color:var(--warm-brown);cursor:pointer;transition:.15s;}
 .rt-btn:hover{background:var(--accent-lt);border-color:var(--accent);color:var(--deep-brown);}
+.rt-btn:disabled{opacity:.55;cursor:not-allowed;pointer-events:none;}
 .rt-btn--share{background:var(--accent);color:#fff;border-color:var(--accent);}
 .rt-btn--share:hover{background:#d4b87a;color:#fff;}
 .rt-btn--pulse{animation:rtPulse .6s ease 3;box-shadow:0 0 0 3px rgba(200,169,110,.45);}
@@ -1100,6 +1101,27 @@ body.export-capturing #wheelCard .note{display:none !important;}
     return TIMELINE_AI_FULL_TEXT || '';
   }
 
+  function syncTimelineYearDetailUi(years) {
+    const detailRow = $('timelineYearDetailRow');
+    const dbtn = $('btnTimelineYearDetail');
+    const hintEl = detailRow ? detailRow.querySelector('.timeline-year-detail-hint') : null;
+    const yearList = years || Object.keys((TIMELINE_AI_SECTIONS && TIMELINE_AI_SECTIONS.years) || {});
+    const hasYears = yearList.length > 0;
+    const isYear = /^\d{4}$/.test(String(TIMELINE_YEAR_TAB || ''));
+    if (detailRow) detailRow.hidden = !hasYears;
+    if (!dbtn) return;
+    const busy = TIMELINE_YEAR_AI_BUSY || TIMELINE_AI_BUSY || TIMELINE_SCAN_BUSY;
+    dbtn.disabled = !hasYears || !AI_SERVER_OK || busy;
+    dbtn.textContent = timelineYearDetailBtnLabel(isYear ? TIMELINE_YEAR_TAB : '');
+    if (hintEl) {
+      hintEl.textContent = !hasYears
+        ? ''
+        : !isYear
+          ? '위에서 연도(예: 2027년) 탭을 먼저 눌러 주세요.'
+          : '그해 흐름·묶인 시기·일정·활용을 한 단계 더. (매달 일일 단위 아님)';
+    }
+  }
+
   function renderTimelineYearTabs(sections) {
     const el = $('timelineYearTabs');
     const detailRow = $('timelineYearDetailRow');
@@ -1109,9 +1131,9 @@ body.export-capturing #wheelCard .note{display:none !important;}
     const hasSchedule = !!(sections && String(sections.schedule || '').trim());
     const hasSubTabs = years.length > 0 || hasSchedule;
     el.hidden = !hasSubTabs;
-    if (detailRow) detailRow.hidden = !hasSubTabs;
     if (!hasSubTabs) {
       el.innerHTML = '';
+      syncTimelineYearDetailUi([]);
       return;
     }
     const mk = (id, label, extra) =>
@@ -1136,13 +1158,7 @@ body.export-capturing #wheelCard .note{display:none !important;}
         if (yearDetailBox) yearDetailBox.hidden = true;
       });
     });
-    const isYear = /^\d{4}$/.test(String(TIMELINE_YEAR_TAB || ''));
-    if (detailRow) detailRow.hidden = !isYear;
-    const dbtn = $('btnTimelineYearDetail');
-    if (dbtn) {
-      dbtn.disabled = !isYear || TIMELINE_YEAR_AI_BUSY || !AI_SERVER_OK;
-      dbtn.textContent = timelineYearDetailBtnLabel(isYear ? TIMELINE_YEAR_TAB : '');
-    }
+    syncTimelineYearDetailUi(years);
   }
 
   function showTimelineYearTab() {
@@ -3223,6 +3239,11 @@ body.export-capturing #wheelCard .note{display:none !important;}
     const btn = $('btnTimelineAi');
     const box = $('timelineAiResult');
     if (btn) btn.disabled = !AI_SERVER_OK || TIMELINE_AI_BUSY || TIMELINE_SCAN_BUSY;
+    if (TIMELINE_AI_SECTIONS) {
+      renderTimelineYearTabs(TIMELINE_AI_SECTIONS);
+    } else {
+      syncTimelineYearDetailUi([]);
+    }
     if (rawReady) {
       const cal = $('timelineRawSignalCal');
       if (cal) { cal.hidden = true; cal.innerHTML = ''; }
@@ -4076,7 +4097,10 @@ body.export-capturing #wheelCard .note{display:none !important;}
     const btn = $('btnTimelineYearDetail');
     const box = $('timelineYearDetailResult');
     const hint = $('timelineAiHint');
-    if (!AI_SERVER_OK || !box) return;
+    if (!AI_SERVER_OK || !box) {
+      showStatus('AI 서버가 준비되지 않았어요. 잠시 후 다시 시도해 주세요.', 'err');
+      return;
+    }
     const cacheKeyRaw = timelineYearCacheKey(year);
     const cached = TIMELINE_YEAR_AI_CACHE[year];
     if (cached && cached.key === cacheKeyRaw && cached.text) {
@@ -4096,7 +4120,7 @@ body.export-capturing #wheelCard .note{display:none !important;}
     } catch (e) {
       console.error(e);
       TIMELINE_YEAR_AI_BUSY = false;
-      if (btn) { btn.textContent = prev; btn.disabled = !AI_SERVER_OK; }
+      renderTimelineYearTabs(TIMELINE_AI_SECTIONS);
       setAiResultBox(box, '연도 데이터를 준비하지 못했어요.', { plain: true });
       return;
     }
@@ -4135,12 +4159,8 @@ body.export-capturing #wheelCard .note{display:none !important;}
       }
     } finally {
       TIMELINE_YEAR_AI_BUSY = false;
-      if (btn) {
-        btn.textContent = timelineYearDetailBtnLabel(year);
-        btn.disabled = !AI_SERVER_OK;
-      }
-      if (hint) hint.classList.remove('is-loading');
       renderTimelineYearTabs(TIMELINE_AI_SECTIONS);
+      if (hint) hint.classList.remove('is-loading');
     }
   }
 
