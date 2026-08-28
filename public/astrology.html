@@ -819,7 +819,7 @@ body.export-capturing #wheelCard .note{display:none !important;}
           </div>
         </div>
         <div id="timelineYearTabBar" class="timeline-year-tab-bar" hidden>
-          <p class="timeline-year-tab-label">📌 연도 선택 — 아래 탭으로 해를 고른 뒤 읽어 보세요. 더 깊게 보려면 「시기별로 더 보기」</p>
+          <p class="timeline-year-tab-label" id="timelineYearTabHint">📌 <strong>① 연도 탭</strong>(2027년·2028년…)을 누른 뒤 → <strong>② 「시기별로 더 보기」</strong>가 금색으로 켜집니다. (5년 스토리 탭에서는 꺼져 있어요)</p>
           <div id="timelineYearTabs" class="timeline-year-tabs"></div>
         </div>
         <div id="timelineYearDetailRow" class="timeline-year-detail-row" hidden>
@@ -1126,6 +1126,17 @@ body.export-capturing #wheelCard .note{display:none !important;}
     flushYear();
   }
 
+  function salvageTimelineYears(cleaned, sections) {
+    if (Object.keys(sections.years || {}).length > 0) return;
+    const before = Object.keys(sections.years || {}).length;
+    parseYearsFromBlock(cleaned, sections);
+    if (Object.keys(sections.years).length > before && sections.overview) {
+      const ovLines = String(sections.overview || '').split('\n');
+      const cut = ovLines.findIndex((l) => parseTimelineYearLineMeta(l));
+      if (cut >= 0) sections.overview = ovLines.slice(0, cut).join('\n').trim();
+    }
+  }
+
   function parseTimelineAiSections(text) {
     const cleaned = sanitizeAiTimelineCustomerText(text);
     const sections = {
@@ -1145,6 +1156,7 @@ body.export-capturing #wheelCard .note{display:none !important;}
       if (yrs) parseYearsFromBlock(yrs[1], sections);
       const sch = cleaned.match(/^##\s+(?:일정[^\n]*|5년 중 언제[^\n]*)\n([\s\S]*?)(?=\n##\s+|$)/m);
       sections.schedule = sch ? sch[1].trim() : '';
+      salvageTimelineYears(cleaned, sections);
       if (!sections.overview.trim() && ov === null) {
         const om = cleaned.match(/^##\s+(?:5년 전체 스토리|한눈에)\s*\n([\s\S]*)/m);
         if (om) {
@@ -1191,6 +1203,7 @@ body.export-capturing #wheelCard .note{display:none !important;}
       }
       flush();
     }
+    salvageTimelineYears(cleaned, sections);
     const hasParsed =
       sections.overview.trim() ||
       sections.schedule.trim() ||
@@ -1279,6 +1292,13 @@ body.export-capturing #wheelCard .note{display:none !important;}
     });
     if (sections.schedule) html += mk('schedule', '언제 움직일까', '');
     el.innerHTML = html;
+    const tabHint = $('timelineYearTabHint');
+    const isYear = /^\d{4}$/.test(String(TIMELINE_YEAR_TAB || ''));
+    if (tabHint && years.length > 0) {
+      tabHint.innerHTML = isYear
+        ? '📌 <strong>' + TIMELINE_YEAR_TAB + '년</strong> 선택됨 → 「' + TIMELINE_YEAR_TAB + '년 시기별로 더 보기」 버튼을 누르세요.'
+        : '📌 <strong>① 연도 탭</strong>(2027년·2028년…)을 누른 뒤 → <strong>② 「시기별로 더 보기」</strong>가 금색으로 켜집니다.';
+    }
     el.querySelectorAll('.timeline-year-tab').forEach((btn) => {
       btn.addEventListener('click', () => {
         TIMELINE_YEAR_TAB = btn.getAttribute('data-tab') || 'overview';
@@ -3330,7 +3350,7 @@ body.export-capturing #wheelCard .note{display:none !important;}
   function timelineCacheKey() {
     const stamp = chartStampForTransitAi();
     if (!stamp) return '';
-    const prefix = isAiRawTimelineV1Enabled() ? 'raw_v34' : 'v7';
+    const prefix = isAiRawTimelineV1Enabled() ? 'raw_v35' : 'v7';
     if (LAST_TIMELINE && LAST_TIMELINE.fromYm && LAST_TIMELINE.toYm) {
       return `${prefix}:timeline:${stamp}:${LAST_TIMELINE.fromYm}:${LAST_TIMELINE.toYm}`;
     }
@@ -4353,7 +4373,7 @@ body.export-capturing #wheelCard .note{display:none !important;}
         messages: [{ role: 'user', content: prompt }],
         onDelta: (chunk) => {
           streamed += chunk;
-          setAiResultBox(box, streamed, { open: true, timelineMode: true, accordion: false });
+          setTimelineAiResult(streamed, { open: true, timelineMode: true, accordion: false, resetTab: false });
         },
       });
       let out = text || streamed || '해석을 생성하지 못했어요.';
