@@ -411,8 +411,11 @@ table.astro-table td .glyph{font-size:16px;margin-right:4px;color:var(--accent);
 .timeline-year-tab.is-on{background:var(--accent);border-color:var(--accent);color:#fff;}
 .timeline-year-tab--major{border-color:#d4a574;}
 .timeline-year-tab--major.is-on{background:#b4532d;border-color:#b4532d;}
+.timeline-year-tab--key{border-color:#c9a86c;}
+.timeline-year-tab--key.is-on{background:#8b6f47;border-color:#8b6f47;}
 .timeline-year-detail-row{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:0 0 10px;}
 .timeline-year-detail-hint{margin:0;font-size:11.5px;color:var(--muted);line-height:1.5;}
+.timeline-format-warn{margin:10px 0 0;padding:8px 10px;border-radius:8px;background:rgba(184,90,74,.08);border:1px solid rgba(184,90,74,.25);font-size:12px;line-height:1.5;color:#8b3a2a;}
 .ai-result--md .ai-md-notes{margin-top:16px;border:1px solid #e8ddcb;border-radius:12px;background:rgba(255,255,255,.55);overflow:hidden;}
 .ai-result--md .ai-md-notes-sum{cursor:pointer;list-style:none;padding:12px 14px;font-size:13.5px;font-weight:700;color:var(--deep-brown);background:rgba(139,111,71,.08);user-select:none;}
 .ai-result--md .ai-md-notes-sum::-webkit-details-marker{display:none;}
@@ -958,9 +961,50 @@ body.export-capturing #wheelCard .note{display:none !important;}
     return out.join('\n').trim();
   }
 
+  function validateTimelineAiCustomerFormat(text) {
+    const s = String(text || '');
+    if (!/^##\s+(?:5년 전체 스토리|한눈에)/m.test(s)) return false;
+    if (!/^##\s+(?:연도별 해석|연도별로)/m.test(s)) return false;
+    if (!/^##\s+일정/m.test(s)) return false;
+    const ym = s.match(/^##\s+(?:연도별 해석|연도별로)\s*\n([\s\S]*?)(?=\n##\s+일정|$)/m);
+    if (!ym) return false;
+    return /(?:★|◆)?\s*\*{0,2}\d{4}\s*년/.test(ym[1]);
+  }
+
+  function parseYearsFromBlock(block, sections) {
+    const lines = String(block || '').split('\n');
+    let currentYear = null;
+    let buf = [];
+    const flushYear = () => {
+      if (!currentYear) return;
+      const chunk = buf.join('\n').trim();
+      if (chunk) sections.years[currentYear] = chunk;
+      buf = [];
+    };
+    const yearLineMeta = (line) => {
+      const t = String(line || '').trim();
+      let m = t.match(/^(★|◆)?\s+\*\*(\d{4})\s*년/);
+      if (!m) m = t.match(/^(★|◆)?\s+(\d{4})\s*년/);
+      if (!m) return null;
+      const mark = m[1] || '';
+      return { year: m[2], major: mark === '★', key: mark === '◆' };
+    };
+    for (const line of lines) {
+      const ym = yearLineMeta(line);
+      if (ym) {
+        flushYear();
+        currentYear = ym.year;
+        sections.yearsHead[currentYear] = line.trim();
+        sections.yearsMeta[currentYear] = { major: ym.major, key: ym.key };
+        continue;
+      }
+      if (currentYear) buf.push(line);
+    }
+    flushYear();
+  }
+
   function parseTimelineAiSections(text) {
     const cleaned = sanitizeAiTimelineCustomerText(text);
-    const lines = cleaned.split('\n');
     const sections = {
       overview: '',
       years: {},
@@ -968,40 +1012,65 @@ body.export-capturing #wheelCard .note{display:none !important;}
       yearsMeta: {},
       schedule: '',
     };
-    let mode = 'pre';
-    let currentYear = null;
-    let buf = [];
-    const flush = () => {
-      const chunk = buf.join('\n').trim();
-      if (!chunk) { buf = []; return; }
-      if (mode === 'overview') sections.overview = chunk;
-      else if (mode === 'year' && currentYear) sections.years[currentYear] = chunk;
-      else if (mode === 'schedule') sections.schedule = chunk;
-      else if (mode === 'pre') sections.overview = chunk;
-      buf = [];
-    };
-    const yearLineMeta = (line) => {
-      const m = line.match(/^(★|◆)?\s+\*\*(\d{4})\s*년/);
-      if (!m) return null;
-      return { year: m[2], major: m[1] === '★', key: m[1] === '◆' };
-    };
-    for (const line of lines) {
-      if (/^##\s+(?:5년 전체 스토리|한눈에)/.test(line)) { flush(); mode = 'overview'; continue; }
-      if (/^##\s+(?:연도별 해석|연도별로)/.test(line)) { flush(); mode = 'year'; continue; }
-      if (/^##\s+일정/.test(line)) { flush(); mode = 'schedule'; continue; }
-      if (mode === 'year') {
-        const ym = yearLineMeta(line);
-        if (ym) {
-          flush();
-          currentYear = ym.year;
-          sections.yearsHead[currentYear] = line.trim();
-          sections.yearsMeta[currentYear] = { major: ym.major, key: ym.key };
-          continue;
+    const hasStructure =
+      /^##\s+(?:5년 전체 스토리|한눈에)/m.test(cleaned) ||
+      /^##\s+(?:연도별 해석|연도별로)/m.test(cleaned);
+    if (hasStructure) {
+      const ov = cleaned.match(/^##\s+(?:5년 전체 스토리|한눈에)\s*\n([\s\S]*?)(?=\n##\s+)/m);
+      sections.overview = ov ? ov[1].trim() : '';
+      const yrs = cleaned.match(/^##\s+(?:연도별 해석|연도별로)\s*\n([\s\S]*?)(?=\n##\s+일정|$)/m);
+      if (yrs) parseYearsFromBlock(yrs[1], sections);
+      const sch = cleaned.match(/^##\s+일정[^\n]*\n([\s\S]*?)(?=\n##\s+|$)/m);
+      sections.schedule = sch ? sch[1].trim() : '';
+      if (!sections.overview.trim() && ov === null) {
+        const om = cleaned.match(/^##\s+(?:5년 전체 스토리|한눈에)\s*\n([\s\S]*)/m);
+        if (om) {
+          let body = om[1];
+          const cut = body.search(/\n##\s+/);
+          if (cut >= 0) body = body.slice(0, cut);
+          sections.overview = body.trim();
         }
       }
-      if (mode === 'pre' || mode === 'overview' || mode === 'year' || mode === 'schedule') buf.push(line);
+    } else {
+      let mode = 'pre';
+      let currentYear = null;
+      let buf = [];
+      const flush = () => {
+        const chunk = buf.join('\n').trim();
+        if (!chunk) { buf = []; return; }
+        if (mode === 'overview') sections.overview = chunk;
+        else if (mode === 'year' && currentYear) sections.years[currentYear] = chunk;
+        else if (mode === 'schedule') sections.schedule = chunk;
+        else if (mode === 'pre') sections.overview = chunk;
+        buf = [];
+      };
+      const yearLineMeta = (line) => {
+        const t = String(line || '').trim();
+        let m = t.match(/^(★|◆)?\s+\*\*(\d{4})\s*년/);
+        if (!m) m = t.match(/^(★|◆)?\s+(\d{4})\s*년/);
+        if (!m) return null;
+        const mark = m[1] || '';
+        return { year: m[2], major: mark === '★', key: mark === '◆' };
+      };
+      const lines = cleaned.split('\n');
+      for (const line of lines) {
+        if (/^##\s+(?:5년 전체 스토리|한눈에)/.test(line)) { flush(); mode = 'overview'; continue; }
+        if (/^##\s+(?:연도별 해석|연도별로)/.test(line)) { flush(); mode = 'year'; continue; }
+        if (/^##\s+일정/.test(line)) { flush(); mode = 'schedule'; continue; }
+        if (mode === 'year') {
+          const ym = yearLineMeta(line);
+          if (ym) {
+            flush();
+            currentYear = ym.year;
+            sections.yearsHead[currentYear] = line.trim();
+            sections.yearsMeta[currentYear] = { major: ym.major, key: ym.key };
+            continue;
+          }
+        }
+        if (mode === 'pre' || mode === 'overview' || mode === 'year' || mode === 'schedule') buf.push(line);
+      }
+      flush();
     }
-    flush();
     const hasParsed =
       sections.overview.trim() ||
       sections.schedule.trim() ||
@@ -1053,7 +1122,10 @@ body.export-capturing #wheelCard .note{display:none !important;}
     let html = mk('overview', '5년 스토리', '');
     years.forEach((y) => {
       const meta = (sections.yearsMeta && sections.yearsMeta[y]) || {};
-      html += mk(y, y + '년', meta.major ? ' timeline-year-tab--major' : '');
+      const head = (sections.yearsHead && sections.yearsHead[y]) || '';
+      const star = head.startsWith('★') ? '★ ' : head.startsWith('◆') ? '◆ ' : '';
+      const label = star + y + '년';
+      html += mk(y, label, meta.major ? ' timeline-year-tab--major' : (meta.key ? ' timeline-year-tab--key' : ''));
     });
     if (sections.schedule) html += mk('schedule', '일정·활용', '');
     el.innerHTML = html;
@@ -1091,6 +1163,10 @@ body.export-capturing #wheelCard .note{display:none !important;}
     TIMELINE_AI_SECTIONS = TIMELINE_AI_FULL_TEXT ? parseTimelineAiSections(TIMELINE_AI_FULL_TEXT) : null;
     if (!opts || opts.resetTab !== false) TIMELINE_YEAR_TAB = 'overview';
     const parsedOk = timelineSectionsHaveContent(TIMELINE_AI_SECTIONS);
+    let o = opts ? Object.assign({}, opts) : {};
+    if (!o.formatWarn && TIMELINE_AI_FULL_TEXT && !validateTimelineAiCustomerFormat(TIMELINE_AI_FULL_TEXT)) {
+      o.formatWarn = true;
+    }
     if (!parsedOk) {
       TIMELINE_AI_SECTIONS = null;
       const tabs = $('timelineYearTabs');
@@ -1102,14 +1178,26 @@ body.export-capturing #wheelCard .note{display:none !important;}
         timelineMode: true,
         accordion: false,
       });
+      if (o.formatWarn && box) {
+        const warn = document.createElement('p');
+        warn.className = 'timeline-format-warn';
+        warn.textContent = '※ 형식이 맞지 않아 연도 탭·★/◆ 표시가 안 될 수 있어요. 위 버튼을 다시 눌러 재생성해 주세요.';
+        box.appendChild(warn);
+      }
       return;
     }
     renderTimelineYearTabs(TIMELINE_AI_SECTIONS);
     const md = getTimelineTabMarkdown(TIMELINE_AI_SECTIONS, TIMELINE_YEAR_TAB);
-    setAiResultBox(box, md, Object.assign({}, opts || {}, {
+    setAiResultBox(box, md, Object.assign({}, o, {
       timelineMode: true,
       accordion: false,
     }));
+    if (o.formatWarn && box) {
+      const warn = document.createElement('p');
+      warn.className = 'timeline-format-warn';
+      warn.textContent = '※ 형식이 맞지 않아 연도 탭·★/◆ 표시가 안 될 수 있어요. 위 버튼을 다시 눌러 재생성해 주세요.';
+      box.appendChild(warn);
+    }
   }
 
   function aiMarkdownToHtml(text) {
@@ -3060,7 +3148,7 @@ body.export-capturing #wheelCard .note{display:none !important;}
   function timelineCacheKey() {
     const stamp = chartStampForTransitAi();
     if (!stamp) return '';
-    const prefix = isAiRawTimelineV1Enabled() ? 'raw_v23' : 'v7';
+    const prefix = isAiRawTimelineV1Enabled() ? 'raw_v24' : 'v7';
     if (LAST_TIMELINE && LAST_TIMELINE.fromYm && LAST_TIMELINE.toYm) {
       return `${prefix}:timeline:${stamp}:${LAST_TIMELINE.fromYm}:${LAST_TIMELINE.toYm}`;
     }
@@ -3935,8 +4023,13 @@ body.export-capturing #wheelCard .note{display:none !important;}
       });
       let out = text || streamed || '해석을 생성하지 못했어요.';
       if (data?.stop_reason === 'max_tokens') out += '\n\n(※ 해석이 길어 일부가 잘렸을 수 있어요.)';
-      saveTimelineAiLocal(out);
-      setTimelineAiResult(out, { open: true });
+      const formatOk = validateTimelineAiCustomerFormat(out);
+      if (formatOk) {
+        saveTimelineAiLocal(out);
+      } else {
+        showStatus('형식이 샘플과 다릅니다. 「AI로 5년 흐름 풀기」를 다시 눌러 주세요. (크레딧 재차감 없음)', 'err');
+      }
+      setTimelineAiResult(out, { open: true, formatWarn: !formatOk });
       if (quota) {
         LAST_AI_QUOTA = quota;
         PaljaAiQuota.applyQuotaBadge($('aiQuotaBadge'), quota);
