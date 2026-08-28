@@ -1127,8 +1127,22 @@ body.export-capturing #wheelCard .note{display:none !important;}
     return years;
   }
 
+  function isTimelineYearPeriodStarLine(line) {
+    const t = String(line || '').trim().replace(/\*\*/g, '');
+    const m = t.match(/^(★|◆)\s*(\d{4})\s*년\s*(.+)$/);
+    if (!m) return false;
+    const rest = String(m[3] || '').trim();
+    if (!rest) return false;
+    if (/^[—–-]\s*\S/.test(rest) && !/^\d/.test(rest)) return false;
+    return /^(?:봄|여름|가을|겨울|초|상반|하반|연말)/.test(rest) ||
+      /^\d+\s*[~\-]/.test(rest) ||
+      /^\([^)]+\)/.test(rest) ||
+      /^\d{1,2}\s*월/.test(rest);
+  }
+
   function parseTimelineYearLineMeta(line) {
     const t = String(line || '').trim();
+    if (isTimelineYearPeriodStarLine(line)) return null;
     let m = t.match(/^(★|◆)\s*\*{0,2}(\d{4})\s*년/);
     if (m) {
       const mark = t.charAt(0) === '★' || t.charAt(0) === '◆' ? t.charAt(0) : '';
@@ -1156,7 +1170,65 @@ body.export-capturing #wheelCard .note{display:none !important;}
   function isTimelineScheduleItemLine(line) {
     const t = String(line || '').trim();
     if (!t || /^##\s+/.test(t)) return false;
-    return /^\*\*.+\*\*\s*[—–-]\s*\d{4}년/.test(t);
+    if (/^피하거나\s*천천히/.test(t)) return true;
+    return /^\*\*.+\*\*\s*[—–-]\s*\d{4}년/.test(t) ||
+      /^\*\*.+\*\*\s+\d{4}년/.test(t);
+  }
+
+  function isTimelineWeakDomainNoteLine(line) {
+    const t = String(line || '').trim();
+    if (!t || /^##\s+/.test(t) || /^\*\*.+\*\*/.test(t)) return false;
+    return /건강|금전/.test(t) && /별도|큰\s*흐름|뚜렷하지|약해/.test(t);
+  }
+
+  function isTimelineCustomerClosingLine(line) {
+    const t = String(line || '').trim();
+    return /^위의 내용이/.test(t) ||
+      /타임라인\s*해석의\s*전부/.test(t) ||
+      /^궁금한\s*부분이/.test(t) ||
+      /^특정\s*시기·주제를/.test(t) ||
+      (/^이\s*5년이\s*끝날\s*때/.test(t) && /성장|다른\s*사람/.test(t));
+  }
+
+  function injectTimelineScheduleHeader(text) {
+    let s = String(text || '');
+    if (/^##\s+(?:일정|5년 중 언제)/m.test(s)) return s;
+    const lines = s.split('\n');
+    const schedIdx = lines.findIndex((line) => isTimelineScheduleItemLine(line));
+    if (schedIdx < 0) return s;
+    const before = lines.slice(0, schedIdx).join('\n').trimEnd();
+    const after = lines.slice(schedIdx).join('\n').trimStart();
+    return before + '\n\n## 5년 중 언제 움직이면 좋을까?\n\n' + after;
+  }
+
+  function stripTimelineCustomerClosingBlocks(text) {
+    return String(text || '').split('\n').filter((line) => !isTimelineCustomerClosingLine(line)).join('\n');
+  }
+
+  function relocateTimelineWeakDomainNotes(text) {
+    let s = String(text || '');
+    const lines = s.split('\n');
+    const notes = [];
+    const kept = [];
+    lines.forEach((line) => {
+      if (isTimelineWeakDomainNoteLine(line)) notes.push(line.trim());
+      else kept.push(line);
+    });
+    if (!notes.length) return s.trim();
+    s = kept.join('\n').trim();
+    const note = notes[0];
+    const ovRe = /^(##\s+(?:5년 전체 스토리|한눈에)[^\n]*\n)([\s\S]*?)(?=\n##\s+|$)/m;
+    if (ovRe.test(s)) {
+      s = s.replace(ovRe, (_, head, body) => head + body.trim() + (body.trim() ? '\n\n' : '') + note + '\n');
+    } else if (/^##\s+(?:일정|5년 중 언제)/m.test(s)) {
+      s = s.replace(
+        /(^##\s+(?:일정|5년 중 언제)[^\n]*\n)([\s\S]*)$/m,
+        (_, head, body) => head + body.trim() + '\n\n' + note,
+      );
+    } else {
+      s = (s.trim() + '\n\n' + note).trim();
+    }
+    return s.trim();
   }
 
   function isTimelineOtherYearHeadLine(line, y) {
@@ -1235,6 +1307,7 @@ body.export-capturing #wheelCard .note{display:none !important;}
     const metaLine = (t) =>
       /^(?:\*\*\(?\s*(?:끊긴\s*위치|출력\s*확인)|앞서\s*출력|실제로\s*(?:완성|빠진|모두)|세\s*섹션|혹시\s*특정|원하시는\s*방향|말씀해\s*주시면|이어서\s*써|끊겨\s*보인|추가로\s*작성|-\s*`##)/.test(t) ||
       /완성된\s*상태|반복\s*출력/.test(t) ||
+      isTimelineCustomerClosingLine(t) ||
       (/✓/.test(t) && /##/.test(t));
     const norm = (x) => String(x || '').replace(/\*\*/g, '').replace(/\s+/g, ' ').trim();
     const lines = s.split('\n');
@@ -1280,7 +1353,10 @@ body.export-capturing #wheelCard .note{display:none !important;}
       out.push(line);
     }
     s = out.join('\n').trim();
+    s = stripTimelineCustomerClosingBlocks(s);
     if (!streaming) {
+      s = injectTimelineScheduleHeader(s);
+      s = relocateTimelineWeakDomainNotes(s);
       const metaCut = s.search(/\n(?:앞서\s*출력|실제로\s*(?:완성|빠진)|\*\*\(?\s*끊긴\s*위치|혹시\s*특정)/);
       if (metaCut >= 0) {
         const before = s.slice(0, metaCut).trim();
@@ -1323,13 +1399,9 @@ body.export-capturing #wheelCard .note{display:none !important;}
           s = sm[1] + schedLines.slice(0, lastTiming + 1).join('\n').trim();
         }
       }
-      let weakSeen = 0;
-      s = s.split('\n').filter((line) => {
-        const t = line.trim();
-        if (!/건강|금전/.test(t) || !/별도|큰\s*흐름|뚜렷하지|약해|없어/.test(t)) return true;
-        weakSeen += 1;
-        return weakSeen <= 1;
-      }).join('\n');
+      s = stripTimelineCustomerClosingBlocks(s);
+    } else {
+      s = stripTimelineCustomerClosingBlocks(s);
     }
     s = s.replace(/(\d{4}년\s*\d{1,2}월(?:부터|부터는)?)\s*창구가\s*열[^\n.]*/g, '$1부터 변화 신호가 뚜렷해질 수 있어요');
     s = s.replace(/창구가\s*열/g, '흐름이 열');
@@ -1359,7 +1431,7 @@ body.export-capturing #wheelCard .note{display:none !important;}
     if (windowYears.length) {
       for (let i = 0; i < windowYears.length; i += 1) {
         const y = windowYears[i];
-        if (!new RegExp('(?:★|◆)?\\s*\\*{0,2}' + y + '\\s*년').test(ym[1])) return false;
+        if (!new RegExp('(?:★|◆)?\\s*\\*{0,2}' + y + '\\s*년|' + y + '년은\\s').test(ym[1])) return false;
       }
     }
     return true;
@@ -1373,7 +1445,10 @@ body.export-capturing #wheelCard .note{display:none !important;}
     const flushYear = () => {
       if (!currentYear) return;
       const chunk = buf.join('\n').trim();
-      if (chunk) sections.years[currentYear] = chunk;
+      if (chunk) {
+        const prev = String(sections.years[currentYear] || '').trim();
+        sections.years[currentYear] = prev ? (prev + '\n\n' + chunk) : chunk;
+      }
       buf = [];
     };
     const yearLineMeta = (line) => {
@@ -1386,6 +1461,16 @@ body.export-capturing #wheelCard .note{display:none !important;}
         flushYear();
         currentYear = null;
         scheduleBuf.push(line);
+        continue;
+      }
+      const implicit = String(line || '').trim().match(/^(\d{4})년은\s+/);
+      if (implicit && (!currentYear || implicit[1] !== String(currentYear))) {
+        flushYear();
+        currentYear = implicit[1];
+        if (!sections.yearsHead[currentYear]) {
+          sections.yearsHead[currentYear] = '**' + implicit[1] + '년**';
+        }
+        buf.push(line);
         continue;
       }
       const ym = yearLineMeta(line);
@@ -1474,9 +1559,13 @@ body.export-capturing #wheelCard .note{display:none !important;}
         const chunk = buf.join('\n').trim();
         if (!chunk) { buf = []; return; }
         if (mode === 'overview') sections.overview = chunk;
-        else if (mode === 'year' && currentYear) sections.years[currentYear] = chunk;
-        else if (mode === 'schedule') sections.schedule = chunk;
-        else if (mode === 'pre') sections.overview = chunk;
+        else if (mode === 'year' && currentYear) {
+          const prev = String(sections.years[currentYear] || '').trim();
+          sections.years[currentYear] = prev ? (prev + '\n\n' + chunk) : chunk;
+        } else if (mode === 'schedule') {
+          const prev = String(sections.schedule || '').trim();
+          sections.schedule = prev ? (prev + '\n\n' + chunk) : chunk;
+        } else if (mode === 'pre') sections.overview = chunk;
         buf = [];
       };
       const yearLineMeta = (line) => {
@@ -1490,6 +1579,23 @@ body.export-capturing #wheelCard .note{display:none !important;}
         if (/^##\s+(?:연도별 해석|연도별로)/.test(line)) { flush(); mode = 'year'; continue; }
         if (/^##\s+(?:일정|5년 중 언제)/.test(line)) { flush(); mode = 'schedule'; continue; }
         if (mode === 'year') {
+          if (isTimelineScheduleItemLine(line)) {
+            flush();
+            currentYear = null;
+            mode = 'schedule';
+            buf.push(line);
+            continue;
+          }
+          const implicit = String(line || '').trim().match(/^(\d{4})년은\s+/);
+          if (implicit && (!currentYear || implicit[1] !== String(currentYear))) {
+            flush();
+            currentYear = implicit[1];
+            if (!sections.yearsHead[currentYear]) {
+              sections.yearsHead[currentYear] = '**' + implicit[1] + '년**';
+            }
+            buf.push(line);
+            continue;
+          }
           const ym = yearLineMeta(line);
           if (ym) {
             flush();
@@ -1780,11 +1886,15 @@ body.export-capturing #wheelCard .note{display:none !important;}
       renderTimelineYearTabs(parsedOk
         ? TIMELINE_AI_SECTIONS
         : (TIMELINE_AI_SECTIONS || { years: {}, yearsMeta: {}, yearAliases: {}, schedule: '' }));
-      setAiResultBox(box, TIMELINE_AI_FULL_TEXT, {
-        open: true,
-        timelineMode: true,
-        accordion: false,
-      });
+      if (parsedOk && TIMELINE_AI_SECTIONS) {
+        paintTimelineTabView();
+      } else {
+        setAiResultBox(box, TIMELINE_AI_FULL_TEXT, {
+          open: true,
+          timelineMode: true,
+          accordion: false,
+        });
+      }
       return { formatOk, parsedOk };
     }
     if (!parsedOk) {
@@ -1840,6 +1950,7 @@ body.export-capturing #wheelCard .note{display:none !important;}
     const isYearHeadLine = (line) => {
       const t = String(line || '').trim();
       if (isTimelineYearPeriodLine(t)) return false;
+      if (isTimelineYearPeriodStarLine(t)) return false;
       if (isYearStarLine(t)) return true;
       if (/^\*{2}\d{4}\s*년[^*]*\*{2}\s*$/.test(t)) return true;
       if (/^(\d{4})\s*년(?:\s*\([^)]+\))?\s*$/.test(t)) return true;
