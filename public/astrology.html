@@ -419,14 +419,22 @@ table.astro-table td .glyph{font-size:16px;margin-right:4px;color:var(--accent);
 .ai-result--timeline.ai-result--streaming::after{content:'';display:inline-block;width:2px;height:1em;margin-left:2px;background:var(--warm-brown);animation:tl-cursor-blink .9s step-end infinite;vertical-align:text-bottom;}
 @keyframes tl-cursor-blink{50%{opacity:0;}}
 .ai-result--timeline strong{font-weight:700;color:var(--deep-brown);}
-.timeline-year-tabs{display:flex;flex-wrap:wrap;gap:6px;margin:0;}
-.timeline-year-tab-bar{background:rgba(255,248,235,.95);border:1px solid #e0d4c0;border-radius:12px;padding:10px 12px;margin:14px 0 0;}
-.timeline-year-tab-label{margin:0 0 8px;font-size:12px;font-weight:700;color:var(--warm-brown);line-height:1.45;}
+.timeline-year-tabs{display:flex;flex-wrap:wrap;gap:8px;margin:0;}
+.timeline-year-tab-bar,.timeline-topic-block{background:rgba(255,252,247,.96);border:1px solid #e8ddcb;padding:16px 16px 14px;}
+.timeline-year-tab-bar{margin:18px 0 0;border-radius:14px 14px 0 0;border-bottom:none;padding-bottom:12px;}
+.timeline-year-tab-bar[hidden]+.timeline-topic-block:not([hidden]){margin-top:18px;border-radius:14px;border-top:1px solid #e8ddcb;}
+.timeline-year-tab-bar:not([hidden])+.timeline-topic-block:not([hidden]){margin-top:0;border-radius:0 0 14px 14px;border-top:1px solid #ebe3d4;padding-top:14px;}
+.timeline-year-tab-bar:not([hidden]):has(+ .timeline-topic-block[hidden]){border-radius:14px;border-bottom:1px solid #e8ddcb;margin-bottom:20px;padding-bottom:14px;}
+.timeline-nav-label{margin:0 0 4px;font-size:13px;font-weight:700;color:var(--deep-brown);line-height:1.4;}
+.timeline-nav-label .ai-quota-cost{font-weight:500;color:var(--muted);}
+.timeline-nav-hint,.timeline-year-tab-label,.timeline-topic-desc{margin:0 0 12px;font-size:12px;line-height:1.55;color:var(--muted);font-weight:400;}
 .ai-result--timeline .ai-md-when{font-weight:700;color:var(--warm-brown);font-size:inherit;}
 .ai-result--timeline .ai-md-period-lead{font-weight:700;color:var(--warm-brown);font-size:inherit;}
 .timeline-ai-actions{margin-bottom:4px;}
-.timeline-year-tab{border:1px solid #e0d4c0;background:rgba(255,255,255,.65);color:var(--deep-brown);font-size:12px;font-weight:600;padding:6px 11px;border-radius:999px;cursor:pointer;line-height:1.3;}
-.timeline-year-tab.is-on{background:var(--accent);border-color:var(--accent);color:#fff;}
+.timeline-year-tab,.timeline-topic-btn{border:1px solid #e0d4c0;background:rgba(255,255,255,.82);color:var(--deep-brown);font-family:inherit;font-size:12.5px;font-weight:600;padding:7px 13px;border-radius:999px;cursor:pointer;line-height:1.3;transition:background .15s,border-color .15s,color .15s;}
+.timeline-year-tab:hover,.timeline-topic-btn:hover:not(:disabled){background:var(--accent-lt);border-color:var(--accent);}
+.timeline-topic-btn:disabled{opacity:.55;cursor:not-allowed;}
+.timeline-year-tab.is-on,.timeline-topic-btn.is-on{background:var(--accent);border-color:var(--accent);color:#fff;}
 .timeline-year-tab--major{border-color:#d4a574;}
 .timeline-year-tab--major.is-on{background:#b4532d;border-color:#b4532d;}
 .timeline-year-tab--key{border-color:#c9a86c;}
@@ -434,18 +442,16 @@ table.astro-table td .glyph{font-size:16px;margin-right:4px;color:var(--accent);
 .ai-result--timeline .ai-md-h2[id],.ai-result--timeline .ai-md-year-head[id]{scroll-margin-top:72px;}
 .ai-result--timeline #tl-schedule{margin-top:28px;padding-top:22px;border-top:2px solid #e0d4c0;}
 .ai-result--timeline .ai-md-schedule-gap{height:20px;}
-.timeline-topic-block{margin:16px 0 0;padding:14px 14px 12px;border:1px solid #e0d4c0;border-radius:12px;background:rgba(255,248,235,.85);}
-.timeline-topic-title{font-family:var(--font-serif);font-size:18px;font-weight:600;color:var(--deep-brown);margin:0 0 6px;line-height:1.35;}
-.timeline-topic-desc{margin:0;font-size:13px;line-height:1.6;color:var(--muted);}
+.timeline-topic-block{margin:0 0 20px;border-radius:14px;}
+.timeline-topic-title{font-size:13px;font-weight:700;color:var(--deep-brown);margin:0 0 4px;line-height:1.4;}
+.timeline-topic-desc{margin:0 0 12px;font-size:12px;line-height:1.55;color:var(--muted);}
 .timeline-topic-intro{margin:0;}
-.timeline-topic-slot{display:flex;flex-wrap:wrap;gap:6px;margin-top:16px;padding-top:2px;}
+.timeline-topic-slot{display:flex;flex-wrap:wrap;gap:8px;margin:0;}
 .timeline-topic-slot[hidden],.timeline-topic-block[hidden]{display:none!important;}
-.timeline-topic-btn{font-size:11.5px!important;padding:5px 10px!important;line-height:1.3!important;}
-.timeline-topic-btn.is-on{background:var(--accent);border-color:var(--accent);color:#fff;}
-.timeline-topic-btn.is-weak{border-style:dashed;border-color:#c4a574;color:#7a6a58;background:#faf6ef;}
+.timeline-topic-btn.is-weak{border-style:dashed;border-color:#c4a574;color:#7a6a58;background:#faf8f3;}
 .timeline-topic-btn.is-weak.is-on{background:#c4a574;border-color:#c4a574;color:#fff;}
-.timeline-topic-weak-note{display:block;margin:12px 0 0;font-size:12px;color:#8a7355;line-height:1.55;}
-#timelineTopicResult{margin-top:10px;}
+.timeline-topic-weak-note{display:block;margin:0 0 10px;font-size:12px;color:var(--muted);line-height:1.55;}
+#timelineTopicResult{margin-top:12px;}
 #timelineTopicResult[hidden]{display:none!important;}
 .timeline-format-warn{margin:10px 0 0;padding:8px 10px;border-radius:8px;background:rgba(184,90,74,.08);border:1px solid rgba(184,90,74,.25);font-size:12px;line-height:1.5;color:#8b3a2a;}
 .ai-result--md .ai-md-notes{margin-top:16px;border:1px solid #e8ddcb;border-radius:12px;background:rgba(255,255,255,.55);overflow:hidden;}
@@ -840,13 +846,14 @@ body.export-capturing #wheelCard .note{display:none !important;}
           </div>
         </div>
         <div id="timelineYearTabBar" class="timeline-year-tab-bar" hidden>
-          <p class="timeline-year-tab-label" id="timelineYearTabHint">📌 「5년 스토리」에서 전체를 한 번에, 연도 탭에서 그해만 볼 수 있어요.</p>
+          <p class="timeline-nav-label">5년 스토리 · 연도별</p>
+          <p class="timeline-nav-hint" id="timelineYearTabHint">전체·연도·일정 탭으로 나눠 볼 수 있습니다.</p>
           <div id="timelineYearTabs" class="timeline-year-tabs"></div>
         </div>
         <div id="timelineTopicBlock" class="timeline-topic-block" hidden>
           <div class="timeline-topic-intro" id="timelineTopicIntro">
-            <h3 class="timeline-topic-title">🔍 주제별 상세</h3>
-            <p class="timeline-topic-desc">5년 흐름에서 그 주제만 시기·활용·주의를 봅니다. <span class="ai-quota-cost">(주제당 1크레딧)</span></p>
+            <p class="timeline-nav-label">주제별 상세 <span class="ai-quota-cost">(주제당 1크레딧)</span></p>
+            <p class="timeline-nav-hint">시기 · 활용 · 주의를 주제별로 봅니다.</p>
           </div>
           <div id="timelineTopicSlot" class="timeline-topic-slot"></div>
           <div id="timelineTopicResult" class="ai-result empty" hidden></div>
@@ -2000,8 +2007,8 @@ body.export-capturing #wheelCard .note{display:none !important;}
         .map((id) => TIMELINE_TOPIC_META[id] && TIMELINE_TOPIC_META[id].label)
         .filter(Boolean);
       let introHtml =
-        '<h3 class="timeline-topic-title">🔍 주제별 상세</h3>' +
-        '<p class="timeline-topic-desc">5년 흐름에서 그 주제만 시기·활용·주의를 봅니다. <span class="ai-quota-cost">(주제당 1크레딧)</span></p>';
+        '<p class="timeline-nav-label">주제별 상세 <span class="ai-quota-cost">(주제당 1크레딧)</span></p>' +
+        '<p class="timeline-nav-hint">시기 · 활용 · 주의를 주제별로 봅니다.</p>';
       if (weakLabels.length) {
         introHtml += '<p class="timeline-topic-weak-note">이 기간 차트에서 변화 신호가 약한 주제: ' +
           weakLabels.join(' · ') + '</p>';
@@ -2017,7 +2024,7 @@ body.export-capturing #wheelCard .note{display:none !important;}
       const weak = isTimelineTopicSignalWeak(topicId);
       const btn = document.createElement('button');
       btn.type = 'button';
-      btn.className = 'rt-btn timeline-topic-btn' +
+      btn.className = 'timeline-year-tab timeline-topic-btn' +
         (TIMELINE_TOPIC_TAB === topicId ? ' is-on' : '') +
         (weak ? ' is-weak' : '') +
         (canUse ? ' rt-btn--share' : '');
@@ -2147,9 +2154,9 @@ body.export-capturing #wheelCard .note{display:none !important;}
     const tabHint = $('timelineYearTabHint');
     const isYear = /^\d{4}$/.test(String(TIMELINE_YEAR_TAB || ''));
     if (tabHint && years.length > 0) {
-      tabHint.innerHTML = isYear
-        ? '📌 <strong>' + TIMELINE_YEAR_TAB + '년</strong> 해석만 보고 있어요.'
-        : '📌 「5년 스토리」에서 전체·연도별·언제 움직일까까지 한 번에 읽을 수 있어요. 연도 탭은 그해만 볼 때 쓰세요.';
+      tabHint.textContent = isYear
+        ? TIMELINE_YEAR_TAB + '년 해석만 보고 있습니다.'
+        : '전체·연도·일정 탭으로 나눠 볼 수 있습니다.';
     }
     el.querySelectorAll('.timeline-year-tab').forEach((btn) => {
       btn.addEventListener('click', () => {
