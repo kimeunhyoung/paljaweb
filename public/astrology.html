@@ -434,6 +434,14 @@ table.astro-table td .glyph{font-size:16px;margin-right:4px;color:var(--accent);
 .ai-result--timeline .ai-md-h2[id],.ai-result--timeline .ai-md-year-head[id]{scroll-margin-top:72px;}
 .ai-result--timeline #tl-schedule{margin-top:28px;padding-top:22px;border-top:2px solid #e0d4c0;}
 .ai-result--timeline .ai-md-schedule-gap{height:20px;}
+.timeline-topic-block{margin:12px 0 0;padding:10px 12px;border:1px solid #e0d4c0;border-radius:12px;background:rgba(255,248,235,.85);}
+.timeline-topic-intro{margin:0 0 8px;font-size:12px;line-height:1.55;color:var(--deep-brown);}
+.timeline-topic-slot{display:flex;flex-wrap:wrap;gap:6px;}
+.timeline-topic-slot[hidden],.timeline-topic-block[hidden]{display:none!important;}
+.timeline-topic-btn{font-size:11.5px!important;padding:5px 10px!important;line-height:1.3!important;}
+.timeline-topic-btn.is-on{background:var(--accent);border-color:var(--accent);color:#fff;}
+#timelineTopicResult{margin-top:10px;}
+#timelineTopicResult[hidden]{display:none!important;}
 .timeline-format-warn{margin:10px 0 0;padding:8px 10px;border-radius:8px;background:rgba(184,90,74,.08);border:1px solid rgba(184,90,74,.25);font-size:12px;line-height:1.5;color:#8b3a2a;}
 .ai-result--md .ai-md-notes{margin-top:16px;border:1px solid #e8ddcb;border-radius:12px;background:rgba(255,255,255,.55);overflow:hidden;}
 .ai-result--md .ai-md-notes-sum{cursor:pointer;list-style:none;padding:12px 14px;font-size:13.5px;font-weight:700;color:var(--deep-brown);background:rgba(139,111,71,.08);user-select:none;}
@@ -819,8 +827,8 @@ body.export-capturing #wheelCard .note{display:none !important;}
       </div>
       <div class="transit-ai-block no-print" id="timelineAiBlock" hidden>
         <p class="transit-ai-intro"><strong>AI로 5년 흐름 풀기</strong>를 누르면 5년 스토리·연도별·일정이 <strong>한 번에</strong> 나와요.
-          연도 탭에서 그해 해석만 골라 볼 수 있어요.
-          같은 차트·같은 기간이면 다시 눌러도 크레딧이 안 깎입니다. <span class="ai-quota-cost">(최초 2크레딧)</span></p>
+          아래 <strong>주제별 상세</strong>로 금전·관계·학업 등 그 주제만 5년 흐름을 더 볼 수 있어요.
+          같은 차트·같은 기간·같은 주제면 다시 눌러도 크레딧이 안 깎입니다. <span class="ai-quota-cost">(5년 2크레딧 · 주제별 1크레딧)</span></p>
         <div class="timeline-ai-actions">
           <div class="transit-ai-row">
             <button type="button" class="rt-btn rt-btn--share" id="btnTimelineAi" disabled>✨ AI로 5년 흐름 풀기 (2크레딧)</button>
@@ -829,6 +837,11 @@ body.export-capturing #wheelCard .note{display:none !important;}
         <div id="timelineYearTabBar" class="timeline-year-tab-bar" hidden>
           <p class="timeline-year-tab-label" id="timelineYearTabHint">📌 「5년 스토리」에서 전체를 한 번에, 연도 탭에서 그해만 볼 수 있어요.</p>
           <div id="timelineYearTabs" class="timeline-year-tabs"></div>
+        </div>
+        <div id="timelineTopicBlock" class="timeline-topic-block" hidden>
+          <p class="timeline-topic-intro" id="timelineTopicIntro">🔍 <strong>주제별 상세</strong> — 5년 흐름에서 이 주제만 시기·활용·주의를 봅니다.</p>
+          <div id="timelineTopicSlot" class="timeline-topic-slot"></div>
+          <div id="timelineTopicResult" class="ai-result empty" hidden></div>
         </div>
         <div id="timelineAiResult" class="ai-result empty">차트를 계산한 뒤 「AI로 5년 흐름 풀기」를 눌러 주세요.</div>
         <p class="ai-time-hint" id="timelineAiHint">완성될 때까지 1~2분 걸릴 수 있어요. 창을 닫지 말고 기다려 주세요.</p>
@@ -1702,10 +1715,6 @@ body.export-capturing #wheelCard .note{display:none !important;}
       });
       if (chunks.length > 1) yearBlock = chunks.join('\n\n');
     }
-    if (!yearBlock) {
-      const rawYrs = extractTimelineYearBlock(TIMELINE_AI_FULL_TEXT || '');
-      if (rawYrs) yearBlock = '## 연도별 해석\n\n' + rawYrs;
-    }
     if (yearBlock) parts.push(yearBlock);
     if (String(sections.schedule || '').trim()) {
       parts.push('## 5년 중 언제 움직이면 좋을까?\n\n' + sections.schedule.trim());
@@ -1716,6 +1725,8 @@ body.export-capturing #wheelCard .note{display:none !important;}
   function getTimelineTabMarkdown(sections, tab) {
     if (!sections) return TIMELINE_AI_FULL_TEXT || '';
     if (tab === 'overview') {
+      const full = String(TIMELINE_AI_FULL_TEXT || '').trim();
+      if (full) return full;
       return getTimelineFullMarkdown(sections);
     }
     if (tab === 'schedule') {
@@ -1731,6 +1742,271 @@ body.export-capturing #wheelCard .note{display:none !important;}
       return (sections.yearsHead[tab] || sections.yearsHead[primary] || ('**' + tab + '년**')) + '\n\n' + sections.years[primary];
     }
     return TIMELINE_AI_FULL_TEXT || '';
+  }
+
+  function timelineTopicLabel(topicId) {
+    const meta = TIMELINE_TOPIC_META[topicId];
+    if (!meta) return String(topicId || '');
+    return (meta.icon ? meta.icon + ' ' : '') + meta.label;
+  }
+
+  function timelineEpisodeDomainSet(ep, rawPayload) {
+    const out = new Set();
+    const bodies = (rawPayload && rawPayload.natal && rawPayload.natal.bodies) || {};
+    const unknownTime = !!(rawPayload && rawPayload.chartMeta && rawPayload.chartMeta.birth && rawPayload.chartMeta.birth.unknownTime);
+    const n = String(ep.natal || '').toLowerCase();
+    const lk = String(ep.lineKo || '');
+    const isMeridian = /MC|IC|중천|천저/.test(lk) || n === 'mc' || n === 'ic';
+    const isHorizon = (/ASC|DSC|상승|하강/.test(lk) || n === 'asc' || n === 'dsc') && !isMeridian;
+    const house = bodies[n] && bodies[n].house;
+    if (isHorizon) { out.add('relationship'); out.add('work'); }
+    if (isMeridian) {
+      out.add('work');
+      out.add('business');
+      if (n === 'ic' || lk.indexOf('IC') >= 0 || lk.indexOf('천저') >= 0) out.add('housing');
+    }
+    if (n === 'venus') { out.add('relationship'); out.add('money'); }
+    if (n === 'mars') { out.add('work'); out.add('health'); }
+    if (n === 'mercury') { out.add('study'); out.add('housing'); out.add('contract'); }
+    if (n === 'moon') { out.add('relationship'); out.add('housing'); out.add('children'); }
+    if (n === 'sun') { out.add('work'); out.add('children'); }
+    if (n === 'jupiter') { out.add('money'); out.add('business'); }
+    if (n === 'saturn') { out.add('work'); out.add('housing'); }
+    if (!unknownTime && house) {
+      if (house === 2 || house === 8) out.add('money');
+      if (house === 4) out.add('housing');
+      if (house === 5) out.add('children');
+      if (house === 6) { out.add('health'); out.add('work'); }
+      if (house === 7) out.add('relationship');
+      if (house === 3) { out.add('study'); out.add('contract'); }
+      if (house === 9) { out.add('study'); out.add('housing'); }
+      if (house === 10) { out.add('work'); out.add('business'); }
+    }
+    return out;
+  }
+
+  function timelineEpisodeMatchesTopic(ep, topicId, rawPayload) {
+    const meta = TIMELINE_TOPIC_META[topicId];
+    if (!meta || !ep) return false;
+    const doms = timelineEpisodeDomainSet(ep, rawPayload);
+    if (meta.contractOnly) {
+      if (String(ep.natal || '').toLowerCase() === 'mercury') return true;
+      const hints = utilizeActivityHints(ep).join(' ');
+      return /계약|서명|약정|문서|제안|면접|글/.test(hints + String(ep.lineKo || ''));
+    }
+    const match = meta.matchDomains || [];
+    if (!match.some((d) => doms.has(d))) return false;
+    if (meta.studyOnly && doms.has('contract') && String(ep.natal || '').toLowerCase() === 'mercury') {
+      const hints = utilizeActivityHints(ep).join(' ');
+      if (/계약|서명|약정|문서/.test(hints)) return false;
+    }
+    return true;
+  }
+
+  function timelineUtilizeItemMatchesTopic(it, topicId) {
+    const meta = TIMELINE_TOPIC_META[topicId];
+    if (!meta || !it) return false;
+    const blob = [
+      (it.activityHints || []).join(' '),
+      it.rangeLabel || '',
+      it.note || '',
+      it.lineKo || '',
+    ].join(' ');
+    const keys = {
+      money: /재물|금전|돈|수입|자원/,
+      work: /역할|일|커리어|책임|사업|직장|업무/,
+      relationship: /관계|가까운|연애|거리|겉모습/,
+      health: /건강|몸|컨디션|에너지/,
+      study: /시험|학업|공부|자격/,
+      housing: /집|주거|이사|거주|안정/,
+      children: /자녀|아이|육아/,
+      contract: /계약|서명|약정|문서|제안|면접|글/,
+    };
+    const re = keys[topicId];
+    return !!(re && re.test(blob));
+  }
+
+  function filterPayloadForTimelineTopic(payload, topicId) {
+    const meta = TIMELINE_TOPIC_META[topicId];
+    if (!meta || !payload) throw new Error('bad_topic_payload');
+    const copy = JSON.parse(JSON.stringify(payload));
+    copy.transitEpisodes = (copy.transitEpisodes || []).filter((ep) =>
+      timelineEpisodeMatchesTopic(ep, topicId, payload),
+    );
+    if (copy.utilizeRecommendations && copy.utilizeRecommendations.items) {
+      copy.utilizeRecommendations.items = copy.utilizeRecommendations.items.filter((it) =>
+        timelineUtilizeItemMatchesTopic(it, topicId),
+      );
+    }
+    if (copy.domainScan && copy.domainScan.domains) {
+      const focused = {};
+      if (meta.contractOnly) {
+        if (copy.domainScan.domains.study) focused.study = copy.domainScan.domains.study;
+      } else {
+        (meta.matchDomains || []).forEach((d) => {
+          if (copy.domainScan.domains[d]) focused[d] = copy.domainScan.domains[d];
+        });
+      }
+      copy.domainScan = Object.assign({}, copy.domainScan, {
+        domains: focused,
+        note: '주제「' + meta.label + '」상세 — 위 domains·필터된 eps·utilize만 근거. 다른 주제·8영역 나열 금지.',
+      });
+    }
+    copy.topicFocus = { id: topicId, label: meta.label };
+    return copy;
+  }
+
+  function validateTimelineTopicDetailFormat(text) {
+    const s = String(text || '');
+    return /^##\s+이\s*주제\s*한\s*줄기/m.test(s) && /^##\s+시기별\s*흐름/m.test(s);
+  }
+
+  function prepareTimelineTopicDetailMarkdown(topicId, text) {
+    const meta = TIMELINE_TOPIC_META[topicId];
+    let s = stripTimelineAdviceBold(cleanTimelineAiText(text));
+    const lines = s.split('\n');
+    const kept = [];
+    for (let i = 0; i < lines.length; i++) {
+      const t = lines[i].trim();
+      if (/^##\s+(?:5년\s*전체|연도별|5년\s*중\s*언제)/.test(t)) break;
+      if (/^##\s+이\s*주제\s*한\s*줄기/.test(t) && kept.length && !/^##\s+/.test(String(kept[kept.length - 1] || '').trim())) {
+        /* keep */
+      }
+      kept.push(lines[i]);
+    }
+    s = kept.join('\n').trim();
+    const head = '**' + (meta ? meta.label : topicId) + ' · 5년 흐름**';
+    if (!s.startsWith(head) && !/^\*\*[^*]+·\s*5년\s*흐름\*\*/.test(s.slice(0, 80))) {
+      s = head + '\n\n' + s;
+    }
+    return s.trim();
+  }
+
+  function syncTimelineTopicBlockVisibility() {
+    const block = $('timelineTopicBlock');
+    if (!block) return;
+    block.hidden = !TIMELINE_AI_SECTIONS || TIMELINE_AI_BUSY;
+  }
+
+  function hideTimelineTopicResult() {
+    const box = $('timelineTopicResult');
+    if (box) box.hidden = true;
+  }
+
+  function scrollTimelineTopicIntoView(box) {
+    if (!box || box.hidden) return;
+    box.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+  }
+
+  function timelineTopicCacheKey(topicId) {
+    const base = timelineCacheKey();
+    return base ? base + ':topic:' + topicId + ':tp1' : '';
+  }
+
+  function timelineTopicBtnLabel(topicId) {
+    const meta = TIMELINE_TOPIC_META[topicId];
+    const base = meta ? timelineTopicLabel(topicId) : topicId;
+    const cached = TIMELINE_TOPIC_AI_CACHE[topicId];
+    const key = timelineTopicCacheKey(topicId);
+    if (cached && cached.key === key && cached.text && validateTimelineTopicDetailFormat(cached.text)) {
+      return base + ' ✓';
+    }
+    return base + ' (1크레딧)';
+  }
+
+  function updateTimelineTopicSlot() {
+    const block = $('timelineTopicBlock');
+    const slot = $('timelineTopicSlot');
+    const intro = $('timelineTopicIntro');
+    if (!slot || !block) return;
+    syncTimelineTopicBlockVisibility();
+    if (block.hidden) {
+      slot.innerHTML = '';
+      hideTimelineTopicResult();
+      return;
+    }
+    if (intro) {
+      intro.innerHTML = '🔍 <strong>주제별 상세</strong> — 5년 흐름에서 그 주제만 시기·활용·주의를 봅니다. <span class="ai-quota-cost">(주제당 1크레딧)</span>';
+    }
+    const busy = TIMELINE_TOPIC_AI_BUSY || TIMELINE_AI_BUSY || TIMELINE_SCAN_BUSY;
+    const canUse = !busy && AI_SERVER_OK && !isLongFlowMaintenance() && hasAiAccess();
+    slot.innerHTML = '';
+    TIMELINE_TOPIC_ORDER.forEach((topicId) => {
+      const meta = TIMELINE_TOPIC_META[topicId];
+      if (!meta) return;
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'rt-btn timeline-topic-btn' +
+        (TIMELINE_TOPIC_TAB === topicId ? ' is-on' : '') +
+        (canUse ? ' rt-btn--share' : '');
+      btn.dataset.topic = topicId;
+      btn.disabled = !canUse;
+      if (TIMELINE_TOPIC_AI_BUSY && TIMELINE_TOPIC_TAB === topicId) {
+        btn.disabled = true;
+        btn.textContent = '⏳ ' + meta.label + '…';
+      } else {
+        btn.textContent = timelineTopicBtnLabel(topicId);
+      }
+      slot.appendChild(btn);
+    });
+  }
+
+  function syncTimelineTopicButtons() {
+    updateTimelineTopicSlot();
+  }
+
+  function paintTimelineTopicView(topicId) {
+    const box = $('timelineTopicResult');
+    if (!box) return;
+    const tid = String(topicId || TIMELINE_TOPIC_TAB || '').trim();
+    if (!TIMELINE_TOPIC_META[tid]) {
+      box.hidden = true;
+      return;
+    }
+    const cached = TIMELINE_TOPIC_AI_CACHE[tid];
+    const key = timelineTopicCacheKey(tid);
+    if (cached && cached.key === key && cached.text) {
+      box.hidden = false;
+      setAiResultBox(box, prepareTimelineTopicDetailMarkdown(tid, cached.text), { open: true, timelineMode: true });
+      return;
+    }
+    if (TIMELINE_TOPIC_AI_BUSY && TIMELINE_TOPIC_TAB === tid) {
+      box.hidden = false;
+      return;
+    }
+    box.hidden = true;
+  }
+
+  function buildAiRawTimelineTopicPrompt(topicId) {
+    const meta = TIMELINE_TOPIC_META[topicId];
+    if (!meta) throw new Error('bad_topic');
+    if (!LAST_AI_RAW_PAYLOAD) {
+      buildAiRawTimelineCustomerPrompt();
+    }
+    if (!LAST_AI_RAW_PAYLOAD) throw new Error('no_payload');
+    const filtered = filterPayloadForTimelineTopic(LAST_AI_RAW_PAYLOAD, topicId);
+    let prompt = AiRawTimelinePromptV2.buildCustomerPrompt(filtered);
+    const w = filtered.window;
+    if (w && w.fromYm && w.toYm) {
+      prompt += '\n\n[기간] ' + w.fromYm + ' ~ ' + w.toYm;
+    }
+    const domInfo = filtered.domainScan && filtered.domainScan.domains
+      ? Object.keys(filtered.domainScan.domains).map((k) => {
+        const d = filtered.domainScan.domains[k];
+        return d.labelKo + '(' + d.level + ')';
+      }).join(', ')
+      : '신호 약함';
+    prompt +=
+      '\n\n[주제 상세 모드 — 「' + meta.label + '」만]\n' +
+      '위 JSON은 **' + meta.label + '** 주제만 필터한 5년 raw입니다. 5년 전체 스토리·연도별 해석·다른 주제 **절대 금지**.\n' +
+      'domainScan(주제 판정): ' + domInfo + '\n' +
+      '출력 첫 줄: **' + meta.label + ' · 5년 흐름** (단독). 그다음 **3섹션만**:\n' +
+      '## 이 주제 한 줄기\n## 시기별 흐름\n## 활용·주의\n' +
+      '「시기별 흐름」: window 구간에서 **' + meta.label + '** 관련 eps·peakYm·progMoon이 있는 달·계절마다 **2~3문장** (최소 2블록). 시기 줄은 `2027년 봄(3~5월)` 형태.\n' +
+      '「활용·주의」: utilizeRecommendations(필터됨) bullet 1~4개 + 무리하면 안 되는 때 1~2문장.\n' +
+      '신호가 weak/none이면 「이 5년엔 ' + meta.label + ' 쪽 신호가 뚜렷하지 않음」을 먼저 밝히고, 있는 eps만 짧게.\n' +
+      '**굵게(`**…**`) = 시기 핵심 명사 1~2개만.** 조언 문장 굵게 금지.';
+    return prompt;
   }
 
   function paintTimelineTabView() {
@@ -1757,6 +2033,7 @@ body.export-capturing #wheelCard .note{display:none !important;}
     if (!hasSubTabs) {
       el.innerHTML = '';
       if (tabBar) tabBar.hidden = true;
+      updateTimelineTopicSlot();
       return;
     }
     const mk = (id, label, extra) =>
@@ -1788,6 +2065,7 @@ body.export-capturing #wheelCard .note{display:none !important;}
         paintTimelineTabView();
       });
     });
+    updateTimelineTopicSlot();
   }
 
   function showTimelineYearTab() {
@@ -1843,6 +2121,7 @@ body.export-capturing #wheelCard .note{display:none !important;}
     }
     renderTimelineYearTabs(TIMELINE_AI_SECTIONS);
     paintTimelineTabView();
+    updateTimelineTopicSlot();
     if (o.formatWarn && box) {
       appendTimelineFormatWarn(box, TIMELINE_AI_BUSY
         ? '※ 생성 중… 잠시만 기다려 주세요.'
@@ -2328,6 +2607,9 @@ body.export-capturing #wheelCard .note{display:none !important;}
   let TIMELINE_AI_FULL_TEXT = '';
   let TIMELINE_AI_SECTIONS = null;
   let TIMELINE_YEAR_TAB = 'overview';
+  let TIMELINE_TOPIC_TAB = '';
+  let TIMELINE_TOPIC_AI_CACHE = {};
+  let TIMELINE_TOPIC_AI_BUSY = false;
   let TIMELINE_SCAN_BUSY = false;
   let TIMELINE_FILTER = 'all';
   let TIMELINE_PREV_PROG_HOUSE = null;
@@ -2424,6 +2706,17 @@ body.export-capturing #wheelCard .note{display:none !important;}
     love: { feature: 'astro_love', btn: 'btnAiLove', label: '연애·관계' },
     career: { feature: 'astro_career', btn: 'btnAiCareer', label: '일·커리어' },
     study: { feature: 'astro_study', btn: 'btnAiStudy', label: '학업·시험·성장' },
+  };
+  const TIMELINE_TOPIC_ORDER = ['money', 'work', 'relationship', 'health', 'study', 'housing', 'children', 'contract'];
+  const TIMELINE_TOPIC_META = {
+    money: { label: '금전', icon: '💰', matchDomains: ['money'] },
+    work: { label: '일·사업', icon: '💼', matchDomains: ['work', 'business'] },
+    relationship: { label: '관계', icon: '💕', matchDomains: ['relationship'] },
+    health: { label: '건강', icon: '🏥', matchDomains: ['health'] },
+    study: { label: '학업·시험', icon: '📚', matchDomains: ['study'], studyOnly: true },
+    housing: { label: '주거', icon: '🏠', matchDomains: ['housing'] },
+    children: { label: '자녀', icon: '👶', matchDomains: ['children'] },
+    contract: { label: '계약', icon: '📝', contractOnly: true },
   };
   let DEEP_AI_CACHE = { money: '', love: '', career: '', study: '' };
   let DEEP_AI_TOPIC = '';
@@ -3848,6 +4141,8 @@ body.export-capturing #wheelCard .note{display:none !important;}
     LAST_TIMELINE = null;
     TIMELINE_AI_GEN += 1;
     TIMELINE_AI_CACHE = { key: '', text: '' };
+    TIMELINE_TOPIC_AI_CACHE = {};
+    TIMELINE_TOPIC_TAB = '';
     LAST_AI_RAW_PAYLOAD = null;
     const box = $('timelineResult');
     if (box && !box.querySelector('.astro-lock') && !isAiRawTimelineV1Enabled()) {
@@ -3865,6 +4160,13 @@ body.export-capturing #wheelCard .note{display:none !important;}
         ? '차트를 계산한 뒤 「AI로 5년 흐름 풀기」를 눌러 주세요.'
         : '위에서 타임라인을 계산한 뒤 AI를 이용해 주세요.';
       delete aiBox.dataset.aiRaw;
+    }
+    hideTimelineTopicResult();
+    const topicBox = $('timelineTopicResult');
+    if (topicBox) {
+      topicBox.className = 'ai-result empty';
+      topicBox.textContent = '';
+      delete topicBox.dataset.aiRaw;
     }
     refreshTimelineAiUi();
   }
@@ -5188,6 +5490,116 @@ body.export-capturing #wheelCard .note{display:none !important;}
     }
   }
 
+  async function callTimelineTopicAi(topicArg) {
+    const topicId = String(topicArg || TIMELINE_TOPIC_TAB || '').trim();
+    const meta = TIMELINE_TOPIC_META[topicId];
+    if (!meta) return;
+    if (isLongFlowMaintenance()) {
+      showStatus('5년 주제별 상세는 업데이트 중이에요. 잠시 후 다시 이용해 주세요.', 'err');
+      return;
+    }
+    if (!ASTRO_AI_API_ENABLED) {
+      showStatus('AI 해석을 일시적으로 사용할 수 없어요.', 'err');
+      return;
+    }
+    if (!isAiRawTimelineV1Enabled()) {
+      showStatus('주제별 상세는 현재 5년 AI 모드에서만 이용할 수 있어요.', 'err');
+      return;
+    }
+    if (!hasAiAccess()) {
+      showStatus('AI 해석은 Basic 이상 요금제 또는 1회 체험 크레딧이 필요해요.', 'err');
+      return;
+    }
+    if (!TIMELINE_AI_SECTIONS || !TIMELINE_AI_FULL_TEXT) {
+      showStatus('먼저 「AI로 5년 흐름 풀기」를 실행해 주세요.', 'err');
+      return;
+    }
+    TIMELINE_TOPIC_TAB = topicId;
+    updateTimelineTopicSlot();
+    const box = $('timelineTopicResult');
+    const hint = $('timelineAiHint');
+    if (!AI_SERVER_OK || !box) {
+      showStatus('AI 서버가 준비되지 않았어요. 잠시 후 다시 시도해 주세요.', 'err');
+      return;
+    }
+    const cacheKeyRaw = timelineTopicCacheKey(topicId);
+    const cached = TIMELINE_TOPIC_AI_CACHE[topicId];
+    if (cached && cached.key === cacheKeyRaw && cached.text && validateTimelineTopicDetailFormat(cached.text)) {
+      box.hidden = false;
+      setAiResultBox(box, prepareTimelineTopicDetailMarkdown(topicId, cached.text), { open: true, timelineMode: true });
+      scrollTimelineTopicIntoView(box);
+      syncTimelineTopicButtons();
+      return;
+    }
+    TIMELINE_TOPIC_AI_BUSY = true;
+    syncTimelineTopicButtons();
+    box.hidden = false;
+    setAiResultBox(box, '');
+    scrollTimelineTopicIntoView(box);
+    if (hint) hint.classList.add('is-loading');
+    let prompt;
+    try {
+      prompt = buildAiRawTimelineTopicPrompt(topicId);
+    } catch (e) {
+      console.error(e);
+      TIMELINE_TOPIC_AI_BUSY = false;
+      syncTimelineTopicButtons();
+      setAiResultBox(box, '주제 데이터를 준비하지 못했어요.', { plain: true });
+      if (hint) hint.classList.remove('is-loading');
+      return;
+    }
+    const cacheKey = window.PaljaAiQuota
+      ? PaljaAiQuota.hashKey(cacheKeyRaw + ':' + prompt.slice(0, 400))
+      : cacheKeyRaw;
+    let streamed = '';
+    try {
+      const { text, quota, data } = await PaljaAiQuota.callAiStream({
+        feature: 'astro_timeline_topic',
+        cacheKey,
+        max_tokens: 6144,
+        messages: [{ role: 'user', content: prompt }],
+        onDelta: (chunk) => {
+          streamed += chunk;
+          setAiResultBox(box, prepareTimelineTopicDetailMarkdown(topicId, streamed), { open: true, timelineMode: true });
+        },
+      });
+      let out = prepareTimelineTopicDetailMarkdown(topicId, text || streamed || '해석을 생성하지 못했어요.');
+      const topicOk = validateTimelineTopicDetailFormat(out);
+      if (data?.stop_reason === 'max_tokens') out += '\n\n(※ 해석이 길어 일부가 잘렸을 수 있어요.)';
+      if (topicOk) {
+        TIMELINE_TOPIC_AI_CACHE[topicId] = { key: cacheKeyRaw, text: out };
+      } else {
+        delete TIMELINE_TOPIC_AI_CACHE[topicId];
+      }
+      clearTimelineFormatWarn(box);
+      setAiResultBox(box, out, { open: true, timelineMode: true });
+      if (!topicOk) {
+        appendTimelineFormatWarn(box, meta.label + ' 주제 상세 형식이 맞지 않아요. 같은 버튼을 다시 눌러 주세요.');
+        showStatus(meta.label + ' 주제 상세가 아직 완성되지 않았어요.', 'err');
+      }
+      if (quota) {
+        LAST_AI_QUOTA = quota;
+        PaljaAiQuota.applyQuotaBadge($('aiQuotaBadge'), quota);
+      }
+    } catch (e) {
+      console.error(e);
+      if (e.code === 'quota_exceeded' || e.status === 429) {
+        setAiResultBox(box, '이번 달 AI 크레딧을 모두 사용했어요.', { plain: true });
+      } else if (!streamed) {
+        setAiResultBox(box, 'AI 해석을 일시적으로 사용할 수 없어요.', { plain: true });
+      } else if (validateTimelineTopicDetailFormat(streamed)) {
+        TIMELINE_TOPIC_AI_CACHE[topicId] = { key: cacheKeyRaw, text: prepareTimelineTopicDetailMarkdown(topicId, streamed) };
+        setAiResultBox(box, TIMELINE_TOPIC_AI_CACHE[topicId].text, { open: true, timelineMode: true });
+      } else {
+        setAiResultBox(box, prepareTimelineTopicDetailMarkdown(topicId, streamed), { open: true, timelineMode: true });
+      }
+    } finally {
+      TIMELINE_TOPIC_AI_BUSY = false;
+      syncTimelineTopicButtons();
+      if (hint) hint.classList.remove('is-loading');
+    }
+  }
+
   function refreshYearAiUi() {
     const block = $('yearAiBlock');
     if (!block) return;
@@ -6047,6 +6459,15 @@ body.export-capturing #wheelCard .note{display:none !important;}
   $('btnTransit').addEventListener('click', computeTransit);
   $('btnTimeline').addEventListener('click', computeTimelineScan);
   $('btnTimelineAi').addEventListener('click', callTimelineAi);
+  const tlAiBlock = $('timelineAiBlock');
+  if (tlAiBlock) {
+    tlAiBlock.addEventListener('click', (e) => {
+      const btn = e.target.closest('.timeline-topic-btn');
+      if (!btn || btn.disabled) return;
+      const tid = btn.dataset.topic;
+      if (tid) callTimelineTopicAi(tid);
+    });
+  }
   $('btnLifeTimeline').addEventListener('click', computeLifeTimelineScan);
   $('btnLifeTimelineAi').addEventListener('click', callLifeTimelineAi);
 

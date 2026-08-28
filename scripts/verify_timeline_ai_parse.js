@@ -14,7 +14,11 @@ function extractTimelineFns() {
   const start = HTML.indexOf('function isTimelineAdviceBold');
   const end = HTML.indexOf('function paintTimelineTabView');
   if (start < 0 || end < 0) throw new Error('timeline fn block not found in astrology.html');
-  return HTML.slice(start, end);
+  const topicStart = HTML.indexOf('function validateTimelineTopicDetailFormat');
+  const fnBlock = topicStart >= 0 && topicStart < end
+    ? HTML.slice(start, topicStart) + HTML.slice(topicStart, end)
+    : HTML.slice(start, end);
+  return fnBlock;
 }
 
 function loadClientApi() {
@@ -30,7 +34,8 @@ function loadClientApi() {
       '\nthis.api = {' +
       'cleanTimelineAiText, parseTimelineAiSections, validateTimelineAiCustomerFormat,' +
       'getTimelineTabMarkdown, parseTimelineYearLineMeta, isTimelineYearPeriodStarLine,' +
-      'isTimelineScheduleItemLine, getTimelineWindowYears, stripTimelineAdviceBold};',
+      'isTimelineScheduleItemLine, getTimelineWindowYears, stripTimelineAdviceBold,' +
+      'validateTimelineTopicDetailFormat, prepareTimelineTopicDetailMarkdown};',
     ctx,
   );
   return ctx.api;
@@ -228,6 +233,13 @@ test('server clean: 조기 마무리 제거 + 일정 헤더', () => {
   const cleaned = serverClean(SAMPLE_BROKEN);
   assert(!/궁금한 부분이/.test(cleaned), 'server strips closing');
   assert(/^##\s+(?:일정|5년 중 언제)/m.test(cleaned), 'server injects schedule header');
+});
+
+test('topic detail: 3섹션 형식 검증', () => {
+  const sample =
+    '**금전 · 5년 흐름**\n\n## 이 주제 한 줄기\n\n돈 흐름이 변해요.\n\n## 시기별 흐름\n\n2027년 봄(3~5월)\n\n수입 쪽 변수가 커져요.\n\n## 활용·주의\n\n- **재물 정리** — 2027년 4월';
+  assert(api.validateTimelineTopicDetailFormat(sample), 'valid topic detail');
+  assert(!api.validateTimelineTopicDetailFormat('**금전**\n\n2027년에 변화'), 'no sections');
 });
 
 let passed = 0;
