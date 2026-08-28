@@ -1217,9 +1217,14 @@ body.export-capturing #wheelCard .note{display:none !important;}
     if (!notes.length) return s.trim();
     s = kept.join('\n').trim();
     const note = notes[0];
-    const ovRe = /^(##\s+(?:5년 전체 스토리|한눈에)[^\n]*\n)([\s\S]*?)(?=\n##\s+|$)/m;
-    if (ovRe.test(s)) {
-      s = s.replace(ovRe, (_, head, body) => head + body.trim() + (body.trim() ? '\n\n' : '') + note + '\n');
+    const ovHead = s.match(/^##\s+(?:5년 전체 스토리|한눈에)[^\n]*\n/m);
+    if (ovHead) {
+      const start = ovHead.index + ovHead[0].length;
+      const rest = s.slice(start);
+      const nextSec = rest.search(/\n##\s+/);
+      const body = (nextSec >= 0 ? rest.slice(0, nextSec) : rest).trim();
+      const tail = nextSec >= 0 ? rest.slice(nextSec) : '';
+      s = ovHead[0] + body + (body ? '\n\n' : '') + note + tail;
     } else if (/^##\s+(?:일정|5년 중 언제)/m.test(s)) {
       s = s.replace(
         /(^##\s+(?:일정|5년 중 언제)[^\n]*\n)([\s\S]*)$/m,
@@ -1260,12 +1265,45 @@ body.export-capturing #wheelCard .note{display:none !important;}
     }
   }
 
+  function extractTimelineSectionBody(cleaned, headRe, stopRes) {
+    const head = String(cleaned || '').match(headRe);
+    if (!head) return '';
+    const start = head.index + head[0].length;
+    const rest = String(cleaned || '').slice(start);
+    let end = rest.length;
+    (stopRes || []).forEach((stopRe) => {
+      const idx = rest.search(stopRe);
+      if (idx >= 0) end = Math.min(end, idx);
+    });
+    return rest.slice(0, end).trim();
+  }
+
+  function extractTimelineOverviewBody(cleaned) {
+    return extractTimelineSectionBody(
+      cleaned,
+      /^##\s+(?:5년 전체 스토리|한눈에)[^\n]*\n/m,
+      [/^\n##\s+/m],
+    );
+  }
+
+  function extractTimelineYearsBody(cleaned) {
+    return extractTimelineSectionBody(
+      cleaned,
+      /^##\s+(?:연도별 해석|연도별로)\s*\n/m,
+      [/^\n##\s+(?:일정|5년 중 언제)/m],
+    );
+  }
+
+  function extractTimelineScheduleBody(cleaned) {
+    return extractTimelineSectionBody(
+      cleaned,
+      /^##\s+(?:일정[^\n]*|5년 중 언제[^\n]*)\n/m,
+      [/^\n##\s+/m],
+    );
+  }
+
   function extractTimelineYearBlock(text) {
-    const cleaned = cleanTimelineAiText(text);
-    const m = cleaned.match(/^##\s+(?:연도별 해석|연도별로)\s*\n([\s\S]*?)(?=\n##\s+(?:일정|5년 중 언제)|$)/m);
-    if (m) return m[1].trim();
-    const partial = cleaned.match(/^##\s+(?:연도별 해석|연도별로)\s*\n([\s\S]*)$/m);
-    return partial ? partial[1].trim() : '';
+    return extractTimelineYearsBody(cleanTimelineAiText(text));
   }
 
   function timelineYearDisplayHead(y, sections) {
@@ -1327,7 +1365,7 @@ body.export-capturing #wheelCard .note{display:none !important;}
       }
       if (/^[-*]\s+/.test(t) && /(?:명왕|토성|목성|천왕|해왕|수성|금성|화성).*(?:사각|삼각|대립|합|peak|orb|개월|장기)/.test(t)) continue;
       if (/^[★◆]\s*판정\s*:/.test(t)) continue;
-      if (/^#{1,3}\s*#/.test(t)) continue;
+      if (/^#{1,3}\s+#\s/.test(t)) continue;
       if (metaLine(t)) {
         inMetaBlock = true;
         continue;
@@ -1424,14 +1462,14 @@ body.export-capturing #wheelCard .note{display:none !important;}
     if (!/^##\s+(?:5년 전체 스토리|한눈에)/m.test(s)) return false;
     if (!/^##\s+(?:연도별 해석|연도별로)/m.test(s)) return false;
     if (timelineNeedsScheduleSection() && !/^##\s+(?:일정|5년 중 언제)/m.test(s)) return false;
-    const ym = s.match(/^##\s+(?:연도별 해석|연도별로)\s*\n([\s\S]*?)(?=\n##\s+(?:일정|5년 중 언제)|$)/m);
-    if (!ym) return false;
-    if (!/(?:★|◆)?\s*\*{0,2}\d{4}\s*년/.test(ym[1])) return false;
+    const ymBody = extractTimelineYearsBody(s);
+    if (!ymBody) return false;
+    if (!/(?:★|◆)?\s*\*{0,2}\d{4}\s*년/.test(ymBody)) return false;
     const windowYears = getTimelineWindowYears();
     if (windowYears.length) {
       for (let i = 0; i < windowYears.length; i += 1) {
         const y = windowYears[i];
-        if (!new RegExp('(?:★|◆)?\\s*\\*{0,2}' + y + '\\s*년|' + y + '년은\\s').test(ym[1])) return false;
+        if (!new RegExp('(?:★|◆)?\\s*\\*{0,2}' + y + '\\s*년|' + y + '년은\\s').test(ymBody)) return false;
       }
     }
     return true;
@@ -1503,12 +1541,8 @@ body.export-capturing #wheelCard .note{display:none !important;}
 
   function salvageTimelineYears(cleaned, sections) {
     const before = Object.keys(sections.years || {}).length;
-    const yrs = cleaned.match(/^##\s+(?:연도별 해석|연도별로)\s*\n([\s\S]*?)(?=\n##\s+(?:일정|5년 중 언제)|$)/m);
-    if (yrs) parseYearsFromBlock(yrs[1], sections);
-    else {
-      const partial = cleaned.match(/^##\s+(?:연도별 해석|연도별로)\s*\n([\s\S]*)$/m);
-      if (partial) parseYearsFromBlock(partial[1], sections);
-    }
+    const block = extractTimelineYearsBody(cleaned);
+    if (block) parseYearsFromBlock(block, sections);
     const windowYears = isAiRawTimelineV1Enabled() ? getTimelineWindowYears() : [];
     if (windowYears.length && before === 0 && Object.keys(sections.years).length === 0) {
       const block = extractTimelineYearBlock(cleaned);
@@ -1535,14 +1569,11 @@ body.export-capturing #wheelCard .note{display:none !important;}
       /^##\s+(?:5년 전체 스토리|한눈에)/m.test(cleaned) ||
       /^##\s+(?:연도별 해석|연도별로)/m.test(cleaned);
     if (hasStructure) {
-      const ov = cleaned.match(/^##\s+(?:5년 전체 스토리|한눈에)\s*\n([\s\S]*?)(?=\n##\s+)/m);
-      sections.overview = ov ? ov[1].trim() : '';
-      const yrs = cleaned.match(/^##\s+(?:연도별 해석|연도별로)\s*\n([\s\S]*?)(?=\n##\s+(?:일정|5년 중 언제)|$)/m);
-      if (yrs) parseYearsFromBlock(yrs[1], sections);
-      const sch = cleaned.match(/^##\s+(?:일정[^\n]*|5년 중 언제[^\n]*)\n([\s\S]*?)(?=\n##\s+|$)/m);
-      sections.schedule = sch ? sch[1].trim() : '';
+      sections.overview = extractTimelineOverviewBody(cleaned);
+      parseYearsFromBlock(extractTimelineYearsBody(cleaned), sections);
+      sections.schedule = extractTimelineScheduleBody(cleaned);
       salvageTimelineYears(cleaned, sections);
-      if (!sections.overview.trim() && ov === null) {
+      if (!sections.overview.trim()) {
         const om = cleaned.match(/^##\s+(?:5년 전체 스토리|한눈에)\s*\n([\s\S]*)/m);
         if (om) {
           let body = om[1];
