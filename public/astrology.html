@@ -406,7 +406,9 @@ table.astro-table td .glyph{font-size:16px;margin-right:4px;color:var(--accent);
 .ai-result--timeline .ai-md-h2:first-child{margin-top:0;}
 .ai-result--timeline .ai-md-h3{font-size:14px;margin:12px 0 4px;}
 .ai-result--timeline .ai-md-timing-label,.ai-result--timeline .ai-md-year-head{font-size:16px;font-weight:700;color:var(--warm-brown);margin:18px 0 8px;line-height:1.45;}
-.ai-result--timeline .ai-md-timing-label:first-child,.ai-result--timeline .ai-md-year-head:first-child{margin-top:4px;}
+.ai-result--timeline .ai-md-year-head{font-size:17px;margin:22px 0 10px;padding-top:4px;border-top:1px dashed rgba(139,111,71,.2);}
+.ai-result--timeline .ai-md-year-head:first-child,.ai-result--timeline .ai-md-timing-label:first-child{margin-top:4px;}
+.ai-result--timeline .ai-md-year-head:first-child{border-top:none;padding-top:0;}
 .ai-result--timeline .ai-md-timing-label strong{background:none;color:inherit;padding:0;}
 .ai-result--timeline .ai-md-h2 strong,.ai-result--timeline .ai-md-h3 strong{background:none;color:inherit;padding:0;}
 .ai-result--timeline .ai-md-p{margin:0 0 10px;}
@@ -1065,7 +1067,36 @@ body.export-capturing #wheelCard .note{display:none !important;}
     if (m) return { year: m[1], major: false, key: false, head: t };
     m = t.match(/^(\d{4})\s*년(?:\s*\([^)]+\))?\s*$/);
     if (m) return { year: m[1], major: false, key: false, head: t };
+    m = t.match(/^(\d{4})\s*년은\s+/);
+    if (m) return { year: m[1], major: false, key: false, head: '**' + m[1] + '년**' };
+    m = t.match(/^(\d{4})\s*년\s+\d{1,2}월/);
+    if (m) return { year: m[1], major: false, key: false, head: '**' + m[1] + '년**' };
+    m = t.match(/^(\d{4})\s*년\s*[—–-]\s*/);
+    if (m) return { year: m[1], major: false, key: false, head: t };
     return null;
+  }
+
+  function isTimelineYearPeriodLine(line) {
+    const t = String(line || '').trim();
+    return /^(\d{4})\s*년\s*(?:봄|여름|가을|겨울|상반|하반|초|연말)/.test(t) ||
+      /^(\d{4})\s*년\s*\d+\s*~\s*/.test(t);
+  }
+
+  function extractTimelineYearBlock(text) {
+    const cleaned = sanitizeAiTimelineCustomerText(text);
+    const m = cleaned.match(/^##\s+(?:연도별 해석|연도별로)\s*\n([\s\S]*?)(?=\n##\s+(?:일정|5년 중 언제)|$)/m);
+    if (m) return m[1].trim();
+    const partial = cleaned.match(/^##\s+(?:연도별 해석|연도별로)\s*\n([\s\S]*)$/m);
+    return partial ? partial[1].trim() : '';
+  }
+
+  function timelineYearDisplayHead(y, sections) {
+    const head = sections && sections.yearsHead && sections.yearsHead[y];
+    if (head && String(head).trim()) return String(head).trim();
+    const meta = sections && sections.yearsMeta && sections.yearsMeta[y];
+    if (meta && meta.major) return '★ **' + y + '년**';
+    if (meta && meta.key) return '◆ **' + y + '년**';
+    return '**' + y + '년**';
   }
 
   function sanitizeAiTimelineCustomerText(text) {
@@ -1138,6 +1169,8 @@ body.export-capturing #wheelCard .note{display:none !important;}
             sections.yearsMeta[y] = { major: ym.major, key: ym.key, aliasOf: currentYear };
           }
         });
+        const syntheticHead = '**' + ym.year + '년**';
+        if (line.trim() !== ym.head && line.trim() !== syntheticHead) buf.push(line);
         continue;
       }
       if (currentYear) buf.push(line);
@@ -1146,13 +1179,17 @@ body.export-capturing #wheelCard .note{display:none !important;}
   }
 
   function salvageTimelineYears(cleaned, sections) {
-    if (Object.keys(sections.years || {}).length > 0) return;
     const before = Object.keys(sections.years || {}).length;
     const yrs = cleaned.match(/^##\s+(?:연도별 해석|연도별로)\s*\n([\s\S]*?)(?=\n##\s+(?:일정|5년 중 언제)|$)/m);
     if (yrs) parseYearsFromBlock(yrs[1], sections);
     else {
       const partial = cleaned.match(/^##\s+(?:연도별 해석|연도별로)\s*\n([\s\S]*)$/m);
       if (partial) parseYearsFromBlock(partial[1], sections);
+    }
+    const windowYears = isAiRawTimelineV1Enabled() ? getTimelineWindowYears() : [];
+    if (windowYears.length && before === 0 && Object.keys(sections.years).length === 0) {
+      const block = extractTimelineYearBlock(cleaned);
+      if (block) parseYearsFromBlock(block, sections);
     }
     if (Object.keys(sections.years).length > before && sections.overview) {
       const ovLines = String(sections.overview || '').split('\n');
@@ -1285,14 +1322,32 @@ body.export-capturing #wheelCard .note{display:none !important;}
     if (String(sections.overview || '').trim()) {
       parts.push('## 5년 전체 스토리\n\n' + sections.overview.trim());
     }
-    const years = Object.keys(sections.years || {}).sort();
-    if (years.length) {
-      parts.push('## 연도별 해석');
-      years.forEach((y) => {
-        const head = sections.yearsHead[y] || ('**' + y + '년**');
-        parts.push('\n' + head + '\n\n' + String(sections.years[y] || '').trim());
+    const yearList = getTimelineYearList(sections);
+    const useYears = yearList.length ? yearList : Object.keys(sections.years || {}).sort();
+    let yearBlock = '';
+    if (useYears.length) {
+      const chunks = ['## 연도별 해석'];
+      useYears.forEach((y) => {
+        const primary = (sections.yearAliases && sections.yearAliases[y]) || y;
+        let body = String(sections.years[primary] || sections.years[y] || '').trim();
+        const head = timelineYearDisplayHead(primary, sections);
+        if (!body) return;
+        const headPlain = head.replace(/^[★◆]\s*/, '').trim();
+        if (body === head || body === headPlain || body.startsWith(head + '\n')) {
+          chunks.push('\n' + body);
+        } else if (/^(★|◆|\*\*\d{4}\s*년)/.test(body.split('\n')[0].trim())) {
+          chunks.push('\n' + body);
+        } else {
+          chunks.push('\n' + head + '\n\n' + body);
+        }
       });
+      if (chunks.length > 1) yearBlock = chunks.join('\n\n');
     }
+    if (!yearBlock) {
+      const rawYrs = extractTimelineYearBlock(TIMELINE_AI_FULL_TEXT || '');
+      if (rawYrs) yearBlock = '## 연도별 해석\n\n' + rawYrs;
+    }
+    if (yearBlock) parts.push(yearBlock);
     if (String(sections.schedule || '').trim()) {
       parts.push('## 5년 중 언제 움직이면 좋을까?\n\n' + sections.schedule.trim());
     }
@@ -1495,7 +1550,9 @@ body.export-capturing #wheelCard .note{display:none !important;}
       return;
     }
     renderTimelineYearTabs(TIMELINE_AI_SECTIONS);
-    const md = o.formatWarn ? TIMELINE_AI_FULL_TEXT : getTimelineFullMarkdown(TIMELINE_AI_SECTIONS);
+    const md = parsedOk
+      ? (getTimelineFullMarkdown(TIMELINE_AI_SECTIONS) || TIMELINE_AI_FULL_TEXT)
+      : TIMELINE_AI_FULL_TEXT;
     setAiResultBox(box, md, Object.assign({}, o, {
       timelineMode: true,
       accordion: false,
@@ -1530,8 +1587,18 @@ body.export-capturing #wheelCard .note{display:none !important;}
       timingMajor = false;
     };
     const isYearStarLine = (line) => /^(?:★|◆)\s*\*{0,2}\d{4}\s*년/.test(String(line || '').trim());
+    const isYearHeadLine = (line) => {
+      const t = String(line || '').trim();
+      if (isTimelineYearPeriodLine(t)) return false;
+      if (isYearStarLine(t)) return true;
+      if (/^\*{2}\d{4}\s*년[^*]*\*{2}\s*$/.test(t)) return true;
+      if (/^(\d{4})\s*년(?:\s*\([^)]+\))?\s*$/.test(t)) return true;
+      if (/^(★|◆)\s*\*{0,2}\d{4}\s*년[^*]*\*{0,2}\s*$/.test(t)) return true;
+      if (/^(\d{4})\s*년\s*[—–-]\s*\S/.test(t) && t.length <= 72) return true;
+      return false;
+    };
     const isTimingLabel = (line) =>
-      isYearStarLine(line) || /^(?:★|◆)\s+\*\*.+\*\*\s*$/.test(line.trim());
+      isYearHeadLine(line) || /^(?:★|◆)\s+\*\*.+\*\*\s*$/.test(line.trim());
     const isPeriodOnlyLine = (line) => {
       const t = String(line || '').trim();
       if (/^\*\*[^*]+\*\*\s*$/.test(t)) {
@@ -1610,7 +1677,7 @@ body.export-capturing #wheelCard .note{display:none !important;}
         flushTiming();
         let anchorId = '';
         let dataYears = '';
-        if (timelineMode && isYearStarLine(line)) {
+        if (timelineMode && isYearHeadLine(line)) {
           const ym = parseTimelineYearLineMeta(line.trim());
           const allY = extractYearsFromHeading(line);
           if (ym && ym.year) anchorId = ' id="tl-year-' + ym.year + '"';
@@ -1618,7 +1685,7 @@ body.export-capturing #wheelCard .note{display:none !important;}
         }
         out.push(
           '<h4 class="ai-md-h3 ai-md-timing-label' +
-          (isYearStarLine(line) ? ' ai-md-year-head' : '') +
+          (isYearHeadLine(line) && !isTimelineYearPeriodLine(line) ? ' ai-md-year-head' : '') +
           '"' + anchorId + dataYears + '>' +
           inlineMd(escapeCounselorHtml(line.trim())) +
           '</h4>',
