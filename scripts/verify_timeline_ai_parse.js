@@ -235,6 +235,19 @@ test('server clean: 조기 마무리 제거 + 일정 헤더', () => {
   assert(/^##\s+(?:일정|5년 중 언제)/m.test(cleaned), 'server injects schedule header');
 });
 
+test('★ 2031년 (1~7월) — 부제 는 연도 헤더', () => {
+  assert(!api.isTimelineYearPeriodStarLine('★ 2031년 (1~7월) — 역할·방향이 깊게'), 'not period star');
+  const m = api.parseTimelineYearLineMeta('★ 2031년 (1~7월) — 역할·방향');
+  assert(m && m.year === '2031' && m.major, '2031 major head');
+});
+
+test('clean: utilizeRecommendations JSON 키 제거', () => {
+  const raw = '## 활용·주의\n\n**utilizeRecommendations.items에** 항목이 없어, 이 5년엔 금전 쪽으로 적극 권장할 만한 실행 시기가 뚜렷하지 않아요.';
+  const cleaned = api.cleanTimelineAiText(raw);
+  assert(!/utilizeRecommendations/i.test(cleaned), 'no json key');
+  assert(/뚜렷하지/.test(cleaned), 'natural sentence kept');
+});
+
 test('topic detail: 3섹션 형식 검증', () => {
   const sample =
     '**금전 · 5년 흐름**\n\n## 이 주제 한 줄기\n\n돈 흐름이 변해요.\n\n## 시기별 흐름\n\n2027년 봄(3~5월)\n\n수입 쪽 변수가 커져요.\n\n## 활용·주의\n\n- **재물 정리** — 2027년 4월';
