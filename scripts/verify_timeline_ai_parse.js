@@ -22,23 +22,42 @@ function extractTimelineFns() {
 }
 
 function loadClientApi() {
+  const topicMetaJs = `
+    var TIMELINE_TOPIC_ORDER = ['money', 'work', 'relationship', 'health', 'study', 'housing', 'children'];
+    var TIMELINE_TOPIC_META = {
+      money: { label: '금전', icon: '💰', matchDomains: ['money'] },
+      work: { label: '일·커리어', icon: '💼', matchDomains: ['work', 'business'] },
+      relationship: { label: '연애·관계', icon: '💕', matchDomains: ['relationship'] },
+      health: { label: '건강', icon: '🏥', matchDomains: ['health'] },
+      study: { label: '학업·시험', icon: '📚', matchDomains: ['study'] },
+      housing: { label: '이사·주거', icon: '🏠', matchDomains: ['housing'] },
+      children: { label: '자녀·가정', icon: '👶', matchDomains: ['children'], familyTopic: true },
+    };
+    function utilizeActivityHints(ep) { return []; }
+    function chartStampForTransitAi() { return 'test-chart'; }
+    function timelineCacheKey() { return 'raw_v46:timeline:test-chart:2026-08:2031-07'; }
+  `;
   const ctx = {
-    LAST_AI_RAW_PAYLOAD: { utilizeRecommendations: { items: [{ kind: 'peakUtilize' }] } },
+    LAST_AI_RAW_PAYLOAD: null,
     LAST_TIMELINE: { fromYm: '2026-08', toYm: '2031-07' },
     TIMELINE_AI_FULL_TEXT: '',
+    TIMELINE_TOPIC_AI_CACHE: {},
     isAiRawTimelineV1Enabled: () => true,
   };
   vm.createContext(ctx);
   vm.runInContext(
-    extractTimelineFns() +
+    topicMetaJs + extractTimelineFns() +
       '\nthis.api = {' +
       'cleanTimelineAiText, parseTimelineAiSections, validateTimelineAiCustomerFormat,' +
       'getTimelineTabMarkdown, parseTimelineYearLineMeta, isTimelineYearPeriodStarLine,' +
       'isTimelineScheduleItemLine, getTimelineWindowYears, stripTimelineAdviceBold,' +
-      'validateTimelineTopicDetailFormat, prepareTimelineTopicDetailMarkdown};',
+      'validateTimelineTopicDetailFormat, prepareTimelineTopicDetailMarkdown,' +
+      'filterPayloadForTimelineTopic, timelineEpisodeMatchesTopic,' +
+      'isTimelineTopicSignalWeak, timelineTopicSignalLevel, timelineTopicLabel,' +
+      'timelineTopicBtnLabel, TIMELINE_TOPIC_ORDER, TIMELINE_TOPIC_META};',
     ctx,
   );
-  return ctx.api;
+  return { api: ctx.api, ctx };
 }
 
 function loadServerClean() {
@@ -121,8 +140,21 @@ function assert(cond, msg) {
   if (!cond) throw new Error(msg || 'assertion failed');
 }
 
-const api = loadClientApi();
+const { api, ctx: clientCtx } = loadClientApi();
 const serverClean = loadServerClean();
+
+function topicDetailSample(label) {
+  return (
+    '**' + label + ' · 5년 흐름**\n\n## 이 주제 한 줄기\n\n한 줄기.\n\n## 시기별 흐름\n\n2027년 봄(3~5월)\n\n본문.\n\n## 활용·주의\n\n조심할 때.'
+  );
+}
+
+function loadTeenPayload() {
+  const p = path.join(ROOT, 'scripts/_build_ai_raw_TEEN_out.json');
+  if (!fs.existsSync(p)) return null;
+  const raw = JSON.parse(fs.readFileSync(p, 'utf8'));
+  return raw.payload || raw;
+}
 
 test('◆ 2026년 10~12월 은 연도 헤더가 아님', () => {
   assert(api.isTimelineYearPeriodStarLine('◆ 2026년 10~12월'), 'period star');
@@ -253,6 +285,66 @@ test('topic detail: 3섹션 형식 검증', () => {
     '**금전 · 5년 흐름**\n\n## 이 주제 한 줄기\n\n돈 흐름이 변해요.\n\n## 시기별 흐름\n\n2027년 봄(3~5월)\n\n수입 쪽 변수가 커져요.\n\n## 활용·주의\n\n- **재물 정리** — 2027년 4월';
   assert(api.validateTimelineTopicDetailFormat(sample), 'valid topic detail');
   assert(!api.validateTimelineTopicDetailFormat('**금전**\n\n2027년에 변화'), 'no sections');
+});
+
+test('topic: 7개 주제 메타·라벨 일치', () => {
+  assert(api.TIMELINE_TOPIC_ORDER.length === 7, '7 topics');
+  assert(api.TIMELINE_TOPIC_ORDER.indexOf('contract') < 0, 'no contract topic');
+  const labels = {
+    money: '금전', work: '일·커리어', relationship: '연애·관계',
+    health: '건강', study: '학업·시험', housing: '이사·주거', children: '자녀·가정',
+  };
+  api.TIMELINE_TOPIC_ORDER.forEach((id) => {
+    const meta = api.TIMELINE_TOPIC_META[id];
+    assert(meta && meta.label === labels[id], id + ' label');
+    assert(api.timelineTopicLabel(id).includes(meta.label), id + ' display label');
+  });
+});
+
+test('topic: 7개 주제 형식·헤더·크레딧 문구 없음', () => {
+  api.TIMELINE_TOPIC_ORDER.forEach((id) => {
+    const meta = api.TIMELINE_TOPIC_META[id];
+    const sample = topicDetailSample(meta.label);
+    assert(api.validateTimelineTopicDetailFormat(sample), id + ' format');
+    const md = api.prepareTimelineTopicDetailMarkdown(id, sample);
+    assert(md.startsWith('**' + meta.label + ' · 5년 흐름**'), id + ' head');
+    assert(!/##\s+5년 전체/.test(md), id + ' no full story');
+    const btn = api.timelineTopicBtnLabel(id);
+    assert(!/크레딧/.test(btn), id + ' btn no credit text');
+  });
+});
+
+test('topic: TEEN payload 필터·에피소드 매칭', () => {
+  const payload = loadTeenPayload();
+  assert(payload && payload.transitEpisodes && payload.transitEpisodes.length > 0, 'teen payload');
+  payload.domainScan = {
+    domains: {
+      money: { id: 'money', labelKo: '금전', level: 'weak', score: 1 },
+      work: { id: 'work', labelKo: '일·직업', level: 'strong', score: 5 },
+      business: { id: 'business', labelKo: '사업·창업', level: 'moderate', score: 3 },
+      relationship: { id: 'relationship', labelKo: '관계·연애', level: 'strong', score: 6 },
+      health: { id: 'health', labelKo: '건강', level: 'none', score: 0 },
+      study: { id: 'study', labelKo: '학업·시험·계약', level: 'weak', score: 1 },
+      children: { id: 'children', labelKo: '자녀', level: 'weak', score: 1 },
+      housing: { id: 'housing', labelKo: '주거·이사', level: 'moderate', score: 2 },
+    },
+  };
+  clientCtx.LAST_AI_RAW_PAYLOAD = payload;
+  api.TIMELINE_TOPIC_ORDER.forEach((id) => {
+    const filtered = api.filterPayloadForTimelineTopic(payload, id);
+    assert(filtered.topicFocus && filtered.topicFocus.id === id, id + ' focus');
+    assert(Array.isArray(filtered.transitEpisodes), id + ' eps array');
+    assert(filtered.domainScan && filtered.domainScan.domains, id + ' domainScan');
+  });
+  const venusEp = payload.transitEpisodes.find((ep) => String(ep.natal || '').toLowerCase() === 'venus');
+  if (venusEp) {
+    assert(api.timelineEpisodeMatchesTopic(venusEp, 'relationship', payload), 'venus→관계');
+    assert(api.timelineEpisodeMatchesTopic(venusEp, 'money', payload), 'venus→금전');
+    assert(!api.timelineEpisodeMatchesTopic(venusEp, 'health', payload), 'venus not health');
+  }
+  assert(!api.isTimelineTopicSignalWeak('work'), 'work strong');
+  assert(api.isTimelineTopicSignalWeak('health'), 'health none');
+  assert(api.isTimelineTopicSignalWeak('money'), 'money weak');
 });
 
 let passed = 0;

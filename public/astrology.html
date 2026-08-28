@@ -434,15 +434,17 @@ table.astro-table td .glyph{font-size:16px;margin-right:4px;color:var(--accent);
 .ai-result--timeline .ai-md-h2[id],.ai-result--timeline .ai-md-year-head[id]{scroll-margin-top:72px;}
 .ai-result--timeline #tl-schedule{margin-top:28px;padding-top:22px;border-top:2px solid #e0d4c0;}
 .ai-result--timeline .ai-md-schedule-gap{height:20px;}
-.timeline-topic-block{margin:12px 0 0;padding:10px 12px;border:1px solid #e0d4c0;border-radius:12px;background:rgba(255,248,235,.85);}
-.timeline-topic-intro{margin:0 0 8px;font-size:12px;line-height:1.55;color:var(--deep-brown);}
+.timeline-topic-block{margin:16px 0 0;padding:14px 14px 12px;border:1px solid #e0d4c0;border-radius:12px;background:rgba(255,248,235,.85);}
+.timeline-topic-title{font-family:var(--font-serif);font-size:18px;font-weight:600;color:var(--deep-brown);margin:0 0 6px;line-height:1.35;}
+.timeline-topic-desc{margin:0 0 10px;font-size:13px;line-height:1.6;color:var(--muted);}
+.timeline-topic-intro{margin:0;}
 .timeline-topic-slot{display:flex;flex-wrap:wrap;gap:6px;}
 .timeline-topic-slot[hidden],.timeline-topic-block[hidden]{display:none!important;}
 .timeline-topic-btn{font-size:11.5px!important;padding:5px 10px!important;line-height:1.3!important;}
 .timeline-topic-btn.is-on{background:var(--accent);border-color:var(--accent);color:#fff;}
 .timeline-topic-btn.is-weak{border-style:dashed;border-color:#c4a574;color:#7a6a58;background:#faf6ef;}
 .timeline-topic-btn.is-weak.is-on{background:#c4a574;border-color:#c4a574;color:#fff;}
-.timeline-topic-weak-note{display:block;margin-top:6px;font-size:11px;color:#8a7355;line-height:1.45;}
+.timeline-topic-weak-note{display:block;margin-top:8px;font-size:12px;color:#8a7355;line-height:1.5;}
 #timelineTopicResult{margin-top:10px;}
 #timelineTopicResult[hidden]{display:none!important;}
 .timeline-format-warn{margin:10px 0 0;padding:8px 10px;border-radius:8px;background:rgba(184,90,74,.08);border:1px solid rgba(184,90,74,.25);font-size:12px;line-height:1.5;color:#8b3a2a;}
@@ -843,7 +845,10 @@ body.export-capturing #wheelCard .note{display:none !important;}
           <div id="timelineYearTabs" class="timeline-year-tabs"></div>
         </div>
         <div id="timelineTopicBlock" class="timeline-topic-block" hidden>
-          <p class="timeline-topic-intro" id="timelineTopicIntro">🔍 <strong>주제별 상세</strong> — 5년 흐름에서 이 주제만 시기·활용·주의를 봅니다.</p>
+          <div class="timeline-topic-intro" id="timelineTopicIntro">
+            <h3 class="timeline-topic-title">🔍 주제별 상세</h3>
+            <p class="timeline-topic-desc">5년 흐름에서 그 주제만 시기·활용·주의를 봅니다. <span class="ai-quota-cost">(주제당 1크레딧)</span></p>
+          </div>
           <div id="timelineTopicSlot" class="timeline-topic-slot"></div>
           <div id="timelineTopicResult" class="ai-result empty" hidden></div>
         </div>
@@ -1975,7 +1980,7 @@ body.export-capturing #wheelCard .note{display:none !important;}
     if (cached && cached.key === key && cached.text && validateTimelineTopicDetailFormat(cached.text)) {
       return base + ' ✓';
     }
-    return base + ' (1크레딧)';
+    return base;
   }
 
   function updateTimelineTopicSlot() {
@@ -1983,6 +1988,7 @@ body.export-capturing #wheelCard .note{display:none !important;}
     const slot = $('timelineTopicSlot');
     const intro = $('timelineTopicIntro');
     if (!slot || !block) return;
+    ensureRawTimelinePayload();
     syncTimelineTopicBlockVisibility();
     if (block.hidden) {
       slot.innerHTML = '';
@@ -1995,15 +2001,16 @@ body.export-capturing #wheelCard .note{display:none !important;}
         .map((id) => TIMELINE_TOPIC_META[id] && TIMELINE_TOPIC_META[id].label)
         .filter(Boolean);
       let introHtml =
-        '🔍 <strong>주제별 상세</strong> — 5년 흐름에서 그 주제만 시기·활용·주의를 봅니다. <span class="ai-quota-cost">(주제당 1크레딧)</span>';
+        '<h3 class="timeline-topic-title">🔍 주제별 상세</h3>' +
+        '<p class="timeline-topic-desc">5년 흐름에서 그 주제만 시기·활용·주의를 봅니다. <span class="ai-quota-cost">(주제당 1크레딧)</span></p>';
       if (weakLabels.length) {
-        introHtml += '<span class="timeline-topic-weak-note">⚠️ 신호가 약한 주제(' +
-          weakLabels.join('·') + ')는 크레딧 대비 도움이 적을 수 있어요. 그래도 보시려면 눌러 주세요.</span>';
+        introHtml += '<p class="timeline-topic-weak-note">⚠️ 신호가 약한 주제(' +
+          weakLabels.join('·') + ')는 크레딧 대비 도움이 적을 수 있어요. 그래도 보시려면 눌러 주세요.</p>';
       }
       intro.innerHTML = introHtml;
     }
     const busy = TIMELINE_TOPIC_AI_BUSY || TIMELINE_AI_BUSY || TIMELINE_SCAN_BUSY;
-    const canUse = !busy && AI_SERVER_OK && !isLongFlowMaintenance() && hasAiAccess();
+    const canUse = !busy && AI_SERVER_OK && !isLongFlowMaintenance() && !isTimelineAiApiBlocked() && hasAiAccess();
     slot.innerHTML = '';
     TIMELINE_TOPIC_ORDER.forEach((topicId) => {
       const meta = TIMELINE_TOPIC_META[topicId];
@@ -2818,6 +2825,14 @@ body.export-capturing #wheelCard .note{display:none !important;}
   const ASTRO_LONGFLOW_MAINTENANCE_BLOCK = false;
   function isLongFlowMaintenance() {
     return !!ASTRO_LONGFLOW_MAINTENANCE_BLOCK;
+  }
+  /** 개발 중 API 비용 방지: ?noTimelineAi=1 또는 localStorage palja:noTimelineAiApi=1 */
+  function isTimelineAiApiBlocked() {
+    try {
+      if (/[?&]noTimelineAi=1(?:&|$)/.test(location.search)) return true;
+      if (localStorage.getItem('palja:noTimelineAiApi') === '1') return true;
+    } catch (e) { /* */ }
+    return false;
   }
   function applyLongFlowMaintenanceBadge() {
     document.querySelectorAll('.card-maint-badge').forEach((el) => {
@@ -4331,7 +4346,12 @@ body.export-capturing #wheelCard .note{display:none !important;}
     block.hidden = false;
     const btn = $('btnTimelineAi');
     const box = $('timelineAiResult');
-    if (btn) btn.disabled = isLongFlowMaintenance() || !AI_SERVER_OK || TIMELINE_AI_BUSY || TIMELINE_SCAN_BUSY;
+    if (btn) {
+      btn.disabled = isLongFlowMaintenance() || isTimelineAiApiBlocked() || !AI_SERVER_OK || TIMELINE_AI_BUSY || TIMELINE_SCAN_BUSY;
+      if (isTimelineAiApiBlocked()) {
+        btn.title = '개발 모드: 5년 AI API 호출이 꺼져 있어요 (?noTimelineAi=1). 저장된 결과만 볼 수 있습니다.';
+      }
+    }
     if (TIMELINE_AI_SECTIONS) {
       renderTimelineYearTabs(TIMELINE_AI_SECTIONS);
     }
@@ -5417,6 +5437,10 @@ body.export-capturing #wheelCard .note{display:none !important;}
 
   async function callTimelineAi() {
     if (!ASTRO_AI_API_ENABLED) return;
+    if (isTimelineAiApiBlocked()) {
+      showStatus('개발 모드: 5년 AI API 호출이 꺼져 있어요. URL에서 ?noTimelineAi=1 을 빼거나, localStorage palja:noTimelineAiApi 를 지우세요.', 'err');
+      return;
+    }
     if (isLongFlowMaintenance()) {
       showStatus('5년 흐름 AI는 업데이트 중이에요. 잠시 후 다시 이용해 주세요.', 'err');
       return;
@@ -5578,6 +5602,10 @@ body.export-capturing #wheelCard .note{display:none !important;}
     const topicId = String(topicArg || TIMELINE_TOPIC_TAB || '').trim();
     const meta = TIMELINE_TOPIC_META[topicId];
     if (!meta) return;
+    if (isTimelineAiApiBlocked()) {
+      showStatus('개발 모드: 주제별 AI API 호출이 꺼져 있어요.', 'err');
+      return;
+    }
     if (isLongFlowMaintenance()) {
       showStatus('5년 주제별 상세는 업데이트 중이에요. 잠시 후 다시 이용해 주세요.', 'err');
       return;
