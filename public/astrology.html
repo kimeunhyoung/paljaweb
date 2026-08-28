@@ -968,7 +968,7 @@ body.export-capturing #wheelCard .note{display:none !important;}
   function prepareTimelineYearDetailMarkdown(year, text) {
     const y = String(year || '').trim();
     if (!/^\d{4}$/.test(y)) return String(text || '');
-    let s = stripTimelineAdviceBold(sanitizeAiTimelineCustomerText(text));
+    let s = stripTimelineAdviceBold(cleanTimelineAiText(text));
     const lines = s.split('\n');
     const kept = [];
     for (let i = 0; i < lines.length; i++) {
@@ -1138,7 +1138,7 @@ body.export-capturing #wheelCard .note{display:none !important;}
   }
 
   function extractTimelineYearBlock(text) {
-    const cleaned = sanitizeAiTimelineCustomerText(text);
+    const cleaned = cleanTimelineAiText(text);
     const m = cleaned.match(/^##\s+(?:연도별 해석|연도별로)\s*\n([\s\S]*?)(?=\n##\s+(?:일정|5년 중 언제)|$)/m);
     if (m) return m[1].trim();
     const partial = cleaned.match(/^##\s+(?:연도별 해석|연도별로)\s*\n([\s\S]*)$/m);
@@ -1154,8 +1154,26 @@ body.export-capturing #wheelCard .note{display:none !important;}
     return '**' + y + '년**';
   }
 
-  function sanitizeAiTimelineCustomerText(text) {
+  /** 5년 AI 본문 정리 — 내부스캔 제거·메타 이어쓰기 문장·중복 섹션·스트림 줄 중복 */
+  function cleanTimelineAiText(text, opts) {
+    const streaming = !!(opts && opts.streaming);
     let s = String(text || '').replace(/\r\n/g, '\n');
+    if (opts && opts.append) {
+      const b = s.trim();
+      const a = String(opts.append).trim();
+      if (!b) s = a;
+      else if (!a) s = b;
+      else if (a.startsWith(b)) s = a;
+      else if (b.endsWith(a)) s = b;
+      else {
+        let joined = null;
+        const maxO = Math.min(b.length, a.length, 1200);
+        for (let n = maxO; n > 24; n -= 1) {
+          if (b.slice(-n) === a.slice(0, n)) { joined = b + a.slice(n); break; }
+        }
+        s = joined || (b + '\n\n' + a);
+      }
+    }
     const startIdx = s.search(/^##\s+(?:5년 전체 스토리|한눈에)/m);
     if (startIdx > 0) {
       const pre = s.slice(0, startIdx);
@@ -1163,9 +1181,15 @@ body.export-capturing #wheelCard .note{display:none !important;}
         s = s.slice(startIdx);
       }
     }
+    const metaLine = (t) =>
+      /^(?:\*\*\(?\s*(?:끊긴\s*위치|출력\s*확인)|앞서\s*출력|실제로\s*(?:완성|빠진|모두)|세\s*섹션|혹시\s*특정|원하시는\s*방향|말씀해\s*주시면|이어서\s*써|끊겨\s*보인|추가로\s*작성|-\s*`##)/.test(t) ||
+      /완성된\s*상태|반복\s*출력/.test(t) ||
+      (/✓/.test(t) && /##/.test(t));
+    const norm = (x) => String(x || '').replace(/\*\*/g, '').replace(/\s+/g, ' ').trim();
     const lines = s.split('\n');
     const out = [];
     let skipBlock = false;
+    let inMetaBlock = false;
     for (let i = 0; i < lines.length; i++) {
       const line = lines[i];
       const t = line.trim();
@@ -1180,69 +1204,7 @@ body.export-capturing #wheelCard .note{display:none !important;}
       if (/^[-*]\s+/.test(t) && /(?:명왕|토성|목성|천왕|해왕|수성|금성|화성).*(?:사각|삼각|대립|합|peak|orb|개월|장기)/.test(t)) continue;
       if (/^[★◆]\s*판정\s*:/.test(t)) continue;
       if (/^#{1,3}\s*#/.test(t)) continue;
-      out.push(line);
-    }
-    return out.join('\n').trim();
-  }
-
-  function isTimelineContinueMetaLine(line) {
-    const t = String(line || '').trim();
-    if (!t) return false;
-    if (/^\*\*\(?\s*(?:끊긴\s*위치|출력\s*확인)/.test(t)) return true;
-    if (/^앞서\s*출력/.test(t)) return true;
-    if (/^실제로\s*(?:완성|빠진|모두)/.test(t)) return true;
-    if (/^세\s*섹션/.test(t)) return true;
-    if (/^혹시\s*특정/.test(t)) return true;
-    if (/^원하시는\s*방향/.test(t)) return true;
-    if (/^말씀해\s*주시면/.test(t)) return true;
-    if (/^이어서\s*써/.test(t)) return true;
-    if (/^끊겨\s*보인/.test(t)) return true;
-    if (/^추가로\s*작성할/.test(t)) return true;
-    if (/^-\s*`##/.test(t)) return true;
-    if (/✓/.test(t) && /##/.test(t)) return true;
-    if (/완성된\s*상태/.test(t)) return true;
-    if (/반복\s*출력/.test(t)) return true;
-    return false;
-  }
-
-  function truncateTimelineAtDuplicateSections(text) {
-    const s = String(text || '');
-    const schedRe = /^##\s+(?:일정|5년 중 언제)/gm;
-    let firstIdx = -1;
-    let m;
-    let count = 0;
-    while ((m = schedRe.exec(s)) !== null) {
-      count += 1;
-      if (count === 1) firstIdx = m.index;
-      else if (count >= 2) return s.slice(0, m.index).trim();
-    }
-    const metaCut = s.search(/\n(?:앞서\s*출력|실제로\s*(?:완성|빠진)|\*\*\(?\s*끊긴\s*위치|혹시\s*특정)/);
-    if (metaCut >= 0) {
-      const before = s.slice(0, metaCut).trim();
-      if (validateTimelineAiCustomerFormat(before)) return before;
-    }
-    if (firstIdx >= 0) {
-      const afterFirst = s.slice(firstIdx);
-      const schedBody = afterFirst.match(/^##\s+(?:일정|5년 중 언제)[\s\S]*?(?=\n##\s+(?:5년 전체|연도별|일정|5년 중)|$)/);
-      if (schedBody) {
-        const end = firstIdx + schedBody[0].length;
-        const tail = s.slice(end);
-        if (/^##\s+(?:5년 전체|연도별|일정|5년 중)/m.test(tail)) return s.slice(0, end).trim();
-      }
-    }
-    return s;
-  }
-
-  function finalizeTimelineCustomerText(text, opts) {
-    const streaming = !!(opts && opts.streaming);
-    let s = sanitizeAiTimelineCustomerText(text);
-    const lines = s.split('\n');
-    const out = [];
-    let inMetaBlock = false;
-    for (let i = 0; i < lines.length; i++) {
-      const line = lines[i];
-      const t = line.trim();
-      if (isTimelineContinueMetaLine(line)) {
+      if (metaLine(t)) {
         inMetaBlock = true;
         continue;
       }
@@ -1250,19 +1212,38 @@ body.export-capturing #wheelCard .note{display:none !important;}
         if (/^##\s+/.test(t)) inMetaBlock = false;
         else continue;
       }
-      if (/^---+$/.test(t) && out.length && isTimelineContinueMetaLine(lines[i + 1] || '')) continue;
+      if (/^---+$/.test(t) && metaLine(String(lines[i + 1] || '').trim())) continue;
+      if (streaming && t) {
+        let skip = false;
+        for (let j = out.length - 1; j >= 0; j--) {
+          const prev = out[j].trim();
+          if (!prev) continue;
+          if (prev === t && /^(?:★|◆|\*\*\d{4})/.test(t)) { skip = true; break; }
+          const pn = norm(prev);
+          const cn = norm(t);
+          if (pn && cn.startsWith(pn) && cn !== pn) { out[j] = line; skip = true; break; }
+          break;
+        }
+        if (skip) continue;
+      }
       out.push(line);
     }
     s = out.join('\n').trim();
-    if (!streaming) s = truncateTimelineAtDuplicateSections(s);
+    if (!streaming) {
+      const metaCut = s.search(/\n(?:앞서\s*출력|실제로\s*(?:완성|빠진)|\*\*\(?\s*끊긴\s*위치|혹시\s*특정)/);
+      if (metaCut >= 0) {
+        const before = s.slice(0, metaCut).trim();
+        if (validateTimelineAiCustomerFormat(before)) s = before;
+      }
+      const schedRe = /^##\s+(?:일정|5년 중 언제)/gm;
+      let seen = 0;
+      let m;
+      while ((m = schedRe.exec(s)) !== null) {
+        seen += 1;
+        if (seen >= 2) { s = s.slice(0, m.index).trim(); break; }
+      }
+    }
     return s.trim();
-  }
-
-  function closePartialMarkdownForRender(text) {
-    let s = String(text || '');
-    const boldCount = (s.match(/\*\*/g) || []).length;
-    if (boldCount % 2 === 1) s += '**';
-    return s;
   }
 
   function timelineNeedsScheduleSection() {
@@ -1290,74 +1271,6 @@ body.export-capturing #wheelCard .note{display:none !important;}
         if (!new RegExp('(?:★|◆)?\\s*\\*{0,2}' + y + '\\s*년').test(ym[1])) return false;
       }
     }
-    return true;
-  }
-
-  function mergeTimelineContinuation(base, addition) {
-    const b = String(base || '').trim();
-    const a = String(addition || '').trim();
-    if (!b) return a;
-    if (!a) return b;
-    if (a.startsWith(b)) return a;
-    if (b.endsWith(a)) return b;
-    const bLines = b.split('\n');
-    const aLines = a.split('\n');
-    for (let overlap = Math.min(bLines.length, aLines.length, 40); overlap > 0; overlap--) {
-      const tail = bLines.slice(-overlap).join('\n');
-      const head = aLines.slice(0, overlap).join('\n');
-      if (tail && tail === head) {
-        return b + '\n' + aLines.slice(overlap).join('\n');
-      }
-    }
-    const maxO = Math.min(b.length, a.length, 1200);
-    for (let n = maxO; n > 24; n--) {
-      if (b.slice(-n) === a.slice(0, n)) return b + a.slice(n);
-    }
-    return b + '\n\n' + a;
-  }
-
-  function dedupeTimelineStreamText(text) {
-    const lines = String(text || '').split('\n');
-    const norm = (s) => String(s || '').replace(/\*\*/g, '').replace(/\s+/g, ' ').trim();
-    const out = [];
-    for (let i = 0; i < lines.length; i++) {
-      const line = lines[i];
-      const t = line.trim();
-      if (!t) {
-        out.push(line);
-        continue;
-      }
-      let skip = false;
-      for (let j = out.length - 1; j >= 0; j--) {
-        const prev = out[j].trim();
-        if (!prev) continue;
-        if (prev === t && /^(?:★|◆|\*\*\d{4})/.test(t)) {
-          skip = true;
-          break;
-        }
-        const pn = norm(prev);
-        const cn = norm(t);
-        if (pn && cn.startsWith(pn) && cn !== pn) {
-          out[j] = line;
-          skip = true;
-          break;
-        }
-        break;
-      }
-      if (!skip) out.push(line);
-    }
-    return out.join('\n');
-  }
-
-  function isTimelineAiResponseIncomplete(result, text) {
-    const finalized = finalizeTimelineCustomerText(text);
-    if (validateTimelineAiCustomerFormat(finalized)) return false;
-    if (!result) return true;
-    const data = result.data || {};
-    const palja = data._palja || {};
-    if (palja.incomplete) return true;
-    if (result.streamIncomplete) return true;
-    if (data.stop_reason === 'max_tokens' || data.stop_reason === 'stream_cut') return true;
     return true;
   }
 
@@ -1420,7 +1333,7 @@ body.export-capturing #wheelCard .note{display:none !important;}
   }
 
   function parseTimelineAiSections(text) {
-    const cleaned = finalizeTimelineCustomerText(text);
+    const cleaned = cleanTimelineAiText(text);
     const sections = {
       overview: '',
       years: {},
@@ -1753,7 +1666,7 @@ body.export-capturing #wheelCard .note{display:none !important;}
 
   function setTimelineAiResult(text, opts) {
     const box = $('timelineAiResult');
-    TIMELINE_AI_FULL_TEXT = finalizeTimelineCustomerText(
+    TIMELINE_AI_FULL_TEXT = cleanTimelineAiText(
       String(text || '').trim(),
       { streaming: !!TIMELINE_AI_BUSY },
     );
@@ -1975,14 +1888,13 @@ body.export-capturing #wheelCard .note{display:none !important;}
     }
     if (timelineMode && TIMELINE_AI_BUSY) {
       box.dataset.aiRaw = raw;
-      const cleaned = finalizeTimelineCustomerText(raw, { streaming: true });
-      const mdSource = stripTimelineAdviceBold(cleaned);
-      const safe = closePartialMarkdownForRender(mdSource);
-      box.innerHTML = aiMarkdownToHtml(safe, { timelineMode });
+      let mdSource = stripTimelineAdviceBold(cleanTimelineAiText(raw, { streaming: true }));
+      if ((mdSource.match(/\*\*/g) || []).length % 2 === 1) mdSource += '**';
+      box.innerHTML = aiMarkdownToHtml(mdSource, { timelineMode });
       return;
     }
     box.dataset.aiRaw = raw;
-    const cleaned = finalizeTimelineCustomerText(raw);
+    const cleaned = cleanTimelineAiText(raw);
     const mdSource = timelineMode ? stripTimelineAdviceBold(cleaned) : cleaned;
     const html = aiMarkdownToHtml(mdSource, { timelineMode });
     const useAcc = !(opts && opts.accordion === false) &&
@@ -5081,8 +4993,7 @@ body.export-capturing #wheelCard .note{display:none !important;}
         try {
           const onDelta = (chunk) => {
             attemptDelta += chunk;
-            accumulated = continueFrom ? (continueFrom + attemptDelta) : attemptDelta;
-            accumulated = dedupeTimelineStreamText(accumulated);
+            accumulated = cleanTimelineAiText(continueFrom + attemptDelta, { streaming: true });
             setTimelineAiResult(accumulated, { open: true, timelineMode: true, accordion: false, resetTab: false });
           };
           const result = await requestTimelineAiOnce(
@@ -5095,13 +5006,9 @@ body.export-capturing #wheelCard .note{display:none !important;}
           quota = result.quota;
           lastData = result.data;
           const piece = result.text || attemptDelta || '';
-          accumulated = continueFrom ? mergeTimelineContinuation(continueFrom, piece) : piece;
-          accumulated = finalizeTimelineCustomerText(dedupeTimelineStreamText(accumulated));
+          accumulated = cleanTimelineAiText(continueFrom, { append: piece });
           truncated = lastData && (lastData.stop_reason === 'max_tokens' || lastData.stop_reason === 'stream_cut');
           formatOk = validateTimelineAiCustomerFormat(accumulated);
-          const incomplete = isTimelineAiResponseIncomplete(result, accumulated);
-          if (formatOk && !incomplete) break;
-          if (lastData && lastData._palja && lastData._palja.cached && formatOk) break;
           if (formatOk) break;
         } catch (attemptErr) {
           console.error('[timelineAi attempt]', attempt + 1, attemptErr);
@@ -5109,7 +5016,7 @@ body.export-capturing #wheelCard .note{display:none !important;}
           if (attempt >= maxAttempts - 1) throw attemptErr;
         }
       }
-      const out = finalizeTimelineCustomerText(dedupeTimelineStreamText(accumulated || '해석을 생성하지 못했어요.'));
+      const out = cleanTimelineAiText(accumulated || '해석을 생성하지 못했어요.');
       truncated = lastData && (lastData.stop_reason === 'max_tokens' || lastData.stop_reason === 'stream_cut');
       formatOk = validateTimelineAiCustomerFormat(out);
       if (truncated && formatOk) truncated = false;
