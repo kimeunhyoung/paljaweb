@@ -11,7 +11,7 @@ const ROOT = path.join(__dirname, '..');
 const HTML = fs.readFileSync(path.join(ROOT, 'public/astrology.html'), 'utf8');
 
 function extractTimelineFns() {
-  const start = HTML.indexOf('function extractYearsFromHeading');
+  const start = HTML.indexOf('function isTimelineAdviceBold');
   const end = HTML.indexOf('function paintTimelineTabView');
   if (start < 0 || end < 0) throw new Error('timeline fn block not found in astrology.html');
   return HTML.slice(start, end);
@@ -30,8 +30,7 @@ function loadClientApi() {
       '\nthis.api = {' +
       'cleanTimelineAiText, parseTimelineAiSections, validateTimelineAiCustomerFormat,' +
       'getTimelineTabMarkdown, parseTimelineYearLineMeta, isTimelineYearPeriodStarLine,' +
-      'isTimelineScheduleItemLine, getTimelineWindowYears' +
-      '};',
+      'isTimelineScheduleItemLine, getTimelineWindowYears, stripTimelineAdviceBold};',
     ctx,
   );
   return ctx.api;
@@ -178,12 +177,46 @@ test('parse: 일정이 2031 연도 본문에 붙지 않음', () => {
   assert(String(sec.schedule || '').includes('가까운 관계'), 'schedule has items');
 });
 
+test('tabs: 5년 스토리 탭에 연도·언제 움직일까 포함', () => {
+  const cleaned = api.cleanTimelineAiText(SAMPLE_BROKEN);
+  const sec = api.parseTimelineAiSections(cleaned);
+  const ovMd = api.getTimelineTabMarkdown(sec, 'overview');
+  assert(/5년 전체 스토리/.test(ovMd), 'overview section');
+  assert(/2026년/.test(ovMd) && /2031년/.test(ovMd), 'years in full story tab');
+  assert(/언제 움직이면/.test(ovMd), 'schedule in full story tab');
+  assert(/가까운 관계/.test(ovMd), 'schedule items in full story tab');
+});
+
 test('tabs: 언제 움직일까 탭에 2031 본문 없음', () => {
   const cleaned = api.cleanTimelineAiText(SAMPLE_BROKEN);
   const sec = api.parseTimelineAiSections(cleaned);
   const schedMd = api.getTimelineTabMarkdown(sec, 'schedule');
   assert(/언제/.test(schedMd), 'schedule tab title');
   assert(!/2031년 여름/.test(schedMd), 'no year narrative in schedule tab');
+});
+
+test('schedule: 4개 항목 모두 **활동** 굵게·strip 후 유지', () => {
+  const mixed =
+    '## 5년 전체 스토리\n\n요약.\n\n## 연도별 해석\n\n**2026년**\n\n본문.\n\n## 5년 중 언제 움직이면 좋을까?\n\n' +
+    '가까운 관계의 거리·방식을 바꾸거나 새로 정리하는 일 2026년 8월~2030년 2월 — 설명.\n\n' +
+    '**겉모습·태도·사람들이 보는 이미지를 바꾸는 일** 2027년 4월~2028년 6월 — 설명.\n\n' +
+    '발표·제안·면접처럼 밖에 드러나는 역할·책임 관련 일 2027년 8월 — 설명.\n\n' +
+    '**감정·일상을 안정적으로 다시 잡는 일** 2029년 11월~2030년 3월 — 설명.';
+  const cleaned = api.cleanTimelineAiText(mixed);
+  const sec = api.parseTimelineAiSections(cleaned);
+  const schedLines = String(sec.schedule || '').split('\n').filter((l) => /\d{4}년/.test(l));
+  assert(schedLines.length === 4, 'four schedule lines');
+  schedLines.forEach((line) => {
+    assert(/^\*\*.+\*\*/.test(line.trim()), 'bold activity: ' + line.slice(0, 36));
+  });
+  const stripped = api.stripTimelineAdviceBold(
+    '## 5년 중 언제\n\n' + sec.schedule,
+  );
+  schedLines.forEach((line) => {
+    const act = line.trim().match(/^\*\*(.+?)\*\*/);
+    assert(act, 'still bold after strip: ' + line.slice(0, 36));
+    assert(stripped.includes('**' + act[1] + '**'), 'activity bold preserved in strip');
+  });
 });
 
 test('format: 윈도우 2026~2031 검증 통과', () => {
