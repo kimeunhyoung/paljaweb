@@ -958,7 +958,50 @@ body.export-capturing #wheelCard .note{display:none !important;}
       /^\*\*(봄|여름|가을|겨울|상반|하반|연말|연초)\*\*(~\s*(?:봄|여름|가을|겨울)(?:\([^)]*\))?)/,
       '**$1$2**',
     );
+    t = t.replace(
+      /^\*\*(봄|여름|가을|겨울|상반|하반|연말|연초)\*\*(\([^)]+\))/,
+      '**$1$2**',
+    );
     return t;
+  }
+
+  const TIMELINE_PERIOD_INLINE_RE =
+    /(?:봄|여름|가을|겨울|상반|하반|연말|연초)(?:~\s*(?:봄|여름|가을|겨울))?\([^)]+\)|(?:봄|여름|가을|겨울|상반|하반|연말|연초)\([^)]+\)|\d{1,2}(?:\s*~\s*\d{1,2})?\s*월(?:\s*전후)?/;
+
+  function injectTimelinePeriodPlaceholders(rawLine) {
+    let t = String(rawLine || '');
+    t = t.replace(
+      new RegExp('\\*\\*(' + TIMELINE_PERIOD_INLINE_RE.source + ')\\*\\*', 'g'),
+      '@@TLP:$1@@',
+    );
+    return t.split(/(@@TLP:[^@]+@@)/).map((part) => {
+      if (part.indexOf('@@TLP:') === 0) return part;
+      return part.replace(new RegExp(TIMELINE_PERIOD_INLINE_RE.source, 'g'), (m) => '@@TLP:' + m + '@@');
+    }).join('');
+  }
+
+  function renderTimelinePeriodPlaceholders(escaped) {
+    return String(escaped || '').replace(/@@TLP:([^@]+)@@/g, '<span class="ai-md-period-lead">$1</span>');
+  }
+
+  function inlineMdLine(rawLine, inlineOpts) {
+    const timelineMode = inlineOpts && inlineOpts.timelineMode;
+    let t = normalizeTimelinePeriodMarkdown(rawLine);
+    if (!timelineMode) {
+      return aiInlineMarkdown(escapeCounselorHtml(t), inlineOpts);
+    }
+    const pl = timelinePeriodLeadMatch(t);
+    if (pl) {
+      return (
+        '<span class="ai-md-period-lead">' +
+        escapeCounselorHtml(pl.lead) +
+        '</span>' +
+        aiInlineMarkdown(renderTimelinePeriodPlaceholders(escapeCounselorHtml(injectTimelinePeriodPlaceholders(pl.rest))), inlineOpts)
+      );
+    }
+    t = injectTimelinePeriodPlaceholders(t);
+    const esc = escapeCounselorHtml(t);
+    return aiInlineMarkdown(renderTimelinePeriodPlaceholders(esc), inlineOpts);
   }
 
   function timelinePeriodLeadMatch(text) {
@@ -991,6 +1034,7 @@ body.export-capturing #wheelCard .note{display:none !important;}
     if (!t || t.length > 48) return false;
     if (/^\d{4}년/.test(t)) return true;
     if (/^(봄|여름|가을|겨울|상반|하반|연말|연초)/.test(t)) return true;
+    if (/^(?:봄|여름|가을|겨울)(?:~\s*(?:봄|여름|가을|겨울))?\([^)]+\)/.test(t)) return true;
     if (/^\d{1,2}\s*월/.test(t)) return true;
     if (/\d+\s*~\s*\d+/.test(t) && /월|봄|여름|가을|겨울/.test(t)) return true;
     if (/월/.test(t) && t.length <= 28) return true;
@@ -1349,7 +1393,7 @@ body.export-capturing #wheelCard .note{display:none !important;}
       /^##\s+/.test(line) && /분석가\s*노트|왜 이렇게 읽었나/.test(line);
     const isNotesStart = (line) => isAnalystTitle(line) || /^###\s+근거\s*[123]/.test(line);
     const inlineMd = (escaped) => inlineMdWithPeriodLead(escaped, { timelineMode });
-    const inlineMdLine = (rawLine) => inlineMd(escapeCounselorHtml(normalizeTimelinePeriodMarkdown(rawLine)));
+    const inlineMdLineBound = (rawLine) => inlineMdLine(rawLine, { timelineMode });
     const peekNonEmpty = (from) => {
       for (let j = from; j < lines.length; j++) {
         if (lines[j].trim()) return lines[j];
@@ -1419,7 +1463,7 @@ body.export-capturing #wheelCard .note{display:none !important;}
       } else {
         if (timingOpen) flushTiming();
         flushList();
-        out.push('<p class="ai-md-p">' + inlineMdLine(line) + '</p>');
+        out.push('<p class="ai-md-p">' + inlineMdLineBound(line) + '</p>');
       }
     }
     flushList();
@@ -3286,7 +3330,7 @@ body.export-capturing #wheelCard .note{display:none !important;}
   function timelineCacheKey() {
     const stamp = chartStampForTransitAi();
     if (!stamp) return '';
-    const prefix = isAiRawTimelineV1Enabled() ? 'raw_v33' : 'v7';
+    const prefix = isAiRawTimelineV1Enabled() ? 'raw_v34' : 'v7';
     if (LAST_TIMELINE && LAST_TIMELINE.fromYm && LAST_TIMELINE.toYm) {
       return `${prefix}:timeline:${stamp}:${LAST_TIMELINE.fromYm}:${LAST_TIMELINE.toYm}`;
     }
