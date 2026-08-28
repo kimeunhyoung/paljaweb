@@ -430,6 +430,9 @@ table.astro-table td .glyph{font-size:16px;margin-right:4px;color:var(--accent);
 .ai-result--timeline .ai-md-h2[id],.ai-result--timeline .ai-md-year-head[id]{scroll-margin-top:72px;}
 .timeline-year-detail-slot{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:10px;padding-top:8px;border-top:1px dashed #e0d4c0;}
 .timeline-year-detail-slot[hidden]{display:none!important;}
+.timeline-year-detail-panel{margin:10px 0 0;padding:12px 14px;border:1px solid #e0d4c0;border-radius:12px;background:rgba(255,252,246,.95);scroll-margin-top:72px;}
+.timeline-year-detail-panel[hidden]{display:none!important;}
+.timeline-year-detail-panel:not(.empty){margin-bottom:14px;}
 .timeline-year-inline-detail{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0 18px;padding:10px 0 4px;border-bottom:1px dashed rgba(224,212,192,.85);}
 .timeline-year-inline-detail .timeline-year-detail-btn{font-size:12px;padding:7px 12px;}
 .timeline-year-detail-row{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:16px 0 12px;padding-top:4px;}
@@ -830,9 +833,9 @@ body.export-capturing #wheelCard .note{display:none !important;}
           <p class="timeline-year-tab-label" id="timelineYearTabHint">📌 아래에서 <strong>5년 전체</strong>를 한 번에 읽을 수 있어요. 연도 탭을 누르면 바로 아래에서 그해 시기별 상세(2크레딧)를 볼 수 있어요.</p>
           <div id="timelineYearTabs" class="timeline-year-tabs"></div>
           <div id="timelineYearDetailSlot" class="timeline-year-detail-slot" hidden></div>
+          <div id="timelineYearDetailResult" class="ai-result timeline-year-detail-panel empty" hidden></div>
         </div>
         <div id="timelineAiResult" class="ai-result empty">차트를 계산한 뒤 「AI로 5년 흐름 풀기」를 눌러 주세요.</div>
-        <div id="timelineYearDetailResult" class="ai-result empty" hidden></div>
         <p class="ai-time-hint" id="timelineAiHint">완성될 때까지 1~2분 걸릴 수 있어요. 창을 닫지 말고 기다려 주세요.</p>
       </div>
     </div>
@@ -1402,6 +1405,22 @@ body.export-capturing #wheelCard .note{display:none !important;}
     return parts.join('\n\n').trim() || TIMELINE_AI_FULL_TEXT || '';
   }
 
+  function mountTimelineYearDetailPanel(nearBtn) {
+    const box = $('timelineYearDetailResult');
+    if (!box) return;
+    const inlineWrap = nearBtn && nearBtn.closest('.timeline-year-inline-detail');
+    const slot = $('timelineYearDetailSlot');
+    const anchor = inlineWrap || slot;
+    if (anchor && box.previousElementSibling !== anchor) {
+      anchor.insertAdjacentElement('afterend', box);
+    }
+  }
+
+  function scrollTimelineYearDetailIntoView(box) {
+    if (!box || box.hidden) return;
+    box.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+  }
+
   function updateTimelineYearDetailSlot(year) {
     const slot = $('timelineYearDetailSlot');
     if (!slot) return;
@@ -1530,14 +1549,17 @@ body.export-capturing #wheelCard .note{display:none !important;}
     const isYear = /^\d{4}$/.test(String(TIMELINE_YEAR_TAB || ''));
     if (tabHint && years.length > 0) {
       tabHint.innerHTML = isYear
-        ? '📌 <strong>' + TIMELINE_YEAR_TAB + '년</strong> — 아래 「시기별로 더 보기」로 한 단계 더 볼 수 있어요.'
+        ? '📌 <strong>' + TIMELINE_YEAR_TAB + '년</strong> — 「시기별로 더 보기」를 누르면 바로 아래에 그해 상세가 펼쳐져요.'
         : '📌 아래에서 <strong>5년 전체</strong>를 한 번에 읽을 수 있어요. 연도 탭·각 연도 아래 버튼으로 시기별 상세(2크레딧)를 볼 수 있어요.';
     }
     el.querySelectorAll('.timeline-year-tab').forEach((btn) => {
       btn.addEventListener('click', () => {
         TIMELINE_YEAR_TAB = btn.getAttribute('data-tab') || 'overview';
         renderTimelineYearTabs(TIMELINE_AI_SECTIONS);
-        if (yearDetailBox) yearDetailBox.hidden = true;
+        if (yearDetailBox) {
+          yearDetailBox.hidden = true;
+          mountTimelineYearDetailPanel(null);
+        }
         if (/^\d{4}$/.test(TIMELINE_YEAR_TAB)) {
           updateTimelineYearDetailSlot(TIMELINE_YEAR_TAB);
         } else {
@@ -4902,7 +4924,7 @@ body.export-capturing #wheelCard .note{display:none !important;}
     }
   }
 
-  async function callTimelineYearAi(yearArg) {
+  async function callTimelineYearAi(yearArg, nearBtn) {
     if (!ASTRO_AI_API_ENABLED) {
       showStatus('AI 해석을 일시적으로 사용할 수 없어요.', 'err');
       return;
@@ -4920,6 +4942,7 @@ body.export-capturing #wheelCard .note{display:none !important;}
     TIMELINE_YEAR_TAB = year;
     renderTimelineYearTabs(TIMELINE_AI_SECTIONS);
     updateTimelineYearDetailSlot(year);
+    mountTimelineYearDetailPanel(nearBtn);
     const box = $('timelineYearDetailResult');
     const hint = $('timelineAiHint');
     if (!AI_SERVER_OK || !box) {
@@ -4931,13 +4954,14 @@ body.export-capturing #wheelCard .note{display:none !important;}
     if (cached && cached.key === cacheKeyRaw && cached.text) {
       box.hidden = false;
       setAiResultBox(box, prepareTimelineYearDetailMarkdown(year, cached.text), { open: true, timelineMode: true });
-      box.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+      scrollTimelineYearDetailIntoView(box);
       return;
     }
     TIMELINE_YEAR_AI_BUSY = true;
     syncTimelineYearDetailButtons();
     box.hidden = false;
     setAiResultBox(box, '');
+    scrollTimelineYearDetailIntoView(box);
     if (hint) hint.classList.add('is-loading');
     let prompt;
     try {
@@ -5850,7 +5874,7 @@ body.export-capturing #wheelCard .note{display:none !important;}
       const btn = e.target.closest('.timeline-year-detail-btn');
       if (!btn || btn.disabled) return;
       const y = btn.dataset.year;
-      if (y) callTimelineYearAi(y);
+      if (y) callTimelineYearAi(y, btn);
     });
   }
   $('btnLifeTimeline').addEventListener('click', computeLifeTimelineScan);
