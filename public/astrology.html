@@ -415,8 +415,8 @@ table.astro-table td .glyph{font-size:16px;margin-right:4px;color:var(--accent);
 .timeline-year-tabs{display:flex;flex-wrap:wrap;gap:6px;margin:0;}
 .timeline-year-tab-bar{background:rgba(255,248,235,.95);border:1px solid #e0d4c0;border-radius:12px;padding:10px 12px;margin:14px 0 0;}
 .timeline-year-tab-label{margin:0 0 8px;font-size:12px;font-weight:700;color:var(--warm-brown);line-height:1.45;}
-.ai-result--timeline .ai-md-when{font-weight:700;color:var(--warm-brown);}
-.ai-result--timeline .ai-md-period-lead{font-weight:700;color:var(--warm-brown);font-size:14.5px;}
+.ai-result--timeline .ai-md-when{font-weight:700;color:var(--warm-brown);font-size:inherit;}
+.ai-result--timeline .ai-md-period-lead{font-weight:700;color:var(--warm-brown);font-size:inherit;}
 .timeline-ai-actions{margin-bottom:4px;}
 .timeline-year-tab{border:1px solid #e0d4c0;background:rgba(255,255,255,.65);color:var(--deep-brown);font-size:12px;font-weight:600;padding:6px 11px;border-radius:999px;cursor:pointer;line-height:1.3;}
 .timeline-year-tab.is-on{background:var(--accent);border-color:var(--accent);color:#fff;}
@@ -952,10 +952,23 @@ body.export-capturing #wheelCard .note{display:none !important;}
       .replace(/`([^`]+)`/g, '<code>$1</code>');
   }
 
+  function normalizeTimelinePeriodMarkdown(line) {
+    let t = String(line || '');
+    t = t.replace(
+      /^\*\*(봄|여름|가을|겨울|상반|하반|연말|연초)\*\*(~\s*(?:봄|여름|가을|겨울)(?:\([^)]*\))?)/,
+      '**$1$2**',
+    );
+    return t;
+  }
+
   function timelinePeriodLeadMatch(text) {
-    const t = String(text || '').trim();
+    let t = String(text || '').trim();
+    t = t.replace(
+      /^\*\*((?:봄|여름|가을|겨울|상반|하반|연말|연초)(?:~\s*(?:봄|여름|가을|겨울))?(?:\([^)]+\))?)\*\*/,
+      '$1',
+    );
     const m = t.match(
-      /^((?:봄|여름|가을|겨울|상반|하반|연말|연초)\s*\([^)]+\)|(?:봄|여름|가을|겨울|상반|하반|연말|연초)(?:\([^)]+\))?|\d{1,2}(?:\s*~\s*\d{1,2})?\s*월(?:\s*전후)?)/,
+      /^((?:봄|여름|가을|겨울|상반|하반|연말|연초)(?:~\s*(?:봄|여름|가을|겨울))?\s*\([^)]+\)|(?:봄|여름|가을|겨울|상반|하반|연말|연초)(?:\([^)]+\))?|\d{1,2}(?:\s*~\s*\d{1,2})?\s*월(?:\s*전후)?)/,
     );
     if (!m) return null;
     return { lead: m[1], rest: t.slice(m[0].length) };
@@ -1173,16 +1186,20 @@ body.export-capturing #wheelCard .note{display:none !important;}
     if (detailRow) detailRow.hidden = !hasYears;
     if (!dbtn) return;
     const busy = TIMELINE_YEAR_AI_BUSY || TIMELINE_AI_BUSY || TIMELINE_SCAN_BUSY;
-    const canUse = hasYears && !busy;
+    const canUse = hasYears && isYear && !busy && AI_SERVER_OK;
     dbtn.disabled = !canUse;
-    dbtn.classList.toggle('rt-btn--share', canUse && isYear);
+    dbtn.classList.toggle('rt-btn--share', canUse);
     dbtn.textContent = timelineYearDetailBtnLabel(isYear ? TIMELINE_YEAR_TAB : '');
     if (hintEl) {
       hintEl.textContent = !hasYears
         ? ''
-        : !isYear
-          ? '위 「연도 선택」에서 해(예: 2028년) 탭을 먼저 눌러 주세요.'
-          : '그해 흐름·묶인 시기·일정·활용을 한 단계 더. (매달 일일 단위 아님)';
+        : busy
+          ? '5년 해석을 생성하는 중이에요. 잠시만 기다려 주세요.'
+          : !AI_SERVER_OK
+            ? 'AI 서버 준비 중이에요. 잠시 후 다시 시도해 주세요.'
+            : !isYear
+              ? '위 「연도 선택」에서 해(예: 2028년) 탭을 먼저 눌러 주세요.'
+              : '그해 흐름·묶인 시기·일정·활용을 한 단계 더. (매달 일일 단위 아님)';
     }
   }
 
@@ -1319,12 +1336,12 @@ body.export-capturing #wheelCard .note{display:none !important;}
       if (/^\*\*[^*]+\*\*\s*$/.test(t)) {
         const inner = t.slice(2, -2).trim();
         return /^\d{4}년/.test(inner) ||
-          /^(봄|여름|가을|겨울|상반|하반|연말|연초)/.test(inner) ||
+          /^(봄|여름|가을|겨울|상반|하반|연말|연초)(?:~\s*(?:봄|여름|가을|겨울))?/.test(inner) ||
           /\d+\s*~\s*\d+월/.test(inner) ||
           /\d+월/.test(inner) ||
           /\d{4}\.\d/.test(inner);
       }
-      return /^(?:봄|여름|가을|겨울|상반|하반|연말|연초)\s*\([^)]+\)\s*$/.test(t);
+      return /^(?:봄|여름|가을|겨울|상반|하반|연말|연초)(?:~\s*(?:봄|여름|가을|겨울))?\s*\([^)]+\)\s*$/.test(t);
     };
     const isMajorTimingLabel = (line) => /^★\s+/.test(line.trim());
     const isKeyTimingLabel = (line) => /^◆\s+/.test(line.trim());
@@ -1332,6 +1349,7 @@ body.export-capturing #wheelCard .note{display:none !important;}
       /^##\s+/.test(line) && /분석가\s*노트|왜 이렇게 읽었나/.test(line);
     const isNotesStart = (line) => isAnalystTitle(line) || /^###\s+근거\s*[123]/.test(line);
     const inlineMd = (escaped) => inlineMdWithPeriodLead(escaped, { timelineMode });
+    const inlineMdLine = (rawLine) => inlineMd(escapeCounselorHtml(normalizeTimelinePeriodMarkdown(rawLine)));
     const peekNonEmpty = (from) => {
       for (let j = from; j < lines.length; j++) {
         if (lines[j].trim()) return lines[j];
@@ -1401,7 +1419,7 @@ body.export-capturing #wheelCard .note{display:none !important;}
       } else {
         if (timingOpen) flushTiming();
         flushList();
-        out.push('<p class="ai-md-p">' + inlineMd(escapeCounselorHtml(line)) + '</p>');
+        out.push('<p class="ai-md-p">' + inlineMdLine(line) + '</p>');
       }
     }
     flushList();
@@ -2227,6 +2245,9 @@ body.export-capturing #wheelCard .note{display:none !important;}
 
     syncTimelineSectionUi();
     refreshTimelineAiUi();
+    if (isAiRawTimelineV1Enabled() && LAST_HOROSCOPE && LAST_COORDS && !libError) {
+      computeTimelineScan().catch((e) => console.warn('[timelineScan]', e));
+    }
 
     result.classList.add('show');
     result.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -3265,7 +3286,7 @@ body.export-capturing #wheelCard .note{display:none !important;}
   function timelineCacheKey() {
     const stamp = chartStampForTransitAi();
     if (!stamp) return '';
-    const prefix = isAiRawTimelineV1Enabled() ? 'raw_v32' : 'v7';
+    const prefix = isAiRawTimelineV1Enabled() ? 'raw_v33' : 'v7';
     if (LAST_TIMELINE && LAST_TIMELINE.fromYm && LAST_TIMELINE.toYm) {
       return `${prefix}:timeline:${stamp}:${LAST_TIMELINE.fromYm}:${LAST_TIMELINE.toYm}`;
     }
@@ -3623,10 +3644,25 @@ body.export-capturing #wheelCard .note{display:none !important;}
     };
   }
 
+  function utilizeYmIndex(ym) {
+    const m = String(ym || '').match(/^(\d{4})-(\d{2})/);
+    if (!m) return NaN;
+    return Number(m[1]) * 12 + Number(m[2]);
+  }
+
+  function utilizeRangesOverlap(aStart, aEnd, bStart, bEnd) {
+    const a0 = utilizeYmIndex(aStart);
+    const a1 = utilizeYmIndex(aEnd || aStart);
+    const b0 = utilizeYmIndex(bStart);
+    const b1 = utilizeYmIndex(bEnd || bStart);
+    if (!Number.isFinite(a0) || !Number.isFinite(b0)) return false;
+    return a0 <= b1 && b0 <= a1;
+  }
+
   /** RAW payload + timeline judgment → AI schedule whitelist (stable on refresh). */
   function buildUtilizeRecommendations(rawPayload, timeline) {
     const HARM = { conjunction: 1, sextile: 1, trine: 1 };
-    const PEAK_ORB_MAX = 2.0;
+    const bucketOf = window.AiRawTimelineV1 && AiRawTimelineV1.bucketOf;
     const items = [];
     const seen = new Set();
 
@@ -3638,11 +3674,9 @@ body.export-capturing #wheelCard .note{display:none !important;}
     }
 
     const kt = timeline && timeline.keyTimings;
-    if (kt) {
-      const su = packUtilizeTimingRange(kt.stableUtilize, 'stableUtilize');
-      if (su) pushItem(su);
-      const uic = packUtilizeTimingRange(kt.utilizeInChange, 'utilizeInChange');
-      if (uic) pushItem(uic);
+    const stable = kt && kt.stableUtilize;
+    if (stable && stable.startYm) {
+      pushItem(packUtilizeTimingRange(stable, 'stableUtilize'));
     }
 
     const eps = (rawPayload && rawPayload.transitEpisodes) || [];
@@ -3650,7 +3684,15 @@ body.export-capturing #wheelCard .note{display:none !important;}
       const asp = String(ep.aspect || '').toLowerCase();
       if (!HARM[asp]) return;
       const orb = Number(ep.peakOrb);
-      if (!Number.isFinite(orb) || orb > PEAK_ORB_MAX) return;
+      if (!Number.isFinite(orb)) return;
+      if (bucketOf && bucketOf(ep) === 'C') return;
+      if (stable && stable.startYm) {
+        if (orb > 1.5) return;
+        if (!utilizeRangesOverlap(ep.startYm, ep.endYm, stable.startYm, stable.endYm)) return;
+      } else {
+        if (!bucketOf || bucketOf(ep) !== 'A') return;
+        if (orb > 1.2) return;
+      }
       pushItem({
         kind: 'peakUtilize',
         startYm: ep.startYm,
@@ -3665,6 +3707,17 @@ body.export-capturing #wheelCard .note{display:none !important;}
         activityHints: utilizeActivityHints(ep),
       });
     });
+
+    if (stable && stable.startYm && kt.utilizeInChange && kt.utilizeInChange.startYm) {
+      if (utilizeRangesOverlap(
+        kt.utilizeInChange.startYm,
+        kt.utilizeInChange.endYm,
+        stable.startYm,
+        stable.endYm,
+      )) {
+        pushItem(packUtilizeTimingRange(kt.utilizeInChange, 'utilizeInChange'));
+      }
+    }
 
     items.sort((a, b) => {
       const kindOrder = { stableUtilize: 0, peakUtilize: 1, utilizeInChange: 2 };
@@ -4213,8 +4266,16 @@ body.export-capturing #wheelCard .note{display:none !important;}
       setTimelineAiResult(t);
       return;
     }
+    if (isAiRawTimelineV1Enabled() && !LAST_TIMELINE && !TIMELINE_SCAN_BUSY) {
+      try {
+        await computeTimelineScan();
+      } catch (e) {
+        console.warn('[timelineScan before AI]', e);
+      }
+    }
     const prev = btn.textContent;
     TIMELINE_AI_BUSY = true;
+    refreshTimelineAiUi();
     btn.textContent = '⏳ 해석 중…';
     btn.disabled = true;
     setAiResultBox(box, '');
