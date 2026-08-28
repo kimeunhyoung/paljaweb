@@ -791,7 +791,7 @@ body.export-capturing #wheelCard .note{display:none !important;}
 
     <!-- 인생 운의 흐름 (만 20~80) -->
     <div class="card" id="lifeTimelineCard">
-      <div class="card-title">✦ 인생 운의 흐름 (만 20~80세)<span class="card-maint-badge">업데이트중 — 클릭하지 마세요</span></div>
+      <div class="card-title">✦ 인생 운의 흐름 (만 20~80세)</div>
       <p class="transit-intro">느린 행성 트랜짓으로 <strong>인생 전체의 큰 줄기·변곡점</strong>을 봅니다.
         기회·결실·변화·압력·활동을 서로 다른 종류로 구분하며, 확정 예언이 아닙니다.
         시기별 상세는 아래 <strong>앞으로 5년</strong> AI를 이용하세요.</p>
@@ -814,7 +814,7 @@ body.export-capturing #wheelCard .note{display:none !important;}
 
     <!-- 장기 운 타임라인 (5년) -->
     <div class="card" id="timelineCard">
-      <div class="card-title">✦ 장기 운의 흐름 · 상태 타임라인 (5년)<span class="card-maint-badge">업데이트중 — 클릭하지 마세요</span></div>
+      <div class="card-title">✦ 장기 운의 흐름 · 상태 타임라인 (5년)</div>
       <p class="transit-intro">목성·토성·천왕성·해왕성·명왕성 트랜짓으로 <strong>앞으로 5년</strong> 흐름을 봅니다.
         차트를 계산한 뒤 AI로 풀어 읽을 수 있어요. 출생 시간이 있으면 프로그레스 달(하우스 이동)도 반영돼요.</p>
       <div id="timelineDataBlock">
@@ -2309,7 +2309,7 @@ body.export-capturing #wheelCard .note{display:none !important;}
    */
   const AI_RAW_TIMELINE_V1_FORCE = true;
   /** 인생(20~80)·5년 타임라인 — 점검 중 고객 클릭 차단 */
-  const ASTRO_LONGFLOW_MAINTENANCE = true;
+  const ASTRO_LONGFLOW_MAINTENANCE = false;
   function isLongFlowMaintenance() {
     return !!ASTRO_LONGFLOW_MAINTENANCE;
   }
