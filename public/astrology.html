@@ -3104,16 +3104,6 @@ body.export-capturing #wheelCard .note{display:none !important;}
     return m[1] + '.' + Number(m[2]);
   }
 
-  function aspectNaturePlain(aspect) {
-    const a = String(aspect || '');
-    if (a === 'conjunction') return '겹치면서';
-    if (a === 'opposition') return '양쪽에서 당기면서';
-    if (a === 'square') return '현실적으로 맞추면서';
-    if (a === 'trine') return '순조롭게';
-    if (a === 'sextile') return '기회가 열리면서';
-    return '';
-  }
-
   function natalLifeTheme(nk) {
     const map = {
       venus: '친구·호감·취향',
@@ -3129,36 +3119,67 @@ body.export-capturing #wheelCard .note{display:none !important;}
     return map[String(nk || '').toLowerCase()] || '삶의 한 축';
   }
 
-  function transitFeelPlain(tk) {
-    const map = {
-      jupiter: '넓어지거나 기회가 오는',
-      saturn: '현실적으로 맞춰야 하는',
-      uranus: '갑자기 바뀔 수 있는',
-      neptune: '흐려졌다 다시 묻게 되는',
-      pluto: '깊게 바뀌는',
-    };
-    return map[String(tk || '').toLowerCase()] || '움직이는';
-  }
-
   function episodePlainSentence(ep) {
     const n = String(ep.natal || '').toLowerCase();
     const t = String(ep.transit || '').toLowerCase();
+    const a = String(ep.aspect || '').toLowerCase();
+
     if (n === 'asc' || n === 'dsc' || (ep.lineKo && ep.lineKo.indexOf('축') >= 0)) {
       if (t === 'saturn') return '내 모습이나 사람과의 거리를 현실에 맞게 다시 맞추게 될 수 있어요.';
       if (t === 'jupiter') return '내 모습·관계 쪽에 여유나 기회가 잠깐 열릴 수 있어요.';
       if (t === 'uranus') return '태도나 관계 거리가 갑자기 바뀔 수 있어요.';
+      if (t === 'neptune') return '내 모습·관계 감각이 흐려졌다 다시 정리하게 될 수 있어요.';
+      if (t === 'pluto') return '내 모습·관계 쪽이 깊게 바뀔 수 있어요.';
       return '나와 사람 사이의 거리·태도가 달라질 수 있어요.';
     }
     if (n === 'mc' || n === 'ic') {
       if (t === 'saturn') return '역할·방향·책임에 현실적인 압박이 올 수 있어요.';
       if (t === 'jupiter') return '역할·방향 쪽에 기회나 확장감이 올 수 있어요.';
+      if (t === 'uranus') return '역할·방향이 갑자기 바뀔 수 있어요.';
+      if (t === 'neptune') return '역할·방향 감각이 흐려졌다 다시 잡게 될 수 있어요.';
+      if (t === 'pluto') return '역할·책임 쪽이 깊게 바뀔 수 있어요.';
       return '역할·방향·책임 감각이 움직일 수 있어요.';
     }
+
     const theme = natalLifeTheme(n);
-    const feel = transitFeelPlain(t);
-    const how = aspectNaturePlain(ep.aspect);
-    if (how) return theme + ' 쪽이 ' + feel + ' ' + how + ' 달라질 수 있어요.';
-    return theme + ' 쪽이 ' + feel + ' 달라질 수 있어요.';
+    const key = t + ':' + a;
+    const phrases = {
+      'jupiter:trine': theme + ' 쪽이 순조롭게 넓어질 수 있어요.',
+      'jupiter:sextile': theme + ' 쪽에 좋은 기회가 열릴 수 있어요.',
+      'jupiter:square': theme + ' 쪽을 키우려다 현실적인 조율이 필요할 수 있어요.',
+      'jupiter:opposition': theme + ' 쪽에서 늘리고 줄이는 균형을 맞추게 될 수 있어요.',
+      'jupiter:conjunction': theme + ' 쪽에 기회가 한꺼번에 몰릴 수 있어요.',
+      'saturn:trine': theme + ' 쪽이 차분하게 정리될 수 있어요.',
+      'saturn:sextile': theme + ' 쪽을 차근차근 정리하게 될 수 있어요.',
+      'saturn:square': theme + ' 쪽을 현실에 맞게 다시 맞추게 될 수 있어요.',
+      'saturn:opposition': theme + ' 쪽에서 현실과의 균형을 맞추게 될 수 있어요.',
+      'saturn:conjunction': theme + ' 쪽에 책임이나 한계가 분명해질 수 있어요.',
+      'uranus:trine': theme + ' 쪽이 새롭게 바뀔 수 있어요.',
+      'uranus:sextile': theme + ' 쪽에 신선한 변화가 올 수 있어요.',
+      'uranus:square': theme + ' 쪽이 갑자기 흔들릴 수 있어요.',
+      'uranus:opposition': theme + ' 쪽에서 예상 밖 변화와 맞서 조율하게 될 수 있어요.',
+      'uranus:conjunction': theme + ' 쪽이 갑자기 바뀔 수 있어요.',
+      'neptune:trine': theme + ' 쪽이 부드럽게 넓어지거나 풀릴 수 있어요.',
+      'neptune:sextile': theme + ' 쪽에 감각적인 여유가 생길 수 있어요.',
+      'neptune:square': theme + ' 쪽이 애매해져 다시 정리하게 될 수 있어요.',
+      'neptune:opposition': theme + ' 쪽에서 현실과 이상 사이를 조율하게 될 수 있어요.',
+      'neptune:conjunction': theme + ' 쪽이 흐려졌다 다시 정리하게 될 수 있어요.',
+      'pluto:trine': theme + ' 쪽이 깊게 정리되며 바뀔 수 있어요.',
+      'pluto:sextile': theme + ' 쪽에 변화의 계기가 올 수 있어요.',
+      'pluto:square': theme + ' 쪽이 강하게 재편될 수 있어요.',
+      'pluto:opposition': theme + ' 쪽에서 깊은 변화와 맞서 조율하게 될 수 있어요.',
+      'pluto:conjunction': theme + ' 쪽이 깊게 바뀔 수 있어요.',
+    };
+    const defaults = {
+      jupiter: theme + ' 쪽에 여유나 기회가 열릴 수 있어요.',
+      saturn: theme + ' 쪽을 현실에 맞게 다시 맞추게 될 수 있어요.',
+      uranus: theme + ' 쪽이 갑자기 바뀔 수 있어요.',
+      neptune: theme + ' 쪽이 흐려졌다 다시 정리하게 될 수 있어요.',
+      pluto: theme + ' 쪽이 깊게 바뀔 수 있어요.',
+    };
+    if (phrases[key]) return phrases[key];
+    if (defaults[t]) return defaults[t];
+    return theme + ' 쪽에 변화가 올 수 있어요.';
   }
 
   function progMoonPlain(house) {
@@ -3210,7 +3231,7 @@ body.export-capturing #wheelCard .note{display:none !important;}
     const prog = Array.isArray(payload.progMoonEvents) ? payload.progMoonEvents : [];
     const progHtml = prog.length
       ? '<p class="timeline-raw-cal-prog"><strong>마음의 관심이 옮겨가는 때</strong> · ' +
-        prog.map((e) => formatYmShort(e.ym) + '쯤 ' + progMoonPlain(e.house)).join(' · ') +
+        prog.map((e) => formatYmShort(e.ym) + '쯤 ' + progMoonPlain(e.house) + ' 쪽으로').join(' → ') +
         '</p>'
       : '';
     el.innerHTML =
