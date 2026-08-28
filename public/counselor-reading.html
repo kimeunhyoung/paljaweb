@@ -718,18 +718,6 @@
             <div id="aiSpreadSuggest" class="ai-chip-row" role="group" aria-label="배열 추천"></div>
           </div>
         </div>
-        <div>
-          <label for="aiTopic">해석 주제</label>
-          <select id="aiTopic">
-            <option value="auto">자동 (질문으로 추정)</option>
-            <option value="love">연애 · 사랑</option>
-            <option value="work">일 · 커리어</option>
-            <option value="money">금전 · 재물</option>
-            <option value="relation">인간관계</option>
-            <option value="inner">내면 · 성장</option>
-            <option value="general">종합 (일반 흐름)</option>
-          </select>
-        </div>
         <div class="full">
           <label for="aiNote">추가 메모 (선택 · 고객에게 안 보임)</label>
           <textarea id="aiNote" maxlength="500" placeholder="지난 회차 포인트, 상담사가 알고 있는 맥락 등"></textarea>
@@ -2280,9 +2268,6 @@
       }
 
       function resolveReadingTopic(question) {
-        const sel = document.getElementById('aiTopic');
-        const v = sel ? sel.value : 'auto';
-        if (v && v !== 'auto') return v;
         return detectReadingTopic(question);
       }
 
@@ -2665,13 +2650,13 @@
       const addAdvice = document.getElementById('aiAddAdvice');
       const addClarify = document.getElementById('aiAddClarify');
       const addCustom = document.getElementById('aiAddCustom');
-      if (addAdvice) addAdvice.addEventListener('click', () => addExtraCard('조언', true));
-      if (addClarify) addClarify.addEventListener('click', () => addExtraCard('명확화', true));
+      if (addAdvice) addAdvice.addEventListener('click', () => addExtraCard('조언', false));
+      if (addClarify) addClarify.addEventListener('click', () => addExtraCard('명확화', false));
       if (addCustom) {
         addCustom.addEventListener('click', () => {
           const name = window.prompt('추가 카드 역할 이름', '조언');
           if (name == null) return;
-          addExtraCard(name.trim() || '추가', true);
+          addExtraCard(name.trim() || '추가', false);
         });
       }
 
