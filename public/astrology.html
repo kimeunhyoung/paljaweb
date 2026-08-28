@@ -1181,14 +1181,52 @@ body.export-capturing #wheelCard .note{display:none !important;}
     return out.join('\n').trim();
   }
 
+  function timelineNeedsScheduleSection() {
+    try {
+      const items = LAST_AI_RAW_PAYLOAD && LAST_AI_RAW_PAYLOAD.utilizeRecommendations &&
+        LAST_AI_RAW_PAYLOAD.utilizeRecommendations.items;
+      return Array.isArray(items) && items.length > 0;
+    } catch (e) {
+      return false;
+    }
+  }
+
   function validateTimelineAiCustomerFormat(text) {
     const s = String(text || '');
     if (!/^##\s+(?:5년 전체 스토리|한눈에)/m.test(s)) return false;
     if (!/^##\s+(?:연도별 해석|연도별로)/m.test(s)) return false;
-    if (!/^##\s+(?:일정|5년 중 언제)/m.test(s)) return false;
+    if (timelineNeedsScheduleSection() && !/^##\s+(?:일정|5년 중 언제)/m.test(s)) return false;
     const ym = s.match(/^##\s+(?:연도별 해석|연도별로)\s*\n([\s\S]*?)(?=\n##\s+(?:일정|5년 중 언제)|$)/m);
     if (!ym) return false;
-    return /(?:★|◆)?\s*\*{0,2}\d{4}\s*년/.test(ym[1]);
+    if (!/(?:★|◆)?\s*\*{0,2}\d{4}\s*년/.test(ym[1])) return false;
+    const windowYears = getTimelineWindowYears();
+    if (windowYears.length) {
+      for (let i = 0; i < windowYears.length; i += 1) {
+        const y = windowYears[i];
+        if (!new RegExp('(?:★|◆)?\\s*\\*{0,2}' + y + '\\s*년').test(ym[1])) return false;
+      }
+    }
+    return true;
+  }
+
+  function mergeTimelineContinuation(base, addition) {
+    const b = String(base || '').trim();
+    const a = String(addition || '').trim();
+    if (!b) return a;
+    if (!a) return b;
+    if (a.startsWith(b)) return a;
+    if (b.endsWith(a)) return b;
+    return b + '\n\n' + a;
+  }
+
+  function isTimelineAiResponseIncomplete(result, text) {
+    if (!result) return true;
+    const data = result.data || {};
+    const palja = data._palja || {};
+    if (palja.incomplete) return true;
+    if (result.streamIncomplete) return true;
+    if (data.stop_reason === 'max_tokens' || data.stop_reason === 'stream_cut') return true;
+    return !validateTimelineAiCustomerFormat(text);
   }
 
   function parseYearsFromBlock(block, sections) {
@@ -3641,7 +3679,7 @@ body.export-capturing #wheelCard .note{display:none !important;}
   function timelineCacheKey() {
     const stamp = chartStampForTransitAi();
     if (!stamp) return '';
-    const prefix = isAiRawTimelineV1Enabled() ? 'raw_v43' : 'v7';
+    const prefix = isAiRawTimelineV1Enabled() ? 'raw_v44' : 'v7';
     if (LAST_TIMELINE && LAST_TIMELINE.fromYm && LAST_TIMELINE.toYm) {
       return `${prefix}:timeline:${stamp}:${LAST_TIMELINE.fromYm}:${LAST_TIMELINE.toYm}`;
     }
@@ -4785,12 +4823,13 @@ body.export-capturing #wheelCard .note{display:none !important;}
     return new Promise((resolve) => setTimeout(resolve, ms));
   }
 
-  async function requestTimelineAiOnce(cacheKey, prompt, onDelta) {
+  async function requestTimelineAiOnce(cacheKey, prompt, onDelta, continuePartial) {
     return PaljaAiQuota.callAiStream({
       feature: 'astro_timeline',
       cacheKey,
       max_tokens: 8192,
       messages: [{ role: 'user', content: prompt }],
+      continuePartial: continuePartial || undefined,
       onDelta,
     });
   }
@@ -4849,44 +4888,56 @@ body.export-capturing #wheelCard .note{display:none !important;}
     const cacheKey = window.PaljaAiQuota
       ? PaljaAiQuota.hashKey(cacheKeyRaw + ':' + prompt.slice(0, 400))
       : cacheKeyRaw;
-    let streamed = '';
-    const maxAttempts = 3;
+    let accumulated = '';
+    const maxAttempts = 5;
     try {
       if (!window.PaljaAiQuota || typeof PaljaAiQuota.callAiStream !== 'function') {
         throw new Error('no_quota_client');
       }
-      let out = '';
       let quota = null;
       let lastData = null;
       let formatOk = false;
       let truncated = false;
       for (let attempt = 0; attempt < maxAttempts; attempt += 1) {
+        const continueFrom = attempt > 0 ? accumulated : '';
+        let attemptDelta = '';
         if (attempt > 0) {
-          streamed = '';
           if (hint) {
-            hint.textContent = '이어서 생성 중… (' + (attempt + 1) + '/' + maxAttempts + ')';
+            hint.textContent = '연결이 끊겨 이어서 생성 중… (' + (attempt + 1) + '/' + maxAttempts + ')';
           }
-          await sleepMs(4000 * attempt);
+          await sleepMs(1500 + 2000 * attempt);
         }
         const onDelta = (chunk) => {
-          streamed += chunk;
-          setTimelineAiResult(streamed, { open: true, timelineMode: true, accordion: false, resetTab: false });
+          attemptDelta += chunk;
+          const display = continueFrom
+            ? mergeTimelineContinuation(continueFrom, attemptDelta)
+            : attemptDelta;
+          setTimelineAiResult(display, { open: true, timelineMode: true, accordion: false, resetTab: false });
         };
-        const result = await requestTimelineAiOnce(cacheKey, prompt, onDelta);
+        const result = await requestTimelineAiOnce(
+          cacheKey,
+          prompt,
+          onDelta,
+          continueFrom || undefined
+        );
         quota = result.quota;
         lastData = result.data;
-        out = result.text || streamed || '';
-        truncated = lastData && lastData.stop_reason === 'max_tokens';
-        formatOk = validateTimelineAiCustomerFormat(out);
-        if (formatOk && !truncated) break;
+        const piece = result.text || attemptDelta || '';
+        accumulated = continueFrom ? mergeTimelineContinuation(continueFrom, piece) : piece;
+        truncated = lastData && (lastData.stop_reason === 'max_tokens' || lastData.stop_reason === 'stream_cut');
+        formatOk = validateTimelineAiCustomerFormat(accumulated);
+        const incomplete = isTimelineAiResponseIncomplete(result, accumulated);
+        if (formatOk && !incomplete) break;
         if (lastData && lastData._palja && lastData._palja.cached && formatOk) break;
+        if (!incomplete && !truncated && piece) break;
       }
-      if (!out) out = '해석을 생성하지 못했어요.';
-      if (truncated) out += '\n\n(※ 해석이 길어 일부가 잘렸을 수 있어요.)';
+      const out = accumulated || '해석을 생성하지 못했어요.';
+      truncated = lastData && (lastData.stop_reason === 'max_tokens' || lastData.stop_reason === 'stream_cut');
       formatOk = validateTimelineAiCustomerFormat(out);
+      if (truncated && formatOk) truncated = false;
       if (formatOk && !truncated) {
         saveTimelineAiLocal(out);
-      } else if (!formatOk) {
+      } else if (!formatOk || truncated) {
         showStatus('해석이 아직 완성되지 않았어요. 잠시 후 「AI로 5년 흐름 풀기」를 다시 눌러 주세요. (완성본이면 크레딧 재차감 없음)', 'err');
       }
       setTimelineAiResult(out, { open: true, formatWarn: !formatOk || truncated });
@@ -4904,11 +4955,11 @@ body.export-capturing #wheelCard .note{display:none !important;}
         }
       } else if (e.message === 'login_required') {
         setAiResultBox(box, 'AI 해석은 로그인 후 이용할 수 있어요.', { plain: true });
-      } else if (!streamed) {
+      } else if (!accumulated) {
         setAiResultBox(box, 'AI 해석을 일시적으로 사용할 수 없어요.', { plain: true });
       } else {
         showStatus('연결이 끊겼어요. 「AI로 5년 흐름 풀기」를 다시 눌러 주세요.', 'err');
-        setTimelineAiResult(streamed, { open: true, formatWarn: true });
+        setTimelineAiResult(accumulated, { open: true, formatWarn: true });
       }
     } finally {
       TIMELINE_AI_BUSY = false;

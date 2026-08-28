@@ -139,7 +139,7 @@
    * SSE 스트리밍. onDelta(chunk)로 조각 수신.
    * 실패 시 throw (err.quota 가능).
    */
-  async function callAiStream({ feature, cacheKey, model, max_tokens, messages, payload, onDelta }) {
+  async function callAiStream({ feature, cacheKey, model, max_tokens, messages, payload, onDelta, continuePartial }) {
     const headers = await authHeaders();
     headers.Accept = 'text/event-stream';
     const body = {
@@ -151,6 +151,7 @@
     };
     if (payload != null) body.payload = payload;
     else body.messages = messages;
+    if (continuePartial) body.continuePartial = continuePartial;
     const res = await fetch('/api/ai/messages', {
       method: 'POST',
       headers,
@@ -198,6 +199,8 @@
     let donePayload = null;
     let streamError = null;
     let eventName = 'message';
+    let doneReceived = false;
+    let deltaReceived = false;
 
     function handleEvent(name, raw) {
       if (!raw) return;
@@ -208,9 +211,11 @@
         return;
       }
       if (name === 'delta' && payload && payload.text) {
+        deltaReceived = true;
         fullText += payload.text;
         if (typeof onDelta === 'function') onDelta(payload.text);
       } else if (name === 'done') {
+        doneReceived = true;
         donePayload = payload;
         if (payload && payload.content && !fullText) {
           fullText = extractText(payload);
@@ -253,9 +258,10 @@
 
     const data = donePayload || {
       content: [{ type: 'text', text: fullText }],
-      stop_reason: 'end_turn',
+      stop_reason: doneReceived ? 'end_turn' : 'stream_cut',
     };
     if (!fullText) fullText = extractText(data);
+    const streamIncomplete = !doneReceived && !!deltaReceived;
 
     return {
       data,
@@ -263,6 +269,8 @@
       quota: quotaFromResponse(data),
       cached: !!data?._palja?.cached,
       stopReason: data?.stop_reason || null,
+      streamIncomplete,
+      doneReceived,
     };
   }
 
