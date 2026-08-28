@@ -1148,7 +1148,12 @@ body.export-capturing #wheelCard .note{display:none !important;}
   function salvageTimelineYears(cleaned, sections) {
     if (Object.keys(sections.years || {}).length > 0) return;
     const before = Object.keys(sections.years || {}).length;
-    parseYearsFromBlock(cleaned, sections);
+    const yrs = cleaned.match(/^##\s+(?:연도별 해석|연도별로)\s*\n([\s\S]*?)(?=\n##\s+(?:일정|5년 중 언제)|$)/m);
+    if (yrs) parseYearsFromBlock(yrs[1], sections);
+    else {
+      const partial = cleaned.match(/^##\s+(?:연도별 해석|연도별로)\s*\n([\s\S]*)$/m);
+      if (partial) parseYearsFromBlock(partial[1], sections);
+    }
     if (Object.keys(sections.years).length > before && sections.overview) {
       const ovLines = String(sections.overview || '').split('\n');
       const cut = ovLines.findIndex((l) => parseTimelineYearLineMeta(l));
@@ -1239,11 +1244,39 @@ body.export-capturing #wheelCard .note{display:none !important;}
     return Object.keys(sections.years || {}).some((y) => String(sections.years[y] || '').trim());
   }
 
+  function getTimelineWindowYears() {
+    if (!LAST_TIMELINE || !LAST_TIMELINE.fromYm || !LAST_TIMELINE.toYm) return [];
+    const y0 = Number(String(LAST_TIMELINE.fromYm).slice(0, 4));
+    const y1 = Number(String(LAST_TIMELINE.toYm).slice(0, 4));
+    if (!Number.isFinite(y0) || !Number.isFinite(y1)) return [];
+    const out = [];
+    for (let y = y0; y <= y1; y++) out.push(String(y));
+    return out;
+  }
+
   function getTimelineYearList(sections) {
+    const windowYears = isAiRawTimelineV1Enabled() ? getTimelineWindowYears() : [];
+    if (windowYears.length) return windowYears;
     if (!sections) return [];
     const set = new Set(Object.keys(sections.years || {}));
     Object.keys(sections.yearAliases || {}).forEach((y) => set.add(y));
     return Array.from(set).sort();
+  }
+
+  function appendTimelineFormatWarn(box, message) {
+    if (!box || !message) return;
+    let w = box.parentElement && box.parentElement.querySelector('.timeline-format-warn');
+    if (!w) {
+      w = document.createElement('p');
+      w.className = 'timeline-format-warn';
+      box.insertAdjacentElement('afterend', w);
+    }
+    w.textContent = message;
+  }
+
+  function clearTimelineFormatWarn(box) {
+    const w = box && box.parentElement && box.parentElement.querySelector('.timeline-format-warn');
+    if (w) w.remove();
   }
 
   function getTimelineFullMarkdown(sections) {
@@ -1430,10 +1463,21 @@ body.export-capturing #wheelCard .note{display:none !important;}
     if (!opts || opts.resetTab !== false) TIMELINE_YEAR_TAB = 'overview';
     const parsedOk = timelineSectionsHaveContent(TIMELINE_AI_SECTIONS);
     let o = opts ? Object.assign({}, opts) : {};
-    if (!o.formatWarn && TIMELINE_AI_FULL_TEXT && !validateTimelineAiCustomerFormat(TIMELINE_AI_FULL_TEXT)) {
+    const formatOk = TIMELINE_AI_FULL_TEXT && validateTimelineAiCustomerFormat(TIMELINE_AI_FULL_TEXT);
+    if (!o.formatWarn && TIMELINE_AI_FULL_TEXT && !formatOk) {
       o.formatWarn = true;
     }
+    clearTimelineFormatWarn(box);
     if (!parsedOk) {
+      if (TIMELINE_AI_BUSY && TIMELINE_AI_FULL_TEXT) {
+        renderTimelineYearTabs(TIMELINE_AI_SECTIONS || { years: {}, yearsMeta: {}, yearAliases: {}, schedule: '' });
+        setAiResultBox(box, TIMELINE_AI_FULL_TEXT, {
+          open: true,
+          timelineMode: true,
+          accordion: false,
+        });
+        return;
+      }
       TIMELINE_AI_SECTIONS = null;
       const tabs = $('timelineYearTabs');
       const tabBar = $('timelineYearTabBar');
@@ -1446,24 +1490,20 @@ body.export-capturing #wheelCard .note{display:none !important;}
         accordion: false,
       });
       if (o.formatWarn && box) {
-        const warn = document.createElement('p');
-        warn.className = 'timeline-format-warn';
-        warn.textContent = '※ 형식이 맞지 않아 연도 탭·★/◆ 표시가 안 될 수 있어요. 위 버튼을 다시 눌러 재생성해 주세요.';
-        box.appendChild(warn);
+        appendTimelineFormatWarn(box, '※ 해석이 중간에 끊겼어요. 「AI로 5년 흐름 풀기」를 다시 눌러 주세요. (같은 차트·기간이면 크레딧 재차감 없음)');
       }
       return;
     }
     renderTimelineYearTabs(TIMELINE_AI_SECTIONS);
-    const md = getTimelineFullMarkdown(TIMELINE_AI_SECTIONS);
+    const md = o.formatWarn ? TIMELINE_AI_FULL_TEXT : getTimelineFullMarkdown(TIMELINE_AI_SECTIONS);
     setAiResultBox(box, md, Object.assign({}, o, {
       timelineMode: true,
       accordion: false,
     }));
     if (o.formatWarn && box) {
-      const warn = document.createElement('p');
-      warn.className = 'timeline-format-warn';
-      warn.textContent = '※ 형식이 맞지 않아 연도 탭·★/◆ 표시가 안 될 수 있어요. 위 버튼을 다시 눌러 재생성해 주세요.';
-      box.appendChild(warn);
+      appendTimelineFormatWarn(box, TIMELINE_AI_BUSY
+        ? '※ 생성 중… 잠시만 기다려 주세요.'
+        : '※ 해석이 중간에 끊겼어요. 「AI로 5년 흐름 풀기」를 다시 눌러 주세요. (같은 차트·기간이면 크레딧 재차감 없음)');
     }
   }
 
@@ -3463,7 +3503,7 @@ body.export-capturing #wheelCard .note{display:none !important;}
   function timelineCacheKey() {
     const stamp = chartStampForTransitAi();
     if (!stamp) return '';
-    const prefix = isAiRawTimelineV1Enabled() ? 'raw_v39' : 'v7';
+    const prefix = isAiRawTimelineV1Enabled() ? 'raw_v40' : 'v7';
     if (LAST_TIMELINE && LAST_TIMELINE.fromYm && LAST_TIMELINE.toYm) {
       return `${prefix}:timeline:${stamp}:${LAST_TIMELINE.fromYm}:${LAST_TIMELINE.toYm}`;
     }
@@ -3494,7 +3534,12 @@ body.export-capturing #wheelCard .note{display:none !important;}
       if (!raw) return '';
       const obj = JSON.parse(raw);
       if (!obj || !obj.text || obj.key !== timelineCacheKey()) return '';
-      return String(obj.text);
+      const text = String(obj.text);
+      if (!validateTimelineAiCustomerFormat(text)) {
+        try { localStorage.removeItem(k); } catch (e) { /* ignore */ }
+        return '';
+      }
+      return text;
     } catch (e) {
       return '';
     }
@@ -4644,7 +4689,7 @@ body.export-capturing #wheelCard .note{display:none !important;}
       const { text, quota, data } = await PaljaAiQuota.callAiStream({
         feature: 'astro_timeline',
         cacheKey,
-        max_tokens: 6144,
+        max_tokens: 8192,
         messages: [{ role: 'user', content: prompt }],
         onDelta: (chunk) => {
           streamed += chunk;
@@ -4652,14 +4697,15 @@ body.export-capturing #wheelCard .note{display:none !important;}
         },
       });
       let out = text || streamed || '해석을 생성하지 못했어요.';
-      if (data?.stop_reason === 'max_tokens') out += '\n\n(※ 해석이 길어 일부가 잘렸을 수 있어요.)';
+      const truncated = data && data.stop_reason === 'max_tokens';
+      if (truncated) out += '\n\n(※ 해석이 길어 일부가 잘렸을 수 있어요.)';
       const formatOk = validateTimelineAiCustomerFormat(out);
-      if (formatOk) {
+      if (formatOk && !truncated) {
         saveTimelineAiLocal(out);
-      } else {
-        showStatus('형식이 샘플과 다릅니다. 「AI로 5년 흐름 풀기」를 다시 눌러 주세요. (크레딧 재차감 없음)', 'err');
+      } else if (!formatOk) {
+        showStatus('해석이 중간에 끊겼어요. 「AI로 5년 흐름 풀기」를 다시 눌러 주세요.', 'err');
       }
-      setTimelineAiResult(out, { open: true, formatWarn: !formatOk });
+      setTimelineAiResult(out, { open: true, formatWarn: !formatOk || truncated });
       if (quota) {
         LAST_AI_QUOTA = quota;
         PaljaAiQuota.applyQuotaBadge($('aiQuotaBadge'), quota);
@@ -4677,9 +4723,8 @@ body.export-capturing #wheelCard .note{display:none !important;}
       } else if (!streamed) {
         setAiResultBox(box, 'AI 해석을 일시적으로 사용할 수 없어요.', { plain: true });
       } else {
-        showStatus('연결이 끊겼어요. 지금까지 받은 내용까지 표시해 두었어요.', 'err');
-        saveTimelineAiLocal(streamed);
-        setTimelineAiResult(streamed, { open: true });
+        showStatus('연결이 끊겼어요. 「AI로 5년 흐름 풀기」를 다시 눌러 주세요.', 'err');
+        setTimelineAiResult(streamed, { open: true, formatWarn: true });
       }
     } finally {
       TIMELINE_AI_BUSY = false;
