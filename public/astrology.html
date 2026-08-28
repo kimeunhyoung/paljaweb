@@ -1238,12 +1238,33 @@ body.export-capturing #wheelCard .note{display:none !important;}
 
   function dedupeTimelineStreamText(text) {
     const lines = String(text || '').split('\n');
+    const norm = (s) => String(s || '').replace(/\*\*/g, '').replace(/\s+/g, ' ').trim();
     const out = [];
     for (let i = 0; i < lines.length; i++) {
       const line = lines[i];
-      const prev = out.length ? out[out.length - 1] : '';
-      if (prev && prev.trim() === line.trim() && /^(?:★|◆|\*\*\d{4})/.test(line.trim())) continue;
-      out.push(line);
+      const t = line.trim();
+      if (!t) {
+        out.push(line);
+        continue;
+      }
+      let skip = false;
+      for (let j = out.length - 1; j >= 0; j--) {
+        const prev = out[j].trim();
+        if (!prev) continue;
+        if (prev === t && /^(?:★|◆|\*\*\d{4})/.test(t)) {
+          skip = true;
+          break;
+        }
+        const pn = norm(prev);
+        const cn = norm(t);
+        if (pn && cn.startsWith(pn) && cn !== pn) {
+          out[j] = line;
+          skip = true;
+          break;
+        }
+        break;
+      }
+      if (!skip) out.push(line);
     }
     return out.join('\n');
   }
@@ -1660,16 +1681,18 @@ body.export-capturing #wheelCard .note{display:none !important;}
       o.formatWarn = true;
     }
     clearTimelineFormatWarn(box);
+    if (TIMELINE_AI_BUSY && TIMELINE_AI_FULL_TEXT) {
+      renderTimelineYearTabs(parsedOk
+        ? TIMELINE_AI_SECTIONS
+        : (TIMELINE_AI_SECTIONS || { years: {}, yearsMeta: {}, yearAliases: {}, schedule: '' }));
+      setAiResultBox(box, TIMELINE_AI_FULL_TEXT, {
+        open: true,
+        timelineMode: true,
+        accordion: false,
+      });
+      return;
+    }
     if (!parsedOk) {
-      if (TIMELINE_AI_BUSY && TIMELINE_AI_FULL_TEXT) {
-        renderTimelineYearTabs(TIMELINE_AI_SECTIONS || { years: {}, yearsMeta: {}, yearAliases: {}, schedule: '' });
-        setAiResultBox(box, TIMELINE_AI_FULL_TEXT, {
-          open: true,
-          timelineMode: true,
-          accordion: false,
-        });
-        return;
-      }
       TIMELINE_AI_SECTIONS = null;
       const tabs = $('timelineYearTabs');
       const tabBar = $('timelineYearTabBar');
@@ -4963,9 +4986,7 @@ body.export-capturing #wheelCard .note{display:none !important;}
         try {
           const onDelta = (chunk) => {
             attemptDelta += chunk;
-            accumulated = continueFrom
-              ? mergeTimelineContinuation(continueFrom, attemptDelta)
-              : attemptDelta;
+            accumulated = continueFrom ? (continueFrom + attemptDelta) : attemptDelta;
             accumulated = dedupeTimelineStreamText(accumulated);
             setTimelineAiResult(accumulated, { open: true, timelineMode: true, accordion: false, resetTab: false });
           };
@@ -5001,6 +5022,7 @@ body.export-capturing #wheelCard .note{display:none !important;}
       } else if (!formatOk || truncated) {
         showStatus('해석이 아직 완성되지 않았어요. 잠시 후 「AI로 5년 흐름 풀기」를 다시 눌러 주세요. (완성본이면 크레딧 재차감 없음)', 'err');
       }
+      TIMELINE_AI_BUSY = false;
       setTimelineAiResult(out, { open: true, formatWarn: !formatOk || truncated });
       if (quota) {
         LAST_AI_QUOTA = quota;
