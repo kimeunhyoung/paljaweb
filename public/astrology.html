@@ -765,7 +765,7 @@ body.export-capturing #wheelCard .note{display:none !important;}
       <div class="card-title">✦ 인생 운의 흐름 (만 20~80세)</div>
       <p class="transit-intro">느린 행성 트랜짓으로 <strong>인생 전체의 큰 줄기·변곡점</strong>을 봅니다.
         기회·결실·변화·압력·활동을 서로 다른 종류로 구분하며, 확정 예언이 아닙니다.
-        월별 상세는 아래 <strong>앞으로 5년</strong>을 이용하세요.</p>
+        시기별 상세는 아래 <strong>앞으로 5년</strong> AI를 이용하세요.</p>
       <div id="lifeTimelineDataBlock">
         <div class="transit-controls">
           <button type="button" class="rt-btn rt-btn--share" id="btnLifeTimeline" disabled>인생 흐름 보기</button>
@@ -786,28 +786,26 @@ body.export-capturing #wheelCard .note{display:none !important;}
     <!-- 장기 운 타임라인 (5년) -->
     <div class="card" id="timelineCard">
       <div class="card-title">✦ 장기 운의 흐름 · 상태 타임라인 (5년)</div>
-      <p class="transit-intro">목성·토성·천왕성·해왕성·명왕성 트랜짓으로 <strong>앞으로 5년</strong>을
-        <strong>확장기·안정기·압박기·전환기·도약·재편기</strong>로 봅니다.
-        출생 시간이 있으면 프로그레스 달(하우스 이동)도 반영돼요. <strong>차트만 계산해도 AI 해석은 가능</strong>하고,
-        「5년 타임라인 보기」는 막대·연도별 목차 <strong>미리보기(선택)</strong>예요.</p>
+      <p class="transit-intro">목성·토성·천왕성·해왕성·명왕성 트랜짓으로 <strong>앞으로 5년</strong> 흐름을 봅니다.
+        차트를 계산한 뒤 AI로 풀어 읽을 수 있어요. 출생 시간이 있으면 프로그레스 달(하우스 이동)도 반영돼요.</p>
       <div id="timelineDataBlock">
-        <div class="transit-controls">
+        <div class="transit-controls" id="timelineLegacyControls">
           <button type="button" class="rt-btn rt-btn--share" id="btnTimeline" disabled>5년 타임라인 보기</button>
         </div>
         <div id="timelineResult" class="transit-result"><div class="transit-empty">차트를 계산한 뒤 「5년 타임라인 보기」를 눌러 주세요.</div></div>
         <div id="timelineRawSignalCal" class="timeline-raw-cal" hidden></div>
       </div>
       <div class="transit-ai-block no-print" id="timelineAiBlock" hidden>
-        <p class="transit-ai-intro">위 목차만으로는 <strong>왜·어떻게 이어지는지</strong>까지는 안 보여요.
-          <strong>AI로 5년 흐름 풀기</strong> 후 <strong>연도 탭</strong>으로 해를 골라 보고, 필요하면 <strong>월별 자세히</strong>까지 볼 수 있어요.
+        <p class="transit-ai-intro"><strong>AI로 5년 흐름 풀기</strong>로 전체 이야기를 보고, <strong>연도 탭</strong>으로 해를 골라 읽을 수 있어요.
+          더 깊게 보려면 선택한 해를 <strong>시기별로</strong> 한 단계 더 풀 수 있어요.
           같은 차트·같은 기간이면 다시 눌러도 크레딧이 안 깎입니다. <span class="ai-quota-cost">(최초 2크레딧)</span></p>
         <div class="transit-ai-row">
           <button type="button" class="rt-btn rt-btn--share" id="btnTimelineAi" disabled>✨ AI로 5년 흐름 풀기 (2크레딧)</button>
         </div>
         <div id="timelineYearTabs" class="timeline-year-tabs" hidden></div>
         <div id="timelineYearDetailRow" class="timeline-year-detail-row" hidden>
-          <button type="button" class="rt-btn" id="btnTimelineYearDetail" disabled>📅 선택한 해 월별 자세히 (2크레딧)</button>
-          <span class="timeline-year-detail-hint">시기별·일정·활용까지 한 해 단위로 풀어요.</span>
+          <button type="button" class="rt-btn" id="btnTimelineYearDetail" disabled>📅 선택한 해 시기별로 더 보기 (2크레딧)</button>
+          <span class="timeline-year-detail-hint">그해 흐름·묶인 시기·일정·활용을 한 단계 더. (매달 일일 단위 아님)</span>
         </div>
         <div id="timelineAiResult" class="ai-result empty">차트를 계산한 뒤 「AI로 5년 흐름 풀기」를 눌러 주세요.</div>
         <div id="timelineYearDetailResult" class="ai-result empty" hidden></div>
@@ -1057,9 +1055,7 @@ body.export-capturing #wheelCard .note{display:none !important;}
     const dbtn = $('btnTimelineYearDetail');
     if (dbtn) {
       dbtn.disabled = !isYear || TIMELINE_YEAR_AI_BUSY || !AI_SERVER_OK;
-      dbtn.textContent = isYear
-        ? ('📅 ' + TIMELINE_YEAR_TAB + '년 월별 자세히 (2크레딧)')
-        : '📅 선택한 해 월별 자세히 (2크레딧)';
+      dbtn.textContent = timelineYearDetailBtnLabel(isYear ? TIMELINE_YEAR_TAB : '');
     }
   }
 
@@ -1624,6 +1620,25 @@ body.export-capturing #wheelCard .note{display:none !important;}
     return false;
   }
 
+  /** Raw 기본: 막대·목차 미리보기 숨김, AI만. ?rawTimeline=0 일 때만 구 UI */
+  function syncTimelineSectionUi() {
+    const raw = isAiRawTimelineV1Enabled();
+    const dataBlock = $('timelineDataBlock');
+    const controls = $('timelineLegacyControls') || document.querySelector('#timelineCard .transit-controls');
+    const tlRes = $('timelineResult');
+    const cal = $('timelineRawSignalCal');
+    if (dataBlock) dataBlock.style.display = raw ? 'none' : '';
+    if (controls) controls.style.display = raw ? 'none' : '';
+    if (tlRes) tlRes.style.display = raw ? 'none' : '';
+    if (cal && raw) { cal.hidden = true; cal.innerHTML = ''; }
+  }
+
+  function timelineYearDetailBtnLabel(year) {
+    const y = String(year || '').trim();
+    if (/^\d{4}$/.test(y)) return '📅 ' + y + '년 시기별로 더 보기 (2크레딧)';
+    return '📅 선택한 해 시기별로 더 보기 (2크레딧)';
+  }
+
   async function loadAiQuota() {
     if (!window.PaljaAiQuota) return;
     const q = await PaljaAiQuota.fetchQuota();
@@ -1975,6 +1990,9 @@ body.export-capturing #wheelCard .note{display:none !important;}
       loadAiQuota();
     }
 
+    syncTimelineSectionUi();
+    refreshTimelineAiUi();
+
     result.classList.add('show');
     result.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
@@ -1997,8 +2015,9 @@ body.export-capturing #wheelCard .note{display:none !important;}
       if (tlRes) tlRes.innerHTML = LOCK_HTML;
       const lifeRes = $('lifeTimelineResult');
       if (lifeRes) lifeRes.innerHTML = LOCK_HTML;
-      const tlControls = document.querySelector('#timelineCard .transit-controls');
-      if (tlControls) tlControls.style.display = 'none';
+      syncTimelineSectionUi();
+      const tlControls = $('timelineLegacyControls') || document.querySelector('#timelineCard .transit-controls');
+      if (tlControls && !isAiRawTimelineV1Enabled()) tlControls.style.display = 'none';
       const lifeControls = document.querySelector('#lifeTimelineCard .transit-controls');
       if (lifeControls) lifeControls.style.display = 'none';
       const yBlock = $('yearAiBlock');
@@ -2032,8 +2051,9 @@ body.export-capturing #wheelCard .note{display:none !important;}
 
     // AI 체험 크레딧 보유: 정적 심화(행성·어스펙트 해설)는 잠그되, 올해·트랜짓·AI 버튼은 연다
     if (controls) controls.style.display = '';
-    const tlControls = document.querySelector('#timelineCard .transit-controls');
-    if (tlControls) tlControls.style.display = '';
+    syncTimelineSectionUi();
+    const tlControls = $('timelineLegacyControls') || document.querySelector('#timelineCard .transit-controls');
+    if (tlControls && !isAiRawTimelineV1Enabled()) tlControls.style.display = '';
     const lifeControls = document.querySelector('#lifeTimelineCard .transit-controls');
     if (lifeControls) lifeControls.style.display = '';
     $('btnAiRun').hidden = false;
@@ -2060,7 +2080,11 @@ body.export-capturing #wheelCard .note{display:none !important;}
       $('transitResult').innerHTML = '<div class="transit-empty">위 “오늘의 트랜짓 보기”를 누른 뒤, 「AI 이번 주 운세」를 사용할 수 있어요.</div>';
     }
     if ($('timelineResult') && $('timelineResult').querySelector('.astro-lock')) {
-      $('timelineResult').innerHTML = '<div class="transit-empty">「5년 타임라인 보기」를 눌러 장기 흐름을 계산해 주세요.</div>';
+      if (isAiRawTimelineV1Enabled()) {
+        $('timelineResult').innerHTML = '';
+      } else {
+        $('timelineResult').innerHTML = '<div class="transit-empty">「5년 타임라인 보기」를 눌러 장기 흐름을 계산해 주세요.</div>';
+      }
     }
     if ($('lifeTimelineResult') && $('lifeTimelineResult').querySelector('.astro-lock')) {
       $('lifeTimelineResult').innerHTML = '<div class="transit-empty">「인생 흐름 보기」를 눌러 만 20~80세 흐름을 계산해 주세요.</div>';
@@ -2983,7 +3007,7 @@ body.export-capturing #wheelCard .note{display:none !important;}
     TIMELINE_AI_CACHE = { key: '', text: '' };
     LAST_AI_RAW_PAYLOAD = null;
     const box = $('timelineResult');
-    if (box && !box.querySelector('.astro-lock')) {
+    if (box && !box.querySelector('.astro-lock') && !isAiRawTimelineV1Enabled()) {
       box.innerHTML = '<div class="transit-empty">차트를 계산한 뒤 「5년 타임라인 보기」를 눌러 주세요.</div>';
     }
     const cal = $('timelineRawSignalCal');
@@ -2994,7 +3018,9 @@ body.export-capturing #wheelCard .note{display:none !important;}
     const aiBox = $('timelineAiResult');
     if (aiBox) {
       aiBox.className = 'ai-result empty';
-      aiBox.textContent = '위에서 타임라인을 계산한 뒤 AI를 이용해 주세요.';
+      aiBox.textContent = isAiRawTimelineV1Enabled()
+        ? '차트를 계산한 뒤 「AI로 5년 흐름 풀기」를 눌러 주세요.'
+        : '위에서 타임라인을 계산한 뒤 AI를 이용해 주세요.';
       delete aiBox.dataset.aiRaw;
     }
     refreshTimelineAiUi();
@@ -3053,18 +3079,15 @@ body.export-capturing #wheelCard .note{display:none !important;}
   function paintTimelineResult(filter) {
     const AT = window.AstroTimelineV2;
     const box = $('timelineResult');
+    if (isAiRawTimelineV1Enabled()) return;
     if (!AT || !box || !LAST_TIMELINE) return;
-    const rawView = isAiRawTimelineV1Enabled();
-    TIMELINE_FILTER = rawView ? 'all' : (filter || 'all');
-    box.innerHTML = AT.renderHtml(LAST_TIMELINE, TIMELINE_FILTER, { rawView: rawView });
-    if (!rawView) {
-      box.querySelectorAll('[data-tl-filter] .tl-filter-btn').forEach((btn) => {
-        btn.addEventListener('click', () => {
-          paintTimelineResult(btn.getAttribute('data-theme') || 'all');
-        });
+    TIMELINE_FILTER = filter || 'all';
+    box.innerHTML = AT.renderHtml(LAST_TIMELINE, TIMELINE_FILTER, { rawView: false });
+    box.querySelectorAll('[data-tl-filter] .tl-filter-btn').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        paintTimelineResult(btn.getAttribute('data-theme') || 'all');
       });
-    }
-    if (rawView) ensureRawSignalCalendar();
+    });
   }
 
   function refreshTimelineAiUi() {
@@ -3081,12 +3104,9 @@ body.export-capturing #wheelCard .note{display:none !important;}
     const btn = $('btnTimelineAi');
     const box = $('timelineAiResult');
     if (btn) btn.disabled = !AI_SERVER_OK || TIMELINE_AI_BUSY || TIMELINE_SCAN_BUSY;
-    if (rawReady && timelineReady && !TIMELINE_SCAN_BUSY) {
-      ensureRawSignalCalendar();
-    } else if (!isAiRawTimelineV1Enabled()) {
-      renderRawSignalCalendar(null);
-    } else if (rawReady && !TIMELINE_SCAN_BUSY) {
-      try { ensureRawSignalCalendar(); } catch (e) { /* chart-only */ }
+    if (rawReady) {
+      const cal = $('timelineRawSignalCal');
+      if (cal) { cal.hidden = true; cal.innerHTML = ''; }
     }
     if (!box) return;
     const key = timelineCacheKey();
@@ -3300,7 +3320,8 @@ body.export-capturing #wheelCard .note{display:none !important;}
       '위 JSON에서 **' + y + '년** 구간만 다룹니다.\n' +
       '출력은 반드시 아래 3섹션만:\n' +
       '## 이 해 한 줄기\n## 시기별로\n## 일정·활용 참고\n' +
-      '5년 전체 스토리(연도별 해석) 형식 금지. 짧고 쉬운 문장. 시기·핵심·조언 키워드 **굵게**.'
+      '5년 전체 스토리(연도별 해석) 형식 금지. 짧고 쉬운 문장. 시기·핵심·조언 키워드 **굵게**.\n' +
+      '「시기별로」는 몇 달·계절 단위로 묶어 쓰고, 12개월을 빠짐없이 일일 단위로 채우지 마세요.'
     );
   }
 
@@ -3482,27 +3503,19 @@ body.export-capturing #wheelCard .note{display:none !important;}
     el.innerHTML =
       '<div class="timeline-raw-cal-h">연도별 주요 시기 (목차)</div>' +
       '<p class="timeline-raw-cal-sub">언제 어떤 신호가 있는지만 짚어 둔 거예요. ' +
-      '아래 <strong>AI로 5년 흐름 풀기</strong>를 누르면 한눈에 · 연도별 · ★변곡 · 일정·활용까지 이어서 읽을 수 있어요.</p>' +
+      '아래 <strong>AI로 5년 흐름 풀기</strong>를 누르면 5년 전체 스토리 · 연도별 해석 · 일정·활용까지 이어서 읽을 수 있어요.</p>' +
       yearHtml +
       progHtml;
     el.hidden = false;
   }
 
-  function ensureRawSignalCalendar() {
-    if (!isAiRawTimelineV1Enabled()) {
-      renderRawSignalCalendar(null);
-      return;
-    }
-    if (LAST_AI_RAW_PAYLOAD) {
-      renderRawSignalCalendar(LAST_AI_RAW_PAYLOAD);
-      return;
-    }
+  function ensureRawTimelinePayload() {
+    if (!isAiRawTimelineV1Enabled() || LAST_AI_RAW_PAYLOAD) return;
     try {
       buildAiRawTimelineCustomerPrompt();
-      renderRawSignalCalendar(LAST_AI_RAW_PAYLOAD);
     } catch (e) {
-      console.warn('[rawSignalCal]', e);
-      renderRawSignalCalendar(null);
+      console.warn('[rawTimelinePayload]', e);
+      LAST_AI_RAW_PAYLOAD = null;
     }
   }
 
@@ -3848,7 +3861,6 @@ body.export-capturing #wheelCard .note{display:none !important;}
     if ((TIMELINE_AI_CACHE.key === cacheKeyRaw && TIMELINE_AI_CACHE.text) || localHit) {
       const t = TIMELINE_AI_CACHE.text || localHit;
       TIMELINE_AI_CACHE = { key: cacheKeyRaw, text: t };
-      if (isAiRawTimelineV1Enabled()) ensureRawSignalCalendar();
       setTimelineAiResult(t);
       return;
     }
@@ -3864,7 +3876,6 @@ body.export-capturing #wheelCard .note{display:none !important;}
     let prompt;
     try {
       prompt = buildTimelineAiPrompt();
-      if (isAiRawTimelineV1Enabled()) renderRawSignalCalendar(LAST_AI_RAW_PAYLOAD);
     } catch (e) {
       console.error(e);
       TIMELINE_AI_BUSY = false;
@@ -3999,7 +4010,7 @@ body.export-capturing #wheelCard .note{display:none !important;}
     } finally {
       TIMELINE_YEAR_AI_BUSY = false;
       if (btn) {
-        btn.textContent = '📅 ' + year + '년 월별 자세히 (2크레딧)';
+        btn.textContent = timelineYearDetailBtnLabel(year);
         btn.disabled = !AI_SERVER_OK;
       }
       if (hint) hint.classList.remove('is-loading');
@@ -4716,7 +4727,12 @@ body.export-capturing #wheelCard .note{display:none !important;}
         fiveBtn.addEventListener('click', () => {
           const card = $('timelineCard');
           if (card) card.scrollIntoView({ behavior: 'smooth', block: 'start' });
-          showStatus('아래에서 「5년 타임라인 보기」로 월별 상세를 볼 수 있어요.', 'ok');
+          showStatus(
+            isAiRawTimelineV1Enabled()
+              ? '아래에서 「AI로 5년 흐름 풀기」를 이용해 주세요.'
+              : '아래에서 「5년 타임라인 보기」로 시기별 상세를 볼 수 있어요.',
+            'ok'
+          );
         });
       }
       LIFE_AI_CACHE = { key: '', text: '' };
@@ -5378,6 +5394,7 @@ body.export-capturing #wheelCard .note{display:none !important;}
     }
   }
 
+  syncTimelineSectionUi();
   prefillFromCounselorHub();
 </script>
 
