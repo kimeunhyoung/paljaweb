@@ -3503,7 +3503,7 @@ body.export-capturing #wheelCard .note{display:none !important;}
   function timelineCacheKey() {
     const stamp = chartStampForTransitAi();
     if (!stamp) return '';
-    const prefix = isAiRawTimelineV1Enabled() ? 'raw_v40' : 'v7';
+    const prefix = isAiRawTimelineV1Enabled() ? 'raw_v41' : 'v7';
     if (LAST_TIMELINE && LAST_TIMELINE.fromYm && LAST_TIMELINE.toYm) {
       return `${prefix}:timeline:${stamp}:${LAST_TIMELINE.fromYm}:${LAST_TIMELINE.toYm}`;
     }
@@ -3795,7 +3795,22 @@ body.export-capturing #wheelCard .note{display:none !important;}
     payload.utilizeRecommendations = buildUtilizeRecommendations(payload, LAST_TIMELINE);
     payload.domainScan = buildDomainScan(payload);
     LAST_AI_RAW_PAYLOAD = payload;
-    return AiRawTimelinePromptV2.buildCustomerPrompt(payload);
+    let prompt = AiRawTimelinePromptV2.buildCustomerPrompt(payload);
+    const w = payload.window;
+    if (w && w.fromYm && w.toYm) {
+      const y0 = Number(String(w.fromYm).slice(0, 4));
+      const y1 = Number(String(w.toYm).slice(0, 4));
+      if (Number.isFinite(y0) && Number.isFinite(y1) && y1 >= y0) {
+        const years = [];
+        for (let y = y0; y <= y1; y++) years.push(y + '년');
+        prompt +=
+          '\n\n[연도·시기 필수]\n' +
+          '- window: ' + w.fromYm + ' ~ ' + w.toYm + '\n' +
+          '- `## 연도별 해석`에 **' + years.join(', ') + '** 를 모두 오름차순으로 포함 (첫 해 생략 금지).\n' +
+          '- 계절·월만 쓸 때 **연도 필수** (✗ `가을부터` ✓ `2026년 가을(9~11월)부터`).';
+      }
+    }
+    return prompt;
   }
 
   function buildAiRawTimelineYearPrompt(year) {
