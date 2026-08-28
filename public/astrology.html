@@ -3265,7 +3265,7 @@ body.export-capturing #wheelCard .note{display:none !important;}
   function timelineCacheKey() {
     const stamp = chartStampForTransitAi();
     if (!stamp) return '';
-    const prefix = isAiRawTimelineV1Enabled() ? 'raw_v29' : 'v7';
+    const prefix = isAiRawTimelineV1Enabled() ? 'raw_v32' : 'v7';
     if (LAST_TIMELINE && LAST_TIMELINE.fromYm && LAST_TIMELINE.toYm) {
       return `${prefix}:timeline:${stamp}:${LAST_TIMELINE.fromYm}:${LAST_TIMELINE.toYm}`;
     }
@@ -3549,6 +3549,7 @@ body.export-capturing #wheelCard .note{display:none !important;}
     };
     const full = AiRawTimelineV1.build(chart, { y: from.y, mo: from.mo, months: months });
     const payload = AiRawTimelineV1.stripDebug(full);
+    payload.utilizeRecommendations = buildUtilizeRecommendations(payload, LAST_TIMELINE);
     LAST_AI_RAW_PAYLOAD = payload;
     return AiRawTimelinePromptV2.buildCustomerPrompt(payload);
   }
@@ -3587,6 +3588,111 @@ body.export-capturing #wheelCard .note{display:none !important;}
       ic: '집·안정·뿌리',
     };
     return map[String(nk || '').toLowerCase()] || '삶의 한 축';
+  }
+
+  function utilizeActivityHints(ep) {
+    const n = String(ep.natal || '').toLowerCase();
+    const t = String(ep.transit || '').toLowerCase();
+    const hints = [];
+    if (n === 'mercury') hints.push('시험·자격·발표·글');
+    else if (n === 'venus') hints.push('인연·취향·재물');
+    else if (n === 'mars') hints.push('실행·프로젝트·시작');
+    else if (n === 'mc' || n === 'ic') hints.push('역할·책임·방향');
+    else if (n === 'asc' || n === 'dsc' || (ep.lineKo && ep.lineKo.indexOf('축') >= 0)) hints.push('관계·겉모습·거리');
+    else if (n === 'sun') hints.push('자기 방향·공개');
+    else if (n === 'moon') hints.push('감정·일상·안정');
+    else if (t === 'jupiter') hints.push('확장·기회');
+    else if (t === 'saturn') hints.push('정리·안정');
+    else hints.push(natalLifeTheme(n));
+    return hints;
+  }
+
+  function packUtilizeTimingRange(pack, kind) {
+    if (!pack || !pack.startYm) return null;
+    return {
+      kind,
+      startYm: pack.startYm,
+      endYm: pack.endYm || pack.startYm,
+      peakYm: pack.startYm,
+      months: pack.months || 1,
+      rangeLabel: pack.range || '',
+      activityHints: kind === 'stableUtilize' ? ['움직이기 수월한 때'] : ['기회+변화 동반'],
+      note: kind === 'stableUtilize'
+        ? '안정적 순조·실행 (keyTimings.stableUtilize)'
+        : '기회+변화 — stableUtilize·순조 peak와 겹칠 때만 「하기 좋은 때」',
+    };
+  }
+
+  /** RAW payload + timeline judgment → AI schedule whitelist (stable on refresh). */
+  function buildUtilizeRecommendations(rawPayload, timeline) {
+    const HARM = { conjunction: 1, sextile: 1, trine: 1 };
+    const PEAK_ORB_MAX = 2.0;
+    const items = [];
+    const seen = new Set();
+
+    function pushItem(it) {
+      const key = [it.kind, it.peakYm || it.startYm, (it.activityHints || [])[0], it.lineKo || ''].join('|');
+      if (seen.has(key)) return;
+      seen.add(key);
+      items.push(it);
+    }
+
+    const kt = timeline && timeline.keyTimings;
+    if (kt) {
+      const su = packUtilizeTimingRange(kt.stableUtilize, 'stableUtilize');
+      if (su) pushItem(su);
+      const uic = packUtilizeTimingRange(kt.utilizeInChange, 'utilizeInChange');
+      if (uic) pushItem(uic);
+    }
+
+    const eps = (rawPayload && rawPayload.transitEpisodes) || [];
+    eps.forEach((ep) => {
+      const asp = String(ep.aspect || '').toLowerCase();
+      if (!HARM[asp]) return;
+      const orb = Number(ep.peakOrb);
+      if (!Number.isFinite(orb) || orb > PEAK_ORB_MAX) return;
+      pushItem({
+        kind: 'peakUtilize',
+        startYm: ep.startYm,
+        endYm: ep.endYm,
+        peakYm: ep.peakYm,
+        peakOrb: orb,
+        months: ep.months,
+        lineKo: ep.lineKo,
+        aspect: asp,
+        transit: ep.transit,
+        natal: ep.natal,
+        activityHints: utilizeActivityHints(ep),
+      });
+    });
+
+    items.sort((a, b) => {
+      const kindOrder = { stableUtilize: 0, peakUtilize: 1, utilizeInChange: 2 };
+      const ka = kindOrder[a.kind] != null ? kindOrder[a.kind] : 9;
+      const kb = kindOrder[b.kind] != null ? kindOrder[b.kind] : 9;
+      if (ka !== kb) return ka - kb;
+      const oa = Number(a.peakOrb);
+      const ob = Number(b.peakOrb);
+      if (Number.isFinite(oa) && Number.isFinite(ob) && oa !== ob) return oa - ob;
+      return String(a.startYm || '').localeCompare(String(b.startYm || ''));
+    });
+
+    return {
+      note: '「5년 중 언제 움직이면 좋을까?」에는 items에 있는 항목만 쓴다. 목록 밖 임의 추천·매년 채우기 금지. items가 0개면 섹션 생략.',
+      stableUtilize: kt && kt.stableUtilize ? {
+        startYm: kt.stableUtilize.startYm,
+        endYm: kt.stableUtilize.endYm,
+        months: kt.stableUtilize.months,
+        range: kt.stableUtilize.range,
+      } : null,
+      utilizeInChange: kt && kt.utilizeInChange ? {
+        startYm: kt.utilizeInChange.startYm,
+        endYm: kt.utilizeInChange.endYm,
+        months: kt.utilizeInChange.months,
+        range: kt.utilizeInChange.range,
+      } : null,
+      items,
+    };
   }
 
   function episodePlainSentence(ep) {
