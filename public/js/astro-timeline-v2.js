@@ -2729,11 +2729,13 @@
     );
   }
 
-  function renderHtml(data, filterTheme) {
+  function renderHtml(data, filterTheme, opts) {
     if (!data || !data.months || !data.months.length) {
       return '<div class="transit-empty">타임라인을 계산하지 못했어요.</div>';
     }
-    var filter = filterTheme || 'all';
+    opts = opts || {};
+    var rawView = !!opts.rawView;
+    var filter = rawView ? 'all' : (filterTheme || 'all');
     var bars = data.months.map(function (m, idx) {
       var meta = STATE_META[m.state] || STATE_META.stability;
       var h = Math.max(12, m.intensity || 40);
@@ -2771,7 +2773,7 @@
 
     var segHtml = segs.length
       ? segs.map(function (s) {
-          var tags = (s.themes || []).map(function (t) {
+          var tags = rawView ? '' : (s.themes || []).map(function (t) {
             return '<span class="tl-tag">' + escapeHtml(THEME_KR[t] || t) + '</span>';
           }).join('');
           var ep = s.episodeLine ? '<div class="tl-win-hits">' + escapeHtml(s.episodeLine) + '</div>' : '';
@@ -2783,32 +2785,51 @@
             '<div class="tl-win-range">' + escapeHtml(ymShort(s.startY, s.startM)) +
             ' ~ ' + escapeHtml(ymShort(s.endY, s.endM)) +
             ' <span class="tl-win-len">(' + s.months + '개월 · ' + escapeHtml(s.stateKo) + ')</span></div>' +
-            '<div class="tl-win-tags">' + tags + '</div>' + ep + prog +
+            (tags ? '<div class="tl-win-tags">' + tags + '</div>' : '') + ep + prog +
             '</div>'
           );
         }).join('')
-      : '<p class="tl-empty-win">이 주제에서 두드러진 구간이 적어요. 「전체」로 보시면 흐름이 더 잘 보여요.</p>';
+      : (rawView
+        ? '<p class="tl-empty-win">표시할 배경 구간이 없어요.</p>'
+        : '<p class="tl-empty-win">이 주제에서 두드러진 구간이 적어요. 「전체」로 보시면 흐름이 더 잘 보여요.</p>');
 
     var progHint = data.hasProgMoon
       ? ' 프로그레스 달(하우스 이동·주요 각)도 반영했습니다.'
       : ' 출생 시간이 있으면 프로그레스 달도 함께 봅니다.';
 
-    return (
-      '<div class="tl-guide">5년 흐름을 <strong>장기 챕터</strong>로 먼저 보고, 아래 막대는 배경 상태 참고용입니다.' +
-      progHint +
-      ' (' + escapeHtml(data.fromYm) + ' ~ ' + escapeHtml(data.toYm) + ')</div>' +
-      renderKeyTimingsV3Html(data) +
+    var guide = rawView
+      ? '5년 동안의 <strong>상태 변화</strong>를 막대로 봅니다. 아래 「중요한 시기 미리보기」와 AI 해석을 함께 보세요.' +
+        progHint +
+        ' (' + escapeHtml(data.fromYm) + ' ~ ' + escapeHtml(data.toYm) + ')'
+      : '5년 흐름을 <strong>장기 챕터</strong>로 먼저 보고, 아래 막대는 배경 상태 참고용입니다.' +
+        progHint +
+        ' (' + escapeHtml(data.fromYm) + ' ~ ' + escapeHtml(data.toYm) + ')';
+
+    var keyTimingsBlock = rawView ? '' : renderKeyTimingsV3Html(data);
+    var filterBlock = rawView ? '' : (
       '<div class="tl-filter" data-tl-filter>' +
       '<button type="button" class="tl-filter-btn' + (filter === 'all' ? ' is-on' : '') + '" data-theme="all">전체</button>' +
       '<button type="button" class="tl-filter-btn' + (filter === 'relationship' ? ' is-on' : '') + '" data-theme="relationship">연애</button>' +
       '<button type="button" class="tl-filter-btn' + (filter === 'career' ? ' is-on' : '') + '" data-theme="career">일</button>' +
       '<button type="button" class="tl-filter-btn' + (filter === 'money' ? ' is-on' : '') + '" data-theme="money">금전</button>' +
-      '</div>' +
+      '</div>'
+    );
+    var stateBgSummary = rawView
+      ? '배경 상태 흐름 (참고)'
+      : '배경 상태 흐름 (참고 · 위 장기 챕터와 다른 층)';
+    var stateBgNote = rawView
+      ? '월별 상태 묶음입니다. 해석의 중심은 아래 「중요한 시기 미리보기」와 AI 풀이입니다.'
+      : '월별 상태 묶음입니다. 상담의 주 서사는 위의 장기 챕터·국면·주목 시점을 우선하세요.';
+
+    return (
+      '<div class="tl-guide">' + guide + '</div>' +
+      keyTimingsBlock +
+      filterBlock +
       '<div class="tl-legend">' + legend + '</div>' +
       '<div class="tl-chart" role="img" aria-label="5년 상태 타임라인">' + bars + '</div>' +
       '<details class="tl-state-bg">' +
-      '<summary>배경 상태 흐름 (참고 · 위 장기 챕터와 다른 층)</summary>' +
-      '<p class="tl-state-bg-note">월별 상태 묶음입니다. 상담의 주 서사는 위의 장기 챕터·국면·주목 시점을 우선하세요.</p>' +
+      '<summary>' + stateBgSummary + '</summary>' +
+      '<p class="tl-state-bg-note">' + stateBgNote + '</p>' +
       segHtml +
       '</details>'
     );

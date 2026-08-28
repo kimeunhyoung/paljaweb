@@ -782,14 +782,14 @@ body.export-capturing #wheelCard .note{display:none !important;}
           <button type="button" class="rt-btn rt-btn--share" id="btnTimeline" disabled>5년 타임라인 보기</button>
         </div>
         <div id="timelineResult" class="transit-result"><div class="transit-empty">차트를 계산한 뒤 「5년 타임라인 보기」를 눌러 주세요.</div></div>
+        <div id="timelineRawSignalCal" class="timeline-raw-cal" hidden></div>
       </div>
       <div class="transit-ai-block no-print" id="timelineAiBlock" hidden>
-        <p class="transit-ai-intro">타임라인을 본 뒤 <strong>AI로 상태·타이밍 풀기</strong>로 연애·일·금전 흐름을 풀어 볼 수 있어요.
+        <p class="transit-ai-intro">타임라인을 본 뒤 <strong>AI로 5년 흐름 풀기</strong>로 앞으로의 변화·시기를 풀어 볼 수 있어요.
           같은 차트·같은 기간이면 다시 눌러도 크레딧이 안 깎입니다. <span class="ai-quota-cost">(최초 2크레딧)</span></p>
         <div class="transit-ai-row">
-          <button type="button" class="rt-btn rt-btn--share" id="btnTimelineAi" disabled>✨ AI로 상태·타이밍 풀기 (2크레딧)</button>
+          <button type="button" class="rt-btn rt-btn--share" id="btnTimelineAi" disabled>✨ AI로 5년 흐름 풀기 (2크레딧)</button>
         </div>
-        <div id="timelineRawSignalCal" class="timeline-raw-cal" hidden></div>
         <div id="timelineAiResult" class="ai-result empty">위에서 타임라인을 계산한 뒤 AI를 이용해 주세요.</div>
         <p class="ai-time-hint" id="timelineAiHint">보통 20~40초 정도 걸려요. 나오는 대로 바로 보여 드려요.</p>
       </div>
@@ -2869,13 +2869,17 @@ body.export-capturing #wheelCard .note{display:none !important;}
     const AT = window.AstroTimelineV2;
     const box = $('timelineResult');
     if (!AT || !box || !LAST_TIMELINE) return;
-    TIMELINE_FILTER = filter || 'all';
-    box.innerHTML = AT.renderHtml(LAST_TIMELINE, TIMELINE_FILTER);
-    box.querySelectorAll('[data-tl-filter] .tl-filter-btn').forEach((btn) => {
-      btn.addEventListener('click', () => {
-        paintTimelineResult(btn.getAttribute('data-theme') || 'all');
+    const rawView = isAiRawTimelineV1Enabled();
+    TIMELINE_FILTER = rawView ? 'all' : (filter || 'all');
+    box.innerHTML = AT.renderHtml(LAST_TIMELINE, TIMELINE_FILTER, { rawView: rawView });
+    if (!rawView) {
+      box.querySelectorAll('[data-tl-filter] .tl-filter-btn').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          paintTimelineResult(btn.getAttribute('data-theme') || 'all');
+        });
       });
-    });
+    }
+    if (rawView) ensureRawSignalCalendar();
   }
 
   function refreshTimelineAiUi() {
@@ -2905,7 +2909,7 @@ body.export-capturing #wheelCard .note{display:none !important;}
       return;
     }
     if (box.classList.contains('empty') && !box.querySelector('.astro-lock')) {
-      setAiResultBox(box, '타임라인을 바탕으로 「AI로 상태·타이밍 풀기」를 눌러 주세요.', { empty: true });
+      setAiResultBox(box, '타임라인을 바탕으로 「AI로 5년 흐름 풀기」를 눌러 주세요.', { empty: true });
     }
   }
 
@@ -3211,7 +3215,7 @@ body.export-capturing #wheelCard .note{display:none !important;}
       : '';
     el.innerHTML =
       '<div class="timeline-raw-cal-h">중요한 시기 미리보기</div>' +
-      '<p class="timeline-raw-cal-sub">앞으로 5년 중 특히 눈여겨볼 때예요. AI 해석과 함께 보면 더 쉽게 이해돼요.</p>' +
+      '<p class="timeline-raw-cal-sub">앞으로 5년 중 특히 눈여겨볼 때예요.</p>' +
       '<ul class="timeline-raw-cal-list">' + items + '</ul>' +
       progHtml;
     el.hidden = false;
