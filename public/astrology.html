@@ -1185,6 +1185,86 @@ body.export-capturing #wheelCard .note{display:none !important;}
     return out.join('\n').trim();
   }
 
+  function isTimelineContinueMetaLine(line) {
+    const t = String(line || '').trim();
+    if (!t) return false;
+    if (/^\*\*\(?\s*(?:끊긴\s*위치|출력\s*확인)/.test(t)) return true;
+    if (/^앞서\s*출력/.test(t)) return true;
+    if (/^실제로\s*(?:완성|빠진|모두)/.test(t)) return true;
+    if (/^세\s*섹션/.test(t)) return true;
+    if (/^혹시\s*특정/.test(t)) return true;
+    if (/^원하시는\s*방향/.test(t)) return true;
+    if (/^말씀해\s*주시면/.test(t)) return true;
+    if (/^이어서\s*써/.test(t)) return true;
+    if (/^끊겨\s*보인/.test(t)) return true;
+    if (/^추가로\s*작성할/.test(t)) return true;
+    if (/^-\s*`##/.test(t)) return true;
+    if (/✓/.test(t) && /##/.test(t)) return true;
+    if (/완성된\s*상태/.test(t)) return true;
+    if (/반복\s*출력/.test(t)) return true;
+    return false;
+  }
+
+  function truncateTimelineAtDuplicateSections(text) {
+    const s = String(text || '');
+    const schedRe = /^##\s+(?:일정|5년 중 언제)/gm;
+    let firstIdx = -1;
+    let m;
+    let count = 0;
+    while ((m = schedRe.exec(s)) !== null) {
+      count += 1;
+      if (count === 1) firstIdx = m.index;
+      else if (count >= 2) return s.slice(0, m.index).trim();
+    }
+    const metaCut = s.search(/\n(?:앞서\s*출력|실제로\s*(?:완성|빠진)|\*\*\(?\s*끊긴\s*위치|혹시\s*특정)/);
+    if (metaCut >= 0) {
+      const before = s.slice(0, metaCut).trim();
+      if (validateTimelineAiCustomerFormat(before)) return before;
+    }
+    if (firstIdx >= 0) {
+      const afterFirst = s.slice(firstIdx);
+      const schedBody = afterFirst.match(/^##\s+(?:일정|5년 중 언제)[\s\S]*?(?=\n##\s+(?:5년 전체|연도별|일정|5년 중)|$)/);
+      if (schedBody) {
+        const end = firstIdx + schedBody[0].length;
+        const tail = s.slice(end);
+        if (/^##\s+(?:5년 전체|연도별|일정|5년 중)/m.test(tail)) return s.slice(0, end).trim();
+      }
+    }
+    return s;
+  }
+
+  function finalizeTimelineCustomerText(text, opts) {
+    const streaming = !!(opts && opts.streaming);
+    let s = sanitizeAiTimelineCustomerText(text);
+    const lines = s.split('\n');
+    const out = [];
+    let inMetaBlock = false;
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i];
+      const t = line.trim();
+      if (isTimelineContinueMetaLine(line)) {
+        inMetaBlock = true;
+        continue;
+      }
+      if (inMetaBlock) {
+        if (/^##\s+/.test(t)) inMetaBlock = false;
+        else continue;
+      }
+      if (/^---+$/.test(t) && out.length && isTimelineContinueMetaLine(lines[i + 1] || '')) continue;
+      out.push(line);
+    }
+    s = out.join('\n').trim();
+    if (!streaming) s = truncateTimelineAtDuplicateSections(s);
+    return s.trim();
+  }
+
+  function closePartialMarkdownForRender(text) {
+    let s = String(text || '');
+    const boldCount = (s.match(/\*\*/g) || []).length;
+    if (boldCount % 2 === 1) s += '**';
+    return s;
+  }
+
   function timelineNeedsScheduleSection() {
     try {
       const items = LAST_AI_RAW_PAYLOAD && LAST_AI_RAW_PAYLOAD.utilizeRecommendations &&
@@ -1270,13 +1350,15 @@ body.export-capturing #wheelCard .note{display:none !important;}
   }
 
   function isTimelineAiResponseIncomplete(result, text) {
+    const finalized = finalizeTimelineCustomerText(text);
+    if (validateTimelineAiCustomerFormat(finalized)) return false;
     if (!result) return true;
     const data = result.data || {};
     const palja = data._palja || {};
     if (palja.incomplete) return true;
     if (result.streamIncomplete) return true;
     if (data.stop_reason === 'max_tokens' || data.stop_reason === 'stream_cut') return true;
-    return !validateTimelineAiCustomerFormat(text);
+    return true;
   }
 
   function parseYearsFromBlock(block, sections) {
@@ -1338,7 +1420,7 @@ body.export-capturing #wheelCard .note{display:none !important;}
   }
 
   function parseTimelineAiSections(text) {
-    const cleaned = sanitizeAiTimelineCustomerText(text);
+    const cleaned = finalizeTimelineCustomerText(text);
     const sections = {
       overview: '',
       years: {},
@@ -1671,7 +1753,10 @@ body.export-capturing #wheelCard .note{display:none !important;}
 
   function setTimelineAiResult(text, opts) {
     const box = $('timelineAiResult');
-    TIMELINE_AI_FULL_TEXT = String(text || '').trim();
+    TIMELINE_AI_FULL_TEXT = finalizeTimelineCustomerText(
+      String(text || '').trim(),
+      { streaming: !!TIMELINE_AI_BUSY },
+    );
     TIMELINE_AI_SECTIONS = TIMELINE_AI_FULL_TEXT ? parseTimelineAiSections(TIMELINE_AI_FULL_TEXT) : null;
     if (!opts || opts.resetTab !== false) TIMELINE_YEAR_TAB = 'overview';
     const parsedOk = timelineSectionsHaveContent(TIMELINE_AI_SECTIONS);
@@ -1890,11 +1975,14 @@ body.export-capturing #wheelCard .note{display:none !important;}
     }
     if (timelineMode && TIMELINE_AI_BUSY) {
       box.dataset.aiRaw = raw;
-      box.textContent = raw;
+      const cleaned = finalizeTimelineCustomerText(raw, { streaming: true });
+      const mdSource = stripTimelineAdviceBold(cleaned);
+      const safe = closePartialMarkdownForRender(mdSource);
+      box.innerHTML = aiMarkdownToHtml(safe, { timelineMode });
       return;
     }
     box.dataset.aiRaw = raw;
-    const cleaned = sanitizeAiTimelineCustomerText(raw);
+    const cleaned = finalizeTimelineCustomerText(raw);
     const mdSource = timelineMode ? stripTimelineAdviceBold(cleaned) : cleaned;
     const html = aiMarkdownToHtml(mdSource, { timelineMode });
     const useAcc = !(opts && opts.accordion === false) &&
@@ -3749,7 +3837,7 @@ body.export-capturing #wheelCard .note{display:none !important;}
   function timelineCacheKey() {
     const stamp = chartStampForTransitAi();
     if (!stamp) return '';
-    const prefix = isAiRawTimelineV1Enabled() ? 'raw_v45' : 'v7';
+    const prefix = isAiRawTimelineV1Enabled() ? 'raw_v46' : 'v7';
     if (LAST_TIMELINE && LAST_TIMELINE.fromYm && LAST_TIMELINE.toYm) {
       return `${prefix}:timeline:${stamp}:${LAST_TIMELINE.fromYm}:${LAST_TIMELINE.toYm}`;
     }
@@ -4972,7 +5060,7 @@ body.export-capturing #wheelCard .note{display:none !important;}
       ? PaljaAiQuota.hashKey(cacheKeyRaw + ':' + prompt.slice(0, 400))
       : cacheKeyRaw;
     let accumulated = '';
-    const maxAttempts = 5;
+    const maxAttempts = 2;
     try {
       if (!window.PaljaAiQuota || typeof PaljaAiQuota.callAiStream !== 'function') {
         throw new Error('no_quota_client');
@@ -5008,19 +5096,20 @@ body.export-capturing #wheelCard .note{display:none !important;}
           lastData = result.data;
           const piece = result.text || attemptDelta || '';
           accumulated = continueFrom ? mergeTimelineContinuation(continueFrom, piece) : piece;
-          accumulated = dedupeTimelineStreamText(accumulated);
+          accumulated = finalizeTimelineCustomerText(dedupeTimelineStreamText(accumulated));
           truncated = lastData && (lastData.stop_reason === 'max_tokens' || lastData.stop_reason === 'stream_cut');
           formatOk = validateTimelineAiCustomerFormat(accumulated);
           const incomplete = isTimelineAiResponseIncomplete(result, accumulated);
           if (formatOk && !incomplete) break;
           if (lastData && lastData._palja && lastData._palja.cached && formatOk) break;
+          if (formatOk) break;
         } catch (attemptErr) {
           console.error('[timelineAi attempt]', attempt + 1, attemptErr);
           if (!accumulated && TIMELINE_AI_FULL_TEXT) accumulated = TIMELINE_AI_FULL_TEXT;
           if (attempt >= maxAttempts - 1) throw attemptErr;
         }
       }
-      const out = dedupeTimelineStreamText(accumulated || '해석을 생성하지 못했어요.');
+      const out = finalizeTimelineCustomerText(dedupeTimelineStreamText(accumulated || '해석을 생성하지 못했어요.'));
       truncated = lastData && (lastData.stop_reason === 'max_tokens' || lastData.stop_reason === 'stream_cut');
       formatOk = validateTimelineAiCustomerFormat(out);
       if (truncated && formatOk) truncated = false;
