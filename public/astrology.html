@@ -977,6 +977,7 @@ body.export-capturing #wheelCard .note{display:none !important;}
       if (mode === 'overview') sections.overview = chunk;
       else if (mode === 'year' && currentYear) sections.years[currentYear] = chunk;
       else if (mode === 'schedule') sections.schedule = chunk;
+      else if (mode === 'pre') sections.overview = chunk;
       buf = [];
     };
     const yearLineMeta = (line) => {
@@ -1001,7 +1002,19 @@ body.export-capturing #wheelCard .note{display:none !important;}
       if (mode === 'pre' || mode === 'overview' || mode === 'year' || mode === 'schedule') buf.push(line);
     }
     flush();
+    const hasParsed =
+      sections.overview.trim() ||
+      sections.schedule.trim() ||
+      Object.keys(sections.years).some((y) => String(sections.years[y] || '').trim());
+    if (!hasParsed && cleaned.trim()) sections.overview = cleaned.trim();
     return sections;
+  }
+
+  function timelineSectionsHaveContent(sections) {
+    if (!sections) return false;
+    if (String(sections.overview || '').trim()) return true;
+    if (String(sections.schedule || '').trim()) return true;
+    return Object.keys(sections.years || {}).some((y) => String(sections.years[y] || '').trim());
   }
 
   function getTimelineTabMarkdown(sections, tab) {
@@ -1076,11 +1089,26 @@ body.export-capturing #wheelCard .note{display:none !important;}
     TIMELINE_AI_FULL_TEXT = String(text || '').trim();
     TIMELINE_AI_SECTIONS = TIMELINE_AI_FULL_TEXT ? parseTimelineAiSections(TIMELINE_AI_FULL_TEXT) : null;
     if (!opts || opts.resetTab !== false) TIMELINE_YEAR_TAB = 'overview';
+    const parsedOk = timelineSectionsHaveContent(TIMELINE_AI_SECTIONS);
+    if (!parsedOk) {
+      TIMELINE_AI_SECTIONS = null;
+      const tabs = $('timelineYearTabs');
+      const detailRow = $('timelineYearDetailRow');
+      if (tabs) { tabs.hidden = true; tabs.innerHTML = ''; }
+      if (detailRow) detailRow.hidden = true;
+      setAiResultBox(box, TIMELINE_AI_FULL_TEXT, {
+        open: true,
+        timelineMode: true,
+        accordion: false,
+      });
+      return;
+    }
     renderTimelineYearTabs(TIMELINE_AI_SECTIONS);
-    const md = TIMELINE_AI_SECTIONS
-      ? getTimelineTabMarkdown(TIMELINE_AI_SECTIONS, TIMELINE_YEAR_TAB)
-      : TIMELINE_AI_FULL_TEXT;
-    setAiResultBox(box, md, Object.assign({}, opts || {}, { timelineMode: true }));
+    const md = getTimelineTabMarkdown(TIMELINE_AI_SECTIONS, TIMELINE_YEAR_TAB);
+    setAiResultBox(box, md, Object.assign({}, opts || {}, {
+      timelineMode: true,
+      accordion: false,
+    }));
   }
 
   function aiMarkdownToHtml(text) {
@@ -1196,7 +1224,9 @@ body.export-capturing #wheelCard .note{display:none !important;}
     box.dataset.aiRaw = raw;
     const cleaned = sanitizeAiTimelineCustomerText(raw);
     const html = aiMarkdownToHtml(cleaned);
-    const useAcc = !(opts && opts.accordion === false) && raw.trim().length > 60;
+    const useAcc = !(opts && opts.accordion === false) &&
+      !timelineMode &&
+      raw.trim().length > 60;
     if (!useAcc) {
       box.innerHTML = html;
       return;
@@ -3929,8 +3959,10 @@ body.export-capturing #wheelCard .note{display:none !important;}
       }
     } finally {
       TIMELINE_AI_BUSY = false;
-      btn.textContent = prev;
-      btn.disabled = !AI_SERVER_OK;
+      if (btn) {
+        btn.textContent = prev;
+        btn.disabled = !AI_SERVER_OK || TIMELINE_SCAN_BUSY;
+      }
       if (hint) {
         hint.textContent = '보통 20~40초 정도 걸려요. 나오는 대로 바로 보여 드려요.';
         hint.classList.remove('is-loading');
