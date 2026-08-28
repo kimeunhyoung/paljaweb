@@ -425,6 +425,10 @@ table.astro-table td .glyph{font-size:16px;margin-right:4px;color:var(--accent);
 .timeline-year-tab--key{border-color:#c9a86c;}
 .timeline-year-tab--key.is-on{background:#8b6f47;border-color:#8b6f47;}
 .ai-result--timeline .ai-md-h2[id],.ai-result--timeline .ai-md-year-head[id]{scroll-margin-top:72px;}
+.timeline-year-detail-slot{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:10px;padding-top:8px;border-top:1px dashed #e0d4c0;}
+.timeline-year-detail-slot[hidden]{display:none!important;}
+.timeline-year-inline-detail{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0 18px;padding:10px 0 4px;border-bottom:1px dashed rgba(224,212,192,.85);}
+.timeline-year-inline-detail .timeline-year-detail-btn{font-size:12px;padding:7px 12px;}
 .timeline-year-detail-row{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:16px 0 12px;padding-top:4px;}
 .timeline-year-detail-hint{margin:0;font-size:11.5px;color:var(--muted);line-height:1.5;}
 .timeline-format-warn{margin:10px 0 0;padding:8px 10px;border-radius:8px;background:rgba(184,90,74,.08);border:1px solid rgba(184,90,74,.25);font-size:12px;line-height:1.5;color:#8b3a2a;}
@@ -812,7 +816,7 @@ body.export-capturing #wheelCard .note{display:none !important;}
       </div>
       <div class="transit-ai-block no-print" id="timelineAiBlock" hidden>
         <p class="transit-ai-intro"><strong>AI로 5년 흐름 풀기</strong>를 누르면 5년 스토리·연도별·일정이 <strong>한 번에</strong> 나와요.
-          궁금한 해는 <strong>연도 탭</strong>으로 그해로 이동한 뒤, <strong>시기별로 더 보기</strong>로 한 단계 더 볼 수 있어요.
+          궁금한 해는 본문 각 연도 아래 또는 <strong>연도 탭</strong> 옆 「시기별로 더 보기」로 한 단계 더 볼 수 있어요.
           같은 차트·같은 기간이면 다시 눌러도 크레딧이 안 깎입니다. <span class="ai-quota-cost">(최초 2크레딧)</span></p>
         <div class="timeline-ai-actions">
           <div class="transit-ai-row">
@@ -820,14 +824,11 @@ body.export-capturing #wheelCard .note{display:none !important;}
           </div>
         </div>
         <div id="timelineYearTabBar" class="timeline-year-tab-bar" hidden>
-          <p class="timeline-year-tab-label" id="timelineYearTabHint">📌 아래에서 <strong>5년 전체</strong>를 한 번에 읽을 수 있어요. 궁금한 <strong>연도 탭</strong>을 누르면 그해로 이동하고, 시기별 상세(2크레딧)를 볼 수 있어요.</p>
+          <p class="timeline-year-tab-label" id="timelineYearTabHint">📌 아래에서 <strong>5년 전체</strong>를 한 번에 읽을 수 있어요. 연도 탭을 누르면 바로 아래에서 그해 시기별 상세(2크레딧)를 볼 수 있어요.</p>
           <div id="timelineYearTabs" class="timeline-year-tabs"></div>
+          <div id="timelineYearDetailSlot" class="timeline-year-detail-slot" hidden></div>
         </div>
         <div id="timelineAiResult" class="ai-result empty">차트를 계산한 뒤 「AI로 5년 흐름 풀기」를 눌러 주세요.</div>
-        <div id="timelineYearDetailRow" class="timeline-year-detail-row" hidden>
-          <button type="button" class="rt-btn" id="btnTimelineYearDetail" disabled>📅 선택한 해 시기별로 더 보기 (2크레딧)</button>
-          <span class="timeline-year-detail-hint">그해 흐름·묶인 시기·일정·활용을 한 단계 더. (매달 일일 단위 아님)</span>
-        </div>
         <div id="timelineYearDetailResult" class="ai-result empty" hidden></div>
         <p class="ai-time-hint" id="timelineAiHint">보통 20~40초 정도 걸려요. 나오는 대로 바로 보여 드려요.</p>
       </div>
@@ -1043,6 +1044,16 @@ body.export-capturing #wheelCard .note{display:none !important;}
     return false;
   }
 
+  function extractYearsFromHeading(line) {
+    const years = [];
+    const re = /(\d{4})\s*년/g;
+    let m;
+    while ((m = re.exec(String(line || ''))) !== null) {
+      if (years.indexOf(m[1]) < 0) years.push(m[1]);
+    }
+    return years;
+  }
+
   function parseTimelineYearLineMeta(line) {
     const t = String(line || '').trim();
     let m = t.match(/^(★|◆)\s*\*{0,2}(\d{4})\s*년/);
@@ -1120,6 +1131,13 @@ body.export-capturing #wheelCard .note{display:none !important;}
         currentYear = ym.year;
         sections.yearsHead[currentYear] = ym.head || line.trim();
         sections.yearsMeta[currentYear] = { major: ym.major, key: ym.key };
+        extractYearsFromHeading(line).forEach((y) => {
+          if (y === currentYear) return;
+          sections.yearAliases[y] = currentYear;
+          if (!sections.yearsMeta[y]) {
+            sections.yearsMeta[y] = { major: ym.major, key: ym.key, aliasOf: currentYear };
+          }
+        });
         continue;
       }
       if (currentYear) buf.push(line);
@@ -1145,6 +1163,7 @@ body.export-capturing #wheelCard .note{display:none !important;}
       years: {},
       yearsHead: {},
       yearsMeta: {},
+      yearAliases: {},
       schedule: '',
     };
     const hasStructure =
@@ -1220,6 +1239,13 @@ body.export-capturing #wheelCard .note{display:none !important;}
     return Object.keys(sections.years || {}).some((y) => String(sections.years[y] || '').trim());
   }
 
+  function getTimelineYearList(sections) {
+    if (!sections) return [];
+    const set = new Set(Object.keys(sections.years || {}));
+    Object.keys(sections.yearAliases || {}).forEach((y) => set.add(y));
+    return Array.from(set).sort();
+  }
+
   function getTimelineFullMarkdown(sections) {
     if (!sections) return TIMELINE_AI_FULL_TEXT || '';
     const parts = [];
@@ -1240,21 +1266,79 @@ body.export-capturing #wheelCard .note{display:none !important;}
     return parts.join('\n\n').trim() || TIMELINE_AI_FULL_TEXT || '';
   }
 
-  function scrollToTimelineSection(tab) {
-    const box = $('timelineAiResult');
-    if (!box) return;
-    let id = 'tl-overview';
-    if (tab === 'schedule') id = 'tl-schedule';
-    else if (/^\d{4}$/.test(String(tab || ''))) id = 'tl-year-' + tab;
-    const el = box.querySelector('#' + id);
-    if (el) {
-      el.scrollIntoView({ block: 'start', behavior: 'smooth' });
+  function updateTimelineYearDetailSlot(year) {
+    const slot = $('timelineYearDetailSlot');
+    if (!slot) return;
+    const y = String(year || '').trim();
+    if (!/^\d{4}$/.test(y)) {
+      slot.hidden = true;
+      slot.innerHTML = '';
       return;
     }
-    if (tab === 'overview' || tab === 'years') {
-      const fallback = box.querySelector('#tl-overview') || box.querySelector('#tl-years');
-      if (fallback) fallback.scrollIntoView({ block: 'start', behavior: 'smooth' });
+    const busy = TIMELINE_YEAR_AI_BUSY || TIMELINE_AI_BUSY || TIMELINE_SCAN_BUSY;
+    const canUse = !busy && AI_SERVER_OK;
+    slot.hidden = false;
+    slot.innerHTML = '';
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'rt-btn timeline-year-detail-btn' + (canUse ? ' rt-btn--share' : '');
+    btn.dataset.year = y;
+    btn.disabled = !canUse;
+    btn.textContent = timelineYearDetailBtnLabel(y);
+    const hint = document.createElement('span');
+    hint.className = 'timeline-year-detail-hint';
+    hint.textContent = '그해 시기·일정·활용을 한 단계 더. (매달 단위 아님)';
+    slot.appendChild(btn);
+    slot.appendChild(hint);
+  }
+
+  function syncTimelineYearDetailButtons() {
+    const busy = TIMELINE_YEAR_AI_BUSY || TIMELINE_AI_BUSY || TIMELINE_SCAN_BUSY;
+    const canUse = !busy && AI_SERVER_OK;
+    document.querySelectorAll('.timeline-year-detail-btn').forEach((btn) => {
+      const y = btn.dataset.year || '';
+      if (TIMELINE_YEAR_AI_BUSY && y === String(TIMELINE_YEAR_TAB || '')) {
+        btn.disabled = true;
+        btn.textContent = '⏳ ' + y + '년 해석 중…';
+        return;
+      }
+      btn.disabled = !canUse || !/^\d{4}$/.test(y);
+      btn.classList.toggle('rt-btn--share', canUse && /^\d{4}$/.test(y));
+      btn.textContent = timelineYearDetailBtnLabel(y);
+    });
+    if (/^\d{4}$/.test(String(TIMELINE_YEAR_TAB || ''))) {
+      updateTimelineYearDetailSlot(TIMELINE_YEAR_TAB);
     }
+  }
+
+  function wireTimelineYearInlineButtons(box) {
+    if (!box || !box.classList.contains('ai-result--timeline')) return;
+    box.querySelectorAll('.timeline-year-inline-detail').forEach((n) => n.remove());
+    const busy = TIMELINE_YEAR_AI_BUSY || TIMELINE_AI_BUSY || TIMELINE_SCAN_BUSY;
+    const canUse = !busy && AI_SERVER_OK;
+    box.querySelectorAll('.ai-md-year-head[data-tl-years]').forEach((head) => {
+      const years = (head.getAttribute('data-tl-years') || '').split(',').filter(/^\d{4}$/);
+      if (!years.length) return;
+      let last = head;
+      let node = head.nextElementSibling;
+      while (node && !node.classList.contains('ai-md-year-head') && node.id !== 'tl-schedule') {
+        if (node.classList.contains('timeline-year-inline-detail')) return;
+        last = node;
+        node = node.nextElementSibling;
+      }
+      const wrap = document.createElement('div');
+      wrap.className = 'timeline-year-inline-detail';
+      years.forEach((y) => {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'rt-btn timeline-year-detail-btn' + (canUse ? ' rt-btn--share' : '');
+        btn.dataset.year = y;
+        btn.disabled = !canUse;
+        btn.textContent = timelineYearDetailBtnLabel(y);
+        wrap.appendChild(btn);
+      });
+      last.insertAdjacentElement('afterend', wrap);
+    });
   }
 
   function getTimelineTabMarkdown(sections, tab) {
@@ -1268,43 +1352,19 @@ body.export-capturing #wheelCard .note{display:none !important;}
     if (sections.years[tab]) {
       return (sections.yearsHead[tab] || ('**' + tab + '년**')) + '\n\n' + sections.years[tab];
     }
-    return TIMELINE_AI_FULL_TEXT || '';
-  }
-
-  function syncTimelineYearDetailUi(years) {
-    const detailRow = $('timelineYearDetailRow');
-    const dbtn = $('btnTimelineYearDetail');
-    const hintEl = detailRow ? detailRow.querySelector('.timeline-year-detail-hint') : null;
-    const yearList = years || Object.keys((TIMELINE_AI_SECTIONS && TIMELINE_AI_SECTIONS.years) || {});
-    const hasYears = yearList.length > 0;
-    const isYear = /^\d{4}$/.test(String(TIMELINE_YEAR_TAB || ''));
-    if (detailRow) detailRow.hidden = !hasYears;
-    if (!dbtn) return;
-    const busy = TIMELINE_YEAR_AI_BUSY || TIMELINE_AI_BUSY || TIMELINE_SCAN_BUSY;
-    const canUse = hasYears && isYear && !busy && AI_SERVER_OK;
-    dbtn.disabled = !canUse;
-    dbtn.classList.toggle('rt-btn--share', canUse);
-    dbtn.textContent = timelineYearDetailBtnLabel(isYear ? TIMELINE_YEAR_TAB : '');
-    if (hintEl) {
-      hintEl.textContent = !hasYears
-        ? ''
-        : busy
-          ? '5년 해석을 생성하는 중이에요. 잠시만 기다려 주세요.'
-          : !AI_SERVER_OK
-            ? 'AI 서버 준비 중이에요. 잠시 후 다시 시도해 주세요.'
-            : !isYear
-              ? '위에서 전체를 읽은 뒤, 궁금한 연도 탭을 누르고 시기별로 더 보세요.'
-              : '그해 흐름·묶인 시기·일정·활용을 한 단계 더. (매달 일일 단위 아님)';
+    if (sections.yearAliases && sections.yearAliases[tab] && sections.years[sections.yearAliases[tab]]) {
+      const primary = sections.yearAliases[tab];
+      return (sections.yearsHead[tab] || sections.yearsHead[primary] || ('**' + tab + '년**')) + '\n\n' + sections.years[primary];
     }
+    return TIMELINE_AI_FULL_TEXT || '';
   }
 
   function renderTimelineYearTabs(sections) {
     const el = $('timelineYearTabs');
     const tabBar = $('timelineYearTabBar');
-    const detailRow = $('timelineYearDetailRow');
     const yearDetailBox = $('timelineYearDetailResult');
     if (!el) return;
-    const years = Object.keys(sections && sections.years ? sections.years : {}).sort();
+    const years = getTimelineYearList(sections);
     const hasSchedule = !!(sections && String(sections.schedule || '').trim());
     const hasSubTabs = years.length > 0 || hasSchedule;
     if (tabBar) tabBar.hidden = !hasSubTabs;
@@ -1312,7 +1372,7 @@ body.export-capturing #wheelCard .note{display:none !important;}
     if (!hasSubTabs) {
       el.innerHTML = '';
       if (tabBar) tabBar.hidden = true;
-      syncTimelineYearDetailUi([]);
+      updateTimelineYearDetailSlot('');
       return;
     }
     const mk = (id, label, extra) =>
@@ -1334,30 +1394,33 @@ body.export-capturing #wheelCard .note{display:none !important;}
     const isYear = /^\d{4}$/.test(String(TIMELINE_YEAR_TAB || ''));
     if (tabHint && years.length > 0) {
       tabHint.innerHTML = isYear
-        ? '📌 <strong>' + TIMELINE_YEAR_TAB + '년</strong>으로 이동했어요. 더 깊게 보려면 아래 「' + TIMELINE_YEAR_TAB + '년 시기별로 더 보기」를 누르세요.'
-        : '📌 아래에서 <strong>5년 전체</strong>를 한 번에 읽을 수 있어요. 궁금한 <strong>연도 탭</strong>을 누르면 그해로 이동하고, 시기별 상세(2크레딧)를 볼 수 있어요.';
+        ? '📌 <strong>' + TIMELINE_YEAR_TAB + '년</strong> — 아래 「시기별로 더 보기」로 한 단계 더 볼 수 있어요.'
+        : '📌 아래에서 <strong>5년 전체</strong>를 한 번에 읽을 수 있어요. 연도 탭·각 연도 아래 버튼으로 시기별 상세(2크레딧)를 볼 수 있어요.';
     }
     el.querySelectorAll('.timeline-year-tab').forEach((btn) => {
       btn.addEventListener('click', () => {
         TIMELINE_YEAR_TAB = btn.getAttribute('data-tab') || 'overview';
         renderTimelineYearTabs(TIMELINE_AI_SECTIONS);
-        scrollToTimelineSection(TIMELINE_YEAR_TAB);
         if (yearDetailBox) yearDetailBox.hidden = true;
         if (/^\d{4}$/.test(TIMELINE_YEAR_TAB)) {
-          const dbtn = $('btnTimelineYearDetail');
-          const detailRow = $('timelineYearDetailRow');
-          if (detailRow) detailRow.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
-          if (dbtn && !dbtn.disabled) dbtn.focus({ preventScroll: true });
+          updateTimelineYearDetailSlot(TIMELINE_YEAR_TAB);
+        } else {
+          updateTimelineYearDetailSlot('');
         }
+        syncTimelineYearDetailButtons();
       });
     });
-    syncTimelineYearDetailUi(years);
+    if (/^\d{4}$/.test(String(TIMELINE_YEAR_TAB || ''))) {
+      updateTimelineYearDetailSlot(TIMELINE_YEAR_TAB);
+    } else {
+      updateTimelineYearDetailSlot('');
+    }
+    syncTimelineYearDetailButtons();
   }
 
   function showTimelineYearTab() {
     if (!TIMELINE_AI_SECTIONS) return;
     renderTimelineYearTabs(TIMELINE_AI_SECTIONS);
-    scrollToTimelineSection(TIMELINE_YEAR_TAB);
   }
 
   function setTimelineAiResult(text, opts) {
@@ -1374,10 +1437,9 @@ body.export-capturing #wheelCard .note{display:none !important;}
       TIMELINE_AI_SECTIONS = null;
       const tabs = $('timelineYearTabs');
       const tabBar = $('timelineYearTabBar');
-      const detailRow = $('timelineYearDetailRow');
       if (tabs) { tabs.hidden = true; tabs.innerHTML = ''; }
       if (tabBar) tabBar.hidden = true;
-      if (detailRow) detailRow.hidden = true;
+      updateTimelineYearDetailSlot('');
       setAiResultBox(box, TIMELINE_AI_FULL_TEXT, {
         open: true,
         timelineMode: true,
@@ -1507,14 +1569,17 @@ body.export-capturing #wheelCard .note{display:none !important;}
         flushList();
         flushTiming();
         let anchorId = '';
+        let dataYears = '';
         if (timelineMode && isYearStarLine(line)) {
           const ym = parseTimelineYearLineMeta(line.trim());
+          const allY = extractYearsFromHeading(line);
           if (ym && ym.year) anchorId = ' id="tl-year-' + ym.year + '"';
+          if (allY.length) dataYears = ' data-tl-years="' + allY.join(',') + '"';
         }
         out.push(
           '<h4 class="ai-md-h3 ai-md-timing-label' +
           (isYearStarLine(line) ? ' ai-md-year-head' : '') +
-          '"' + anchorId + '>' +
+          '"' + anchorId + dataYears + '>' +
           inlineMd(escapeCounselorHtml(line.trim())) +
           '</h4>',
         );
@@ -1522,13 +1587,8 @@ body.export-capturing #wheelCard .note{display:none !important;}
         flushList();
         flushTiming();
         const label = line.trim().replace(/^\*\*|\*\*$/g, '').trim();
-        let anchorId = '';
-        if (timelineMode) {
-          const ym = parseTimelineYearLineMeta(line.trim()) || parseTimelineYearLineMeta(label);
-          if (ym && ym.year) anchorId = ' id="tl-year-' + ym.year + '"';
-        }
         out.push(
-          '<h4 class="ai-md-h3 ai-md-timing-label' + (anchorId ? ' ai-md-year-head' : '') + '"' + anchorId + '>' +
+          '<h4 class="ai-md-h3 ai-md-timing-label">' +
           escapeCounselorHtml(label) +
           '</h4>',
         );
@@ -1568,6 +1628,7 @@ body.export-capturing #wheelCard .note{display:none !important;}
       raw.trim().length > 60;
     if (!useAcc) {
       box.innerHTML = html;
+      if (timelineMode) wireTimelineYearInlineButtons(box);
       return;
     }
     let open;
@@ -3402,7 +3463,7 @@ body.export-capturing #wheelCard .note{display:none !important;}
   function timelineCacheKey() {
     const stamp = chartStampForTransitAi();
     if (!stamp) return '';
-    const prefix = isAiRawTimelineV1Enabled() ? 'raw_v37' : 'v7';
+    const prefix = isAiRawTimelineV1Enabled() ? 'raw_v38' : 'v7';
     if (LAST_TIMELINE && LAST_TIMELINE.fromYm && LAST_TIMELINE.toYm) {
       return `${prefix}:timeline:${stamp}:${LAST_TIMELINE.fromYm}:${LAST_TIMELINE.toYm}`;
     }
@@ -3480,7 +3541,7 @@ body.export-capturing #wheelCard .note{display:none !important;}
     if (TIMELINE_AI_SECTIONS) {
       renderTimelineYearTabs(TIMELINE_AI_SECTIONS);
     } else {
-      syncTimelineYearDetailUi([]);
+      updateTimelineYearDetailSlot('');
     }
     if (rawReady) {
       const cal = $('timelineRawSignalCal');
@@ -4634,7 +4695,7 @@ body.export-capturing #wheelCard .note{display:none !important;}
     }
   }
 
-  async function callTimelineYearAi() {
+  async function callTimelineYearAi(yearArg) {
     if (!ASTRO_AI_API_ENABLED) {
       showStatus('AI 해석을 일시적으로 사용할 수 없어요.', 'err');
       return;
@@ -4644,14 +4705,14 @@ body.export-capturing #wheelCard .note{display:none !important;}
       return;
     }
     if (!hasAiAccess()) { showStatus('AI 해석은 Basic 이상 요금제 또는 1회 체험 크레딧이 필요해요.', 'err'); return; }
-    const year = TIMELINE_YEAR_TAB;
-    if (!/^\d{4}$/.test(String(year || ''))) {
-      showStatus('「연도 선택」에서 해(예: 2028년) 탭을 먼저 눌러 주세요.', 'err');
-      const tabBar = $('timelineYearTabBar');
-      if (tabBar) tabBar.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+    const year = String(yearArg || TIMELINE_YEAR_TAB || '').trim();
+    if (!/^\d{4}$/.test(year)) {
+      showStatus('연도를 선택해 주세요.', 'err');
       return;
     }
-    const btn = $('btnTimelineYearDetail');
+    TIMELINE_YEAR_TAB = year;
+    renderTimelineYearTabs(TIMELINE_AI_SECTIONS);
+    updateTimelineYearDetailSlot(year);
     const box = $('timelineYearDetailResult');
     const hint = $('timelineAiHint');
     if (!AI_SERVER_OK || !box) {
@@ -4663,11 +4724,11 @@ body.export-capturing #wheelCard .note{display:none !important;}
     if (cached && cached.key === cacheKeyRaw && cached.text) {
       box.hidden = false;
       setAiResultBox(box, cached.text, { open: true, timelineMode: true });
+      box.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
       return;
     }
-    const prev = btn ? btn.textContent : '';
     TIMELINE_YEAR_AI_BUSY = true;
-    if (btn) { btn.disabled = true; btn.textContent = '⏳ ' + year + '년 해석 중…'; }
+    syncTimelineYearDetailButtons();
     box.hidden = false;
     setAiResultBox(box, '');
     if (hint) hint.classList.add('is-loading');
@@ -4678,6 +4739,8 @@ body.export-capturing #wheelCard .note{display:none !important;}
       console.error(e);
       TIMELINE_YEAR_AI_BUSY = false;
       renderTimelineYearTabs(TIMELINE_AI_SECTIONS);
+      syncTimelineYearDetailButtons();
+      wireTimelineYearInlineButtons($('timelineAiResult'));
       setAiResultBox(box, '연도 데이터를 준비하지 못했어요.', { plain: true });
       return;
     }
@@ -4717,6 +4780,8 @@ body.export-capturing #wheelCard .note{display:none !important;}
     } finally {
       TIMELINE_YEAR_AI_BUSY = false;
       renderTimelineYearTabs(TIMELINE_AI_SECTIONS);
+      syncTimelineYearDetailButtons();
+      wireTimelineYearInlineButtons($('timelineAiResult'));
       if (hint) hint.classList.remove('is-loading');
     }
   }
@@ -5572,7 +5637,15 @@ body.export-capturing #wheelCard .note{display:none !important;}
   $('btnTransit').addEventListener('click', computeTransit);
   $('btnTimeline').addEventListener('click', computeTimelineScan);
   $('btnTimelineAi').addEventListener('click', callTimelineAi);
-  $('btnTimelineYearDetail').addEventListener('click', callTimelineYearAi);
+  const tlAiBlock = $('timelineAiBlock');
+  if (tlAiBlock) {
+    tlAiBlock.addEventListener('click', (e) => {
+      const btn = e.target.closest('.timeline-year-detail-btn');
+      if (!btn || btn.disabled) return;
+      const y = btn.dataset.year;
+      if (y) callTimelineYearAi(y);
+    });
+  }
   $('btnLifeTimeline').addEventListener('click', computeLifeTimelineScan);
   $('btnLifeTimelineAi').addEventListener('click', callLifeTimelineAi);
 
