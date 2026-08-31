@@ -6,5 +6,18 @@
     var json = typeof payload === 'string' ? payload : JSON.stringify(payload, null, 2);
     return SYSTEM + '\n\n' + USER_HEAD + '\n\n--- RAW PAYLOAD (JSON) ---\n' + json + '\n--- END ---';
   }
-  global.AiRawTimelinePromptV2 = { version: 'v2.19', SYSTEM: SYSTEM, buildCustomerPrompt: buildCustomerPrompt };
+  function buildCustomerPromptParts(payload) {
+    var json = typeof payload === 'string' ? payload : JSON.stringify(payload, null, 2);
+    return {
+      cachedPrefix: SYSTEM + '\n\n' + USER_HEAD,
+      dynamicSuffix: '\n\n--- RAW PAYLOAD (JSON) ---\n' + json + '\n--- END ---',
+    };
+  }
+  global.AiRawTimelinePromptV2 = {
+    version: 'v2.19',
+    SYSTEM: SYSTEM,
+    USER_HEAD: USER_HEAD,
+    buildCustomerPrompt: buildCustomerPrompt,
+    buildCustomerPromptParts: buildCustomerPromptParts,
+  };
 })(typeof window !== 'undefined' ? window : global);
