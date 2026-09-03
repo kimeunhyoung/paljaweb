@@ -13,9 +13,11 @@
   var readyPromise = null;
 
   function getClient() {
+    if (global.__paljaSupabaseClient) return global.__paljaSupabaseClient;
     var g = global.supabase || globalThis.supabase;
     if (!g || typeof g.createClient !== 'function') return null;
-    return g.createClient(SB_URL, SB_KEY);
+    global.__paljaSupabaseClient = g.createClient(SB_URL, SB_KEY);
+    return global.__paljaSupabaseClient;
   }
 
   function loginNext() {

@@ -17,9 +17,14 @@
   }
 
   function getClient() {
+    // 같은 페이지의 다른 스크립트(ai-quota-client.js 등)와 Supabase 클라이언트를 공유.
+    // 각자 createClient()를 새로 만들면 GoTrueClient 인스턴스가 늘어나며 인증 상태가
+    // 꼬이고, 인증이 걸린 요청(AI 리딩 스트리밍 등)이 멈추는 원인이 됨.
+    if (window.__paljaSupabaseClient) return window.__paljaSupabaseClient;
     var g = typeof window !== 'undefined' && (window.supabase || globalThis.supabase);
     if (!g || typeof g.createClient !== 'function') return null;
-    return g.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    window.__paljaSupabaseClient = g.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    return window.__paljaSupabaseClient;
   }
 
   function setRow(el, visible) {

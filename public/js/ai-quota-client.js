@@ -7,9 +7,14 @@
   const DEFAULT_MODEL = 'claude-sonnet-4-6';
 
   function getClient() {
+    // 페이지에 로드된 다른 스크립트(topbar-session.js 등)와 같은 Supabase 클라이언트를
+    // 공유 — 각자 createClient()를 새로 부르면 GoTrueClient 인스턴스가 계속 늘어나며
+    // 세션/인증 상태가 꼬이고, 인증이 걸린 요청(예: AI 리딩 스트리밍)이 멈추는 원인이 됨.
+    if (global.__paljaSupabaseClient) return global.__paljaSupabaseClient;
     const g = global.supabase || globalThis.supabase;
     if (!g || typeof g.createClient !== 'function') return null;
-    return g.createClient(SB_URL, SB_KEY);
+    global.__paljaSupabaseClient = g.createClient(SB_URL, SB_KEY);
+    return global.__paljaSupabaseClient;
   }
 
   async function authHeaders() {
@@ -139,7 +144,7 @@
    * SSE 스트리밍. onDelta(chunk)로 조각 수신.
    * 실패 시 throw (err.quota 가능).
    */
-  async function callAiStream({ feature, cacheKey, cacheKeyRaw, model, max_tokens, messages, payload, onDelta, continuePartial }) {
+  async function callAiStream({ feature, cacheKey, cacheKeyRaw, model, max_tokens, messages, payload, onDelta, continuePartial, signal }) {
     const headers = await authHeaders();
     headers.Accept = 'text/event-stream';
     const body = {
@@ -157,6 +162,7 @@
       method: 'POST',
       headers,
       body: JSON.stringify(body),
+      signal,
     });
 
     const ct = String(res.headers.get('content-type') || '');
@@ -227,6 +233,12 @@
     }
 
     while (true) {
+      if (signal && signal.aborted) {
+        try { reader.cancel(); } catch (_) { /* ignore */ }
+        const err = new Error('요청이 취소되었습니다.');
+        err.code = 'aborted';
+        throw err;
+      }
       const { done, value } = await reader.read();
       if (done) break;
       buffer += decoder.decode(value, { stream: true });
