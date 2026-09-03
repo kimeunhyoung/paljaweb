@@ -62,7 +62,7 @@ ul { list-style: none; }
   right: auto;
   z-index: 1;
   padding: 16px 0 12px;
-  transition: all 0.3s;
+  transition: background-color 0.3s ease, padding 0.3s ease;
   background: transparent;
 }
 .site-chrome.scrolled .navbar,

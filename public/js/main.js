@@ -7,14 +7,25 @@ const supabase = createClient(
   'sb_publishable_6S3W_oWrzG-Nv8wLK98gmg_q_KcB2I1'
 )
 
-// 네비게이션 스크롤 효과
-window.addEventListener('scroll', () => {
+// 네비게이션 스크롤 효과 (rAF로 쓰로틀 — 스크롤 이벤트마다 바로 실행하지 않고
+// 프레임당 한 번만 갱신해서 블러 트랜지션이 스크롤과 겹쳐 렌더링이 밀리는 걸 방지)
+let navScrollTicking = false
+let navScrolledState = null
+function updateNavScrolled() {
+  navScrollTicking = false
+  const on = window.scrollY > 50
+  if (on === navScrolledState) return
+  navScrolledState = on
   const chrome = document.getElementById('siteChrome')
   const navbar = document.getElementById('navbar')
-  const on = window.scrollY > 50
   if (chrome) chrome.classList.toggle('scrolled', on)
   if (navbar) navbar.classList.toggle('scrolled', on)
-})
+}
+window.addEventListener('scroll', () => {
+  if (navScrollTicking) return
+  navScrollTicking = true
+  requestAnimationFrame(updateNavScrolled)
+}, { passive: true })
 
 // 히어로 '프로그램 바로가기' → 상단 프로그램 바 강조
 document.getElementById('heroProgramsLink')?.addEventListener('click', (e) => {
