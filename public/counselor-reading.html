@@ -772,6 +772,7 @@
           <button type="button" class="btn-sm outline" id="aiDrawBtn">전체 랜덤 뽑기</button>
           <button type="button" class="btn-sm outline" id="aiClearAllCardsBtn">모든 카드 비우기</button>
           <button type="submit" class="btn-sm" id="aiDraftBtn">해석 생성</button>
+          <button type="button" class="btn-sm outline" id="aiCancelBtn" style="display:none;">취소</button>
           <span class="ai-draft-quota" id="aiCreditHint" aria-live="polite">예상 크레딧 1</span>
           <button type="button" class="btn-sm outline" id="aiCopyBtn" style="display:none;">복사</button>
           <button type="button" class="btn-sm outline" id="aiSaveSessionBtn" style="display:none;">세션에 전문 남기기</button>
@@ -1298,6 +1299,9 @@
       const qEl = document.getElementById('aiQuestion');
       const copyBtn = document.getElementById('aiCopyBtn');
       const saveSessionBtn = document.getElementById('aiSaveSessionBtn');
+      const cancelBtn = document.getElementById('aiCancelBtn');
+      let currentAbortController = null;
+      let userCancelledGeneration = false;
       const drawBtn = document.getElementById('aiDrawBtn');
       const quotaEl = document.getElementById('aiDraftQuota');
       const modeBasic = document.getElementById('aiModeBasic');
@@ -2604,6 +2608,12 @@
       if (depthCardBtn) depthCardBtn.addEventListener('click', () => setReadingDepth('card'));
       if (depthIntegratedBtn) depthIntegratedBtn.addEventListener('click', () => setReadingDepth('integrated'));
       if (drawBtn) drawBtn.addEventListener('click', drawRandom);
+      if (cancelBtn) cancelBtn.addEventListener('click', () => {
+        if (currentAbortController) {
+          userCancelledGeneration = true;
+          try { currentAbortController.abort(); } catch (_) {}
+        }
+      });
       const clearAllCardsBtn = document.getElementById('aiClearAllCardsBtn');
       if (clearAllCardsBtn) clearAllCardsBtn.addEventListener('click', clearAllCards);
 
@@ -3201,6 +3211,8 @@
         const displayName = nickname || (client && (client.display_name || client.legal_name)) || '고객님';
         const btn = document.getElementById('aiDraftBtn');
         if (btn) { btn.disabled = true; btn.textContent = '생성 중…'; }
+        userCancelledGeneration = false;
+        if (cancelBtn) cancelBtn.style.display = '';
         archiveCurrentTurnIfNeeded();
         setAiMsg('해석을 생성하는 중… 나오는 대로 표시됩니다.');
         out.classList.remove('is-empty');
@@ -3303,6 +3315,7 @@
         try {
           let streamed = '';
           const ac = new AbortController();
+          currentAbortController = ac;
           const abortTimer = setTimeout(function () { try { ac.abort(); } catch (_) {} }, 180000);
           let streamIncomplete = false;
           let stopReason = null;
@@ -3384,7 +3397,16 @@
           );
         } catch (err) {
           if (err && err.code === 'aborted') {
-            setAiMsg('요청이 시간 초과로 중단되었습니다. 다시 시도해 주세요.', true);
+            setAiMsg(
+              userCancelledGeneration
+                ? '생성을 취소했습니다. 다시 시도해 주세요.'
+                : '요청이 3분 넘게 응답이 없어 자동으로 중단되었습니다. 다시 시도해 주세요.',
+              true
+            );
+            if (!(out.textContent || '').trim()) {
+              out.classList.add('is-empty');
+              out.textContent = '질문을 넣고 카드를 정한 뒤 해석을 생성해 보세요.';
+            }
           } else if (!(out.textContent || '').trim()) {
             out.classList.add('is-empty');
             out.textContent = '질문을 넣고 카드를 정한 뒤 해석을 생성해 보세요.';
@@ -3395,6 +3417,8 @@
           }
         } finally {
           if (btn) { btn.disabled = false; btn.textContent = '해석 생성'; }
+          if (cancelBtn) cancelBtn.style.display = 'none';
+          currentAbortController = null;
         }
       });
 
