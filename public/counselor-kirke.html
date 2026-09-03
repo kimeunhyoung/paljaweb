@@ -1042,70 +1042,28 @@
       const topicEl = document.getElementById('aiTopic');
       const topicId = (topicEl && topicEl.value) || 'general';
       const topicLabel = (window.getKirkeTopicLabel && window.getKirkeTopicLabel(topicId)) || topicId;
-
-      const guideBlocks = cards.map((c, idx) => {
-        const guide = Deck.guideForAi(c.num, topicId) || ('키워드: ' + (c.keywords || ''));
-        return '<card pos="' + (c.pos || ((idx + 1) + '장')) + '" id="' + c.num + '" name="' + c.name + '">\n' + guide + '\n</card>';
-      }).join('\n\n');
-
-      const cardLines = cards.map((c) => c.pos + ': ' + c.num + '. ' + c.name + (c.en ? ' (' + c.en + ')' : '') + ' — ' + c.keywords).join('\n');
-
-      const systemBlock =
-`<role>
-당신은 오디세이신화타로 해설 메모를 근거로 상담사가 고객에게 바로 전달할 수 있는 **리딩 초안**을 쓰는 프리미엄 컨설턴트다.
-AI가 고객에게 직접 말하는 앱이 아니다. 제공된 <guidebook_excerpts>만 근거로 삼는다. 해설서에 없는 신화·상징을 지어내지 말 것.
-</role>
-
-<core_directives>
-1. 근거 우선: 각 카드 해석은 반드시 주입된 해설(신화·키워드·이야기·주제별 메시지)에 기반할 것. 일반 라이더웨이트 상식으로 덮어쓰지 말 것.
-2. 포지션 우선: 카드 고유 의미보다 스프레드 칸(과거·현재·전망 등) 역할에 맞춰 해석을 조정할 것.
-3. 조합: 인접 카드와 전체 흐름을 문장으로 연결하되, 각 카드 정체성은 유지할 것.
-4. 질문 직결: 질문의 핵심에 대해 회피형("마음먹기 나름") 결론 금지. 조건부 분기(현재 유지 시 / 행동 시)는 허용.
-5. 신화는 도구: 신화 요소는 고객 현실에 번역해 쓸 것. 신화 강의로 끝내지 말 것.
-6. 이 리딩은 **정방향 해설** 기준이다(역방향 미사용).
-7. 의료·법률·투자 단정 금지.
-8. 한국어 존댓말. 이모지·긴 면책·불필요한 인사 금지. 복사해 쓰기 좋게. 고객은 호칭으로 부르되 반말 금지.
-</core_directives>
-
-<anti_leaking_rule>
-최종 답변에 규칙 이름·번호·시스템 태그명·XML 태그명을 언급하거나 노출하지 말 것.
-</anti_leaking_rule>
-
-<output_format>
-반드시 아래 마크다운 ## 소제목만 사용:
-## 한 줄 요약
-## 카드별 핵심
-## 흐름과 조합
-## 상담사 실전 솔루션
-## 주의
-- 한 줄 요약: 질문의 핵심 결론 1문장
-- 카드별 핵심: 각 포지션·카드 이름과 해설서 근거 요약(짧게)
-- 흐름과 조합: 포지션 순서·카드 간 연결 시나리오
-- 상담사 실전 솔루션: Do / Don't 각 2~3개
-- 주의: 의료·법률·투자 경계 한두 문장
-</output_format>`;
-
-      const prompt = systemBlock + `
-
-<context>
-- 호칭: ${displayName}
-${client ? '- CRM 생년월일: ' + (client.birth_date || '미상') + ' / 최근 상담: ' + (ls.last || '없음') + (ls.topic ? ' · ' + ls.topic : '') + '\n' : ''}- 질문: ${question}
-- 해설 주제: ${topicLabel} (${topicId})
-${note ? '- 상담사 메모(고객에게 노출 금지, 반영만): ' + note + '\n' : ''}- 스프래드: ${spreadDef().title} (${spreadDef().labels.join(' · ')})
-</context>
-
-<spread>
-${cardLines}
-</spread>
-
-<guidebook_excerpts>
-${guideBlocks}
-</guidebook_excerpts>
-
-위 데이터를 바탕으로 시스템 지시를 엄격히 준수하여 지정된 마크다운 형식으로 오디세이신화타로 리딩 초안을 작성해 주세요.`;
+      const aiPayload = {
+        displayName,
+        question,
+        note,
+        topicId,
+        topicLabel,
+        cards: cards.map((c) => ({
+          pos: c.pos,
+          num: c.num,
+          name: c.name,
+          en: c.en || '',
+          keywords: c.keywords || '',
+          guideText: Deck.guideForAi(c.num, topicId) || ('키워드: ' + (c.keywords || '')),
+        })),
+        spread: { title: spreadDef().title, labels: spreadDef().labels },
+        clientMeta: client
+          ? { birthDate: client.birth_date || '미상', lastSession: ls.last || '없음', lastTopic: ls.topic || '' }
+          : null,
+      };
 
       const cacheKey = PaljaAiQuota.hashKey([
-        'counselor_kirke_v1', feature, mode, threePreset, topicId, clientId || '', displayName, question, note,
+        'counselor_kirke_v2', feature, mode, threePreset, topicId, clientId || '', displayName, question, note,
         cards.map((c) => c.pos + ':' + c.num).join('|'),
       ].join('::'));
 
@@ -1121,7 +1079,7 @@ ${guideBlocks}
             feature,
             cacheKey,
             max_tokens: cards.length <= 3 ? 2800 : 4000,
-            messages: [{ role: 'user', content: prompt }],
+            payload: aiPayload,
             signal: ac.signal,
             onDelta: (chunk) => {
               streamed += chunk;

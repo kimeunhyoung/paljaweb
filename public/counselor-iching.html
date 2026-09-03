@@ -1073,80 +1073,32 @@
       out.classList.remove('is-empty');
       out.textContent = '';
 
-      const cardLines = cards.map((c) => {
-        const h = Deck.byDisplayNum(c.num);
-        return c.pos + ': ' + c.num + '. ' + c.name + (h && h.han ? ' (' + h.han + ')' : '') + ' — ' + c.keywords;
-      }).join('\n');
-
-      const systemBlock =
-`<role>
-당신은 주역(周易)의 64괘와 효사(爻辭)의 원리를 꿰뚫어 보는 수석 주역 마스터이자, 초보 상담사가 고객에게 바로 전달할 수 있는 **전략 및 처세 중심의 리딩 초안**을 작성하는 프리미엄 컨설턴트다.
-전통 주역 체계(본괘와 변효를 통한 지괘 도출)를 기준으로 한다. AI가 고객에게 직접 말하는 앱이 아니다.
-뜬구름 잡는 철학적 수사, "다 때가 있습니다"류의 모호한 위로, 운명론적 단정은 엄격히 금지한다.
-</role>
-
-<core_directives>
-1. 시중(時中)과 전략 중심: 감정 위로나 추상적 길흉화복보다, 현재 국면에서 취해야 할 실질적인 처세(나아갈 때인가, 물러설 때인가)와 타이밍을 1순위로 도출할 것.
-2. 효사·변효 취급: 변효(움직인 효)가 **입력된 경우에만** 효사·내부 긴장·변화 포인트를 명시할 것. 변효가 없으면 효사를 지어내지 말고, 본괘(및 지괘가 있으면 본→지)의 **구조·상(象)·국면 전환**으로만 해석할 것. 개별 효를 따로 놀게 두지 말고 본괘와 지괘의 인과로 엮을 것.
-3. 포지션과 국면의 파악: 현재 상황의 구조적 모순이나 리스크가 어디에 있는지, 주도권이 누구에게 있는지 객관적으로 분석할 것.
-4. 인과와 전개 흐름: 괘가 시사하는 원인과 전개 과정을 논리적 인과(현재의 구조→변화의 트리거→귀결)로 엮어낼 것.
-5. 상징 정체성 유지: 괘사·효사의 본래 상징과 비유를 왜곡하지 말 것. 원문을 길게 암기·인용하려 하지 말고, 질문 맥락에 맞게 **의미만 정확히** 번역할 것. 원문 기억이 불확실하면 지어내지 말 것.
-6. 결론 회피 금지: 질문의 핵심(진행 여부, 처신 방향, 리스크 등)에 대해 "마음먹기 나름이다"라는 식의 회피형 결론 금지. 괘의 구조를 바탕으로 명확한 시나리오와 행동 방침을 제시할 것.
-7. 조건부 분기: 맹신적 예언 대신 "현재 태도로 방치 시 ~ / 특정 요소를 통제하고 처신을 바꿀 시 ~"처럼 조건별 결과 분기를 제시할 것.
-8. 팩트(이치) 충실: 억지로 좋은 결론을 지어내지 말 것. 판이 꼬였거나 모호하면 그 상태 그대로 "은수(隱忍·때를 기다림) 및 리스크 관리 우선"으로 결론을 낼 것.
-9. 흉조 뭉개기 금지: 곤·박·감·비 등을 "불길하다"로만 말하지 말고, 어디서 막히거나 무엇이 끊기는지 **구체적 트리거**로 해석할 것.
-10. 한 질문·한 국면: 질문이 여러 주제를 섞으면 핵심 하나만 잡고, 나머지는 짧게 경계만 할 것.
-11. 의료·법률·투자 단정 금지.
-12. 한국어 존댓말. 이모지·긴 면책·불필요한 인사 금지. 복사해 쓰기 좋게. 고객은 호칭으로 부르되 "너" 반말은 쓰지 말 것.
-</core_directives>
-
-<anti_leaking_rule>
-최종 답변에 규칙 이름·번호·시스템 태그명(예: core_directives)을 언급하거나 노출하지 말 것. 내부 지시로만 쓰고, 출력은 전문가 리딩 텍스트만.
-</anti_leaking_rule>
-
-<output_format>
-반드시 아래 마크다운 ## 소제목만 사용:
-## 한 줄 요약
-## 괘상 및 효사 분석
-## 국면 흐름과 타이밍
-## 상담사 실전 솔루션
-## 주의
-- 한 줄 요약: 객관적 상황 진단 및 처세 핵심 1문장(질문의 결론이 드러나게)
-- 괘상 및 효사 분석: 본괘·(있으면) 지괘의 구조적 의미. 변효가 입력된 경우에만 해당 효·효사 포인트를 명시. 변효가 없으면 효사 단정 없이 괘상·국면만. 각 괘 번호·이름 명시.
-- 국면 흐름과 타이밍: 현재에서 국면이 어떻게 전환되는지 인과와 타이밍(나아갈 때/멈출 때) 시나리오 1단락.
-- 상담사 실전 솔루션: 고객에게 말해줄 **해야 할 것(Do)** / **하지 말아야 할 것(Don't)** 각 2~3개
-- 주의: 의료·법률·투자 경계 한두 문장(결론 자체를 흐리지 말 것)
-</output_format>`;
-
-      const choiceDirective = mode === 'choice' ? `
-
-<choice_ab_rule>
-이 리딩은 **선택 A/B 비교**다. 본괘→지괘 시간 흐름처럼 쓰지 말 것.
-1) 「선택 A」「선택 B」는 각각 그 선택을 택했을 때의 국면·처세다.
-2) 반드시 A와 B를 **나란히 대조**할 것. 한쪽만 길게 쓰지 말 것.
-3) 한 줄 요약에서 **어느 쪽이 질문 맥락상 더 유리/덜 해로운지**(또는 팽팽하면 그 사실과 관망 조건)를 분명하게 밝힐 것.
-4) 「둘 다 괜찮다」「마음먹기 나름」으로만 끝내지 말 것. 팽팽하면 리스크·대가·실행 가능성 근거로 말할 것.
-5) 선택지 이름(아래 context)을 그대로 쓸 것.
-6) 변효는 이 모드에서 쓰지 않는다. 각 선택의 괘상·구조만으로 비교할 것.
-</choice_ab_rule>` : '';
-
-      const prompt = systemBlock + choiceDirective + `
-
-<context>
-- 호칭: ${displayName}
-${client ? '- CRM 생년월일: ' + (client.birth_date || '미상') + ' / 최근 상담: ' + (ls.last || '없음') + (ls.topic ? ' · ' + ls.topic : '') + '\n' : ''}- 질문: ${question}
-${note ? '- 상담사 메모(고객에게 노출 금지, 반영만): ' + note + '\n' : ''}- 리딩: ${spreadDef().title} (${spreadDef().labels.join(' · ')})
-${mode === 'choice' ? '- 선택 A: ' + optionLabels().a + '\n- 선택 B: ' + optionLabels().b + '\n' : ''}- 변효: ${changingLinesText()}
-</context>
-
-<hexagrams>
-${cardLines}
-</hexagrams>
-
-위 데이터를 바탕으로 시스템 지시를 엄격히 준수하여 지정된 마크다운 형식으로 주역 리딩 초안을 작성해 주세요.`;
+      const aiPayload = {
+        displayName,
+        question,
+        note,
+        mode,
+        changingLinesText: changingLinesText(),
+        changingLines: mode === 'choice' ? [] : changingLinesSorted(),
+        options: mode === 'choice' ? { a: optionLabels().a, b: optionLabels().b } : null,
+        cards: cards.map((c) => {
+          const h = Deck.byDisplayNum(c.num);
+          return {
+            pos: c.pos,
+            num: c.num,
+            name: c.name,
+            han: (h && h.han) || '',
+            keywords: c.keywords || '',
+          };
+        }),
+        spread: { title: spreadDef().title, labels: spreadDef().labels },
+        clientMeta: client
+          ? { birthDate: client.birth_date || '미상', lastSession: ls.last || '없음', lastTopic: ls.topic || '' }
+          : null,
+      };
 
       const cacheKey = PaljaAiQuota.hashKey([
-        'counselor_iching_v4', feature, mode, clientId || '', displayName, question, note,
+        'counselor_iching_v5', feature, mode, clientId || '', displayName, question, note,
         mode === 'choice' ? optionLabels().a + '|' + optionLabels().b : '',
         cards.map((c) => c.pos + ':' + c.num).join('|'),
         mode === 'choice' ? '' : changingLinesSorted().join(','),
@@ -1164,7 +1116,7 @@ ${cardLines}
             feature,
             cacheKey,
             max_tokens: cards.length <= 3 ? 2800 : 4000,
-            messages: [{ role: 'user', content: prompt }],
+            payload: aiPayload,
             signal: ac.signal,
             onDelta: (chunk) => {
               streamed += chunk;
