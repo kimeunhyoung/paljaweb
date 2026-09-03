@@ -189,7 +189,7 @@
       .ai-card-slots.ai-card-slots--mirror { grid-template-columns: repeat(2, 1fr); }
       /* 짝이 없는 단독 칸(현재·결과 등)은 다른 칸과 같은 폭으로, 가운데 정렬 */
       .ai-card-slots.ai-card-slots--mirror .ai-card-slot.is-solo {
-        grid-column: 1 / -1; max-width: calc(50% - 5px); margin: 0 auto;
+        grid-column: 1 / -1; width: calc(50% - 5px); justify-self: center;
       }
     }
     .ai-card-slot {
