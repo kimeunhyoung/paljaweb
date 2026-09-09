@@ -722,7 +722,8 @@
           <div class="ai-q-head">
             <label for="aiQuestion">질문 *</label>
             <div class="ai-q-actions">
-              <button type="button" class="ai-clear-q-btn" id="aiClearQBtn" title="질문칸 비우기">지우기</button>
+              <button type="button" class="ai-clear-q-btn" id="aiClearQBtn" title="질문칸만 비우기">지우기</button>
+              <button type="button" class="ai-clear-q-btn" id="aiNewReadingBtn" title="질문·추가메모·카드·추가칸·해석을 모두 비우고 새 리딩 시작">새 리딩</button>
               <button type="button" class="ai-voice-btn" id="aiVoiceBtn" title="마이크로 질문 받아쓰기">🎤 음성 입력</button>
             </div>
           </div>
@@ -771,6 +772,7 @@
         <div class="full ai-draft-actions">
           <button type="button" class="btn-sm outline" id="aiDrawBtn">전체 랜덤 뽑기</button>
           <button type="button" class="btn-sm outline" id="aiClearAllCardsBtn">모든 카드 비우기</button>
+          <button type="button" class="btn-sm outline" id="aiNewReadingBtn2" title="질문·추가메모·카드·추가칸·해석을 모두 비우고 새 리딩 시작">새 리딩</button>
           <button type="submit" class="btn-sm" id="aiDraftBtn">해석 생성</button>
           <button type="button" class="btn-sm outline" id="aiCancelBtn" style="display:none;">취소</button>
           <span class="ai-draft-quota" id="aiCreditHint" aria-live="polite">예상 크레딧 1</span>
@@ -2291,6 +2293,52 @@
         setAiMsg(hadAny ? '모든 카드 칸을 비웠습니다. 새로 뽑거나 선택하세요.' : '이미 비어 있습니다.');
       }
 
+      /** 질문·메모·카드(추가칸 포함)·해석 결과까지 비우고 새 리딩 준비. 고객·모드·스프래드는 유지. */
+      function startNewReading() {
+        if (currentAbortController) {
+          userCancelledGeneration = true;
+          try { currentAbortController.abort(); } catch (_) {}
+        }
+        try { archiveCurrentTurnIfNeeded(); } catch (_) {}
+
+        const qEl = document.getElementById('aiQuestion');
+        const noteEl = document.getElementById('aiNote');
+        if (qEl) qEl.value = '';
+        if (noteEl) noteEl.value = '';
+
+        const n = baseCount();
+        const sp = mode === 'advanced' ? getSpread() : null;
+        slots = [];
+        for (let i = 0; i < n; i++) {
+          slots.push({
+            num: null,
+            rev: false,
+            label: mode === 'basic'
+              ? '카드'
+              : ((sp && sp.positions && sp.positions[i]) || ((i + 1) + '장')),
+            extra: false,
+          });
+        }
+        targetSlot = 0;
+
+        lastText = '';
+        lastQuestion = '';
+        lastCardsLine = '';
+        lastSpreadLabel = '';
+        if (out) {
+          out.classList.add('is-empty');
+          out.textContent = '질문을 넣고 카드를 정한 뒤 해석을 생성해 보세요.';
+        }
+        if (copyBtn) copyBtn.style.display = 'none';
+        if (saveSessionBtn) saveSessionBtn.style.display = 'none';
+
+        renderSlots();
+        updateCreditHint();
+        try { renderSpreadSuggest(); } catch (_) {}
+        setAiMsg('새 리딩을 준비했습니다. 질문과 카드를 다시 넣어 주세요.');
+        try { if (qEl) qEl.focus(); } catch (_) {}
+      }
+
       function readFilledCards() {
         const labels = posLabels();
         const outCards = [];
@@ -2616,6 +2664,10 @@
       });
       const clearAllCardsBtn = document.getElementById('aiClearAllCardsBtn');
       if (clearAllCardsBtn) clearAllCardsBtn.addEventListener('click', clearAllCards);
+      ['aiNewReadingBtn', 'aiNewReadingBtn2'].forEach((id) => {
+        const btn = document.getElementById(id);
+        if (btn) btn.addEventListener('click', startNewReading);
+      });
 
       (function initCardVoice() {
         const btn = document.getElementById('aiCardVoiceBtn');
