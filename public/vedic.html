@@ -76,6 +76,11 @@ body{font-family:var(--font-body);background:var(--cream);color:var(--ink);min-h
 .check-row{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--muted);}
 .manual-coords{display:none;grid-template-columns:1fr 1fr;gap:12px;margin-top:10px;}
 .manual-coords.show{display:grid;}
+.client-pick-wrap{display:none;margin:0 0 16px;padding:0 0 14px;border-bottom:1px solid #e8ddcb;}
+.client-pick-wrap.is-visible{display:block;}
+.client-pick-row{display:grid;grid-template-columns:minmax(120px,1fr) minmax(160px,1.4fr);gap:10px;align-items:end;}
+.client-pick-hint{margin:8px 0 0;font-size:12px;line-height:1.5;color:var(--muted);}
+@media (max-width:680px){.client-pick-row{grid-template-columns:1fr;}}
 .analyze-btn{margin-top:20px;width:100%;padding:15px;border:none;border-radius:12px;background:var(--accent);color:#fff;font-family:var(--font-serif);font-size:17px;font-weight:600;cursor:pointer;}
 .analyze-btn:hover{background:#d4b87a;}
 .analyze-btn:disabled{opacity:.6;cursor:not-allowed;}
@@ -144,6 +149,21 @@ table.t a{color:var(--warm-brown);}
 <div class="wrap">
   <div class="card" id="inputCard">
     <div class="card-title">✦ 출생 정보 입력</div>
+    <div class="client-pick-wrap" id="clientPickWrap">
+      <div class="client-pick-row">
+        <div class="field">
+          <label for="clientPickSearch">고객 찾기</label>
+          <input class="input-field" id="clientPickSearch" type="search" placeholder="이름·생년월일" autocomplete="off"/>
+        </div>
+        <div class="field">
+          <label for="clientPickSelect">저장된 고객</label>
+          <select class="input-field" id="clientPickSelect" aria-label="저장된 고객 선택">
+            <option value="">— 직접 입력 —</option>
+          </select>
+        </div>
+      </div>
+      <p class="client-pick-hint">고객을 고르면 이름·생년월일·출생 시간·출생지가 채워집니다. 허브 없이 바로 차트를 계산할 수 있어요.</p>
+    </div>
     <div class="form-grid">
       <div class="field">
         <label for="inName">이름 <span class="hint">(선택)</span></label>
@@ -243,6 +263,22 @@ table.t a{color:var(--warm-brown);}
   const $ = (id) => document.getElementById(id);
   const PUBLIC_NAK = [1, 4, 8];
 
+  const SUPABASE_URL = 'https://sghsryumnrnftyjoqmwf.supabase.co';
+  const SUPABASE_ANON_KEY = 'sb_publishable_6S3W_oWrzG-Nv8wLK98gmg_q_KcB2I1';
+  let sbClient = null;
+  try {
+    if (window.supabase && window.supabase.createClient) {
+      sbClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    }
+  } catch (_) {}
+
+  let COUNSELOR_UID = '';
+  let COUNSELOR_CLIENT_ROWS = [];
+  let ACTIVE_CLIENT_ID = '';
+  try {
+    ACTIVE_CLIENT_ID = new URLSearchParams(location.search).get('client') || '';
+  } catch (_) {}
+
   (function fillCities() {
     const sel = $('inCity');
     const kr = document.createElement('optgroup'); kr.label = '국내';
@@ -261,7 +297,11 @@ table.t a{color:var(--warm-brown);}
   })();
   $('timeUnknown').addEventListener('change', (e) => { $('inTime').disabled = e.target.checked; });
 
-  function showStatus(msg, type) { const el = $('status'); el.className = 'status show ' + (type || 'info'); el.textContent = msg; }
+  function showStatus(msg, type) {
+    const el = $('status');
+    el.className = 'status show ' + (type || 'info');
+    el.innerHTML = msg;
+  }
   function hideStatus() { $('status').className = 'status'; }
 
   function getCoords() {
@@ -293,6 +333,209 @@ table.t a{color:var(--warm-brown);}
   }
   function signLabel(r) { return V.SIGNS[r].sa + '(' + V.SIGNS[r].ko + ')'; }
   const GK = V.GRAHA_KO;
+
+  function normalizeIsoDate(raw) {
+    if (!raw) return '';
+    const s = String(raw).trim();
+    const m = s.match(/^(\d{4})-(\d{2})-(\d{2})/);
+    return m ? m[1] + '-' + m[2] + '-' + m[3] : '';
+  }
+  function normalizeTimeHm(raw) {
+    if (!raw) return '';
+    const s = String(raw).trim();
+    const m = s.match(/^(\d{1,2}):(\d{2})/);
+    if (!m) return '';
+    return String(m[1]).padStart(2, '0') + ':' + m[2];
+  }
+  function applyCityPrefill(cityName) {
+    if (!cityName) return false;
+    const raw = String(cityName).trim();
+    let idx = CITIES.findIndex((c) => c.ko === raw);
+    if (idx < 0) idx = CITIES.findIndex((c) => raw.includes(c.ko) || c.ko.includes(raw));
+    if (idx < 0) return false;
+    $('inCity').value = String(idx);
+    $('manualCoords').classList.remove('show');
+    return true;
+  }
+  function applyCoordsPrefill(latRaw, lngRaw) {
+    const lat = parseFloat(latRaw);
+    const lng = parseFloat(lngRaw);
+    if (Number.isNaN(lat) || Number.isNaN(lng)) return false;
+    $('inCity').value = 'manual';
+    $('manualCoords').classList.add('show');
+    $('inLat').value = String(lat);
+    $('inLng').value = String(lng);
+    return true;
+  }
+  function resetBirthPlaceFields() {
+    const city = $('inCity');
+    if (city) city.value = '0';
+    const wrap = $('manualCoords');
+    if (wrap) wrap.classList.remove('show');
+    if ($('inLat')) $('inLat').value = '';
+    if ($('inLng')) $('inLng').value = '';
+  }
+  function applyBirthPrefill(data, opts) {
+    const partial = !!(opts && opts.partial);
+    const nm = (data.name || '').trim();
+    const dt = normalizeIsoDate(data.date);
+    const tm = normalizeTimeHm(data.time);
+    const city = (data.city || '').trim();
+
+    if (nm || !partial) $('inName').value = nm;
+    if (dt) $('inDate').value = dt;
+
+    if (tm) {
+      $('inTime').value = tm;
+      const unk = $('timeUnknown');
+      if (unk) {
+        unk.checked = false;
+        $('inTime').disabled = false;
+      }
+    } else if (!partial) {
+      $('inTime').value = '';
+      const unk = $('timeUnknown');
+      if (unk) {
+        unk.checked = false;
+        if ($('inTime')) $('inTime').disabled = false;
+      }
+    }
+
+    if (!partial) resetBirthPlaceFields();
+    let hasCoords = applyCoordsPrefill(data.lat, data.lng);
+    if (!hasCoords && city) applyCityPrefill(city);
+
+    const placeOk = hasCoords || !!city;
+    return { nm, dt, tm, city: placeOk ? (city || 'coords') : '', hasCoords };
+  }
+  function counselorPrefillStatus({ dt, tm, city, hasCoords }) {
+    if (!dt) return '고객 생년월일을 불러오지 못했어요. 직접 입력해 주세요.';
+    if (tm && (city || hasCoords)) {
+      return '저장된 고객에서 <strong>이름·생년월일·출생 시간·출생지</strong>를 불러왔어요. 확인 후 차트를 계산합니다.';
+    }
+    if (tm) {
+      return '이름·생년월일·출생 시간을 불러왔어요. <strong>출생지</strong>를 확인한 뒤 “차트 계산하기”를 눌러주세요.';
+    }
+    return '생년월일을 불러왔어요. 정확한 차트를 위해 <strong>출생 시간</strong>과 <strong>출생지</strong>를 입력한 뒤 “차트 계산하기”를 눌러주세요. (시간을 모르면 “시간 모름”을 체크)';
+  }
+  function setActiveClientId(clientId, updateUrl) {
+    ACTIVE_CLIENT_ID = clientId || '';
+    if (!updateUrl) return;
+    try {
+      const url = new URL(location.href);
+      if (ACTIVE_CLIENT_ID) url.searchParams.set('client', ACTIVE_CLIENT_ID);
+      else url.searchParams.delete('client');
+      history.replaceState({}, '', url.pathname + url.search + url.hash);
+    } catch (_) {}
+  }
+  function populateCounselorClientSelect(filterText) {
+    const sel = $('clientPickSelect');
+    if (!sel) return;
+    const q = String(filterText || '').trim().toLowerCase().replace(/\s+/g, '');
+    const cur = sel.value;
+    const rows = !q
+      ? COUNSELOR_CLIENT_ROWS
+      : COUNSELOR_CLIENT_ROWS.filter((c) => {
+          const dn = String(c.display_name || '').toLowerCase().replace(/\s+/g, '');
+          const ln = String(c.legal_name || '').toLowerCase().replace(/\s+/g, '');
+          const birth = String(c.birth_date || '').toLowerCase();
+          return dn.includes(q) || ln.includes(q) || birth.includes(q);
+        });
+    sel.innerHTML = '<option value="">— 직접 입력 —</option>' + rows.map((c) => {
+      const label = (c.display_name || c.legal_name || '고객') +
+        (c.birth_date ? ' · ' + String(c.birth_date).slice(0, 10) : '');
+      return '<option value="' + c.id + '">' + esc(label) + '</option>';
+    }).join('');
+    if (cur && COUNSELOR_CLIENT_ROWS.some((c) => c.id === cur)) sel.value = cur;
+  }
+  function applyCounselorClientRow(row, opts) {
+    if (!row) return null;
+    const merged = applyBirthPrefill({
+      name: (row.display_name || row.legal_name || '').trim(),
+      date: row.birth_date,
+      time: row.birth_time,
+      city: row.birth_city,
+      lat: row.birth_lat,
+      lng: row.birth_lng,
+    });
+    setActiveClientId(row.id, !!(opts && opts.updateUrl));
+    const sel = $('clientPickSelect');
+    if (sel && opts && opts.syncSelect !== false) {
+      if (![...sel.options].some((o) => o.value === row.id)) {
+        populateCounselorClientSelect(($('clientPickSearch') || {}).value || '');
+      }
+      sel.value = row.id;
+    }
+    return merged;
+  }
+  async function loadCounselorClientPicker() {
+    const wrap = $('clientPickWrap');
+    const sel = $('clientPickSelect');
+    const search = $('clientPickSearch');
+    if (!wrap || !sel || !sbClient || !COUNSELOR_UID) return;
+    wrap.classList.add('is-visible');
+
+    const { data, error } = await sbClient
+      .from('counselor_clients')
+      .select('id,display_name,legal_name,birth_date,birth_time,birth_city,birth_lat,birth_lng')
+      .eq('counselor_id', COUNSELOR_UID)
+      .order('display_name', { ascending: true });
+
+    COUNSELOR_CLIENT_ROWS = (!error && data) ? data : [];
+    populateCounselorClientSelect((search && search.value) || '');
+
+    if (ACTIVE_CLIENT_ID && COUNSELOR_CLIENT_ROWS.some((c) => c.id === ACTIVE_CLIENT_ID)) {
+      sel.value = ACTIVE_CLIENT_ID;
+    }
+
+    if (!sel.dataset.bound) {
+      sel.dataset.bound = '1';
+      sel.addEventListener('change', async () => {
+        const id = sel.value;
+        if (!id) {
+          setActiveClientId('', true);
+          return;
+        }
+        const row = COUNSELOR_CLIENT_ROWS.find((c) => c.id === id);
+        if (!row) return;
+        const merged = applyCounselorClientRow(row, { updateUrl: true, syncSelect: false });
+        showStatus(counselorPrefillStatus(merged || {}), 'info');
+        if (merged && merged.dt && merged.tm && merged.city) {
+          try { await calculate(); } catch (_) {}
+        } else if (merged && merged.dt && !merged.tm) {
+          const t = $('inTime');
+          if (t) t.focus();
+        }
+      });
+    }
+    if (search && !search.dataset.bound) {
+      search.dataset.bound = '1';
+      search.addEventListener('input', () => populateCounselorClientSelect(search.value));
+    }
+  }
+
+  const accessReady = (async () => {
+    try {
+      if (!sbClient) return;
+      const { data: { session } } = await sbClient.auth.getSession();
+      if (!session) return;
+      const { data: profile } = await sbClient
+        .from('profiles')
+        .select('plan, plan_active_until, calendar_pass_until')
+        .eq('id', session.user.id)
+        .single();
+      if (window.PaljaDevice && typeof window.PaljaDevice.ensurePaidAccess === 'function') {
+        await window.PaljaDevice.ensurePaidAccess(session.access_token, profile || { plan: 'free' });
+      } else if (window.PaljaDevice && typeof window.PaljaDevice.whenReady === 'function') {
+        await window.PaljaDevice.whenReady();
+      }
+      let hasPro = window.PaljaPlan ? window.PaljaPlan.hasCounselorAccess(profile || {}) : false;
+      if (window.PALJA_DEVICE_LIMIT_HIT) hasPro = false;
+      if (!hasPro) return;
+      COUNSELOR_UID = session.user.id;
+      await loadCounselorClientPicker();
+    } catch (_) {}
+  })();
 
   function render(data, ctx) {
     const { grahas, lagna, ayanamsa } = data;
@@ -391,7 +634,7 @@ table.t a{color:var(--warm-brown);}
     $('result').scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
 
-  $('calcBtn').addEventListener('click', async () => {
+  async function calculate() {
     hideStatus();
     if (!Origin || !Horoscope) { showStatus('계산 라이브러리를 불러오지 못했습니다. 새로고침해 주세요.', 'err'); return; }
     const dateVal = $('inDate').value;
@@ -424,7 +667,57 @@ table.t a{color:var(--warm-brown);}
     } finally {
       $('calcBtn').disabled = false;
     }
-  });
+  }
+
+  $('calcBtn').addEventListener('click', () => { calculate(); });
+
+  async function prefillFromCounselorHub() {
+    try {
+      const qs = new URLSearchParams(location.search);
+      const fromQs = applyBirthPrefill({
+        name: qs.get('name'),
+        date: qs.get('date'),
+        time: qs.get('time'),
+        city: qs.get('city'),
+        lat: qs.get('lat'),
+        lng: qs.get('lng'),
+      }, { partial: true });
+
+      const clientId = ACTIVE_CLIENT_ID || qs.get('client') || '';
+      let merged = fromQs;
+
+      if (clientId && sbClient) {
+        await accessReady;
+        const fromList = COUNSELOR_CLIENT_ROWS.find((c) => c.id === clientId);
+        if (fromList) {
+          merged = applyCounselorClientRow(fromList, { updateUrl: false }) || fromQs;
+        } else {
+          const { data: { session } } = await sbClient.auth.getSession();
+          if (session) {
+            const { data: row } = await sbClient
+              .from('counselor_clients')
+              .select('id,display_name,legal_name,birth_date,birth_time,birth_city,birth_lat,birth_lng')
+              .eq('id', clientId)
+              .eq('counselor_id', session.user.id)
+              .maybeSingle();
+            if (row) merged = applyCounselorClientRow(row, { updateUrl: false }) || fromQs;
+          }
+        }
+      }
+
+      if (!merged.dt && !merged.nm) return;
+      showStatus(counselorPrefillStatus(merged), 'info');
+      if (merged.dt && merged.tm && merged.city) await calculate();
+      else if (merged.dt && !merged.tm) {
+        const t = $('inTime');
+        if (t) t.focus();
+      }
+    } catch (e) {
+      console.error('counselor prefill failed', e);
+    }
+  }
+
+  prefillFromCounselorHub();
 </script>
 </body>
 </html>
