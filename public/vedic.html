@@ -333,6 +333,11 @@ table.t a{color:var(--warm-brown);}
   }
   function signLabel(r) { return V.SIGNS[r].sa + '(' + V.SIGNS[r].ko + ')'; }
   const GK = V.GRAHA_KO;
+  const PUBLIC_HOUSE = [1, 7, 10];
+  function houseLink(n) {
+    const f = 'h' + String(n).padStart(2, '0') + '.html';
+    return '<a href="' + (PUBLIC_HOUSE.indexOf(n) >= 0 ? 'nakshatra/' + f : 'nakshatra/members/' + f) + '">' + n + '</a>';
+  }
   const GNUM = { ketu: 1, venus: 2, sun: 3, moon: 4, mars: 5, rahu: 6, jupiter: 7, saturn: 8, mercury: 9 };
   const PUBLIC_GRAHA = [1, 3, 4];
   function grahaLink(key) {
@@ -607,7 +612,7 @@ table.t a{color:var(--warm-brown);}
       const note = (g.retro && !isL && g.key !== 'rahu' && g.key !== 'ketu') ? '역행' : '';
       tb += '<tr><td>' + (isL ? '상승궁' : grahaLink(g.key)) + '</td><td>' + signLabel(g.rashi) + '</td><td>' + fmtDeg(g.deg) + '</td><td>' +
         nakLink(g.nak, nakName(g.nak)) + ' ' + g.pada + '파다</td><td>' + grahaLink(g.nakLord) + '</td>' +
-        (lagna ? '<td>' + (isL ? '1' : g.house) + '</td>' : '') + '<td>' + note + '</td></tr>';
+        (lagna ? '<td>' + houseLink(isL ? 1 : g.house) + '</td>' : '') + '<td>' + note + '</td></tr>';
     });
     $('grahaTbl').innerHTML = tb;
     $('houseNote').innerHTML = lagna ? '하우스는 전체별자리 방식입니다. 상승궁이 ' + signLabel(lagna.rashi) + '이므로 이 별자리가 1하우스이고, 다음 별자리가 2하우스입니다.' : '출생 시간을 모르면 상승궁과 하우스를 계산하지 않습니다.';
