@@ -333,6 +333,14 @@ table.t a{color:var(--warm-brown);}
   }
   function signLabel(r) { return V.SIGNS[r].sa + '(' + V.SIGNS[r].ko + ')'; }
   const GK = V.GRAHA_KO;
+  const GNUM = { ketu: 1, venus: 2, sun: 3, moon: 4, mars: 5, rahu: 6, jupiter: 7, saturn: 8, mercury: 9 };
+  const PUBLIC_GRAHA = [1, 3, 4];
+  function grahaLink(key) {
+    const n = GNUM[key];
+    if (!n) return GK[key];
+    const f = 'g0' + n + '.html';
+    return '<a href="' + (PUBLIC_GRAHA.indexOf(n) >= 0 ? 'nakshatra/' + f : 'nakshatra/members/' + f) + '">' + GK[key] + '</a>';
+  }
 
   function normalizeIsoDate(raw) {
     if (!raw) return '';
@@ -597,8 +605,8 @@ table.t a{color:var(--warm-brown);}
     rows.forEach((g) => {
       const isL = g.key === 'lagna';
       const note = (g.retro && !isL && g.key !== 'rahu' && g.key !== 'ketu') ? '역행' : '';
-      tb += '<tr><td>' + (isL ? '상승궁' : GK[g.key]) + '</td><td>' + signLabel(g.rashi) + '</td><td>' + fmtDeg(g.deg) + '</td><td>' +
-        nakLink(g.nak, nakName(g.nak)) + ' ' + g.pada + '파다</td><td>' + GK[g.nakLord] + '</td>' +
+      tb += '<tr><td>' + (isL ? '상승궁' : grahaLink(g.key)) + '</td><td>' + signLabel(g.rashi) + '</td><td>' + fmtDeg(g.deg) + '</td><td>' +
+        nakLink(g.nak, nakName(g.nak)) + ' ' + g.pada + '파다</td><td>' + grahaLink(g.nakLord) + '</td>' +
         (lagna ? '<td>' + (isL ? '1' : g.house) + '</td>' : '') + '<td>' + note + '</td></tr>';
     });
     $('grahaTbl').innerHTML = tb;
