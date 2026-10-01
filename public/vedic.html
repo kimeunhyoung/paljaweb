@@ -223,6 +223,8 @@ table.t a{color:var(--warm-brown);}
       <div class="tbl-wrap"><table class="t" id="mahaTbl"></table></div>
       <div class="sub-title" id="antarTitle">현재 마하다샤의 안타르다샤 (소주기)</div>
       <div class="tbl-wrap"><table class="t" id="antarTbl"></table></div>
+      <div class="sub-title">지금 시기 읽기</div>
+      <div id="nowDasha" style="font-size:14px;color:var(--deep-brown);line-height:1.8;"></div>
       <div class="note">다샤 날짜는 1년을 365.25일로 계산한 값입니다. 프로그램마다 1년의 길이를 다르게 잡아 며칠 정도 차이가 날 수 있습니다. 첫 마하다샤는 출생 전에 이미 시작되어 있으면, 표에는 출생 시점의 남은 기간이 반영된 종료일이 나옵니다.</div>
     </div>
 
@@ -337,6 +339,12 @@ table.t a{color:var(--warm-brown);}
     const href = PUBLIC_NAK.indexOf(i + 1) >= 0 ? 'nakshatra/n' + n + '.html' : 'nakshatra/members/n' + n + '.html';
     return '<a href="' + href + '">' + esc(label || nakName(i)) + '</a>';
   }
+  const PUBLIC_SIGN = [1, 4, 7];
+  function signLink(r) {
+    const n = Number(r) + 1;
+    const f = 's' + String(n).padStart(2, '0') + '.html';
+    return '<a href="' + (PUBLIC_SIGN.indexOf(n) >= 0 ? 'nakshatra/' : 'nakshatra/members/') + f + '">' + signLabel(r) + '</a>';
+  }
   function signLabel(r) { return V.SIGNS[r].sa + '(' + V.SIGNS[r].ko + ')'; }
   const GK = V.GRAHA_KO;
   const PUBLIC_HOUSE = [1, 7, 10];
@@ -358,10 +366,34 @@ table.t a{color:var(--warm-brown);}
       const lh = g ? g.house : null;
       const f = 'l' + String(h).padStart(2, '0') + '.html';
       const href = (PUBLIC_LORD.indexOf(h) >= 0 ? 'nakshatra/' : 'nakshatra/members/') + f + (lh ? '#p' + lh : '');
-      t += '<tr><td>' + houseLink(h) + '</td><td>' + signLabel(sign) + '</td><td>' + grahaLink(lord) + '</td><td>' + (lh ? houseLink(lh) : '') + '</td><td>' + (lh ? '<a href="' + href + '">' + h + '→' + lh + ' 읽기</a>' : '') + '</td></tr>';
+      t += '<tr><td>' + houseLink(h) + '</td><td>' + signLink(sign) + '</td><td>' + grahaLink(lord) + '</td><td>' + (lh ? houseLink(lh) : '') + '</td><td>' + (lh ? '<a href="' + href + '">' + h + '→' + lh + ' 읽기</a>' : '') + '</td></tr>';
     }
     $('lordTbl').innerHTML = t;
     card.style.display = '';
+  }
+  const PUBLIC_DASHA = [1, 3, 4];
+  function renderNow(cur, now, lagna, grahas) {
+    const sub = cur.subs.find((s) => now >= s.start && now < s.end);
+    function block(key, pageKey, anchorKey) {
+      const g = grahas.find((x) => x.key === key);
+      const n = GNUM[pageKey];
+      const href = (PUBLIC_DASHA.indexOf(n) >= 0 ? 'nakshatra/' : 'nakshatra/members/') + 'd0' + n + '.html' + (anchorKey ? '#a' + GNUM[anchorKey] : '');
+      let t = grahaLink(key);
+      if (g) {
+        t += ' : ' + signLink(g.rashi);
+        if (lagna) {
+          t += ' · ' + houseLink(g.house) + '하우스';
+          const ruled = [];
+          for (let h = 1; h <= 12; h++) { if (V.SIGN_LORD[(lagna.rashi + h - 1) % 12] === key) ruled.push(h); }
+          t += ruled.length ? ' · 다스리는 하우스 ' + ruled.map(houseLink).join(', ') : ' · 다스리는 하우스 없음(라후·케투)';
+        }
+      }
+      return t + ' · <a href="' + href + '">' + (anchorKey ? GK[pageKey] + '–' + GK[anchorKey] + ' 읽기' : GK[pageKey] + ' 마하다샤 읽기') + '</a>';
+    }
+    let html = '<p style="margin:0 0 6px"><b>마하다샤</b> ' + block(cur.lord, cur.lord, null) + '</p>';
+    if (sub) html += '<p style="margin:0 0 6px"><b>안타르다샤</b> ' + block(sub.lord, cur.lord, sub.lord) + '</p>';
+    html += '<p style="margin:0;font-size:12.5px;color:var(--muted)">위 내용은 기본 읽기로 가는 링크이며, 시기와 사건을 확정하지 않습니다. 일부 해설은 회원 전용입니다.</p>';
+    $('nowDasha').innerHTML = html;
   }
   function grahaLink(key) {
     const n = GNUM[key];
@@ -633,7 +665,7 @@ table.t a{color:var(--warm-brown);}
     rows.forEach((g) => {
       const isL = g.key === 'lagna';
       const note = (g.retro && !isL && g.key !== 'rahu' && g.key !== 'ketu') ? '역행' : '';
-      tb += '<tr><td>' + (isL ? '상승궁' : grahaLink(g.key)) + '</td><td>' + signLabel(g.rashi) + '</td><td>' + fmtDeg(g.deg) + '</td><td>' +
+      tb += '<tr><td>' + (isL ? '상승궁' : grahaLink(g.key)) + '</td><td>' + signLink(g.rashi) + '</td><td>' + fmtDeg(g.deg) + '</td><td>' +
         nakLink(g.nak, nakName(g.nak)) + ' ' + g.pada + '파다</td><td>' + grahaLink(g.nakLord) + '</td>' +
         (lagna ? '<td>' + houseLink(isL ? 1 : g.house) + '</td>' : '') + '<td>' + note + '</td></tr>';
     });
@@ -662,7 +694,9 @@ table.t a{color:var(--warm-brown);}
         at += '<tr' + (isCur ? ' class="cur"' : '') + '><td>' + GK[cur.lord] + '–' + GK[s.lord] + (isCur ? ' · 현재' : '') + '</td><td>' + (s.start < ctx.birthMs ? '출생 이전' : fmtDate(s.start)) + '</td><td>' + fmtDate(s.end) + '</td></tr>';
       });
       $('antarTbl').innerHTML = at;
+      renderNow(cur, now, lagna, grahas);
     } else {
+      $('nowDasha').innerHTML = '';
       $('antarTitle').textContent = '현재 마하다샤 정보 없음';
       $('antarTbl').innerHTML = '<tr><td>120년 주기를 벗어난 날짜입니다.</td></tr>';
     }
