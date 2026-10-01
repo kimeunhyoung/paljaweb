@@ -133,8 +133,12 @@ function renderTable(rows) {
     return c;
   });
   const head = padded[0];
+  // Real column headers are short labels; long prose in row 0 is a key–value pair, not a header.
   const looksHeader =
-    /번호|낙샤트라|파다|위치|이름|지배|가나|야니|성질|구나|원소|순서|다샤|별자리|음절|대응|핵심/.test(
+    padded.length > 1 &&
+    head.length >= 3 &&
+    head.every((h) => h.length <= 28) &&
+    /번호|낙샤트라|파다|위치|이름 음절|지배|가나|야니|성질|구나|원소|순서|다샤|별자리|음절|대응|핵심/.test(
       head.join(' ')
     );
   let html = '<div class="nk-table-wrap"><table class="nk-table">';
@@ -379,16 +383,6 @@ function buildHtml(sections) {
       user-select: none;
       -webkit-touch-callout: none;
     }
-    .nk-banner {
-      background: rgba(139, 111, 71, 0.1);
-      border: 1px solid rgba(139, 111, 71, 0.28);
-      border-radius: 10px;
-      padding: 0.85rem 1rem;
-      margin: 0 0 1.5rem;
-      font-size: 0.9rem;
-      color: #5c451f;
-    }
-    .nk-banner strong { color: #3d2e18; }
     .nk-toc {
       background: rgba(248, 244, 236, 0.9);
       border: 1px solid rgba(139, 111, 71, 0.18);
@@ -441,29 +435,32 @@ function buildHtml(sections) {
       margin: 0.75rem 0 1.15rem;
       border: 1px solid rgba(139, 111, 71, 0.2);
       border-radius: 8px;
+      -webkit-overflow-scrolling: touch;
     }
     .nk-table {
       width: 100%;
       border-collapse: collapse;
       font-size: 0.86rem;
       line-height: 1.45;
+      table-layout: fixed;
     }
     .nk-table th, .nk-table td {
       padding: 0.45rem 0.55rem;
       border-bottom: 1px solid rgba(139, 111, 71, 0.12);
       text-align: left;
       vertical-align: top;
+      white-space: normal;
+      overflow-wrap: anywhere;
+      word-break: keep-all;
     }
     .nk-table thead th {
       background: rgba(139, 111, 71, 0.1);
       font-weight: 600;
-      white-space: nowrap;
     }
     .nk-table tbody th {
       font-weight: 600;
       color: #5c451f;
-      white-space: nowrap;
-      width: 7.5rem;
+      width: 7.2rem;
       background: rgba(139, 111, 71, 0.04);
     }
     .nk-table tr:last-child th,
@@ -510,10 +507,6 @@ function buildHtml(sections) {
   <main class="content-main nk-protect">
     <h1>낙샤트라 학습 노트 · 제1권</h1>
     <p class="content-meta"><a href="index.html">스터디</a> · 베다 점성학 · 1번~9번 (첫 번째 바퀴)</p>
-    <div class="nk-banner">
-      <strong>사이트 열람 전용</strong> — PDF·파일 다운로드는 제공하지 않습니다.
-      학습용으로 화면에서만 읽어 주세요. (우클릭·드래그·인쇄·저장 단축키를 막아 두었습니다.)
-    </div>
     <p class="content-lead">
       27개 낙샤트라 중 <strong>1~9번</strong>(아쉬위니·바라니·크리티카·로히니·므리가시라·아르드라·푸나르바수·푸쉬야·아슐레샤)을
       전통 정보 · 해석 · 해석적 연결로 구분해 정리한 학습 노트입니다.
@@ -535,14 +528,14 @@ ${toc}
 
 ${body}
 
-    <div class="content-note">상징 해석은 낙샤트라를 이해하기 위한 틀입니다. 특정인의 성격이나 운명을 단정하는 근거로 쓰지 마세요. 이 페이지는 사이트 열람 전용이며 파일로 내려받을 수 없습니다.</div>
+    <div class="content-note">상징 해석은 낙샤트라를 이해하기 위한 틀입니다. 특정인의 성격이나 운명을 단정하는 근거로 쓰지 마세요.</div>
     <div class="content-footer-links">
       <a href="../guide/what-is-astrology.html">점성학이란?</a> ·
       <a href="../guide/astrology.html">점성학 차트 가이드</a> ·
       <a href="index.html">← 스터디 목록</a>
     </div>
   </main>
-  <footer class="footer"><div class="container"><div class="footer-bottom"><p>© 2026 8CODE (팔자연구소) · 열람 전용 학습 노트</p></div></div></footer>
+  <footer class="footer"><div class="container"><div class="footer-bottom"><p>© 2026 8CODE (팔자연구소)</p></div></div></footer>
   <script>
   (function () {
     var root = document.body;

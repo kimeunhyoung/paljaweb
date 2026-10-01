@@ -14,5 +14,8 @@ Disallow: /login.html
 Disallow: /signup.html
 Disallow: /auth/
 Disallow: /lifecode/admin.html
+Disallow: /nakshatra/members/
+Disallow: /study/
 
 Sitemap: https://8code.kr/sitemap.xml
+Sitemap: https://8code.kr/nakshatra/sitemap.xml

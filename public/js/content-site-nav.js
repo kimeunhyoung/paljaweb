@@ -1,9 +1,48 @@
 /**
- * 가이드·소개·FAQ 등 콘텐츠 페이지 공통 상단 메뉴.
- * /guide/ 하위에서도 깨지지 않도록 루트 절대 경로를 씁니다.
+ * 가이드·소개·FAQ·학습자료실 등 콘텐츠 페이지 공통 상단 메뉴.
+ * /guide/ · /nakshatra/ 하위에서도 깨지지 않도록 루트 절대 경로를 씁니다.
  * <nav class="navbar"> 바로 다음에 로드하세요 (defer 없이).
+ * 메인(index)과 같은 로고 폰트(Pretendard)·메뉴 디자인을 맞춥니다.
  */
 (function () {
+  function ensureSiteChromeAssets() {
+    var head = document.head || document.getElementsByTagName('head')[0];
+    if (!head) return;
+    function hasHref(part) {
+      var links = head.querySelectorAll('link[rel="stylesheet"]');
+      for (var i = 0; i < links.length; i++) {
+        if ((links[i].href || '').indexOf(part) !== -1) return true;
+      }
+      return false;
+    }
+    function addLink(href, attrs) {
+      var l = document.createElement('link');
+      l.rel = 'stylesheet';
+      l.href = href;
+      if (attrs) {
+        Object.keys(attrs).forEach(function (k) {
+          l.setAttribute(k, attrs[k]);
+        });
+      }
+      head.appendChild(l);
+    }
+    if (!hasHref('pretendard')) {
+      addLink(
+        'https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css',
+        { crossorigin: 'anonymous' }
+      );
+    }
+    if (!hasHref('fonts.googleapis.com') || !hasHref('Noto+Serif+KR')) {
+      addLink(
+        'https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Noto+Sans+KR:wght@400;500;700&family=Noto+Serif+KR:wght@400;600&display=swap'
+      );
+    }
+    if (!hasHref('/css/style.css')) {
+      addLink('/css/style.css?v=20260818a');
+    }
+  }
+  ensureSiteChromeAssets();
+
   var nav = document.querySelector('.navbar');
   if (!nav) return;
   if (nav.getAttribute('data-content-nav') === '1') {
@@ -19,7 +58,12 @@
     return path.indexOf('/guide') === 0 || /\/guide(\/|\.html|$)/.test(path);
   }
   function isStudy() {
-    return path.indexOf('/study') === 0 || /\/study(\/|\.html|$)/.test(path);
+    return (
+      path.indexOf('/nakshatra') === 0 ||
+      /\/nakshatra(\/|\.html|$)/.test(path) ||
+      path.indexOf('/study') === 0 ||
+      /\/study(\/|\.html|$)/.test(path)
+    );
   }
   function currentKey() {
     if (isStudy()) return 'study';
@@ -42,7 +86,7 @@
     '<ul class="nav-links">' +
     '<li><a href="/services.html"' + mark('/services.html', 'services') + '>프로그램</a></li>' +
     '<li><a href="/guide/index.html"' + mark('/guide/', 'guide') + '>가이드</a></li>' +
-    '<li><a href="/study/index.html"' + mark('/study/', 'study') + '>스터디</a></li>' +
+    '<li><a href="/nakshatra/index.html"' + mark('/nakshatra/', 'study') + '>학습자료실</a></li>' +
     '<li><a href="/pricing.html"' + mark('/pricing.html', 'pricing') + '>요금제</a></li>' +
     '<li><a href="/faq.html"' + mark('/faq.html', 'faq') + '>FAQ</a></li>' +
     '</ul>' +
@@ -78,7 +122,7 @@
     '<li><a href="/counselor.html">상담사 허브</a></li>' +
     '<li class="mobile-nav-group">안내</li>' +
     '<li><a href="/guide/index.html">가이드</a></li>' +
-    '<li><a href="/study/index.html">스터디</a></li>' +
+    '<li><a href="/nakshatra/index.html">학습자료실</a></li>' +
     '<li><a href="/pricing.html">요금제</a></li>' +
     '<li><a href="/about.html">소개</a></li>' +
     '<li><a href="/faq.html">FAQ</a></li>' +

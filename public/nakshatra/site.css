@@ -1,0 +1,64 @@
+:root{--ink:#222;--bg:#fffaf6;--card:#fff;--navy:#a24a26;--gold:#c4603a;--line:#e6d5c9;--soft:#f8eee7}
+/* 사이트 공통 상단(navbar)은 /css/style.css. 아래는 본문(main)만. */
+main{max-width:860px;margin:0 auto;padding:20px 16px 40px;line-height:1.75;word-break:keep-all;overflow-wrap:break-word}
+main a{color:#a24a26}
+.banner{background:#fbf1e8;border-left:4px solid var(--gold);padding:8px 14px;font-size:14px;margin:0 0 18px}
+main h1{font-size:28px;color:var(--navy);margin:8px 0 6px;padding-bottom:8px;border-bottom:3px solid var(--gold);line-height:1.35}
+main h1 small{font-size:15px;color:#9a7a68;font-weight:400;margin-left:8px}
+main h2{font-size:20px;color:var(--navy);margin:34px 0 10px;padding-bottom:5px;border-bottom:1px solid var(--line);line-height:1.4}
+main h3{font-size:17px;color:#8a4a30;margin:22px 0 6px}
+main p{margin:8px 0 12px}
+main ul,main ol{margin:6px 0 14px;padding-left:22px}
+main li{margin:5px 0}
+.tagline{font-size:17px;color:#8a6a58;margin:6px 0 14px}
+.tw{overflow-x:auto;margin:10px 0 16px;-webkit-overflow-scrolling:touch}
+main table{border-collapse:collapse;width:100%;background:var(--card)}
+main th,main td{border:1px solid var(--line);padding:8px 10px;vertical-align:top;text-align:left;font-size:15px;line-height:1.6}
+main th{background:var(--soft);color:var(--navy)}
+table.kv th{width:22%;min-width:96px}
+table.grid th,table.grid td{font-size:14px;padding:6px 8px}
+table.grid{min-width:520px}
+.c{text-align:center}
+.tag{display:inline-block;font-size:12px;padding:0 8px;border:1px solid #888;margin-left:6px;font-weight:400;border-radius:3px;vertical-align:middle;line-height:1.7}
+.t-trad{background:#e8f3e8;border-color:#5a9a5a;color:#2f6a2f}
+.t-interp{background:#fff3d6;border-color:#c9a23c;color:#7a5a10}
+.t-link{background:#fde6e6;border-color:#c96a6a;color:#8a2a2a}
+.t-cust{background:#e6eefc;border-color:#6a8ac9;color:#2a4a8a}
+.note{border-left:4px solid var(--gold);background:#fbf1e8;padding:8px 14px;margin:14px 0}
+.warn{border-left:4px solid #c96a6a;background:#fdf1f1;padding:8px 14px;margin:14px 0}
+.one{border:1px solid var(--gold);background:#fdf5ee;padding:14px 18px;margin:14px 0 8px;font-size:18px;color:var(--navy);text-align:center}
+.small{font-size:14px;color:#666}
+.chap{margin:8px 0}
+.chap b{color:#7a4a34}
+nav.pn{display:flex;justify-content:space-between;gap:10px;margin:34px 0 0;padding-top:16px;border-top:1px solid var(--line);font-size:15px}
+nav.pn a{flex:1;display:block;padding:10px 12px;border:1px solid var(--line);background:#fff;border-radius:6px;color:var(--navy);text-decoration:none}
+nav.pn a:hover{background:var(--soft)}
+nav.pn a.next{text-align:right}
+nav.pn span.sp{flex:1}
+.sub{font-size:14px;margin:14px 0 0;text-align:center}
+.sub a{color:var(--navy)}
+footer{max-width:860px;margin:0 auto;padding:0 16px 40px;font-size:13px;color:#777;text-align:center}
+.part{margin:30px 0 8px;color:var(--navy);font-size:19px;border-bottom:1px solid var(--line);padding-bottom:4px}
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:10px}
+.card{display:block;background:#fff;border:1px solid var(--line);border-radius:8px;padding:10px 12px;color:inherit;text-decoration:none;line-height:1.5}
+.card:hover{border-color:var(--gold);background:#fff8f2}
+.card b{color:var(--navy);font-size:16px}
+.card .en{color:#9a7a68;font-size:13px;margin-left:4px}
+.card .tg{display:block;font-size:13px;color:#666;margin-top:3px}
+.links{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0}
+.links a{padding:6px 12px;border:1px solid var(--line);border-radius:999px;background:#fff;color:var(--navy);text-decoration:none;font-size:14px}
+.links a:hover{background:var(--soft)}
+@media (max-width:600px){
+ main{font-size:16px}
+ main h1{font-size:24px}
+ main h2{font-size:18px}
+ table.kv,table.kv tbody,table.kv tr,table.kv th,table.kv td{display:block;width:100%}
+ table.kv th{border-bottom:0;padding-bottom:3px;min-width:0}
+ table.kv td{border-top:0;margin-bottom:0}
+ table.kv tr{margin-bottom:8px}
+ table.kv{background:none}
+}
+@media print{
+ body *{visibility:hidden!important}
+ body::before{visibility:visible!important;content:"이 학습자료는 인쇄를 지원하지 않습니다. 팔자연구소(8code.kr)에서 온라인으로 읽어 주세요.";display:block;padding:40px;font-size:16pt}
+}
