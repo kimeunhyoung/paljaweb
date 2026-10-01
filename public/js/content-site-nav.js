@@ -18,7 +18,11 @@
   function isGuide() {
     return path.indexOf('/guide') === 0 || /\/guide(\/|\.html|$)/.test(path);
   }
+  function isStudy() {
+    return path.indexOf('/study') === 0 || /\/study(\/|\.html|$)/.test(path);
+  }
   function currentKey() {
+    if (isStudy()) return 'study';
     if (isGuide()) return 'guide';
     if (/about\.html$/.test(path)) return 'about';
     if (/faq\.html$/.test(path)) return 'faq';
@@ -38,6 +42,7 @@
     '<ul class="nav-links">' +
     '<li><a href="/services.html"' + mark('/services.html', 'services') + '>프로그램</a></li>' +
     '<li><a href="/guide/index.html"' + mark('/guide/', 'guide') + '>가이드</a></li>' +
+    '<li><a href="/study/index.html"' + mark('/study/', 'study') + '>스터디</a></li>' +
     '<li><a href="/pricing.html"' + mark('/pricing.html', 'pricing') + '>요금제</a></li>' +
     '<li><a href="/faq.html"' + mark('/faq.html', 'faq') + '>FAQ</a></li>' +
     '</ul>' +
@@ -73,6 +78,7 @@
     '<li><a href="/counselor.html">상담사 허브</a></li>' +
     '<li class="mobile-nav-group">안내</li>' +
     '<li><a href="/guide/index.html">가이드</a></li>' +
+    '<li><a href="/study/index.html">스터디</a></li>' +
     '<li><a href="/pricing.html">요금제</a></li>' +
     '<li><a href="/about.html">소개</a></li>' +
     '<li><a href="/faq.html">FAQ</a></li>' +
