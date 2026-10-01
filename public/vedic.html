@@ -210,6 +210,12 @@ table.t a{color:var(--warm-brown);}
       <div class="note" id="houseNote"></div>
     </div>
 
+    <div class="card" id="lordCard" style="display:none">
+      <div class="card-title">✦ 하우스 주인 <span style="font-size:13px;font-weight:400;color:var(--muted)">각 하우스의 주인이 어디에 있는가</span></div>
+      <div class="tbl-wrap"><table class="t" id="lordTbl"></table></div>
+      <div class="note">하우스 주인은 그 하우스 별자리를 다스리는 행성입니다. '읽기'를 누르면 학습 노트의 해당 배치 해설로 이동합니다. 읽기는 기본 해석이며 주인의 힘과 함께 있는 행성, 바라보는 행성을 같이 봐야 합니다. 일부 해설은 회원 전용입니다. 라후와 케투는 하우스 주인으로 보지 않았습니다.</div>
+    </div>
+
     <div class="card">
       <div class="card-title">✦ 빔쇼타리 다샤 <span style="font-size:13px;font-weight:400;color:var(--muted)">달의 낙샤트라 기준 120년 주기</span></div>
       <p style="font-size:14px;color:var(--deep-brown);line-height:1.8;" id="dashaIntro"></p>
@@ -340,6 +346,23 @@ table.t a{color:var(--warm-brown);}
   }
   const GNUM = { ketu: 1, venus: 2, sun: 3, moon: 4, mars: 5, rahu: 6, jupiter: 7, saturn: 8, mercury: 9 };
   const PUBLIC_GRAHA = [1, 3, 4];
+  const PUBLIC_LORD = [1, 7, 10];
+  function renderLords(lagna, grahas) {
+    const card = $('lordCard');
+    if (!lagna) { card.style.display = 'none'; return; }
+    let t = '<tr><th>하우스</th><th>별자리</th><th>주인</th><th>주인이 있는 하우스</th><th>읽기</th></tr>';
+    for (let h = 1; h <= 12; h++) {
+      const sign = (lagna.rashi + h - 1) % 12;
+      const lord = V.SIGN_LORD[sign];
+      const g = grahas.find((x) => x.key === lord);
+      const lh = g ? g.house : null;
+      const f = 'l' + String(h).padStart(2, '0') + '.html';
+      const href = (PUBLIC_LORD.indexOf(h) >= 0 ? 'nakshatra/' : 'nakshatra/members/') + f + (lh ? '#p' + lh : '');
+      t += '<tr><td>' + houseLink(h) + '</td><td>' + signLabel(sign) + '</td><td>' + grahaLink(lord) + '</td><td>' + (lh ? houseLink(lh) : '') + '</td><td>' + (lh ? '<a href="' + href + '">' + h + '→' + lh + ' 읽기</a>' : '') + '</td></tr>';
+    }
+    $('lordTbl').innerHTML = t;
+    card.style.display = '';
+  }
   function grahaLink(key) {
     const n = GNUM[key];
     if (!n) return GK[key];
@@ -615,6 +638,7 @@ table.t a{color:var(--warm-brown);}
         (lagna ? '<td>' + houseLink(isL ? 1 : g.house) + '</td>' : '') + '<td>' + note + '</td></tr>';
     });
     $('grahaTbl').innerHTML = tb;
+    renderLords(lagna, grahas);
     $('houseNote').innerHTML = lagna ? '하우스는 전체별자리 방식입니다. 상승궁이 ' + signLabel(lagna.rashi) + '이므로 이 별자리가 1하우스이고, 다음 별자리가 2하우스입니다.' : '출생 시간을 모르면 상승궁과 하우스를 계산하지 않습니다.';
     $('ayaVal').textContent = ayanamsa.toFixed(2) + '°';
 
