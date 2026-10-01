@@ -1,0 +1,110 @@
+/**
+ * 베다(항성황도) 차트 계산 코어
+ * - 입력: circular-natal-horoscope-js 의 Horoscope(열대, placidus) 결과
+ * - 처리: 라히리(치트라파크샤) 아야남사를 연도별로 계산해 빼서 항성 경도로 변환
+ *   (라이브러리 자체 sidereal 옵션은 24.1° 고정값이라 쓰지 않음)
+ * - 전역 window.VedicCore 로 노출 (노드에서는 module.exports)
+ * 아야남사는 일반 세차 근사식이며 참고용입니다.
+ */
+(function (root) {
+  var SIGNS = [
+    { sa: '메샤', ko: '양자리' }, { sa: '브리샤바', ko: '황소자리' }, { sa: '미투나', ko: '쌍둥이자리' },
+    { sa: '카르카', ko: '게자리' }, { sa: '심하', ko: '사자자리' }, { sa: '칸야', ko: '처녀자리' },
+    { sa: '툴라', ko: '천칭자리' }, { sa: '브리슈치카', ko: '전갈자리' }, { sa: '다누', ko: '궁수자리' },
+    { sa: '마카라', ko: '염소자리' }, { sa: '꿈바', ko: '물병자리' }, { sa: '미나', ko: '물고기자리' }
+  ];
+  var SIGN_LORD = ['mars', 'venus', 'mercury', 'moon', 'sun', 'mercury', 'venus', 'mars', 'jupiter', 'saturn', 'saturn', 'jupiter'];
+  var NAK = [
+    ['아쉬위니', 'Ashwini'], ['바라니', 'Bharani'], ['크리티카', 'Krittika'], ['로히니', 'Rohini'], ['므리가시라', 'Mrigashira'],
+    ['아르드라', 'Ardra'], ['푸나르바수', 'Punarvasu'], ['푸쉬야', 'Pushya'], ['아슐레샤', 'Ashlesha'], ['마가', 'Magha'],
+    ['푸르바 팔구니', 'Purva Phalguni'], ['우타라 팔구니', 'Uttara Phalguni'], ['하스타', 'Hasta'], ['치트라', 'Chitra'],
+    ['스와티', 'Swati'], ['비샤카', 'Vishakha'], ['아누라다', 'Anuradha'], ['제슈타', 'Jyeshtha'], ['물라', 'Mula'],
+    ['푸르바 아샤다', 'Purva Ashadha'], ['우타라 아샤다', 'Uttara Ashadha'], ['슈라바나', 'Shravana'], ['다니슈타', 'Dhanishta'],
+    ['샤타비샤', 'Shatabhisha'], ['푸르바 바드라파다', 'Purva Bhadrapada'], ['우타라 바드라파다', 'Uttara Bhadrapada'], ['레바티', 'Revati']
+  ];
+  var DASHA_ORDER = ['ketu', 'venus', 'sun', 'moon', 'mars', 'rahu', 'jupiter', 'saturn', 'mercury'];
+  var DASHA_YEARS = { ketu: 7, venus: 20, sun: 6, moon: 10, mars: 7, rahu: 18, jupiter: 16, saturn: 19, mercury: 17 };
+  var GRAHA_KO = { sun: '태양', moon: '달', mars: '화성', mercury: '수성', jupiter: '목성', venus: '금성', saturn: '토성', rahu: '라후', ketu: '케투' };
+  var GRAHA_SHORT = { sun: '태', moon: '달', mars: '화', mercury: '수', jupiter: '목', venus: '금', saturn: '토', rahu: '라', ketu: '케' };
+  var NAK_SPAN = 360 / 27, PADA_SPAN = NAK_SPAN / 4;
+
+  function norm(d) { d = d % 360; return d < 0 ? d + 360 : d; }
+
+  /** 라히리 아야남사 근사: J2000에서 23.85306°, 일반 세차 속도 적용 */
+  function lahiriAyanamsa(year, month, day) {
+    var jd = Date.UTC(year, month - 1, day, 12) / 86400000 + 2440587.5;
+    var T = (jd - 2451545.0) / 36525;
+    return 23.85306 + (5028.796195 * T + 1.1054348 * T * T) / 3600;
+  }
+
+  function rashiOf(lon) { return Math.floor(lon / 30); }
+  function nakOf(lon) {
+    var idx = Math.floor(lon / NAK_SPAN);
+    var pada = Math.floor((lon - idx * NAK_SPAN) / PADA_SPAN) + 1;
+    return { index: idx, pada: pada, lord: DASHA_ORDER[idx % 9], frac: (lon - idx * NAK_SPAN) / NAK_SPAN };
+  }
+  /** 가장 가까운 경계까지의 거리(도) */
+  function boundaryDist(lon, span) { var r = lon % span; return Math.min(r, span - r); }
+
+  function dd(obj) { return obj.ChartPosition.Ecliptic.DecimalDegrees; }
+
+  /** horoscope(열대) → 항성 차트 데이터 */
+  function build(horoscope, birth, opts) {
+    opts = opts || {};
+    var ay = lahiriAyanamsa(birth.y, birth.mo, birth.da);
+    var keys = ['sun', 'moon', 'mars', 'mercury', 'jupiter', 'venus', 'saturn'];
+    var grahas = [];
+    keys.forEach(function (k) {
+      var b = horoscope.CelestialBodies[k];
+      grahas.push({ key: k, trop: dd(b), retro: !!b.isRetrograde });
+    });
+    var rahuTrop = dd(horoscope.CelestialPoints.northnode);
+    grahas.push({ key: 'rahu', trop: rahuTrop, retro: true });
+    grahas.push({ key: 'ketu', trop: norm(rahuTrop + 180), retro: true });
+    var lagna = null;
+    if (!opts.unknownTime) lagna = { key: 'lagna', trop: dd(horoscope.Ascendant), retro: false };
+    var all = grahas.slice(); if (lagna) all.push(lagna);
+    all.forEach(function (g) {
+      g.sid = norm(g.trop - ay);
+      g.rashi = rashiOf(g.sid);
+      g.deg = g.sid - g.rashi * 30;
+      var n = nakOf(g.sid); g.nak = n.index; g.pada = n.pada; g.nakLord = n.lord; g.nakFrac = n.frac;
+      g.rashiEdge = boundaryDist(g.sid, 30);
+      g.nakEdge = boundaryDist(g.sid, NAK_SPAN);
+    });
+    if (lagna) grahas.forEach(function (g) { g.house = ((g.rashi - lagna.rashi + 12) % 12) + 1; });
+    return { ayanamsa: ay, grahas: grahas, lagna: lagna };
+  }
+
+  /** 빔쇼타리 다샤: 출생 달 낙샤트라 기준 */
+  var YEAR_MS = 365.25 * 86400000;
+  function dasha(moonSid, birthMs) {
+    var n = nakOf(moonSid);
+    var startIdx = DASHA_ORDER.indexOf(n.lord);
+    var firstFull = DASHA_YEARS[n.lord];
+    var elapsed = n.frac * firstFull;           // 이미 지난 햇수
+    var t0 = birthMs - elapsed * YEAR_MS;       // 첫 마하다샤 시작(출생 이전)
+    var list = [], t = t0;
+    for (var i = 0; i < 9; i++) {
+      var lord = DASHA_ORDER[(startIdx + i) % 9], yrs = DASHA_YEARS[lord];
+      var end = t + yrs * YEAR_MS;
+      var subs = [], st = t;
+      for (var j = 0; j < 9; j++) {
+        var sl = DASHA_ORDER[(startIdx + i + j) % 9];
+        var sy = yrs * DASHA_YEARS[sl] / 120;
+        subs.push({ lord: sl, start: st, end: st + sy * YEAR_MS });
+        st += sy * YEAR_MS;
+      }
+      list.push({ lord: lord, years: yrs, start: t, end: end, subs: subs });
+      t = end;
+    }
+    return { list: list, balanceYears: firstFull - elapsed, firstLord: n.lord };
+  }
+
+  var api = {
+    SIGNS: SIGNS, SIGN_LORD: SIGN_LORD, NAK: NAK, GRAHA_KO: GRAHA_KO, GRAHA_SHORT: GRAHA_SHORT,
+    DASHA_YEARS: DASHA_YEARS, NAK_SPAN: NAK_SPAN, PADA_SPAN: PADA_SPAN,
+    lahiriAyanamsa: lahiriAyanamsa, build: build, dasha: dasha, norm: norm
+  };
+  if (typeof module !== 'undefined' && module.exports) module.exports = api; else root.VedicCore = api;
+})(typeof window !== 'undefined' ? window : this);

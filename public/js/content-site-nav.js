@@ -105,6 +105,7 @@
     '<li><a href="/numerology-calendar.html">수비학달력</a></li>' +
     '<li class="mobile-nav-group">점성학</li>' +
     '<li><a href="/astrology.html">점성학 차트</a></li>' +
+    '<li><a href="/vedic.html">인도점성학 차트</a></li>' +
     '<li class="mobile-nav-group">타로 AI</li>' +
     '<li><a href="/Tarot.html">타로코드</a></li>' +
     '<li><a href="/counselor-reading.html">타로 AI</a></li>' +
