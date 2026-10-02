@@ -182,6 +182,36 @@
     .ai-depth-hint { font-size: 11px; color: var(--muted); margin: 0 0 8px; line-height: 1.45; }
     .ai-draft-actions { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
     .ai-draft-quota { font-size: 11px; color: var(--teal); font-weight: 600; }
+    /* 타로 AI 가독성 개선: 단계 헤더 · 대비 · 선택 상태 */
+    #workspace, .hub-intro { --muted: #74604b; }
+    .hub-intro p { color: #5e4c39; }
+    .hub-plan { display: inline-block; font-size: 11px; font-weight: 700; color: var(--deep); border: 1px solid var(--deep); border-radius: 12px; padding: 1px 8px; margin-left: 4px; }
+    .ai-step { display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; margin: 14px 0 0; padding-top: 14px; border-top: 1px solid var(--border); }
+    .ai-draft-form > .ai-step:first-child { margin-top: 0; padding-top: 0; border-top: 0; }
+    .ai-step-num { flex: 0 0 auto; width: 22px; height: 22px; border-radius: 50%; background: var(--deep); color: #fff; font-size: 12px; font-weight: 700; display: inline-flex; align-items: center; justify-content: center; align-self: center; }
+    .ai-step-title { font-size: 15px; font-weight: 700; color: var(--deep); }
+    .ai-step-sub { font-size: 12px; color: var(--muted); }
+    .ai-draft-form label { font-size: 12px; font-weight: 600; color: #5e4c39; }
+    .ai-draft-form label .lbl-sub { font-weight: 400; color: var(--muted); margin-left: 4px; }
+    .sr-label { position: absolute !important; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+    .ai-draft-form input::placeholder, .ai-draft-form textarea::placeholder { color: #a8957f; }
+    .ai-draft-form input, .ai-draft-form select, .ai-draft-form textarea { border-color: rgba(139,111,71,.32); }
+    #aiQuestion { min-height: 96px; font-size: 14px; }
+    .ai-mode-row.full, .ai-depth-row.full { margin: 0; }
+    .ai-mode-btn, .ai-depth-btn { position: relative; padding: 12px 40px 12px 14px; border-color: rgba(139,111,71,.3); }
+    .ai-mode-btn strong, .ai-depth-btn strong { font-size: 14px; }
+    .ai-mode-btn span, .ai-depth-btn span { font-size: 12px; color: var(--muted); }
+    .ai-depth-btn span b { color: var(--deep); white-space: nowrap; }
+    .ai-q-actions, #aiCardVoiceBtn { margin-left: auto; }
+    @media (max-width: 520px) { .ai-mode-btn, .ai-depth-btn { flex-basis: 100%; } }
+    .ai-mode-btn.active, .ai-depth-btn.active { border: 2px solid var(--deep); padding: 11px 39px 11px 13px; background: var(--parchment); }
+    .ai-mode-btn.active::after, .ai-depth-btn.active::after { content: '✓'; position: absolute; top: 50%; right: 12px; transform: translateY(-50%); width: 20px; height: 20px; border-radius: 50%; background: var(--deep); color: #fff; font-size: 12px; line-height: 20px; text-align: center; }
+    .ai-tools-hint { font-size: 12px; color: var(--muted); align-self: center; }
+    .ai-client-tools .btn-sm[aria-disabled="true"] { opacity: .55; }
+    .ai-credit-pill { font-size: 13px; color: var(--deep); background: var(--parchment); border: 1px solid rgba(139,111,71,.3); border-radius: 16px; padding: 5px 12px; font-weight: 500; }
+    .ai-credit-pill b { font-size: 15px; color: var(--deep); }
+    .ai-credit-pill span { font-size: 12px; color: var(--muted); }
+    .ai-extra-label { font-weight: 600; }
     .ai-card-slots { display: grid; gap: 10px; margin: 4px 0 8px; }
     @media (min-width: 640px) { .ai-card-slots { grid-template-columns: repeat(3, 1fr); } }
     /* 대칭·비교형 스프레드(선택 A/B, 관계 배열)는 좌우 짝이 보이도록 2열로 배치 */
@@ -636,7 +666,7 @@
   <div class="hub-intro">
     <div class="back-row"><a href="counselor.html">← 상담사 허브</a></div>
     <h1>타로 AI</h1>
-    <p>상담사용 기본 타로 리딩. 질문·카드로 고객에게 붙여넣을 초안을 만듭니다. <strong>배열 추천</strong>·리딩이 쌓이는 <strong>이어서 보기</strong>를 쓸 수 있고, 스프래드 뒤 <strong>조언·명확화 카드</strong>도 더 뽑을 수 있습니다. <strong>Professional</strong> 전용.</p>
+    <p>질문과 카드를 넣으면 <strong>고객에게 보낼 해석 초안</strong>을 만들어 드려요. 리딩은 아래로 이어서 쌓이고, 필요하면 조언 카드도 한 장씩 더 뽑을 수 있어요. <span class="hub-plan">Professional 전용</span></p>
     <p id="trialBadge" class="trial-badge" style="display:none" role="status"></p>
   </div>
   <div id="gate">
@@ -652,39 +682,16 @@
     <a class="cta" href="for-counselors.html">체험·구독 안내</a>
   </div>
   <div id="workspace">
-<div class="section-title" id="ai-draft" style="margin-top:28px">타로 AI · 상담사용 리딩</div>
+<div class="section-title" id="ai-draft" style="margin-top:28px">상담 리딩</div>
     <div class="ai-draft-panel">
-      <p class="ai-draft-intro">질문을 넣으면 <strong>배열 추천</strong>이 뜨고, 해석을 이어서 볼 수 있습니다. 이전 리딩은 위에 쌓입니다.
-        크레딧: <strong>1장 → 1</strong> · <strong>2~3장 → 2</strong> · <strong>4~6장 → 3</strong> · <strong>7~9장 → 4</strong>
-        · 통합(수비·점성) 시 <strong>+1</strong>.</p>
-      <div class="ai-mode-row" role="tablist" aria-label="장수·배열 모드">
-        <button type="button" class="ai-mode-btn active" id="aiModeBasic" data-mode="basic" role="tab" aria-selected="true">
-          <strong>한 장 리딩</strong>
-          <span>카드 1장 · 추가 카드 가능</span>
-        </button>
-        <button type="button" class="ai-mode-btn" id="aiModeAdv" data-mode="advanced" role="tab" aria-selected="false">
-          <strong>배열 리딩</strong>
-          <span>프리셋 3~9장 · 추가 시 최대 9장</span>
-        </button>
-      </div>
-      <p class="ai-depth-hint" id="aiDepthHint">해석 깊이: 카드만 = 타로만. 통합 = 수비·점성을 렌즈로 전 문장에 녹임(전용 섹션 없음) · +1.</p>
-      <div class="ai-depth-row" role="tablist" aria-label="해석 깊이">
-        <button type="button" class="ai-depth-btn active" id="aiDepthCard" data-depth="card" role="tab" aria-selected="true">
-          <strong>카드만</strong>
-          <span>질문·카드 인과로만 해석 · 장수 크레딧</span>
-        </button>
-        <button type="button" class="ai-depth-btn" id="aiDepthIntegrated" data-depth="integrated" role="tab" aria-selected="false">
-          <strong>통합 (수비·점성)</strong>
-          <span>타로 본체 + 수비·점성 렌즈 · +1</span>
-        </button>
-      </div>
       <form id="aiDraftForm" class="ai-draft-form" autocomplete="off">
+        <div class="ai-step full"><span class="ai-step-num">1</span><span class="ai-step-title">고객</span><span class="ai-step-sub">선택 · 고르면 지난 상담과 수비학·점성학을 같이 볼 수 있어요</span></div>
         <div>
-          <label for="aiClient">고객 (선택 · CRM 연결)</label>
+          <label for="aiClient">고객 선택</label>
           <select id="aiClient"></select>
         </div>
         <div>
-          <label for="aiNickname">호칭 / 닉네임</label>
+          <label for="aiNickname">호칭 <span class="lbl-sub">해석에 쓰일 이름</span></label>
           <input id="aiNickname" type="text" maxlength="40" placeholder="예: 민지님 · 고객님"/>
         </div>
         <div class="full ai-client-sessions" id="aiClientSessions" hidden>
@@ -698,7 +705,7 @@
         <div class="full ai-client-tools">
           <button type="button" class="btn-sm outline" id="aiLinkNumerology" data-href="analysis.html" aria-disabled="true">수비학 분석</button>
           <button type="button" class="btn-sm outline" id="aiLinkAstro" data-href="astrology.html" aria-disabled="true">점성학 차트</button>
-          <span style="font-size:11px;color:var(--muted);align-self:center">해석 결과 아래에 펼침 · 새 탭도 가능</span>
+          <span class="ai-tools-hint">고객을 고르면 켜져요 · 해석 아래에 펼쳐 보거나 새 탭으로 열 수 있어요</span>
         </div>
         <div class="ai-brief-stack full">
           <div class="ai-num-brief" id="aiNumBrief" hidden>
@@ -718,17 +725,18 @@
             <p class="ai-num-blurb" id="aiAstroBriefBlurb"></p>
           </div>
         </div>
+        <div class="ai-step full"><span class="ai-step-num">2</span><span class="ai-step-title">질문</span></div>
         <div class="full">
           <div class="ai-q-head">
-            <label for="aiQuestion">질문 *</label>
+            <label for="aiQuestion" class="sr-label">질문</label>
             <div class="ai-q-actions">
               <button type="button" class="ai-clear-q-btn" id="aiClearQBtn" title="질문칸만 비우기">지우기</button>
               <button type="button" class="ai-clear-q-btn" id="aiNewReadingBtn" title="질문·추가메모·카드·추가칸·해석을 모두 비우고 새 리딩 시작">새 리딩</button>
               <button type="button" class="ai-voice-btn" id="aiVoiceBtn" title="마이크로 질문 받아쓰기">🎤 음성 입력</button>
             </div>
           </div>
-          <textarea id="aiQuestion" maxlength="800" required placeholder="키보드·붙여넣기 또는 🎤 음성 입력.&#10;예: 이직을 지금 해도 될까요? / 그 사람 마음이 궁금해요"></textarea>
-          <p class="ai-voice-hint" id="aiVoiceHint">한 문장씩 말하면 됩니다. 크롬·엣지·안드로이드 권장. 더 쓰려면 버튼을 다시 누르세요.</p>
+          <textarea id="aiQuestion" maxlength="800" required placeholder="고객의 질문을 적어 주세요.&#10;예: 이직을 지금 해도 될까요? / 그 사람 마음이 궁금해요"></textarea>
+          <p class="ai-voice-hint" id="aiVoiceHint">🎤 음성 입력은 한 문장씩 말하면 돼요 (크롬·엣지·안드로이드 권장). 이어서 말하려면 버튼을 다시 누르세요.</p>
           <div id="aiSpreadSuggestWrap" style="margin-top:10px" hidden>
             <label>배열 추천</label>
             <div id="aiSpreadSuggest" class="ai-chip-row" role="group" aria-label="배열 추천"></div>
@@ -738,9 +746,32 @@
           <label for="aiNote">추가 메모 (선택 · 고객에게 안 보임)</label>
           <textarea id="aiNote" maxlength="500" placeholder="지난 회차 포인트, 상담사가 알고 있는 맥락 등"></textarea>
         </div>
+        <div class="ai-step full"><span class="ai-step-num">3</span><span class="ai-step-title">카드 수</span></div>
+      <div class="ai-mode-row full" role="tablist" aria-label="장수·배열 모드">
+        <button type="button" class="ai-mode-btn active" id="aiModeBasic" data-mode="basic" role="tab" aria-selected="true">
+          <strong>한 장 리딩</strong>
+          <span>카드 1장 · 필요하면 한 장씩 추가</span>
+        </button>
+        <button type="button" class="ai-mode-btn" id="aiModeAdv" data-mode="advanced" role="tab" aria-selected="false">
+          <strong>배열 리딩</strong>
+          <span>3~9장 배열 · 질문에 맞는 배열을 추천해 드려요</span>
+        </button>
+      </div>
+        <div class="ai-step full"><span class="ai-step-num">4</span><span class="ai-step-title">해석 방식</span></div>
+      <div class="ai-depth-row full" role="tablist" aria-label="해석 깊이">
+        <button type="button" class="ai-depth-btn active" id="aiDepthCard" data-depth="card" role="tab" aria-selected="true">
+          <strong>타로만</strong>
+          <span>질문과 카드만으로 해석해요</span>
+        </button>
+        <button type="button" class="ai-depth-btn" id="aiDepthIntegrated" data-depth="integrated" role="tab" aria-selected="false">
+          <strong>타로 + 수비학·점성학</strong>
+          <span>고객 생년월일 흐름을 해석에 함께 녹여요 · 고객 선택 필요 · <b>+1 크레딧</b></span>
+        </button>
+      </div>
+        <div class="ai-step full"><span class="ai-step-num">5</span><span class="ai-step-title">카드</span><span class="ai-step-sub">직접 입력 · 음성 · 덱에서 뽑기</span></div>
         <div class="full">
           <div class="ai-q-head">
-            <label>뽑힌 카드</label>
+            <label class="sr-label">뽑힌 카드</label>
             <button type="button" class="ai-voice-btn" id="aiCardVoiceBtn" title="마이크로 카드 이름 말하기">🎤 음성으로 카드</button>
           </div>
           <p class="ai-card-hint">칸에 <strong>소드7 · 완드왕 · 35</strong>처럼 치거나, <strong>「소드 칠」「완드 왕」「역방향 탑」</strong>처럼 말해 넣을 수 있습니다.</p>
@@ -752,10 +783,10 @@
           </div>
           <div id="aiCardSlots" class="ai-card-slots"></div>
           <div class="ai-extra-bar" id="aiExtraBar">
-            <div class="ai-extra-label">추가 카드 (스프래드 밖 · 예: 조언으로 한 장 더)</div>
-            <button type="button" class="btn-sm outline" id="aiAddAdvice">+ 조언 카드 뽑기</button>
-            <button type="button" class="btn-sm outline" id="aiAddClarify">+ 명확화 카드</button>
-            <button type="button" class="btn-sm outline" id="aiAddCustom">+ 추가 카드</button>
+            <div class="ai-extra-label">배열 밖에서 한 장 더</div>
+            <button type="button" class="btn-sm outline" id="aiAddAdvice" title="어떻게 하면 좋을지 조언을 보는 카드">+ 조언 카드</button>
+            <button type="button" class="btn-sm outline" id="aiAddClarify" title="애매한 카드의 뜻을 좁혀 보는 카드">+ 명확화 카드 (뜻 좁히기)</button>
+            <button type="button" class="btn-sm outline" id="aiAddCustom">+ 자유 추가</button>
           </div>
           <details class="ai-pick-accordion" id="aiPickAccordion">
             <summary>덱에서 뽑기 · 뒷면 클릭</summary>
@@ -775,7 +806,7 @@
           <button type="button" class="btn-sm outline" id="aiNewReadingBtn2" title="질문·추가메모·카드·추가칸·해석을 모두 비우고 새 리딩 시작">새 리딩</button>
           <button type="submit" class="btn-sm" id="aiDraftBtn">해석 생성</button>
           <button type="button" class="btn-sm outline" id="aiCancelBtn" style="display:none;">취소</button>
-          <span class="ai-draft-quota" id="aiCreditHint" aria-live="polite">예상 크레딧 1</span>
+          <span class="ai-draft-quota ai-credit-pill" id="aiCreditHint" aria-live="polite">이번 리딩 <b>1</b> 크레딧</span>
           <button type="button" class="btn-sm outline" id="aiCopyBtn" style="display:none;">복사</button>
           <button type="button" class="btn-sm outline" id="aiSaveSessionBtn" style="display:none;">세션에 전문 남기기</button>
           <span class="ai-draft-quota" id="aiDraftQuota" hidden></span>
@@ -1617,8 +1648,8 @@
         if (!creditHintEl) return;
         const n = readFilledCards().length || Math.max(1, slots.filter((s) => s.num != null).length || 1);
         const { cost } = resolveCounselorFeature(n, readingDepth);
-        creditHintEl.textContent = '예상 크레딧 ' + cost +
-          (readingDepth === 'integrated' ? ' (통합)' : '');
+        creditHintEl.innerHTML = '이번 리딩 <b>' + cost + '</b> 크레딧' +
+          (readingDepth === 'integrated' ? ' <span>· 수비학·점성학 포함</span>' : '');
       }
 
       function setMode(next) {

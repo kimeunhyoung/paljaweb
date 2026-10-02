@@ -16,6 +16,30 @@
     document.head.appendChild(s);
   }
 
+  function ensureSupabaseLib(cb) {
+    if (typeof window !== 'undefined' && window.supabase && typeof window.supabase.createClient === 'function') {
+      cb();
+      return;
+    }
+    if (document.querySelector('script[data-palja-supabase]')) {
+      var n = 0;
+      var t = setInterval(function () {
+        n += 1;
+        if ((window.supabase && typeof window.supabase.createClient === 'function') || n > 80) {
+          clearInterval(t);
+          cb();
+        }
+      }, 50);
+      return;
+    }
+    var s = document.createElement('script');
+    s.src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2';
+    s.setAttribute('data-palja-supabase', '1');
+    s.onload = function () { cb(); };
+    s.onerror = function () { cb(); };
+    document.head.appendChild(s);
+  }
+
   function getClient() {
     // 같은 페이지의 다른 스크립트(ai-quota-client.js 등)와 Supabase 클라이언트를 공유.
     // 각자 createClient()를 새로 만들면 GoTrueClient 인스턴스가 늘어나며 인증 상태가
@@ -143,35 +167,37 @@
     }
     injectCss();
     ensureDeviceScript();
-    var sb = getClient();
-    if (!sb) return;
-    withPaljaDevice(function () {
-      syncPlanBadge(sb);
-      syncSlots(sb);
-    });
-    requestAnimationFrame(function () {
+    ensureSupabaseLib(function () {
+      var sb = getClient();
+      if (!sb) return;
       withPaljaDevice(function () {
         syncPlanBadge(sb);
         syncSlots(sb);
       });
-    });
-    sb.auth.onAuthStateChange(function (event, session) {
-      if (session?.access_token && (event === 'SIGNED_IN' || event === 'INITIAL_SESSION')) {
-        if (window.PaljaAttribution?.syncWithToken) {
-          window.PaljaAttribution.syncWithToken(session.access_token);
+      requestAnimationFrame(function () {
+        withPaljaDevice(function () {
+          syncPlanBadge(sb);
+          syncSlots(sb);
+        });
+      });
+      sb.auth.onAuthStateChange(function (event, session) {
+        if (session?.access_token && (event === 'SIGNED_IN' || event === 'INITIAL_SESSION')) {
+          if (window.PaljaAttribution?.syncWithToken) {
+            window.PaljaAttribution.syncWithToken(session.access_token);
+          }
         }
-      }
-      withPaljaDevice(function () {
-        syncPlanBadge(sb);
-        syncSlots(sb);
+        withPaljaDevice(function () {
+          syncPlanBadge(sb);
+          syncSlots(sb);
+        });
       });
-    });
-    document.addEventListener('click', function (e) {
-      var t = e.target && e.target.closest && e.target.closest('[data-topbar-auth-signout]');
-      if (!t) return;
-      e.preventDefault();
-      sb.auth.signOut().then(function () {
-        window.location.reload();
+      document.addEventListener('click', function (e) {
+        var t = e.target && e.target.closest && e.target.closest('[data-topbar-auth-signout]');
+        if (!t) return;
+        e.preventDefault();
+        sb.auth.signOut().then(function () {
+          window.location.reload();
+        });
       });
     });
   }

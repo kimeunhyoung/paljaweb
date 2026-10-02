@@ -7,7 +7,8 @@
   <title>마이페이지 — 팔자연구소 8CODE</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,400&family=Noto+Sans+KR:wght@300;400;500;700&family=Noto+Serif+KR:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css" crossorigin />
 
   <!-- Supabase CDN -->
   <script src="js/attribution.js"></script>
@@ -17,9 +18,7 @@
   <script src="js/ai-quota-client.js?v=1"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="js/plan-access.js?v=13"></script>
-  <link rel="stylesheet" href="css/site-topbar.css?v=8" />
-  <script src="js/site-topbar.js?v=17" defer></script>
-  <script src="js/topbar-session.js?v=7" defer></script>
+  <link rel="stylesheet" href="css/style.css?v=20261002m" />
 
   <style>
     :root {
@@ -76,6 +75,7 @@
       display: flex;
       flex-direction: column;
       min-height: 100vh;
+      padding-top: 120px;
     }
 
     .user-chip {
@@ -125,6 +125,9 @@
       gap: 16px;
       padding: 16px 40px 0;
       max-width: 1100px;
+      width: 100%;
+      margin: 0 auto;
+      box-sizing: border-box;
       flex-wrap: wrap;
     }
     .date-tag {
@@ -135,7 +138,13 @@
     }
 
     /* ── PAGE CONTENT ── */
-    .page { padding: 40px; max-width: 1100px; }
+    .page {
+      padding: 40px;
+      max-width: 1100px;
+      width: 100%;
+      margin: 0 auto;
+      box-sizing: border-box;
+    }
 
     /* ── GREETING ── */
     .greeting {
@@ -681,6 +690,7 @@
 
     /* ── MOBILE ── */
     @media (max-width: 900px) {
+      .layout { padding-top: 108px; }
       .cards-grid { grid-template-columns: 1fr 1fr; }
       .stats-row { grid-template-columns: 1fr 1fr; }
       .two-col { grid-template-columns: 1fr; }
@@ -706,7 +716,111 @@
 
 <div class="layout" id="app" style="display:none;">
 
-  <div class="site-top" data-topbar-title="나의 공간" data-login-next="dashboard.html"></div>
+  <header class="site-chrome" id="siteChrome">
+  <nav class="navbar" id="navbar">
+    <div class="nav-inner">
+      <a href="index.html" class="nav-logo">
+        <div class="logo-mark">八</div>
+        <span class="logo-text">팔자연구소</span>
+      </a>
+      <ul class="nav-links">
+        <li><a href="guide/index.html">가이드</a></li>
+        <li><a href="nakshatra/index.html">학습자료실</a></li>
+        <li><a href="pricing.html">요금제</a></li>
+      </ul>
+      <div class="nav-actions">
+        <a href="dashboard.html" class="btn-nav-ghost">마이페이지</a>
+        <button type="button" class="btn-nav-fill logout-btn">로그아웃</button>
+      </div>
+      <button class="nav-menu-btn" id="navMenuBtn" type="button" aria-expanded="false" aria-controls="mobileNavPanel" aria-label="메뉴 열기">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+    <div class="mobile-nav-panel" id="mobileNavPanel" hidden>
+      <div class="mobile-nav-actions">
+        <a href="dashboard.html" class="btn-nav-ghost">마이페이지</a>
+        <button type="button" class="btn-nav-fill logout-btn">로그아웃</button>
+      </div>
+      <ul class="mobile-nav-links">
+        <li class="mobile-nav-group">수비학</li>
+        <li><a href="analysis.html">라이프코드</a></li>
+        <li><a href="numerology-calendar.html">수비학달력</a></li>
+        <li class="mobile-nav-group">점성학</li>
+        <li><a href="astrology.html">점성학 차트</a></li>
+        <li><a href="vedic.html">인도점성학 차트</a></li>
+        <li class="mobile-nav-group">타로 AI</li>
+        <li><a href="Tarot.html">타로코드</a></li>
+        <li><a href="counselor-reading.html">타로 AI</a></li>
+        <li><a href="counselor-lenormand.html">레노먼드 AI</a></li>
+        <li><a href="counselor-iching.html">주역 AI</a></li>
+        <li class="mobile-nav-group">관계</li>
+        <li><a href="compatibility.html">소울하모니</a></li>
+        <li><a href="period48-compat.html">48궁합</a></li>
+        <li class="mobile-nav-group">생활 수비학</li>
+        <li><a href="address-numerology.html">주소·전화</a></li>
+        <li><a href="business-numerology.html">상호·브랜드</a></li>
+        <li><a href="name.html">네임코드</a></li>
+        <li><a href="numerology-wallpaper.html">에너지배경</a></li>
+        <li class="mobile-nav-group">상담사</li>
+        <li><a href="counselor.html">상담사 허브</a></li>
+        <li class="mobile-nav-group">기타</li>
+        <li><a href="guide/index.html">가이드</a></li>
+        <li><a href="nakshatra/index.html">학습자료실</a></li>
+        <li><a href="pricing.html">요금제</a></li>
+      </ul>
+    </div>
+  </nav>
+  <nav class="home-program-nav" id="programs" aria-label="프로그램 바로가기">
+    <div class="home-program-nav-inner">
+      <details class="home-nav-dd" name="home-prog">
+        <summary>수비학</summary>
+        <div class="home-nav-dd-menu">
+          <a href="services.html#numerology">전체 보기</a>
+          <a href="analysis.html">라이프코드</a>
+          <a href="numerology-calendar.html">수비학달력</a>
+        </div>
+      </details>
+      <details class="home-nav-dd" name="home-prog">
+        <summary>점성학</summary>
+        <div class="home-nav-dd-menu">
+          <a href="services.html#astrology">전체 보기</a>
+          <a href="astrology.html">점성학 차트</a>
+          <a href="vedic.html">인도점성학 차트</a>
+        </div>
+      </details>
+      <details class="home-nav-dd" name="home-prog">
+        <summary>타로AI</summary>
+        <div class="home-nav-dd-menu">
+          <a href="services.html#cards">전체 보기</a>
+          <a href="Tarot.html">타로코드</a>
+          <a href="counselor-reading.html">타로 AI</a>
+          <a href="counselor-lenormand.html">레노먼드 AI</a>
+          <a href="counselor-iching.html">주역 AI</a>
+        </div>
+      </details>
+      <details class="home-nav-dd" name="home-prog">
+        <summary>관계</summary>
+        <div class="home-nav-dd-menu">
+          <a href="services.html#relation">전체 보기</a>
+          <a href="compatibility.html">소울하모니</a>
+          <a href="period48-compat.html">48궁합</a>
+        </div>
+      </details>
+      <details class="home-nav-dd" name="home-prog">
+        <summary>생활수비학</summary>
+        <div class="home-nav-dd-menu">
+          <a href="services.html#life">전체 보기</a>
+          <a href="address-numerology.html">주소·전화</a>
+          <a href="business-numerology.html">상호·브랜드</a>
+          <a href="name.html">네임코드</a>
+          <a href="numerology-wallpaper.html">에너지배경</a>
+        </div>
+      </details>
+      <a href="counselor.html">상담사</a>
+      <a href="pricing.html">요금제</a>
+    </div>
+  </nav>
+  </header>
 
   <!-- ── MAIN ── -->
   <div class="main">
@@ -1545,5 +1659,6 @@
   loadProfileForm();
 })();
 </script>
+<script type="module" src="js/main.js?v=20261002m"></script>
 </body>
 </html>
