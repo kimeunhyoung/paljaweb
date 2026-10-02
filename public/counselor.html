@@ -270,6 +270,45 @@
     #gate .cta { display: inline-block; background: var(--deep); color: var(--cream); padding: 12px 24px; border-radius: 6px; text-decoration: none; font-size: 13px; margin-top: 4px; }
     #gate .cta.secondary { background: transparent; color: var(--deep); border: 1.5px solid var(--border); }
     #workspace { display: none; }
+
+    /* ── 상담사 허브 재구성: 섹션 위계 · 대비 · 접기 ── */
+    #workspace, .hub-intro { --muted: #74604b; }
+    .hub-intro p { color: #5e4c39; }
+    .hub-intro p a { color: var(--deep); font-weight: 700; }
+    #sessionNotes { min-height: 90px; }
+    .hub-plan { display: inline-block; font-size: 11px; font-weight: 700; color: var(--deep); border: 1px solid var(--deep); border-radius: 12px; padding: 1px 8px; margin-left: 4px; }
+    html { scroll-behavior: smooth; }
+    .hub-jump { display: flex; gap: 6px; flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; padding: 10px 0; margin: 4px 0 4px; background: var(--cream); border-bottom: 1px solid var(--border); }
+    .hub-jump a { flex: 0 0 auto; font-size: 13px; font-weight: 600; color: var(--deep); text-decoration: none; padding: 6px 12px; border-radius: 16px; border: 1px solid rgba(139,111,71,.28); background: #fff; }
+    .hub-jump a:hover { background: var(--parchment); }
+    .hub-sec { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; font-family: var(--font-serif); font-size: 20px; font-weight: 700; color: var(--deep); margin: 36px 0 12px; scroll-margin-top: 64px; }
+    .hub-sec small { font-family: var(--font-body); font-size: 12.5px; font-weight: 500; color: var(--muted); }
+    .hub-sec-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; margin: 36px 0 12px; scroll-margin-top: 64px; }
+    .hub-sec-row .hub-sec { margin: 0; }
+    .hub-subhead { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; flex-wrap: wrap; font-size: 15px; font-weight: 700; color: var(--deep); margin: 20px 0 10px; }
+    .hub-subhead small { font-size: 12px; font-weight: 500; color: var(--muted); margin-right: auto; }
+    .hub-quick { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 12px; }
+    .hub-quick-btn { font-size: 14px; font-weight: 600; text-decoration: none; color: var(--deep); background: #fff; border: 1px solid rgba(139,111,71,.3); border-radius: 10px; padding: 10px 16px; }
+    .hub-quick-btn:hover { background: var(--parchment); }
+    .hub-quick-btn.primary { background: var(--deep); color: #fff; border-color: var(--deep); }
+    .lbl-sub { font-weight: 400; color: var(--muted); margin-left: 4px; font-size: 11.5px; }
+    .client-form-box { background: var(--cream); border: 1px solid rgba(139,111,71,.25); border-radius: 10px; margin: 10px 0 14px; }
+    .client-form-box > summary { cursor: pointer; list-style: none; padding: 12px 14px; font-size: 14px; font-weight: 700; color: var(--deep); }
+    .client-form-box > summary::-webkit-details-marker { display: none; }
+    .cfb-plus { display: inline-flex; width: 20px; height: 20px; align-items: center; justify-content: center; border-radius: 50%; background: var(--deep); color: #fff; font-size: 14px; margin-right: 4px; }
+    .cfb-sub { font-size: 12px; font-weight: 400; color: var(--muted); }
+    .client-form-box[open] > summary { border-bottom: 1px solid var(--border); }
+    .client-form-box > form { padding: 14px; }
+    .hub-fold { background: #fff; border: 1px solid var(--border); border-radius: 12px; margin-bottom: 12px; }
+    .hub-fold > summary { cursor: pointer; padding: 14px 18px; font-size: 14px; font-weight: 700; color: var(--deep); }
+    .hub-fold-body { padding: 0 18px 18px; }
+    .hub-fold-body .hub-subhead:first-child { margin-top: 4px; }
+    .hub-guide { margin-top: 24px; }
+    .event-past { margin-top: 10px; }
+    .event-past > summary { cursor: pointer; font-size: 12.5px; color: var(--muted); padding: 6px 0; }
+    .event-past .event-row { opacity: .8; }
+    .cal-legend { margin: 0 0 10px; }
+    .dash-num { font-size: 26px; }
     .section-title {
       font-family: var(--font-body); font-size: 11px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); margin: 28px 0 12px;
     }
@@ -883,7 +922,7 @@
 <div id="app">
   <div class="hub-intro">
     <h1>상담사 허브</h1>
-    <p>고객 관리 → 라이프코드·궁합 분석 → <strong>고객용 리포트 PDF</strong>와 <strong>고객별 세션 기록</strong>까지. 일정 캘린더·푸시 알림으로 오늘 상담을 챙기고, 매출 장부로 운영까지. <a href="counselor-reading.html" style="color:var(--deep);font-weight:600">타로 AI</a>는 별도 페이지입니다. 이 화면은 <strong>Professional 상담사 전용</strong>입니다.</p>
+    <p>고객 관리부터 분석·리딩, 고객용 리포트, 상담 기록, 일정·매출까지 한 곳에서 챙기는 상담사 작업 공간이에요. <a href="counselor-reading.html">타로 AI</a>는 별도 페이지에서 열려요. <span class="hub-plan">Professional 전용</span></p>
     <p id="trialBadge" class="trial-badge" style="display:none" role="status"></p>
   </div>
   <div id="gate">
@@ -902,194 +941,27 @@
   </div>
 
   <div id="workspace">
-    <div class="section-title dash-head">상담 현황
-      <button type="button" class="btn-sm outline" id="exportCsvBtn">CSV 내보내기</button>
-    </div>
-    <div class="dash-grid">
-      <div class="dash-card"><div class="dash-num" id="dashClients">0</div><div class="dash-label">전체 고객 <span class="dash-unlimited">· 무제한</span></div></div>
-      <div class="dash-card"><div class="dash-num" id="dashUpcoming">0</div><div class="dash-label">다가오는 약속(2주)</div></div>
-      <div class="dash-card"><div class="dash-num" id="dashRecent">—</div><div class="dash-label">최근 상담일</div></div>
-      <div class="dash-card"><div class="dash-num" id="dashNew">0</div><div class="dash-label">이번 달 신규 고객</div></div>
-      <div class="dash-card"><div class="dash-num" id="dashMonthSessions">0</div><div class="dash-label">이번 달 상담 건수</div></div>
-      <div class="dash-card"><div class="dash-num" id="dashRepeat">0<small>%</small></div><div class="dash-label">재방문율(2회+)</div></div>
-      <div class="dash-card"><div class="dash-num" id="dashMonthSales">0</div><div class="dash-label">이번 달 매출(원)</div></div>
+    <nav class="hub-jump" aria-label="허브 바로가기">
+      <a href="#hub-today">오늘</a><a href="#hub-clients">고객</a><a href="#hub-calendar">일정</a><a href="#hub-tools">상담 도구</a><a href="#hub-ops">운영·매출</a><a href="#hub-settings">설정</a>
+    </nav>
+    <h2 class="hub-sec" id="hub-today"><span>오늘</span><small>다가오는 2주 약속</small></h2>
+    <div class="hub-quick">
+      <a class="hub-quick-btn primary" href="#hub-clients" data-open-client-form="1">+ 새 고객</a>
+      <a class="hub-quick-btn" href="analysis.html">라이프코드 분석</a>
+      <a class="hub-quick-btn" href="counselor-reading.html">타로 AI</a>
+      <a class="hub-quick-btn" href="#hub-calendar">일정 추가</a>
     </div>
     <div class="dash-upcoming" id="dashUpcomingList"></div>
-
-    <div class="section-title cal-head" style="margin-top:28px">
-      <span>일정 캘린더</span>
-      <div style="display:flex;gap:8px;flex-wrap:wrap;">
-        <button type="button" class="btn-sm outline" id="exportIcsBtn">캘린더 파일(.ics)</button>
-      </div>
+    <div class="notes-wrap">
+      <label for="sessionNotes">오늘 빠른 메모 <span class="lbl-sub">이 기기에만 자동 저장</span></label>
+      <textarea id="sessionNotes" placeholder="고객 반응, 다시 볼 포인트, 과제 등"></textarea>
+      <p class="notes-hint">고객별로 계속 남길 내용은 고객 카드의 <strong>상담 기록</strong>에 적어 주세요.</p>
     </div>
-    <div class="cal-panel">
-      <div class="cal-head">
-        <h3>약속 · 일정</h3>
-        <div class="cal-nav">
-          <button type="button" id="calPrevBtn" aria-label="이전 달">◀</button>
-          <span class="cal-ym" id="calYmLabel">—</span>
-          <button type="button" id="calNextBtn" aria-label="다음 달">▶</button>
-          <button type="button" id="calTodayBtn">오늘</button>
-        </div>
-      </div>
-      <div class="cal-weekdays" id="calWeekdays"></div>
-      <p class="event-hint cal-legend" style="margin-bottom:8px;">
-        <span class="cal-legend-item"><span class="cal-legend-dot dot-session" aria-hidden="true"></span>장미 = 상담 완료(기록)</span>
-        <span class="cal-legend-sep">·</span>
-        <span class="cal-legend-item"><span class="cal-legend-dot dot-client" aria-hidden="true"></span>청록 = 상담 약속(고객·일정)</span>
-        <span class="cal-legend-sep">·</span>
-        <span class="cal-legend-item"><span class="cal-legend-dot dot-event" aria-hidden="true"></span>금색 = 개인 일정</span>
-      </p>
-      <div class="cal-grid" id="calGrid"></div>
-      <div class="cal-detail" id="calDetail">
-        <h4 id="calDetailTitle">날짜를 선택하세요</h4>
-        <div id="calDetailList"></div>
-      </div>
-      <div class="event-panel" id="eventPanel">
-        <h4>일정 추가 · 수정</h4>
-        <p class="event-hint">고객 카드 없이 <strong>상담 약속</strong>을 먼저 잡아 두고, 상담 후 <strong>상담 기록</strong>을 남기면 그날은 완료로 표시됩니다. 기록에서 <strong>다음 약속</strong>을 넣으면 고객 카드·캘린더에 자동 반영됩니다. <strong>개인 일정</strong>은 세미나·휴무 등에 쓰세요.</p>
-        <form id="eventForm" class="event-form" autocomplete="off">
-          <input type="hidden" id="editEventId" value=""/>
-          <div>
-            <label for="eventKind">유형 *</label>
-            <select id="eventKind" required>
-              <option value="appointment">상담 약속</option>
-              <option value="personal">개인 일정</option>
-            </select>
-          </div>
-          <div>
-            <label for="eventDate">날짜 *</label>
-            <input id="eventDate" type="date" required/>
-          </div>
-          <div>
-            <label for="eventTime">시작 시간</label>
-            <input id="eventTime" type="time"/>
-          </div>
-          <div>
-            <label for="eventTitle">제목 *</label>
-            <input id="eventTitle" type="text" required placeholder="예: 타로 전화 상담"/>
-          </div>
-          <div>
-            <label for="eventNote">메모</label>
-            <input id="eventNote" type="text" placeholder="선택"/>
-          </div>
-          <div class="ef-actions">
-            <button type="submit" class="btn-sm" id="eventSaveBtn">저장</button>
-            <button type="button" class="btn-sm outline" id="eventResetBtn">새로</button>
-          </div>
-        </form>
-        <h5 class="event-upcoming-title">다가오는 개인 일정</h5>
-        <div id="eventList" class="event-list"></div>
-      </div>
-    </div>
-
-    <div class="section-title" style="margin-top:28px">일정 알림</div>
-    <div class="push-panel">
-      <p>알림을 켜 두면 <strong>오늘 날짜</strong>의 상담·중요 일정이 있을 때, <strong>정해 둔 시간(한국)</strong>에 한 번 요약해 드립니다. 오늘 일정이 없으면 알림은 가지 않습니다.</p>
-      <div class="push-actions">
-        <div class="push-time">
-          <label for="pushHourSelect">오전 요약 시간 (한국)</label>
-          <select id="pushHourSelect" aria-label="알림 시간"></select>
-          <button type="button" class="btn-sm outline" id="pushSaveHourBtn" style="display:none;">시간 저장</button>
-        </div>
-        <button type="button" class="btn-sm" id="pushToggleBtn">알림 켜기</button>
-        <span class="push-status off" id="pushStatus">확인 중…</span>
-      </div>
-      <div class="push-remind">
-        <label for="sessionRemindSelect">세션 시작 전 알림</label>
-        <select id="sessionRemindSelect" aria-label="세션 시작 전 알림">
-          <option value="0">끔</option>
-          <option value="10">10분 전</option>
-          <option value="20">20분 전</option>
-          <option value="30" selected>30분 전</option>
-        </select>
-        <p class="push-remind-hint">중요 일정에 <strong>시작 시간</strong>을 넣은 경우, 이 탭이 열려 있으면 선택 분 전에 브라우저 알림을 한 번 보냅니다. (오전 요약 푸시와 별개)</p>
-      </div>
-    </div>
-
-    <div class="section-title">상담사 브랜드 (리포트 머리글)</div>
-    <div class="brand-panel">
-      <div class="brand-row">
-        <div>
-          <label for="brandName">상담사/센터 이름</label>
-          <input id="brandName" type="text" placeholder="예: OO 수비학 상담소"/>
-        </div>
-        <div>
-          <label for="brandLogo">로고 이미지 URL (선택)</label>
-          <input id="brandLogo" type="url" placeholder="https://… (없으면 비워두세요)"/>
-        </div>
-        <button type="button" class="btn-sm" id="brandSaveBtn">저장</button>
-      </div>
-      <p class="brand-hint">여기에 입력한 이름·로고가 <strong>고객용 리포트 PDF</strong> 머리글에 들어갑니다. 이 기기 브라우저에 저장됩니다.</p>
-    </div>
-
-    <div class="section-title" style="margin-top:28px">상담 도구</div>
-    <div class="links" style="margin-bottom:8px">
-      <a class="link-card" href="counselor-reading.html">
-        <div class="tag">AI</div>
-        <div class="t">타로 AI</div>
-        <div class="d">상담사용 기본 타로 리딩. 질문·카드·해석 초안 · 신입용 세션 스크립트. 허브와 분리된 작업 페이지입니다.</div>
-      </a>
-      <a class="link-card" href="counselor-lenormand.html">
-        <div class="tag">AI</div>
-        <div class="t">레노먼드 AI</div>
-        <div class="d">Petit Lenormand 36장. 상황·관계·진행 체인 해석 초안. Professional 전용.</div>
-      </a>
-      <div class="link-card soon" aria-disabled="true">
-        <div class="tag">준비중</div>
-        <div class="t">오디세이신화타로 AI</div>
-        <div class="d">상담사 전용 · 오디세이 신화 테마 78장 리딩. 모집·덱 정리 후 오픈 예정입니다.</div>
-      </div>
-      <a class="link-card" href="counselor-iching.html">
-        <div class="tag">AI</div>
-        <div class="t">주역 AI</div>
-        <div class="d">주역 64괘. 단괘·본괘/지괘 해석 초안. Professional 전용.</div>
-      </a>
-    </div>
-
-    <div class="section-title" style="margin-top:28px">운영 · 매출</div>
-    <div class="ops-panel" id="opsPanel">
-      <p class="ops-intro">상담 후 정산에 쓰는 <strong>간단 매출 장부</strong>입니다. Supabase에서 <code class="inline-code">database/counselor_ops.sql</code>을 실행해야 저장됩니다.</p>
-
-      <div class="ops-subhead">간단 매출 장부</div>
-      <div class="ops-summary" id="salesSummary">
-        <div class="ops-sum-chip">이번 달 합계<strong id="salesMonthTotal">0원</strong></div>
-        <div class="ops-sum-chip">이번 달 건수<strong id="salesMonthCount">0건</strong></div>
-      </div>
-      <form id="salesForm" class="ops-form sales-form" autocomplete="off">
-        <input type="hidden" id="editSaleId" value=""/>
-        <div>
-          <label for="saleDate">날짜 *</label>
-          <input id="saleDate" type="date" required/>
-        </div>
-        <div>
-          <label for="saleAmount">금액(원) *</label>
-          <input id="saleAmount" type="number" min="0" step="1000" required placeholder="50000"/>
-        </div>
-        <div>
-          <label for="saleChannel">채널</label>
-          <input id="saleChannel" type="text" maxlength="80" placeholder="카톡 · 인스타 · 소개"/>
-        </div>
-        <div>
-          <label for="saleClient">고객 (선택)</label>
-          <select id="saleClient"></select>
-        </div>
-        <div class="full">
-          <label for="saleNote">메모</label>
-          <input id="saleNote" type="text" maxlength="200" placeholder="예: 1회 상담, 패키지 잔금"/>
-        </div>
-        <div class="ops-actions">
-          <button type="submit" class="btn-sm" id="saleSaveBtn">매출 저장</button>
-          <button type="button" class="btn-sm outline" id="saleResetBtn">새로</button>
-        </div>
-      </form>
-      <div id="salesList" class="ops-list"></div>
-      <p id="salesMsg" class="form-msg"></p>
-    </div>
-
-    <div class="section-title">고객 카드</div>
+    <h2 class="hub-sec" id="hub-clients"><span>고객</span></h2>
     <div class="client-panel">
-      <p class="client-intro">상담 대상별로 생일·이름을 저장해 두었다가 <strong>요약 복사</strong>로 짧은 수비학 문장을 바로 붙이거나, <strong>라이프코드 분석</strong>으로 자세히 볼 수 있어요. 고객 수 <strong>무제한</strong>이며, 위의 <strong>CSV 내보내기</strong>로 언제든 백업할 수 있습니다.</p>
+      <p class="client-intro">고객의 생일·이름을 저장해 두면 <strong>요약 복사</strong>, <strong>라이프코드 분석</strong>, <strong>상담 기록</strong>을 바로 열 수 있어요.</p>
+      <details class="client-form-box" id="clientFormBox">
+        <summary><span class="cfb-plus">+</span> 새 고객 추가 <span class="cfb-sub">· 수정할 때도 여기서 열려요</span></summary>
       <form id="clientForm" class="client-form" autocomplete="off">
         <input type="hidden" id="editClientId" value=""/>
         <div>
@@ -1144,6 +1016,7 @@
           <button type="button" class="btn-sm outline" id="clientResetBtn">새로 입력</button>
         </div>
       </form>
+      </details>
       <div class="client-search-wrap">
         <input id="clientSearch" class="client-search-input" type="search" placeholder="고객 검색 (표시 이름/본명/생년월일)" autocomplete="off"/>
       </div>
@@ -1151,7 +1024,7 @@
       <p id="clientFormMsg" class="form-msg"></p>
     </div>
 
-    <div class="section-title">관계 분석 (고객 간 궁합)</div>
+    <h3 class="hub-subhead">관계 분석 <small>저장된 두 고객의 궁합</small></h3>
     <div class="rel-panel">
       <div class="rel-row">
         <div>
@@ -1171,23 +1044,99 @@
       <p class="rel-hint">저장된 두 고객을 골라 궁합 페이지로 바로 분석합니다. (커플·가족 상담용) · <b>소울하모니</b>=수비학 심리 공명 · <b>48궁합</b>=생년월일 관계유형 20종 · <b>커플 차트</b>=점성학 시너스트리(출생시간·도시 있으면 더 정확)</p>
     </div>
 
-    <div class="section-title">권장 진행 순서</div>
-    <div class="flow">
-      <div class="flow-step">
-        <div class="flow-num">1</div>
-        <div><strong>고객 생일·이름</strong><span>라이프코드 분석에서 생년월일은 필수, 이름은 있으면 운명·혼·성격·완성 해석이 함께 열립니다. Professional은 <strong>고객 이름(상담사용)</strong> 칸에 표시용 이름을 적어 두면 화면·인쇄 시 구분에 도움이 됩니다.</span></div>
+    <div class="hub-sec-row" id="hub-calendar">
+      <h2 class="hub-sec"><span>일정</span></h2>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;">
+        <button type="button" class="btn-sm outline" id="exportIcsBtn">캘린더 파일(.ics)</button>
       </div>
-      <div class="flow-step">
-        <div class="flow-num">2</div>
-        <div><strong>분석 · 궁합</strong><span>1:1 코드는 라이프코드로, 관계는 수비학 궁합 페이지로 이어서 볼 수 있어요.</span></div>
+    </div>
+    <div class="cal-panel">
+      <div class="cal-head">
+        <h3>약속 · 일정</h3>
+        <div class="cal-nav">
+          <button type="button" id="calPrevBtn" aria-label="이전 달">◀</button>
+          <span class="cal-ym" id="calYmLabel">—</span>
+          <button type="button" id="calNextBtn" aria-label="다음 달">▶</button>
+          <button type="button" id="calTodayBtn">오늘</button>
+        </div>
       </div>
-      <div class="flow-step">
-        <div class="flow-num">3</div>
-        <div><strong>리포트 · 기록</strong><span>분석 화면에서 <strong>고객용 리포트 PDF</strong>를 전달하고, 고객 카드의 <strong>상담 기록</strong>에 세션을 남겨 다음 상담에 이어가세요.</span></div>
+      <p class="event-hint cal-legend">
+        <span class="cal-legend-item"><span class="cal-legend-dot dot-session" aria-hidden="true"></span>장미 = 상담 완료(기록)</span>
+        <span class="cal-legend-sep">·</span>
+        <span class="cal-legend-item"><span class="cal-legend-dot dot-client" aria-hidden="true"></span>청록 = 상담 약속(고객·일정)</span>
+        <span class="cal-legend-sep">·</span>
+        <span class="cal-legend-item"><span class="cal-legend-dot dot-event" aria-hidden="true"></span>금색 = 개인 일정</span>
+      </p>
+      <div class="cal-weekdays" id="calWeekdays"></div>
+      <div class="cal-grid" id="calGrid"></div>
+      <div class="cal-detail" id="calDetail">
+        <h4 id="calDetailTitle">날짜를 선택하세요</h4>
+        <div id="calDetailList"></div>
+      </div>
+      <div class="event-panel" id="eventPanel">
+        <h4>일정 추가 · 수정</h4>
+        <p class="event-hint"><strong>상담 약속</strong>은 고객 카드 없이도 먼저 잡을 수 있어요. 상담 후 <strong>상담 기록</strong>을 남기면 그날은 완료로 표시되고, 기록에 넣은 다음 약속은 캘린더에 자동으로 들어가요.</p>
+        <form id="eventForm" class="event-form" autocomplete="off">
+          <input type="hidden" id="editEventId" value=""/>
+          <div>
+            <label for="eventKind">유형 *</label>
+            <select id="eventKind" required>
+              <option value="appointment">상담 약속</option>
+              <option value="personal">개인 일정</option>
+            </select>
+          </div>
+          <div>
+            <label for="eventDate">날짜 *</label>
+            <input id="eventDate" type="date" required/>
+          </div>
+          <div>
+            <label for="eventTime">시작 시간</label>
+            <input id="eventTime" type="time"/>
+          </div>
+          <div>
+            <label for="eventTitle">제목 *</label>
+            <input id="eventTitle" type="text" required placeholder="예: 타로 전화 상담"/>
+          </div>
+          <div>
+            <label for="eventNote">메모</label>
+            <input id="eventNote" type="text" placeholder="선택"/>
+          </div>
+          <div class="ef-actions">
+            <button type="submit" class="btn-sm" id="eventSaveBtn">저장</button>
+            <button type="button" class="btn-sm outline" id="eventResetBtn">새로</button>
+          </div>
+        </form>
+        <h5 class="event-upcoming-title">다가오는 개인 일정</h5>
+        <div id="eventList" class="event-list"></div>
       </div>
     </div>
 
-    <div class="section-title">바로 가기</div>
+    <h2 class="hub-sec" id="hub-tools"><span>상담 도구</span></h2>
+    <h3 class="hub-subhead">AI 리딩</h3>
+    <div class="links" style="margin-bottom:8px">
+      <a class="link-card" href="counselor-reading.html">
+        <div class="tag">AI</div>
+        <div class="t">타로 AI</div>
+        <div class="d">질문과 카드로 고객에게 보낼 해석 초안을 만들어요. 신입용 세션 스크립트 포함.</div>
+      </a>
+      <a class="link-card" href="counselor-lenormand.html">
+        <div class="tag">AI</div>
+        <div class="t">레노먼드 AI</div>
+        <div class="d">레노먼드 36장으로 상황·관계·흐름을 이어서 읽는 해석 초안.</div>
+      </a>
+      <div class="link-card soon" aria-disabled="true">
+        <div class="tag">준비중</div>
+        <div class="t">오디세이신화타로 AI</div>
+        <div class="d">오디세이 신화 테마 78장 리딩. 덱 정리 후 열릴 예정이에요.</div>
+      </div>
+      <a class="link-card" href="counselor-iching.html">
+        <div class="tag">AI</div>
+        <div class="t">주역 AI</div>
+        <div class="d">주역 64괘. 본괘·지괘까지 해석 초안.</div>
+      </a>
+    </div>
+
+    <h3 class="hub-subhead">분석 페이지</h3>
     <div class="links">
       <a class="link-card" href="analysis.html">
         <div class="tag">CORE</div>
@@ -1206,12 +1155,125 @@
       </a>
     </div>
 
-    <div class="section-title">오늘 빠른 메모</div>
-    <div class="notes-wrap">
-      <label for="sessionNotes">상담 중 빠른 메모 (이 기기 브라우저에만 저장)</label>
-      <textarea id="sessionNotes" placeholder="고객 반응, 다시 볼 포인트, 과제 등"></textarea>
-      <p class="notes-hint">자동 저장됩니다. 고객별로 남는 영구 기록은 각 고객의 <strong>상담 기록</strong> 버튼을 이용하세요.</p>
+    <h2 class="hub-sec" id="hub-ops"><span>운영 · 매출</span></h2>
+    <div class="hub-subhead dash-head"><span>이번 달 현황</span>
+      <button type="button" class="btn-sm outline" id="exportCsvBtn">CSV 내보내기</button>
     </div>
+    <div class="dash-grid">
+      <div class="dash-card"><div class="dash-num" id="dashClients">0</div><div class="dash-label">전체 고객 <span class="dash-unlimited">· 무제한</span></div></div>
+      <div class="dash-card" hidden><div class="dash-num" id="dashUpcoming">0</div><div class="dash-label">다가오는 약속(2주)</div></div>
+      <div class="dash-card"><div class="dash-num" id="dashRecent">—</div><div class="dash-label">최근 상담일</div></div>
+      <div class="dash-card"><div class="dash-num" id="dashNew">0</div><div class="dash-label">이번 달 신규 고객</div></div>
+      <div class="dash-card"><div class="dash-num" id="dashMonthSessions">0</div><div class="dash-label">이번 달 상담 건수</div></div>
+      <div class="dash-card"><div class="dash-num" id="dashRepeat">0<small>%</small></div><div class="dash-label">재방문율(2회+)</div></div>
+      <div class="dash-card"><div class="dash-num" id="dashMonthSales">0</div><div class="dash-label">이번 달 매출(원)</div></div>
+    </div>
+
+    <div class="ops-panel" id="opsPanel">
+      <p class="ops-intro">상담 후 받은 금액을 적어 두는 <strong>간단 매출 장부</strong>예요. 이번 달 합계와 건수가 자동으로 계산돼요.</p>
+
+      <div class="ops-subhead">간단 매출 장부</div>
+      <div class="ops-summary" id="salesSummary">
+        <div class="ops-sum-chip">이번 달 합계<strong id="salesMonthTotal">0원</strong></div>
+        <div class="ops-sum-chip">이번 달 건수<strong id="salesMonthCount">0건</strong></div>
+      </div>
+      <form id="salesForm" class="ops-form sales-form" autocomplete="off">
+        <input type="hidden" id="editSaleId" value=""/>
+        <div>
+          <label for="saleDate">날짜 *</label>
+          <input id="saleDate" type="date" required/>
+        </div>
+        <div>
+          <label for="saleAmount">금액(원) *</label>
+          <input id="saleAmount" type="number" min="0" step="1000" required placeholder="50000"/>
+        </div>
+        <div>
+          <label for="saleChannel">채널</label>
+          <input id="saleChannel" type="text" maxlength="80" placeholder="카톡 · 인스타 · 소개"/>
+        </div>
+        <div>
+          <label for="saleClient">고객 (선택)</label>
+          <select id="saleClient"></select>
+        </div>
+        <div class="full">
+          <label for="saleNote">메모</label>
+          <input id="saleNote" type="text" maxlength="200" placeholder="예: 1회 상담, 패키지 잔금"/>
+        </div>
+        <div class="ops-actions">
+          <button type="submit" class="btn-sm" id="saleSaveBtn">매출 저장</button>
+          <button type="button" class="btn-sm outline" id="saleResetBtn">새로</button>
+        </div>
+      </form>
+      <div id="salesList" class="ops-list"></div>
+      <p id="salesMsg" class="form-msg"></p>
+    </div>
+
+    <h2 class="hub-sec" id="hub-settings"><span>설정</span></h2>
+    <details class="hub-fold">
+      <summary>일정 알림 · 리포트 브랜드</summary>
+      <div class="hub-fold-body">
+      <h3 class="hub-subhead">일정 알림</h3>
+    <div class="push-panel">
+      <p>알림을 켜 두면 <strong>오늘 날짜</strong>의 상담·중요 일정이 있을 때, <strong>정해 둔 시간(한국)</strong>에 한 번 요약해 드립니다. 오늘 일정이 없으면 알림은 가지 않습니다.</p>
+      <div class="push-actions">
+        <div class="push-time">
+          <label for="pushHourSelect">오전 요약 시간 (한국)</label>
+          <select id="pushHourSelect" aria-label="알림 시간"></select>
+          <button type="button" class="btn-sm outline" id="pushSaveHourBtn" style="display:none;">시간 저장</button>
+        </div>
+        <button type="button" class="btn-sm" id="pushToggleBtn">알림 켜기</button>
+        <span class="push-status off" id="pushStatus">확인 중…</span>
+      </div>
+      <div class="push-remind">
+        <label for="sessionRemindSelect">세션 시작 전 알림</label>
+        <select id="sessionRemindSelect" aria-label="세션 시작 전 알림">
+          <option value="0">끔</option>
+          <option value="10">10분 전</option>
+          <option value="20">20분 전</option>
+          <option value="30" selected>30분 전</option>
+        </select>
+        <p class="push-remind-hint">중요 일정에 <strong>시작 시간</strong>을 넣은 경우, 이 탭이 열려 있으면 선택 분 전에 브라우저 알림을 한 번 보냅니다. (오전 요약 푸시와 별개)</p>
+      </div>
+    </div>
+
+      <h3 class="hub-subhead">리포트 브랜드 <small>고객용 리포트 PDF 머리글</small></h3>
+    <div class="brand-panel">
+      <div class="brand-row">
+        <div>
+          <label for="brandName">상담사/센터 이름</label>
+          <input id="brandName" type="text" placeholder="예: OO 수비학 상담소"/>
+        </div>
+        <div>
+          <label for="brandLogo">로고 이미지 주소 (선택)</label>
+          <input id="brandLogo" type="url" placeholder="https://…/logo.png (없으면 비워 두세요)"/>
+        </div>
+        <button type="button" class="btn-sm" id="brandSaveBtn">저장</button>
+      </div>
+      <p class="brand-hint">입력한 이름·로고가 <strong>고객용 리포트 PDF</strong> 머리글에 들어가요. 로고는 <strong>.png·.jpg로 끝나는 이미지 주소</strong>여야 보여요. 이 기기 브라우저에 저장돼요.</p>
+    </div>
+
+      </div>
+    </details>
+    <details class="hub-fold hub-guide">
+      <summary>처음 쓰신다면 · 권장 진행 순서</summary>
+      <div class="hub-fold-body">
+    <div class="flow">
+      <div class="flow-step">
+        <div class="flow-num">1</div>
+        <div><strong>고객 생일·이름</strong><span>라이프코드 분석에서 생년월일은 필수, 이름은 있으면 운명·혼·성격·완성 해석이 함께 열립니다. Professional은 <strong>고객 이름(상담사용)</strong> 칸에 표시용 이름을 적어 두면 화면·인쇄 시 구분에 도움이 됩니다.</span></div>
+      </div>
+      <div class="flow-step">
+        <div class="flow-num">2</div>
+        <div><strong>분석 · 궁합</strong><span>1:1 코드는 라이프코드로, 관계는 수비학 궁합 페이지로 이어서 볼 수 있어요.</span></div>
+      </div>
+      <div class="flow-step">
+        <div class="flow-num">3</div>
+        <div><strong>리포트 · 기록</strong><span>분석 화면에서 <strong>고객용 리포트 PDF</strong>를 전달하고, 고객 카드의 <strong>상담 기록</strong>에 세션을 남겨 다음 상담에 이어가세요.</span></div>
+      </div>
+    </div>
+
+      </div>
+    </details>
   </div>
 </div>
 
@@ -1912,6 +1974,8 @@
         document.getElementById('cNotes').value = data.notes || '';
         document.getElementById('clientSaveBtn').textContent = '변경 저장';
         setMsg('수정 중입니다. 저장하면 반영됩니다.');
+        const formBox = document.getElementById('clientFormBox');
+        if (formBox) { formBox.open = true; formBox.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
       }
     }
 
@@ -2361,6 +2425,8 @@
           const fake = document.createElement('button');
           fake.setAttribute('data-act', 'edit');
           fake.setAttribute('data-id', btn.getAttribute('data-edit-client'));
+          const formBox = document.getElementById('clientFormBox');
+          if (formBox) formBox.open = true;
           onRowAction({ currentTarget: fake });
           document.getElementById('clientForm')?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
           const nextEl = document.getElementById('cNext');
@@ -2556,8 +2622,8 @@
         html += '<div class="event-empty">7일 안에 예정된 개인 일정이 없습니다.</div>';
       }
       if (pastRecent.length) {
-        html += '<div class="event-list-hint" style="margin-top:10px;">최근 지난 개인 일정</div>';
-        html += pastRecent.map((ev) => rowHtml(ev, true)).join('');
+        html += '<details class="event-past"><summary>최근 지난 개인 일정 ' + pastRecent.length + '건</summary>' +
+          pastRecent.map((ev) => rowHtml(ev, true)).join('') + '</details>';
       }
 
       const moreInWeek = inWeek.length - shownUpcoming.length;
@@ -3384,6 +3450,14 @@
     if (e.persisted) checkAccess();
   });
 })();
+</script>
+<script>
+document.addEventListener('click', function (e) {
+  var a = e.target.closest && e.target.closest('[data-open-client-form]');
+  if (!a) return;
+  var box = document.getElementById('clientFormBox');
+  if (box) { box.open = true; setTimeout(function () { var el = document.getElementById('cDisplay'); if (el) el.focus(); }, 300); }
+});
 </script>
 </body>
 </html>
