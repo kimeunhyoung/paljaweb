@@ -16,6 +16,10 @@
   <script src="js/account-device-client.js?v=1"></script>
   <script src="js/ai-quota-client.js?v=1"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/plan-access.js?v=13"></script>
+  <link rel="stylesheet" href="css/site-topbar.css?v=8" />
+  <script src="js/site-topbar.js?v=17" defer></script>
+  <script src="js/topbar-session.js?v=7" defer></script>
 
   <style>
     :root {
@@ -68,148 +72,12 @@
     @keyframes spin { to { transform: rotate(360deg); } }
 
     /* ── LAYOUT ── */
-    .layout { display: flex; min-height: 100vh; }
-
-    /* ── SIDEBAR ── */
-    .sidebar {
-      width: 240px;
-      flex-shrink: 0;
-      background: linear-gradient(180deg, #f2ebdd 0%, #efe6d7 100%);
-      border-right: 1px solid var(--border);
+    .layout {
       display: flex;
       flex-direction: column;
-      padding: 32px 0;
-      position: fixed;
-      top: 0; left: 0; bottom: 0;
-      z-index: 100;
-      transition: transform .3s ease;
+      min-height: 100vh;
     }
 
-    .sidebar-logo {
-      padding: 0 28px 32px;
-      border-bottom: 1px solid var(--border);
-      margin-bottom: 24px;
-    }
-    .sidebar-logo a {
-      text-decoration: none;
-      display: block;
-    }
-    .sidebar-logo .en {
-      font-family: var(--font-serif);
-      font-size: 10px;
-      letter-spacing: .1em;
-      text-transform: uppercase;
-      color: var(--muted);
-      display: block;
-      margin-bottom: 4px;
-    }
-    .sidebar-logo-brand {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      margin-bottom: 6px;
-    }
-    .sidebar-logo-mark {
-      width: 30px;
-      height: 30px;
-      border-radius: 9px;
-      background: linear-gradient(160deg, #5a402d 0%, #3d2b1f 65%, #2d1f16 100%);
-      color: var(--cream);
-      font-family: var(--font-serif);
-      font-size: 17px;
-      font-weight: 700;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      border: 1px solid rgba(245,240,232,.22);
-      position: relative;
-      overflow: hidden;
-      line-height: 1;
-      flex-shrink: 0;
-    }
-    .sidebar-logo-mark::before {
-      content: '';
-      position: absolute;
-      inset: 0;
-      background: linear-gradient(145deg, rgba(255,255,255,.16), rgba(255,255,255,0) 46%);
-      pointer-events: none;
-    }
-    .sidebar-logo-mark::after {
-      content: '八';
-      position: absolute;
-      right: 2px;
-      top: 0;
-      font-size: 11px;
-      font-weight: 700;
-      color: rgba(255,255,255,.30);
-      line-height: 1;
-      pointer-events: none;
-    }
-    .sidebar-logo .ko {
-      font-size: 20px;
-      font-weight: 700;
-      color: var(--deep-brown);
-      letter-spacing: -.01em;
-    }
-
-    .nav-section {
-      padding: 0 16px;
-      flex: 1;
-    }
-    .nav-label {
-      font-family: var(--font-mono);
-      font-size: 10px;
-      letter-spacing: .04em;
-      text-transform: uppercase;
-      color: var(--muted);
-      padding: 0 12px;
-      margin-bottom: 6px;
-      margin-top: 16px;
-    }
-    .nav-label:first-child { margin-top: 4px; }
-    .nav-link {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      padding: 8px 12px;
-      border-radius: 9px;
-      text-decoration: none;
-      color: var(--deep-brown);
-      font-size: 13.5px;
-      font-weight: 400;
-      transition: background .15s, color .15s;
-      cursor: pointer;
-      border: none;
-      background: none;
-      width: 100%;
-      text-align: left;
-    }
-    .nav-link:hover { background: var(--accent-lt); color: var(--deep-brown); }
-    .nav-link.active { background: rgba(200,169,110,.22); color: var(--deep-brown); font-weight: 600; }
-    .nav-link svg { opacity: .65; flex-shrink: 0; }
-    .nav-link.active svg { opacity: 1; }
-    .nav-link.nav-link-all {
-      font-size: 12px;
-      color: var(--muted);
-      padding-top: 6px;
-      padding-bottom: 6px;
-    }
-
-    .nav-badge {
-      margin-left: auto;
-      font-family: var(--font-mono);
-      font-size: 9px;
-      background: var(--accent);
-      color: white;
-      padding: 2px 6px;
-      border-radius: 20px;
-      letter-spacing: .04em;
-    }
-
-    .sidebar-footer {
-      padding: 20px 28px 0;
-      border-top: 1px solid var(--border);
-    }
     .user-chip {
       display: flex;
       align-items: center;
@@ -240,45 +108,24 @@
       letter-spacing: .08em;
       text-transform: uppercase;
     }
-    .logout-btn {
-      background: none; border: none;
-      cursor: pointer; color: var(--muted);
-      padding: 4px; border-radius: 4px;
-      transition: color .15s;
-      display: flex; align-items: center;
-    }
-    .logout-btn:hover { color: var(--deep-brown); }
 
     /* ── MAIN ── */
     .main {
-      margin-left: 240px;
       flex: 1;
       display: flex;
       flex-direction: column;
-      min-height: 100vh;
+      min-height: 0;
     }
 
-    /* ── TOP BAR ── */
-    .topbar {
-      height: 60px;
-      border-bottom: 1px solid var(--border);
+    /* ── PAGE META ── */
+    .dash-meta {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 0 40px;
-      background: rgba(245,240,232,.85);
-      backdrop-filter: blur(8px);
-      position: sticky; top: 0; z-index: 50;
-    }
-    .topbar-title {
-      font-family: var(--font-serif);
-      font-size: 22px;
-      font-weight: 600;
-      color: var(--deep-brown);
-      letter-spacing: .01em;
-    }
-    .topbar-right {
-      display: flex; align-items: center; gap: 12px;
+      gap: 16px;
+      padding: 16px 40px 0;
+      max-width: 1100px;
+      flex-wrap: wrap;
     }
     .date-tag {
       font-family: var(--font-mono);
@@ -833,37 +680,20 @@
     }
 
     /* ── MOBILE ── */
-    .hamburger {
-      display: none;
-      background: none; border: none;
-      cursor: pointer; color: var(--deep-brown);
-      padding: 4px;
-    }
-    .overlay {
-      display: none;
-      position: fixed; inset: 0;
-      background: rgba(44,31,14,.4);
-      z-index: 99;
-    }
-    .overlay.show { display: block; }
-
     @media (max-width: 900px) {
-      .sidebar { transform: translateX(-100%); }
-      .sidebar.open { transform: translateX(0); }
-      .main { margin-left: 0; }
-      .hamburger { display: flex; }
       .cards-grid { grid-template-columns: 1fr 1fr; }
       .stats-row { grid-template-columns: 1fr 1fr; }
       .two-col { grid-template-columns: 1fr; }
       .service-hero { grid-template-columns: 1fr; }
       .page { padding: 24px; }
-      .topbar { padding: 0 20px; }
+      .dash-meta { padding: 14px 20px 0; }
       .profile-edit-input { min-width: 180px; }
     }
     @media (max-width: 560px) {
       .cards-grid { grid-template-columns: 1fr; }
       .stats-row { grid-template-columns: 1fr 1fr; }
     }
+
   </style>
 </head>
 <body>
@@ -874,138 +704,22 @@
   <p>인증 확인 중...</p>
 </div>
 
-<div id="overlay" class="overlay"></div>
-
 <div class="layout" id="app" style="display:none;">
 
-  <!-- ── SIDEBAR ── -->
-  <aside class="sidebar" id="sidebar">
-    <div class="sidebar-logo">
-      <a href="index.html">
-        <div class="sidebar-logo-brand">
-          <span class="sidebar-logo-mark" aria-hidden="true">八</span>
-          <span class="ko">팔자연구소</span>
-        </div>
-        <span class="en">8code</span>
-      </a>
-    </div>
+  <div class="site-top" data-topbar-title="나의 공간" data-login-next="dashboard.html"></div>
 
-    <nav class="nav-section">
-      <div class="nav-label">수비학</div>
-      <a class="nav-link nav-link-all" href="services.html#numerology">전체 보기</a>
-      <a class="nav-link" href="analysis.html">
-        <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.6" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v4l3 3"/></svg>
-        라이프코드
-      </a>
-      <a class="nav-link" href="numerology-calendar.html">
-        <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.6" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
-        수비학달력
-      </a>
-
-      <div class="nav-label">점성학</div>
-      <a class="nav-link nav-link-all" href="services.html#astrology">전체 보기</a>
-      <a class="nav-link" href="astrology.html">
-        <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.6" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 2v4M12 18v4M2 12h4M18 12h4"/></svg>
-        점성학 차트
-      </a>
-
-      <div class="nav-label">타로AI</div>
-      <a class="nav-link nav-link-all" href="services.html#cards">전체 보기</a>
-      <a class="nav-link" href="Tarot.html">
-        <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.6" viewBox="0 0 24 24"><path d="M12 3v18"/><path d="M8 7h8"/><path d="M7 12h10"/><path d="M8 17h8"/></svg>
-        타로코드
-      </a>
-      <a class="nav-link" href="counselor-reading.html">
-        <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.6" viewBox="0 0 24 24"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 8h6M9 12h6M9 16h4"/></svg>
-        타로 AI
-      </a>
-      <a class="nav-link" href="counselor-lenormand.html">
-        <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.6" viewBox="0 0 24 24"><rect x="4" y="4" width="7" height="10" rx="1"/><rect x="13" y="8" width="7" height="10" rx="1"/></svg>
-        레노먼드 AI
-      </a>
-      <a class="nav-link" href="counselor-iching.html">
-        <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.6" viewBox="0 0 24 24"><path d="M5 6h14M5 10h14M5 14h14M5 18h14"/></svg>
-        주역 AI
-      </a>
-
-      <div class="nav-label">관계</div>
-      <a class="nav-link nav-link-all" href="services.html#relation">전체 보기</a>
-      <a class="nav-link" href="compatibility.html">
-        <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.6" viewBox="0 0 24 24"><path d="M12 21s-6.5-4.4-9-8.2C.8 9.3 2.2 5 6 5c2.1 0 3.3 1.1 4 2.2C10.7 6.1 11.9 5 14 5c3.8 0 5.2 4.3 3 7.8-2.5 3.8-9 8.2-9 8.2z"/></svg>
-        소울하모니
-      </a>
-      <a class="nav-link" href="period48-compat.html">
-        <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.6" viewBox="0 0 24 24"><circle cx="8" cy="8" r="3"/><circle cx="16" cy="16" r="3"/><path d="M10.5 10.5l3 3"/></svg>
-        48궁합
-      </a>
-
-      <div class="nav-label">생활수비학</div>
-      <a class="nav-link nav-link-all" href="services.html#life">전체 보기</a>
-      <a class="nav-link" href="address-numerology.html">
-        <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.6" viewBox="0 0 24 24"><path d="M3 10.5L12 3l9 7.5"/><path d="M5 10v10h14V10"/><path d="M10 20v-6h4v6"/></svg>
-        주소·전화
-      </a>
-      <a class="nav-link" href="business-numerology.html">
-        <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.6" viewBox="0 0 24 24"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
-        상호·브랜드
-      </a>
-      <a class="nav-link" href="name.html">
-        <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.6" viewBox="0 0 24 24"><path d="M4 19h16"/><path d="M6 17V5h8l4 4v8"/><path d="M14 5v4h4"/></svg>
-        네임코드
-      </a>
-      <a class="nav-link" href="numerology-wallpaper.html">
-        <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.6" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="8.5" cy="10.5" r="1.5"/><path d="M21 16l-5-5-4 4-2-2-5 5"/></svg>
-        에너지배경
-      </a>
-
-      <div class="nav-label">상담사</div>
-      <a class="nav-link" id="navCounselor" href="counselor.html">
-        <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.6" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-        상담사 허브
-      </a>
-
-      <div class="nav-label">계정</div>
-      <a class="nav-link" id="navPricing" href="pricing.html">
-        <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.6" viewBox="0 0 24 24"><path d="M12 1v22"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
-        요금제
-      </a>
-      <a class="nav-link" href="#devices">
-        <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.6" viewBox="0 0 24 24"><rect x="5" y="2" width="14" height="20" rx="2"/><path d="M12 18h.01"/></svg>
-        등록 기기
-      </a>
-    </nav>
-
-    <div class="sidebar-footer">
+  <!-- ── MAIN ── -->
+  <div class="main">
+    <div class="dash-meta">
+      <span class="date-tag" id="today-date"></span>
       <div class="user-chip">
         <div class="user-avatar" id="user-avatar">?</div>
         <div class="user-info">
           <div class="user-name" id="user-name">로딩 중...</div>
           <div class="user-plan" id="user-plan">Free</div>
         </div>
-        <button class="logout-btn" id="logout-btn" title="로그아웃">
-          <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
-            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
-            <polyline points="16 17 21 12 16 7"/>
-            <line x1="21" y1="12" x2="9" y2="12"/>
-          </svg>
-        </button>
       </div>
     </div>
-  </aside>
-
-  <!-- ── MAIN ── -->
-  <div class="main">
-    <header class="topbar">
-      <button class="hamburger" id="hamburger" aria-label="메뉴">
-        <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
-          <line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>
-        </svg>
-      </button>
-      <span class="topbar-title">나의 공간</span>
-      <div class="topbar-right">
-        <span class="date-tag" id="today-date"></span>
-      </div>
-    </header>
 
     <main class="page">
 
@@ -1140,25 +854,13 @@
             <span class="panel-title">최근 활동</span>
             <a class="panel-action" href="analysis.html">분석 열기</a>
           </div>
-          <div class="activity-item">
-            <div class="activity-dot"></div>
-            <div>
-              <div class="activity-text">라이프코드 분석을 처음 실행했습니다.</div>
-              <div class="activity-time">방금 전</div>
-            </div>
-          </div>
-          <div class="activity-item">
-            <div class="activity-dot grey"></div>
-            <div>
-              <div class="activity-text">팔자연구소 계정이 생성되었습니다.</div>
-              <div class="activity-time" id="signup-time">—</div>
-            </div>
-          </div>
-          <div class="activity-item">
-            <div class="activity-dot grey"></div>
-            <div>
-              <div class="activity-text">생애 주기 타임라인 기능이 곧 출시될 예정입니다.</div>
-              <div class="activity-time">Coming soon</div>
+          <div id="activityList">
+            <div class="activity-item">
+              <div class="activity-dot grey"></div>
+              <div>
+                <div class="activity-text">불러오는 중…</div>
+                <div class="activity-time">—</div>
+              </div>
             </div>
           </div>
         </div>
@@ -1195,7 +897,7 @@
           <span class="panel-title">등록 기기</span>
           <span class="panel-action" id="deviceCountLabel">최대 4대</span>
         </div>
-        <p class="device-hint">유료·체험·단품은 계정당 최대 4대까지 등록됩니다. 쓰지 않는 기기는 아래에서 해제할 수 있어요.</p>
+        <p class="device-hint">유료플랜은 계정당 최대 4대까지 등록됩니다. 쓰지 않는 기기는 아래에서 해제해주세요.</p>
         <div class="device-msg" id="deviceMsg" role="alert"></div>
         <div class="device-list" id="deviceList">
           <div class="device-empty">불러오는 중…</div>
@@ -1241,6 +943,51 @@
       if (valueEl) valueEl.textContent = '—';
       if (noteEl) noteEl.textContent = '잔여 크레딧을 불러오지 못했습니다.';
     }
+  }
+
+  function renderRecentActivity(usage, createdAt) {
+    const host = document.getElementById('activityList');
+    if (!host) return;
+    const signupLabel = createdAt
+      ? createdAt.toLocaleDateString('ko-KR')
+      : '—';
+    const items = [];
+    const runs = Number(usage?.analysisRuns || 0);
+    const reports = Number(usage?.savedReports || 0);
+    if (runs > 0) {
+      items.push({
+        text: `라이프코드 분석을 ${runs.toLocaleString('ko-KR')}회 실행했습니다.`,
+        time: '누적',
+        accent: true,
+      });
+    } else {
+      items.push({
+        text: '아직 라이프코드 분석 기록이 없습니다.',
+        time: '시작하기',
+        accent: false,
+      });
+    }
+    if (reports > 0) {
+      items.push({
+        text: `저장된 리포트 ${reports.toLocaleString('ko-KR')}건이 있습니다.`,
+        time: '누적',
+        accent: false,
+      });
+    }
+    items.push({
+      text: '팔자연구소 계정이 생성되었습니다.',
+      time: signupLabel,
+      accent: false,
+    });
+    host.innerHTML = items
+      .map(
+        (it) =>
+          `<div class="activity-item"><div class="activity-dot${it.accent ? '' : ' grey'}"></div><div>` +
+          `<div class="activity-text">${it.text}</div>` +
+          `<div class="activity-time">${it.time}</div>` +
+          `</div></div>`
+      )
+      .join('');
   }
 
   async function getUsageStats(userId) {
@@ -1487,7 +1234,8 @@
   const SUPABASE_ANON_KEY = 'sb_publishable_6S3W_oWrzG-Nv8wLK98gmg_q_KcB2I1';
 
   const { createClient } = supabase;
-  const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  const sb = window.__paljaSupabaseClient || createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  window.__paljaSupabaseClient = sb;
 
   // ── DATE ──
   const dateEl = document.getElementById('today-date');
@@ -1527,7 +1275,7 @@
     const createdAt = new Date(user.created_at);
     const diffDays = Math.max(1, Math.floor((Date.now() - createdAt) / 86400000));
     document.getElementById('stat-days').textContent = diffDays;
-    document.getElementById('signup-time').textContent = createdAt.toLocaleDateString('ko-KR');
+    renderRecentActivity(usage, createdAt);
 
     try {
       const { data: profileRow } = await sb.from('profiles').select('plan, plan_active_until').eq('id', user.id).single();
@@ -1550,8 +1298,8 @@
         free: '기본 수비학·점성학 체험이 포함됩니다.<br>요금제로 업그레이드하면 심화 해설·달력·Growth Map 등을 이용할 수 있어요.',
         basic: '현재 흐름·월간·7일·수비학 달력·소울하모니 등 Basic 기능을 이용 중입니다.',
         plus: '네임코드·Growth Map·로슈 격자·PDF·인생전반표 등 Plus 기능을 이용 중입니다.',
-        professional: 'Professional 플랜입니다. Plus 기능과 상담사 허브·고객 CRM을 이용할 수 있어요.',
-        private: 'Private 플랜입니다. Professional 기능에 더해 타로 타임라인·인생리듬·에너지 배경을 이용할 수 있어요.',
+        professional: 'Professional 플랜입니다. 상담사 허브·고객 CRM과 라이프코드 심화 분석 기능을 모두 이용할 수 있어요.',
+        private: 'Private 플랜입니다. 상담사 기능에 더해 타로 타임라인·인생리듬·에너지 배경을 이용할 수 있어요.',
       };
       const planLabel = planLabels[displayPlan] ||
         displayPlan.charAt(0).toUpperCase() + displayPlan.slice(1);
@@ -1601,10 +1349,6 @@
       } else if (descEl) {
         descEl.innerHTML = baseDesc;
       }
-      if (isCounselorPlan && planActive) {
-        /* no-op: 상담사 허브는 사이드바 상시 노출 */
-      }
-
       const cancelBtn = document.getElementById('cancelSubBtn');
       if (cancelBtn && planActive && displayPlan !== 'free') {
         try {
@@ -1694,26 +1438,6 @@
     }
   });
 
-  // ── LOGOUT ──
-  document.getElementById('logout-btn').addEventListener('click', async () => {
-    await sb.auth.signOut();
-    window.location.replace('login.html');
-  });
-
-  // ── MOBILE SIDEBAR ──
-  const sidebar = document.getElementById('sidebar');
-  const overlay = document.getElementById('overlay');
-  const hamburger = document.getElementById('hamburger');
-
-  hamburger.addEventListener('click', () => {
-    sidebar.classList.toggle('open');
-    overlay.classList.toggle('show');
-  });
-  overlay.addEventListener('click', () => {
-    sidebar.classList.remove('open');
-    overlay.classList.remove('show');
-  });
-
   // ── INIT ──
   initDashboard();
   bindQuickAnalysisCards();
@@ -1725,7 +1449,8 @@
   const SUPABASE_URL = 'https://sghsryumnrnftyjoqmwf.supabase.co';
   const SUPABASE_ANON_KEY = 'sb_publishable_6S3W_oWrzG-Nv8wLK98gmg_q_KcB2I1';
   const { createClient } = supabase;
-  const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  const sb = window.__paljaSupabaseClient || createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  window.__paljaSupabaseClient = sb;
 
   async function loadProfileForm() {
     const { data: { session } } = await sb.auth.getSession();
