@@ -5146,7 +5146,8 @@ function buildAnalysisPdfClone(el, hiddenIds) {
     const tl = clone.querySelector('#timelineSection');
     if (tl && tl.querySelectorAll('.timeline-block').length === 0) tl.remove();
   }
-  clone.querySelectorAll('.lc-group-bar, .lc-group-head').forEach((n) => n.remove());
+  // sticky 탭만 빼고, ①②③ 그룹 제목은 PDF에도 남김
+  clone.querySelectorAll('.lc-group-bar').forEach((n) => n.remove());
   pdfForceOpenAllDetailsForPdf(clone);
   const flatStyle = document.createElement('style');
   flatStyle.textContent = getPdfFlatCss();

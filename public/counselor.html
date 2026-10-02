@@ -941,7 +941,7 @@
   </div>
   <div id="gate">
     <h2>Professional 플랜 전용</h2>
-    <p>상담사 허브는 <strong>Professional</strong> 요금제에서 이용할 수 있어요.<br>고객 카드·세션 기록(CRM), 일정 캘린더·중요 일정·웹 푸시, 간단 매출 장부, 상담사 대시보드, 브랜디드 리포트 PDF, 상담 준비 요약, 고객 간 궁합까지. AI 리딩·신입 스크립트는 <a href="counselor-reading.html">별도 페이지</a>입니다.</p>
+    <p>상담사 허브는 <strong>Professional</strong> 요금제에서 이용할 수 있어요.<br>고객 카드·세션 기록(CRM), 일정 캘린더·중요 일정·웹 푸시, 간단 매출 장부, 상담사 대시보드, 브랜디드 리포트 PDF, 상담 준비 요약, 고객 간 궁합까지. AI 리딩·신입 스크립트는 <a href="counselor-reading.html">별도 페이지</a>예요.</p>
     <a class="cta" href="for-counselors.html">Professional 안내 보기</a>
     <a class="cta secondary" href="/lifecode/buy.html?product=counselor15" style="margin-left:8px;background:transparent;border:1.5px solid var(--border);color:var(--deep);">15일 체험 구매</a>
     <a class="cta secondary" href="pricing.html?checkout=professional" style="margin-left:8px;background:transparent;border:1.5px solid var(--border);color:var(--deep);">바로 구독</a>
@@ -949,7 +949,7 @@
 
   <div id="trialDeviceGate" style="display:none">
     <h2>등록 기기 한도 초과</h2>
-    <p>이 계정은 이미 <strong>기기 4대</strong>까지 등록되어 이 브라우저에서는 상담사 허브를 열 수 없습니다.<br><a href="dashboard.html#devices">마이페이지에서 기기 해제</a> 후 다시 시도하거나 고객센터로 문의해 주세요.</p>
+    <p>이 계정은 이미 <strong>기기 4대</strong>까지 등록되어 이 브라우저에서는 상담사 허브를 열 수 없어요.<br><a href="dashboard.html#devices">마이페이지에서 기기 해제</a> 후 다시 시도하거나 고객센터로 문의해 주세요.</p>
     <a class="cta" href="for-counselors.html">체험·구독 안내</a>
     <a class="cta secondary" href="pricing.html?checkout=professional" style="margin-left:8px;background:transparent;border:1.5px solid var(--border);color:var(--deep);">Professional 구독</a>
   </div>
@@ -1296,7 +1296,7 @@
     <div class="modal-head">
       <div>
         <h3 id="copySumTitle">수비학 요약</h3>
-        <div class="sub">상담 중 바로 붙여 넣을 짧은 문장입니다. 필요하면 다듬어 쓰세요.</div>
+        <div class="sub">상담 중 바로 붙여 넣을 짧은 문장이에요. 필요하면 다듬어 쓰세요.</div>
       </div>
       <button type="button" class="modal-close" id="copySumClose" aria-label="닫기">×</button>
     </div>
@@ -1830,7 +1830,7 @@
           document.getElementById('saleClient').value = s.client_id || '';
           document.getElementById('saleNote').value = s.note || '';
           document.getElementById('saleSaveBtn').textContent = '수정 저장';
-          setSalesMsg('수정 중입니다. 저장하면 반영됩니다.');
+          setSalesMsg('수정 중이에요. 저장하면 반영돼요.');
           document.getElementById('salesForm')?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
         });
       });
@@ -1874,7 +1874,7 @@
       if (!c || !modal || !out) return;
       if (!window.PaljaCounselorCopySummary) {
         if (msg) {
-          msg.textContent = '요약 모듈을 불러오지 못했습니다. 새로고침 후 다시 시도해 주세요.';
+          msg.textContent = '요약을 불러오지 못했어요. 새로고침 후 다시 시도해 주세요.';
           msg.classList.add('err');
         }
         return;
@@ -1917,7 +1917,7 @@
             await navigator.clipboard.writeText(text);
             if (msg) { msg.textContent = '클립보드에 복사했습니다.'; msg.classList.remove('err'); }
           } catch (_) {
-            if (msg) { msg.textContent = '복사에 실패했습니다. 텍스트를 직접 선택해 주세요.'; msg.classList.add('err'); }
+            if (msg) { msg.textContent = '복사에 실패했어요. 텍스트를 직접 선택해 주세요.'; msg.classList.add('err'); }
           }
         });
       }
@@ -1987,7 +1987,7 @@
         document.getElementById('cNext').value = data.next_appointment || '';
         document.getElementById('cNotes').value = data.notes || '';
         document.getElementById('clientSaveBtn').textContent = '변경 저장';
-        setMsg('수정 중입니다. 저장하면 반영됩니다.');
+        setMsg('수정 중이에요. 저장하면 반영돼요.');
         const formBox = document.getElementById('clientFormBox');
         if (formBox) { formBox.open = true; formBox.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
       }
@@ -2367,7 +2367,7 @@
       const scheduleMap = collectSchedule();
       if (!calSelectedDate) {
         title.textContent = '날짜를 선택하세요';
-        list.innerHTML = '<div class="cal-empty">약속·일정이 있는 날을 누르면 상세가 보입니다.</div>';
+        list.innerHTML = '<div class="cal-empty">약속·일정이 있는 날을 누르면 상세가 보여요.</div>';
         return;
       }
       title.textContent = calSelectedDate + (calSelectedDate < ymd(new Date()) ? ' · 지난 일정' : '');
@@ -2916,7 +2916,7 @@
         } else {
           const perm = await Notification.requestPermission();
           if (perm !== 'granted') {
-            setPushStatus('알림 권한이 거부되었습니다. 기기 설정에서 허용해 주세요.', 'err');
+            setPushStatus('알림 권한이 거부되었어요. 기기 설정에서 허용해 주세요.', 'err');
             return;
           }
           pushSubscription = await pushReg.pushManager.subscribe({
@@ -3003,7 +3003,7 @@
       const b = clientRows.find((c) => c.id === bId);
       if (!a || !b) return null;
       if (!a.birth_date || !b.birth_date) {
-        alert('커플 차트는 두 고객 모두 생년월일이 필요합니다. 고객 카드를 수정해 주세요.');
+        alert('커플 차트는 두 고객 모두 생년월일이 필요해요. 고객 카드를 수정해 주세요.');
         return null;
       }
       const qs = new URLSearchParams();
@@ -3331,7 +3331,7 @@
       document.getElementById('sSummary').value = s.summary || '';
       document.getElementById('sNextFocus').value = s.next_focus || '';
       document.getElementById('sessionSaveBtn').textContent = '수정 저장';
-      sessionMsgEl.textContent = '수정 중입니다. 저장하면 반영됩니다.';
+      sessionMsgEl.textContent = '수정 중이에요. 저장하면 반영돼요.';
       sessionMsgEl.classList.remove('err');
       document.getElementById('sessionForm')?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     }

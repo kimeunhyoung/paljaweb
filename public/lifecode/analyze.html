@@ -3692,6 +3692,32 @@
         display: none;
       }
     }
+
+    .lc-group-bar { position: sticky; top: var(--lc-sticky-top, 0px); z-index: 90; display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none; padding: 10px 0; margin: 0 0 6px; background: rgb(245,240,232); box-shadow: 0 0 0 100vmax rgb(245,240,232), 0 6px 10px -6px rgba(45,38,28,.18); clip-path: inset(0 -100vmax -12px); }
+    .lc-group-bar a { flex: 0 0 auto; font-size: 14.5px; font-weight: 700; color: var(--deep-brown); text-decoration: none; padding: 7px 14px; border-radius: 18px; border: 1px solid rgba(139,111,71,.3); background: #fff; }
+    .lc-group-bar a.is-active { background: var(--deep-brown); color: #fff; border-color: var(--deep-brown); }
+    .lc-group-head { display: flex; align-items: center; gap: 14px; margin: 46px 0 6px; padding: 16px 0 12px; border-top: 2px solid var(--deep-brown); scroll-margin-top: calc(var(--lc-sticky-top, 0px) + 64px); }
+    .lc-group-num { flex: 0 0 auto; width: 34px; height: 34px; border-radius: 50%; background: var(--deep-brown); color: #f0dfbc; font-family: var(--font-serif); font-size: 18px; font-weight: 700; display: inline-flex; align-items: center; justify-content: center; }
+    .lc-group-title { font-family: var(--font-serif); font-size: 24px; font-weight: 700; color: var(--deep-brown); margin: 0; line-height: 1.2; }
+    .lc-group-sub { font-size: 14px; color: var(--muted); margin: 3px 0 0; }
+    #resultArea .section { scroll-margin-top: calc(var(--lc-sticky-top, 0px) + 64px); }
+    @media print { .lc-group-bar { display: none !important; } }
+
+    /* 글꼴·크기·대비 통일 (analysis와 동일) */
+    #resultArea, .lc-reading-guide, #analysisJumpPanel {
+      --font-body: 'Pretendard Variable', Pretendard, 'Noto Sans KR', sans-serif;
+      --font-mono: var(--font-body);
+      --teal: #216f61;
+      --warm-brown: #795f3b;
+      --lc-num-gold: #826020;
+      font-family: var(--font-body);
+      color: var(--ink);
+    }
+    #resultArea p, #resultArea li, #resultArea td { line-height: 1.7; }
+    #resultArea .yc-num, #resultArea .flow-card-num, #resultArea .major-cycle-num, #resultArea .num-tag,
+    #resultArea .growth-focus-kw, #resultArea .growth-deep-kicker, #resultArea .flow-today-em--y,
+    #resultArea .kw, #resultArea .yc-keyword { color: var(--lc-num-gold) !important; }
+    #resultArea .section-label, #resultArea .lc-group-title, #resultArea h3, #resultArea .accordion-header h4 { font-family: var(--font-serif); }
   </style>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css" crossorigin />
   <link rel="stylesheet" href="../css/site-header.css?v=6" />
@@ -3773,6 +3799,17 @@
   <div id="analysisExportHeader" class="export-doc-header" aria-label="분석 대상"></div>
   <div id="analysisReadingGuide" class="analysis-reading-guide-host" aria-label="아래 결과 안내"></div>
 
+  <nav class="lc-group-bar" id="lcGroupBar" aria-label="섹션 묶음 이동">
+    <a href="#lc-group-born" data-lc-target="lc-group-born">① 타고난 코드</a>
+    <a href="#lc-group-life" data-lc-target="lc-group-life">② 인생 흐름</a>
+    <a href="#lc-group-now" data-lc-target="lc-group-now">③ 지금</a>
+  </nav>
+
+  <div class="lc-group-head" id="lc-group-born" data-lc-group="lc-group-born">
+    <span class="lc-group-num">1</span>
+    <div><h2 class="lc-group-title">타고난 코드</h2><p class="lc-group-sub">핵심 수·별자리·48주기·격자·성장 지도</p></div>
+  </div>
+
   <!-- ① 핵심 수 -->
   <div class="section" style="animation-delay:.1s" id="nav-core">
     <div class="section-header">
@@ -3785,7 +3822,7 @@
     <div class="core-accordion-wrap" id="coreAccordion"></div>
     <div id="psychicCompareContent" style="margin-top:14px"></div>
     <div id="integratedStorySection" class="integrated-story-wrap" style="display:none;">
-      <div class="integrated-story-kicker">Story · 겉과 속, 그리고 길</div>
+      <div class="integrated-story-kicker">이야기로 읽기 · 겉과 속, 그리고 길</div>
       <div id="integratedStoryBody" class="integrated-story"></div>
     </div>
   </div>
@@ -3821,110 +3858,6 @@
     <div id="aiSummaryContent"></div>
   </div>
 
-  <!-- ④ 대주기 분석 -->
-  <div class="section" style="animation-delay:.18s" id="nav-major-cycle">
-    <div class="section-header">
-      <div class="section-line"></div>
-      <span class="section-label">대주기 분석</span>
-      <div class="section-line"></div>
-    </div>
-    <div class="timeline-bridge">
-      <p>생일의 <strong>월 · 일 · 연도</strong>를 각각 줄인 숫자로, 인생을 <strong>세 번의 큰 주기</strong>로 나누어 봅니다.</p>
-    </div>
-    <div id="majorCycleContent"></div>
-  </div>
-
-  <!-- ④ 인생 4단계 요약 -->
-  <div class="section" style="animation-delay:.19s" id="nav-life-four">
-    <div class="section-header">
-      <div class="section-line"></div>
-      <span class="section-label">인생 4단계 요약</span>
-      <div class="section-line"></div>
-    </div>
-    <div id="cycleContent"></div>
-  </div>
-
-  <!-- ⑤ 인생리듬 -->
-  <div class="section" style="animation-delay:.2s" id="pyramidRhythmSection">
-    <div class="section-header">
-      <div class="section-line"></div>
-      <span class="section-label">인생리듬</span>
-      <div class="section-line"></div>
-    </div>
-    <div id="pyramidRhythmSectionBridge" class="timeline-bridge loshu-map-bridge"></div>
-    <div id="pyramidRhythmContent"></div>
-  </div>
-
-  <!-- ⑥ 10년 타임라인 -->
-  <div class="section" style="animation-delay:.22s" id="timelineSection">
-    <div class="section-header">
-      <div class="section-line"></div>
-      <span class="section-label">10년 타임라인</span>
-      <div class="section-line"></div>
-    </div>
-    <div class="timeline-bridge">
-      <p>아래 <strong>수비학</strong>과 <strong>타로</strong>로 앞으로 10년을 봅니다. 막대·연도 카드를 누르면 그 해 해석이 펼쳐집니다. <strong>Plus</strong>에서는 수비학 <strong>인생 전반(100년)</strong> 표가, <strong>Private</strong>에서는 타로 10년·100년과 인생리듬이 열립니다.</p>
-      <p><strong>수비학 개인연도</strong> — 연·월·일을 각각 환원(1~9, 11, 22)한 뒤 더합니다. 9년 주기의 완성·새 출발을 읽습니다.</p>
-      <p><strong>타로 올해의 수</strong> — 연도 자릿수합+문 넘버(환원 전 합)을 더해 메이저 아르카나 0~21로 읽습니다. 현재 흐름의 올해의 수와 같습니다.</p>
-    </div>
-    <div id="timelineContent"></div>
-  </div>
-
-  <!-- ⑦ 월간 흐름 (10년·월 달력 리듬) -->
-  <div class="section" style="animation-delay:.24s" id="monthlySection">
-    <div class="section-header">
-      <div class="section-line"></div>
-      <span class="section-label">월간 흐름</span>
-      <div class="section-line"></div>
-    </div>
-    <div id="monthlyContent"></div>
-  </div>
-
-  <!-- ⑧ 현재 흐름 -->
-  <div class="section" style="animation-delay:.26s" id="nav-flow">
-    <div class="section-header">
-      <div class="section-line"></div>
-      <span class="section-label">현재 흐름</span>
-      <div class="section-line"></div>
-    </div>
-    <div id="flowBridge"></div>
-    <div class="flow-row" id="flowRow"></div>
-    <div id="flowAccordion"></div>
-    <div id="flowTodayMsg" class="flow-today-msg-wrap" aria-label="오늘의 메시지"></div>
-  </div>
-
-  <!-- AI 오늘의 메시지 -->
-  <div class="section" style="animation-delay:.28s" id="aiTodaySection"></div>
-
-  <!-- ⑨ 향후 7일간의 에너지 흐름 -->
-  <div class="section" style="animation-delay:.3s" id="weeklyForecastSection">
-    <div class="section-header">
-      <div class="section-line"></div>
-      <span class="section-label">향후 7일간의 에너지 흐름</span>
-      <div class="section-line"></div>
-    </div>
-    <div id="weeklyBridge"></div>
-    <div class="weekly-table-wrap">
-      <table class="weekly-table">
-        <thead><tr><th>날짜</th><th>에너지</th><th>상태</th><th>행동 가이드</th></tr></thead>
-        <tbody id="weeklyForecastBody"></tbody>
-      </table>
-    </div>
-  </div>
-
-  <!-- ⑩ Growth Map · 성장 지도 -->
-  <div class="section" style="animation-delay:.32s" id="growthSection">
-    <div class="section-header">
-      <div class="section-line"></div>
-      <span class="section-label">Growth Map · 성장 지도</span>
-      <div class="section-line"></div>
-    </div>
-    <div class="timeline-bridge growth-map-bridge">
-      <p><strong>이 지도가 보는 것.</strong> 생년월일을 자릿수로 펼쳤을 때 <em>나오지 않는 숫자</em>는, 옛 글에서는 ‘카르마 레슨’처럼 불리기도 해요. 부족의 낙인이 아니라, 인생이 몇 번이고 돌려 보내는 <strong>연습 초대</strong>에 가깝게 받아들이면 됩니다.</p>
-    </div>
-    <div id="growthContent"></div>
-  </div>
-
   <!-- 로슈 격자 분석 -->
   <div class="section" style="animation-delay:.34s" id="loshuSection">
     <div class="section-header">
@@ -3945,6 +3878,120 @@
     </div>
     <div id="seqArrowSectionBridge" class="timeline-bridge loshu-map-bridge"></div>
     <div id="seqArrowContent"></div>
+  </div>
+
+  <!-- Growth Map · 성장 지도 -->
+  <div class="section" style="animation-delay:.32s" id="growthSection">
+    <div class="section-header">
+      <div class="section-line"></div>
+      <span class="section-label">Growth Map · 성장 지도</span>
+      <div class="section-line"></div>
+    </div>
+    <div class="timeline-bridge growth-map-bridge">
+      <p><strong>이 지도가 보는 것.</strong> 생년월일을 자릿수로 펼쳤을 때 <em>나오지 않는 숫자</em>는, 옛 글에서는 ‘카르마 레슨’처럼 불리기도 해요. 부족의 낙인이 아니라, 인생이 몇 번이고 돌려 보내는 <strong>연습 초대</strong>에 가깝게 받아들이면 됩니다.</p>
+    </div>
+    <div id="growthContent"></div>
+  </div>
+
+  <div class="lc-group-head" id="lc-group-life" data-lc-group="lc-group-life">
+    <span class="lc-group-num">2</span>
+    <div><h2 class="lc-group-title">인생 흐름</h2><p class="lc-group-sub">대주기·인생 4단계·리듬·10년 타임라인·월간 흐름</p></div>
+  </div>
+
+  <!-- 대주기 분석 -->
+  <div class="section" style="animation-delay:.18s" id="nav-major-cycle">
+    <div class="section-header">
+      <div class="section-line"></div>
+      <span class="section-label">대주기 분석</span>
+      <div class="section-line"></div>
+    </div>
+    <div class="timeline-bridge">
+      <p>생일의 <strong>월 · 일 · 연도</strong>를 각각 줄인 숫자로, 인생을 <strong>세 번의 큰 주기</strong>로 나누어 봅니다.</p>
+    </div>
+    <div id="majorCycleContent"></div>
+  </div>
+
+  <!-- 인생 4단계 요약 -->
+  <div class="section" style="animation-delay:.19s" id="nav-life-four">
+    <div class="section-header">
+      <div class="section-line"></div>
+      <span class="section-label">인생 4단계 요약</span>
+      <div class="section-line"></div>
+    </div>
+    <div id="cycleContent"></div>
+  </div>
+
+  <!-- 인생리듬 -->
+  <div class="section" style="animation-delay:.2s" id="pyramidRhythmSection">
+    <div class="section-header">
+      <div class="section-line"></div>
+      <span class="section-label">인생리듬</span>
+      <div class="section-line"></div>
+    </div>
+    <div id="pyramidRhythmSectionBridge" class="timeline-bridge loshu-map-bridge"></div>
+    <div id="pyramidRhythmContent"></div>
+  </div>
+
+  <!-- 10년 타임라인 -->
+  <div class="section" style="animation-delay:.22s" id="timelineSection">
+    <div class="section-header">
+      <div class="section-line"></div>
+      <span class="section-label">10년 타임라인</span>
+      <div class="section-line"></div>
+    </div>
+    <div class="timeline-bridge">
+      <p>아래 <strong>수비학</strong>과 <strong>타로</strong>로 앞으로 10년을 봅니다. 막대·연도 카드를 누르면 그 해 해석이 펼쳐집니다. <strong>Plus</strong>에서는 수비학 <strong>인생 전반(100년)</strong> 표가, <strong>Private</strong>에서는 타로 10년·100년과 인생리듬이 열립니다.</p>
+      <p><strong>수비학 개인연도</strong> — 연·월·일을 각각 환원(1~9, 11, 22)한 뒤 더합니다. 9년 주기의 완성·새 출발을 읽습니다.</p>
+      <p><strong>타로 올해의 수</strong> — 연도 자릿수합+문 넘버(환원 전 합)을 더해 메이저 아르카나 0~21로 읽습니다. 현재 흐름의 올해의 수와 같습니다.</p>
+    </div>
+    <div id="timelineContent"></div>
+  </div>
+
+  <!-- 월간 흐름 -->
+  <div class="section" style="animation-delay:.24s" id="monthlySection">
+    <div class="section-header">
+      <div class="section-line"></div>
+      <span class="section-label">월간 흐름</span>
+      <div class="section-line"></div>
+    </div>
+    <div id="monthlyContent"></div>
+  </div>
+
+  <div class="lc-group-head" id="lc-group-now" data-lc-group="lc-group-now">
+    <span class="lc-group-num">3</span>
+    <div><h2 class="lc-group-title">지금</h2><p class="lc-group-sub">올해·이번 달·오늘의 흐름과 앞으로 7일</p></div>
+  </div>
+
+  <!-- 현재 흐름 -->
+  <div class="section" style="animation-delay:.26s" id="nav-flow">
+    <div class="section-header">
+      <div class="section-line"></div>
+      <span class="section-label">현재 흐름</span>
+      <div class="section-line"></div>
+    </div>
+    <div id="flowBridge"></div>
+    <div class="flow-row" id="flowRow"></div>
+    <div id="flowAccordion"></div>
+    <div id="flowTodayMsg" class="flow-today-msg-wrap" aria-label="오늘의 메시지"></div>
+  </div>
+
+  <!-- AI 오늘의 메시지 -->
+  <div class="section" style="animation-delay:.28s" id="aiTodaySection"></div>
+
+  <!-- 향후 7일 -->
+  <div class="section" style="animation-delay:.3s" id="weeklyForecastSection">
+    <div class="section-header">
+      <div class="section-line"></div>
+      <span class="section-label">향후 7일간의 에너지 흐름</span>
+      <div class="section-line"></div>
+    </div>
+    <div id="weeklyBridge"></div>
+    <div class="weekly-table-wrap">
+      <table class="weekly-table">
+        <thead><tr><th>날짜</th><th>에너지</th><th>상태</th><th>행동 가이드</th></tr></thead>
+        <tbody id="weeklyForecastBody"></tbody>
+      </table>
+    </div>
   </div>
 
   <!-- PDF 저장 -->
@@ -4560,6 +4607,7 @@ function buildAnalysisPdfClone(el, hiddenIds) {
     if (tl && tl.querySelectorAll('.timeline-block').length === 0) tl.remove();
   }
   pdfForceOpenAllDetailsForPdf(clone);
+  clone.querySelectorAll('.lc-group-bar').forEach((n) => n.remove());
   const flatStyle = document.createElement('style');
   flatStyle.textContent = getPdfFlatCss();
   clone.insertBefore(flatStyle, clone.firstChild);
@@ -7893,6 +7941,30 @@ if (document.readyState === 'loading') {
 } else {
   setupAnalysisJumpNav();
 }
+
+/** 묶음 이동 바: 사이트 헤더 아래에 고정하고, 지금 보고 있는 묶음을 표시 */
+(function lcGroupBarInit() {
+  function setTop() {
+    const st = document.querySelector('.site-top');
+    const h = st ? Math.round(st.getBoundingClientRect().height) : 0;
+    document.documentElement.style.setProperty('--lc-sticky-top', h + 'px');
+  }
+  function markActive() {
+    const bar = document.getElementById('lcGroupBar');
+    if (!bar || !bar.offsetParent) return;
+    const limit = Math.max(bar.getBoundingClientRect().bottom + 24, window.innerHeight * 0.4);
+    let cur = '';
+    ['lc-group-born', 'lc-group-life', 'lc-group-now'].forEach((id) => {
+      const el = document.getElementById(id);
+      if (el && el.getBoundingClientRect().top <= limit) cur = id;
+    });
+    bar.querySelectorAll('a[data-lc-target]').forEach((a) => a.classList.toggle('is-active', a.getAttribute('data-lc-target') === cur));
+  }
+  window.addEventListener('resize', setTop);
+  window.addEventListener('scroll', markActive, { passive: true });
+  document.addEventListener('DOMContentLoaded', () => { setTop(); markActive(); });
+  setTimeout(setTop, 800);
+})();
 
 async function runAnalysis() {
   await syncCurrentUserId();
