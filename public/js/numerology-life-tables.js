@@ -236,7 +236,7 @@
     19: '합성수 19 — 1번 계열 + 충동적·추진 톤',
     28: '합성수 28 — 1번 계열 + 조용하고 성실한 톤',
     11: '합성수 11 — 2번 계열(마스터 11 울림을 함께 볼 수 있음)',
-    12: '합성수 12 — 3번 계열. 첫째 자리 1이 시리즈 톤을 만듦',
+    12: '합성수 12 — 3번 계열. 앞자리 1의 시작 기운이 함께 섞임',
     13: '합성수 13 — 4번 계열(변형·재구성 톤이 섞일 수 있음)',
     14: '합성수 14 — 5번 계열(변화·해체 톤)',
     16: '합성수 16 — 7번 계열(각성·재건 톤)',
@@ -256,7 +256,7 @@
       day: d,
       single: single,
       compound: d > 9 ? d : null,
-      compoundNote: COMPOUND_DAY[d] || (d > 9 ? '합성수 ' + d + ' → ' + single + '. 첫째 자리가 시리즈를 결정합니다.' : null),
+      compoundNote: COMPOUND_DAY[d] || (d > 9 ? '합성수 ' + d + ' → ' + single + '. ' + single + '번 계열로 읽어요.' : null),
       isPure: d <= 9
     };
   }
@@ -290,7 +290,7 @@
       (psyInfo ? '<p class="psy-role">' + esc(psyInfo.role) + '</p>' : '') +
       '</div>' +
       '<div class="psy-card">' +
-      '<div class="psy-label">인생여정수 (데스티니)</div>' +
+      '<div class="psy-label">인생여정수</div>' +
       '<div class="psy-num">' +
       esc(lpLabel) +
       '</div>' +

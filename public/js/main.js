@@ -581,7 +581,7 @@ async function populateHeroWithUser() {
       const valEl = item.querySelector('.card-num-val')
       if (!label || !valEl) return
       if (label.includes('인생여정수')) {
-        valEl.innerHTML = `${lpDisplay} <span class="card-num-pre">(합산전수: ${lpPreLabel})</span>`
+        valEl.innerHTML = `${lpDisplay} <span class="card-num-pre">(환원 전 ${lpPreLabel})</span>`
       } else if (label.includes('문')) {
         valEl.innerHTML = `${mn} <span class="card-num-pre">(${mnPre !== mn ? `자릿수합 ${mnPre} → 타로 ${mn}` : `자릿수합 ${mnPre}`})</span>`
       } else if (label.includes('개인 연도')) {

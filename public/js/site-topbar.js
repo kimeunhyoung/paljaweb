@@ -5,7 +5,7 @@
 (function () {
   if (!document.querySelector('script[data-palja-analytics]')) {
     var a = document.createElement('script');
-    a.src = 'js/analytics.js?v=1';
+    a.src = '/js/analytics.js?v=1';
     a.defer = true;
     a.setAttribute('data-palja-analytics', '1');
     document.head.appendChild(a);
@@ -26,67 +26,83 @@
     document.head.appendChild(lp);
   }
 
+  /** 루트 절대 경로 — /guide · /nakshatra 하위에서도 링크가 깨지지 않게 */
+  function rootHref(href) {
+    var h = String(href || '');
+    if (!h) return h;
+    if (/^(https?:|mailto:|tel:|#|\/)/i.test(h)) return h;
+    return '/' + h.replace(/^\.\//, '');
+  }
+
   /** 대분류 드롭다운 + 요금제 */
   var NAV_GROUPS = [
     {
       id: 'numerology',
       label: '수비학',
       items: [
-        { id: 'numerology-all', href: 'services.html#numerology', label: '전체 보기' },
-        { id: 'lifecode', href: 'analysis.html', label: '라이프코드' },
-        { id: 'calendar', href: 'numerology-calendar.html', label: '수비학달력' },
+        { id: 'numerology-all', href: '/services.html#numerology', label: '전체 보기' },
+        { id: 'lifecode', href: '/analysis.html', label: '라이프코드' },
+        { id: 'calendar', href: '/numerology-calendar.html', label: '수비학달력' },
       ],
     },
     {
       id: 'astrology',
       label: '점성학',
       items: [
-        { id: 'astrology-all', href: 'services.html#astrology', label: '전체 보기' },
-        { id: 'astro', href: 'astrology.html', label: '점성학 차트' },
-        { id: 'vedic', href: 'vedic.html', label: '인도점성학 차트' },
+        { id: 'astrology-all', href: '/services.html#astrology', label: '전체 보기' },
+        { id: 'astro', href: '/astrology.html', label: '점성학 차트' },
+        { id: 'vedic', href: '/vedic.html', label: '인도점성학 차트' },
       ],
     },
     {
       id: 'cards',
       label: '타로AI',
       items: [
-        { id: 'cards-all', href: 'services.html#cards', label: '전체 보기' },
-        { id: 'tarot', href: 'Tarot.html', label: '타로코드' },
-        { id: 'counselor-reading', href: 'counselor-reading.html', label: '타로 AI' },
-        { id: 'counselor-lenormand', href: 'counselor-lenormand.html', label: '레노먼드 AI' },
-        { id: 'counselor-iching', href: 'counselor-iching.html', label: '주역 AI' },
+        { id: 'cards-all', href: '/services.html#cards', label: '전체 보기' },
+        { id: 'tarot', href: '/Tarot.html', label: '타로코드' },
+        { id: 'counselor-reading', href: '/counselor-reading.html', label: '타로 AI' },
+        { id: 'counselor-lenormand', href: '/counselor-lenormand.html', label: '레노먼드 AI' },
+        { id: 'counselor-iching', href: '/counselor-iching.html', label: '주역 AI' },
       ],
     },
     {
       id: 'relation',
       label: '관계',
       items: [
-        { id: 'relation-all', href: 'services.html#relation', label: '전체 보기' },
-        { id: 'harmony', href: 'compatibility.html', label: '소울하모니' },
-        { id: 'p48', href: 'period48-compat.html', label: '48궁합' },
+        { id: 'relation-all', href: '/services.html#relation', label: '전체 보기' },
+        { id: 'harmony', href: '/compatibility.html', label: '소울하모니' },
+        { id: 'p48', href: '/period48-compat.html', label: '48궁합' },
       ],
     },
     {
       id: 'life',
       label: '생활수비학',
       items: [
-        { id: 'life-all', href: 'services.html#life', label: '전체 보기' },
-        { id: 'address', href: 'address-numerology.html', label: '주소·전화' },
-        { id: 'business', href: 'business-numerology.html', label: '상호·브랜드' },
-        { id: 'name', href: 'name.html', label: '네임코드' },
-        { id: 'wallpaper', href: 'numerology-wallpaper.html', label: '에너지배경' },
+        { id: 'life-all', href: '/services.html#life', label: '전체 보기' },
+        { id: 'address', href: '/address-numerology.html', label: '주소·전화' },
+        { id: 'business', href: '/business-numerology.html', label: '상호·브랜드' },
+        { id: 'name', href: '/name.html', label: '네임코드' },
+        { id: 'wallpaper', href: '/numerology-wallpaper.html', label: '에너지배경' },
       ],
     },
     {
       id: 'counselor-group',
       label: '상담사',
       items: [
-        { id: 'counselor', href: 'counselor.html', label: '상담사 허브' },
+        { id: 'counselor', href: '/counselor.html', label: '상담사 허브' },
       ],
     },
   ];
 
-  var NAV_FLAT = [{ id: 'pricing', href: 'pricing.html', label: '요금제' }];
+  var NAV_FLAT = [{ id: 'pricing', href: '/pricing.html', label: '요금제' }];
+
+  var NAV_CONTENT = {
+    guide: { id: 'guide', href: '/guide/index.html', label: '가이드' },
+    study: { id: 'study', href: '/nakshatra/index.html', label: '학습자료실' },
+    faq: { id: 'faq', href: '/faq.html', label: 'FAQ' },
+    about: { id: 'about', href: '/about.html', label: '소개' },
+    contact: { id: 'contact', href: '/contact.html', label: '문의' },
+  };
 
   function esc(s) {
     return String(s)
@@ -98,6 +114,13 @@
   function pageFile() {
     var p = location.pathname.split('/').pop();
     return p || 'index.html';
+  }
+
+  /** 로그인 후 복귀 경로 (서브폴더 포함) */
+  function defaultLoginNext() {
+    var path = location.pathname || '/';
+    if (path === '/' || /\/$/.test(path)) path += 'index.html';
+    return path.replace(/^\//, '') + (location.search || '');
   }
 
   function buildExportHtml(mount) {
@@ -137,10 +160,22 @@
     if (item.id === current) {
       return '<span class="program-nav-current" aria-current="page">' + esc(item.label) + '</span>';
     }
-    return '<a href="' + esc(item.href) + '">' + esc(item.label) + '</a>';
+    return '<a href="' + esc(rootHref(item.href)) + '">' + esc(item.label) + '</a>';
   }
 
-  function buildNavHtml(current) {
+  function flatItemsFor(mount) {
+    var list = NAV_FLAT.slice();
+    var extra = (mount && mount.getAttribute('data-nav-extra')) || '';
+    if (!extra) return list;
+    extra.split(',').forEach(function (raw) {
+      var key = String(raw || '').trim();
+      if (!key || !NAV_CONTENT[key]) return;
+      list.push(NAV_CONTENT[key]);
+    });
+    return list;
+  }
+
+  function buildNavHtml(current, mount) {
     var parts = NAV_GROUPS.map(function (group) {
       var active = group.items.some(function (it) { return it.id === current; });
       var links = group.items.map(function (it) {
@@ -148,7 +183,15 @@
         if (it.id === current) {
           return '<span class="program-nav-dd-item is-current" aria-current="page">' + esc(it.label) + '</span>';
         }
-        return '<a class="program-nav-dd-item' + cls + '" href="' + esc(it.href) + '">' + esc(it.label) + '</a>';
+        return (
+          '<a class="program-nav-dd-item' +
+          cls +
+          '" href="' +
+          esc(rootHref(it.href)) +
+          '">' +
+          esc(it.label) +
+          '</a>'
+        );
       }).join('');
 
       // 항목이 1개면 드롭다운 없이 바로 링크
@@ -167,7 +210,7 @@
       );
     });
 
-    NAV_FLAT.forEach(function (item) {
+    flatItemsFor(mount).forEach(function (item) {
       parts.push(itemLink(item, current));
     });
 
@@ -238,13 +281,13 @@
       '<header class="topbar">' +
       '<div class="topbar-inner">' +
       '<div class="topbar-left">' +
-      '<a class="topbar-logo" href="index.html">' +
+      '<a class="topbar-logo" href="/index.html">' +
       '<span class="topbar-logo-mark" aria-hidden="true">八</span>팔자연구소</a>' +
       '<div class="topbar-sep"></div>' +
       '<span class="topbar-title">' + esc(title) + '</span>' +
       '</div>' +
       '<div class="topbar-right" aria-label="계정">' +
-      '<a class="topbar-auth-link" id="auth-peer-link" href="' + esc(peerHref) + '">' +
+      '<a class="topbar-auth-link" id="auth-peer-link" href="' + esc(rootHref(peerHref)) + '">' +
       esc(peerLabel) +
       '</a>' +
       '</div>' +
@@ -263,14 +306,14 @@
 
     var title = mount.getAttribute('data-topbar-title') || '';
     var current = mount.getAttribute('data-nav-current') || '';
-    var loginNext = mount.getAttribute('data-login-next') || pageFile();
+    var loginNext = mount.getAttribute('data-login-next') || defaultLoginNext() || pageFile();
     var exportHtml = buildExportHtml(mount);
 
     mount.innerHTML =
       '<header class="topbar">' +
       '<div class="topbar-inner">' +
       '<div class="topbar-left">' +
-      '<a class="topbar-logo" href="index.html">' +
+      '<a class="topbar-logo" href="/index.html">' +
       '<span class="topbar-logo-mark" aria-hidden="true">八</span>팔자연구소</a>' +
       '<div class="topbar-sep"></div>' +
       '<span class="topbar-title">' + esc(title) + '</span>' +
@@ -278,13 +321,13 @@
       '<div class="topbar-right" data-topbar-auth aria-label="계정">' +
       '<span class="plan-badge free" id="plan-badge">Free</span>' +
       '<span class="topbar-auth-row" data-topbar-auth-guest>' +
-      '<a class="topbar-auth-link" href="login.html?next=' + encodeURIComponent(loginNext) + '">로그인</a>' +
+      '<a class="topbar-auth-link" href="/login.html?next=' + encodeURIComponent(loginNext) + '">로그인</a>' +
       '<span class="topbar-auth-dot" aria-hidden="true">·</span>' +
-      '<a class="topbar-auth-link" href="signup.html?next=' + encodeURIComponent(loginNext) + '">회원가입</a>' +
+      '<a class="topbar-auth-link" href="/signup.html?next=' + encodeURIComponent(loginNext) + '">회원가입</a>' +
       '</span>' +
       exportHtml +
       '<span class="topbar-auth-row" data-topbar-auth-user hidden>' +
-      '<a class="back-btn" href="dashboard.html">마이페이지</a>' +
+      '<a class="back-btn" href="/dashboard.html">마이페이지</a>' +
       '<span class="topbar-auth-dot" aria-hidden="true">·</span>' +
       '<button type="button" class="topbar-auth-link topbar-auth-btn" data-topbar-auth-signout>로그아웃</button>' +
       '</span>' +
@@ -293,7 +336,7 @@
       '</header>' +
       '<nav class="program-nav" aria-label="팔자연구소 프로그램 이동">' +
       '<div class="program-nav-inner">' +
-      buildNavHtml(current) +
+      buildNavHtml(current, mount) +
       '</div>' +
       '</nav>';
 
