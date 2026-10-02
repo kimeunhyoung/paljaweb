@@ -5699,8 +5699,9 @@ function flowYearHint(n) {
 
 /** 개인연도(클래식) — 연·월·일 각각 환원 후 합산 → 1~9, 11, 22, 33 */
 function calcPersonalYearClassic(year, mr_r, dr_r) {
-  const yr_r = reduceToSingle(sumYearDigits(year));
-  const pre = yr_r + mr_r + dr_r;
+  // 수비학 달력(numerology-calendar.js getPersonalYear)과 동일: 연·월·일은 마스터 없이 한 자리로, 합계만 마스터(11·22·33) 유지
+  const yr_r = reduceToSingle(sumYearDigits(year), false);
+  const pre = yr_r + reduceToSingle(mr_r, false) + reduceToSingle(dr_r, false);
   return { pre, single: reduceToSingle(pre), yr_r };
 }
 
@@ -7936,7 +7937,8 @@ async function runAnalysis() {
   const pyS = pyTarotParts.pre;
   const pyDisplay = personalYearValueLabel(pyClassic, py);
   const pyPreLabel = personalYearPreLabel(pyClassicParts.pre, pyTarotParts.pre);
-  const pm = reduceToSingle(py + curM);
+  // 개인월·개인일 — 수비학 달력과 동일하게 수비학 개인연도(pyClassic) 기준
+  const pm = reduceToSingle(pyClassic + curM);
   const pd = reduceToSingle(pm + curD);
   const z = getZodiacInfo(m, d);
   renderExportDocHeader(nameRaw, y, m, d);
@@ -8078,13 +8080,13 @@ async function runAnalysis() {
   if (hasBasicFlowAccess()) {
   if (flowBridgeEl) {
     flowBridgeEl.innerHTML = `<div class="timeline-bridge">
-      <p><strong>올해의 수</strong>는 <strong>수비학 개인연도</strong>(연·월·일 각 환원 후 합산)와 <strong>타로 올해의 수</strong>(<strong>${curY}년</strong> 연도 자릿수합 <strong>${curY_digitSum}</strong>+문 넘버 <strong>${mnPre}</strong> → 0~21)를 함께 봅니다. 카드에는 <strong>수비학/타로</strong> 순으로 표시됩니다. <strong>이번 달의 수</strong>는 타로 올해의 수에 <strong>${curM}월</strong>을, <strong>오늘의 수</strong>는 그 위에 <strong>${curD}일</strong>을 더해 줄인 값입니다.</p>
+      <p><strong>올해의 수</strong>는 <strong>수비학 개인연도</strong>(연·월·일 각 환원 후 합산)와 <strong>타로 올해의 수</strong>(<strong>${curY}년</strong> 연도 자릿수합 <strong>${curY_digitSum}</strong>+문 넘버 <strong>${mnPre}</strong> → 0~21)를 함께 봅니다. 카드에는 <strong>수비학/타로</strong> 순으로 표시됩니다. <strong>이번 달의 수</strong>는 수비학 개인연도에 <strong>${curM}월</strong>을, <strong>오늘의 수</strong>는 그 위에 <strong>${curD}일</strong>을 더해 줄인 값입니다. (수비학 달력과 동일)</p>
     </div>`;
   }
 
   document.getElementById('flowRow').innerHTML = [
     {label:`${curY}년 올해의 수`, num:pyDisplay, pre:pyPreLabel, pyClassic, pyTarot:py},
-    {label:`${curM}월 이번 달의 수`, num:pm, pre:(py + curM)},
+    {label:`${curM}월 이번 달의 수`, num:pm, pre:(pyClassic + curM)},
     {label:`오늘 ${curD}일의 수`, num:pd, pre:(pm + curD)}
   ].map(f=>{
     const isYear = f.label.includes('올해');
@@ -8099,7 +8101,7 @@ async function runAnalysis() {
 
   document.getElementById('flowAccordion').innerHTML = [
     {k:'올해의 수', v:pyDisplay, pre:pyPreLabel, pyClassic, pyTarot:py, open:true},
-    {k:'이번 달의 수', v:pm, pre:(py + curM), kind:'month'},
+    {k:'이번 달의 수', v:pm, pre:(pyClassic + curM), kind:'month'},
     {k:'오늘의 수', v:pd, pre:(pm + curD), kind:'day'}
   ].map(i=>{
     const body = i.k === '올해의 수'
@@ -8162,7 +8164,7 @@ async function runAnalysis() {
         td.setDate(day0.getDate() + i);
         const tM = td.getMonth() + 1;
         const tD = td.getDate();
-        const tPm = reduceToSingle(py + tM);
+        const tPm = reduceToSingle(pyClassic + tM);
         const tPd = reduceToSingle(tPm + tD, true);
         const adv = adviceMap[tPd] || { status: '평온', desc: hintOnly[tPd] || '차분히 호흡을 고르고, 오늘은 한 가지에만 집중해 보세요.' };
         let stCls = '';
@@ -8254,20 +8256,20 @@ async function runAnalysis() {
   if(hasAccess('basic')) {
     let cells = '';
     for (let mo = 1; mo <= 12; mo++) {
-      const pm2 = reduceToSingle(py + mo);
+      const pm2 = reduceToSingle(pyClassic + mo);
       const isCur = mo === curM;
       const numColor = (TL_COLOR && TL_COLOR[pm2]) ? TL_COLOR[pm2] : 'var(--accent)';
       const moKw = TL_KEYWORD[pm2] || MONTHLY_KEYWORDS[pm2] || '';
-      cells += `<div class="monthly-cell${isCur ? ' current selected' : ''}" onclick="showMonthDetail(${mo},${py})" data-mo="${mo}" data-pm="${pm2}" role="button" tabindex="0">
+      cells += `<div class="monthly-cell${isCur ? ' current selected' : ''}" onclick="showMonthDetail(${mo},${pyClassic})" data-mo="${mo}" data-pm="${pm2}" role="button" tabindex="0">
         <div class="monthly-cell-mo">${mo}월</div>
         <div class="monthly-cell-num" style="color:${numColor}">${pm2}</div>
         <div class="monthly-cell-kw">${moKw}</div>
       </div>`;
     }
     const monthlyBridge = `<div class="timeline-bridge">
-      <p>각 칸은 <strong>올해의 수(${py}번)</strong>에 그 달의 월 숫자(1~12)를 더해 줄인 <strong>퍼스널 먼스</strong>입니다. 칸을 누르면 아래에 그 달 해석이 펼쳐집니다.</p>
+      <p>각 칸은 <strong>수비학 개인연도(${pyClassic}번)</strong>에 그 달의 월 숫자(1~12)를 더해 줄인 <strong>퍼스널 먼스</strong>입니다. 칸을 누르면 아래에 그 달 해석이 펼쳐집니다.</p>
     </div>`;
-    const detail = renderMonthlyDetailPanel(curM, py);
+    const detail = renderMonthlyDetailPanel(curM, pyClassic);
     document.getElementById('monthlyContent').innerHTML = `${monthlyBridge}<div class="monthly-board"><div class="monthly-grid">${cells}</div></div><div id="monthlyDetail">${detail}</div>`;
   } else {
     document.getElementById('monthlyContent').innerHTML = gateHTML('basic','월간 흐름','12개월 각각의 에너지 테마를 확인할 수 있습니다.');
@@ -8571,7 +8573,7 @@ async function runAnalysis() {
     }
   }
 
-  const pmPre = py + curM;
+  const pmPre = pyClassic + curM;
   const cycleGlance = computeCurrentCycleGlance(lp, y, curY, mr_r, dr_r, yr_r);
   renderAnalysisReadingGuide({
     lp,
