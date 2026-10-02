@@ -1,6 +1,7 @@
 /**
  * 팔자연구소 — 공통 상단 탑바·프로그램 내비
  * 페이지 :root 변수와 충돌하지 않도록 --tb-* 스코프 변수만 사용합니다.
+ * 페이지 인라인 CSS(세리프 body 등)보다 우선하도록 .site-top 하위로 고정합니다.
  */
 @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700&family=Noto+Serif+KR:wght@400;500;600;700&display=swap');
 
@@ -27,7 +28,8 @@
   background: rgba(245, 240, 232, 0.98);
   box-shadow: 0 6px 18px rgba(45, 38, 28, 0.06);
   overflow: visible;
-  font-family: var(--tb-font-nav);
+  font-family: var(--tb-font-nav) !important;
+  -webkit-font-smoothing: antialiased;
 }
 
 .site-top .topbar {
@@ -48,6 +50,31 @@
   gap: 16px;
 }
 
+.site-top .topbar-links {
+  display: flex;
+  align-items: center;
+  gap: 22px;
+  margin-left: auto;
+  margin-right: 8px;
+  flex-shrink: 0;
+  font-family: var(--tb-font-nav) !important;
+}
+
+.site-top .topbar-links a {
+  font-family: inherit !important;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--tb-muted);
+  text-decoration: none;
+  white-space: nowrap;
+  line-height: 1.35;
+  transition: color 0.15s;
+}
+
+.site-top .topbar-links a:hover {
+  color: var(--tb-deep-brown);
+}
+
 .site-top .program-nav {
   border-bottom: 1px solid var(--tb-border);
   background: rgba(255, 255, 255, 0.72);
@@ -64,24 +91,34 @@
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 6px 14px;
-  padding: 8px 0 10px;
-  font-family: var(--tb-font-nav);
-  font-size: 12px;
-  font-weight: 600;
+  gap: 0 14px;
+  min-height: 40px;
+  padding: 0;
+  font-family: var(--tb-font-nav) !important;
+  font-size: 12px !important;
+  font-weight: 600 !important;
   letter-spacing: 0.02em;
-  line-height: 1.35;
+  line-height: 1.35 !important;
   overflow: visible;
+}
+
+.site-top .program-nav-inner > a,
+.site-top .program-nav-inner > .program-nav-current,
+.site-top .program-nav-inner > .program-nav-dd {
+  display: inline-flex;
+  align-items: center;
+  min-height: 40px;
+  box-sizing: border-box;
 }
 
 .site-top .program-nav-inner a {
   color: var(--tb-muted);
   text-decoration: none;
-  font-family: inherit;
-  font-size: inherit;
-  font-weight: 600;
-  letter-spacing: inherit;
-  line-height: inherit;
+  font-family: var(--tb-font-nav) !important;
+  font-size: 12px !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.02em;
+  line-height: 1.35 !important;
   transition: color 0.15s;
   white-space: nowrap;
 }
@@ -92,37 +129,40 @@
 
 .site-top .program-nav-current {
   color: var(--tb-deep-brown);
-  font-family: inherit;
-  font-size: inherit;
-  font-weight: 600;
-  letter-spacing: inherit;
-  line-height: inherit;
+  font-family: var(--tb-font-nav) !important;
+  font-size: 12px !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.02em;
+  line-height: 1.35 !important;
   white-space: nowrap;
 }
 
 .site-top .program-nav-dd {
   position: relative;
-  display: inline-flex;
-  align-items: center;
   flex: 0 0 auto;
 }
 
 .site-top .program-nav-dd-btn {
   appearance: none;
+  -webkit-appearance: none;
   border: none;
   background: transparent;
   color: var(--tb-muted);
-  font-family: inherit;
-  font-size: inherit;
-  font-weight: 600;
-  letter-spacing: inherit;
-  line-height: inherit;
+  font-family: var(--tb-font-nav) !important;
+  font-size: 12px !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.02em;
+  line-height: 1.35 !important;
   cursor: pointer;
-  padding: 0;
+  padding: 0 !important;
+  margin: 0;
   display: inline-flex;
   align-items: center;
   gap: 3px;
   white-space: nowrap;
+  min-height: 40px;
+  box-sizing: border-box;
+  vertical-align: middle;
 }
 
 .site-top .program-nav-dd.is-active .program-nav-dd-btn,
@@ -131,18 +171,19 @@
 }
 
 .site-top .program-nav-dd.is-active .program-nav-dd-btn {
-  font-weight: 600;
+  font-weight: 700 !important;
 }
 
 .site-top .program-nav-dd-caret {
   font-size: 9px;
   opacity: 0.7;
-  transform: translateY(1px);
+  line-height: 1;
+  transform: none;
 }
 
 .site-top .program-nav-dd-menu {
   position: absolute;
-  top: calc(100% + 8px);
+  top: calc(100% + 2px);
   left: 0;
   min-width: 168px;
   padding: 8px;
@@ -153,7 +194,7 @@
   display: none;
   gap: 2px;
   z-index: 120;
-  font-family: var(--tb-font-nav);
+  font-family: var(--tb-font-nav) !important;
 }
 
 .site-top .program-nav-dd.is-open .program-nav-dd-menu {
@@ -166,10 +207,11 @@
   border-radius: 7px;
   color: var(--tb-ink);
   text-decoration: none;
-  font-family: inherit;
-  font-weight: 600;
-  font-size: 12.5px;
+  font-family: var(--tb-font-nav) !important;
+  font-weight: 600 !important;
+  font-size: 12.5px !important;
   letter-spacing: 0.02em;
+  line-height: 1.35;
 }
 
 .site-top a.program-nav-dd-item:hover {
@@ -180,7 +222,7 @@
 .site-top .program-nav-dd-item.is-current {
   background: #f5f0e8;
   color: var(--tb-deep-brown);
-  font-weight: 700;
+  font-weight: 700 !important;
 }
 
 .site-top .topbar-left {
@@ -188,10 +230,11 @@
   align-items: center;
   gap: 20px;
   min-width: 0;
-  flex: 1 1 auto;
+  flex: 0 1 auto;
 }
 
 .site-top .topbar-logo {
+  font-family: var(--tb-font-nav) !important;
   font-size: 16px;
   font-weight: 700;
   color: var(--tb-deep-brown);
@@ -256,6 +299,7 @@
 }
 
 .site-top .topbar-title {
+  font-family: var(--tb-font-nav) !important;
   font-size: 14px;
   font-weight: 600;
   letter-spacing: 0;
@@ -298,6 +342,7 @@
 }
 
 .site-top .plan-badge {
+  font-family: var(--tb-font-nav) !important;
   font-size: 10px;
   letter-spacing: 0.05em;
   text-transform: uppercase;
@@ -337,6 +382,7 @@
 }
 
 .site-top .back-btn {
+  font-family: var(--tb-font-nav) !important;
   font-size: 12px;
   font-weight: 600;
   letter-spacing: 0.02em;
@@ -357,6 +403,7 @@
 }
 
 .site-top .topbar-auth-link {
+  font-family: var(--tb-font-nav) !important;
   font-size: 12px;
   font-weight: 600;
   color: var(--tb-muted);
@@ -393,6 +440,7 @@
 }
 
 .site-top .counselor-bar-btn {
+  font-family: var(--tb-font-nav) !important;
   font-size: 11px;
   font-weight: 600;
   letter-spacing: 0.02em;
@@ -416,12 +464,19 @@
   .site-top .topbar {
     padding: 10px 16px;
   }
+  .site-top .topbar-links {
+    display: none;
+  }
   .site-top .program-nav {
     padding: 0 16px;
   }
   .site-top .program-nav-inner {
-    gap: 6px 12px;
-    font-size: 11px;
-    padding: 7px 0 9px;
+    gap: 0 12px;
+    font-size: 11px !important;
+  }
+  .site-top .program-nav-inner a,
+  .site-top .program-nav-current,
+  .site-top .program-nav-dd-btn {
+    font-size: 11px !important;
   }
 }

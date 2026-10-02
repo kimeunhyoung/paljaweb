@@ -3,6 +3,13 @@
  * topbar-session.js보다 먼저 로드하세요.
  */
 (function () {
+  if (!document.querySelector('link[href*="/css/site-topbar.css"]')) {
+    var tbCss = document.createElement('link');
+    tbCss.rel = 'stylesheet';
+    tbCss.href = '/css/site-topbar.css?v=12';
+    (document.head || document.documentElement).appendChild(tbCss);
+  }
+
   if (!document.querySelector('script[data-palja-analytics]')) {
     var a = document.createElement('script');
     a.src = '/js/analytics.js?v=1';
@@ -308,6 +315,11 @@
     var current = mount.getAttribute('data-nav-current') || '';
     var loginNext = mount.getAttribute('data-login-next') || defaultLoginNext() || pageFile();
     var exportHtml = buildExportHtml(mount);
+    var titleHtml = title
+      ? '<div class="topbar-sep" aria-hidden="true"></div><span class="topbar-title">' +
+        esc(title) +
+        '</span>'
+      : '';
 
     mount.innerHTML =
       '<header class="topbar">' +
@@ -315,9 +327,13 @@
       '<div class="topbar-left">' +
       '<a class="topbar-logo" href="/index.html">' +
       '<span class="topbar-logo-mark" aria-hidden="true">八</span>팔자연구소</a>' +
-      '<div class="topbar-sep"></div>' +
-      '<span class="topbar-title">' + esc(title) + '</span>' +
+      titleHtml +
       '</div>' +
+      '<nav class="topbar-links" aria-label="사이트 메뉴">' +
+      '<a href="/guide/index.html">가이드</a>' +
+      '<a href="/nakshatra/index.html">학습자료실</a>' +
+      '<a href="/pricing.html">요금제</a>' +
+      '</nav>' +
       '<div class="topbar-right" data-topbar-auth aria-label="계정">' +
       '<span class="plan-badge free" id="plan-badge">Free</span>' +
       '<span class="topbar-auth-row" data-topbar-auth-guest>' +
