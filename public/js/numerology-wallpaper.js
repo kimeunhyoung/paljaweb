@@ -121,10 +121,10 @@ function lockWallpaperUI(panelHtml) {
       (window.PaljaPlan?.productGatePanelHtml
         ? PaljaPlan.productGatePanelHtml("wallpaper", {
             title: "Private에서 이용 가능",
-            desc: "에너지 배경은 Private 플랜 전용입니다. 수비학 숫자를 폰·스토리 배경 PNG로 만들어 저장할 수 있어요.",
+            desc: "에너지 배경은 Private 플랜 전용입니다.",
             loggedIn: !!window.PALJA_LOGGED_IN,
           })
-        : "Private 플랜에서 이용할 수 있습니다. <a href=\"pricing.html\">요금제 보기</a>");
+        : "에너지 배경은 Private 플랜 전용입니다. <a href=\"pricing.html\">요금제 보기</a>");
   }
   setHint("에너지 배경은 Private 플랜 전용입니다.", "warn");
   if (downloadBtn) downloadBtn.disabled = true;
@@ -148,7 +148,7 @@ async function ensureWallpaperAccess() {
       lockWallpaperUI(
         PaljaPlan.productGatePanelHtml("wallpaper", {
           title: "Private에서 이용 가능",
-          desc: "에너지 배경은 Private 플랜 전용입니다. Professional에서는 이용할 수 없어요.",
+          desc: "에너지 배경은 Private 플랜 전용입니다.",
           loggedIn: !!window.PALJA_LOGGED_IN,
         })
       );

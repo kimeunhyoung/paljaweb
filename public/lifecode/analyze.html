@@ -7297,7 +7297,7 @@ function buildLcPriorityAtGlanceHtml(ctx) {
     h += lcNumCellLocked('올해의 수', 'lc-glance-cell--flow');
     h += lcNumCellLocked('이번 달의 수', 'lc-glance-cell--flow');
   } else {
-    h += lcNumCell('올해의 수', ctx.pyDisplay ?? ctx.py, ctx.pyPreLabel != null ? `전합 ${ctx.pyPreLabel}` : (ctx.pyS != null ? `전합 ${ctx.pyS}` : ''));
+    h += lcNumCell('올해의 수', ctx.pyClassic ?? ctx.py, ctx.pyClassicPre != null ? `전합 ${ctx.pyClassicPre}` : '');
     h += lcNumCell('이번 달의 수', ctx.pm, ctx.pmPre != null ? `전합 ${ctx.pmPre}` : '');
   }
   if (ctx.majorNum != null && ctx.pinnacle != null && ctx.challenge != null) {
@@ -8588,6 +8588,7 @@ async function runAnalysis() {
     pyDisplay,
     pyPreLabel,
     pyClassic,
+    pyClassicPre: pyClassicParts.pre,
     pm,
     pyS,
     pmPre,
