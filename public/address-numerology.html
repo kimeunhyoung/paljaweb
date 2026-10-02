@@ -4,17 +4,17 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <link rel="icon" href="/favicon.svg" type="image/svg+xml">
-  <title>주소·?�화번호 ?�비????�?번호·?�수·?�자�?계산 | ?�자?�구??8CODE</title>
+  <title>주소·전화번호 수비학 — 집 번호·호수·끝자리 계산 | 팔자연구소 8CODE</title>
   <meta
     name="description"
-    content="?�사 ??주소 ???�인. 번�?·?�로명·아?�트 ?�수·?�화번호 ?�자리�? 1~9�??�원?�는 무료 ?�비??계산�? 주택 ?�별 ?�설�??�사 체크리스??"
+    content="이사 전 주소 수 확인. 번지·도로명·아파트 호수·전화번호 끝자리를 1~9로 환원하는 무료 수비학 계산기. 주택 수별 해설과 이사 체크리스트."
   />
-  <meta name="keywords" content="주소 ?�비?? �?번호 ?�비?? ?�파???�수 ?�비?? ?�화번호 ?�비?? ?�사 ?�비?? 주택 ??>
+  <meta name="keywords" content="주소 수비학, 집 번호 수비학, 아파트 호수 수비학, 전화번호 수비학, 이사 수비학, 주택 수">
   <link rel="canonical" href="https://8code.kr/address-numerology.html">
   <meta property="og:type" content="website">
-  <meta property="og:site_name" content="?�자?�구??8CODE">
-  <meta property="og:title" content="주소·?�화번호 ?�비??| ?�자?�구??8CODE">
-  <meta property="og:description" content="번�?·?�수·?�화 ?�자리로 집의 진동???�어보세?? ?�사 ??체크리스???�함.">
+  <meta property="og:site_name" content="팔자연구소 8CODE">
+  <meta property="og:title" content="주소·전화번호 수비학 | 팔자연구소 8CODE">
+  <meta property="og:description" content="번지·호수·전화 끝자리로 집의 진동을 읽어보세요. 이사 전 체크리스트 포함.">
   <meta property="og:url" content="https://8code.kr/address-numerology.html">
   <meta property="og:image" content="https://8code.kr/og-share.png">
   <meta property="og:locale" content="ko_KR">
@@ -28,9 +28,9 @@
   <script src="js/attribution.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="js/plan-access.js?v=13"></script>
-  <script src="js/site-topbar.js?v=17" defer></script>
+  <script src="js/site-topbar.js?v=18" defer></script>
   <script src="js/topbar-session.js?v=9" defer></script>
-  <link rel="stylesheet" href="css/site-topbar.css?v=9" />
+  <link rel="stylesheet" href="css/site-topbar.css?v=10" />
   <link rel="stylesheet" href="css/site-header.css?v=8" />
   <style>
     :root {
@@ -292,58 +292,58 @@
   </style>
 </head>
 <body>
-  <div class="site-top" data-topbar-title="주소·?�화" data-nav-current="address" data-home-href="index.html"></div>
+  <div class="site-top" data-topbar-title="주소·전화" data-nav-current="address" data-home-href="index.html"></div>
 
   <main class="page">
     <header class="hero">
-      <h1>주소 · ?�화번호 ?�비??/h1>
+      <h1>주소 · 전화번호 수비학</h1>
       <p>
-        번�?·?�로명·아?�트 ?�수·?�화 ?�자리�? ?��?고라?�식?�로 1~9�?줄여 공간??진동??참고?�니??
-        ?�사·번호 ?�택 ???��??�이�? ?�자·?�료 조언???�닙?�다.
+        번지·도로명·아파트 호수·전화 끝자리를 피타고라스식으로 1~9로 줄여 공간의 진동을 참고합니다.
+        이사·번호 선택 전 점검용이며, 투자·의료 조언이 아닙니다.
       </p>
     </header>
 
     <section class="layout">
       <aside class="panel">
-        <h2>주소 ?�력</h2>
+        <h2>주소 입력</h2>
         <div class="field-gap" style="margin-top:0">
-          <label class="field-label" for="houseInput">번�? · 건물 번호</label>
-          <input id="houseInput" type="text" inputmode="text" placeholder="?? 5517, 578C, 101?? autocomplete="off" />
-          <p class="field-hint">?�자?� ?�문 ?�수(?? 3B)�??�산?�니?? 가??강한 ?�향.</p>
+          <label class="field-label" for="houseInput">번지 · 건물 번호</label>
+          <input id="houseInput" type="text" inputmode="text" placeholder="예: 5517, 578C, 101동" autocomplete="off" />
+          <p class="field-hint">숫자와 영문 호수(예: 3B)를 합산합니다. 가장 강한 영향.</p>
         </div>
         <div class="field-gap">
-          <label class="field-label" for="roadInput">?�로�?(?�택)</label>
-          <input id="roadInput" type="text" placeholder="?? 16th, Sunlight Beach Rd" autocomplete="off" />
-          <p class="field-hint">?�문·?�자�??�산?�니?? ?��? ?�로명�? ?�자�?반영?�니?? 최종 주택 ?�는 번�?·?�로�?각각 줄인 ???�산?�니??</p>
+          <label class="field-label" for="roadInput">도로명 (선택)</label>
+          <input id="roadInput" type="text" placeholder="예: 16th, Sunlight Beach Rd" autocomplete="off" />
+          <p class="field-hint">영문·숫자만 환산합니다. 한글 도로명은 숫자만 반영됩니다. 최종 주택 수는 번지·도로를 각각 줄인 뒤 합산합니다.</p>
         </div>
         <div class="field-gap">
-          <label class="field-label" for="aptInput">?�파??· ?�수 (?�택)</label>
-          <input id="aptInput" type="text" placeholder="?? 1203, 3B" autocomplete="off" />
-          <p class="field-hint">빌딩(?�웃)�?별개�? 거주?�에�?직접 ?�는 ?�입?�다.</p>
+          <label class="field-label" for="aptInput">아파트 · 호수 (선택)</label>
+          <input id="aptInput" type="text" placeholder="예: 1203, 3B" autocomplete="off" />
+          <p class="field-hint">빌딩(이웃)과 별개로, 거주자에게 직접 닿는 수입니다.</p>
         </div>
         <div class="field-gap">
-          <label class="field-label" for="phoneInput">?�화번호 (?�택)</label>
-          <input id="phoneInput" type="tel" placeholder="?? 010-3713-3381" autocomplete="off" />
-          <p class="field-hint">지??��???�외 ?�산 + ??4?�리. ?�석?� 1~9 공통 ?��?�?참고�?붙입?�다.</p>
+          <label class="field-label" for="phoneInput">전화번호 (선택)</label>
+          <input id="phoneInput" type="tel" placeholder="예: 010-3713-3381" autocomplete="off" />
+          <p class="field-hint">지역번호 제외 합산 + 끝 4자리. 해석은 1~9 공통 의미를 참고로 붙입니다.</p>
         </div>
         <div class="actions">
-          <button type="button" class="btn btn-primary" id="calcBtn">계산?�기</button>
-          <a class="btn btn-secondary" href="analysis.html">???�생?�정?��? 맞춰보기</a>
+          <button type="button" class="btn btn-primary" id="calcBtn">계산하기</button>
+          <a class="btn btn-secondary" href="analysis.html">내 인생여정수와 맞춰보기</a>
         </div>
         <div class="cta-box">
-          주소 ?�는 <strong>?�경??진동</strong>?�고, ?�생?�정?�는 <strong>?�의 �?/strong>?�니??
-          <a href="analysis.html">?�이?�코??/a>�?공명 ?��?�??�께 보면 ?�사·?�택?????��????�니??
+          주소 수는 <strong>환경의 진동</strong>이고, 인생여정수는 <strong>나의 길</strong>입니다.
+          <a href="analysis.html">라이프코드</a>로 공명 여부를 함께 보면 이사·선택에 더 도움이 됩니다.
         </div>
       </aside>
 
       <div>
         <p class="note-banner" id="hangulNote" hidden>
-          ?��? 글?�는 ?�번 계산?�서 ?�외?�습?�다. ?�문 ?�로명·숫?�·라???�수(A~Z)�??��?고라???�산?�니??
+          한글 글자는 이번 계산에서 제외했습니다. 영문 도로명·숫자·라틴 호수(A~Z)만 피타고라스 환산합니다.
         </p>
 
         <div class="panel" id="emptyState">
           <div class="empty-state">
-            ?�쪽?�서 번�?·?�수·?�화�??�력?�면<br />주택 ?��? ?�설???�기???�시?�니??
+            왼쪽에서 번지·호수·전화를 입력하면<br />주택 수와 해설이 여기에 표시됩니다.
           </div>
         </div>
 
@@ -360,36 +360,36 @@
         </div>
 
         <section class="panel" style="margin-top:16px">
-          <h2>?�사 ??체크리스??/h2>
+          <h2>이사 전 체크리스트</h2>
           <ul class="check-list">
-            <li data-check="house">번�?·건물 번호�????�리�??�원?�고, 구성 ??�??�릿?????�께 봅니??</li>
-            <li data-check="road">?�로명�? 공식 ?�기 그�?�??�의 ?�어 추�? 금�?). ?�웃 ?�경??진동?�니??</li>
-            <li data-check="special">카르�???13·14·16·19)·마스????11·22·33)가 ?�는지 ?�인?�니??</li>
-            <li data-check="apt">?�파?�라�??�수 ?��? 별도�?계산?�니??거주??직접 ?�향).</li>
-            <li data-check="phone">?�주 ?�는 ?�화 ?�자리도 ?�께 보면 ?�상 ?�?�의 ?�을 가?�할 ???�습?�다.</li>
-            <li>???�생?�정?�·올??목표?� 공명?�는지 ?�단?�니?? ??<a href="analysis.html">?�이?�코??/a></li>
+            <li data-check="house">번지·건물 번호를 한 자리로 환원하고, 구성 수(각 자릿수)도 함께 봅니다.</li>
+            <li data-check="road">도로명은 공식 표기 그대로(임의 단어 추가 금지). 이웃 환경의 진동입니다.</li>
+            <li data-check="special">카르마 수(13·14·16·19)·마스터 수(11·22·33)가 있는지 확인합니다.</li>
+            <li data-check="apt">아파트라면 호수 수를 별도로 계산합니다(거주자 직접 영향).</li>
+            <li data-check="phone">자주 쓰는 전화 끝자리도 함께 보면 일상 대화의 톤을 가늠할 수 있습니다.</li>
+            <li>내 인생여정수·올해 목표와 공명하는지 판단합니다. → <a href="analysis.html">라이프코드</a></li>
           </ul>
         </section>
       </div>
     </section>
 
     <section class="panel seo-block">
-      <h2>주소 ?�비?�이?�?</h2>
+      <h2>주소 수비학이란?</h2>
       <p>
-        ?�비?�에?�는 �?번�?�????�리 ??1~9)�?줄여 �?공간???�마�??�습?�다.
-        ?�로명�? ?�웃 ?�경, 번�?·?�수??거주?�에�???직접?�인 ?�향??준?�고 봅니??
-        ?�화번호????4?�리가 가??중요?�며, 지??��?�는 범위가 ?�어 보조로만 ?�니??
+        수비학에서는 집 번지를 한 자리 수(1~9)로 줄여 그 공간의 테마를 읽습니다.
+        도로명은 이웃 환경, 번지·호수는 거주자에게 더 직접적인 영향을 준다고 봅니다.
+        전화번호는 끝 4자리가 가장 중요하며, 지역번호는 범위가 넓어 보조로만 씁니다.
       </p>
       <ul>
-        <li><strong>??5??�?/strong> ??변?�·활?�이 많아, ?�트?�스가 ??직업?�는 부?�될 ???�음</li>
-        <li><strong>??7??�?/strong> ??공�?·?�적 ?�장·?�구????맞음</li>
-        <li><strong>??8??�?/strong> ???�정·비즈?�스 ?�환?�이 ?????�으??관�?규율???�요</li>
+        <li><strong>수 5의 집</strong> — 변화·활동이 많아, 스트레스가 큰 직업에는 부담될 수 있음</li>
+        <li><strong>수 7의 집</strong> — 공부·영적 성장·연구에 잘 맞음</li>
+        <li><strong>수 8의 집</strong> — 재정·비즈니스 전환점이 될 수 있으나 관리 규율이 필요</li>
       </ul>
       <p style="margin-top:12px">
-        관?? <a href="numerology-wallpaper.html">?�너지 배경</a> ·
-        <a href="numerology-calendar.html">?�비???�력</a> ·
-        <a href="guide/numerology-basics.html">?�비??기초</a> ·
-        <a href="guide/address-numerology.html">주소 ?�비??가?�드</a>
+        관련: <a href="numerology-wallpaper.html">에너지 배경</a> ·
+        <a href="numerology-calendar.html">수비학 달력</a> ·
+        <a href="guide/numerology-basics.html">수비학 기초</a> ·
+        <a href="guide/address-numerology.html">주소 수비학 가이드</a>
       </p>
     </section>
   </main>

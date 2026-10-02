@@ -87,7 +87,7 @@
     },
     {
       id: 'counselor-group',
-      label: '상담사',
+      label: '상담사 허브',
       items: [
         { id: 'counselor', href: '/counselor.html', label: '상담사 허브' },
       ],

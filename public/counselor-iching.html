@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <link rel="icon" href="/favicon.svg" type="image/svg+xml">
   <link rel="manifest" href="/manifest.json">
-  <title>?�담??주역 AI ???�자?�구??8CODE</title>
+  <title>상담사 주역 AI — 팔자연구소 8CODE</title>
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@400;500;600;700&display=swap" rel="stylesheet"/>
@@ -15,7 +15,7 @@
   <script src="js/ai-reading-format.js?v=1"></script>
   <script src="js/iching-hexagram-deck.js?v=1"></script>
   <script src="js/attribution.js"></script>
-  <script src="js/site-topbar.js?v=17" defer></script>
+  <script src="js/site-topbar.js?v=18" defer></script>
   <script src="js/topbar-session.js?v=8" defer></script>
   <style>
     :root {
@@ -226,7 +226,7 @@
     .ai-draft-msg { font-size: 13px; margin-top: 8px; color: var(--teal); }
     .ai-draft-msg.err { color: #8b3a3a; }
 
-    /* ?�?� 글꼴·크기·�?�??�일 (?��?AI?� ?�일 기�?) ?�?� */
+    /* ── 글꼴·크기·대비 통일 (타로 AI와 동일 기준) ── */
     :root {
       --font-body: 'Pretendard Variable', Pretendard, 'Noto Sans KR', sans-serif;
       --muted: #74604b;
@@ -243,7 +243,7 @@
     .ai-credit-pill b { font-size: 15px; color: var(--deep); }
     .section-title, .ai-mode-btn strong, .yao-panel-title { font-family: var(--font-serif); }
 
-    /* ?�?� ?�계??구성 (?��?AI?� ?�일) ?�?� */
+    /* ── 단계형 구성 (타로 AI와 동일) ── */
     .ai-step { display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; margin: 14px 0 0; padding-top: 14px; border-top: 1px solid var(--border); }
     .ai-draft-form > .ai-step:first-child { margin-top: 0; padding-top: 0; border-top: 0; }
     .ai-step-num { flex: 0 0 auto; width: 22px; height: 22px; border-radius: 50%; background: var(--deep); color: #fff; font-size: 12px; font-weight: 700; display: inline-flex; align-items: center; justify-content: center; align-self: center; }
@@ -255,114 +255,114 @@
     .ai-mode-btn { position: relative; padding: 12px 40px 12px 14px; border-color: rgba(139,111,71,.3); }
     .ai-mode-btn span { color: var(--muted); }
     .ai-mode-btn.active { border: 2px solid var(--deep); padding: 11px 39px 11px 13px; }
-    .ai-mode-btn.active::after { content: '??; position: absolute; top: 50%; right: 12px; transform: translateY(-50%); width: 20px; height: 20px; border-radius: 50%; background: var(--deep); color: #fff; font-size: 12px; line-height: 20px; text-align: center; }
+    .ai-mode-btn.active::after { content: '✓'; position: absolute; top: 50%; right: 12px; transform: translateY(-50%); width: 20px; height: 20px; border-radius: 50%; background: var(--deep); color: #fff; font-size: 12px; line-height: 20px; text-align: center; }
     .ai-draft-form label { font-size: 12.5px; font-weight: 600; color: #5e4c39; }
     #aiQuestion { min-height: 96px; font-size: 14.5px; }
     @media (max-width: 520px) { .ai-mode-btn { flex-basis: 100%; } }
     .sr-label { position: absolute !important; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
     .ai-q-actions, #aiVoiceBtn { margin-left: auto; }
   </style>
-  <link rel="stylesheet" href="css/site-topbar.css?v=9" />
+  <link rel="stylesheet" href="css/site-topbar.css?v=10" />
   <link rel="stylesheet" href="css/site-header.css?v=7" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css">
 </head>
 <body>
-<div id="guard"><div class="spinner"></div><p class="guard-text">?�인 중�?/p></div>
+<div id="guard"><div class="spinner"></div><p class="guard-text">확인 중…</p></div>
 
-<div class="site-top" data-topbar-title="?�담??주역 AI" data-nav-current="counselor-iching" data-login-next="counselor-iching.html"></div>
+<div class="site-top" data-topbar-title="상담사 주역 AI" data-nav-current="counselor-iching" data-login-next="counselor-iching.html"></div>
 
 <div id="app">
   <div class="hub-intro">
-    <div class="back-row"><a href="counselor.html">???�담???�브</a></div>
-    <h1>?�담??주역 AI</h1>
-    <p>주역 64괘로 지�?�?���??�으로의 ?�개�??�는 <strong>?�석 초안</strong>??만들???�려?? <span class="hub-plan">Professional ?�용</span></p>
+    <div class="back-row"><a href="counselor.html">← 상담사 허브</a></div>
+    <h1>상담사 주역 AI</h1>
+    <p>주역 64괘로 지금 국면과 앞으로의 전개를 읽는 <strong>해석 초안</strong>을 만들어 드려요. <span class="hub-plan">Professional 전용</span></p>
     <p id="trialBadge" class="trial-badge" style="display:none" role="status"></p>
   </div>
   <div id="gate">
-    <h2>Professional ?�랜 ?�용</h2>
-    <p>?�담??주역 AI??<strong>Professional</strong> ?�금?�에???�용?????�어??</p>
-    <a class="cta" href="for-counselors.html">Professional ?�내 보기</a>
-    <a class="cta" href="/lifecode/buy.html?product=counselor15" style="margin-left:8px;background:transparent;border:1.5px solid var(--border);color:var(--deep);">15??체험 구매</a>
+    <h2>Professional 플랜 전용</h2>
+    <p>상담사 주역 AI는 <strong>Professional</strong> 요금제에서 이용할 수 있어요.</p>
+    <a class="cta" href="for-counselors.html">Professional 안내 보기</a>
+    <a class="cta" href="/lifecode/buy.html?product=counselor15" style="margin-left:8px;background:transparent;border:1.5px solid var(--border);color:var(--deep);">15일 체험 구매</a>
     <a class="cta" href="pricing.html?checkout=professional" style="margin-left:8px;background:transparent;border:1.5px solid var(--border);color:var(--deep);">바로 구독</a>
   </div>
   <div id="trialDeviceGate" style="display:none">
-    <h2>?�록 기기 ?�도 초과</h2>
-    <p>??계정?� ?��? <strong>기기 4?�</strong>까�? ?�록?�어 ??브라?��??�서???????�어??<br><a href="dashboard.html#devices">마이?�이지?�서 기기 ?�제</a> ???�시 ?�도??주세??</p>
-    <a class="cta" href="for-counselors.html">체험·구독 ?�내</a>
+    <h2>등록 기기 한도 초과</h2>
+    <p>이 계정은 이미 <strong>기기 4대</strong>까지 등록되어 이 브라우저에서는 열 수 없어요.<br><a href="dashboard.html#devices">마이페이지에서 기기 해제</a> 후 다시 시도해 주세요.</p>
+    <a class="cta" href="for-counselors.html">체험·구독 안내</a>
   </div>
   <div id="workspace">
     <div class="ai-draft-panel">
       <form id="aiDraftForm" class="ai-draft-form" autocomplete="off">
-        <div class="ai-step full"><span class="ai-step-num">1</span><span class="ai-step-title">고객</span><span class="ai-step-sub">?�택 · 고르�??�담 기록�??�결?�요</span></div>
+        <div class="ai-step full"><span class="ai-step-num">1</span><span class="ai-step-title">고객</span><span class="ai-step-sub">선택 · 고르면 상담 기록과 연결돼요</span></div>
         <div>
-          <label for="aiClient">고객 ?�택</label>
+          <label for="aiClient">고객 선택</label>
           <select id="aiClient"></select>
           <p class="client-session-hint" id="clientSessionHint" hidden></p>
         </div>
         <div>
-          <label for="aiNickname">?�칭 <span class="lbl-sub">?�석???�일 ?�름</span></label>
-          <input id="aiNickname" type="text" maxlength="40" placeholder="?? 민�???· 고객??/>
+          <label for="aiNickname">호칭 <span class="lbl-sub">해석에 쓰일 이름</span></label>
+          <input id="aiNickname" type="text" maxlength="40" placeholder="예: 민지님 · 고객님"/>
         </div>
         <div class="ai-step full"><span class="ai-step-num">2</span><span class="ai-step-title">질문</span></div>
         <div class="full">
           <div class="ai-q-head">
             <label for="aiQuestion" class="sr-label">질문</label>
-            <button type="button" class="ai-voice-btn" id="aiVoiceBtn" title="마이?�로 질문 받아?�기">?�� ?�성 ?�력</button>
+            <button type="button" class="ai-voice-btn" id="aiVoiceBtn" title="마이크로 질문 받아쓰기">🎤 음성 입력</button>
           </div>
-          <textarea id="aiQuestion" maxlength="800" required placeholder="?? 지�????�황?�서 밀?�붙???�인가, 기다�??�인가?"></textarea>
-          <p class="ai-voice-hint" id="aiVoiceHint">?�� ?�성 ?�력?� ??문장??말하�??�요 (?�롬·?��?·?�드로이??권장).</p>
+          <textarea id="aiQuestion" maxlength="800" required placeholder="예: 지금 이 상황에서 밀어붙일 때인가, 기다릴 때인가?"></textarea>
+          <p class="ai-voice-hint" id="aiVoiceHint">🎤 음성 입력은 한 문장씩 말하면 돼요 (크롬·엣지·안드로이드 권장).</p>
         </div>
         <div class="full">
-          <label for="aiNote">?�담??메모 (?�택 · 고객?�게 ??보임)</label>
-          <textarea id="aiNote" maxlength="500" placeholder="지???�차 ?�인?? ?�담?��? ?�고 ?�는 맥락 ??></textarea>
+          <label for="aiNote">상담사 메모 (선택 · 고객에게 안 보임)</label>
+          <textarea id="aiNote" maxlength="500" placeholder="지난 회차 포인트, 상담사가 알고 있는 맥락 등"></textarea>
         </div>
-        <div class="ai-step full"><span class="ai-step-num">3</span><span class="ai-step-title">보는 방식</span><span class="ai-step-sub">?�괘 · 본괘·지�?· ?�택 A/B</span></div>
+        <div class="ai-step full"><span class="ai-step-num">3</span><span class="ai-step-title">보는 방식</span><span class="ai-step-sub">단괘 · 본괘·지괘 · 선택 A/B</span></div>
         <div class="ai-mode-row full" role="tablist" aria-label="리딩 모드">
           <button type="button" class="ai-mode-btn active" id="aiModeSingle" data-mode="single" role="tab" aria-selected="true">
-            <strong>?�괘</strong>
-            <span>??괘로 ?�재 �?��</span>
+            <strong>단괘</strong>
+            <span>한 괘로 현재 국면</span>
           </button>
           <button type="button" class="ai-mode-btn" id="aiModePair" data-mode="pair" role="tab" aria-selected="false">
-            <strong>본괘 · 지�?/strong>
-            <span>?�재 �?�� ???�개·귀�?/span>
+            <strong>본괘 · 지괘</strong>
+            <span>현재 국면 → 전개·귀결</span>
           </button>
           <button type="button" class="ai-mode-btn" id="aiModeChoice" data-mode="choice" role="tab" aria-selected="false">
-            <strong>?�택 A / B</strong>
-            <span>??�??�디가 ?�리?��? 비교</span>
+            <strong>선택 A / B</strong>
+            <span>둘 중 어디가 유리한지 비교</span>
           </button>
         </div>
         <div class="full ai-spread-preset-row" id="aiChoiceNamesRow">
-          <label for="aiOptA">?�택 A</label>
-          <input id="aiOptA" type="text" maxlength="40" placeholder="?? 과목 A · ?�직"/>
-          <label for="aiOptB">?�택 B</label>
-          <input id="aiOptB" type="text" maxlength="40" placeholder="?? 과목 B · ?�직 ?��?"/>
+          <label for="aiOptA">선택 A</label>
+          <input id="aiOptA" type="text" maxlength="40" placeholder="예: 과목 A · 이직"/>
+          <label for="aiOptB">선택 B</label>
+          <input id="aiOptB" type="text" maxlength="40" placeholder="예: 과목 B · 현직 유지"/>
         </div>
-        <div class="ai-step full"><span class="ai-step-num">4</span><span class="ai-step-title">�?/span><span class="ai-step-sub">번호·�??�름 검??· 번호??· 무작??뽑기</span></div>
+        <div class="ai-step full"><span class="ai-step-num">4</span><span class="ai-step-title">괘</span><span class="ai-step-sub">번호·괘 이름 검색 · 번호표 · 무작위 뽑기</span></div>
         <div class="full">
-          <label>주역 �?<span class="lbl-sub">1~64�?· 문왕 ?�서</span></label>
-          <p class="ai-card-hint" id="aiCardHint">번호??�??�름?�로 검?�하거나 ?�래 번호?��? ?�러 ?�어 주세?? ?�괘·본괘?�서 변?��? ?�으�?체크??주세??</p>
+          <label>주역 괘 <span class="lbl-sub">1~64번 · 문왕 순서</span></label>
+          <p class="ai-card-hint" id="aiCardHint">번호나 괘 이름으로 검색하거나 아래 번호표를 눌러 넣어 주세요. 단괘·본괘에서 변효가 있으면 체크해 주세요.</p>
           <div id="aiCardSlots" class="ai-card-slots"></div>
           <div class="yao-panel" id="aiYaoPanel">
-            <div class="yao-panel-title">변??<span class="lbl-sub">?�직인 ??· ?�택</span></div>
-            <p class="yao-panel-hint">?�래?�서 ?�로 1?��???6?�예?? ?�직인 ?�만 체크?�고, ?�으�?비워 ?�세?? 비워 ?�면 본괘·지�?구조만으�??�석?�요.<br><strong>주역 ?�로카?�로 뽑았?�면</strong> 카드?�는 괘만 ?�오??변?�는 체크?��? 마세??</p>
-            <div class="yao-checks" id="aiYaoChecks" role="group" aria-label="변???�택"></div>
+            <div class="yao-panel-title">변효 <span class="lbl-sub">움직인 효 · 선택</span></div>
+            <p class="yao-panel-hint">아래에서 위로 1효부터 6효예요. 움직인 효만 체크하고, 없으면 비워 두세요. 비워 두면 본괘·지괘 구조만으로 해석해요.<br><strong>주역 타로카드로 뽑았다면</strong> 카드에는 괘만 나오니 변효는 체크하지 마세요.</p>
+            <div class="yao-checks" id="aiYaoChecks" role="group" aria-label="변효 선택"></div>
           </div>
           <div class="leno-pick-panel">
-            <p class="ai-card-hint">번호?��? ?�르�?<strong>?�택??�?/strong>???�어가??</p>
-            <div id="aiLenoGrid" class="num-table-grid" role="listbox" aria-label="주역 64�?번호??></div>
+            <p class="ai-card-hint">번호표를 누르면 <strong>선택한 칸</strong>에 들어가요.</p>
+            <div id="aiLenoGrid" class="num-table-grid" role="listbox" aria-label="주역 64괘 번호표"></div>
           </div>
         </div>
         <div class="full ai-draft-actions">
-          <button type="button" class="btn-sm outline" id="aiDrawBtn" onclick="return window.__ichingDrawAll&&window.__ichingDrawAll()">?�덤 뽑기</button>
-          <button type="submit" class="btn-sm" id="aiDraftBtn">?�석 ?�성</button>
-          <span class="ai-draft-quota ai-credit-pill" id="aiCreditHint">?�번 리딩 <b>1</b> ?�레??/span>
+          <button type="button" class="btn-sm outline" id="aiDrawBtn" onclick="return window.__ichingDrawAll&&window.__ichingDrawAll()">랜덤 뽑기</button>
+          <button type="submit" class="btn-sm" id="aiDraftBtn">해석 생성</button>
+          <span class="ai-draft-quota ai-credit-pill" id="aiCreditHint">이번 리딩 <b>1</b> 크레딧</span>
           <button type="button" class="btn-sm outline" id="aiCopyBtn" style="display:none;">복사</button>
           <span class="ai-draft-quota" id="aiDraftQuota" hidden></span>
         </div>
       </form>
-      <p class="ai-preview-label" id="aiPreviewLabel" hidden>뽑힌 �?/p>
+      <p class="ai-preview-label" id="aiPreviewLabel" hidden>뽑힌 괘</p>
       <div id="aiCardPreview" class="ai-card-preview" aria-live="polite"></div>
-      <div id="aiDraftOut" class="ai-draft-out is-empty">질문???�고 괘�? ?�한 ???�석???�성??보세??</div>
+      <div id="aiDraftOut" class="ai-draft-out is-empty">질문을 넣고 괘를 정한 뒤 해석을 생성해 보세요.</div>
       <p id="aiDraftMsg" class="ai-draft-msg"></p>
     </div>
   </div>
@@ -380,14 +380,14 @@
   let clientRows = [];
   let sessionRows = [];
 
-  const SINGLE_SPREAD = { labels: ['본괘'], title: '?�괘' };
-  const PAIR_SPREAD = { labels: ['본괘', '지�?], title: '본괘 · 지�? };
-  const CHOICE_SPREAD = { labels: ['?�택 A', '?�택 B'], title: '?�택 A / B' };
+  const SINGLE_SPREAD = { labels: ['본괘'], title: '단괘' };
+  const PAIR_SPREAD = { labels: ['본괘', '지괘'], title: '본괘 · 지괘' };
+  const CHOICE_SPREAD = { labels: ['선택 A', '선택 B'], title: '선택 A / B' };
 
   function parseCardNum(raw) {
     const s = String(raw == null ? '' : raw)
       .trim()
-      .replace(/[�?�?/g, (d) => String.fromCharCode(d.charCodeAt(0) - 65248));
+      .replace(/[０-９]/g, (d) => String.fromCharCode(d.charCodeAt(0) - 65248));
     if (!s) return null;
     const v = Number(s);
     if (!Number.isFinite(v) || !Number.isInteger(v) || v < 1 || v > 64) return null;
@@ -416,7 +416,7 @@
     const sel = document.getElementById('aiClient');
     if (!sel) return;
     const cur = sel.value;
-    sel.innerHTML = '<option value="">??고객 ?�택 ??/option>' +
+    sel.innerHTML = '<option value="">— 고객 선택 —</option>' +
       clientRows.map((c) =>
         '<option value="' + c.id + '">' + escapeHtml(c.display_name || c.legal_name || '고객') +
         (c.birth_date ? ' · ' + escapeHtml(String(c.birth_date)) : '') + '</option>'
@@ -437,7 +437,7 @@
     if (!clientId) { hint.hidden = true; return; }
     const ls = clientLastSession(clientId);
     if (ls.last || ls.topic) {
-      hint.textContent = '최근 ?�담: ' + (ls.last || '??) + (ls.topic ? ' · ' + ls.topic : '');
+      hint.textContent = '최근 상담: ' + (ls.last || '—') + (ls.topic ? ' · ' + ls.topic : '');
       hint.hidden = false;
     } else hint.hidden = true;
   }
@@ -491,7 +491,7 @@
         const badge = document.getElementById('trialBadge');
         if (badge && profile.plan_active_until) {
           const exp = new Date(profile.plan_active_until);
-          badge.textContent = '체험 ?�용 �?· ' + exp.getFullYear() + '??' + (exp.getMonth() + 1) + '??' + exp.getDate() + '?�까지 (기기 최�? 4?�)';
+          badge.textContent = '체험 이용 중 · ' + exp.getFullYear() + '년 ' + (exp.getMonth() + 1) + '월 ' + exp.getDate() + '일까지 (기기 최대 4대)';
           badge.style.display = 'inline-block';
         }
       }
@@ -531,14 +531,14 @@
 
     if (!Deck || Deck.size !== 64) {
       out.classList.remove('is-empty');
-      out.textContent = '주역 �??�보�?불러?��? 못했?�요. ?�이지�??�로고침??주세??';
+      out.textContent = '주역 괘 정보를 불러오지 못했어요. 페이지를 새로고침해 주세요.';
       return;
     }
 
     let mode = 'single';
     let targetSlot = 0;
     let lastText = '';
-    /** @type {Set<number>} 변??1~6 (?�래?�서 ?? */
+    /** @type {Set<number>} 변효 1~6 (아래에서 위) */
     let changingLines = new Set();
     /** @type {{ num: number|null, label: string }[]} */
     let slots = [];
@@ -551,9 +551,9 @@
     }
 
     function yaoLabel(n) {
-      if (n === 1) return '1??�?';
-      if (n === 6) return '6????';
-      return n + '??;
+      if (n === 1) return '1효(초)';
+      if (n === 6) return '6효(상)';
+      return n + '효';
     }
 
     function changingLinesSorted() {
@@ -561,15 +561,15 @@
     }
 
     function changingLinesText() {
-      if (mode === 'choice') return '?�택 A/B 방식 ??변???�이 �??�택??�?구조�?비교';
+      if (mode === 'choice') return '선택 A/B 방식 — 변효 없이 각 선택의 괘 구조만 비교';
       const list = changingLinesSorted();
-      if (!list.length) return '미입??(?�사�?지?�내지 �?�? 본괘·지�?구조로만 ?�석)';
-      return list.map(yaoLabel).join(', ') + ' ???�당 ?�의 변?�·효???�인?��? 본괘/지�??�과?� ?�께 ?�석??�?;
+      if (!list.length) return '미입력 (효사를 지어내지 말 것. 본괘·지괘 구조로만 해석)';
+      return list.map(yaoLabel).join(', ') + ' — 해당 효의 변화·효사 포인트를 본괘/지괘 인과와 함께 해석할 것';
     }
 
     function optionLabels() {
-      const a = (optAEl && optAEl.value || '').trim() || '?�택 A';
-      const b = (optBEl && optBEl.value || '').trim() || '?�택 B';
+      const a = (optAEl && optAEl.value || '').trim() || '선택 A';
+      const b = (optBEl && optBEl.value || '').trim() || '선택 B';
       return { a, b };
     }
 
@@ -602,7 +602,7 @@
       if (mode === 'pair') return { labels: PAIR_SPREAD.labels.slice(), count: 2, title: PAIR_SPREAD.title };
       if (mode === 'choice') {
         const { a, b } = optionLabels();
-        return { labels: [a, b], count: 2, title: '?�택 A / B · ' + a + ' vs ' + b };
+        return { labels: [a, b], count: 2, title: '선택 A / B · ' + a + ' vs ' + b };
       }
       return { labels: SINGLE_SPREAD.labels.slice(), count: 1, title: SINGLE_SPREAD.title };
     }
@@ -632,9 +632,9 @@
       const hint = document.getElementById('aiCardHint');
       if (!hint) return;
       if (mode === 'choice') {
-        hint.innerHTML = '번호??�??�름?�로 검?�하거나 ?�래 번호?��? ?�러 ?�어 주세?? <strong>?�택 A/B</strong>???�택지마다 괘�? ?�나???�고 비교?�요. ??방식?�서??<strong>변?��? ?��? ?�아??/strong>.';
+        hint.innerHTML = '번호나 괘 이름으로 검색하거나 아래 번호표를 눌러 넣어 주세요. <strong>선택 A/B</strong>는 선택지마다 괘를 하나씩 넣고 비교해요. 이 방식에서는 <strong>변효를 쓰지 않아요</strong>.';
       } else {
-        hint.innerHTML = '번호??�??�름?�로 검?�하거나 ?�래 번호?��? ?�러 ?�어 주세?? ?�괘·본괘?�서 변?��? ?�으�??�래?�서 체크??주세?? <strong>주역 ?�로카??/strong>�?뽑았?�면 변?�는 체크?��? 마세??';
+        hint.innerHTML = '번호나 괘 이름으로 검색하거나 아래 번호표를 눌러 넣어 주세요. 단괘·본괘에서 변효가 있으면 아래에서 체크해 주세요. <strong>주역 타로카드</strong>로 뽑았다면 변효는 체크하지 마세요.';
       }
     }
 
@@ -648,10 +648,10 @@
       const qEl = document.getElementById('aiQuestion');
       if (qEl) {
         qEl.placeholder = mode === 'choice'
-          ? '?? A(?�직)?� B(?�직 ?��?) �??�디??무게�??�는 �??�리?��??'
+          ? '예: A(이직)와 B(현직 유지) 중 어디에 무게를 두는 게 유리한가?'
           : mode === 'pair'
-            ? '?? ??관계는 ?�으�??�떻�??�러갈까?'
-            : '?? 지�????�황?�서 밀?�붙???�인가, 기다�??�인가?';
+            ? '예: 이 관계는 앞으로 어떻게 흘러갈까?'
+            : '예: 지금 이 상황에서 밀어붙일 때인가, 기다릴 때인가?';
       }
     }
 
@@ -673,7 +673,7 @@
     function updateCreditHint() {
       if (!creditHintEl) return;
       const n = readFilledCards().length || (mode === 'single' ? 1 : 2);
-      creditHintEl.innerHTML = '?�번 리딩 <b>' + resolveFeature(n).cost + '</b> ?�레??;
+      creditHintEl.innerHTML = '이번 리딩 <b>' + resolveFeature(n).cost + '</b> 크레딧';
     }
 
     function renderPreview() {
@@ -681,13 +681,13 @@
       const labelEl = document.getElementById('aiPreviewLabel');
       if (labelEl) labelEl.hidden = !slots.length;
       previewEl.innerHTML = slots.map((s, i) => {
-        const pos = s.label || ((i + 1) + '�?);
+        const pos = s.label || ((i + 1) + '괘');
         if (s.num == null) {
-          return '<div class="ai-prev-empty">' + escapeHtml(pos) + '<br/>?��?/div>';
+          return '<div class="ai-prev-empty">' + escapeHtml(pos) + '<br/>대기</div>';
         }
         const card = cardFor(s.num);
         return (
-          '<div class="ai-prev-card" data-preview="' + i + '" title="?�릭?�면 ??�??�택">' +
+          '<div class="ai-prev-card" data-preview="' + i + '" title="클릭하면 이 칸 선택">' +
             '<div class="ai-prev-art" style="display:flex;align-items:center;justify-content:center;flex-direction:column;gap:4px;background:linear-gradient(165deg,#2c1f0e,#4a3520)">' +
               '<div style="font-size:28px;font-weight:700;color:#f7f1e6">' + s.num + '</div>' +
               '<div style="font-size:18px;color:#c8a96e">' + escapeHtml(card && card.han ? card.han : '') + '</div>' +
@@ -738,7 +738,7 @@
       if (empty >= 0) targetSlot = empty;
       renderSlots();
       const c = cardFor(n);
-      setAiMsg((c ? c.name : n) + ' ??' + slots[i].label + '???�었?�요.');
+      setAiMsg((c ? c.name : n) + ' → ' + slots[i].label + '에 넣었어요.');
     }
 
     function drawOneSlot(i) {
@@ -748,10 +748,10 @@
         targetSlot = i;
         renderSlots();
         const c = cardFor(slots[i].num);
-        setAiMsg(slots[i].label + '??' + (c ? c.name : slots[i].num) + '??�? 뽑았?�요.');
+        setAiMsg(slots[i].label + '에 ' + (c ? c.name : slots[i].num) + '을(를) 뽑았어요.');
       } catch (err) {
         console.error('[iching] drawOneSlot', err);
-        setAiMsg('??칸을 뽑�? 못했?�요. ?�로고침?????�시 ?�도??주세??', true);
+        setAiMsg('이 칸을 뽑지 못했어요. 새로고침한 뒤 다시 시도해 주세요.', true);
       }
     }
 
@@ -764,7 +764,7 @@
       const kwEl = root && root.querySelector('.slot-kw');
       const card = n != null ? cardFor(n) : null;
       if (searchInp && document.activeElement !== searchInp) searchInp.value = card ? cardLabel(card) : '';
-      if (kwEl) kwEl.textContent = card ? card.keywords : '번호 · ?�름 검??· 뽑기 · 번호??;
+      if (kwEl) kwEl.textContent = card ? card.keywords : '번호 · 이름 검색 · 뽑기 · 번호표';
       renderPreview();
       renderGrid();
       updateCreditHint();
@@ -774,25 +774,25 @@
       slotsEl.setAttribute('data-count', String(slots.length));
       slotsEl.innerHTML = slots.map((s, i) => {
         const card = s.num != null ? cardFor(s.num) : null;
-        const kw = card ? card.keywords : '번호 · ?�름 검??· 뽑기 · 번호??;
+        const kw = card ? card.keywords : '번호 · 이름 검색 · 뽑기 · 번호표';
         return (
           '<div class="ai-card-slot' + (i === targetSlot ? ' is-target' : '') + '" data-i="' + i + '">' +
-            '<h4>?��??? + (i === targetSlot ? ' · ?�택 �? : '') + '</h4>' +
+            '<h4>포지션' + (i === targetSlot ? ' · 선택 중' : '') + '</h4>' +
             '<input type="text" class="slot-pos" maxlength="40" data-label="' + i + '" value="' +
-              escapeHtml(s.label || ((i + 1) + '�?)) + '" placeholder="??�� (?? 본괘)" aria-label="�???��"/>' +
+              escapeHtml(s.label || ((i + 1) + '괘')) + '" placeholder="역할 (예: 본괘)" aria-label="괘 역할"/>' +
             '<div class="slot-row">' +
               '<input type="number" min="1" max="64" inputmode="numeric" placeholder="번호" ' +
-                'aria-label="�?번호" value="' + (s.num != null ? s.num : '') + '" data-num="' + i + '"/>' +
+                'aria-label="괘 번호" value="' + (s.num != null ? s.num : '') + '" data-num="' + i + '"/>' +
             '</div>' +
             '<div class="slot-search-wrap">' +
               '<input type="search" data-search="' + i + '" autocomplete="off" spellcheck="false" ' +
-                'placeholder="?? 중천�?· �?· ?? aria-label="�?검?? value="' +
+                'placeholder="예: 중천건 · 泰 · 태" aria-label="괘 검색" value="' +
                 escapeHtml(card ? cardLabel(card) : '') + '"/>' +
               '<div class="slot-suggest" data-suggest="' + i + '" hidden></div>' +
             '</div>' +
             '<div class="slot-tools">' +
-              '<button type="button" data-draw-one="' + i + '" onclick="return window.__ichingDrawOne&&window.__ichingDrawOne(' + i + ')">??�?뽑기</button>' +
-              '<button type="button" data-clear-one="' + i + '" onclick="return window.__ichingClearOne&&window.__ichingClearOne(' + i + ')">비우�?/button>' +
+              '<button type="button" data-draw-one="' + i + '" onclick="return window.__ichingDrawOne&&window.__ichingDrawOne(' + i + ')">이 칸 뽑기</button>' +
+              '<button type="button" data-clear-one="' + i + '" onclick="return window.__ichingClearOne&&window.__ichingClearOne(' + i + ')">비우기</button>' +
             '</div>' +
             '<div class="slot-kw">' + escapeHtml(kw) + '</div>' +
           '</div>'
@@ -815,7 +815,7 @@
           activeIdx = hits.length ? 0 : -1;
           if (!suggest) return;
           if (!hits.length) {
-            suggest.innerHTML = '<button type="button" disabled style="color:var(--muted);cursor:default">결과 ?�음 · �?/ �?/ �?/button>';
+            suggest.innerHTML = '<button type="button" disabled style="color:var(--muted);cursor:default">결과 없음 · 건 / 곤 / 泰</button>';
             suggest.hidden = false;
             return;
           }
@@ -837,7 +837,7 @@
           const raw = String(q || '').trim();
           if (!raw) return false;
           const n = parseCardNum(raw);
-          if (n != null && /^\d{1,2}$/.test(raw.replace(/[�?�?/g, (d) => String.fromCharCode(d.charCodeAt(0) - 65248)))) {
+          if (n != null && /^\d{1,2}$/.test(raw.replace(/[０-９]/g, (d) => String.fromCharCode(d.charCodeAt(0) - 65248)))) {
             applyCard(n, i); return true;
           }
           if (activeIdx >= 0 && lastHits[activeIdx]) { applyCard(lastHits[activeIdx].num, i); return true; }
@@ -880,7 +880,7 @@
             e.preventDefault();
             if (!tryCommit(inp.value)) {
               renderSuggest(Deck.search(inp.value, 12));
-              setAiMsg('?�보가 ?�러 개예?? 목록?�서 골라 주세??', true);
+              setAiMsg('후보가 여러 개예요. 목록에서 골라 주세요.', true);
             }
           } else if (e.key === 'Escape') hideSuggest();
         });
@@ -892,7 +892,7 @@
         });
       });
 
-      // ?��?AI?� ?�일: ?�렌?�마??직접 바인??(dataset.bound ?�임?� ?�초기화 ???�길 ???�음)
+      // 타로 AI와 동일: 재렌더마다 직접 바인딩 (dataset.bound 위임은 재초기화 시 끊길 수 있음)
       slotsEl.querySelectorAll('[data-draw-one]').forEach((btn) => {
         btn.addEventListener('click', (e) => {
           e.preventDefault();
@@ -909,7 +909,7 @@
           slots[i].num = null;
           targetSlot = i;
           renderSlots();
-          setAiMsg((slots[i].label || (i + 1) + '�?) + '�?비웠?�요.');
+          setAiMsg((slots[i].label || (i + 1) + '괘') + '를 비웠어요.');
         });
       });
       slotsEl.querySelectorAll('[data-num]').forEach((inp) => {
@@ -975,10 +975,10 @@
         });
         targetSlot = 0;
         renderSlots();
-        setAiMsg(slots.length + '�?괘�? 무작?�로 뽑았?�요.');
+        setAiMsg(slots.length + '개 괘를 무작위로 뽑았어요.');
       } catch (err) {
         console.error('[iching] drawRandom', err);
-        setAiMsg('무작??뽑기�??��? 못했?�요. ?�로고침?????�시 ?�도??주세??', true);
+        setAiMsg('무작위 뽑기를 하지 못했어요. 새로고침한 뒤 다시 시도해 주세요.', true);
       }
     }
 
@@ -1002,7 +1002,7 @@
       const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
       if (!SpeechRec) {
         btn.disabled = true;
-        if (hint) hint.textContent = '??브라?��??�서???�성 ?�력???????�어??';
+        if (hint) hint.textContent = '이 브라우저에서는 음성 입력을 쓸 수 없어요.';
         return;
       }
       let recog = null;
@@ -1011,7 +1011,7 @@
       function setListening(on) {
         listening = !!on;
         btn.classList.toggle('is-listening', listening);
-        btn.textContent = listening ? '???�는 중�? : '?�� ?�성 ?�력';
+        btn.textContent = listening ? '⏹ 듣는 중…' : '🎤 음성 입력';
       }
       function stopVoice() {
         if (recog) { try { recog.stop(); } catch (_) {} try { recog.abort(); } catch (_) {} }
@@ -1036,7 +1036,7 @@
           }
           qEl.value = (sessionPrefix + finals + interim).replace(/\s+/g, ' ').trim().slice(0, 800);
         };
-        try { recog.start(); } catch (_) { setAiMsg('?�성 ?�력???�작?????�어??', true); }
+        try { recog.start(); } catch (_) { setAiMsg('음성 입력을 시작할 수 없어요.', true); }
       });
     })();
 
@@ -1070,7 +1070,7 @@
       slots[i].num = null;
       targetSlot = i;
       renderSlots();
-      setAiMsg((slots[i].label || (i + 1) + '�?) + '�?비웠?�요.');
+      setAiMsg((slots[i].label || (i + 1) + '괘') + '를 비웠어요.');
       return false;
     };
     window.__ichingDrawAll = function () {
@@ -1084,8 +1084,8 @@
         if (!lastText) return;
         try {
           await navigator.clipboard.writeText(lastText);
-          setAiMsg('?�석??복사?�어??');
-        } catch (_) { setAiMsg('복사?��? 못했?�요.', true); }
+          setAiMsg('해석을 복사했어요.');
+        } catch (_) { setAiMsg('복사하지 못했어요.', true); }
       });
     }
 
@@ -1099,17 +1099,17 @@
       const cards = readFilledCards();
       const need = spreadDef().count;
 
-      if (!question) { setAiMsg('질문???�력??주세??', true); return; }
-      if (cards.length < need) { setAiMsg('괘�? ' + need + '�?모두 ?�택??주세??', true); return; }
-      if (cards.length > need) { setAiMsg('괘는 ' + need + '개만 ?�요?�요.', true); return; }
-      if (!window.PaljaAiQuota) { setAiMsg('AI ?�결??준비하지 못했?�요. ?�이지�??�로고침??주세??', true); return; }
+      if (!question) { setAiMsg('질문을 입력해 주세요.', true); return; }
+      if (cards.length < need) { setAiMsg('괘를 ' + need + '개 모두 선택해 주세요.', true); return; }
+      if (cards.length > need) { setAiMsg('괘는 ' + need + '개만 필요해요.', true); return; }
+      if (!window.PaljaAiQuota) { setAiMsg('AI 연결을 준비하지 못했어요. 페이지를 새로고침해 주세요.', true); return; }
 
       const { feature, cost } = resolveFeature(cards.length);
-      const displayName = nickname || (client && (client.display_name || client.legal_name)) || '고객??;
+      const displayName = nickname || (client && (client.display_name || client.legal_name)) || '고객님';
       const ls = client ? clientLastSession(client.id) : { last: '', topic: '' };
       const btn = document.getElementById('aiDraftBtn');
-      if (btn) { btn.disabled = true; btn.textContent = '?�성 중�?; }
-      setAiMsg('?�석??만드??중이?�요??);
+      if (btn) { btn.disabled = true; btn.textContent = '생성 중…'; }
+      setAiMsg('해석을 만드는 중이에요…');
       out.classList.remove('is-empty');
       out.textContent = '';
 
@@ -1133,7 +1133,7 @@
         }),
         spread: { title: spreadDef().title, labels: spreadDef().labels },
         clientMeta: client
-          ? { birthDate: client.birth_date || '미상', lastSession: ls.last || '?�음', lastTopic: ls.topic || '' }
+          ? { birthDate: client.birth_date || '미상', lastSession: ls.last || '없음', lastTopic: ls.topic || '' }
           : null,
       };
 
@@ -1173,32 +1173,32 @@
         }
         lastText = streamed;
         if (window.PaljaAiReadingFormat) {
-          PaljaAiReadingFormat.setReadingOutput(out, lastText || '?�석??만들지 못했?�요.', { empty: !lastText });
+          PaljaAiReadingFormat.setReadingOutput(out, lastText || '해석을 만들지 못했어요.', { empty: !lastText });
         } else {
-          out.textContent = lastText || '?�석??만들지 못했?�요.';
+          out.textContent = lastText || '해석을 만들지 못했어요.';
         }
         if (copyBtn) copyBtn.style.display = lastText ? '' : 'none';
         PaljaAiQuota.applyQuotaBadge(quotaEl, quota);
         setAiMsg(lastText
           ? (streamIncomplete
-            ? '?�결??중간???�겼?�요. 같�? 조건?�로 ?�시 만들??보세??'
+            ? '연결이 중간에 끊겼어요. 같은 조건으로 다시 만들어 보세요.'
             : stopReason === 'max_tokens'
-            ? '?�석??길어???��?분이 ?�렸?????�어??'
-            : '?�석??만들?�어?? ?�듬?�서 복사???�세??')
-          : '?�답??비어 ?�어?? ?�시 ?�도??주세??', !lastText || streamIncomplete);
+            ? '해석이 길어서 뒷부분이 잘렸을 수 있어요.'
+            : '해석을 만들었어요. 다듬어서 복사해 쓰세요.')
+          : '응답이 비어 있어요. 다시 시도해 주세요.', !lastText || streamIncomplete);
       } catch (err) {
         if (err && err.code === 'aborted') {
-          setAiMsg('?�답???�무 ?�래 걸려 멈췄?�요. ?�시 ?�도??주세??', true);
+          setAiMsg('응답이 너무 오래 걸려 멈췄어요. 다시 시도해 주세요.', true);
         } else if (!(out.textContent || '').trim()) {
           out.classList.add('is-empty');
-          out.textContent = '질문???�고 괘�? ?�한 ???�석???�성??보세??';
+          out.textContent = '질문을 넣고 괘를 정한 뒤 해석을 생성해 보세요.';
         }
         if (err && err.quota) PaljaAiQuota.applyQuotaBadge(quotaEl, err.quota);
         if (!(err && err.code === 'aborted')) {
-          setAiMsg((err && err.message) || '?�석??만들지 못했?�요.', true);
+          setAiMsg((err && err.message) || '해석을 만들지 못했어요.', true);
         }
       } finally {
-        if (btn) { btn.disabled = false; btn.textContent = '?�석 ?�성'; }
+        if (btn) { btn.disabled = false; btn.textContent = '해석 생성'; }
       }
     });
 

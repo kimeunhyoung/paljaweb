@@ -332,6 +332,13 @@
   background: var(--tb-parchment);
 }
 
+.site-top .plan-badge.private {
+  border-color: var(--tb-deep-brown);
+  color: var(--tb-deep-brown);
+  background: var(--tb-parchment);
+  border-radius: 20px;
+}
+
 .site-top .back-btn {
   font-size: 12px;
   font-weight: 600;

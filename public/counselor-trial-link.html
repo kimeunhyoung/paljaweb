@@ -4,9 +4,9 @@
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
   <meta name="robots" content="noindex"/>
-  <title>체험 ?�결 ???�자?�구??8CODE</title>
+  <title>체험 연결 — 팔자연구소 8CODE</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css" crossorigin />
-  <link rel="stylesheet" href="css/site-topbar.css?v=9" />
+  <link rel="stylesheet" href="css/site-topbar.css?v=10" />
   <style>
     :root {
       --cream: #f5f0e8;
@@ -121,43 +121,43 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
-<div class="site-top" data-topbar-title="체험 ?�결" data-nav-current="counselor" data-login-next="counselor-trial-link.html"></div>
+<div class="site-top" data-topbar-title="체험 연결" data-nav-current="counselor" data-login-next="counselor-trial-link.html"></div>
 
 <div class="wrap">
-  <div id="guard">로그???�인 중�?/div>
+  <div id="guard">로그인 확인 중…</div>
 
   <div id="mainContent" style="display:none">
-    <h1>Professional 체험 ?�결</h1>
-    <p class="lede">??구매??<a href="/lifecode/buy.html?product=counselor15">로그????결제</a>?�면 계정??바로 ?�결?�니?? ???�이지??<strong>받�? ?�속 코드</strong>(체험·?�스??�??�결?????�용?�세?? ?�용 기간?� 코드???�라 ?�르�? 같�? 계정?�서 <strong>기기 최�? 4?�</strong>까�? 가?�합?�다.</p>
+    <h1>Professional 체험 연결</h1>
+    <p class="lede">새 구매는 <a href="/lifecode/buy.html?product=counselor15">로그인 후 결제</a>하면 계정에 바로 연결됩니다. 이 페이지는 <strong>받은 접속 코드</strong>(체험·테스터)를 연결할 때 사용하세요. 이용 기간은 코드에 따라 다르며, 같은 계정에서 <strong>기기 최대 4대</strong>까지 가능합니다.</p>
 
     <div class="card">
       <div id="formPanel">
         <div class="notice" role="note">
-          <strong>로그??계정 · 기기 최�? 4?�.</strong> ?�결 ????기기가 계정???�록?�니?? ?��? 4?��??�고 ?�으�??�른 기기 ?�제가 ?�요?�니??
+          <strong>로그인 계정 · 기기 최대 4대.</strong> 연결 시 이 기기가 계정에 등록됩니다. 이미 4대를 쓰고 있으면 다른 기기 해제가 필요합니다.
         </div>
         <form id="form" autocomplete="off">
-          <label for="code">?�속 코드</label>
+          <label for="code">접속 코드</label>
           <input id="code" name="code" autocapitalize="characters" placeholder="LC-XXXX-XXXX" required/>
-          <button type="submit" class="btn" id="submitBtn">체험 ?�결?�기</button>
+          <button type="submit" class="btn" id="submitBtn">체험 연결하기</button>
           <p class="msg" id="msg" role="alert"></p>
         </form>
       </div>
       <div class="success-box" id="successBox">
-        <h2>?�결 ?�료</h2>
-        <p id="successText">Professional 체험???�성?�되?�습?�다.</p>
-        <a href="counselor.html">?�담???�브 ?�기 ??/a>
+        <h2>연결 완료</h2>
+        <p id="successText">Professional 체험이 활성화되었습니다.</p>
+        <a href="counselor.html">상담사 허브 열기 →</a>
       </div>
     </div>
 
     <p class="hint">
-      ?�직 체험권이 ?�으?��??? <a href="/lifecode/buy.html?product=counselor15">15??체험 구매</a><br>
-      ??구독?� <a href="pricing.html?checkout=professional">Professional ?�금??/a>?�서 ?�청?????�습?�다.
+      아직 체험권이 없으신가요? <a href="/lifecode/buy.html?product=counselor15">15일 체험 구매</a><br>
+      월 구독은 <a href="pricing.html?checkout=professional">Professional 요금제</a>에서 신청할 수 있습니다.
     </p>
   </div>
 </div>
 
 <script src="js/attribution.js"></script>
-<script src="js/site-topbar.js?v=17" defer></script>
+<script src="js/site-topbar.js?v=18" defer></script>
 <script src="js/topbar-session.js?v=7" defer></script>
 <script>
 (function () {
@@ -219,8 +219,8 @@
   async function boot() {
     if (!window.supabase || typeof supabase.createClient !== 'function') {
       showGuardError(
-        '?�증 모듈??불러?��? 못했?�요.<br><br>' +
-        '<a href="' + loginUrl(qCode || stored) + '" style="color:#4a3520;font-weight:700;">로그?????�시 ?�도</a>'
+        '인증 모듈을 불러오지 못했어요.<br><br>' +
+        '<a href="' + loginUrl(qCode || stored) + '" style="color:#4a3520;font-weight:700;">로그인 후 다시 시도</a>'
       );
       return;
     }
@@ -246,9 +246,9 @@
     } catch (e) {
       console.error('[counselor-trial-link] getSession', e);
       showGuardError(
-        '로그???�태�??�인?��? 못했?�요.<br><br>' +
-        '<a href="' + loginUrl(qCode || codeInput.value.trim()) + '" style="color:#4a3520;font-weight:700;">로그?�하�?/a>' +
-        ' · <a href="javascript:location.reload()" style="color:#4a3520;font-weight:600;">?�로고침</a>'
+        '로그인 상태를 확인하지 못했어요.<br><br>' +
+        '<a href="' + loginUrl(qCode || codeInput.value.trim()) + '" style="color:#4a3520;font-weight:700;">로그인하기</a>' +
+        ' · <a href="javascript:location.reload()" style="color:#4a3520;font-weight:600;">새로고침</a>'
       );
       return;
     }
@@ -256,8 +256,8 @@
     if (!session) {
       location.replace(loginUrl(qCode || codeInput.value.trim()));
       showGuardError(
-        '로그?�이 ?�요?�니?? ?�시 ??로그???�이지�??�동?�니??<br><br>' +
-        '<a href="' + loginUrl(qCode || codeInput.value.trim()) + '" style="color:#4a3520;font-weight:700;">지�?로그??/a>'
+        '로그인이 필요합니다. 잠시 후 로그인 페이지로 이동합니다.<br><br>' +
+        '<a href="' + loginUrl(qCode || codeInput.value.trim()) + '" style="color:#4a3520;font-weight:700;">지금 로그인</a>'
       );
       return;
     }
@@ -289,7 +289,7 @@
         });
         var json = await res.json().catch(function () { return {}; });
         if (!res.ok) {
-          showMsg(json.message || json.error || '?�결???�패?�습?�다.', 'err');
+          showMsg(json.message || json.error || '연결에 실패했습니다.', 'err');
           submitBtn.disabled = false;
           return;
         }
@@ -298,12 +298,12 @@
         successBox.classList.add('is-visible');
         if (json.expiresAt) {
           var exp = new Date(json.expiresAt);
-          var expStr = exp.getFullYear() + '??' + (exp.getMonth() + 1) + '??' + exp.getDate() + '??;
-          successText.textContent = 'Professional ??기능??' + expStr + '까�? ?�용?????�습?�다.';
+          var expStr = exp.getFullYear() + '년 ' + (exp.getMonth() + 1) + '월 ' + exp.getDate() + '일';
+          successText.textContent = 'Professional 전 기능을 ' + expStr + '까지 이용할 수 있습니다.';
         }
       } catch (err) {
         console.error(err);
-        showMsg('?�버???�결?????�습?�다.', 'err');
+        showMsg('서버에 연결할 수 없습니다.', 'err');
         submitBtn.disabled = false;
       }
     });

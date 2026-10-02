@@ -4,17 +4,17 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <link rel="icon" href="/favicon.svg" type="image/svg+xml">
-  <title>?�호 ?�비?????�업명·브?�드 ?�자 계산 | ?�자?�구??8CODE</title>
+  <title>상호 수비학 — 사업명·브랜드 숫자 계산 | 팔자연구소 8CODE</title>
   <meta
     name="description"
-    content="?�호·브랜?�명???�명?�·혼?�수·?�격?��? ?�종�?조화 ?��? 무료�?계산?�니?? ?�조·?�비?�·금?�·벤�????�종 매칭."
+    content="상호·브랜드명의 운명수·혼의수·성격수와 업종별 조화 수를 무료로 계산합니다. 제조·서비스·금융·벤처 등 업종 매칭."
   />
-  <meta name="keywords" content="?�호 ?�비?? ?�업�??�비?? 브랜???�명, ?�호 ?�명, ?�종 조화 ??>
+  <meta name="keywords" content="상호 수비학, 사업명 수비학, 브랜드 작명, 상호 작명, 업종 조화 수">
   <link rel="canonical" href="https://8code.kr/business-numerology.html">
   <meta property="og:type" content="website">
-  <meta property="og:site_name" content="?�자?�구??8CODE">
-  <meta property="og:title" content="?�호 ?�비??| ?�자?�구??8CODE">
-  <meta property="og:description" content="?�업명·브?�드???�자?� ?�종 조화�??�인?�세??">
+  <meta property="og:site_name" content="팔자연구소 8CODE">
+  <meta property="og:title" content="상호 수비학 | 팔자연구소 8CODE">
+  <meta property="og:description" content="사업명·브랜드의 숫자와 업종 조화를 확인하세요.">
   <meta property="og:url" content="https://8code.kr/business-numerology.html">
   <meta property="og:image" content="https://8code.kr/og-share.png">
   <meta property="og:locale" content="ko_KR">
@@ -27,9 +27,9 @@
   <script src="js/attribution.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="js/plan-access.js?v=13"></script>
-  <script src="js/site-topbar.js?v=17" defer></script>
+  <script src="js/site-topbar.js?v=18" defer></script>
   <script src="js/topbar-session.js?v=9" defer></script>
-  <link rel="stylesheet" href="css/site-topbar.css?v=9" />
+  <link rel="stylesheet" href="css/site-topbar.css?v=10" />
   <link rel="stylesheet" href="css/site-header.css?v=8" />
   <link rel="stylesheet" href="css/life-tables.css?v=2" />
   <style>
@@ -181,49 +181,49 @@
   </style>
 </head>
 <body>
-  <div class="site-top" data-topbar-title="?�호·브랜?? data-nav-current="business" data-home-href="index.html"></div>
+  <div class="site-top" data-topbar-title="상호·브랜드" data-nav-current="business" data-home-href="index.html"></div>
 
   <main class="page">
     <header class="hero">
-      <h1>?�호 · 브랜???�비??/h1>
+      <h1>상호 · 브랜드 수비학</h1>
       <p>
-        ?�업명·브?�드???�명?�·혼?�수·?�격?��? ?��?고라?�·한글 ?�모 규칙?�로 계산?�니??
-        ?�자(?? 8CODE)???�면값으�??�현·?�격?�만 ?�하�? ?�의??모음)?�는 ?��? ?�습?�다.
-        Inc./주식?�사 ???�반 ?�기???�외?�니?? ?�종 조화??참고?�이�? ?�명 ?�정???�니??방향 ?��??�입?�다.
+        사업명·브랜드의 운명수·혼의수·성격수를 피타고라스·한글 자모 규칙으로 계산합니다.
+        숫자(예: 8CODE)는 액면값으로 표현·성격에만 더하고, 혼의수(모음)에는 넣지 않습니다.
+        Inc./주식회사 등 일반 표기는 제외합니다. 업종 조화는 참고용이며, 작명 확정이 아니라 방향 점검용입니다.
       </p>
     </header>
 
     <section class="layout">
       <aside class="panel">
-        <h2>?�호 ?�력</h2>
-        <label class="field-label" for="brandInput">?�업�?· 브랜??/label>
-        <input id="brandInput" type="text" placeholder="?? ?�자?�구?? 8CODE Studio" autocomplete="off" />
-        <p class="field-hint">?��?·?�문·?�자 모두 반영. ?�자???�의?��? ?�니???�현·?�격(바깥)???�면값으�??�합?�다.</p>
+        <h2>상호 입력</h2>
+        <label class="field-label" for="brandInput">사업명 · 브랜드</label>
+        <input id="brandInput" type="text" placeholder="예: 팔자연구소, 8CODE Studio" autocomplete="off" />
+        <p class="field-hint">한글·영문·숫자 모두 반영. 숫자는 혼의수가 아니라 표현·성격(바깥)에 액면값으로 더합니다.</p>
         <div class="actions">
-          <button type="button" class="btn btn-primary" id="calcBtn">계산?�기</button>
-          <a class="btn btn-secondary" href="name.html">개인 ?�름(?�임코드)</a>
+          <button type="button" class="btn btn-primary" id="calcBtn">계산하기</button>
+          <a class="btn btn-secondary" href="name.html">개인 이름(네임코드)</a>
         </div>
         <div class="cta-box">
-          ?�현?�·혼?�수·?�격?��? ?�께 보고, ?�?�자 개인 ?��? 맞추?�면
-          <a href="analysis.html">?�이?�코??/a>·<a href="name.html">?�임코드</a>�??�께 보세??
+          표현수·혼의수·성격수를 함께 보고, 대표자 개인 수와 맞추려면
+          <a href="analysis.html">라이프코드</a>·<a href="name.html">네임코드</a>를 함께 보세요.
         </div>
       </aside>
 
       <div>
         <div class="panel" id="emptyState">
-          <div class="empty-state">?�호�??�력?�면<br />?�자?� ?�종 조화가 ?�기???�시?�니??</div>
+          <div class="empty-state">상호를 입력하면<br />숫자와 업종 조화가 여기에 표시됩니다.</div>
         </div>
 
         <div id="resultsBlock" hidden>
           <div class="panel">
-            <h2>?�호 ??/h2>
+            <h2>상호 수</h2>
             <p class="cleaned" id="cleanedLabel"></p>
             <div class="nums-grid" id="numsGrid"></div>
             <div id="industryBox" class="life-tables" style="margin-top:14px"></div>
             <ul class="tips">
-              <li>가�?경영?�면 가�???�?·?�심 ?��???조화???��??�세??</li>
-              <li>?�업?�면 ?�업??모두???�생?�정?�·이�??��? ?�께 봅니??</li>
-              <li>?�종 칩이 켜진 조합???�반?�시 ?�공?�을 ?�하지???�습?�다.</li>
+              <li>가족 경영이면 가족 성(姓)·핵심 수와의 조화도 점검하세요.</li>
+              <li>동업이면 동업자 모두의 인생여정수·이름 수를 함께 봅니다.</li>
+              <li>업종 칩이 켜진 조합이 “반드시 성공”을 뜻하지는 않습니다.</li>
             </ul>
           </div>
         </div>
@@ -231,17 +231,17 @@
     </section>
 
     <section class="panel seo-block">
-      <h2>?�호 ?�비?�이?�?</h2>
+      <h2>상호 수비학이란?</h2>
       <p>
-        ?�호·브랜?�명???�름처럼 ?�자 진동??갖습?�다.
-        ?�업 ?�트 기�??�로 ?�조(2·4·8), ?�비?�·예??2·3·6·9), ?�구(2·7·9), 교육(6·7·9),
-        금융(8·9), 벤처·광고(1·5), 건강(4·7) ?�이 ?�주 맞는 조화 ?�로 ?�리?�니??
+        상호·브랜드명도 이름처럼 숫자 진동을 갖습니다.
+        수업 노트 기준으로 제조(2·4·8), 서비스·예술(2·3·6·9), 연구(2·7·9), 교육(6·7·9),
+        금융(8·9), 벤처·광고(1·5), 건강(4·7) 등이 자주 맞는 조화 수로 정리됩니다.
       </p>
       <p>
-        관??
-        <a href="name.html">?�임코드</a> ·
-        <a href="address-numerology.html">주소 ?�비??/a> ·
-        <a href="analysis.html">?�이?�코??/a>
+        관련:
+        <a href="name.html">네임코드</a> ·
+        <a href="address-numerology.html">주소 수비학</a> ·
+        <a href="analysis.html">라이프코드</a>
       </p>
     </section>
   </main>
