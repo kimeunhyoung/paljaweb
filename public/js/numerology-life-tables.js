@@ -207,7 +207,7 @@
       p.n +
       '</span><div><div class="lt-title">' +
       yearLabel +
-      '개인연수 ' +
+      '개인연도 ' +
       p.n +
       ' · 4가지 영역</div><div class="lt-sub">' +
       esc(p.phase) +

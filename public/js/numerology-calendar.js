@@ -369,7 +369,7 @@ function renderDetail(date, personalYear, personalMonth, personalDay, universalD
     <p class="detail-date">${formatLongDate(date)}</p>
     <div class="metric">
       <div class="metric-item">
-        <div class="metric-label">개인연수</div>
+        <div class="metric-label">개인연도</div>
         <div class="metric-value">${personalYear}</div>
       </div>
       <div class="metric-item">
@@ -430,7 +430,7 @@ function renderCalendar() {
   const birth = parseBirthDate(state.birthDate);
   if (!birth) {
     calendarTitle.textContent = formatYearMonthTitle(state.viewDate);
-    personalYearChip.textContent = "개인연수 -";
+    personalYearChip.textContent = "개인연도 -";
     personalMonthChip.textContent = "개인월수 -";
     calendarDays.innerHTML = "";
     detailPanel.innerHTML = `
@@ -446,7 +446,7 @@ function renderCalendar() {
   const personalMonth = getPersonalMonth(personalYear, month);
 
   calendarTitle.textContent = formatYearMonthTitle(state.viewDate);
-  personalYearChip.textContent = `개인연수 ${personalYear}`;
+  personalYearChip.textContent = `개인연도 ${personalYear}`;
   personalMonthChip.textContent = `개인월수 ${personalMonth}`;
 
   const cells = getMonthCellDates(state.viewDate);
@@ -517,7 +517,7 @@ function applyCalendarPlanGate() {
     <div class="text-card" style="margin-top:12px;">
       <strong style="display:block;margin-bottom:8px;">여기서 확인할 수 있는 것</strong>
       <ul style="margin:0;padding-left:18px;color:var(--muted);line-height:1.7;">
-        <li>월간 수비학 달력 · 개인연수/월수/일수</li>
+        <li>월간 수비학 달력 · 개인연도/월수/일수</li>
         <li>날짜별 에너지 가이드 (DO / DON'T)</li>
         <li><strong style="color:var(--ink);">오늘의 운세</strong> — AI 맞춤 해석 (연애·일·금전)</li>
         <li>AI 이번 달 흐름</li>

@@ -51,6 +51,14 @@
       overflow-x: hidden;
     }
 
+    /* 상단 메뉴는 메인과 동일한 UI 폰트(세리프 본문 상속 차단) */
+    .site-chrome,
+    .site-chrome button,
+    .site-chrome a,
+    .site-chrome summary {
+      font-family: var(--font-ui, "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, system-ui, "Noto Sans KR", sans-serif);
+    }
+
     /* ── AUTH GUARD ── */
     #auth-guard {
       position: fixed; inset: 0;

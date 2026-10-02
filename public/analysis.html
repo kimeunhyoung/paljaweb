@@ -3963,6 +3963,45 @@
       padding-left: 12px;
       padding-right: 12px;
     }
+
+    /* ── 라이프코드 가독성 개선 (2026-10) ── */
+    body { font-variant-numeric: lining-nums; font-feature-settings: "lnum" 1; }
+    #resultArea, .lc-reading-guide { --muted: #74604b; }
+    .num-card-bg { display: none !important; }
+    .num-card-value .pre-sum { display: inline-block; font-family: var(--font-body); font-size: 12px !important; font-weight: 500; color: var(--muted); vertical-align: middle; margin-left: 6px; }
+    .lc-at-a-glance-kicker { font-size: 12px; color: var(--warm-brown); }
+    .lc-glance-hero { display: flex; align-items: center; gap: 18px; flex-wrap: wrap; background: var(--deep-brown); color: #fff; border-radius: 12px; padding: 16px 20px; margin-bottom: 14px; }
+    .lc-glance-hero-num { font-family: var(--font-serif); font-size: 54px; font-weight: 700; line-height: 1; color: #f0dfbc; min-width: 1.3em; text-align: center; }
+    .lc-glance-hero-num small { font-size: .42em; font-weight: 600; opacity: .7; margin-left: 2px; }
+    .lc-glance-hero-meta { display: flex; flex-direction: column; gap: 4px; flex: 1 1 220px; min-width: 0; }
+    .lc-glance-hero-label { font-size: 12px; font-weight: 700; letter-spacing: .05em; color: var(--accent); }
+    .lc-glance-hero-label em { font-style: normal; font-weight: 500; color: rgba(255,255,255,.6); margin-left: 4px; }
+    .lc-glance-hero-title { font-size: 19px; font-weight: 700; color: #fff; }
+    .lc-glance-hero-kw { font-size: 13px; color: rgba(255,255,255,.8); }
+    .lc-glance-hero-zodiac { display: flex; flex-direction: column; align-items: flex-end; gap: 2px; padding-left: 16px; border-left: 1px solid rgba(255,255,255,.2); }
+    .lc-glance-hero-zodiac span { font-size: 11px; color: rgba(255,255,255,.65); }
+    .lc-glance-hero-zodiac b { font-size: 17px; color: #fff; }
+    .lc-glance-group { margin-top: 12px; }
+    .lc-glance-group-label { font-size: 12.5px; font-weight: 700; color: var(--deep-brown); margin: 0 0 7px 2px; }
+    .lc-all-nums-grid--five { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+    @media (max-width: 560px) { .lc-all-nums-grid--five { grid-template-columns: repeat(3, minmax(0, 1fr)); } .lc-glance-hero-zodiac { align-items: flex-start; padding-left: 0; border-left: 0; } }
+    .lc-glance-label { font-size: 12px; font-weight: 600; color: var(--warm-brown); }
+    .lc-glance-value { font-size: 28px; }
+    .lc-glance-sub { font-size: 11px; }
+    .lc-glance-cell--flow, .lc-glance-cell--cycle { background: #fffaf0; }
+    .lc-catalog-fold { margin: 14px 0 0; border: 1px solid rgba(139,111,71,.22); border-radius: 10px; background: rgba(255,255,255,.6); }
+    .lc-catalog-fold > summary { cursor: pointer; padding: 11px 14px; font-size: 13px; font-weight: 600; color: var(--deep-brown); }
+    .lc-catalog-fold[open] > summary { border-bottom: 1px dashed rgba(139,111,71,.3); }
+    .lc-catalog-fold > .lc-reading-guide-catalog { padding: 10px 14px 12px; margin: 0; border: 0; background: transparent; }
+    details.lc-fold { margin: 0 0 12px; }
+    details.lc-fold > summary { cursor: pointer; list-style: none; display: inline-flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 600; color: var(--warm-brown); padding: 6px 12px; border: 1px solid rgba(139,111,71,.28); border-radius: 16px; background: #fff; }
+    details.lc-fold > summary::-webkit-details-marker { display: none; }
+    details.lc-fold > summary::after { content: '▾'; font-size: 11px; }
+    details.lc-fold[open] > summary::after { content: '▴'; }
+    details.lc-fold[open] > summary { margin-bottom: 10px; }
+    details.lc-more > summary { display: flex; width: 100%; justify-content: center; padding: 11px 14px; border-radius: 10px; background: var(--cream); font-size: 13.5px; color: var(--deep-brown); }
+    details.lc-howto:has(> .timeline-bridge:empty) { display: none; }
+    .weekly-table th:nth-child(-n+3), .weekly-table td:nth-child(-n+3) { white-space: nowrap; }
   </style>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css" crossorigin />
   <link rel="stylesheet" href="css/site-topbar.css?v=8" />
@@ -6030,10 +6069,10 @@ window.NUMEROLOGY_DATA = (() => {
 <script src="js/majorCycleMap.js?v=20260508mc"></script>
 <script src="js/numerologyAccordionDetail.js?v=20260506v"></script>
 <script src="js/growthChallengeData.js?v=20260507"></script>
-<script src="js/numerology-life-tables.js?v=6"></script>
+<script src="js/numerology-life-tables.js?v=7"></script>
 <script src="js/period48LifeZones.js?v=20260517p48v6"></script>
-<script src="js/period48Data.js?v=20260517p48v6"></script>
-<script src="js/period48Profiles.js?v=20260517p48v6"></script>
+<script src="js/period48Data.js?v=20261002p48soft"></script>
+<script src="js/period48Profiles.js?v=20261002p48soft"></script>
 <script src="js/period48-compat-matrix.js?v=20260521p48"></script>
 <script src="js/period48-engine.js?v=20260521p48"></script>
 <script src="js/period48-core.js?v=20260521p48"></script>
@@ -7257,12 +7296,12 @@ function renderMonthlyDetailPanel(mo, py) {
     : '';
   return `<div class="accordion open">
     <div class="accordion-header" onclick="this.parentElement.classList.toggle('open')">
-      <h4>✦ ${mo}월 · 퍼스널 먼스 ${pm2}번${masterNumTag(pm2)} · ${TITLE_MAP[pm2] || ''}</h4>
+      <h4>✦ ${mo}월 · 개인월 ${pm2}번${masterNumTag(pm2)} · ${TITLE_MAP[pm2] || ''}</h4>
       <span class="accordion-arrow">▼</span>
     </div>
     <div class="accordion-body">
       <div class="monthly-detail-meta">
-        <span class="monthly-pre-badge">합산전수 ${preSum}</span>
+        <span class="monthly-pre-badge">전합 ${preSum}</span>
         ${kw ? `<span class="monthly-kw-badge">${kw}</span>` : ''}
       </div>
       ${lead}
@@ -7622,7 +7661,7 @@ function buildReadingGuideCatalogInnerHtml() {
       )}
       ${lcReadingGuideCatalogRow(
         lcModuleNav('#monthlySection', '월간 흐름', 'basic'),
-        `선택 연도 안에서 월별 퍼스널 먼스(Personal Month) 리듬.`,
+        `선택 연도 안에서 월별 개인월(Personal Month) 리듬.`,
       )}
       ${lcReadingGuideCatalogRow(
         lcModuleNav('#nav-flow', '현재 흐름', 'basic'),
@@ -8062,43 +8101,133 @@ function renderPyramidRhythmHTML(lifePathSingle, userAge) {
   </div>`;
 }
 
-/** 별자리 → 핵심 수·이름 수 → 올해·이번 달 → 현재 주기 */
+/** 먼저 보는 수: 인생여정수 히어로 → 타고난 수 5칸 → 지금 흐름 5칸 */
+function lcGlanceNumHtml(v) {
+  const t = (v !== undefined && v !== null && v !== '') ? String(v) : '—';
+  const k = t.indexOf('/');
+  return k > 0 ? `${escapeHtml(t.slice(0, k))}<small>/${escapeHtml(t.slice(k + 1))}</small>` : escapeHtml(t);
+}
 function buildLcPriorityAtGlanceHtml(ctx) {
-  let h = '';
-  h += lcNumCell('별자리', ctx.zodiacSign || '—', '', 'lc-glance-cell--zodiac');
-  h += lcNumCell('인생여정수', ctx.lpDisplay ?? ctx.lp, ctx.lpPreLabel != null ? `전합 ${ctx.lpPreLabel}` : (ctx.lpS != null ? `전합 ${ctx.lpS}` : ''));
-  h += lcNumCell('문 넘버', ctx.mn, ctx.mnPre != null ? `전합 ${ctx.mnPre}` : '');
+  const lpVal = ctx.lpDisplay ?? ctx.lp;
+  const deep = (typeof prepExtractDeep === 'function' && typeof DEEP_MAP !== 'undefined') ? prepExtractDeep(DEEP_MAP[ctx.lp]) : { label: '', keywords: '' };
+  const lpPre = ctx.lpPreLabel != null ? ctx.lpPreLabel : ctx.lpS;
+  let h = `<div class="lc-glance-hero">
+      <div class="lc-glance-hero-num">${lcGlanceNumHtml(lpVal)}</div>
+      <div class="lc-glance-hero-meta">
+        <span class="lc-glance-hero-label">인생여정수${lpPre != null ? ` <em>전합 ${escapeHtml(String(lpPre))}</em>` : ''}</span>
+        ${deep.label ? `<span class="lc-glance-hero-title">${escapeHtml(deep.label)}</span>` : ''}
+        ${deep.keywords ? `<span class="lc-glance-hero-kw">${escapeHtml(deep.keywords)}</span>` : ''}
+      </div>
+      ${ctx.zodiacSign ? `<div class="lc-glance-hero-zodiac"><span>별자리</span><b>${escapeHtml(ctx.zodiacSign)}</b></div>` : ''}
+    </div>`;
+  let born = '';
+  born += lcNumCell('문 넘버', ctx.mn, ctx.mnPre != null ? `전합 ${ctx.mnPre}` : '');
   if (ctx.destinySingle != null) {
-    h += lcNumCell('운명수', ctx.destinySingle, ctx.destinyPre != null ? `전합 ${ctx.destinyPre}` : '');
-    h += lcNumCell('혼의수', ctx.soulSingle, ctx.soulPre != null ? `전합 ${ctx.soulPre}` : '');
-    h += lcNumCell('성격수', ctx.personalitySingle, ctx.personalityPre != null ? `전합 ${ctx.personalityPre}` : '');
-    h += lcNumCell('완성수', ctx.maturitySingle, ctx.maturityPre != null ? `전합 ${ctx.maturityPre}` : '');
+    born += lcNumCell('운명수', ctx.destinySingle, ctx.destinyPre != null ? `전합 ${ctx.destinyPre}` : '');
+    born += lcNumCell('혼의수', ctx.soulSingle, ctx.soulPre != null ? `전합 ${ctx.soulPre}` : '');
+    born += lcNumCell('성격수', ctx.personalitySingle, ctx.personalityPre != null ? `전합 ${ctx.personalityPre}` : '');
+    born += lcNumCell('완성수', ctx.maturitySingle, ctx.maturityPre != null ? `전합 ${ctx.maturityPre}` : '');
   } else {
-    h += lcNumCell('운명수', '—', '이름 입력 시');
-    h += lcNumCell('혼의수', '—', '');
-    h += lcNumCell('성격수', '—', '');
-    h += lcNumCell('완성수', '—', '');
+    born += lcNumCell('운명수', '—', '이름 입력 시');
+    born += lcNumCell('혼의수', '—', '');
+    born += lcNumCell('성격수', '—', '');
+    born += lcNumCell('완성수', '—', '');
   }
+  let now = '';
   if (ctx.flowLocked) {
-    h += lcNumCellLocked('올해의 수', 'lc-glance-cell--flow');
-    h += lcNumCellLocked('이번 달의 수', 'lc-glance-cell--flow');
+    now += lcNumCellLocked('올해의 수', 'lc-glance-cell--flow');
+    now += lcNumCellLocked('이번 달의 수', 'lc-glance-cell--flow');
   } else {
-    h += lcNumCell('올해의 수', ctx.pyClassic ?? ctx.py, ctx.pyClassicPre != null ? `전합 ${ctx.pyClassicPre}` : '');
-    h += lcNumCell('이번 달의 수', ctx.pm, ctx.pmPre != null ? `전합 ${ctx.pmPre}` : '');
+    now += lcNumCell('올해의 수', ctx.pyClassic ?? ctx.py, ctx.pyClassicPre != null ? `전합 ${ctx.pyClassicPre}` : '', 'lc-glance-cell--flow');
+    now += lcNumCell('이번 달의 수', ctx.pm, ctx.pmPre != null ? `전합 ${ctx.pmPre}` : '', 'lc-glance-cell--flow');
   }
   if (ctx.majorNum != null && ctx.pinnacle != null && ctx.challenge != null) {
     if (ctx.cycleLocked) {
-      h += lcNumCellLocked('대주기', 'lc-glance-cell--cycle');
-      h += lcNumCellLocked('절정수', 'lc-glance-cell--cycle');
-      h += lcNumCellLocked('도전수', 'lc-glance-cell--cycle');
+      now += lcNumCellLocked('대주기', 'lc-glance-cell--cycle');
+      now += lcNumCellLocked('절정수', 'lc-glance-cell--cycle');
+      now += lcNumCellLocked('도전수', 'lc-glance-cell--cycle');
     } else {
-      h += lcNumCell('대주기', ctx.majorNum, ctx.majorSub || '', 'lc-glance-cell--cycle');
-      h += lcNumCell('절정수', ctx.pinnacle, ctx.stageSub || '', 'lc-glance-cell--cycle');
-      h += lcNumCell('도전수', ctx.challenge, '현재 구간', 'lc-glance-cell--cycle');
+      now += lcNumCell('대주기', ctx.majorNum, ctx.majorSub || '', 'lc-glance-cell--cycle');
+      now += lcNumCell('절정수', ctx.pinnacle, ctx.stageSub || '', 'lc-glance-cell--cycle');
+      now += lcNumCell('도전수', ctx.challenge, '현재 구간', 'lc-glance-cell--cycle');
     }
   }
+  h += `<div class="lc-glance-group"><div class="lc-glance-group-label">타고난 수</div><div class="lc-all-nums-grid lc-all-nums-grid--five">${born}</div></div>`;
+  h += `<div class="lc-glance-group"><div class="lc-glance-group-label">지금 흐름</div><div class="lc-all-nums-grid lc-all-nums-grid--five">${now}</div></div>`;
   return h;
 }
+
+
+/** 화면 전용 접기: 계산법 안내는 "읽는 법"으로, 긴 상세는 "자세히"로 접는다. (PDF 클론은 details를 모두 펼쳐 출력) */
+function lcWrapFold(el, cls, summaryHtml, open) {
+  if (!el || !el.parentNode) return null;
+  if (el.parentElement && el.parentElement.closest('details.lc-fold')) return null;
+  const d = document.createElement('details');
+  d.className = 'lc-fold ' + cls;
+  if (open) d.open = true;
+  const sm = document.createElement('summary');
+  sm.innerHTML = summaryHtml;
+  el.parentNode.insertBefore(d, el);
+  d.appendChild(sm);
+  d.appendChild(el);
+  return d;
+}
+function lcWrapFoldGroup(nodes, cls, summaryHtml) {
+  const list = nodes.filter(Boolean);
+  if (!list.length) return null;
+  const first = list[0];
+  if (first.parentElement && first.parentElement.closest('details.lc-fold')) return null;
+  const d = document.createElement('details');
+  d.className = 'lc-fold ' + cls;
+  const sm = document.createElement('summary');
+  sm.innerHTML = summaryHtml;
+  first.parentNode.insertBefore(d, first);
+  d.appendChild(sm);
+  list.forEach((n) => d.appendChild(n));
+  return d;
+}
+function applyLcFolds() {
+  const root = document.getElementById('resultArea');
+  if (!root) return;
+  // 1) 계산법 안내(청록 박스) → ⓘ 읽는 법 (인생 4단계의 "지금 위치" 안내는 그대로 노출)
+  root.querySelectorAll('.timeline-bridge').forEach((b) => {
+    if (b.closest('#nav-life-four')) return;
+    lcWrapFold(b, 'lc-howto', 'ⓘ 이 섹션 읽는 법', false);
+  });
+  // 2) 48주기 성격학: 상단 요약만 보이고 해설은 접기
+  const p48 = root.querySelector('#period48Content .period48-card');
+  if (p48) {
+    const tags = p48.querySelector(':scope > .period48-block--tags');
+    const intro = p48.querySelector(':scope > .period48-block--intro');
+    if (tags && intro && !intro.closest('details.lc-fold')) p48.insertBefore(tags, intro);
+    lcWrapFoldGroup([
+      p48.querySelector(':scope > .period48-block--intro'),
+      p48.querySelector(':scope > .period48-block--reading'),
+      p48.querySelector(':scope > .period48-engine-note'),
+      p48.querySelector(':scope > .period48-source'),
+    ], 'lc-more', '자세히 읽기 · 기질 · 강점 · 주의할 패턴 · 핵심 과제');
+  }
+  // 3) 100년 개인연도 표
+  const life = root.querySelector('#classicLifeChart');
+  if (life) lcWrapFold(life, 'lc-more', '인생 전반 100년 표 펼치기', false);
+  // 4) 성장 지도: 보완·심화 패널 접기
+  const gb = root.querySelector('#growthContent .growth-board');
+  if (gb) {
+    lcWrapFoldGroup(Array.from(gb.querySelectorAll(':scope > .growth-panel')), 'lc-more', '이름으로 보완되는 숫자 · 시간을 두고 키울 영역');
+  }
+}
+// 인쇄할 때는 접힌 내용을 모두 펼쳤다가 원래대로
+(function () {
+  let reopened = [];
+  window.addEventListener('beforeprint', () => {
+    reopened = Array.from(document.querySelectorAll('#resultArea details:not([open])'));
+    reopened.forEach((d) => { d.open = true; });
+  });
+  window.addEventListener('afterprint', () => {
+    reopened.forEach((d) => { d.open = false; });
+    reopened = [];
+  });
+})();
 
 function renderAnalysisReadingGuide(ctx) {
   const host = document.getElementById('analysisReadingGuide');
@@ -8106,12 +8235,15 @@ function renderAnalysisReadingGuide(ctx) {
   const grid = buildLcPriorityAtGlanceHtml(ctx);
   host.innerHTML = `<div class="lc-reading-guide">
     <div id="nav-at-a-glance" class="lc-at-a-glance" aria-label="먼저 보는 수 · 별자리 · 현재 주기">
-      <div class="lc-at-a-glance-kicker">먼저 보는 수 · 별자리 · 지금 주기</div>
-      <div class="lc-all-nums-grid lc-all-nums-grid--strip">${grid}</div>
+      <div class="lc-at-a-glance-kicker">먼저 보는 수</div>
+      ${grid}
     </div>
-    <div class="lc-reading-guide-catalog" role="navigation" aria-label="이 페이지 섹션 안내">
-      ${buildReadingGuideCatalogInnerHtml()}
-    </div>
+    <details class="lc-catalog-fold">
+      <summary>전체 목차 · 섹션 바로가기</summary>
+      <div class="lc-reading-guide-catalog" role="navigation" aria-label="이 페이지 섹션 안내">
+        ${buildReadingGuideCatalogInnerHtml()}
+      </div>
+    </details>
   </div>`;
 }
 
@@ -8292,7 +8424,7 @@ function buildPeriod48FinalLayout(p) {
     </section>` : '';
 
   const strengthLabel = p.strengthSectionLabel || '빛의 영역 (Strengths & Talents)';
-  const weaknessLabel = p.weaknessSectionLabel || '그림자의 영역 (Weaknesses & Shadows)';
+  const weaknessLabel = p.weaknessSectionLabel || '주의할 패턴 (이렇게 흐를 때)';
   const block5 = `
     <section class="period48-block period48-block--reading">
       ${p.temperament ? `
@@ -8780,7 +8912,7 @@ async function runAnalysis() {
   document.getElementById('coreGrid').innerHTML = coreItems.map(c=>`
     <div class="num-card${c.wide ? ' wide' : ''}">
       <div class="num-card-label">${c.label}</div>
-      <div class="num-card-value">${c.noNum ? c.value : `${c.valueDisplay ?? c.value}${c.pre ? ` <span class="pre-sum">(합산전수: ${c.pre})</span>` : ''}`}</div>
+      <div class="num-card-value">${c.noNum ? c.value : `${c.valueDisplay ?? c.value}${c.pre ? ` <span class="pre-sum">전합 ${c.pre}</span>` : ''}`}</div>
       <div class="num-card-title">${c.noNum ? (c.desc.split('<br>')[0]||'') : (c.title != null ? c.title : (TITLE_MAP[c.value]||''))}</div>
       <div class="num-card-bg">${c.noNum ? '' : c.value}</div>
     </div>`).join('');
@@ -8789,7 +8921,7 @@ async function runAnalysis() {
     document.getElementById('coreAccordion').innerHTML = coreItems.map((c) => {
       const accRich = c.accBody != null ? c.accBody : c.desc;
       if(c.noNum) return accordion(`✦ ${c.label}${c.signName ? ` · ${c.signName}` : ''}`, accRich, false);
-      const preText = c.pre ? ` (합산전수: ${c.pre})` : '';
+      const preText = c.pre ? ` · 전합 ${c.pre}` : '';
       return accordion(`✦ ${c.label} ${c.valueDisplay ?? c.value}번${preText}`, accRich || '', false);
     }).join('');
   } else {
@@ -8798,7 +8930,7 @@ async function runAnalysis() {
     let freeAcc = '';
     if (first) {
       const firstBody = (first.accBody != null ? first.accBody : first.desc) || '';
-      const prePart = first.pre ? ` (합산전수: ${first.pre})` : '';
+      const prePart = first.pre ? ` · 전합 ${first.pre}` : '';
       freeAcc = accordion(`✦ ${first.label} ${first.valueDisplay ?? first.value}번${prePart} · 무료 공개`, firstBody, true);
     }
     document.getElementById('coreAccordion').innerHTML =
@@ -9058,7 +9190,7 @@ async function runAnalysis() {
       </div>`;
     }
     const monthlyBridge = `<div class="timeline-bridge">
-      <p>각 칸은 <strong>수비학 개인연도(${pyClassic}번)</strong>에 그 달의 월 숫자(1~12)를 더해 줄인 <strong>퍼스널 먼스</strong>입니다. 칸을 누르면 아래에 그 달 해석이 펼쳐집니다.</p>
+      <p>각 칸은 <strong>수비학 개인연도(${pyClassic}번)</strong>에 그 달의 월 숫자(1~12)를 더해 줄인 <strong>개인월</strong>입니다. 칸을 누르면 아래에 그 달 해석이 펼쳐집니다.</p>
     </div>`;
     const detail = renderMonthlyDetailPanel(curM, pyClassic);
     document.getElementById('monthlyContent').innerHTML = `${monthlyBridge}<div class="monthly-board"><div class="monthly-grid">${cells}</div></div><div id="monthlyDetail">${detail}</div>`;
@@ -9524,6 +9656,7 @@ async function runAnalysis() {
     } catch (e) { console.error('prep card', e); }
   }
 
+  try { applyLcFolds(); } catch (e) { console.error('lc folds', e); }
   document.getElementById('resultArea').style.display='block';
   document.getElementById('resultArea').scrollIntoView({behavior:'smooth'});
   showAnalysisJumpNav(true);
