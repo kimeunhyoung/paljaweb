@@ -54,8 +54,7 @@
     { crossorigin: 'anonymous' }
   );
   ensureLink('/css/site-topbar.css?v=11');
-  ensureLink('/css/site-footer.css?v=2');
-  ensureLink('/css/site-header.css?v=7');
+  ensureLink('/css/site-footer.css?v=3');  ensureLink('/css/site-header.css?v=7');
 
   function isGuide() {
     return path.indexOf('/guide') === 0 || /\/guide(\/|\.html|$)/.test(path);
@@ -103,8 +102,7 @@
   }
 
   ensureScript('/js/plan-access.js?v=13');
-  ensureScript('/js/site-footer.js?v=2');
-  ensureScript('/js/site-topbar.js?v=19', function () {
+  ensureScript('/js/site-footer.js?v=3');  ensureScript('/js/site-topbar.js?v=20', function () {
     ensureScript('/js/topbar-session.js?v=9');
   });
 })();

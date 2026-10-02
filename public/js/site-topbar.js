@@ -346,6 +346,13 @@
   }
 
   function ensureSiteFooter() {
+    // 푸터 CSS를 스크립트보다 먼저 걸어 FOUC 줄임
+    if (!document.querySelector('link[href*="/css/site-footer.css"]')) {
+      var css = document.createElement('link');
+      css.rel = 'stylesheet';
+      css.href = '/css/site-footer.css?v=3';
+      (document.head || document.documentElement).appendChild(css);
+    }
     function run() {
       if (window.PaljaSiteFooter && typeof window.PaljaSiteFooter.mount === 'function') {
         window.PaljaSiteFooter.mount();
@@ -360,7 +367,7 @@
       return;
     }
     var s = document.createElement('script');
-    s.src = '/js/site-footer.js?v=2';
+    s.src = '/js/site-footer.js?v=3';
     s.defer = true;
     s.setAttribute('data-palja-site-footer', '1');
     s.addEventListener('load', run);

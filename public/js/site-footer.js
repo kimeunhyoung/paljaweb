@@ -4,25 +4,56 @@
  */
 (function (global) {
   var FOOTER_ATTR = 'data-site-footer';
+  var CSS_HREF = '/css/site-footer.css?v=3';
+  var cssReady = null;
 
-  function ensureCss() {
-    var href = '/css/site-footer.css?v=2';
+  function ensureCss(done) {
+    done = typeof done === 'function' ? done : function () {};
     var links = document.querySelectorAll('link[rel="stylesheet"]');
     for (var i = 0; i < links.length; i++) {
       var h = links[i].getAttribute('href') || '';
-      if (h.indexOf('/css/site-footer.css') !== -1) return;
+      if (h.indexOf('/css/site-footer.css') === -1) continue;
+      // 이미 로드됐거나 시트에 반영된 경우
+      try {
+        if (links[i].sheet) {
+          done();
+          return;
+        }
+      } catch (e) {}
+      if (cssReady) {
+        cssReady.then(done);
+        return;
+      }
+      links[i].addEventListener('load', done);
+      links[i].addEventListener('error', done);
+      return;
     }
-    var l = document.createElement('link');
-    l.rel = 'stylesheet';
-    l.href = href;
-    (document.head || document.documentElement).appendChild(l);
+
+    if (cssReady) {
+      cssReady.then(done);
+      return;
+    }
+
+    cssReady = new Promise(function (resolve) {
+      var l = document.createElement('link');
+      l.rel = 'stylesheet';
+      l.href = CSS_HREF;
+      l.onload = function () {
+        resolve();
+      };
+      l.onerror = function () {
+        resolve();
+      };
+      (document.head || document.documentElement).appendChild(l);
+    });
+    cssReady.then(done);
   }
 
   function footerHtml() {
     return (
       '<footer class="site-footer" ' +
       FOOTER_ATTR +
-      '="1">' +
+      '="1" style="visibility:hidden">' +
       '<div class="site-footer-inner">' +
       '<div class="site-footer-top">' +
       '<div class="site-footer-brand">' +
@@ -68,6 +99,11 @@
     }
   }
 
+  function revealFooter(footer) {
+    if (!footer) return;
+    footer.style.visibility = '';
+  }
+
   function mountSiteFooter(options) {
     options = options || {};
     if (document.body && document.body.getAttribute('data-no-site-footer') === '1') return null;
@@ -87,6 +123,7 @@
       }
     }
 
+    // CSS가 오기 전에 깨진 HTML이 보이지 않도록: 숨긴 채 삽입 → CSS 로드 후 표시
     ensureCss();
     if (!options.keepLegacy) removeLegacyFooters();
 
@@ -94,6 +131,13 @@
     wrap.innerHTML = footerHtml();
     var footer = wrap.firstChild;
     (document.body || document.documentElement).appendChild(footer);
+
+    ensureCss(function () {
+      // 한 프레임 양보해서 스타일 적용 후 표시
+      requestAnimationFrame(function () {
+        revealFooter(footer);
+      });
+    });
     return footer;
   }
 
