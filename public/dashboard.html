@@ -1171,7 +1171,7 @@
           <div class="plan-card">
             <div class="plan-name">Current Plan</div>
             <div class="plan-tier">Free</div>
-            <div class="plan-desc" id="plan-desc-block">기본 수비학 분석이 포함됩니다.<br>프리미엄으로 업그레이드하면 전체 리포트와 심층 Growth Map을 이용할 수 있습니다.</div>
+            <div class="plan-desc" id="plan-desc-block">기본 수비학·점성학 체험이 포함됩니다.<br>요금제로 업그레이드하면 심화 해설·달력·Growth Map 등을 이용할 수 있어요.</div>
             <div class="ai-credit-box" id="aiCreditBox">
               <div class="ai-credit-label">이번 달 AI 크레딧</div>
               <div class="ai-credit-value" id="aiCreditValue">—</div>
@@ -1290,9 +1290,8 @@
 
   function onPlanActionClick() {
     const tierText = (document.querySelector('.plan-tier')?.textContent || '').toLowerCase();
-    const tier = tierText;
-    if (tier === 'professional' || tier === 'private') {
-      alert('이미 최고 플랜(Professional)을 이용 중입니다.');
+    if (tierText === 'private') {
+      alert('이미 최고 플랜(Private)을 이용 중입니다.');
       return;
     }
     window.location.href = 'pricing.html';
@@ -1547,6 +1546,13 @@
         basic: 'Basic',
         free: 'Free',
       };
+      const planDescByTier = {
+        free: '기본 수비학·점성학 체험이 포함됩니다.<br>요금제로 업그레이드하면 심화 해설·달력·Growth Map 등을 이용할 수 있어요.',
+        basic: '현재 흐름·월간·7일·수비학 달력·소울하모니 등 Basic 기능을 이용 중입니다.',
+        plus: '네임코드·Growth Map·로슈 격자·PDF·인생전반표 등 Plus 기능을 이용 중입니다.',
+        professional: 'Professional 플랜입니다. Plus 기능과 상담사 허브·고객 CRM을 이용할 수 있어요.',
+        private: 'Private 플랜입니다. Professional 기능에 더해 타로 타임라인·인생리듬·에너지 배경을 이용할 수 있어요.',
+      };
       const planLabel = planLabels[displayPlan] ||
         displayPlan.charAt(0).toUpperCase() + displayPlan.slice(1);
       document.getElementById('user-plan').textContent = planLabel;
@@ -1555,16 +1561,20 @@
       const tierEl = document.querySelector('.plan-tier');
       const upgradeBtn = document.getElementById('upgradeBtn');
       const descEl = document.getElementById('plan-desc-block');
-      if (descEl && !descEl.dataset.baseHtml) {
-        descEl.dataset.baseHtml = descEl.innerHTML;
-      }
+      const baseDesc = planDescByTier[normalizedDisplayPlan] || planDescByTier.free;
+      if (descEl) descEl.dataset.baseHtml = baseDesc;
       if (tierEl) tierEl.textContent = planLabel;
       if (upgradeBtn) {
-        if (isCounselorPlan) {
+        if (normalizedDisplayPlan === 'private') {
           upgradeBtn.textContent = '현재 최고 플랜 사용 중';
           upgradeBtn.disabled = true;
           upgradeBtn.style.opacity = '.7';
           upgradeBtn.style.cursor = 'default';
+        } else if (normalizedDisplayPlan === 'professional') {
+          upgradeBtn.textContent = '요금제 보기 →';
+          upgradeBtn.disabled = false;
+          upgradeBtn.style.opacity = '';
+          upgradeBtn.style.cursor = '';
         } else {
           upgradeBtn.textContent = '플랜 관리 →';
           upgradeBtn.disabled = false;
@@ -1579,17 +1589,17 @@
           ? `${planName} 이용 만료: ${until.toLocaleDateString('ko-KR')}`
           : `${planName} 기간이 지났습니다. 요금제에서 갱신할 수 있어요.`;
         if (descEl) {
-          descEl.innerHTML = descEl.dataset.baseHtml + '<br><br><span style="font-size:12px;color:var(--accent)">' + expText + '</span>';
+          descEl.innerHTML = baseDesc + '<br><br><span style="font-size:12px;color:var(--accent)">' + expText + '</span>';
         }
       } else if (planActive && displayPlan !== 'free' && profileRow?.plan_active_until) {
         const until = new Date(profileRow.plan_active_until);
         if (descEl) {
-          descEl.innerHTML = descEl.dataset.baseHtml + '<br><br><span style="font-size:12px;color:var(--accent)">' +
+          descEl.innerHTML = baseDesc + '<br><br><span style="font-size:12px;color:var(--accent)">' +
             planLabel +
             ' 이용 만료: ' + until.toLocaleDateString('ko-KR') + '</span>';
         }
-      } else if (descEl && descEl.dataset.baseHtml) {
-        descEl.innerHTML = descEl.dataset.baseHtml;
+      } else if (descEl) {
+        descEl.innerHTML = baseDesc;
       }
       if (isCounselorPlan && planActive) {
         /* no-op: 상담사 허브는 사이드바 상시 노출 */
