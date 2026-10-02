@@ -8,7 +8,7 @@ const { registerLifecodeRoutes } = require('./lib/lifecode-api');
 const { registerNaverAuthRoutes } = require('./lib/naver-auth');
 const { registerCounselorPushRoutes, startCounselorPushScheduler } = require('./lib/counselor-push');
 const { registerCounselorTrialRoutes } = require('./lib/counselor-trial');
-const { registerAiUsageRoutes, isAiUpstreamAvailable, kstPeriod, resolveAiCreditLimit, aiUsagePeriod } = require('./lib/ai-usage');
+const { registerAiUsageRoutes, isAiUpstreamAvailable, kstPeriod, resolveAiCreditLimit, aiUsagePeriod, adjustPurchasedBonus, purchasedBonus } = require('./lib/ai-usage');
 const { registerAiOneTimeRoutes } = require('./lib/ai-one-time');
 const { registerSignupNotifyRoutes, providerLabel } = require('./lib/signup-notify');
 const { buildSignupStats } = require('./lib/admin-signup-stats');
@@ -667,6 +667,7 @@ app.get('/api/admin/ai-credits/users', async (req, res) => {
       const email = (authUser?.email || '').toLowerCase();
       const usagePeriod = aiUsagePeriod(p);
       const used = await getAiMonthlyUsed(p.id, usagePeriod);
+      const bonus = purchasedBonus(p);
       const limit = await resolveAiCreditLimit(p);
       return {
         userId: p.id,
@@ -684,6 +685,7 @@ app.get('/api/admin/ai-credits/users', async (req, res) => {
         utmCampaign: p.utm_campaign || '',
         utmTerm: p.utm_term || '',
         used,
+        bonus,
         limit,
         remaining: Math.max(0, limit - used),
       };
@@ -755,20 +757,27 @@ app.post('/api/admin/ai-credits/adjust', async (req, res) => {
   }
   try {
     const profile = await getProfile(userId);
-    const period = String(req.body?.period || '').trim() || aiUsagePeriod(profile || {});
-    const prev = await getAiMonthlyUsed(userId, period);
-    const next = Math.max(0, prev + delta);
-    const saved = await upsertAiMonthlyUsed(userId, period, next);
-    const limit = await resolveAiCreditLimit(profile || {});
+    if (!profile) {
+      res.status(404).json({ error: '프로필을 찾을 수 없어요.' });
+      return;
+    }
+    const period = String(req.body?.period || '').trim() || aiUsagePeriod(profile);
+    const used = await getAiMonthlyUsed(userId, period);
+    // + = 보너스 지급, - = 보너스 회수 (플랜 월 한도와 별개)
+    const bonusResult = await adjustPurchasedBonus(userId, delta);
+    const refreshed = { ...profile, ai_credits_bonus: bonusResult.next };
+    const limit = await resolveAiCreditLimit(refreshed);
     res.json({
       ok: true,
       userId,
       period,
-      previousUsed: prev,
       delta,
-      nextUsed: saved,
+      previousBonus: bonusResult.previous,
+      nextBonus: bonusResult.next,
+      applied: bonusResult.applied,
+      used,
       limit,
-      remaining: Math.max(0, limit - saved),
+      remaining: Math.max(0, limit - used),
       adjustedBy: admin.email,
     });
   } catch (e) {
