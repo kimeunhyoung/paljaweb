@@ -3940,7 +3940,7 @@
       <div class="section-line"></div>
     </div>
     <div class="timeline-bridge">
-      <p>아래 <strong>수비학</strong>과 <strong>타로</strong>로 앞으로 10년을 봅니다. 막대·연도 카드를 누르면 그 해 해석이 펼쳐집니다. <strong>Plus</strong>에서는 수비학 <strong>인생 전반(100년)</strong> 표가 열립니다.</p>
+      <p>아래 <strong>수비학</strong>과 <strong>타로</strong>로 앞으로 10년을 봅니다. 막대·연도 카드를 누르면 그 해 해석이 펼쳐집니다. <strong>Plus</strong>에서는 수비학 <strong>인생 전반(100년)</strong> 표가, <strong>Private</strong>에서는 타로 10년·100년과 인생리듬이 열립니다.</p>
       <p><strong>수비학 개인연도</strong> — 연·월·일을 각각 환원(1~9, 11, 22)한 뒤 더합니다. 9년 주기의 완성·새 출발을 읽습니다.</p>
       <p><strong>타로 올해의 수</strong> — 연도 자릿수합+문 넘버(환원 전 합)을 더해 메이저 아르카나 0~21로 읽습니다. 현재 흐름의 올해의 수와 같습니다.</p>
     </div>
@@ -4495,7 +4495,7 @@ function gateHTML(planRequired, title, desc) {
     return `<div class="feature-gate">
       <div class="gate-icon">🔒</div>
       <div class="gate-title">${title}</div>
-      <div class="gate-desc">${desc}<br><br>초대 회원용 기능입니다.</div>
+      <div class="gate-desc">${desc}<br><br><strong>Private</strong> 플랜 전용입니다. 결제하는 <strong>Professional(상담사)</strong> 플랜과는 별개예요.</div>
     </div>`;
   }
   if (isLifecodeStandalone()) {
@@ -8297,7 +8297,7 @@ async function runAnalysis() {
           const tarotLife = createTarotLifeYearChart({ y, mnPre, curY });
           return { html: tarotLife.html, bind: () => tarotLife.bind(document.getElementById('tarotLifeChart')) };
         })()
-      : { html: '<div class="timeline-life-gate"><p class="timeline-life-gate-note">타로 인생전반표(100년)는 초대 회원용입니다.</p></div>', bind: () => {} };
+      : { html: '<div class="timeline-life-gate"><p class="timeline-life-gate-note">타로 인생전반표(100년)는 <strong>Private</strong> 플랜에서 열립니다.</p></div>', bind: () => {} };
     document.getElementById('timelineContent').innerHTML = `<div class="timeline-dual">
       <section class="timeline-block" id="tlBlockClassic">
         <h3 class="timeline-block-title">수비학 개인연도</h3>

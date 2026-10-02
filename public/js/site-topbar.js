@@ -82,6 +82,7 @@
         { id: 'address', href: '/address-numerology.html', label: '주소·전화' },
         { id: 'business', href: '/business-numerology.html', label: '상호·브랜드' },
         { id: 'name', href: '/name.html', label: '네임코드' },
+        { id: 'wallpaper', href: '/numerology-wallpaper.html', label: '에너지배경' },
       ],
     },
     {
