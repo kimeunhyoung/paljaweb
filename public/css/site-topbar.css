@@ -299,44 +299,41 @@
 
 .site-top .plan-badge {
   font-size: 10px;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.05em;
   text-transform: uppercase;
-  padding: 4px 10px;
-  border-radius: 20px;
-  border: 1px solid var(--tb-border);
+  padding: 5px 11px;
+  border-radius: 999px;
+  border: none;
   color: var(--tb-muted);
   font-weight: 700;
+  line-height: 1.2;
+  box-shadow: none;
 }
 
 .site-top .plan-badge.free {
-  border-color: rgba(139, 111, 71, 0.35);
   color: var(--tb-warm-brown);
-  background: rgba(232, 213, 176, 0.35);
+  background: rgba(232, 213, 176, 0.45);
 }
 
 .site-top .plan-badge.basic {
-  border-color: var(--tb-accent);
   color: var(--tb-warm-brown);
   background: var(--tb-accent-lt);
 }
 
-.site-top .plan-badge.pro {
-  border-color: var(--tb-teal);
+.site-top .plan-badge.pro,
+.site-top .plan-badge.plus {
   color: var(--tb-teal);
   background: var(--tb-teal-lt);
 }
 
 .site-top .plan-badge.professional {
-  border-color: var(--tb-deep-brown);
-  color: var(--tb-deep-brown);
-  background: var(--tb-parchment);
+  color: #f5f0e8;
+  background: var(--tb-deep-brown);
 }
 
 .site-top .plan-badge.private {
-  border-color: var(--tb-deep-brown);
-  color: var(--tb-deep-brown);
-  background: var(--tb-parchment);
-  border-radius: 20px;
+  color: #f5f0e8;
+  background: linear-gradient(135deg, #5a402d 0%, #3d2b1f 100%);
 }
 
 .site-top .back-btn {
