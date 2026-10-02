@@ -37,7 +37,7 @@ nav.pn a.next{text-align:right}
 nav.pn span.sp{flex:1}
 .sub{font-size:14px;margin:14px 0 0;text-align:center}
 .sub a{color:var(--navy)}
-footer{max-width:860px;margin:0 auto;padding:0 16px 40px;font-size:13px;color:#777;text-align:center}
+footer:not(.site-footer){max-width:860px;margin:0 auto;padding:0 16px 40px;font-size:13px;color:#777;text-align:center}
 .part{margin:30px 0 8px;color:var(--navy);font-size:19px;border-bottom:1px solid var(--line);padding-bottom:4px}
 .cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:10px}
 .card{display:block;background:#fff;border:1px solid var(--line);border-radius:8px;padding:10px 12px;color:inherit;text-decoration:none;line-height:1.5}

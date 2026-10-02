@@ -350,7 +350,7 @@
     if (!document.querySelector('link[href*="/css/site-footer.css"]')) {
       var css = document.createElement('link');
       css.rel = 'stylesheet';
-      css.href = '/css/site-footer.css?v=3';
+      css.href = '/css/site-footer.css?v=4';
       (document.head || document.documentElement).appendChild(css);
     }
     function run() {
@@ -367,7 +367,7 @@
       return;
     }
     var s = document.createElement('script');
-    s.src = '/js/site-footer.js?v=3';
+    s.src = '/js/site-footer.js?v=4';
     s.defer = true;
     s.setAttribute('data-palja-site-footer', '1');
     s.addEventListener('load', run);
