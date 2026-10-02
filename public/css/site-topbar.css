@@ -2,12 +2,12 @@
  * 팔자연구소 — 공통 상단 탑바·프로그램 내비
  * 페이지 :root 변수와 충돌하지 않도록 --tb-* 스코프 변수만 사용합니다.
  */
-@import url('https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700&family=Noto+Serif+KR:wght@400;500;600;700&display=swap');
 
 .site-top {
   --tb-cream: #f5f0e8;
   --tb-border: rgba(139, 111, 71, 0.15);
-  --tb-muted: #9a8570;
+  --tb-muted: #8a7a68;
   --tb-deep-brown: #4a3520;
   --tb-warm-brown: #8b6f47;
   --tb-ink: #2c1f0e;
@@ -17,6 +17,8 @@
   --tb-teal-lt: rgba(46, 139, 122, 0.12);
   --tb-parchment: #ede5d4;
   --tb-font-serif: 'Noto Serif KR', serif;
+  /* 메인 home-program-nav 과 동일 — 페이지 body 서체(세리프)에 끌려가지 않게 */
+  --tb-font-nav: 'Noto Sans KR', 'Pretendard Variable', Pretendard, -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
   --tb-content-max: 1140px;
 
   position: sticky;
@@ -25,6 +27,7 @@
   background: rgba(245, 240, 232, 0.98);
   box-shadow: 0 6px 18px rgba(45, 38, 28, 0.06);
   overflow: visible;
+  font-family: var(--tb-font-nav);
 }
 
 .site-top .topbar {
@@ -47,7 +50,8 @@
 
 .site-top .program-nav {
   border-bottom: 1px solid var(--tb-border);
-  background: rgba(255, 255, 255, 0.55);
+  background: rgba(255, 255, 255, 0.72);
+  backdrop-filter: blur(12px);
   padding: 0 32px;
   overflow: visible;
   position: relative;
@@ -60,17 +64,24 @@
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 6px 16px;
-  padding: 7px 0 9px;
+  gap: 6px 14px;
+  padding: 8px 0 10px;
+  font-family: var(--tb-font-nav);
   font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  line-height: 1.35;
   overflow: visible;
 }
 
 .site-top .program-nav-inner a {
   color: var(--tb-muted);
   text-decoration: none;
+  font-family: inherit;
+  font-size: inherit;
   font-weight: 600;
-  letter-spacing: 0.02em;
+  letter-spacing: inherit;
+  line-height: inherit;
   transition: color 0.15s;
   white-space: nowrap;
 }
@@ -81,7 +92,11 @@
 
 .site-top .program-nav-current {
   color: var(--tb-deep-brown);
-  font-weight: 700;
+  font-family: inherit;
+  font-size: inherit;
+  font-weight: 600;
+  letter-spacing: inherit;
+  line-height: inherit;
   white-space: nowrap;
 }
 
@@ -89,6 +104,7 @@
   position: relative;
   display: inline-flex;
   align-items: center;
+  flex: 0 0 auto;
 }
 
 .site-top .program-nav-dd-btn {
@@ -96,9 +112,11 @@
   border: none;
   background: transparent;
   color: var(--tb-muted);
-  font: inherit;
+  font-family: inherit;
+  font-size: inherit;
   font-weight: 600;
-  letter-spacing: 0.02em;
+  letter-spacing: inherit;
+  line-height: inherit;
   cursor: pointer;
   padding: 0;
   display: inline-flex;
@@ -110,6 +128,10 @@
 .site-top .program-nav-dd.is-active .program-nav-dd-btn,
 .site-top .program-nav-dd-btn:hover {
   color: var(--tb-deep-brown);
+}
+
+.site-top .program-nav-dd.is-active .program-nav-dd-btn {
+  font-weight: 600;
 }
 
 .site-top .program-nav-dd-caret {
@@ -131,6 +153,7 @@
   display: none;
   gap: 2px;
   z-index: 120;
+  font-family: var(--tb-font-nav);
 }
 
 .site-top .program-nav-dd.is-open .program-nav-dd-menu {
@@ -143,17 +166,19 @@
   border-radius: 7px;
   color: var(--tb-ink);
   text-decoration: none;
+  font-family: inherit;
   font-weight: 600;
   font-size: 12.5px;
+  letter-spacing: 0.02em;
 }
 
 .site-top a.program-nav-dd-item:hover {
-  background: var(--tb-parchment);
+  background: #f5f0e8;
   color: var(--tb-deep-brown);
 }
 
 .site-top .program-nav-dd-item.is-current {
-  background: var(--tb-parchment);
+  background: #f5f0e8;
   color: var(--tb-deep-brown);
   font-weight: 700;
 }
@@ -381,4 +406,18 @@
   background: var(--tb-parchment);
   border-color: var(--tb-warm-brown);
   color: var(--tb-ink);
+}
+
+@media (max-width: 900px) {
+  .site-top .topbar {
+    padding: 10px 16px;
+  }
+  .site-top .program-nav {
+    padding: 0 16px;
+  }
+  .site-top .program-nav-inner {
+    gap: 6px 12px;
+    font-size: 11px;
+    padding: 7px 0 9px;
+  }
 }

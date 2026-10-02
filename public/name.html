@@ -4,13 +4,13 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="icon" href="/favicon.svg" type="image/svg+xml">
-<title>네임코드 · 이름 수비학 — 팔자연구소 8CODE</title>
-<meta name="description" content="이름의 수비학 에너지를 분석합니다. 운명수·궁합 점수, 후보 최대 5개 비교와 AI 이름 추천. 팔자연구소 네임코드.">
+<title>?�임코드 · ?�름 ?�비?????�자?�구??8CODE</title>
+<meta name="description" content="?�름???�비???�너지�?분석?�니?? ?�명?�·궁???�수, ?�보 최�? 5�?비교?� AI ?�름 추천. ?�자?�구???�임코드.">
 <link rel="canonical" href="https://8code.kr/name.html">
 <meta property="og:type" content="website">
-<meta property="og:site_name" content="팔자연구소 8CODE">
-<meta property="og:title" content="네임코드 · 이름 수비학 — 팔자연구소 8CODE">
-<meta property="og:description" content="이름의 수비학 에너지를 분석합니다. 운명수·궁합 점수, 후보 비교와 AI 이름 추천.">
+<meta property="og:site_name" content="?�자?�구??8CODE">
+<meta property="og:title" content="?�임코드 · ?�름 ?�비?????�자?�구??8CODE">
+<meta property="og:description" content="?�름???�비???�너지�?분석?�니?? ?�명?�·궁???�수, ?�보 비교?� AI ?�름 추천.">
 <meta property="og:url" content="https://8code.kr/name.html">
 <meta property="og:image" content="https://8code.kr/og-share.png">
 <meta property="og:locale" content="ko_KR">
@@ -32,7 +32,7 @@
 :root {
   --cream:      #f5f0e8;
   --parchment:  #ede5d4;
-  /* 비교표 왼쪽 라벨 열: 페이지/흰 배경과 구분되게 한 톤 어둡게 */
+  /* 비교???�쪽 ?�벨 ?? ?�이지/??배경�?구분?�게 ?????�둡�?*/
   --compare-label-bg: #dfd2b8;
   --compare-label-bg-strong: #d3c4a4;
   --sand:       #d4c4a8;
@@ -72,7 +72,7 @@ body{font-family:var(--font-body);background:var(--cream);color:var(--ink);min-h
   gap:16px;
 }
 .program-nav{border-bottom:1px solid var(--border);background:rgba(255,255,255,.55);padding:0 32px;}
-.program-nav-inner{max-width:1100px;margin:0 auto;display:flex;flex-wrap:wrap;align-items:center;gap:6px 16px;padding:7px 0 9px;font-family:var(--font-body);font-size:12px;}
+.program-nav-inner{max-width:1100px;margin:0 auto;display:flex;flex-wrap:wrap;align-items:center;gap:6px 16px;padding:7px 0 9px;/* font from site-topbar */font-size:12px;}
 .program-nav-inner a{color:var(--muted);text-decoration:none;font-weight:600;letter-spacing:.02em;transition:color .15s;white-space:nowrap;}
 .program-nav-inner a:hover{color:var(--deep-brown);}
 .program-nav-current{color:var(--deep-brown);font-weight:700;white-space:nowrap;}
@@ -102,7 +102,7 @@ body{font-family:var(--font-body);background:var(--cream);color:var(--ink);min-h
   pointer-events:none;
 }
 .topbar-logo-mark::after{
-  content:'八';
+  content:'??;
   position:absolute;
   right:2px;
   top:0;
@@ -165,7 +165,7 @@ body{font-family:var(--font-body);background:var(--cream);color:var(--ink);min-h
 
 /* HERO */
 .hero{background:var(--deep-brown);padding:52px 40px 44px;position:relative;overflow:hidden;}
-.hero::before{content:'名';position:absolute;right:-10px;top:-30px;font-family:var(--font-serif);font-size:260px;color:rgba(200,169,110,.05);line-height:1;pointer-events:none;}
+.hero::before{content:'??;position:absolute;right:-10px;top:-30px;font-family:var(--font-serif);font-size:260px;color:rgba(200,169,110,.05);line-height:1;pointer-events:none;}
 .hero-inner{max-width:900px;margin:0 auto;}
 .hero-tag{font-family:var(--font-mono);font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--accent);margin-bottom:12px;}
 .hero-title{font-family:var(--font-serif);font-size:36px;font-weight:300;color:var(--cream);line-height:1.2;margin-bottom:8px;}
@@ -202,7 +202,7 @@ body{font-family:var(--font-body);background:var(--cream);color:var(--ink);min-h
 .analyze-btn:hover{background:#d4b87a;transform:translateY(-1px);}
 .analyze-btn:disabled{opacity:.5;cursor:not-allowed;transform:none;}
 
-/* 추천탭 */
+/* 추천??*/
 .energy-chips{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:8px;}
 .energy-chip{padding:7px 14px;border:1px solid rgba(200,169,110,.25);border-radius:20px;background:transparent;color:rgba(245,240,232,.55);font-family:var(--font-body);font-size:12px;cursor:pointer;transition:all .2s;}
 .energy-chip:hover{border-color:rgba(200,169,110,.5);color:rgba(245,240,232,.85);}
@@ -229,7 +229,7 @@ select.input-field option{background:#2d2418;color:#f5f0e8;}
 .section-line{flex:1;height:1px;background:var(--border);}
 .section-label{font-family:var(--font-body);font-size:15px;font-weight:700;color:var(--deep-brown);}
 
-/* ── 생년월일 수 분포 패널 ── */
+/* ?�?� ?�년?�일 ??분포 ?�널 ?�?� */
 .birth-analysis-panel{background:white;border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:32px;box-shadow:0 2px 16px var(--shadow);}
 .bap-header{background:var(--deep-brown);padding:16px 22px;display:flex;align-items:center;justify-content:space-between;}
 .bap-title{font-family:var(--font-serif);font-size:16px;color:var(--cream);}
@@ -249,7 +249,7 @@ select.input-field option{background:#2d2418;color:#f5f0e8;}
 .bap-guide{background:var(--parchment);padding:14px 22px;border-top:1px solid var(--border);font-size:13px;color:var(--ink);line-height:1.75;}
 .bap-guide strong{color:var(--deep-brown);}
 
-/* ── 순위 헤더 ── */
+/* ?�?� ?�위 ?�더 ?�?� */
 .rank-header{background:white;border:1px solid var(--border);border-radius:12px;padding:20px 24px;margin-bottom:20px;box-shadow:0 2px 12px var(--shadow);}
 .rank-header-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;}
 .rank-header-title{font-family:var(--font-serif);font-size:18px;color:var(--deep-brown);}
@@ -258,7 +258,7 @@ select.input-field option{background:#2d2418;color:#f5f0e8;}
 .rank-summary strong{color:var(--deep-brown);}
 .rank-summary .best-name{color:var(--teal);font-weight:600;}
 
-/* ── 이름 카드 (새 구조) ── */
+/* ?�?� ?�름 카드 (??구조) ?�?� */
 .name-cards{display:flex;flex-direction:column;gap:16px;}
 
 .name-card-v2{background:white;border:1px solid var(--border);border-radius:14px;overflow:hidden;box-shadow:0 2px 16px var(--shadow);transition:box-shadow .2s;}
@@ -267,7 +267,7 @@ select.input-field option{background:#2d2418;color:#f5f0e8;}
 .name-card-v2.rank-2{border-color:var(--accent);box-shadow:0 0 0 1px rgba(200,169,110,.2),0 2px 16px var(--shadow);}
 .name-card-v2.danger{border-color:var(--red);}
 
-/* 카드 헤더 */
+/* 카드 ?�더 */
 .nc2-header{padding:18px 22px 16px;display:flex;align-items:flex-start;justify-content:space-between;gap:16px;}
 .nc2-header-left{flex:1;}
 .nc2-rank-badge{display:inline-flex;align-items:center;gap:6px;margin-bottom:8px;}
@@ -280,7 +280,7 @@ select.input-field option{background:#2d2418;color:#f5f0e8;}
 .nc2-name{font-family:var(--font-serif);font-size:30px;font-weight:300;color:var(--deep-brown);letter-spacing:.05em;line-height:1;}
 .nc2-master-tag{display:inline-block;font-size:10px;background:rgba(46,139,122,.12);color:var(--teal);border:1px solid rgba(46,139,122,.3);padding:2px 8px;border-radius:20px;margin-left:8px;vertical-align:middle;font-family:var(--font-mono);}
 
-/* 점수 표시 */
+/* ?�수 ?�시 */
 .nc2-score-wrap{text-align:center;flex-shrink:0;}
 .nc2-score-ring{width:72px;height:72px;position:relative;}
 .nc2-score-ring svg{transform:rotate(-90deg);}
@@ -289,7 +289,7 @@ select.input-field option{background:#2d2418;color:#f5f0e8;}
 .nc2-score-label{font-size:9px;color:var(--muted);margin-top:2px;}
 .nc2-score-text{font-size:11px;font-weight:600;margin-top:4px;text-align:center;}
 
-/* 핵심 판단 박스 */
+/* ?�심 ?�단 박스 */
 .nc2-verdict-box{margin:0 22px 16px;border-radius:10px;padding:14px 16px;}
 .nc2-verdict-box.vb-best{background:rgba(46,139,122,.06);border:1px solid rgba(46,139,122,.2);}
 .nc2-verdict-box.vb-good{background:rgba(200,169,110,.06);border:1px solid rgba(200,169,110,.2);}
@@ -302,7 +302,7 @@ select.input-field option{background:#2d2418;color:#f5f0e8;}
 .vb-title.t-normal{color:var(--muted);}
 .vb-text{font-size:13.5px;line-height:1.8;color:var(--ink);font-family:var(--font-serif);}
 
-/* 강점/주의 섹션 */
+/* 강점/주의 ?�션 */
 .nc2-strengths-warnings{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:0 22px 16px;}
 .sw-box{border-radius:8px;padding:12px 14px;}
 .sw-box.s-box{background:rgba(46,139,122,.05);border:1px solid rgba(46,139,122,.15);}
@@ -314,7 +314,7 @@ select.input-field option{background:#2d2418;color:#f5f0e8;}
 .sw-item:last-child{margin-bottom:0;}
 .sw-dot{flex-shrink:0;margin-top:3px;font-size:10px;}
 
-/* 수리 데이터 (접힘) */
+/* ?�리 ?�이??(?�힘) */
 .nc2-nums-toggle{margin:0 22px 16px;cursor:pointer;display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:var(--parchment);border-radius:8px;border:none;width:calc(100% - 44px);font-family:var(--font-body);}
 .nc2-nums-label{font-size:12px;color:var(--muted);font-weight:500;}
 .nc2-nums-arrow{font-size:10px;color:var(--muted);transition:transform .2s;}
@@ -331,7 +331,7 @@ select.input-field option{background:#2d2418;color:#f5f0e8;}
 .nni-name{font-size:11px;color:var(--warm-brown);font-weight:500;margin-top:2px;}
 .nni-desc{font-size:11px;color:var(--muted);line-height:1.5;margin-top:4px;}
 
-/* 비교 테이블 */
+/* 비교 ?�이�?*/
 .compare-table-wrap{
   background:white;
   border:1px solid var(--border);
@@ -418,14 +418,14 @@ select.input-field option{background:#2d2418;color:#f5f0e8;}
 .send-btn:hover{background:var(--accent);}
 .rec-loading{padding:40px;text-align:center;color:var(--muted);font-family:var(--font-mono);font-size:12px;}
 
-/* 인쇄 */
+/* ?�쇄 */
 @media print{
   .topbar,.hero,.print-btn,.analyze-btn{display:none!important;}
   .content{padding:0;max-width:100%;}
   .name-card-v2{break-inside:avoid;}
   body{background:white;}
 }
-/* 소리 에너지 */
+/* ?�리 ?�너지 */
 .sound-section{margin:0 22px 16px;padding:14px 16px;background:linear-gradient(135deg,rgba(46,139,122,.04),rgba(200,169,110,.04));border:1px solid rgba(46,139,122,.15);border-radius:10px;}
 .sound-title{font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--teal);margin-bottom:10px;}
 .sound-summary{font-size:13.5px;line-height:1.8;color:var(--ink);font-family:var(--font-serif);margin-bottom:12px;}
@@ -441,7 +441,7 @@ select.input-field option{background:#2d2418;color:#f5f0e8;}
 .sd-item strong{color:var(--deep-brown);display:block;font-size:11px;margin-bottom:2px;}
 
 .compare-table tr.score-divider td{background:var(--parchment);padding:4px 16px;font-family:var(--font-mono);font-size:8px;letter-spacing:.15em;text-transform:uppercase;color:var(--muted);}
-/* 점수 구간 라벨: 투명 배경 제거 → 스크롤 시 숫자가 비치지 않음 */
+/* ?�수 구간 ?�벨: ?�명 배경 ?�거 ???�크�????�자가 비치지 ?�음 */
 .compare-table td.row-label.score-section{
   background:var(--compare-label-bg-strong);
   border-top:2px solid rgba(139,111,71,.2);
@@ -490,167 +490,167 @@ select.input-field option{background:#2d2418;color:#f5f0e8;}
 }
 </style>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css" crossorigin />
-<link rel="stylesheet" href="css/site-topbar.css?v=8" />
+<link rel="stylesheet" href="css/site-topbar.css?v=9" />
 <link rel="stylesheet" href="css/site-header.css?v=7" />
 </head>
 <body>
 
-<div class="site-top" data-topbar-title="네임코드" data-nav-current="name" data-login-next="name.html"></div>
+<div class="site-top" data-topbar-title="?�임코드" data-nav-current="name" data-login-next="name.html"></div>
 
 <section class="hero">
   <div class="hero-inner">
-    <div class="hero-tag">Name Code · 수비학 네임코드</div>
-    <h1 class="hero-title">이름 속에 담긴<br><em>에너지를 읽다</em></h1>
-    <p class="hero-desc">생년월일에 부족한 수, 과잉된 수를 분석해 어떤 이름이 왜 좋은지 명확하게 알려드립니다. <a href="guide/name-code.html" style="color:var(--accent);text-decoration:underline">이름 수비학 가이드</a> · <a href="numerology-wallpaper.html" style="color:var(--accent);text-decoration:underline">에너지 배경</a>도 참고하세요.</p>
+    <div class="hero-tag">Name Code · ?�비???�임코드</div>
+    <h1 class="hero-title">?�름 ?�에 ?�긴<br><em>?�너지�??�다</em></h1>
+    <p class="hero-desc">?�년?�일??부족한 ?? 과잉???��? 분석???�떤 ?�름????좋�?지 명확?�게 ?�려?�립?�다. <a href="guide/name-code.html" style="color:var(--accent);text-decoration:underline">?�름 ?�비??가?�드</a> · <a href="numerology-wallpaper.html" style="color:var(--accent);text-decoration:underline">?�너지 배경</a>??참고?�세??</p>
 
     <div class="hero-tabs">
-      <button class="hero-tab active" onclick="switchTab('analyze',this)">✦ 네임코드</button>
-      <button class="hero-tab" onclick="switchTab('recommend',this)">✧ 이름 추천</button>
+      <button class="hero-tab active" onclick="switchTab('analyze',this)">???�임코드</button>
+      <button class="hero-tab" onclick="switchTab('recommend',this)">???�름 추천</button>
     </div>
     <p class="ai-quota-badge" id="nameAiQuotaBadge" hidden></p>
 
-    <!-- 분석 탭 -->
+    <!-- 분석 ??-->
     <div class="tab-panel active" id="panel-analyze">
       <div class="input-wrap">
-        <div class="input-section-title">이름 쓰임 (목적)</div>
+        <div class="input-section-title">?�름 ?�임 (목적)</div>
         <div class="energy-chips purpose-tier1-row" id="analyzePurposeTier1" style="margin-bottom:8px;">
-          <button type="button" class="energy-chip purpose-tier1-btn selected" data-tier1="general" onclick="selectPurposeTier1(this,'analyze')">👤 일반 이름</button>
-          <button type="button" class="energy-chip purpose-tier1-btn" data-tier1="biz" onclick="selectPurposeTier1(this,'analyze')">🏢 사업명·브랜드</button>
-          <button type="button" class="energy-chip purpose-tier1-btn" data-tier1="nick" onclick="selectPurposeTier1(this,'analyze')">💬 닉네임·온라인</button>
-          <button type="button" class="energy-chip purpose-tier1-btn" data-tier1="stage" onclick="selectPurposeTier1(this,'analyze')">🎭 활동명·예명</button>
+          <button type="button" class="energy-chip purpose-tier1-btn selected" data-tier1="general" onclick="selectPurposeTier1(this,'analyze')">?�� ?�반 ?�름</button>
+          <button type="button" class="energy-chip purpose-tier1-btn" data-tier1="biz" onclick="selectPurposeTier1(this,'analyze')">?�� ?�업명·브?�드</button>
+          <button type="button" class="energy-chip purpose-tier1-btn" data-tier1="nick" onclick="selectPurposeTier1(this,'analyze')">?�� ?�네?�·온?�인</button>
+          <button type="button" class="energy-chip purpose-tier1-btn" data-tier1="stage" onclick="selectPurposeTier1(this,'analyze')">?�� ?�동명·예�?/button>
         </div>
         <div id="analyzePurposeTier2Wrap" class="purpose-tier2-wrap">
-          <div class="purpose-sub-title">세부 유형 (선택)</div>
+          <div class="purpose-sub-title">?��? ?�형 (?�택)</div>
           <div class="energy-chips purpose-sub-row" id="analyzePurposeTier2Nick" style="display:none;">
-            <button type="button" class="energy-chip purpose-sub-btn selected" data-bucket="nick_online" data-display="게이머" onclick="selectPurposeSub(this,'analyze','nick')">🎮 게이머</button>
-            <button type="button" class="energy-chip purpose-sub-btn" data-bucket="nick_online" data-display="인스타·SNS" onclick="selectPurposeSub(this,'analyze','nick')">📸 인스타·SNS</button>
-            <button type="button" class="energy-chip purpose-sub-btn" data-bucket="nick_online" data-display="전문가 프로필" onclick="selectPurposeSub(this,'analyze','nick')">💼 전문가 프로필</button>
-            <button type="button" class="energy-chip purpose-sub-btn" data-bucket="nick_online" data-display="쇼핑몰·셀러" onclick="selectPurposeSub(this,'analyze','nick')">🛒 쇼핑몰·셀러</button>
-            <button type="button" class="energy-chip purpose-sub-btn" data-bucket="nick_online" data-display="커뮤니티·익명" onclick="selectPurposeSub(this,'analyze','nick')">🌐 커뮤니티·익명</button>
+            <button type="button" class="energy-chip purpose-sub-btn selected" data-bucket="nick_online" data-display="게이�? onclick="selectPurposeSub(this,'analyze','nick')">?�� 게이�?/button>
+            <button type="button" class="energy-chip purpose-sub-btn" data-bucket="nick_online" data-display="?�스?�·SNS" onclick="selectPurposeSub(this,'analyze','nick')">?�� ?�스?�·SNS</button>
+            <button type="button" class="energy-chip purpose-sub-btn" data-bucket="nick_online" data-display="?�문가 ?�로?? onclick="selectPurposeSub(this,'analyze','nick')">?�� ?�문가 ?�로??/button>
+            <button type="button" class="energy-chip purpose-sub-btn" data-bucket="nick_online" data-display="?�핑몰·�??? onclick="selectPurposeSub(this,'analyze','nick')">?�� ?�핑몰·�???/button>
+            <button type="button" class="energy-chip purpose-sub-btn" data-bucket="nick_online" data-display="커�??�티·?�명" onclick="selectPurposeSub(this,'analyze','nick')">?�� 커�??�티·?�명</button>
           </div>
           <div class="energy-chips purpose-sub-row" id="analyzePurposeTier2Act" style="display:none;">
-            <button type="button" class="energy-chip purpose-sub-btn selected" data-bucket="creative" data-display="예술가" onclick="selectPurposeSub(this,'analyze','stage')">🎨 예술가</button>
-            <button type="button" class="energy-chip purpose-sub-btn" data-bucket="mystic" data-display="역술인·상담사" onclick="selectPurposeSub(this,'analyze','stage')">🔮 역술인·상담사</button>
-            <button type="button" class="energy-chip purpose-sub-btn" data-bucket="creative" data-display="작가·필명" onclick="selectPurposeSub(this,'analyze','stage')">✍️ 작가·필명</button>
-            <button type="button" class="energy-chip purpose-sub-btn" data-bucket="creative" data-display="유튜버·크리에이터" onclick="selectPurposeSub(this,'analyze','stage')">📹 유튜버·크리에이터</button>
-            <button type="button" class="energy-chip purpose-sub-btn" data-bucket="athlete" data-display="운동선수·코치" onclick="selectPurposeSub(this,'analyze','stage')">💪 운동선수·코치</button>
-            <button type="button" class="energy-chip purpose-sub-btn" data-bucket="educator" data-display="강사·교육자" onclick="selectPurposeSub(this,'analyze','stage')">📚 강사·교육자</button>
+            <button type="button" class="energy-chip purpose-sub-btn selected" data-bucket="creative" data-display="?�술가" onclick="selectPurposeSub(this,'analyze','stage')">?�� ?�술가</button>
+            <button type="button" class="energy-chip purpose-sub-btn" data-bucket="mystic" data-display="??��?�·상?�사" onclick="selectPurposeSub(this,'analyze','stage')">?�� ??��?�·상?�사</button>
+            <button type="button" class="energy-chip purpose-sub-btn" data-bucket="creative" data-display="?��?·?�명" onclick="selectPurposeSub(this,'analyze','stage')">?�️ ?��?·?�명</button>
+            <button type="button" class="energy-chip purpose-sub-btn" data-bucket="creative" data-display="?�튜버·크리에?�터" onclick="selectPurposeSub(this,'analyze','stage')">?�� ?�튜버·크리에?�터</button>
+            <button type="button" class="energy-chip purpose-sub-btn" data-bucket="athlete" data-display="?�동?�수·코치" onclick="selectPurposeSub(this,'analyze','stage')">?�� ?�동?�수·코치</button>
+            <button type="button" class="energy-chip purpose-sub-btn" data-bucket="educator" data-display="강사·교육?? onclick="selectPurposeSub(this,'analyze','stage')">?�� 강사·교육??/button>
           </div>
         </div>
         <p class="purpose-hint" id="analyzePurposeHint"></p>
-        <div class="input-section-title">기본 정보</div>
+        <div class="input-section-title">기본 ?�보</div>
         <div class="birth-row" style="margin-bottom:20px;">
           <div class="input-group">
-            <label class="input-label">대상자 이름 / 성 <span style="color:rgba(200,169,110,.4);font-size:9px;">(선택)</span></label>
-            <input class="input-field" id="baseName" type="text" placeholder="예) 김은형 또는 김">
+            <label class="input-label">?�?�자 ?�름 / ??<span style="color:rgba(200,169,110,.4);font-size:9px;">(?�택)</span></label>
+            <input class="input-field" id="baseName" type="text" placeholder="?? 김?�???�는 김">
           </div>
           <div class="input-group birth-field-group">
-            <label class="input-label" for="birthDate">생년월일 <span style="color:rgba(200,169,110,.4);font-size:9px;">(선택 — 입력 시 훨씬 정확해요)</span></label>
+            <label class="input-label" for="birthDate">?�년?�일 <span style="color:rgba(200,169,110,.4);font-size:9px;">(?�택 ???�력 ???�씬 ?�확?�요)</span></label>
             <input class="input-field birth-date-native" id="birthDate" type="date">
-            <div class="birth-pick" id="birthDatePickRow" role="group" aria-label="생년월일" hidden>
-              <button type="button" class="birth-pick-btn is-placeholder" id="birthDateYearBtn">연도</button>
-              <button type="button" class="birth-pick-btn is-placeholder" id="birthDateMonthBtn">월</button>
-              <button type="button" class="birth-pick-btn is-placeholder" id="birthDateDayBtn">일</button>
+            <div class="birth-pick" id="birthDatePickRow" role="group" aria-label="?�년?�일" hidden>
+              <button type="button" class="birth-pick-btn is-placeholder" id="birthDateYearBtn">?�도</button>
+              <button type="button" class="birth-pick-btn is-placeholder" id="birthDateMonthBtn">??/button>
+              <button type="button" class="birth-pick-btn is-placeholder" id="birthDateDayBtn">??/button>
             </div>
           </div>
         </div>
-        <div class="input-section-title">분석할 이름 (최대 5개)</div>
+        <div class="input-section-title">분석???�름 (최�? 5�?</div>
         <div class="names-grid">
-          <div class="name-slot"><div class="name-slot-num">이름 1</div><div class="name-input-wrap"><input class="name-field" data-idx="0" type="text" placeholder="이름 입력" oninput="onNameInput(this)" autocomplete="off"></div></div>
-          <div class="name-slot"><div class="name-slot-num">이름 2</div><div class="name-input-wrap"><input class="name-field" data-idx="1" type="text" placeholder="이름 입력" oninput="onNameInput(this)" autocomplete="off"></div></div>
-          <div class="name-slot"><div class="name-slot-num">이름 3</div><div class="name-input-wrap"><input class="name-field" data-idx="2" type="text" placeholder="이름 입력" oninput="onNameInput(this)" autocomplete="off"></div></div>
-          <div class="name-slot"><div class="name-slot-num">이름 4</div><div class="name-input-wrap"><input class="name-field" data-idx="3" type="text" placeholder="이름 입력" oninput="onNameInput(this)" autocomplete="off"></div></div>
-          <div class="name-slot"><div class="name-slot-num">이름 5</div><div class="name-input-wrap"><input class="name-field" data-idx="4" type="text" placeholder="이름 입력" oninput="onNameInput(this)" autocomplete="off"></div></div>
+          <div class="name-slot"><div class="name-slot-num">?�름 1</div><div class="name-input-wrap"><input class="name-field" data-idx="0" type="text" placeholder="?�름 ?�력" oninput="onNameInput(this)" autocomplete="off"></div></div>
+          <div class="name-slot"><div class="name-slot-num">?�름 2</div><div class="name-input-wrap"><input class="name-field" data-idx="1" type="text" placeholder="?�름 ?�력" oninput="onNameInput(this)" autocomplete="off"></div></div>
+          <div class="name-slot"><div class="name-slot-num">?�름 3</div><div class="name-input-wrap"><input class="name-field" data-idx="2" type="text" placeholder="?�름 ?�력" oninput="onNameInput(this)" autocomplete="off"></div></div>
+          <div class="name-slot"><div class="name-slot-num">?�름 4</div><div class="name-input-wrap"><input class="name-field" data-idx="3" type="text" placeholder="?�름 ?�력" oninput="onNameInput(this)" autocomplete="off"></div></div>
+          <div class="name-slot"><div class="name-slot-num">?�름 5</div><div class="name-input-wrap"><input class="name-field" data-idx="4" type="text" placeholder="?�름 ?�력" oninput="onNameInput(this)" autocomplete="off"></div></div>
         </div>
-        <div style="font-size:11px;color:rgba(245,240,232,.35);text-align:center;margin-bottom:16px;">한글 또는 영문 모두 가능 · 이름 1개만 입력해도 분석됩니다</div>
-        <button class="analyze-btn" id="analyzeBtn" onclick="runAnalysis()">✦ 네임코드 시작</button>
+        <div style="font-size:11px;color:rgba(245,240,232,.35);text-align:center;margin-bottom:16px;">?��? ?�는 ?�문 모두 가??· ?�름 1개만 ?�력?�도 분석?�니??/div>
+        <button class="analyze-btn" id="analyzeBtn" onclick="runAnalysis()">???�임코드 ?�작</button>
       </div>
     </div>
 
-    <!-- 추천 탭 -->
+    <!-- 추천 ??-->
     <div class="tab-panel" id="panel-recommend">
       <div class="input-wrap">
-        <div class="input-section-title">이름 쓰임 (목적)</div>
+        <div class="input-section-title">?�름 ?�임 (목적)</div>
         <div class="energy-chips purpose-tier1-row" id="recPurposeTier1" style="margin-bottom:8px;">
-          <button type="button" class="energy-chip purpose-tier1-btn selected" data-tier1="general" onclick="selectPurposeTier1(this,'rec')">👤 일반 이름</button>
-          <button type="button" class="energy-chip purpose-tier1-btn" data-tier1="biz" onclick="selectPurposeTier1(this,'rec')">🏢 사업명·브랜드</button>
-          <button type="button" class="energy-chip purpose-tier1-btn" data-tier1="nick" onclick="selectPurposeTier1(this,'rec')">💬 닉네임·온라인</button>
-          <button type="button" class="energy-chip purpose-tier1-btn" data-tier1="stage" onclick="selectPurposeTier1(this,'rec')">🎭 활동명·예명</button>
+          <button type="button" class="energy-chip purpose-tier1-btn selected" data-tier1="general" onclick="selectPurposeTier1(this,'rec')">?�� ?�반 ?�름</button>
+          <button type="button" class="energy-chip purpose-tier1-btn" data-tier1="biz" onclick="selectPurposeTier1(this,'rec')">?�� ?�업명·브?�드</button>
+          <button type="button" class="energy-chip purpose-tier1-btn" data-tier1="nick" onclick="selectPurposeTier1(this,'rec')">?�� ?�네?�·온?�인</button>
+          <button type="button" class="energy-chip purpose-tier1-btn" data-tier1="stage" onclick="selectPurposeTier1(this,'rec')">?�� ?�동명·예�?/button>
         </div>
         <div id="recPurposeTier2Wrap" class="purpose-tier2-wrap">
-          <div class="purpose-sub-title">세부 유형 (선택)</div>
+          <div class="purpose-sub-title">?��? ?�형 (?�택)</div>
           <div class="energy-chips purpose-sub-row" id="recPurposeTier2Nick" style="display:none;">
-            <button type="button" class="energy-chip purpose-sub-btn selected" data-bucket="nick_online" data-display="게이머" onclick="selectPurposeSub(this,'rec','nick')">🎮 게이머</button>
-            <button type="button" class="energy-chip purpose-sub-btn" data-bucket="nick_online" data-display="인스타·SNS" onclick="selectPurposeSub(this,'rec','nick')">📸 인스타·SNS</button>
-            <button type="button" class="energy-chip purpose-sub-btn" data-bucket="nick_online" data-display="전문가 프로필" onclick="selectPurposeSub(this,'rec','nick')">💼 전문가 프로필</button>
-            <button type="button" class="energy-chip purpose-sub-btn" data-bucket="nick_online" data-display="쇼핑몰·셀러" onclick="selectPurposeSub(this,'rec','nick')">🛒 쇼핑몰·셀러</button>
-            <button type="button" class="energy-chip purpose-sub-btn" data-bucket="nick_online" data-display="커뮤니티·익명" onclick="selectPurposeSub(this,'rec','nick')">🌐 커뮤니티·익명</button>
+            <button type="button" class="energy-chip purpose-sub-btn selected" data-bucket="nick_online" data-display="게이�? onclick="selectPurposeSub(this,'rec','nick')">?�� 게이�?/button>
+            <button type="button" class="energy-chip purpose-sub-btn" data-bucket="nick_online" data-display="?�스?�·SNS" onclick="selectPurposeSub(this,'rec','nick')">?�� ?�스?�·SNS</button>
+            <button type="button" class="energy-chip purpose-sub-btn" data-bucket="nick_online" data-display="?�문가 ?�로?? onclick="selectPurposeSub(this,'rec','nick')">?�� ?�문가 ?�로??/button>
+            <button type="button" class="energy-chip purpose-sub-btn" data-bucket="nick_online" data-display="?�핑몰·�??? onclick="selectPurposeSub(this,'rec','nick')">?�� ?�핑몰·�???/button>
+            <button type="button" class="energy-chip purpose-sub-btn" data-bucket="nick_online" data-display="커�??�티·?�명" onclick="selectPurposeSub(this,'rec','nick')">?�� 커�??�티·?�명</button>
           </div>
           <div class="energy-chips purpose-sub-row" id="recPurposeTier2Act" style="display:none;">
-            <button type="button" class="energy-chip purpose-sub-btn selected" data-bucket="creative" data-display="예술가" onclick="selectPurposeSub(this,'rec','stage')">🎨 예술가</button>
-            <button type="button" class="energy-chip purpose-sub-btn" data-bucket="mystic" data-display="역술인·상담사" onclick="selectPurposeSub(this,'rec','stage')">🔮 역술인·상담사</button>
-            <button type="button" class="energy-chip purpose-sub-btn" data-bucket="creative" data-display="작가·필명" onclick="selectPurposeSub(this,'rec','stage')">✍️ 작가·필명</button>
-            <button type="button" class="energy-chip purpose-sub-btn" data-bucket="creative" data-display="유튜버·크리에이터" onclick="selectPurposeSub(this,'rec','stage')">📹 유튜버·크리에이터</button>
-            <button type="button" class="energy-chip purpose-sub-btn" data-bucket="athlete" data-display="운동선수·코치" onclick="selectPurposeSub(this,'rec','stage')">💪 운동선수·코치</button>
-            <button type="button" class="energy-chip purpose-sub-btn" data-bucket="educator" data-display="강사·교육자" onclick="selectPurposeSub(this,'rec','stage')">📚 강사·교육자</button>
+            <button type="button" class="energy-chip purpose-sub-btn selected" data-bucket="creative" data-display="?�술가" onclick="selectPurposeSub(this,'rec','stage')">?�� ?�술가</button>
+            <button type="button" class="energy-chip purpose-sub-btn" data-bucket="mystic" data-display="??��?�·상?�사" onclick="selectPurposeSub(this,'rec','stage')">?�� ??��?�·상?�사</button>
+            <button type="button" class="energy-chip purpose-sub-btn" data-bucket="creative" data-display="?��?·?�명" onclick="selectPurposeSub(this,'rec','stage')">?�️ ?��?·?�명</button>
+            <button type="button" class="energy-chip purpose-sub-btn" data-bucket="creative" data-display="?�튜버·크리에?�터" onclick="selectPurposeSub(this,'rec','stage')">?�� ?�튜버·크리에?�터</button>
+            <button type="button" class="energy-chip purpose-sub-btn" data-bucket="athlete" data-display="?�동?�수·코치" onclick="selectPurposeSub(this,'rec','stage')">?�� ?�동?�수·코치</button>
+            <button type="button" class="energy-chip purpose-sub-btn" data-bucket="educator" data-display="강사·교육?? onclick="selectPurposeSub(this,'rec','stage')">?�� 강사·교육??/button>
           </div>
         </div>
         <p class="purpose-hint" id="recPurposeHint"></p>
-        <div class="input-section-title">기본 정보</div>
+        <div class="input-section-title">기본 ?�보</div>
         <div class="birth-row" style="margin-bottom:4px;">
           <div class="input-group">
-            <label class="input-label">성(姓) <span style="color:rgba(200,169,110,.4);font-size:9px;">(선택)</span></label>
-            <input class="input-field" id="recSurname" type="text" placeholder="예) 김">
+            <label class="input-label">??�? <span style="color:rgba(200,169,110,.4);font-size:9px;">(?�택)</span></label>
+            <input class="input-field" id="recSurname" type="text" placeholder="?? 김">
           </div>
           <div class="input-group birth-field-group">
-            <label class="input-label" for="recBirth">생년월일 <span style="color:rgba(200,169,110,.4);font-size:9px;">(선택 — 부족수 기반 자동 추천)</span></label>
+            <label class="input-label" for="recBirth">?�년?�일 <span style="color:rgba(200,169,110,.4);font-size:9px;">(?�택 ??부족수 기반 ?�동 추천)</span></label>
             <input class="input-field birth-date-native" id="recBirth" type="date">
-            <div class="birth-pick" id="recBirthPickRow" role="group" aria-label="생년월일" hidden>
-              <button type="button" class="birth-pick-btn is-placeholder" id="recBirthYearBtn">연도</button>
-              <button type="button" class="birth-pick-btn is-placeholder" id="recBirthMonthBtn">월</button>
-              <button type="button" class="birth-pick-btn is-placeholder" id="recBirthDayBtn">일</button>
+            <div class="birth-pick" id="recBirthPickRow" role="group" aria-label="?�년?�일" hidden>
+              <button type="button" class="birth-pick-btn is-placeholder" id="recBirthYearBtn">?�도</button>
+              <button type="button" class="birth-pick-btn is-placeholder" id="recBirthMonthBtn">??/button>
+              <button type="button" class="birth-pick-btn is-placeholder" id="recBirthDayBtn">??/button>
             </div>
           </div>
         </div>
         <div class="birth-row" style="margin-bottom:20px;">
           <div class="input-group">
-            <label class="input-label">이름 음절 수</label>
+            <label class="input-label">?�름 ?�절 ??/label>
             <div class="gender-row syllable-row" id="recSyllableRow" style="margin:0;">
-              <button type="button" class="gender-btn" data-syllable="any" onclick="selectSyllable(this)">무관</button>
-              <button type="button" class="gender-btn" data-syllable="1" onclick="selectSyllable(this)">1음절</button>
-              <button type="button" class="gender-btn selected" data-syllable="2" onclick="selectSyllable(this)">2음절</button>
-              <button type="button" class="gender-btn" data-syllable="3" onclick="selectSyllable(this)">3음절</button>
+              <button type="button" class="gender-btn" data-syllable="any" onclick="selectSyllable(this)">무�?</button>
+              <button type="button" class="gender-btn" data-syllable="1" onclick="selectSyllable(this)">1?�절</button>
+              <button type="button" class="gender-btn selected" data-syllable="2" onclick="selectSyllable(this)">2?�절</button>
+              <button type="button" class="gender-btn" data-syllable="3" onclick="selectSyllable(this)">3?�절</button>
             </div>
             <input type="hidden" id="recSyllable" value="2">
           </div>
           <div class="input-group">
-            <label class="input-label">성별</label>
+            <label class="input-label">?�별</label>
             <div class="gender-row" id="recGenderRow" style="margin:0;">
-              <button class="gender-btn selected" data-gender="무관" onclick="selectGender(this)">무관</button>
-              <button class="gender-btn" data-gender="여자" onclick="selectGender(this)">여자</button>
-              <button class="gender-btn" data-gender="남자" onclick="selectGender(this)">남자</button>
+              <button class="gender-btn selected" data-gender="무�?" onclick="selectGender(this)">무�?</button>
+              <button class="gender-btn" data-gender="?�자" onclick="selectGender(this)">?�자</button>
+              <button class="gender-btn" data-gender="?�자" onclick="selectGender(this)">?�자</button>
             </div>
           </div>
         </div>
-        <div class="input-section-title">원하는 에너지 <span style="color:rgba(200,169,110,.4);font-size:9px;">(선택 · 복수 가능 · 미선택 시 생년월일 부족수 기반)</span></div>
+        <div class="input-section-title">?�하???�너지 <span style="color:rgba(200,169,110,.4);font-size:9px;">(?�택 · 복수 가??· 미선?????�년?�일 부족수 기반)</span></div>
         <div class="energy-chips" id="recEnergyChips" style="margin-bottom:20px;">
-          <button class="energy-chip" data-val="1" onclick="toggleChip(this)">1 · 독립·추진력</button>
+          <button class="energy-chip" data-val="1" onclick="toggleChip(this)">1 · ?�립·추진??/button>
           <button class="energy-chip" data-val="2" onclick="toggleChip(this)">2 · 조화·공감</button>
-          <button class="energy-chip" data-val="3" onclick="toggleChip(this)">3 · 창의·표현</button>
-          <button class="energy-chip" data-val="4" onclick="toggleChip(this)">4 · 안정·성실</button>
-          <button class="energy-chip" data-val="5" onclick="toggleChip(this)">5 · 자유·변화</button>
-          <button class="energy-chip" data-val="6" onclick="toggleChip(this)">6 · 돌봄·책임</button>
-          <button class="energy-chip" data-val="7" onclick="toggleChip(this)">7 · 지혜·통찰</button>
-          <button class="energy-chip" data-val="8" onclick="toggleChip(this)">8 · 성취·야망</button>
-          <button class="energy-chip" data-val="9" onclick="toggleChip(this)">9 · 포용·완성</button>
-          <button class="energy-chip" data-val="11" onclick="toggleChip(this)">11 · 직관·영감 ✦</button>
-          <button class="energy-chip" data-val="22" onclick="toggleChip(this)">22 · 비전·실현 ✦</button>
-          <button class="energy-chip" data-val="33" onclick="toggleChip(this)">33 · 치유·사랑 ✦</button>
+          <button class="energy-chip" data-val="3" onclick="toggleChip(this)">3 · 창의·?�현</button>
+          <button class="energy-chip" data-val="4" onclick="toggleChip(this)">4 · ?�정·?�실</button>
+          <button class="energy-chip" data-val="5" onclick="toggleChip(this)">5 · ?�유·변??/button>
+          <button class="energy-chip" data-val="6" onclick="toggleChip(this)">6 · ?�봄·책임</button>
+          <button class="energy-chip" data-val="7" onclick="toggleChip(this)">7 · 지?�·통�?/button>
+          <button class="energy-chip" data-val="8" onclick="toggleChip(this)">8 · ?�취·?�망</button>
+          <button class="energy-chip" data-val="9" onclick="toggleChip(this)">9 · ?�용·?�성</button>
+          <button class="energy-chip" data-val="11" onclick="toggleChip(this)">11 · 직�?·?�감 ??/button>
+          <button class="energy-chip" data-val="22" onclick="toggleChip(this)">22 · 비전·?�현 ??/button>
+          <button class="energy-chip" data-val="33" onclick="toggleChip(this)">33 · 치유·?�랑 ??/button>
         </div>
-        <div class="input-section-title">추가 요청 <span style="color:rgba(200,169,110,.4);font-size:9px;">(선택)</span></div>
-        <input class="input-field" id="recExtra" type="text" placeholder="예) 부드러운 발음, 획수 적게, 자연 관련 의미 등">
-        <p class="field-hint">업종·분위기·피하고 싶은 느낌을 적으면 AI가 더 반영합니다. 최종 순위는 수비학 점수도 함께 봅니다.</p>
-        <button class="analyze-btn" id="recBtn" onclick="runRecommend()">✧ AI 이름 추천 받기</button>
+        <div class="input-section-title">추�? ?�청 <span style="color:rgba(200,169,110,.4);font-size:9px;">(?�택)</span></div>
+        <input class="input-field" id="recExtra" type="text" placeholder="?? 부?�러??발음, ?�수 ?�게, ?�연 관???��? ??>
+        <p class="field-hint">?�종·분위기·피?�고 ?��? ?�낌???�으�?AI가 ??반영?�니?? 최종 ?�위???�비???�수???�께 봅니??</p>
+        <button class="analyze-btn" id="recBtn" onclick="runRecommend()">??AI ?�름 추천 받기</button>
       </div>
     </div>
   </div>
@@ -659,47 +659,47 @@ select.input-field option{background:#2d2418;color:#f5f0e8;}
 <!-- 분석 결과 -->
 <div class="content" id="resultArea" style="display:none;">
 
-  <!-- 생년월일 수 분포 -->
+  <!-- ?�년?�일 ??분포 -->
   <div class="section fade-up" id="birthAnalysisSection" style="display:none;animation-delay:.05s;">
     <div class="section-header">
       <div class="section-line"></div>
-      <span class="section-label">생년월일 수 분포 분석</span>
+      <span class="section-label">?�년?�일 ??분포 분석</span>
       <div class="section-line"></div>
     </div>
     <div class="birth-analysis-panel" id="birthAnalysisPanel"></div>
   </div>
 
-  <!-- 순위 요약 -->
+  <!-- ?�위 ?�약 -->
   <div class="section fade-up" style="animation-delay:.1s;">
     <div class="section-header">
       <div class="section-line"></div>
-      <span class="section-label">네임코드 결과</span>
+      <span class="section-label">?�임코드 결과</span>
       <div class="section-line"></div>
     </div>
     <div class="rank-header" id="rankHeader"></div>
     <div class="name-cards" id="nameCards"></div>
   </div>
 
-  <!-- 비교 테이블 -->
+  <!-- 비교 ?�이�?-->
   <div class="section fade-up" style="animation-delay:.2s;">
     <div class="section-header">
       <div class="section-line"></div>
-      <span class="section-label">수리 비교표</span>
+      <span class="section-label">?�리 비교??/span>
       <div class="section-line"></div>
     </div>
     <div class="compare-table-wrap"><table class="compare-table" id="compareTable"></table></div>
   </div>
 
-  <!-- AI 코멘트 -->
+  <!-- AI 코멘??-->
   <div class="section fade-up" style="animation-delay:.25s;">
     <div class="section-header">
       <div class="section-line"></div>
-      <span class="section-label">AI 종합 의견</span>
+      <span class="section-label">AI 종합 ?�견</span>
       <div class="section-line"></div>
     </div>
     <div class="ai-wrap" id="aiWrap">
-      <div class="ai-tag"><div class="ai-dot"></div>AI 분석 중</div>
-      <div class="ai-loading"><div class="ai-spinner"></div>종합 분석을 생성하고 있습니다...</div>
+      <div class="ai-tag"><div class="ai-dot"></div>AI 분석 �?/div>
+      <div class="ai-loading"><div class="ai-spinner"></div>종합 분석???�성?�고 ?�습?�다...</div>
     </div>
   </div>
 </div>
@@ -709,41 +709,41 @@ select.input-field option{background:#2d2418;color:#f5f0e8;}
   <div class="section fade-up" style="animation-delay:.1s;">
     <div class="section-header">
       <div class="section-line"></div>
-      <span class="section-label">AI 이름 추천 결과</span>
+      <span class="section-label">AI ?�름 추천 결과</span>
       <div class="section-line"></div>
     </div>
     <div id="recResultWrap">
-      <div class="rec-loading"><div class="ai-spinner" style="margin:0 auto 12px;width:20px;height:20px;"></div>추천 중...</div>
+      <div class="rec-loading"><div class="ai-spinner" style="margin:0 auto 12px;width:20px;height:20px;"></div>추천 �?..</div>
     </div>
   </div>
 </div>
 
 <script>
-// ══════════════════════════════
-// PDF 저장
-// ══════════════════════════════
+// ?�═?�═?�═?�═?�═?�═?�═?�═?�═?�═?�═?�═?�═?�═?�═
+// PDF ?�??
+// ?�═?�═?�═?�═?�═?�═?�═?�═?�═?�═?�═?�═?�═?�═?�═
 async function savePDF() {
   const resultArea = document.getElementById('resultArea');
   if(!resultArea || resultArea.style.display === 'none') {
-    alert('먼저 네임코드를 실행해주세요.');
+    alert('먼�? ?�임코드�??�행?�주?�요.');
     return;
   }
 
   const btn = document.getElementById('pdfBtn');
-  btn.textContent = '⏳ 생성 중...';
+  btn.textContent = '???�성 �?..';
   btn.disabled = true;
 
   try {
     const { jsPDF } = window.jspdf;
 
-    // A4 기준
+    // A4 기�?
     const pdf = new jsPDF({ orientation:'portrait', unit:'mm', format:'a4' });
     const pageW = 210;
     const pageH = 297;
     const margin = 12;
     const contentW = pageW - margin * 2;
 
-    // 섹션별로 캡처해서 페이지 구성
+    // ?�션별로 캡처?�서 ?�이지 구성
     const sections = [
       document.getElementById('birthAnalysisSection'),
       document.querySelector('.rank-header'),
@@ -755,7 +755,7 @@ async function savePDF() {
     let yPos = margin;
     let isFirstPage = true;
 
-    // 헤더 추가
+    // ?�더 추�?
     const baseName = document.getElementById('baseName')?.value?.trim() || '';
     const birthDate = document.getElementById('birthDate')?.value || '';
     pdf.setFillColor(74, 53, 32);
@@ -763,7 +763,7 @@ async function savePDF() {
     pdf.setTextColor(200, 169, 110);
     pdf.setFontSize(11);
     pdf.setFont('helvetica','bold');
-    pdf.text('팔자연구소 · 네임코드 리포트', margin, 12);
+    pdf.text('?�자?�구??· ?�임코드 리포??, margin, 12);
     pdf.setTextColor(180, 150, 100);
     pdf.setFontSize(8);
     pdf.setFont('helvetica','normal');
@@ -784,23 +784,23 @@ async function savePDF() {
         const imgData = canvas.toDataURL('image/jpeg', 0.92);
         const imgH = (canvas.height * contentW) / canvas.width;
 
-        // 페이지 넘김 처리
+        // ?�이지 ?��? 처리
         if(yPos + imgH > pageH - margin) {
           pdf.addPage();
           yPos = margin;
-          // 새 페이지 헤더
+          // ???�이지 ?�더
           pdf.setFillColor(74, 53, 32);
           pdf.rect(0, 0, pageW, 10, 'F');
           pdf.setTextColor(200, 169, 110);
           pdf.setFontSize(7);
-          pdf.text('팔자연구소 · 네임코드', margin, 7);
+          pdf.text('?�자?�구??· ?�임코드', margin, 7);
           yPos = 14;
         }
 
         pdf.addImage(imgData, 'JPEG', margin, yPos, contentW, imgH);
         yPos += imgH + 5;
       } catch(e) {
-        console.warn('섹션 캡처 실패:', e);
+        console.warn('?�션 캡처 ?�패:', e);
       }
     }
 
@@ -809,31 +809,31 @@ async function savePDF() {
     pdf.setTextColor(150, 130, 110);
     pdf.setFontSize(7);
     pdf.setFont('helvetica','normal');
-    pdf.text('※ 이 리포트는 수비학 + 소리 에너지 기준의 참고 자료입니다. 최종 이름 선택은 종합적으로 판단하시길 권합니다.', margin, yPos + 8);
+    pdf.text('????리포?�는 ?�비??+ ?�리 ?�너지 기�???참고 ?�료?�니?? 최종 ?�름 ?�택?� 종합?�으�??�단?�시�?권합?�다.', margin, yPos + 8);
 
-    // 저장
-    const fileName = `팔자연구소_네임코드_${baseName || '리포트'}_${dateStr.replace(/\./g,'')}.pdf`;
+    // ?�??
+    const fileName = `?�자?�구???�임코드_${baseName || '리포??}_${dateStr.replace(/\./g,'')}.pdf`;
     pdf.save(fileName);
 
   } catch(e) {
-    console.error('PDF 생성 오류:', e);
-    alert('PDF 생성 중 오류가 발생했습니다. 브라우저 인쇄(Ctrl+P)를 이용해주세요.');
+    console.error('PDF ?�성 ?�류:', e);
+    alert('PDF ?�성 �??�류가 발생?�습?�다. 브라?��? ?�쇄(Ctrl+P)�??�용?�주?�요.');
   }
 
-  btn.textContent = '⬇ PDF 저장';
+  btn.textContent = '�?PDF ?�??;
   btn.disabled = false;
 }
 
-// ══════════════════════════════
-// 수비학 엔진
-// ══════════════════════════════
+// ?�═?�═?�═?�═?�═?�═?�═?�═?�═?�═?�═?�═?�═?�═?�═
+// ?�비???�진
+// ?�═?�═?�═?�═?�═?�═?�═?�═?�═?�═?�═?�═?�═?�═?�═
 const PY={A:1,B:2,C:3,D:4,E:5,F:6,G:7,H:8,I:9,J:1,K:2,L:3,M:4,N:5,O:6,P:7,Q:8,R:9,S:1,T:2,U:3,V:4,W:5,X:6,Y:7,Z:8};
 const VOWELS=new Set('AEIOU');
-const HC={'ㄱ':1,'ㄲ':1,'ㄴ':2,'ㄷ':3,'ㄸ':3,'ㄹ':4,'ㅁ':5,'ㅂ':6,'ㅃ':6,'ㅅ':7,'ㅆ':7,'ㅇ':8,'ㅈ':9,'ㅉ':9,'ㅊ':1,'ㅋ':2,'ㅌ':3,'ㅍ':4,'ㅎ':5};
-const HV={'ㅏ':1,'ㅑ':2,'ㅓ':3,'ㅕ':4,'ㅗ':5,'ㅛ':6,'ㅜ':7,'ㅠ':8,'ㅡ':9,'ㅣ':1,'ㅐ':2,'ㅒ':3,'ㅔ':4,'ㅖ':5,'ㅘ':6,'ㅙ':7,'ㅚ':8,'ㅝ':9,'ㅞ':1,'ㅟ':2,'ㅢ':3};
-const CHOS=['ㄱ','ㄲ','ㄴ','ㄷ','ㄸ','ㄹ','ㅁ','ㅂ','ㅃ','ㅅ','ㅆ','ㅇ','ㅈ','ㅉ','ㅊ','ㅋ','ㅌ','ㅍ','ㅎ'];
-const JUNGS=['ㅏ','ㅐ','ㅑ','ㅒ','ㅓ','ㅔ','ㅕ','ㅖ','ㅗ','ㅘ','ㅙ','ㅚ','ㅛ','ㅜ','ㅝ','ㅞ','ㅟ','ㅠ','ㅡ','ㅢ','ㅣ'];
-const JONGS=['','ㄱ','ㄲ','ㄳ','ㄴ','ㄵ','ㄶ','ㄷ','ㄹ','ㄺ','ㄻ','ㄼ','ㄽ','ㄾ','ㄿ','ㅀ','ㅁ','ㅂ','ㅄ','ㅅ','ㅆ','ㅇ','ㅈ','ㅊ','ㅋ','ㅌ','ㅍ','ㅎ'];
+const HC={'??:1,'??:1,'??:2,'??:3,'??:3,'??:4,'??:5,'??:6,'??:6,'??:7,'??:7,'??:8,'??:9,'??:9,'??:1,'??:2,'??:3,'??:4,'??:5};
+const HV={'??:1,'??:2,'??:3,'??:4,'??:5,'??:6,'??:7,'??:8,'??:9,'??:1,'??:2,'??:3,'??:4,'??:5,'??:6,'??:7,'??:8,'??:9,'??:1,'??:2,'??:3};
+const CHOS=['??,'??,'??,'??,'??,'??,'??,'??,'??,'??,'??,'??,'??,'??,'??,'??,'??,'??,'??];
+const JUNGS=['??,'??,'??,'??,'??,'??,'??,'??,'??,'??,'??,'??,'??,'??,'??,'??,'??,'??,'??,'??,'??];
+const JONGS=['','??,'??,'??,'??,'??,'??,'??,'??,'??,'??,'??,'??,'??,'??,'?�','??,'??,'??,'??,'??,'??,'??,'??,'??,'??,'??,'??];
 
 function reduce(n,master=true){
   if(master&&(n===11||n===22||n===33))return n;
@@ -848,7 +848,7 @@ function calcName(name){
   for(const ch of s){
     if(/\d/.test(ch)){
       const digit=Number(ch);
-      if(digit>0) cv+=digit; // 숫자는 모음(혼)이 아니라 바깥(성격·표현)
+      if(digit>0) cv+=digit; // ?�자??모음(?????�니??바깥(?�격·?�현)
       continue;
     }
     const d=decomposeChar(ch);
@@ -880,7 +880,7 @@ function calcLifePath(dob){
 }
 function calcMaturity(exprRaw,lpRaw){const raw=exprRaw+lpRaw;return{raw,val:reduce(raw)};}
 
-// 생년월일 수 분포
+// ?�년?�일 ??분포
 function calcBirthDist(dob){
   const digits=dob.replace(/-/g,'').split('').map(Number).filter(n=>n>0);
   const counts={};
@@ -892,70 +892,70 @@ function calcBirthDist(dob){
   return{counts,missing,excess,normal};
 }
 
-// ══════════════════════════════
-// 소리 에너지 분석 시스템
-// ══════════════════════════════
+// ?�═?�═?�═?�═?�═?�═?�═?�═?�═?�═?�═?�═?�═?�═?�═
+// ?�리 ?�너지 분석 ?�스??
+// ?�═?�═?�═?�═?�═?�═?�═?�═?�═?�═?�═?�═?�═?�═?�═
 
-// 모음 에너지 맵
+// 모음 ?�너지 �?
 const VOWEL_ENERGY = {
-  'ㅏ':{energy:'양(陽)',feel:'밝음·개방',desc:'밝고 활기찬 에너지. 외향적이고 적극적인 울림을 줍니다.',type:'bright'},
-  'ㅑ':{energy:'양(陽)',feel:'활발·자신감',desc:'생동감 있고 자신감 넘치는 울림입니다.',type:'bright'},
-  'ㅓ':{energy:'음(陰)',feel:'포근함·안정',desc:'따뜻하고 포용적인 에너지. 편안함을 주는 울림입니다.',type:'warm'},
-  'ㅕ':{energy:'음(陰)',feel:'따뜻함·확장',desc:'부드럽고 따뜻한 울림. 관계 친화적인 에너지입니다.',type:'warm'},
-  'ㅗ':{energy:'양(陽)',feel:'긍정·원만',desc:'둥글고 밝은 에너지. 원만한 관계와 긍정성을 줍니다.',type:'bright'},
-  'ㅛ':{energy:'양(陽)',feel:'경쾌·즐거움',desc:'경쾌하고 유쾌한 울림. 주변을 밝게 만드는 에너지입니다.',type:'bright'},
-  'ㅜ':{energy:'음(陰)',feel:'깊이·내면',desc:'깊고 묵직한 에너지. 내면이 풍부한 울림입니다.',type:'deep'},
-  'ㅠ':{energy:'음(陰)',feel:'사색·신중',desc:'차분하고 사색적인 울림. 신중하고 깊은 인상을 줍니다.',type:'deep'},
-  'ㅡ':{energy:'중(中)',feel:'중립·집중',desc:'중성적이고 집중된 에너지. 흔들리지 않는 안정감입니다.',type:'neutral'},
-  'ㅣ':{energy:'음(陰)',feel:'예민·섬세',desc:'날카롭고 섬세한 울림. 예민한 감수성과 직관을 줍니다.',type:'sharp'},
-  'ㅐ':{energy:'양(陽)',feel:'명확·직선',desc:'명확하고 직접적인 에너지. 솔직하고 분명한 인상입니다.',type:'bright'},
-  'ㅔ':{energy:'중(中)',feel:'현실·실용',desc:'실용적이고 현실적인 울림입니다.',type:'neutral'},
-  'ㅒ':{energy:'양(陽)',feel:'활기·명랑',desc:'밝고 활기찬 울림입니다.',type:'bright'},
-  'ㅖ':{energy:'양(陽)',feel:'지성·청명',desc:'맑고 지적인 에너지를 줍니다.',type:'bright'},
-  'ㅘ':{energy:'양(陽)',feel:'넉넉함·포용',desc:'넉넉하고 포용적인 에너지입니다.',type:'warm'},
-  'ㅝ':{energy:'음(陰)',feel:'깊은 따뜻함',desc:'깊은 내면의 따뜻함이 느껴지는 울림입니다.',type:'warm'},
-  'ㅢ':{energy:'중(中)',feel:'독립·개성',desc:'독립적이고 개성 있는 울림입니다.',type:'neutral'},
+  '??:{energy:'????',feel:'밝음·개방',desc:'밝고 ?�기�??�너지. ?�향?�이�??�극?�인 ?�림??줍니??',type:'bright'},
+  '??:{energy:'????',feel:'?�발·?�신�?,desc:'?�동�??�고 ?�신�??�치???�림?�니??',type:'bright'},
+  '??:{energy:'????',feel:'?�근?�·안??,desc:'?�뜻?�고 ?�용?�인 ?�너지. ?�안?�을 주는 ?�림?�니??',type:'warm'},
+  '??:{energy:'????',feel:'?�뜻?�·확??,desc:'부?�럽�??�뜻???�림. 관�?친화?�인 ?�너지?�니??',type:'warm'},
+  '??:{energy:'????',feel:'긍정·?�만',desc:'?��?�?밝�? ?�너지. ?�만??관계�? 긍정?�을 줍니??',type:'bright'},
+  '??:{energy:'????',feel:'경쾌·즐거?�',desc:'경쾌?�고 ?�쾌???�림. 주�???밝게 만드???�너지?�니??',type:'bright'},
+  '??:{energy:'????',feel:'깊이·?�면',desc:'깊고 묵직???�너지. ?�면???��????�림?�니??',type:'deep'},
+  '??:{energy:'????',feel:'?�색·?�중',desc:'차분?�고 ?�색?�인 ?�림. ?�중?�고 깊�? ?�상??줍니??',type:'deep'},
+  '??:{energy:'�?�?',feel:'중립·집중',desc:'중성?�이�?집중???�너지. ?�들리�? ?�는 ?�정감입?�다.',type:'neutral'},
+  '??:{energy:'????',feel:'?��?·?�세',desc:'?�카�?�� ?�세???�림. ?��???감수?�과 직�???줍니??',type:'sharp'},
+  '??:{energy:'????',feel:'명확·직선',desc:'명확?�고 직접?�인 ?�너지. ?�직?�고 분명???�상?�니??',type:'bright'},
+  '??:{energy:'�?�?',feel:'?�실·?�용',desc:'?�용?�이�??�실?�인 ?�림?�니??',type:'neutral'},
+  '??:{energy:'????',feel:'?�기·명랑',desc:'밝고 ?�기�??�림?�니??',type:'bright'},
+  '??:{energy:'????',feel:'지?�·청�?,desc:'맑고 지?�인 ?�너지�?줍니??',type:'bright'},
+  '??:{energy:'????',feel:'?�넉?�·포??,desc:'?�넉?�고 ?�용?�인 ?�너지?�니??',type:'warm'},
+  '??:{energy:'????',feel:'깊�? ?�뜻??,desc:'깊�? ?�면???�뜻?�이 ?�껴지???�림?�니??',type:'warm'},
+  '??:{energy:'�?�?',feel:'?�립·개성',desc:'?�립?�이�?개성 ?�는 ?�림?�니??',type:'neutral'},
 };
 
-// 자음 에너지 맵
+// ?�음 ?�너지 �?
 const CONS_ENERGY = {
-  'ㄱ':{strength:'중강',feel:'결단·추진',desc:'결단력 있고 추진하는 에너지'},
-  'ㄴ':{strength:'부드',feel:'온화·친근',desc:'온화하고 친근한 에너지'},
-  'ㄷ':{strength:'강',feel:'단단·의지',desc:'단단하고 의지 있는 에너지'},
-  'ㄹ':{strength:'부드',feel:'유연·흐름',desc:'유연하고 자연스럽게 흐르는 에너지'},
-  'ㅁ':{strength:'부드',feel:'포근·모성',desc:'포근하고 따뜻한 에너지'},
-  'ㅂ':{strength:'강',feel:'힘·안정',desc:'힘차고 안정된 에너지'},
-  'ㅅ':{strength:'중',feel:'날렵·지성',desc:'날렵하고 지적인 에너지'},
-  'ㅇ':{strength:'부드',feel:'열린·수용',desc:'열려 있고 수용적인 에너지'},
-  'ㅈ':{strength:'중강',feel:'명확·직진',desc:'명확하고 직진하는 에너지'},
-  'ㅊ':{strength:'강',feel:'청명·순수',desc:'맑고 순수한 강한 에너지'},
-  'ㅋ':{strength:'강',feel:'카리스마',desc:'카리스마 있는 강한 에너지'},
-  'ㅌ':{strength:'강',feel:'열정·개방',desc:'열정적이고 개방적인 에너지'},
-  'ㅍ':{strength:'강',feel:'폭발·확장',desc:'확장하고 폭발하는 에너지'},
-  'ㅎ':{strength:'부드',feel:'따뜻·호흡',desc:'따뜻하고 부드러운 호흡 에너지'},
-  'ㄲ':{strength:'강',feel:'강렬·집중',desc:'강렬하게 집중하는 에너지'},
-  'ㄸ':{strength:'강',feel:'강한의지',desc:'강한 의지의 에너지'},
-  'ㅃ':{strength:'강',feel:'폭발·패기',desc:'패기 있는 강한 에너지'},
-  'ㅆ':{strength:'강',feel:'예리·분석',desc:'예리하게 분석하는 에너지'},
-  'ㅉ':{strength:'강',feel:'강한직진',desc:'강하게 직진하는 에너지'},
+  '??:{strength:'중강',feel:'결단·추진',desc:'결단???�고 추진?�는 ?�너지'},
+  '??:{strength:'부??,feel:'?�화·친근',desc:'?�화?�고 친근???�너지'},
+  '??:{strength:'�?,feel:'?�단·?��?',desc:'?�단?�고 ?��? ?�는 ?�너지'},
+  '??:{strength:'부??,feel:'?�연·?�름',desc:'?�연?�고 ?�연?�럽�??�르???�너지'},
+  '??:{strength:'부??,feel:'?�근·모성',desc:'?�근?�고 ?�뜻???�너지'},
+  '??:{strength:'�?,feel:'?�·안??,desc:'?�차�??�정???�너지'},
+  '??:{strength:'�?,feel:'?�렵·지??,desc:'?�렵?�고 지?�인 ?�너지'},
+  '??:{strength:'부??,feel:'?�린·?�용',desc:'?�려 ?�고 ?�용?�인 ?�너지'},
+  '??:{strength:'중강',feel:'명확·직진',desc:'명확?�고 직진?�는 ?�너지'},
+  '??:{strength:'�?,feel:'�?��·?�수',desc:'맑고 ?�수??강한 ?�너지'},
+  '??:{strength:'�?,feel:'카리?�마',desc:'카리?�마 ?�는 강한 ?�너지'},
+  '??:{strength:'�?,feel:'?�정·개방',desc:'?�정?�이�?개방?�인 ?�너지'},
+  '??:{strength:'�?,feel:'??��·?�장',desc:'?�장?�고 ??��?�는 ?�너지'},
+  '??:{strength:'부??,feel:'?�뜻·?�흡',desc:'?�뜻?�고 부?�러???�흡 ?�너지'},
+  '??:{strength:'�?,feel:'강렬·집중',desc:'강렬?�게 집중?�는 ?�너지'},
+  '??:{strength:'�?,feel:'강한?��?',desc:'강한 ?��????�너지'},
+  '??:{strength:'�?,feel:'??��·?�기',desc:'?�기 ?�는 강한 ?�너지'},
+  '??:{strength:'�?,feel:'?�리·분석',desc:'?�리?�게 분석?�는 ?�너지'},
+  '??:{strength:'�?,feel:'강한직진',desc:'강하�?직진?�는 ?�너지'},
 };
 
-// 받침 에너지
+// 받침 ?�너지
 const JONG_ENERGY = {
-  'ㄱ':{feel:'끊음·결단',desc:'명확하게 끊어지는 힘 있는 마무리'},
-  'ㄴ':{feel:'연결·여운',desc:'부드럽게 이어지는 따뜻한 여운'},
-  'ㄷ':{feel:'묵직·견고',desc:'묵직하고 견고한 닫힘'},
-  'ㄹ':{feel:'흐름·유연',desc:'자연스럽게 흐르는 유연한 여운'},
-  'ㅁ':{feel:'포근·마무리',desc:'포근하게 감싸는 따뜻한 마무리'},
-  'ㅂ':{feel:'힘찬·완결',desc:'힘차게 완결되는 강한 닫힘'},
-  'ㅇ':{feel:'울림·공명',desc:'길게 울리는 공명 에너지'},
-  'ㅅ':{feel:'날렵·경쾌',desc:'날렵하고 경쾌한 마무리'},
-  'ㄻ':{feel:'깊이·무게',desc:'깊고 무게감 있는 마무리'},
+  '??:{feel:'?�음·결단',desc:'명확?�게 ?�어지?????�는 마무�?},
+  '??:{feel:'?�결·?�운',desc:'부?�럽�??�어지???�뜻???�운'},
+  '??:{feel:'묵직·견고',desc:'묵직?�고 견고???�힘'},
+  '??:{feel:'?�름·?�연',desc:'?�연?�럽�??�르???�연???�운'},
+  '??:{feel:'?�근·마무�?,desc:'?�근?�게 감싸???�뜻??마무�?},
+  '??:{feel:'?�찬·?�결',desc:'?�차�??�결?�는 강한 ?�힘'},
+  '??:{feel:'?�림·공명',desc:'길게 ?�리??공명 ?�너지'},
+  '??:{feel:'?�렵·경쾌',desc:'?�렵?�고 경쾌??마무�?},
+  '??:{feel:'깊이·무게',desc:'깊고 무게�??�는 마무�?},
 };
 
 function analyzeSoundEnergy(name) {
   const s = name.replace(/\s/g,'');
-  if(!/[가-힣]/.test(s)) return null; // 영문은 소리 분석 제외
+  if(!/[가-??/.test(s)) return null; // ?�문?� ?�리 분석 ?�외
 
   const vowels = [];
   const consonants = [];
@@ -970,26 +970,26 @@ function analyzeSoundEnergy(name) {
     if(d.jong) { jongseongs.push(d.jong); hasJong = true; }
   }
 
-  // 모음 에너지 분석
-  const vowelTypes = vowels.map(v => VOWEL_ENERGY[v] || {energy:'중',feel:'중성',desc:'',type:'neutral'});
+  // 모음 ?�너지 분석
+  const vowelTypes = vowels.map(v => VOWEL_ENERGY[v] || {energy:'�?,feel:'중성',desc:'',type:'neutral'});
   const typeCounts = {bright:0, warm:0, deep:0, neutral:0, sharp:0};
   vowelTypes.forEach(v => typeCounts[v.type]=(typeCounts[v.type]||0)+1);
 
-  // 주조 에너지 결정
+  // 주조 ?�너지 결정
   const dominant = Object.entries(typeCounts).sort((a,b)=>b[1]-a[1])[0][0];
-  const dominantLabels = {bright:'밝고 개방적인',warm:'따뜻하고 포용적인',deep:'깊고 내면적인',neutral:'차분하고 균형잡힌',sharp:'섬세하고 예민한'};
+  const dominantLabels = {bright:'밝고 개방?�인',warm:'?�뜻?�고 ?�용?�인',deep:'깊고 ?�면?�인',neutral:'차분?�고 균형?�힌',sharp:'?�세?�고 ?��???};
 
-  // 자음 강도
-  const strengthCounts = {부드:0, 중:0, 중강:0, 강:0};
+  // ?�음 강도
+  const strengthCounts = {부??0, �?0, 중강:0, �?0};
   consonants.forEach(c => { const e=CONS_ENERGY[c]; if(e) strengthCounts[e.strength]=(strengthCounts[e.strength]||0)+1; });
-  const softCount = (strengthCounts['부드']||0);
-  const hardCount = (strengthCounts['강']||0)+(strengthCounts['중강']||0);
-  const consChar = hardCount > softCount ? '강인한' : softCount > hardCount ? '부드러운' : '균형잡힌';
+  const softCount = (strengthCounts['부??]||0);
+  const hardCount = (strengthCounts['�?]||0)+(strengthCounts['중강']||0);
+  const consChar = hardCount > softCount ? '강인?? : softCount > hardCount ? '부?�러?? : '균형?�힌';
 
-  // 받침 유무
-  const endingChar = hasJong ? '묵직하게 마무리되는' : '열려 있고 가볍게 끝나는';
+  // 받침 ?�무
+  const endingChar = hasJong ? '묵직?�게 마무리되?? : '?�려 ?�고 가볍게 ?�나??;
 
-  // 종합 울림 설명
+  // 종합 ?�림 ?�명
   const vowelDesc = vowels.slice(0,3).map(v => {
     const e = VOWEL_ENERGY[v];
     return e ? `${v}(${e.feel})` : v;
@@ -1000,10 +1000,10 @@ function analyzeSoundEnergy(name) {
     return e ? `${c}(${e.feel})` : c;
   }).join(' · ');
 
-  // 소리 에너지 종합 점수 (다양성·조화 기준)
+  // ?�리 ?�너지 종합 ?�수 (?�양?�·조??기�?)
   const variety = Object.values(typeCounts).filter(v=>v>0).length;
-  const soundScore = variety >= 3 ? '풍부' : variety === 2 ? '조화' : '집중';
-  const soundScoreDesc = {풍부:'다양한 에너지가 풍부하게 어우러집니다',조화:'두 가지 에너지가 조화롭게 공존합니다',집중:'하나의 에너지가 일관되게 흐릅니다'};
+  const soundScore = variety >= 3 ? '?��?' : variety === 2 ? '조화' : '집중';
+  const soundScoreDesc = {?��?:'?�양???�너지가 ?��??�게 ?�우?�집?�다',조화:'??가지 ?�너지가 조화�?�� 공존?�니??,집중:'?�나???�너지가 ?��??�게 ?�릅?�다'};
 
   return {
     vowels, consonants, jongseongs, hasJong,
@@ -1011,27 +1011,27 @@ function analyzeSoundEnergy(name) {
     dominant, dominantLabel: dominantLabels[dominant],
     consChar, endingChar,
     soundScore, soundScoreDesc: soundScoreDesc[soundScore],
-    summary: `${dominantLabels[dominant]} 울림에, ${consChar} 자음과 ${endingChar} 이름입니다.`
+    summary: `${dominantLabels[dominant]} ?�림?? ${consChar} ?�음�?${endingChar} ?�름?�니??`
   };
 }
 
 const TRAITS={
-  1:{name:'개척자',key:'자립·추진력·독창성',desc:'스스로 길을 여는 선구적 에너지. 주도적이고 독립적인 삶을 이끕니다.',miss:'주도성과 결단력이 약할 수 있어요. 이름이 이 에너지를 채워주면 좋습니다.',excess:'자기주장이 지나치게 강해지거나 독주 경향이 있을 수 있습니다.'},
-  2:{name:'조화자',key:'협력·공감·균형',desc:'둘 사이를 잇는 섬세한 에너지. 관계 속에서 조화를 만들어냅니다.',miss:'관계에서 경직되거나 공감 능력이 부족할 수 있어요.',excess:'지나친 의존심이나 우유부단함이 나타날 수 있습니다.'},
-  3:{name:'창조자',key:'표현·창의·소통',desc:'말과 글로 세상을 밝히는 에너지. 자신을 표현할 때 가장 빛납니다.',miss:'자기표현이 서툴거나 창의성이 억눌릴 수 있어요.',excess:'산만함이나 과도한 표현 욕구가 생길 수 있습니다.'},
-  4:{name:'건설자',key:'안정·성실·체계',desc:'기반을 다지고 신뢰를 쌓는 에너지. 꾸준함이 가장 큰 무기입니다.',miss:'끈기와 체계가 부족하거나 기반이 흔들릴 수 있어요.',excess:'고집이 세지거나 변화를 거부하는 경향이 생길 수 있습니다.'},
-  5:{name:'탐험가',key:'자유·변화·모험',desc:'새로운 자극과 변화 속에서 성장하는 에너지. 적응력이 탁월합니다.',miss:'변화에 적응하기 어렵거나 새로운 시도를 두려워할 수 있어요.',excess:'방향을 잃고 산만해지거나 책임을 회피할 수 있습니다.'},
-  6:{name:'양육자',key:'책임·돌봄·헌신',desc:'주변을 살피고 조화로운 환경을 만드는 에너지. 따뜻한 안정감을 줍니다.',miss:'책임감이나 따뜻함이 부족하게 느껴질 수 있어요.',excess:'지나친 희생이나 과보호로 자신이 소진될 수 있습니다.'},
-  7:{name:'탐구자',key:'지혜·분석·통찰',desc:'본질을 파고드는 고차원적 에너지. 전문성과 통찰로 신뢰를 줍니다.',miss:'깊이 있는 사고나 전문성 발휘가 어려울 수 있어요.',excess:'고립되거나 지나치게 분석적이 되어 행동이 늦어질 수 있습니다.'},
-  8:{name:'성취자',key:'야망·실행력·권위',desc:'목표를 결과로 증명하는 강력한 에너지. 현실적 해법을 찾습니다.',miss:'현실 감각이나 추진력이 약할 수 있어요.',excess:'지나친 물질 추구나 권위적 성향이 나타날 수 있습니다.'},
-  9:{name:'인도자',key:'포용·완성·이타심',desc:'모든 경험을 통합해 더 큰 가치를 추구하는 에너지. 베풀수록 풍요로워집니다.',miss:'포용력이나 큰 그림을 보는 시야가 부족할 수 있어요.',excess:'이상주의에 빠지거나 현실적인 것을 무시할 수 있습니다.'},
-  11:{name:'영적 스승',key:'직관·영감·비전',desc:'비범한 직관으로 사람들의 의식을 일깨우는 마스터 에너지입니다.',miss:'',excess:''},
-  22:{name:'마스터 빌더',key:'건설·이상·실현',desc:'이상을 실제 시스템으로 구현하는 위대한 마스터 에너지입니다.',miss:'',excess:''},
-  33:{name:'마스터 티처',key:'치유·사랑·가르침',desc:'조건 없는 자비와 사랑으로 치유하는 최고의 마스터 에너지입니다.',miss:'',excess:''},
+  1:{name:'개척??,key:'?�립·추진?�·독창성',desc:'?�스�?길을 ?�는 ?�구???�너지. 주도?�이�??�립?�인 ?�을 ?�끕?�다.',miss:'주도?�과 결단?�이 ?�할 ???�어?? ?�름?????�너지�?채워주면 좋습?�다.',excess:'?�기주장??지?�치�?강해지거나 ?�주 경향???�을 ???�습?�다.'},
+  2:{name:'조화??,key:'?�력·공감·균형',desc:'???�이�??�는 ?�세???�너지. 관�??�에??조화�?만들?�냅?�다.',miss:'관계에??경직?�거??공감 ?�력??부족할 ???�어??',excess:'지?�친 ?�존?�이???�유부?�함???��??????�습?�다.'},
+  3:{name:'창조??,key:'?�현·창의·?�통',desc:'말과 글�??�상??밝히???�너지. ?�신???�현????가??빛납?�다.',miss:'?�기?�현???�툴거나 창의?�이 ?�눌�????�어??',excess:'?�만?�이??과도???�현 ?�구가 ?�길 ???�습?�다.'},
+  4:{name:'건설??,key:'?�정·?�실·체계',desc:'기반???��?�??�뢰�??�는 ?�너지. 꾸�??�이 가????무기?�니??',miss:'?�기?� 체계가 부족하거나 기반???�들�????�어??',excess:'고집???��?거나 변?��? 거�??�는 경향???�길 ???�습?�다.'},
+  5:{name:'?�험가',key:'?�유·변?�·모??,desc:'?�로???�극�?변???�에???�장?�는 ?�너지. ?�응?�이 ?�월?�니??',miss:'변?�에 ?�응?�기 ?�렵거나 ?�로???�도�??�려?�할 ???�어??',excess:'방향???�고 ?�만?��?거나 책임???�피?????�습?�다.'},
+  6:{name:'?�육??,key:'책임·?�봄·?�신',desc:'주�????�피�?조화로운 ?�경??만드???�너지. ?�뜻???�정감을 줍니??',miss:'책임감이???�뜻?�이 부족하�??�껴�????�어??',excess:'지?�친 ?�생?�나 과보?�로 ?�신???�진?????�습?�다.'},
+  7:{name:'?�구??,key:'지?�·분?�·통�?,desc:'본질???�고?�는 고차?�적 ?�너지. ?�문?�과 ?�찰�??�뢰�?줍니??',miss:'깊이 ?�는 ?�고???�문??발휘가 ?�려?????�어??',excess:'고립?�거??지?�치�?분석?�이 ?�어 ?�동????���????�습?�다.'},
+  8:{name:'?�취??,key:'?�망·?�행?�·권??,desc:'목표�?결과�?증명?�는 강력???�너지. ?�실???�법??찾습?�다.',miss:'?�실 감각?�나 추진?�이 ?�할 ???�어??',excess:'지?�친 물질 추구??권위???�향???��??????�습?�다.'},
+  9:{name:'?�도??,key:'?�용·?�성·?��???,desc:'모든 경험???�합??????가치�? 추구?�는 ?�너지. 베�??�록 ?�요로워집니??',miss:'?�용?�이????그림??보는 ?�야가 부족할 ???�어??',excess:'?�상주의??빠�?거나 ?�실?�인 것을 무시?????�습?�다.'},
+  11:{name:'?�적 ?�승',key:'직�?·?�감·비전',desc:'비범??직�??�로 ?�람?�의 ?�식???�깨?�는 마스???�너지?�니??',miss:'',excess:''},
+  22:{name:'마스??빌더',key:'건설·?�상·?�현',desc:'?�상???�제 ?�스?�으�?구현?�는 ?��???마스???�너지?�니??',miss:'',excess:''},
+  33:{name:'마스???�처',key:'치유·?�랑·가르침',desc:'조건 ?�는 ?�비?� ?�랑?�로 치유?�는 최고??마스???�너지?�니??',miss:'',excess:''},
 };
 const tr=n=>TRAITS[n]||TRAITS[reduce(n,false)]||TRAITS[1];
 
-// ── 궁합 점수 (조합별 세분화) ──
+// ?�?� 궁합 ?�수 (조합�??�분?? ?�?�
 const COMPAT_TABLE={
   '1-1':72,'1-2':58,'1-3':82,'1-4':45,'1-5':78,'1-6':62,'1-7':68,'1-8':48,'1-9':88,'1-11':75,'1-22':70,'1-33':60,
   '2-2':74,'2-3':65,'2-4':80,'2-5':55,'2-6':85,'2-7':60,'2-8':82,'2-9':70,'2-11':78,'2-22':65,'2-33':80,
@@ -1046,34 +1046,34 @@ const COMPAT_TABLE={
   '22-22':72,'22-33':80,'33-33':76
 };
 function compat(a,b){if(!a||!b)return null;const k=[Math.min(a,b),Math.max(a,b)].join('-');return COMPAT_TABLE[k]??65;}
-function compatLabel(s){if(s>=88)return'탁월한 조화';if(s>=80)return'높은 공명';if(s>=70)return'자연스러운 흐름';if(s>=60)return'보완적 관계';return'긴장 관계';}
+function compatLabel(s){if(s>=88)return'?�월??조화';if(s>=80)return'?��? 공명';if(s>=70)return'?�연?�러???�름';if(s>=60)return'보완??관�?;return'긴장 관�?;}
 function compatClass(s){if(s>=80)return'score-high';if(s>=65)return'score-mid';return'score-low';}
 function fillClass(s){if(s>=80)return'fill-high';if(s>=65)return'fill-mid';return'fill-low';}
 
-// ── 이름 목적(용도) — 점수는 소수 “버킷”으로만 (세부는 AI·문구용) ──
+// ?�?� ?�름 목적(?�도) ???�수???�수 ?�버?�”으로만 (?��???AI·문구?? ?�?�
 const PURPOSE_SCORING = {
-  general:   { ideal:[1,2,3,6,9],      avoid:[],            desc:'균형 잡힌 에너지, 부르기 편한 인상' },
-  biz:       { ideal:[1,4,8,22],       avoid:[2,7],         desc:'리더십·성취·안정·비전' },
-  nick_online:{ ideal:[3,5,1,8],      avoid:[],            desc:'기억·표현·개성·반복 호명에 유리한 인지도' },
-  creative:  { ideal:[3,5,11,33],      avoid:[4,8],         desc:'창의·표현·무대/콘텐츠와의 조화' },
-  mystic:    { ideal:[7,9,11,22],    avoid:[1,5],         desc:'신뢰·통찰·포용·전문성' },
-  athlete:   { ideal:[1,4,8,22],      avoid:[],            desc:'추진·체계·성취·리더십' },
-  educator:  { ideal:[6,9,11,33],     avoid:[],            desc:'전달·포용·가르침·완성' },
+  general:   { ideal:[1,2,3,6,9],      avoid:[],            desc:'균형 ?�힌 ?�너지, 부르기 ?�한 ?�상' },
+  biz:       { ideal:[1,4,8,22],       avoid:[2,7],         desc:'리더??�성취·안?�·비?? },
+  nick_online:{ ideal:[3,5,1,8],      avoid:[],            desc:'기억·?�현·개성·반복 ?�명???�리???��??? },
+  creative:  { ideal:[3,5,11,33],      avoid:[4,8],         desc:'창의·?�현·무�?/콘텐츠�???조화' },
+  mystic:    { ideal:[7,9,11,22],    avoid:[1,5],         desc:'?�뢰·?�찰·?�용·?�문?? },
+  athlete:   { ideal:[1,4,8,22],      avoid:[],            desc:'추진·체계·?�취·리더?? },
+  educator:  { ideal:[6,9,11,33],     avoid:[],            desc:'?�달·?�용·가르침·?�성' },
 };
 
 function normalizePurposeArg(p) {
   if (p && typeof p === 'object' && p.scoringKey && p.label) return p;
   if (typeof p === 'string') {
     const legacy = {
-      '일반 이름':       { scoringKey:'general', label:p },
-      '사업명·브랜드':   { scoringKey:'biz', label:p },
-      '예술가 가명':     { scoringKey:'creative', label:p },
-      '역술인·상담사 예명': { scoringKey:'mystic', label:p },
-      '기타':            { scoringKey:'general', label:p },
+      '?�반 ?�름':       { scoringKey:'general', label:p },
+      '?�업명·브?�드':   { scoringKey:'biz', label:p },
+      '?�술가 가�?:     { scoringKey:'creative', label:p },
+      '??��?�·상?�사 ?�명': { scoringKey:'mystic', label:p },
+      '기�?':            { scoringKey:'general', label:p },
     };
     return legacy[p] || { scoringKey:'general', label:p };
   }
-  return { scoringKey:'general', label:'👤 일반 이름' };
+  return { scoringKey:'general', label:'?�� ?�반 ?�름' };
 }
 
 function calcPurposeFit(exprVal, scoringKey) {
@@ -1087,13 +1087,13 @@ function calcPurposeFit(exprVal, scoringKey) {
 function getPurposePromptExtra(scoringKey, displayLabel) {
   const L = displayLabel || '';
   const map = {
-    general: '일반 개인 이름으로 평생 불릴 에너지와 인상을 중심으로 설명해주세요.',
-    biz: '사업명·브랜드로서 신뢰·권위·기억 잔상이 충분한지, 반복 노출에 견디는지 평가해주세요.',
-    nick_online: `온라인·닉네임 맥락(${L})에서 검색·태그·반복 호명, 짧고 기억에 남는지 평가해주세요.`,
-    creative: `창작·콘텐츠·예명 맥락(${L})에서 개성·무대/작품과의 조화를 평가해주세요.`,
-    mystic: `역술·상담 예명 맥락(${L})에서 신뢰·전문성·의뢰인과의 거리감이 적절한지 평가해주세요.`,
-    athlete: `운동·코칭 활동명(${L})에서 추진력·결단·동기 부여 이미지가 드는지 평가해주세요.`,
-    educator: `강사·교육자 이름(${L})에서 전달력·신뢰·포용이 균형 있는지 평가해주세요.`,
+    general: '?�반 개인 ?�름?�로 ?�생 불릴 ?�너지?� ?�상??중심?�로 ?�명?�주?�요.',
+    biz: '?�업명·브?�드로서 ?�뢰·권위·기억 ?�상??충분?��?, 반복 ?�출??견디?��? ?��??�주?�요.',
+    nick_online: `?�라?�·닉?�임 맥락(${L})?�서 검?�·태그·반�??�명, 짧고 기억???�는지 ?��??�주?�요.`,
+    creative: `창작·콘텐츠·예�?맥락(${L})?�서 개성·무�?/?�품과의 조화�??��??�주?�요.`,
+    mystic: `??��·?�담 ?�명 맥락(${L})?�서 ?�뢰·?�문?�·의뢰인과의 거리감이 ?�절?��? ?��??�주?�요.`,
+    athlete: `?�동·코칭 ?�동�?${L})?�서 추진?�·결?�·동�?부???��?지가 ?�는지 ?��??�주?�요.`,
+    educator: `강사·교육???�름(${L})?�서 ?�달?�·신뢰·포?�이 균형 ?�는지 ?��??�주?�요.`,
   };
   return map[scoringKey] || map.general;
 }
@@ -1102,7 +1102,7 @@ function isPersonalNamePurpose(scoringKey) {
   return scoringKey === 'general';
 }
 
-/** AI 추천 결과를 수비학 계산용 전체 문자열로 */
+/** AI 추천 결과�??�비??계산???�체 문자?�로 */
 function formatFullRecommendName(scoringKey, surname, namePart) {
   const n = String(namePart || '').trim();
   if (!n) return '';
@@ -1111,10 +1111,10 @@ function formatFullRecommendName(scoringKey, surname, namePart) {
 }
 
 function recommendResultNoun(scoringKey) {
-  if (scoringKey === 'biz') return '브랜드명';
-  if (scoringKey === 'nick_online') return '닉네임';
-  if (scoringKey === 'general') return '이름';
-  return '활동명';
+  if (scoringKey === 'biz') return '브랜?�명';
+  if (scoringKey === 'nick_online') return '?�네??;
+  if (scoringKey === 'general') return '?�름';
+  return '?�동�?;
 }
 
 function buildRecommendPrompt(opts) {
@@ -1124,87 +1124,87 @@ function buildRecommendPrompt(opts) {
   const key = purposeCtx.scoringKey;
   const contextBlock = [
     `목적: ${purposeCtx.label}`,
-    PURPOSE_SCORING[key]?.desc ? `에너지 방향: ${PURPOSE_SCORING[key].desc}` : '',
-    lp ? `인생여정수: ${lp.val}번(${tr(lp.val).name}) — ${tr(lp.val).key}` : '',
+    PURPOSE_SCORING[key]?.desc ? `?�너지 방향: ${PURPOSE_SCORING[key].desc}` : '',
+    lp ? `?�생?�정?? ${lp.val}�?${tr(lp.val).name}) ??${tr(lp.val).key}` : '',
     missingStr || '',
     excessStr || '',
     energyDesc || '',
-    extra ? `추가 요청: ${extra}` : '',
+    extra ? `추�? ?�청: ${extra}` : '',
   ].filter(Boolean).join('\n');
 
-  const jsonTail = `반드시 아래 JSON 형식으로만 응답하세요 (다른 텍스트 없이):
-{"names":["후보1","후보2","후보3","후보4","후보5","후보6","후보7","후보8","후보9","후보10"]}`;
+  const jsonTail = `반드???�래 JSON ?�식?�로�??�답?�세??(?�른 ?�스???�이):
+{"names":["?�보1","?�보2","?�보3","?�보4","?�보5","?�보6","?�보7","?�보8","?�보9","?�보10"]}`;
 
   if (key === 'biz') {
-    return `당신은 한국 사업명·브랜드·상호 네이밍 전문가입니다.
-아래 조건에 맞는 **상호·브랜드명** 10개를 추천하세요.
+    return `?�신?� ?�국 ?�업명·브?�드·?�호 ?�이�??�문가?�니??
+?�래 조건??맞는 **?�호·브랜?�명** 10개�? 추천?�세??
 
-**절대 금지:** 일반 사람 이름·실명 스타일 (예: 한결, 민수, 현숙, 서연, ${surname || '김'}한결, ${surname || '김'}현숙)
-**금지:** 성씨+흔한 이름 2~3음절 조합
+**?��? 금�?:** ?�반 ?�람 ?�름·?�명 ?��???(?? ?�결, 민수, ?�숙, ?�연, ${surname || '김'}?�결, ${surname || '김'}?�숙)
+**금�?:** ?�씨+?�한 ?�름 2~3?�절 조합
 
 ${contextBlock}
-${surname ? `참고(선택): 대표 성씨 「${surname}」 — 상호에 자연스럽게 녹일 **브랜드 1~2개**만 가능. ${surname}+인명 형태 금지.` : ''}
+${surname ? `참고(?�택): ?�???�씨 ??{surname}?????�호???�연?�럽�??�일 **브랜??1~2�?*�?가?? ${surname}+?�명 ?�태 금�?.` : ''}
 
-브랜드명 가이드:
-- 카페·스튜디오·샵·브랜드에 쓸 **2~5음절** 한글 상호 (예: 달빛공방, 브라운핸즈, 한결상회, 팔자랩, 별숲스튜디오)
-- names 배열에는 **완성된 브랜드명 전체**를 넣으세요 (성+이름 분리 없음)
-- 숫자 계산은 하지 마세요
+브랜?�명 가?�드:
+- 카페·?�튜?�오·?�·브?�드????**2~5?�절** ?��? ?�호 (?? ?�빛공방, 브라?�핸�? ?�결?�회, ?�자?? 별숲?�튜?�오)
+- names 배열?�는 **?�성??브랜?�명 ?�체**�??�으?�요 (???�름 분리 ?�음)
+- ?�자 계산?� ?��? 마세??
 
 ${jsonTail}`;
   }
 
   if (key === 'nick_online') {
-    return `당신은 온라인 닉네임·핸들·활동명 네이밍 전문가입니다.
-**${purposeCtx.label}** 맥락의 닉네임 10개를 추천하세요.
+    return `?�신?� ?�라???�네?�·핸?�·활?�명 ?�이�??�문가?�니??
+**${purposeCtx.label}** 맥락???�네??10개�? 추천?�세??
 
-**절대 금지:** 실명·일반 인명 (김민수, 은혜, 준호, ${surname || ''}한결 등 성+이름)
-**금지:** 출생신고용 이름처럼 보이는 2~3음절 인명
+**?��? 금�?:** ?�명·?�반 ?�명 (김민수, ?�?? 준?? ${surname || ''}?�결 ?????�름)
+**금�?:** 출생?�고???�름처럼 보이??2~3?�절 ?�명
 
 ${contextBlock}
-- 성별 참고: ${gender} (닉네임에 성씨+이름 조합 쓰지 마세요)
-${surname ? `- 성(姓) 「${surname}」 필드는 무시하거나 별칭 일부로만 자연스럽게` : ''}
+- ?�별 참고: ${gender} (?�네?�에 ?�씨+?�름 조합 ?��? 마세??
+${surname ? `- ??�? ??{surname}???�드??무시?�거??별칭 ?��?로만 ?�연?�럽�? : ''}
 
-가이드:
-- 2~6글자, 검색·태그·반복 호명에 유리
-- 한글·영문·숫자 조합 가능 (예: 별빛탐험가, codefox, 달토끼77, 라이트핸즈)
-- names에는 **닉네임 전체**만
+가?�드:
+- 2~6글?? 검?�·태그·반�??�명???�리
+- ?��?·?�문·?�자 조합 가??(?? 별빛?�험가, codefox, ?�토??7, ?�이?�핸�?
+- names?�는 **?�네???�체**�?
 
 ${jsonTail}`;
   }
 
   if (key === 'creative' || key === 'mystic' || key === 'athlete' || key === 'educator') {
-    return `당신은 활동명·예명·필명 네이밍 전문가입니다.
-출생신고용 **실명이 아닌** ${purposeCtx.label} 용 **활동명** 10개를 추천하세요.
+    return `?�신?� ?�동명·예명·필�??�이�??�문가?�니??
+출생?�고??**?�명???�닌** ${purposeCtx.label} ??**?�동�?* 10개�? 추천?�세??
 
-**금지:** 민수, 지영, 현숙 같은 일반 실명만 나열
-**금지:** ${surname ? `${surname}+흔한이름` : '성+흔한이름'} 형태
+**금�?:** 민수, 지?? ?�숙 같�? ?�반 ?�명�??�열
+**금�?:** ${surname ? `${surname}+?�한?�름` : '???�한?�름'} ?�태
 
 ${contextBlock}
-- 성별 참고: ${gender}
+- ?�별 참고: ${gender}
 
-가이드:
-- 무대·채널·상담실·팀에 쓸 예명·필명
-- 2~5음절, 개성과 신뢰가 느껴지는 조합
-- names에는 **활동명 전체**
+가?�드:
+- 무�?·채널·?�담?�·�??????�명·?�명
+- 2~5?�절, 개성�??�뢰가 ?�껴지??조합
+- names?�는 **?�동�??�체**
 
 ${jsonTail}`;
   }
 
-  return `당신은 한국 **일반 사람 이름** 전문가입니다. 아래 조건에 맞는 이름 10개를 추천하세요. 이름 텍스트만 주세요.
+  return `?�신?� ?�국 **?�반 ?�람 ?�름** ?�문가?�니?? ?�래 조건??맞는 ?�름 10개�? 추천?�세?? ?�름 ?�스?�만 주세??
 
 ${contextBlock}
-- 성(姓): ${surname || '미정 (성 없이 이름만)'}
-- 성별: ${gender}
-- 음절 수: ${syllable === 'any' ? '무관' : syllable + '음절 (이름만, 성 제외)'}
+- ??�?: ${surname || '미정 (???�이 ?�름�?'}
+- ?�별: ${gender}
+- ?�절 ?? ${syllable === 'any' ? '무�?' : syllable + '?�절 (?�름�? ???�외)'}
 
 ${jsonTail}
 
 주의:
-- 성이 있으면 **이름 부분만** 반환 (성 제외)
-- 실제 한국에서 사용되는 사람 이름`;
+- ?�이 ?�으�?**?�름 부분만** 반환 (???�외)
+- ?�제 ?�국?�서 ?�용?�는 ?�람 ?�름`;
 }
 
-// ── 이름 종합 평가 ──
+// ?�?� ?�름 종합 ?��? ?�?�
 function evaluateName(r, dist, purposeInput) {
   const pCtx = normalizePurposeArg(purposeInput);
   const expr = r.nums.expression.val;
@@ -1215,116 +1215,116 @@ function evaluateName(r, dist, purposeInput) {
   const warnings  = [];
   const soundWarnings = [];
   const soundStrengths = [];
-  let numBonus = 0;   // 수비학 보너스
-  let soundBonus = 0; // 소리 균형 보너스 (별도 표기)
+  let numBonus = 0;   // ?�비??보너??
+  let soundBonus = 0; // ?�리 균형 보너??(별도 ?�기)
 
-  // 1. 생년월일 부족수 채움
+  // 1. ?�년?�일 부족수 채�?
   if(dist && dist.missing.includes(expr)) {
-    strengths.push(`운명수 ${expr}번 — 생년월일에 없는 에너지를 이름이 정확히 채워줍니다. 수비학적으로 가장 이상적인 보완이에요.`);
+    strengths.push(`?�명??${expr}�????�년?�일???�는 ?�너지�??�름???�확??채워줍니?? ?�비?�적?�로 가???�상?�인 보완?�에??`);
     numBonus += 15;
   }
   if(dist && dist.missing.includes(soul)) {
-    strengths.push(`혼의수 ${soul}번 — 내면의 갈망이 생년월일에 부족한 에너지와 일치해요.`);
+    strengths.push(`?�의??${soul}�????�면??갈망???�년?�일??부족한 ?�너지?� ?�치?�요.`);
     numBonus += 8;
   }
 
-  // 2. 과잉수 겹침
+  // 2. 과잉??겹침
   if(dist && dist.excess.includes(expr)) {
-    warnings.push(`운명수 ${expr}번 — 생년월일에 이미 많은 에너지예요. 이름까지 같으면 과잉될 수 있습니다.`);
+    warnings.push(`?�명??${expr}�????�년?�일???��? 많�? ?�너지?�요. ?�름까�? 같으�?과잉?????�습?�다.`);
     numBonus -= 12;
   }
 
-  // 3. 마스터 넘버
+  // 3. 마스???�버
   if(isMaster) {
-    strengths.push(`마스터 넘버 ${expr}번 — 평범함을 넘어선 사명과 깊이를 이름에 담습니다.`);
+    strengths.push(`마스???�버 ${expr}�????�범?�을 ?�어???�명�?깊이�??�름???�습?�다.`);
     numBonus += 8;
   }
 
-  // 4. 인생여정수 궁합
+  // 4. ?�생?�정??궁합
   if(r.lp) {
     const sc = r.totalCompat;
     if(sc >= 88) {
-      strengths.push(`인생여정수(${r.lp.val})와 탁월한 조화(${sc}점) — 삶의 방향과 이름 에너지가 강하게 공명합니다.`);
+      strengths.push(`?�생?�정??${r.lp.val})?� ?�월??조화(${sc}?? ???�의 방향�??�름 ?�너지가 강하�?공명?�니??`);
       numBonus += 10;
     } else if(sc >= 80) {
-      strengths.push(`인생여정수(${r.lp.val})와 높은 공명(${sc}점) — 이름이 삶의 방향을 자연스럽게 강화해줍니다.`);
+      strengths.push(`?�생?�정??${r.lp.val})?� ?��? 공명(${sc}?? ???�름???�의 방향???�연?�럽�?강화?�줍?�다.`);
       numBonus += 5;
     } else if(sc < 55) {
-      warnings.push(`인생여정수(${r.lp.val})와의 궁합이 낮습니다(${sc}점) — 내면의 긴장감이 생길 수 있어요.`);
+      warnings.push(`?�생?�정??${r.lp.val})?�??궁합????��?�다(${sc}?? ???�면??긴장감이 ?�길 ???�어??`);
       numBonus -= 8;
     }
   }
 
-  // 5. 겉/속 일치
+  // 5. �????�치
   if(expr === soul) {
-    strengths.push(`운명수와 혼의수가 일치해, 이름이 주는 방향성과 내면 욕구가 같은 흐름으로 맞물립니다.`);
+    strengths.push(`?�명?��? ?�의?��? ?�치?? ?�름??주는 방향?�과 ?�면 ?�구가 같�? ?�름?�로 맞물립니??`);
     numBonus += 3;
   }
 
-  // 6. 인생여정수 없을 때
+  // 6. ?�생?�정???�을 ??
   if(!r.lp) {
     if(isMaster) numBonus += 5;
     if([1,3,6,9].includes(expr)) numBonus += 3;
   }
 
-  // 6-1. 목적(용도) 적합도 — 운명수 기준 (버킷)
+  // 6-1. 목적(?�도) ?�합?????�명??기�? (버킷)
   const fit = calcPurposeFit(expr, pCtx.scoringKey);
   const bucketDesc = PURPOSE_SCORING[pCtx.scoringKey]?.desc || '';
   if (fit.score > 0) {
-    strengths.push(`「${pCtx.label}」에 적합 — 운명수 ${expr}번(${tr(expr).name})은 ${bucketDesc}에 잘 맞습니다.`);
+    strengths.push(`??{pCtx.label}?�에 ?�합 ???�명??${expr}�?${tr(expr).name})?� ${bucketDesc}????맞습?�다.`);
     numBonus += fit.score;
   } else if (fit.score < 0) {
-    warnings.push(`「${pCtx.label}」목적으로는 주의 — 운명수 ${expr}번(${tr(expr).name})은 이 용도의 이상형과 거리가 있을 수 있어요.`);
+    warnings.push(`??{pCtx.label}?�목?�으로는 주의 ???�명??${expr}�?${tr(expr).name})?� ???�도???�상?�과 거리가 ?�을 ???�어??`);
     numBonus += fit.score;
   }
 
-  // 7. 소리 균형 점수 (별도 집계)
+  // 7. ?�리 균형 ?�수 (별도 집계)
   const se = analyzeSoundEnergy(r.name);
   if(se) {
     const name = r.name.replace(/\s/g,'');
     const chars = [...name];
     const uniqueChars = new Set(chars).size;
 
-    // 같은 글자 반복
+    // 같�? 글??반복
     if(chars.length >= 2 && uniqueChars < chars.length) {
       const repeatCount = chars.length - uniqueChars;
-      soundWarnings.push(`같은 글자 반복 (-${repeatCount*8}점)`);
+      soundWarnings.push(`같�? 글??반복 (-${repeatCount*8}??`);
       soundBonus -= repeatCount * 8;
     }
 
-    // 모음 단일
+    // 모음 ?�일
     const uniqueVowels = new Set(se.vowels).size;
     if(se.vowels.length >= 2 && uniqueVowels === 1) {
-      soundWarnings.push(`모음이 단일해 울림이 단조롭습니다 (-5점)`);
+      soundWarnings.push(`모음???�일???�림???�조�?��?�다 (-5??`);
       soundBonus -= 5;
     }
 
-    // 자음 강도 과잉
-    const sc2 = {부드:0,중:0,중강:0,강:0};
+    // ?�음 강도 과잉
+    const sc2 = {부??0,�?0,중강:0,�?0};
     se.consonants.forEach(c=>{const e=CONS_ENERGY[c];if(e)sc2[e.strength]=(sc2[e.strength]||0)+1;});
     const totalCons = se.consonants.length||1;
-    const hardRatio = ((sc2['강']||0)+(sc2['중강']||0))/totalCons;
+    const hardRatio = ((sc2['�?]||0)+(sc2['중강']||0))/totalCons;
     if(hardRatio >= 0.8) {
-      soundWarnings.push(`강한 자음 집중으로 거칠게 들릴 수 있어요 (-8점)`);
+      soundWarnings.push(`강한 ?�음 집중?�로 거칠�??�릴 ???�어??(-8??`);
       soundBonus -= 8;
     } else if(hardRatio <= 0.2) {
-      soundStrengths.push(`부드러운 자음 구성으로 온화한 인상 (+4점)`);
+      soundStrengths.push(`부?�러???�음 구성?�로 ?�화???�상 (+4??`);
       soundBonus += 4;
     }
 
-    // 모음 다양성
+    // 모음 ?�양??
     const typeSet = new Set(se.vowels.map(v=>VOWEL_ENERGY[v]?.type||'neutral'));
     if(typeSet.size >= 3) {
-      soundStrengths.push(`모음 에너지 다양해 풍부한 울림 (+5점)`);
+      soundStrengths.push(`모음 ?�너지 ?�양???��????�림 (+5??`);
       soundBonus += 5;
     } else if(typeSet.size === 2) {
       soundBonus += 2;
     }
 
-    // 끝소리 열림
+    // ?�소�??�림
     const lastDecomp = decomposeChar(chars[chars.length-1]);
     if(lastDecomp && !lastDecomp.jong) {
-      soundStrengths.push(`끝소리가 열려 부르기 자연스러운 이름 (+3점)`);
+      soundStrengths.push(`?�소리�? ?�려 부르기 ?�연?�러???�름 (+3??`);
       soundBonus += 3;
     }
   }
@@ -1333,13 +1333,13 @@ function evaluateName(r, dist, purposeInput) {
   return { strengths, warnings, soundStrengths, soundWarnings, numBonus, soundBonus, bonus };
 }
 
-// ── 판정 ──
+// ?�?� ?�정 ?�?�
 function getVerdict(score, bonus, isBest) {
   const total = (score || 70) + bonus;
-  if(isBest && total >= 75) return {key:'best',label:'✦ 추천',cls:'verdict-best',vbCls:'vb-best',tCls:'t-best'};
-  if(total >= 83) return {key:'good',label:'◆ 좋음',cls:'verdict-good',vbCls:'vb-good',tCls:'t-good'};
-  if(total < 58) return {key:'caution',label:'⚠ 주의',cls:'verdict-caution',vbCls:'vb-caution',tCls:'t-caution'};
-  return {key:'normal',label:'— 보통',cls:'verdict-normal',vbCls:'vb-normal',tCls:'t-normal'};
+  if(isBest && total >= 75) return {key:'best',label:'??추천',cls:'verdict-best',vbCls:'vb-best',tCls:'t-best'};
+  if(total >= 83) return {key:'good',label:'??좋음',cls:'verdict-good',vbCls:'vb-good',tCls:'t-good'};
+  if(total < 58) return {key:'caution',label:'??주의',cls:'verdict-caution',vbCls:'vb-caution',tCls:'t-caution'};
+  return {key:'normal',label:'??보통',cls:'verdict-normal',vbCls:'vb-normal',tCls:'t-normal'};
 }
 
 function verdictText(v, r, dist, purposeInput) {
@@ -1349,21 +1349,21 @@ function verdictText(v, r, dist, purposeInput) {
   const name = r.name;
   if(v.key === 'best') {
     const reason = r.lp
-      ? `인생여정수(${r.lp.val})와 강하게 공명하며${dist && dist.missing.includes(expr) ? ' 생년월일의 부족한 에너지까지 채워주는' : ''} 이 이름은 수비학적으로 가장 조화로운 선택입니다.`
-      : `${exprT.name}(${expr})의 에너지가 선택하신 목적(${pCtx.label})에 맞는 방향을 제시하는 이름입니다.`;
-    return `<strong>${name}</strong>이 가장 좋은 이름입니다. ${reason}`;
+      ? `?�생?�정??${r.lp.val})?� 강하�?공명?�며${dist && dist.missing.includes(expr) ? ' ?�년?�일??부족한 ?�너지까�? 채워주는' : ''} ???�름?� ?�비?�적?�로 가??조화로운 ?�택?�니??`
+      : `${exprT.name}(${expr})???�너지가 ?�택?�신 목적(${pCtx.label})??맞는 방향???�시?�는 ?�름?�니??`;
+    return `<strong>${name}</strong>??가??좋�? ?�름?�니?? ${reason}`;
   }
-  if(v.key === 'good') return `좋은 선택입니다. ${exprT.name}(${expr})의 에너지가 삶을 안정적으로 지지해줍니다.`;
+  if(v.key === 'good') return `좋�? ?�택?�니?? ${exprT.name}(${expr})???�너지가 ?�을 ?�정?�으�?지지?�줍?�다.`;
   if(v.key === 'caution') {
     const w = dist && dist.excess.includes(expr)
-      ? `생년월일에 이미 ${expr}번 에너지가 많아 이름까지 더해지면 과잉될 수 있습니다.`
-      : r.lp && r.totalCompat < 55 ? `인생여정수와의 에너지 충돌이 있어 주의가 필요합니다.` : `에너지 조합에 주의가 필요합니다.`;
+      ? `?�년?�일???��? ${expr}�??�너지가 많아 ?�름까�? ?�해지�?과잉?????�습?�다.`
+      : r.lp && r.totalCompat < 55 ? `?�생?�정?��????�너지 충돌???�어 주의가 ?�요?�니??` : `?�너지 조합??주의가 ?�요?�니??`;
     return w;
   }
-  return `균형적인 이름입니다. 특별히 강한 시너지나 충돌 없이 안정적인 에너지를 줍니다.`;
+  return `균형?�인 ?�름?�니?? ?�별??강한 ?�너지??충돌 ?�이 ?�정?�인 ?�너지�?줍니??`;
 }
 
-// ── UI 헬퍼 ──
+// ?�?� UI ?�퍼 ?�?�
 function onNameInput(el){el.classList.toggle('filled',el.value.trim().length>0);}
 function switchTab(tab,btn){document.querySelectorAll('.hero-tab').forEach(b=>b.classList.remove('active'));document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));btn.classList.add('active');document.getElementById('panel-'+tab).classList.add('active');document.getElementById('resultArea').style.display='none';document.getElementById('recResultArea').style.display='none';}
 function toggleChip(el){el.classList.toggle('selected');}
@@ -1380,20 +1380,20 @@ function selectSyllable(el){
 function toggleNums(btn){btn.classList.toggle('open');const detail=btn.nextElementSibling;detail.classList.toggle('open');}
 
 const PURPOSE_HINT_TEXT = {
-  general: '출생신고·일상에 쓸 <strong>사람 이름</strong>을 추천합니다. 성을 넣으면 성+이름으로 분석됩니다.',
-  biz: '카페·샵·스튜디오 등 <strong>상호·브랜드명</strong>을 추천합니다. 일반 인명(김한결 등)이 아닙니다.',
-  nick: '게임·SNS·쇼핑몰 등 <strong>닉네임·핸들</strong>을 추천합니다. 실명 형태는 제외됩니다.',
-  stage: '유튜브·무대·상담실 등에 쓸 <strong>예명·활동명</strong>을 추천합니다. 출생신고용 이름과 다릅니다.',
+  general: '출생?�고·?�상????<strong>?�람 ?�름</strong>??추천?�니?? ?�을 ?�으�????�름?�로 분석?�니??',
+  biz: '카페·?�·스?�디????<strong>?�호·브랜?�명</strong>??추천?�니?? ?�반 ?�명(김?�결 ?????�닙?�다.',
+  nick: '게임·SNS·?�핑�???<strong>?�네?�·핸??/strong>??추천?�니?? ?�명 ?�태???�외?�니??',
+  stage: '?�튜브·무?�·?�담???�에 ??<strong>?�명·?�동�?/strong>??추천?�니?? 출생?�고???�름�??�릅?�다.',
 };
 
 const REC_EXTRA_PLACEHOLDER = {
-  general: '예) 부드러운 발음, 획수 적게, 자연 관련 의미 등',
-  biz: '예) 카페, 따뜻한 분위기, 커피·달 관련, 3~4음절',
-  nick_online: '예) 짧고 기억 쉬운, 게임 느낌, 영문 섞어도 됨',
-  creative: '예) 예술적·개성 있는, 무대에 어울리는 느낌',
-  mystic: '예) 신뢰감, 전문성, 따뜻한 상담 이미지',
-  athlete: '예) 추진력, 강인함, 코칭·팀 느낌',
-  educator: '예) 전달력, 신뢰, 포용적인 강사 이미지',
+  general: '?? 부?�러??발음, ?�수 ?�게, ?�연 관???��? ??,
+  biz: '?? 카페, ?�뜻??분위�? 커피·??관?? 3~4?�절',
+  nick_online: '?? 짧고 기억 ?�운, 게임 ?�낌, ?�문 ?�어????,
+  creative: '?? ?�술?�·개???�는, 무�????�울리는 ?�낌',
+  mystic: '?? ?�뢰�? ?�문?? ?�뜻???�담 ?��?지',
+  athlete: '?? 추진?? 강인?? 코칭·?� ?�낌',
+  educator: '?? ?�달?? ?�뢰, ?�용?�인 강사 ?��?지',
 };
 
 function getPurposeHintHtml(group) {
@@ -1408,7 +1408,7 @@ function getPurposeHintHtml(group) {
     if (sub) hint += ` · <strong>${sub}</strong> 맥락`;
   }
   if (group === 'rec' && t1 !== 'general') {
-    hint += ' · 성·음절·성별은 참고용이며, 결과에 성이 자동으로 붙지 않습니다.';
+    hint += ' · ?�·음?�·성별�? 참고?�이�? 결과???�이 ?�동?�로 붙�? ?�습?�다.';
   }
   return hint;
 }
@@ -1421,7 +1421,7 @@ function updatePurposeHint(group) {
   const ctx = getPurposeSelection('rec');
   const btn = document.getElementById('recBtn');
   const noun = recommendResultNoun(ctx.scoringKey);
-  if (btn) btn.textContent = `✧ AI ${noun} 추천 받기`;
+  if (btn) btn.textContent = `??AI ${noun} 추천 받기`;
   const extra = document.getElementById('recExtra');
   if (extra) {
     extra.placeholder = REC_EXTRA_PLACEHOLDER[ctx.scoringKey] || REC_EXTRA_PLACEHOLDER.general;
@@ -1471,23 +1471,23 @@ function selectPurposeSub(el, group, kind) {
 function getPurposeSelection(group) {
   const pre = group === 'analyze' ? 'analyze' : 'rec';
   const t1 = document.querySelector(`#${pre}PurposeTier1 .purpose-tier1-btn.selected`)?.dataset.tier1 || 'general';
-  if (t1 === 'general') return { scoringKey: 'general', label: '👤 일반 이름' };
-  if (t1 === 'biz') return { scoringKey: 'biz', label: '🏢 사업명·브랜드' };
+  if (t1 === 'general') return { scoringKey: 'general', label: '?�� ?�반 ?�름' };
+  if (t1 === 'biz') return { scoringKey: 'biz', label: '?�� ?�업명·브?�드' };
   if (t1 === 'nick') {
     const sub = document.querySelector(`#${pre}PurposeTier2Nick .purpose-sub-btn.selected`);
-    const display = sub?.dataset.display || '온라인';
-    return { scoringKey: 'nick_online', label: `💬 닉네임·온라인 · ${display}` };
+    const display = sub?.dataset.display || '?�라??;
+    return { scoringKey: 'nick_online', label: `?�� ?�네?�·온?�인 · ${display}` };
   }
   if (t1 === 'stage') {
     const sub = document.querySelector(`#${pre}PurposeTier2Act .purpose-sub-btn.selected`);
     const bucket = sub?.dataset.bucket || 'creative';
     const display = sub?.dataset.display || '';
-    return { scoringKey: bucket, label: `🎭 활동명·예명 · ${display}` };
+    return { scoringKey: bucket, label: `?�� ?�동명·예�?· ${display}` };
   }
-  return { scoringKey: 'general', label: '👤 일반 이름' };
+  return { scoringKey: 'general', label: '?�� ?�반 ?�름' };
 }
 
-// ── 생년월일 분포 패널 렌더 ──
+// ?�?� ?�년?�일 분포 ?�널 ?�더 ?�?�
 function renderBirthPanel(dist, lp, dob) {
   const sec = document.getElementById('birthAnalysisSection');
   const panel = document.getElementById('birthAnalysisPanel');
@@ -1496,35 +1496,35 @@ function renderBirthPanel(dist, lp, dob) {
 
   const pillHtml = (nums, cls) => nums.length
     ? nums.map(n=>`<span class="num-pill ${cls}"><span class="pn">${n}</span><span class="pt">${tr(n).name}</span></span>`).join('')
-    : `<span style="font-size:12px;color:var(--muted);">없음</span>`;
+    : `<span style="font-size:12px;color:var(--muted);">?�음</span>`;
 
   const guideText = dist.missing.length > 0
-    ? `생년월일에 <strong>${dist.missing.map(n=>`${n}번(${tr(n).name})`).join(', ')}</strong>이 없습니다. 이 수가 운명수로 오는 이름이 특히 좋아요. 부족한 에너지를 이름이 채워줄 수 있습니다.${dist.excess.length > 0 ? ` 반면 <strong>${dist.excess.map(n=>`${n}번`).join(', ')}</strong>은 이미 많으니 운명수로 오면 과잉될 수 있어요.` : ''}`
-    : `생년월일에 골고루 분포되어 있습니다. 어떤 이름을 선택해도 큰 무리가 없어요.`;
+    ? `?�년?�일??<strong>${dist.missing.map(n=>`${n}�?${tr(n).name})`).join(', ')}</strong>???�습?�다. ???��? ?�명?�로 ?�는 ?�름???�히 좋아?? 부족한 ?�너지�??�름??채워�????�습?�다.${dist.excess.length > 0 ? ` 반면 <strong>${dist.excess.map(n=>`${n}�?).join(', ')}</strong>?� ?��? 많으???�명?�로 ?�면 과잉?????�어??` : ''}`
+    : `?�년?�일??골고�?분포?�어 ?�습?�다. ?�떤 ?�름???�택?�도 ??무리가 ?�어??`;
 
   panel.innerHTML = `
     <div class="bap-header">
-      <div class="bap-title">생년월일 수 분포</div>
-      <div class="bap-lp">인생여정수 ${lp.val}번 · ${tr(lp.val).name}</div>
+      <div class="bap-title">?�년?�일 ??분포</div>
+      <div class="bap-lp">?�생?�정??${lp.val}�?· ${tr(lp.val).name}</div>
     </div>
     <div class="bap-body">
       <div>
-        <div class="bap-col-title good">✦ 없는 수 — 이름으로 채우면 좋아요</div>
+        <div class="bap-col-title good">???�는 ?????�름?�로 채우�?좋아??/div>
         <div class="num-pills">${pillHtml(dist.missing,'missing')}</div>
       </div>
       <div>
-        <div class="bap-col-title warn">⚠ 많은 수 — 이름에 또 나오면 과잉</div>
+        <div class="bap-col-title warn">??많�? ?????�름?????�오�?과잉</div>
         <div class="num-pills">${pillHtml(dist.excess,'excess')}</div>
       </div>
       <div>
-        <div class="bap-col-title neutral">· 적정 수</div>
+        <div class="bap-col-title neutral">· ?�정 ??/div>
         <div class="num-pills">${pillHtml(dist.normal,'normal')}</div>
       </div>
     </div>
     <div class="bap-guide">${guideText}</div>`;
 }
 
-// ── 순위 요약 헤더 ──
+// ?�?� ?�위 ?�약 ?�더 ?�?�
 function renderRankHeader(results, bestIdx, dist, purposeInput) {
   const pCtx = normalizePurposeArg(purposeInput);
   const best = results[bestIdx];
@@ -1534,24 +1534,24 @@ function renderRankHeader(results, bestIdx, dist, purposeInput) {
     const sc = best.totalCompat;
     const missing = dist?.missing || [];
     const fillsGap = missing.includes(best.nums.expression.val);
-    text = `<strong class="best-name">${best.name}</strong>이 가장 좋은 이름입니다. 인생여정수(${best.lp.val})와 ${compatLabel(sc)}(${sc}점)${fillsGap ? '이며, 생년월일의 부족한 에너지를 채워주는 이상적인 조합' : ''}입니다.`;
+    text = `<strong class="best-name">${best.name}</strong>??가??좋�? ?�름?�니?? ?�생?�정??${best.lp.val})?� ${compatLabel(sc)}(${sc}??${fillsGap ? '?�며, ?�년?�일??부족한 ?�너지�?채워주는 ?�상?�인 조합' : ''}?�니??`;
   } else {
     const isMaster = [11,22,33].includes(best.nums.expression.val);
-    text = `<strong class="best-name">${best.name}</strong>이 수비학적으로 가장 강한 이름입니다. ${isMaster ? `마스터 넘버 ${best.nums.expression.val}번 — 평범함을 넘어선 깊이를 담고 있습니다.` : `${tr(best.nums.expression.val).name}(${best.nums.expression.val})의 에너지가 삶을 긍정적으로 이끌어줍니다.`}`;
+    text = `<strong class="best-name">${best.name}</strong>???�비?�적?�로 가??강한 ?�름?�니?? ${isMaster ? `마스???�버 ${best.nums.expression.val}�????�범?�을 ?�어??깊이�??�고 ?�습?�다.` : `${tr(best.nums.expression.val).name}(${best.nums.expression.val})???�너지가 ?�을 긍정?�으�??�끌?�줍?�다.`}`;
   }
   document.getElementById('rankHeader').innerHTML = `
     <div class="rank-header-top">
-      <div class="rank-header-title">${results.length}개 네임코드 분석 완료</div>
-      <div class="rank-count">총 ${results.length}개 분석</div>
+      <div class="rank-header-title">${results.length}�??�임코드 분석 ?�료</div>
+      <div class="rank-count">�?${results.length}�?분석</div>
     </div>
     <div class="rank-summary">${text}</div>
     <div style="margin-top:10px;font-size:12px;color:var(--warm-brown);">분석 목적: <strong>${pCtx.label}</strong></div>
     <div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--border);font-size:11.5px;color:var(--muted);line-height:1.7;">
-      ※ 이 결과는 <strong style="color:var(--deep-brown)">수비학 + 소리 에너지 + 선택 목적</strong> 기준의 참고 자료입니다. 수비학은 학파마다 계산 방식이 다를 수 있으며, 최종 이름 선택은 상담사와 함께 종합적으로 판단하시길 권합니다.
+      ????결과??<strong style="color:var(--deep-brown)">?�비??+ ?�리 ?�너지 + ?�택 목적</strong> 기�???참고 ?�료?�니?? ?�비?��? ?�파마다 계산 방식???��? ???�으�? 최종 ?�름 ?�택?� ?�담?��? ?�께 종합?�으�??�단?�시�?권합?�다.
     </div>`;
 }
 
-// ── 개별 카드 렌더 ──
+// ?�?� 개별 카드 ?�더 ?�?�
 function renderNameCards(results, sortedResults, dist, purposeInput) {
   const pCtx = normalizePurposeArg(purposeInput);
   const container = document.getElementById('nameCards');
@@ -1566,7 +1566,7 @@ function renderNameCards(results, sortedResults, dist, purposeInput) {
     const verdict = getVerdict(r.totalCompat, evaluation.bonus, isBest);
     const vtext = verdictText(verdict, r, dist, pCtx);
 
-    // 점수 표시 — 수비학 / 소리균형 / 종합 분리
+    // ?�수 ?�시 ???�비??/ ?�리균형 / 종합 분리
     const numScore = Math.min((r.totalCompat||70) + evaluation.numBonus, 99);
     const totalDisp = Math.min(r.totalScore, 99);
     const soundBonusDisp = evaluation.soundBonus;
@@ -1577,14 +1577,14 @@ function renderNameCards(results, sortedResults, dist, purposeInput) {
       <div class="nc2-score-wrap" style="min-width:90px;">
         <div style="display:flex;flex-direction:column;gap:6px;align-items:flex-end;">
           <div style="text-align:right;">
-            <div style="font-family:var(--font-mono);font-size:8px;letter-spacing:.1em;color:var(--muted);margin-bottom:2px;">수비학</div>
+            <div style="font-family:var(--font-mono);font-size:8px;letter-spacing:.1em;color:var(--muted);margin-bottom:2px;">?�비??/div>
             <div style="display:flex;align-items:baseline;gap:4px;justify-content:flex-end;">
               <span style="font-family:var(--font-serif);font-size:26px;font-weight:300;line-height:1;color:${numScore>=80?'var(--teal)':numScore>=65?'var(--accent)':'var(--red)'};">${numScore}</span>
-              <span style="font-size:10px;color:var(--muted);">점</span>
+              <span style="font-size:10px;color:var(--muted);">??/span>
             </div>
           </div>
           <div style="text-align:right;padding:6px 8px;background:${soundBonusDisp>=0?'rgba(46,139,122,.06)':'rgba(184,85,85,.06)'};border:1px solid ${soundBonusDisp>=0?'rgba(46,139,122,.2)':'rgba(184,85,85,.2)'};border-radius:6px;min-width:80px;">
-            <div style="font-family:var(--font-mono);font-size:8px;letter-spacing:.1em;color:var(--muted);margin-bottom:2px;">소리균형</div>
+            <div style="font-family:var(--font-mono);font-size:8px;letter-spacing:.1em;color:var(--muted);margin-bottom:2px;">?�리균형</div>
             <div style="font-family:var(--font-serif);font-size:20px;font-weight:300;line-height:1;color:${soundBonusColor};">${soundBonusStr}</div>
           </div>
           <div style="text-align:right;border-top:1px solid var(--border);padding-top:6px;width:100%;">
@@ -1596,24 +1596,24 @@ function renderNameCards(results, sortedResults, dist, purposeInput) {
 
     // 강점/주의 박스
     const strengthsHtml = evaluation.strengths.length
-      ? evaluation.strengths.map(s=>`<div class="sw-item"><span class="sw-dot" style="color:var(--teal)">✦</span><span>${s}</span></div>`).join('')
-      : '<div class="sw-item"><span class="sw-dot" style="color:var(--muted)">·</span><span style="color:var(--muted)">특별한 강점 없음</span></div>';
+      ? evaluation.strengths.map(s=>`<div class="sw-item"><span class="sw-dot" style="color:var(--teal)">??/span><span>${s}</span></div>`).join('')
+      : '<div class="sw-item"><span class="sw-dot" style="color:var(--muted)">·</span><span style="color:var(--muted)">?�별??강점 ?�음</span></div>';
 
     const warningsHtml = evaluation.warnings.length
-      ? evaluation.warnings.map(w=>`<div class="sw-item"><span class="sw-dot" style="color:var(--red)">⚠</span><span>${w}</span></div>`).join('')
-      : '<div class="sw-item"><span class="sw-dot" style="color:var(--muted)">·</span><span style="color:var(--muted)">특별한 주의사항 없음</span></div>';
+      ? evaluation.warnings.map(w=>`<div class="sw-item"><span class="sw-dot" style="color:var(--red)">??/span><span>${w}</span></div>`).join('')
+      : '<div class="sw-item"><span class="sw-dot" style="color:var(--muted)">·</span><span style="color:var(--muted)">?�별??주의?�항 ?�음</span></div>';
 
     const soundItemsHtml = (evaluation.soundStrengths.length || evaluation.soundWarnings.length) ? `
       <div style="margin:0 22px 14px;padding:10px 14px;background:var(--parchment);border-radius:8px;border:1px solid var(--border);">
-        <div style="font-size:9px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:8px;">♪ 소리 균형 평가</div>
-        ${evaluation.soundStrengths.map(s=>`<div class="sw-item"><span class="sw-dot" style="color:var(--teal);font-size:9px;">▲</span><span style="font-size:12px;color:var(--teal);">${s}</span></div>`).join('')}
-        ${evaluation.soundWarnings.map(w=>`<div class="sw-item"><span class="sw-dot" style="color:var(--red);font-size:9px;">▼</span><span style="font-size:12px;color:var(--red);">${w}</span></div>`).join('')}
+        <div style="font-size:9px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:8px;">???�리 균형 ?��?</div>
+        ${evaluation.soundStrengths.map(s=>`<div class="sw-item"><span class="sw-dot" style="color:var(--teal);font-size:9px;">??/span><span style="font-size:12px;color:var(--teal);">${s}</span></div>`).join('')}
+        ${evaluation.soundWarnings.map(w=>`<div class="sw-item"><span class="sw-dot" style="color:var(--red);font-size:9px;">??/span><span style="font-size:12px;color:var(--red);">${w}</span></div>`).join('')}
       </div>` : '';
 
-    // 수리 상세
+    // ?�리 ?�세
     const matHtml = mat ? `
       <div class="nc2-num-item wide">
-        <div class="nni-label">완성수 (인생여정수+운명수)</div>
+        <div class="nni-label">?�성??(?�생?�정???�명??</div>
         <div><span class="nni-val ${[11,22,33].includes(mat.val)?'master':''}">${mat.val}</span><span class="nni-pre">(${mat.raw})</span></div>
         <div class="nni-name">${tr(mat.val).name}</div>
         <div class="nni-desc">${tr(mat.val).desc}</div>
@@ -1624,9 +1624,9 @@ function renderNameCards(results, sortedResults, dist, purposeInput) {
         <div class="nc2-header">
           <div class="nc2-header-left">
             <div class="nc2-rank-badge">
-              <span class="nc2-rank-num">${rankIdx+1}위</span>
+              <span class="nc2-rank-num">${rankIdx+1}??/span>
               <span class="nc2-verdict-badge ${verdict.cls}">${verdict.label}</span>
-              ${isMaster?`<span class="nc2-master-tag">마스터 ${expr}</span>`:''}
+              ${isMaster?`<span class="nc2-master-tag">마스??${expr}</span>`:''}
             </div>
             <div class="nc2-name">${r.name}</div>
           </div>
@@ -1634,7 +1634,7 @@ function renderNameCards(results, sortedResults, dist, purposeInput) {
         </div>
 
         <div class="nc2-verdict-box ${verdict.vbCls}">
-          <div class="vb-title ${verdict.tCls}">핵심 판단</div>
+          <div class="vb-title ${verdict.tCls}">?�심 ?�단</div>
           <div class="vb-text">${vtext}</div>
         </div>
 
@@ -1642,11 +1642,11 @@ function renderNameCards(results, sortedResults, dist, purposeInput) {
 
         <div class="nc2-strengths-warnings">
           <div class="sw-box s-box">
-            <div class="sw-title st">✦ 이 이름이 좋은 이유</div>
+            <div class="sw-title st">?????�름??좋�? ?�유</div>
             ${strengthsHtml}
           </div>
           <div class="sw-box w-box">
-            <div class="sw-title wt">⚠ 주의할 점</div>
+            <div class="sw-title wt">??주의????/div>
             ${warningsHtml}
           </div>
         </div>
@@ -1662,38 +1662,38 @@ function renderNameCards(results, sortedResults, dist, purposeInput) {
           }).filter(Boolean).join('');
           return `
           <div class="sound-section">
-            <div class="sound-title">♪ 소리 에너지 분석</div>
+            <div class="sound-title">???�리 ?�너지 분석</div>
             <div class="sound-summary">${se.summary}</div>
             <div class="sound-tags">${vowelTagsHtml}</div>
             <div class="sound-detail">
-              <div class="sd-item"><strong>모음 울림</strong>${se.vowelDesc}</div>
-              <div class="sd-item"><strong>자음 강도</strong>${se.consChar} 자음 구성</div>
-              <div class="sd-item"><strong>끝소리</strong>${se.endingChar} 이름</div>
-              <div class="sd-item"><strong>에너지 다양성</strong>${se.soundScore} — ${se.soundScoreDesc}</div>
+              <div class="sd-item"><strong>모음 ?�림</strong>${se.vowelDesc}</div>
+              <div class="sd-item"><strong>?�음 강도</strong>${se.consChar} ?�음 구성</div>
+              <div class="sd-item"><strong>?�소�?/strong>${se.endingChar} ?�름</div>
+              <div class="sd-item"><strong>?�너지 ?�양??/strong>${se.soundScore} ??${se.soundScoreDesc}</div>
             </div>
           </div>`;
         })()}
 
         <button class="nc2-nums-toggle" onclick="toggleNums(this)">
-          <span class="nc2-nums-label">수리 상세 보기 (운명수 ${expr} · 혼의수 ${soul} · 성격수 ${pers})</span>
-          <span class="nc2-nums-arrow">▼</span>
+          <span class="nc2-nums-label">?�리 ?�세 보기 (?�명??${expr} · ?�의??${soul} · ?�격??${pers})</span>
+          <span class="nc2-nums-arrow">??/span>
         </button>
         <div class="nc2-nums-detail">
           <div class="nc2-nums-grid">
             <div class="nc2-num-item">
-              <div class="nni-label">운명수 · 표현수</div>
+              <div class="nni-label">?�명??· ?�현??/div>
               <div><span class="nni-val ${isMaster?'master':''}">${expr}</span><span class="nni-pre">(${r.nums.expression.raw})</span></div>
               <div class="nni-name">${tr(expr).name}</div>
               <div class="nni-desc">${tr(expr).desc}</div>
             </div>
             <div class="nc2-num-item">
-              <div class="nni-label">혼의수 · 영혼 갈망</div>
+              <div class="nni-label">?�의??· ?�혼 갈망</div>
               <div><span class="nni-val ${[11,22,33].includes(soul)?'master':''}">${soul}</span><span class="nni-pre">(${r.nums.soul.raw})</span></div>
               <div class="nni-name">${tr(soul).name}</div>
               <div class="nni-desc">${tr(soul).desc}</div>
             </div>
             <div class="nc2-num-item">
-              <div class="nni-label">성격수 · 외적 인상</div>
+              <div class="nni-label">?�격??· ?�적 ?�상</div>
               <div><span class="nni-val ${[11,22,33].includes(pers)?'master':''}">${pers}</span><span class="nni-pre">(${r.nums.personality.raw})</span></div>
               <div class="nni-name">${tr(pers).name}</div>
               <div class="nni-desc">${tr(pers).desc}</div>
@@ -1705,12 +1705,12 @@ function renderNameCards(results, sortedResults, dist, purposeInput) {
   }).join('');
 }
 
-// ── 비교 테이블 ──
+// ?�?� 비교 ?�이�??�?�
 function renderCompareTable(sortedResults, dist, purposeInput) {
   const pCtx = normalizePurposeArg(purposeInput);
   const lp = sortedResults[0]?.lp;
 
-  // 수비학 점수만으로 1위 찾기
+  // ?�비???�수만으�?1??찾기
   const numScores = sortedResults.map(r => {
     const ev = evaluateName(r, dist, pCtx);
     return { r, numScore: Math.min((r.totalCompat||70) + ev.numBonus, 99), soundBonus: ev.soundBonus };
@@ -1724,13 +1724,13 @@ function renderCompareTable(sortedResults, dist, purposeInput) {
     const isNumFirst = i === numFirstIdx;
     const ns = numScores[i];
 
-    // 수비학 1위인데 종합 1위가 아닌 경우 (소리 감점으로 밀려난 경우)
+    // ?�비??1?�인??종합 1?��? ?�닌 경우 (?�리 감점?�로 밀?�난 경우)
     const droppedBySound = isNumFirst && !isOverallFirst && ns.soundBonus < 0;
 
     let tag = '';
     let tagColor = '';
     if(droppedBySound) {
-      tag = `수비학 최고 · 소리 주의`;
+      tag = `?�비??최고 · ?�리 주의`;
       tagColor = 'var(--warm-brown)';
     }
 
@@ -1744,14 +1744,14 @@ function renderCompareTable(sortedResults, dist, purposeInput) {
   const badge=(n,raw)=>{const t=tr(n);const im=[11,22,33].includes(n);return`<div class="num-badge"><span class="n ${im?'master':''}">${n}</span><span class="pre">(${raw})</span><span class="title">${t.name}</span></div>`;};
 
   const rows=[
-    {label:'운명수',fn:r=>badge(r.nums.expression.val,r.nums.expression.raw)},
-    {label:'혼의수',fn:r=>badge(r.nums.soul.val,r.nums.soul.raw)},
-    {label:'성격수',fn:r=>badge(r.nums.personality.val,r.nums.personality.raw)},
-    lp?{label:'완성수',fn:r=>r.mat?badge(r.mat.val,r.mat.raw):'—'}:null,
-    lp?{label:'인생여정수 궁합',fn:null,compat:true}:null,
-    {label:'수비학 점수',fn:null,numscore:true},
-    {label:'소리 균형',fn:null,soundscore:true},
-    {label:'종합 점수',fn:null,total:true},
+    {label:'?�명??,fn:r=>badge(r.nums.expression.val,r.nums.expression.raw)},
+    {label:'?�의??,fn:r=>badge(r.nums.soul.val,r.nums.soul.raw)},
+    {label:'?�격??,fn:r=>badge(r.nums.personality.val,r.nums.personality.raw)},
+    lp?{label:'?�성??,fn:r=>r.mat?badge(r.mat.val,r.mat.raw):'??}:null,
+    lp?{label:'?�생?�정??궁합',fn:null,compat:true}:null,
+    {label:'?�비???�수',fn:null,numscore:true},
+    {label:'?�리 균형',fn:null,soundscore:true},
+    {label:'종합 ?�수',fn:null,total:true},
   ].filter(Boolean);
 
   rows.forEach(row=>{
@@ -1760,14 +1760,14 @@ function renderCompareTable(sortedResults, dist, purposeInput) {
     if(row.compat){
       sortedResults.forEach(r=>{
         const s=r.totalCompat;
-        if(s==null){html+='<td class="num-cell" style="color:var(--muted);">—</td>';return;}
+        if(s==null){html+='<td class="num-cell" style="color:var(--muted);">??/td>';return;}
         html+=`<td class="score-cell"><span class="sc-num ${compatClass(s)}">${s}</span><div class="sc-bar"><div class="sc-fill ${fillClass(s)}" style="width:${s}%"></div></div><span class="sc-label">${compatLabel(s)}</span></td>`;
       });
     } else if(row.numscore){
       sortedResults.forEach((r,i)=>{
         const ev=evaluateName(r,dist,pCtx);
         const s=Math.min((r.totalCompat||70)+ev.numBonus,99);
-        const nb=ev.numBonus>0?`+${ev.numBonus}보너스`:ev.numBonus<0?`${ev.numBonus}감점`:'기본';
+        const nb=ev.numBonus>0?`+${ev.numBonus}보너??:ev.numBonus<0?`${ev.numBonus}감점`:'기본';
         html+=`<td class="score-cell score-section"><span class="sc-num ${compatClass(s)}">${s}</span><div class="sc-bar"><div class="sc-fill ${fillClass(s)}" style="width:${s}%"></div></div><span class="sc-label">${nb}</span></td>`;
       });
     } else if(row.soundscore){
@@ -1776,13 +1776,13 @@ function renderCompareTable(sortedResults, dist, purposeInput) {
         const sb=ev.soundBonus;
         const sbStr=sb>0?`+${sb}`:String(sb);
         const sbColor=sb>=0?'var(--teal)':'var(--red)';
-        const sbLabel=sb>0?'소리 좋음':sb<0?'소리 주의':'중립';
+        const sbLabel=sb>0?'?�리 좋음':sb<0?'?�리 주의':'중립';
         html+=`<td class="score-cell"><span class="sc-num" style="color:${sbColor};font-size:20px;">${sbStr}</span><div class="sc-bar"><div class="sc-fill" style="width:${Math.min(Math.abs(sb)*3,100)}%;background:${sbColor};"></div></div><span class="sc-label">${sbLabel}</span></td>`;
       });
     } else if(row.total){
       sortedResults.forEach(r=>{
         const s=Math.min(r.totalScore,99);
-        const bonusStr=r.bonus>0?`+${r.bonus}합산`:r.bonus<0?`${r.bonus}합산`:'기본점수';
+        const bonusStr=r.bonus>0?`+${r.bonus}?�산`:r.bonus<0?`${r.bonus}?�산`:'기본?�수';
         html+=`<td class="score-cell" style="background:rgba(200,169,110,.04);"><span class="sc-num ${compatClass(s)}" style="font-size:22px;font-weight:700;">${s}</span><div class="sc-bar"><div class="sc-fill ${fillClass(s)}" style="width:${s}%"></div></div><span class="sc-label" style="font-weight:600;">${bonusStr}</span></td>`;
       });
     } else {
@@ -1794,7 +1794,7 @@ function renderCompareTable(sortedResults, dist, purposeInput) {
   document.getElementById('compareTable').innerHTML=html;
 }
 
-// ── 메인 분석 ──
+// ?�?� 메인 분석 ?�?�
 async function runAnalysis(){
   if (window.PaljaPlan && !(await PaljaPlan.ensureBasicProductAccess('name', null))) {
     return;
@@ -1802,7 +1802,7 @@ async function runAnalysis(){
   const baseName=document.getElementById('baseName').value.trim();
   const birthDate=document.getElementById('birthDate').value;
   const names=[...document.querySelectorAll('.name-field')].map(el=>el.value.trim()).filter(Boolean);
-  if(!names.length){alert('이름을 최소 1개 입력해주세요.');return;}
+  if(!names.length){alert('?�름??최소 1�??�력?�주?�요.');return;}
   document.getElementById('analyzeBtn').disabled=true;
 
   const lp=calcLifePath(birthDate);
@@ -1819,7 +1819,7 @@ async function runAnalysis(){
     return{name,idx:i+1,nums,mat,lp,totalCompat,compatLp,compatSoul,compatPers};
   });
 
-  // 점수 계산 후 정렬
+  // ?�수 계산 ???�렬
   const scored=results.map(r=>{const ev=evaluateName(r,dist,purposeCtx);return{...r,bonus:ev.bonus,totalScore:(r.totalCompat||70)+ev.bonus};});
   const sorted=[...scored].sort((a,b)=>b.totalScore-a.totalScore);
 
@@ -1834,7 +1834,7 @@ async function runAnalysis(){
   document.getElementById('analyzeBtn').disabled=false;
 }
 
-// ── AI 크레딧 ──
+// ?�?� AI ?�레???�?�
 async function loadNameAiQuota() {
   if (!window.PaljaAiQuota) return;
   const q = await PaljaAiQuota.fetchQuota();
@@ -1844,45 +1844,45 @@ async function loadNameAiQuota() {
 function nameAiQuotaMessage(err) {
   if (err && (err.code === 'quota_exceeded' || err.status === 429)) {
     if (err.quota) PaljaAiQuota.applyQuotaBadge(document.getElementById('nameAiQuotaBadge'), err.quota);
-    return '이번 달 AI 크레딧을 모두 사용했어요. 다음 달에 다시 이용하거나 수비학 점수·순위만 참고해 주세요.';
+    return '?�번 ??AI ?�레?�을 모두 ?�용?�어?? ?�음 ?�에 ?�시 ?�용?�거???�비???�수·?�위�?참고??주세??';
   }
-  if (err && err.message === 'login_required') return 'AI 기능은 로그인 후 이용할 수 있어요.';
+  if (err && err.message === 'login_required') return 'AI 기능?� 로그?????�용?????�어??';
   return null;
 }
 
-// ── AI 코멘트 ──
+// ?�?� AI 코멘???�?�
 async function callAI(results,baseName,birthDate,lp,dist,purposeInput){
   const pCtx = normalizePurposeArg(purposeInput);
-  const namesStr=results.map(r=>`• ${r.name}: 운명수 ${r.nums.expression.val}(${tr(r.nums.expression.val).name}), 혼의수 ${r.nums.soul.val}(${tr(r.nums.soul.val).name}), 성격수 ${r.nums.personality.val}(${tr(r.nums.personality.val).name}), 종합점수 ${Math.min(r.totalScore,99)}점`).join('\n');
-  const missingStr=dist?.missing.length?`생년월일 부족수: ${dist.missing.map(n=>`${n}번(${tr(n).name})`).join(', ')}`:'';
-  const excessStr=dist?.excess.length?`과잉수: ${dist.excess.map(n=>`${n}번(${tr(n).name})`).join(', ')}`:'';
-  const lpDesc=lp?`인생여정수 ${lp.val}번 · ${tr(lp.val).name} — ${tr(lp.val).desc}`:'';
+  const namesStr=results.map(r=>`??${r.name}: ?�명??${r.nums.expression.val}(${tr(r.nums.expression.val).name}), ?�의??${r.nums.soul.val}(${tr(r.nums.soul.val).name}), ?�격??${r.nums.personality.val}(${tr(r.nums.personality.val).name}), 종합?�수 ${Math.min(r.totalScore,99)}??).join('\n');
+  const missingStr=dist?.missing.length?`?�년?�일 부족수: ${dist.missing.map(n=>`${n}�?${tr(n).name})`).join(', ')}`:'';
+  const excessStr=dist?.excess.length?`과잉?? ${dist.excess.map(n=>`${n}�?${tr(n).name})`).join(', ')}`:'';
+  const lpDesc=lp?`?�생?�정??${lp.val}�?· ${tr(lp.val).name} ??${tr(lp.val).desc}`:'';
   const bucketHint = PURPOSE_SCORING[pCtx.scoringKey]?.desc || '';
   const openPara = lp
-    ? `첫 문단: 이 사람의 인생여정수(${lp.val}번)가 삶에서 어떤 방향과 숙제를 갖는지 한 문장으로 짚고 시작하세요.`
-    : `첫 문단: 사용자가 선택한 이름 목적(${pCtx.label})에 맞는 에너지 기준을 한 문장으로 짚고 시작하세요.`;
+    ? `�?문단: ???�람???�생?�정??${lp.val}�?가 ?�에???�떤 방향�??�제�?갖는지 ??문장?�로 짚고 ?�작?�세??`
+    : `�?문단: ?�용?��? ?�택???�름 목적(${pCtx.label})??맞는 ?�너지 기�?????문장?�로 짚고 ?�작?�세??`;
   const secondPara = lp
-    ? `둘째 문단: 1위 이름이 왜 이 인생여정수와 잘 맞는지, 그리고 "${pCtx.label}" 맥락에 어떻게 맞는지 에너지 조화를 스토리로 설명하세요. ${missingStr?`부족한 수를 이름이 어떻게 채워주는지도 언급하세요.`:''}`
-    : `둘째 문단: 1위 이름이 선택 목적 "${pCtx.label}"에 왜 잘 맞는지 수비학·소리 관점에서 설명하세요.`;
+    ? `?�째 문단: 1???�름???????�생?�정?��? ??맞는지, 그리�?"${pCtx.label}" 맥락???�떻�?맞는지 ?�너지 조화�??�토리로 ?�명?�세?? ${missingStr?`부족한 ?��? ?�름???�떻�?채워주는지???�급?�세??`:''}`
+    : `?�째 문단: 1???�름???�택 목적 "${pCtx.label}"??????맞는지 ?�비?�·소�?관?�에???�명?�세??`;
 
-  const prompt=`당신은 수비학 전문 상담사입니다. 아래 데이터를 바탕으로 깊이 있고 따뜻한 네임코드 코멘트를 작성해주세요.
+  const prompt=`?�신?� ?�비???�문 ?�담?�입?�다. ?�래 ?�이?��? 바탕?�로 깊이 ?�고 ?�뜻???�임코드 코멘?��? ?�성?�주?�요.
 
-이름 목적(사용자 선택): ${pCtx.label}
-${bucketHint?`이 맥락에서 선호되는 에너지 방향(참고): ${bucketHint}`:''}
-${baseName?`대상: ${baseName}\n`:''}${birthDate?`생년월일: ${birthDate}\n`:''}${lpDesc?`${lpDesc}\n`:''}${missingStr?`${missingStr}\n`:''}${excessStr?`${excessStr}\n`:''}
-분석된 이름 (종합점수 순):
+?�름 목적(?�용???�택): ${pCtx.label}
+${bucketHint?`??맥락?�서 ?�호?�는 ?�너지 방향(참고): ${bucketHint}`:''}
+${baseName?`?�?? ${baseName}\n`:''}${birthDate?`?�년?�일: ${birthDate}\n`:''}${lpDesc?`${lpDesc}\n`:''}${missingStr?`${missingStr}\n`:''}${excessStr?`${excessStr}\n`:''}
+분석???�름 (종합?�수 ??:
 ${namesStr}
 
-추천 1위: ${results[0]?.name} (${Math.min(results[0]?.totalScore,99)}점)
-${results.length>1?`주의 이름: ${results[results.length-1]?.name} (${Math.min(results[results.length-1]?.totalScore,99)}점)`:''}
+추천 1?? ${results[0]?.name} (${Math.min(results[0]?.totalScore,99)}??
+${results.length>1?`주의 ?�름: ${results[results.length-1]?.name} (${Math.min(results[results.length-1]?.totalScore,99)}??`:''}
 
-작성 지침 (반드시 따르세요):
+?�성 지�?(반드???�르?�요):
 1. ${openPara}
 2. ${secondPara}
-3. 다음 관점도 반영하세요: ${getPurposePromptExtra(pCtx.scoringKey, pCtx.label)}
-4. 점수가 낮은 이름이 있다면 왜 "${pCtx.label}" 맥락이나 에너지와 맞지 않는지 구체적으로 설명하세요.
-5. 마지막 문장: "이름은 평생 불리는 에너지입니다. 수비학 점수와 함께 직접 소리 내어 불러보며 느낌도 꼭 확인해보세요." 로 마무리하세요.
-6. 번호·목록 없이 자연스러운 문단으로만, 3~4문단으로 작성하세요.`;
+3. ?�음 관?�도 반영?�세?? ${getPurposePromptExtra(pCtx.scoringKey, pCtx.label)}
+4. ?�수가 ??? ?�름???�다�???"${pCtx.label}" 맥락?�나 ?�너지?� 맞�? ?�는지 구체?�으�??�명?�세??
+5. 마�?�?문장: "?�름?� ?�생 불리???�너지?�니?? ?�비???�수?� ?�께 직접 ?�리 ?�어 불러보며 ?�낌??�??�인?�보?�요." �?마무리하?�요.
+6. 번호·목록 ?�이 ?�연?�러??문단?�로�? 3~4문단?�로 ?�성?�세??`;
   try{
     if (!window.PaljaAiQuota) throw new Error('no_quota_client');
     const { text, quota } = await PaljaAiQuota.callAi({
@@ -1891,15 +1891,15 @@ ${results.length>1?`주의 이름: ${results[results.length-1]?.name} (${Math.mi
       max_tokens: 600,
       messages: [{ role: 'user', content: prompt }],
     });
-    document.getElementById('aiWrap').innerHTML=`<div class="ai-tag"><div class="ai-dot"></div>AI 종합 의견</div><div class="ai-text">${text}</div>`;
+    document.getElementById('aiWrap').innerHTML=`<div class="ai-tag"><div class="ai-dot"></div>AI 종합 ?�견</div><div class="ai-text">${text}</div>`;
     if (quota) PaljaAiQuota.applyQuotaBadge(document.getElementById('nameAiQuotaBadge'), quota);
   }catch(e){
     const msg = nameAiQuotaMessage(e);
-    document.getElementById('aiWrap').innerHTML=`<div class="ai-tag">AI 분석</div><div class="ai-text" style="color:var(--muted)">${msg || 'AI 분석을 일시적으로 사용할 수 없습니다.'}</div>`;
+    document.getElementById('aiWrap').innerHTML=`<div class="ai-tag">AI 분석</div><div class="ai-text" style="color:var(--muted)">${msg || 'AI 분석???�시?�으�??�용?????�습?�다.'}</div>`;
   }
 }
 
-// ── AI 이름 추천 (이름만 받아서 로컬 계산) ──
+// ?�?� AI ?�름 추천 (?�름�?받아??로컬 계산) ?�?�
 async function runRecommend(){
   if (window.PaljaPlan && !(await PaljaPlan.ensureBasicProductAccess('name', null))) {
     return;
@@ -1907,7 +1907,7 @@ async function runRecommend(){
   const surname  = document.getElementById('recSurname').value.trim();
   const birth    = document.getElementById('recBirth').value;
   const syllable = document.getElementById('recSyllable').value;
-  const gender   = document.querySelector('#recGenderRow .gender-btn.selected')?.dataset.gender || '무관';
+  const gender   = document.querySelector('#recGenderRow .gender-btn.selected')?.dataset.gender || '무�?';
   const extra    = document.getElementById('recExtra').value.trim();
   const chips    = [...document.querySelectorAll('#recEnergyChips .energy-chip.selected')].map(c => c.dataset.val).filter(Boolean);
   const purposeCtx  = getPurposeSelection('rec');
@@ -1919,19 +1919,19 @@ async function runRecommend(){
   document.getElementById('recResultWrap').innerHTML = `
     <div class="rec-loading">
       <div class="ai-spinner" style="margin:0 auto 12px;width:20px;height:20px;"></div>
-      AI가 ${recommendResultNoun(purposeCtx.scoringKey)}을 추천하고 있어요...
+      AI가 ${recommendResultNoun(purposeCtx.scoringKey)}??추천?�고 ?�어??..
     </div>`;
   document.getElementById('recResultArea').scrollIntoView({behavior:'smooth'});
 
   const missingStr = dist?.missing.length
-    ? `생년월일에 없는 수(이름으로 채우면 좋음): ${dist.missing.map(n=>`${n}번(${tr(n).name})`).join(', ')}` : '';
+    ? `?�년?�일???�는 ???�름?�로 채우�?좋음): ${dist.missing.map(n=>`${n}�?${tr(n).name})`).join(', ')}` : '';
   const excessStr = dist?.excess.length
-    ? `생년월일에 많은 수(이름에 또 나오면 과잉 주의): ${dist.excess.map(n=>`${n}번`).join(', ')}` : '';
+    ? `?�년?�일??많�? ???�름?????�오�?과잉 주의): ${dist.excess.map(n=>`${n}�?).join(', ')}` : '';
   const energyDesc = chips.length > 0
-    ? `원하는 에너지(운명수 기준): ${chips.map(v=>`${v}번(${tr(Number(v)).name})`).join(', ')}`
-    : missingStr ? `부족한 수를 채우는 방향으로 추천` : '';
+    ? `?�하???�너지(?�명??기�?): ${chips.map(v=>`${v}�?${tr(Number(v)).name})`).join(', ')}`
+    : missingStr ? `부족한 ?��? 채우??방향?�로 추천` : '';
 
-  // AI에게 목적별 이름·브랜드·닉네임 추천 (숫자 계산은 로컬)
+  // AI?�게 목적�??�름·브랜?�·닉?�임 추천 (?�자 계산?� 로컬)
   const prompt = buildRecommendPrompt({
     purposeCtx, surname, gender, syllable, lp, missingStr, excessStr, energyDesc, extra,
   });
@@ -1950,14 +1950,14 @@ async function runRecommend(){
     const parsed = JSON.parse(match ? match[0] : cleaned);
     const nameList = parsed.names || [];
 
-    if(!nameList.length) throw new Error('이름 없음');
+    if(!nameList.length) throw new Error('?�름 ?�음');
     if (quota) PaljaAiQuota.applyQuotaBadge(document.getElementById('nameAiQuotaBadge'), quota);
 
-    // 로컬에서 직접 계산
+    // 로컬?�서 직접 계산
     document.getElementById('recResultWrap').innerHTML = `
       <div class="rec-loading">
         <div class="ai-spinner" style="margin:0 auto 12px;width:20px;height:20px;"></div>
-        수비학 점수 계산 중...
+        ?�비???�수 계산 �?..
       </div>`;
 
     const results = nameList.map((name, i) => {
@@ -1973,7 +1973,7 @@ async function runRecommend(){
       return { name: fullName, idx: i+1, nums, mat, lp, totalCompat, compatLp, compatSoul, compatPers };
     });
 
-    // 점수 계산 후 정렬 (상위 5개)
+    // ?�수 계산 ???�렬 (?�위 5�?
     const scored = results.map(r => {
       const ev = evaluateName(r, dist, purposeCtx);
       return { ...r, bonus: ev.bonus, numBonus: ev.numBonus, soundBonus: ev.soundBonus, totalScore: (r.totalCompat||70) + ev.bonus };
@@ -1985,60 +1985,60 @@ async function runRecommend(){
   } catch(e) {
     const msg = nameAiQuotaMessage(e);
     document.getElementById('recResultWrap').innerHTML =
-      `<div class="rec-loading" style="color:var(--red);">${msg || '추천 생성 중 오류가 발생했습니다. 다시 시도해주세요.'}</div>`;
+      `<div class="rec-loading" style="color:var(--red);">${msg || '추천 ?�성 �??�류가 발생?�습?�다. ?�시 ?�도?�주?�요.'}</div>`;
   }
   document.getElementById('recBtn').disabled = false;
 }
 
-// ── 추천 결과 렌더링 (네임코드와 동일한 구조) ──
+// ?�?� 추천 결과 ?�더�?(?�임코드?� ?�일??구조) ?�?�
 function renderRecResultFull(sorted, dist, lp, birth, surname, purposeInput) {
   const pCtx = normalizePurposeArg(purposeInput);
   const wrap = document.getElementById('recResultWrap');
 
-  // 상단 요약
+  // ?�단 ?�약
   const best = sorted[0];
   const bestScore = Math.min(best.totalScore, 99);
   const missingFill = dist?.missing.includes(best.nums.expression.val);
 
   const noun = recommendResultNoun(pCtx.scoringKey);
-  let summaryText = `<strong class="best-name">${best.name}</strong>이 가장 좋은 ${noun}입니다. `;
+  let summaryText = `<strong class="best-name">${best.name}</strong>??가??좋�? ${noun}?�니?? `;
   if(lp) {
-    summaryText += `인생여정수(${lp.val})와 ${compatLabel(best.totalCompat)}(${best.totalCompat}점)`;
-    if(missingFill) summaryText += `이며, 생년월일의 부족한 에너지를 채워주는 이상적인 조합`;
-    summaryText += `입니다.`;
+    summaryText += `?�생?�정??${lp.val})?� ${compatLabel(best.totalCompat)}(${best.totalCompat}??`;
+    if(missingFill) summaryText += `?�며, ?�년?�일??부족한 ?�너지�?채워주는 ?�상?�인 조합`;
+    summaryText += `?�니??`;
   } else {
-    summaryText += `${tr(best.nums.expression.val).name}(${best.nums.expression.val})의 에너지가 삶을 긍정적으로 이끌어줍니다.`;
+    summaryText += `${tr(best.nums.expression.val).name}(${best.nums.expression.val})???�너지가 ?�을 긍정?�으�??�끌?�줍?�다.`;
   }
 
-  // 생년월일 분포 패널
+  // ?�년?�일 분포 ?�널
   let birthPanelHtml = '';
   if(birth && dist) {
     const pillHtml = (nums, cls) => nums.length
       ? nums.map(n=>`<span class="num-pill ${cls}"><span class="pn">${n}</span><span class="pt">${tr(n).name}</span></span>`).join('')
-      : `<span style="font-size:12px;color:var(--muted);">없음</span>`;
+      : `<span style="font-size:12px;color:var(--muted);">?�음</span>`;
     birthPanelHtml = `
       <div class="birth-analysis-panel" style="margin-bottom:20px;">
         <div class="bap-header">
-          <div class="bap-title">생년월일 수 분포</div>
-          <div class="bap-lp">인생여정수 ${lp?.val}번 · ${tr(lp?.val).name}</div>
+          <div class="bap-title">?�년?�일 ??분포</div>
+          <div class="bap-lp">?�생?�정??${lp?.val}�?· ${tr(lp?.val).name}</div>
         </div>
         <div class="bap-body">
           <div>
-            <div class="bap-col-title good">✦ 없는 수 — 이름으로 채우면 좋아요</div>
+            <div class="bap-col-title good">???�는 ?????�름?�로 채우�?좋아??/div>
             <div class="num-pills">${pillHtml(dist.missing,'missing')}</div>
           </div>
           <div>
-            <div class="bap-col-title warn">⚠ 많은 수 — 이름에 또 나오면 과잉</div>
+            <div class="bap-col-title warn">??많�? ?????�름?????�오�?과잉</div>
             <div class="num-pills">${pillHtml(dist.excess,'excess')}</div>
           </div>
           <div>
-            <div class="bap-col-title neutral">· 적정 수</div>
+            <div class="bap-col-title neutral">· ?�정 ??/div>
             <div class="num-pills">${pillHtml(dist.normal,'normal')}</div>
           </div>
         </div>
         <div class="bap-guide">${dist.missing.length > 0
-          ? `생년월일에 <strong>${dist.missing.map(n=>`${n}번(${tr(n).name})`).join(', ')}</strong>이 없습니다. 이 수가 운명수로 오는 이름이 특히 좋아요.`
-          : `생년월일에 골고루 분포되어 있습니다.`}</div>
+          ? `?�년?�일??<strong>${dist.missing.map(n=>`${n}�?${tr(n).name})`).join(', ')}</strong>???�습?�다. ???��? ?�명?�로 ?�는 ?�름???�히 좋아??`
+          : `?�년?�일??골고�?분포?�어 ?�습?�다.`}</div>
       </div>`;
   }
 
@@ -2046,21 +2046,21 @@ function renderRecResultFull(sorted, dist, lp, birth, surname, purposeInput) {
     ${birthPanelHtml}
     <div class="rank-header" style="margin-bottom:16px;">
       <div class="rank-header-top">
-        <div class="rank-header-title">AI 추천 ${recommendResultNoun(pCtx.scoringKey)} ${sorted.length}개 · 네임코드 분석 완료</div>
-        <div class="rank-count">10개 후보 → 상위 ${sorted.length}개 선별</div>
+        <div class="rank-header-title">AI 추천 ${recommendResultNoun(pCtx.scoringKey)} ${sorted.length}�?· ?�임코드 분석 ?�료</div>
+        <div class="rank-count">10�??�보 ???�위 ${sorted.length}�??�별</div>
       </div>
       <div class="rank-summary">${summaryText}</div>
       <div style="margin-top:10px;font-size:12px;color:var(--warm-brown);">추천 목적: <strong>${pCtx.label}</strong></div>
       <div style="margin-top:10px;padding-top:10px;border-top:1px solid var(--border);font-size:11.5px;color:var(--muted);line-height:1.7;">
-        ※ AI가 제안한 이름을 팔자연구소 수비학 엔진으로 직접 계산한 결과입니다. 수비학은 참고 자료이며 최종 선택은 종합적으로 판단하세요.
+        ??AI가 ?�안???�름???�자?�구???�비???�진?�로 직접 계산??결과?�니?? ?�비?��? 참고 ?�료?�며 최종 ?�택?� 종합?�으�??�단?�세??
       </div>
     </div>
     <div class="name-cards" id="recNameCards"></div>`;
 
-  // 네임코드와 동일한 카드 렌더링
+  // ?�임코드?� ?�일??카드 ?�더�?
   renderNameCards([], sorted, dist, pCtx);
 
-  // recNameCards에 복사 (renderNameCards는 nameCards에 씀)
+  // recNameCards??복사 (renderNameCards??nameCards???�)
   const src = document.getElementById('nameCards');
   const dst = document.getElementById('recNameCards');
   if(src && dst) dst.innerHTML = src.innerHTML;
@@ -2094,7 +2094,7 @@ document.addEventListener('keydown',e=>{
 </script>
 <div class="birth-picker-backdrop" id="birthPickerBackdrop" hidden aria-hidden="true">
   <div class="birth-picker-sheet" role="dialog" aria-modal="true" aria-labelledby="birthPickerTitle">
-    <div class="birth-picker-head" id="birthPickerTitle">연도 선택</div>
+    <div class="birth-picker-head" id="birthPickerTitle">?�도 ?�택</div>
     <ul class="birth-picker-list" id="birthPickerList"></ul>
   </div>
 </div>

@@ -5,12 +5,12 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
   <meta name="theme-color" content="#4a3520"/>
   <meta name="apple-mobile-web-app-capable" content="yes"/>
-  <meta name="apple-mobile-web-app-title" content="라이프코드"/>
+  <meta name="apple-mobile-web-app-title" content="?�이?�코??/>
   <link rel="manifest" href="/lifecode/manifest.webmanifest"/>
   <link rel="icon" href="/lifecode/icon-192.png" type="image/png"/>
   <link rel="apple-touch-icon" href="/lifecode/apple-touch-icon.png"/>
   <script src="/js/lifecode-pwa.js" defer></script>
-  <title>상담사 허브 — 라이프코드 | 팔자연구소 8CODE</title>
+  <title>?�담???�브 ???�이?�코??| ?�자?�구??8CODE</title>
   <script src="/js/lifecode-product-guard.js"></script>
   <link rel="stylesheet" href="/css/lifecode-product.css"/>
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
@@ -102,7 +102,7 @@
       pointer-events: none;
     }
     .topbar-logo-mark::after {
-      content: '八';
+      content: '??;
       position: absolute;
       right: 2px;
       top: 0;
@@ -205,7 +205,7 @@
       align-items: center;
       gap: 6px 16px;
       padding: 7px 0 9px;
-      font-family: var(--font-body);
+      /* font from site-topbar */
       font-size: 12px;
     }
     .program-nav-inner a {
@@ -353,100 +353,100 @@
   <link rel="stylesheet" href="../css/site-header.css?v=6" />
 </head>
 <body>
-<div id="guard"><div class="spinner"></div><p class="guard-text">확인 중…</p></div>
+<div id="guard"><div class="spinner"></div><p class="guard-text">?�인 중�?/p></div>
 
 <div class="site-top lc-product-top">
 <header class="topbar lc-product-bar">
   <div class="topbar-left">
-    <a class="topbar-logo topbar-logo--wordmark" href="/lifecode/" aria-label="라이프코드">
-      <span class="topbar-logo-wordmark">라이프코드</span>
+    <a class="topbar-logo topbar-logo--wordmark" href="/lifecode/" aria-label="?�이?�코??>
+      <span class="topbar-logo-wordmark">?�이?�코??/span>
     </a>
   </div>
-  <div class="topbar-right" aria-label="라이프코드 메뉴">
-    <a class="lc-topbar-nav" href="analyze.html">라이프코드 분석</a>
-    <span class="lc-topbar-nav is-current" id="topbarCounselorHubLabel">상담사 허브</span>
+  <div class="topbar-right" aria-label="?�이?�코??메뉴">
+    <a class="lc-topbar-nav" href="analyze.html">?�이?�코??분석</a>
+    <span class="lc-topbar-nav is-current" id="topbarCounselorHubLabel">?�담???�브</span>
   </div>
 </header>
 </div>
 
 <div id="app">
   <div class="hub-intro">
-    <h1>상담사 허브</h1>
-    <p>고객 카드 저장 → 라이프코드 분석으로 바로 열기 → 인쇄·메모로 세션을 정리하세요. <strong>상담사 등급</strong> 접속 코드에서 이용할 수 있습니다.</p>
+    <h1>?�담???�브</h1>
+    <p>고객 카드 ?�?????�이?�코??분석?�로 바로 ?�기 ???�쇄·메모�??�션???�리?�세?? <strong>?�담???�급</strong> ?�속 코드?�서 ?�용?????�습?�다.</p>
   </div>
 
   <div id="hubLocked" hidden>
-    <h2>상담사 허브 미포함</h2>
-    <p>이 접속 코드는 <strong>기본(분석만)</strong> 등급입니다.<br>상담사 허브·고객 카드는 <strong>상담사 등급</strong> 코드에서만 열립니다. 판매처에 업그레이드 문의하세요.</p>
+    <h2>?�담???�브 미포??/h2>
+    <p>???�속 코드??<strong>기본(분석�?</strong> ?�급?�니??<br>?�담???�브·고객 카드??<strong>?�담???�급</strong> 코드?�서�??�립?�다. ?�매처에 ?�그?�이??문의?�세??</p>
     <div style="display:flex;flex-wrap:wrap;gap:10px;margin-top:16px;">
-      <a class="cta" href="analyze.html">라이프코드 분석 열기</a>
+      <a class="cta" href="analyze.html">?�이?�코??분석 ?�기</a>
     </div>
   </div>
 
   <div id="workspace">
     <div class="section-title">고객 카드</div>
     <div class="client-panel">
-      <p class="client-intro">상담 대상별로 생일·이름을 저장해 두었다가 <strong>라이프코드 분석</strong>으로 바로 불러올 수 있어요. 이 접속 코드에만 저장됩니다.</p>
+      <p class="client-intro">?�담 ?�?�별�??�일·?�름???�?�해 ?�었?��? <strong>?�이?�코??분석</strong>?�로 바로 불러?????�어?? ???�속 코드?�만 ?�?�됩?�다.</p>
       <form id="clientForm" class="client-form" autocomplete="off">
         <input type="hidden" id="editClientId" value=""/>
         <div>
-          <label for="cDisplay">표시 이름 · 별칭 *</label>
-          <input id="cDisplay" type="text" required placeholder="예: 김OO 님"/>
+          <label for="cDisplay">?�시 ?�름 · 별칭 *</label>
+          <input id="cDisplay" type="text" required placeholder="?? 김OO ??/>
         </div>
         <div>
-          <label for="cLegal">본명 (분석용, 선택)</label>
-          <input id="cLegal" type="text" placeholder="운·성·혼 해석에 사용"/>
+          <label for="cLegal">본명 (분석?? ?�택)</label>
+          <input id="cLegal" type="text" placeholder="?�·성·???�석???�용"/>
         </div>
         <div>
-          <label for="cBirth">생년월일 *</label>
+          <label for="cBirth">?�년?�일 *</label>
           <input id="cBirth" type="date" required/>
         </div>
         <div class="full">
-          <label for="cNotes">메모 (선택)</label>
-          <textarea id="cNotes" placeholder="상담 포인트, 다음 일정 등"></textarea>
+          <label for="cNotes">메모 (?�택)</label>
+          <textarea id="cNotes" placeholder="?�담 ?�인?? ?�음 ?�정 ??></textarea>
         </div>
         <div class="full client-actions">
-          <button type="submit" class="btn-sm" id="clientSaveBtn">저장</button>
-          <button type="button" class="btn-sm outline" id="clientResetBtn">새로 입력</button>
+          <button type="submit" class="btn-sm" id="clientSaveBtn">?�??/button>
+          <button type="button" class="btn-sm outline" id="clientResetBtn">?�로 ?�력</button>
         </div>
       </form>
       <div class="client-search-wrap">
-        <input id="clientSearch" class="client-search-input" type="search" placeholder="고객 검색 (표시 이름/본명/생년월일)" autocomplete="off"/>
+        <input id="clientSearch" class="client-search-input" type="search" placeholder="고객 검??(?�시 ?�름/본명/?�년?�일)" autocomplete="off"/>
       </div>
       <div id="clientList" class="client-list"></div>
       <p id="clientFormMsg" class="form-msg"></p>
     </div>
 
-    <div class="section-title">권장 진행 순서</div>
+    <div class="section-title">권장 진행 ?�서</div>
     <div class="flow">
       <div class="flow-step">
         <div class="flow-num">1</div>
-        <div><strong>고객 생일·이름</strong><span>라이프코드 분석에서 생년월일은 필수, 이름은 있으면 운명·혼·성격·완성 해석이 함께 열립니다. Professional은 <strong>고객 이름(상담사용)</strong> 칸에 표시용 이름을 적어 두면 화면·인쇄 시 구분에 도움이 됩니다.</span></div>
+        <div><strong>고객 ?�일·?�름</strong><span>?�이?�코??분석?�서 ?�년?�일?� ?�수, ?�름?� ?�으�??�명·?�·성격·완???�석???�께 ?�립?�다. Professional?� <strong>고객 ?�름(?�담?�용)</strong> 칸에 ?�시???�름???�어 ?�면 ?�면·?�쇄 ??구분???��????�니??</span></div>
       </div>
       <div class="flow-step">
         <div class="flow-num">2</div>
-        <div><strong>분석</strong><span>저장한 고객 카드에서 라이프코드 분석으로 바로 이어갈 수 있어요.</span></div>
+        <div><strong>분석</strong><span>?�?�한 고객 카드?�서 ?�이?�코??분석?�로 바로 ?�어�????�어??</span></div>
       </div>
       <div class="flow-step">
         <div class="flow-num">3</div>
-        <div><strong>기록</strong><span>아래 메모는 이 브라우저에만 저장됩니다. 장기 보관이 필요하면 복사해 두세요.</span></div>
+        <div><strong>기록</strong><span>?�래 메모????브라?��??�만 ?�?�됩?�다. ?�기 보�????�요?�면 복사???�세??</span></div>
       </div>
     </div>
 
-    <div class="section-title">바로 가기</div>
+    <div class="section-title">바로 가�?/div>
     <div class="links" id="hubLinks">
       <a class="link-card" href="analyze.html" id="hubLinkAnalysis">
         <div class="tag">CORE</div>
-        <div class="t">라이프코드 분석</div>
-        <div class="d">핵심 수, 대주기, 48주기, Growth Map, 상담 준비 요약까지 한 페이지에서.</div>
+        <div class="t">?�이?�코??분석</div>
+        <div class="d">?�심 ?? ?�주기, 48주기, Growth Map, ?�담 준�??�약까�? ???�이지?�서.</div>
       </a>
     </div>
 
-    <div class="section-title">오늘 세션 메모</div>
+    <div class="section-title">?�늘 ?�션 메모</div>
     <div class="notes-wrap">
-      <label for="sessionNotes">상담 중 메모 (이 기기 브라우저에만 저장)</label>
-      <textarea id="sessionNotes" placeholder="고객 반응, 다시 볼 포인트, 과제 등"></textarea>
-      <p class="notes-hint">저장은 자동입니다. 다른 PC나 시크릿 창과는 공유되지 않습니다.</p>
+      <label for="sessionNotes">?�담 �?메모 (??기기 브라?��??�만 ?�??</label>
+      <textarea id="sessionNotes" placeholder="고객 반응, ?�시 �??�인?? 과제 ??></textarea>
+      <p class="notes-hint">?�?��? ?�동?�니?? ?�른 PC???�크�?창과??공유?��? ?�습?�다.</p>
     </div>
   </div>
 </div>
@@ -488,7 +488,7 @@ async function main() {
     function resetForm() {
       editId.value = '';
       form.reset();
-      document.getElementById('clientSaveBtn').textContent = '저장';
+      document.getElementById('clientSaveBtn').textContent = '?�??;
       setMsg('');
     }
 
@@ -505,7 +505,7 @@ async function main() {
 
     function renderClients(rows) {
       if (!rows.length) {
-        listEl.innerHTML = '<p class="list-empty">조건에 맞는 고객이 없습니다.</p>';
+        listEl.innerHTML = '<p class="list-empty">조건??맞는 고객???�습?�다.</p>';
         return;
       }
       listEl.innerHTML = '';
@@ -513,15 +513,15 @@ async function main() {
         const div = document.createElement('div');
         div.className = 'client-row';
         const dn = escapeHtml(row.displayName || '');
-        const birth = row.birthDate || '—';
+        const birth = row.birthDate || '??;
         const ln = (row.legalName || '').trim();
         div.innerHTML =
-          '<div class="meta"><strong>' + dn + '</strong><span>생일 ' + escapeHtml(birth) +
+          '<div class="meta"><strong>' + dn + '</strong><span>?�일 ' + escapeHtml(birth) +
           (ln ? ' · 본명 ' + escapeHtml(ln) : '') + '</span></div>' +
           '<div class="row-btns">' +
-          '<button type="button" class="primary" data-act="analyze" data-id="' + row.id + '">분석 열기</button>' +
-          '<button type="button" data-act="edit" data-id="' + row.id + '">수정</button>' +
-          '<button type="button" data-act="del" data-id="' + row.id + '">삭제</button>' +
+          '<button type="button" class="primary" data-act="analyze" data-id="' + row.id + '">분석 ?�기</button>' +
+          '<button type="button" data-act="edit" data-id="' + row.id + '">?�정</button>' +
+          '<button type="button" data-act="del" data-id="' + row.id + '">??��</button>' +
           '</div>';
         listEl.appendChild(div);
       }
@@ -546,26 +546,26 @@ async function main() {
     }
 
     async function loadClients() {
-      listEl.innerHTML = '<p class="list-loading">불러오는 중…</p>';
+      listEl.innerHTML = '<p class="list-loading">불러?�는 중�?/p>';
       const { ok, data } = await lifecodeApi('/api/lifecode/clients');
       if (!ok) {
         listEl.innerHTML = '';
         clientRows = [];
         if (data.error === 'counselor_hub_not_included') {
-          setMsg('이 이용권에는 상담사 허브가 포함되지 않습니다.', true);
+          setMsg('???�용권에???�담???�브가 ?�함?��? ?�습?�다.', true);
           return;
         }
         if (data.error === 'db_migration_required') {
-          setMsg('서버 DB 설정이 필요합니다. lifecode_clients.sql 을 실행해 주세요.', true);
+          setMsg('?�버 DB ?�정???�요?�니?? lifecode_clients.sql ???�행??주세??', true);
           return;
         }
-        setMsg('고객 목록을 불러오지 못했습니다.', true);
+        setMsg('고객 목록??불러?��? 못했?�니??', true);
         return;
       }
       const items = data.items || [];
       if (!items.length) {
         clientRows = [];
-        listEl.innerHTML = '<p class="list-empty">저장된 고객이 없습니다. 위 폼에서 추가해 보세요.</p>';
+        listEl.innerHTML = '<p class="list-empty">?�?�된 고객???�습?�다. ???�에??추�???보세??</p>';
         return;
       }
       clientRows = items;
@@ -581,10 +581,10 @@ async function main() {
         return;
       }
       if (act === 'del') {
-        if (!confirm('이 고객 카드를 삭제할까요?')) return;
+        if (!confirm('??고객 카드�???��?�까??')) return;
         const { ok, data } = await lifecodeApi(`/api/lifecode/clients/${id}`, { method: 'DELETE' });
         if (!ok) {
-          setMsg(data.error || '삭제 실패', true);
+          setMsg(data.error || '??�� ?�패', true);
           return;
         }
         resetForm();
@@ -594,7 +594,7 @@ async function main() {
       if (act === 'edit') {
         const { ok, data } = await lifecodeApi(`/api/lifecode/clients/${id}`);
         if (!ok || !data.client) {
-          setMsg('불러오기 실패', true);
+          setMsg('불러?�기 ?�패', true);
           return;
         }
         const c = data.client;
@@ -603,8 +603,8 @@ async function main() {
         document.getElementById('cLegal').value = c.legalName || '';
         document.getElementById('cBirth').value = c.birthDate || '';
         document.getElementById('cNotes').value = c.notes || '';
-        document.getElementById('clientSaveBtn').textContent = '변경 저장';
-        setMsg('수정 중입니다. 저장하면 반영됩니다.');
+        document.getElementById('clientSaveBtn').textContent = '변�??�??;
+        setMsg('?�정 중입?�다. ?�?�하�?반영?�니??');
       }
     }
 
@@ -625,10 +625,10 @@ async function main() {
         : await lifecodeApi('/api/lifecode/clients', { method: 'POST', body });
 
       if (!ok) {
-        setMsg(data.error || '저장 실패', true);
+        setMsg(data.error || '?�???�패', true);
         return;
       }
-      setMsg(cid ? '저장했습니다.' : '새 고객 카드를 추가했습니다.');
+      setMsg(cid ? '?�?�했?�니??' : '??고객 카드�?추�??�습?�다.');
       if (!cid) resetForm();
       loadClients();
     });

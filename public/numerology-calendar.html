@@ -4,17 +4,17 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <link rel="icon" href="/favicon.svg" type="image/svg+xml">
-  <title>수비학 달력 — 개인일수·오늘의 에너지 계산 | 팔자연구소 8CODE</title>
+  <title>?�비???�력 ??개인?�수·?�늘???�너지 계산 | ?�자?�구??8CODE</title>
   <meta
     name="description"
-    content="수비학 달력으로 오늘의 에너지를 확인하세요. 생년월일 수비학 계산으로 개인연도·개인월수·개인일수를 구하고, 날짜별 할 일·피할 일 가이드를 월간 캘린더로 제공합니다."
+    content="?�비???�력?�로 ?�늘???�너지�??�인?�세?? ?�년?�일 ?�비??계산?�로 개인?�도·개인?�수·개인?�수�?구하�? ?�짜�????�·피????가?�드�??�간 캘린?�로 ?�공?�니??"
   />
-  <meta name="keywords" content="수비학, 수비학 달력, 수비학 계산, 개인일수, 개인연도, 오늘의 에너지, 수비학 오늘">
+  <meta name="keywords" content="?�비?? ?�비???�력, ?�비??계산, 개인?�수, 개인?�도, ?�늘???�너지, ?�비???�늘">
   <link rel="canonical" href="https://8code.kr/numerology-calendar.html">
   <meta property="og:type" content="website">
-  <meta property="og:site_name" content="팔자연구소 8CODE">
-  <meta property="og:title" content="수비학 달력 — 개인일수·오늘의 에너지 계산 | 팔자연구소 8CODE">
-  <meta property="og:description" content="수비학 달력으로 개인연도·개인월수·개인일수를 계산하고 오늘의 에너지를 확인하세요.">
+  <meta property="og:site_name" content="?�자?�구??8CODE">
+  <meta property="og:title" content="?�비???�력 ??개인?�수·?�늘???�너지 계산 | ?�자?�구??8CODE">
+  <meta property="og:description" content="?�비???�력?�로 개인?�도·개인?�수·개인?�수�?계산?�고 ?�늘???�너지�??�인?�세??">
   <meta property="og:url" content="https://8code.kr/numerology-calendar.html">
   <meta property="og:image" content="https://8code.kr/og-share.png">
   <meta property="og:locale" content="ko_KR">
@@ -402,7 +402,7 @@
       .metric { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     }
 
-    /* ── 글꼴·크기·대비 통일 (다른 페이지와 같은 기준) ── */
+    /* ?�?� 글꼴·크기·�?�??�일 (?�른 ?�이지?� 같�? 기�?) ?�?� */
     body { font-family: 'Pretendard Variable', Pretendard, 'Noto Sans KR', sans-serif; font-variant-numeric: lining-nums; }
     h1, h2, h3, .calendar-title, .card-title { font-family: 'Cormorant Garamond', 'Noto Serif KR', serif; }
     :root { --sun: #b04a39; --good: #216f61; }
@@ -415,17 +415,17 @@
   <script src="js/site-topbar.js?v=17" defer></script>
   <script src="js/topbar-session.js?v=7" defer></script>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css" crossorigin />
-  <link rel="stylesheet" href="css/site-topbar.css?v=8" />
+  <link rel="stylesheet" href="css/site-topbar.css?v=9" />
   <link rel="stylesheet" href="css/site-header.css?v=8" />
   <link rel="stylesheet" href="css/life-tables.css?v=2" />
 </head>
 <body>
-  <div class="site-top" data-topbar-title="수비학달력" data-nav-current="calendar" data-login-next="numerology-calendar.html"></div>
+  <div class="site-top" data-topbar-title="?�비?�달?? data-nav-current="calendar" data-login-next="numerology-calendar.html"></div>
 
   <main class="page">
     <section class="hero">
-      <h1>수비학 달력</h1>
-      <p>로그인하면 생년월일을 자동으로 불러와 월간 흐름과 날짜별 에너지 가이드, <strong>오늘의 운세(AI)</strong>를 달력으로 보여 드려요. Basic 이상 또는 <strong>3일 체험(1,900원)</strong>으로 이용할 수 있어요.</p>
+      <h1>?�비???�력</h1>
+      <p>로그?�하�??�년?�일???�동?�로 불러?� ?�간 ?�름�??�짜�??�너지 가?�드, <strong>?�늘???�세(AI)</strong>�??�력?�로 보여 ?�려?? Basic ?�상 ?�는 <strong>3??체험(1,900??</strong>?�로 ?�용?????�어??</p>
     </section>
 
     <section class="layout">
@@ -433,13 +433,13 @@
         <article class="panel controls">
           <div class="control-grid">
             <div class="field">
-              <label for="birthDateInput">생년월일</label>
+              <label for="birthDateInput">?�년?�일</label>
               <input type="date" id="birthDateInput" />
             </div>
             <div class="btn-row">
-              <button type="button" id="prevMonthBtn" aria-label="이전 달">이전</button>
-              <button type="button" id="todayBtn" aria-label="이번 달">오늘</button>
-              <button type="button" id="nextMonthBtn" aria-label="다음 달">다음</button>
+              <button type="button" id="prevMonthBtn" aria-label="?�전 ??>?�전</button>
+              <button type="button" id="todayBtn" aria-label="?�번 ??>?�늘</button>
+              <button type="button" id="nextMonthBtn" aria-label="?�음 ??>?�음</button>
             </div>
           </div>
           <div class="hint" id="authHint"></div>
@@ -455,49 +455,49 @@
             </div>
           </div>
           <p class="calendar-legend">
-            <span><strong>큰 숫자</strong> · 개인일수</span>
-            <span><strong>작은 숫자</strong> · 일반일수</span>
+            <span><strong>???�자</strong> · 개인?�수</span>
+            <span><strong>?��? ?�자</strong> · ?�반?�수</span>
           </p>
           <div class="weekday" aria-hidden="true">
-            <div>일</div><div>월</div><div>화</div><div>수</div><div>목</div><div>금</div><div>토</div>
+            <div>??/div><div>??/div><div>??/div><div>??/div><div>�?/div><div>�?/div><div>??/div>
           </div>
-          <div class="days" id="calendarDays" role="grid" aria-label="수비학 달력"></div>
+          <div class="days" id="calendarDays" role="grid" aria-label="?�비???�력"></div>
         </article>
       </div>
 
       <aside class="panel detail" id="detailPanel">
-        <h2>날짜를 선택해 주세요</h2>
-        <p class="detail-date">개인일수와 가이드를 확인할 수 있습니다.</p>
+        <h2>?�짜�??�택??주세??/h2>
+        <p class="detail-date">개인?�수?� 가?�드�??�인?????�습?�다.</p>
       </aside>
     </section>
 
     <section class="panel" style="margin-top:18px;padding:18px 20px;line-height:1.75;">
-      <h2 style="margin:0 0 10px;font-size:20px;">수비학 달력이란?</h2>
+      <h2 style="margin:0 0 10px;font-size:20px;">?�비???�력?��??</h2>
       <p style="margin:0 0 14px;color:var(--muted);">
-        수비학 달력은 생년월일에서 도출한 <strong>개인연도·개인월수·개인일수</strong>를 월간 달력으로 보여 주는 도구예요.
-        매일이 똑같이 흘러가는 것 같아도, 수비학에서는 날짜마다 흐르는 에너지(숫자)가 다르다고 봐요.
-        오늘 나에게 어떤 에너지가 흐르는지 미리 알면, 중요한 결정·휴식·새 시작의 타이밍을 더 지혜롭게 고를 수 있어요.
+        ?�비???�력?� ?�년?�일?�서 ?�출??<strong>개인?�도·개인?�수·개인?�수</strong>�??�간 ?�력?�로 보여 주는 ?�구?�요.
+        매일???�같???�러가??�?같아?? ?�비?�에?�는 ?�짜마다 ?�르???�너지(?�자)가 ?�르?�고 봐요.
+        ?�늘 ?�에�??�떤 ?�너지가 ?�르?��? 미리 ?�면, 중요??결정·?�식·???�작???�?�밍????지?�롭�?고�? ???�어??
       </p>
 
-      <h3 style="margin:18px 0 8px;font-size:16px;">개인일수란?</h3>
+      <h3 style="margin:18px 0 8px;font-size:16px;">개인?�수?�?</h3>
       <p style="margin:0 0 14px;color:var(--muted);">
-        개인일수는 <strong>개인월수 + 그날의 날짜</strong>를 한 자리(또는 마스터 넘버)로 환원한 숫자로, 그날 하루의 에너지 테마를 나타내요.
-        1은 시작·추진, 2는 협력·관계, 3은 표현·창의, 4는 안정·실무, 5는 변화·자유, 6은 책임·돌봄,
-        7은 성찰·휴식, 8은 성취·결단, 9는 마무리·정리의 흐름으로 읽어요.
+        개인?�수??<strong>개인?�수 + 그날???�짜</strong>�????�리(?�는 마스???�버)�??�원???�자�? 그날 ?�루???�너지 ?�마�??��??�요.
+        1?� ?�작·추진, 2???�력·관�? 3?� ?�현·창의, 4???�정·?�무, 5??변?�·자?? 6?� 책임·?�봄,
+        7?� ?�찰·?�식, 8?� ?�취·결단, 9??마무�?�정리의 ?�름?�로 ?�어??
       </p>
 
-      <h3 style="margin:18px 0 8px;font-size:16px;">개인월수란?</h3>
+      <h3 style="margin:18px 0 8px;font-size:16px;">개인?�수?�?</h3>
       <p style="margin:0 0 14px;color:var(--muted);">
-        개인월수는 <strong>개인연도 + 해당 월</strong>을 환원한 숫자로, 그 달 전체의 큰 흐름을 보여 줘요.
-        개인월수가 그 달의 배경 음악이라면, 개인일수는 그날 하루의 멜로디라고 생각하면 이해하기 쉬워요.
+        개인?�수??<strong>개인?�도 + ?�당 ??/strong>???�원???�자�? �????�체?????�름??보여 줘요.
+        개인?�수가 �??�의 배경 ?�악?�라�? 개인?�수??그날 ?�루??멜로?�라�??�각?�면 ?�해?�기 ?�워??
       </p>
 
-      <h3 style="margin:18px 0 8px;font-size:16px;">오늘의 에너지 읽는 법</h3>
+      <h3 style="margin:18px 0 8px;font-size:16px;">?�늘???�너지 ?�는 �?/h3>
       <p style="margin:0 0 6px;color:var(--muted);">
-        달력에서 <strong>오늘 날짜의 큰 숫자(개인일수)</strong>를 확인하고, 그 숫자의 테마에 맞춰 하루를 계획해 보세요.
-        예를 들어 개인일수가 1인 날은 새로운 일을 시작하기 좋고, 7인 날은 무리한 약속보다 혼자만의 정리·휴식이 어울려요.
-        팔자연구소 수비학 달력은 생년월일만 입력하면 오늘의 에너지와 함께 <strong>할 일·피할 일 가이드</strong>를 자동으로 제안하고,
-        <strong>오늘의 운세(AI)</strong>로 연애·일·금전까지 풀어 드려요. (Basic 이상)
+        ?�력?�서 <strong>?�늘 ?�짜?????�자(개인?�수)</strong>�??�인?�고, �??�자???�마??맞춰 ?�루�?계획??보세??
+        ?��? ?�어 개인?�수가 1???��? ?�로???�을 ?�작?�기 좋고, 7???��? 무리???�속보다 ?�자만의 ?�리·?�식???�울?�요.
+        ?�자?�구???�비???�력?� ?�년?�일�??�력?�면 ?�늘???�너지?� ?�께 <strong>???�·피????가?�드</strong>�??�동?�로 ?�안?�고,
+        <strong>?�늘???�세(AI)</strong>�??�애·?�·금?�까지 ?�???�려?? (Basic ?�상)
       </p>
     </section>
   </main>
