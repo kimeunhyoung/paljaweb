@@ -182,7 +182,7 @@
     );
   }
 
-  /** 팔자연구소 프로그램별 최소 플랜 — 타로·라이프코드 무료, 달력·소울하모니·48궁합 Basic+, 네임코드 Plus+ */
+  /** 팔자연구소 프로그램별 최소 플랜 — 타로·라이프코드 무료, 달력·소울하모니·48궁합 Basic+, 네임코드 Plus+, 에너지배경 Private */
   var PRODUCT_MIN_PLAN = {
     tarot: 'free',
     lifecode: 'free',
@@ -190,6 +190,7 @@
     harmony: 'basic',
     p48: 'basic',
     calendar: 'basic',
+    wallpaper: 'private',
   };
 
   var BASIC_PRODUCT_GATE_MSG = 'Basic 이상 플랜에서 이용할 수 있습니다.';

@@ -40,17 +40,24 @@ document.getElementById('heroProgramsLink')?.addEventListener('click', (e) => {
 function initMobileMenu() {
   const btn = document.getElementById('navMenuBtn')
   const panel = document.getElementById('mobileNavPanel')
+  const chrome = document.getElementById('siteChrome')
   if (!btn || !panel) return
 
   const closePanel = () => {
     panel.classList.remove('open')
     panel.hidden = true
     btn.setAttribute('aria-expanded', 'false')
+    document.body.classList.remove('nav-menu-open')
+    chrome?.classList.remove('is-nav-open')
   }
   const openPanel = () => {
     panel.hidden = false
     panel.classList.add('open')
     btn.setAttribute('aria-expanded', 'true')
+    document.body.classList.add('nav-menu-open')
+    chrome?.classList.add('is-nav-open')
+    // 로그인 버튼이 바로 보이도록 패널 맨 위로
+    panel.scrollTop = 0
   }
 
   btn.addEventListener('click', () => {
@@ -195,7 +202,7 @@ async function updateNav() {
   } else {
     const guestHtml = `
       <a href="login.html" class="btn-nav-ghost">로그인</a>
-      <a href="signup.html" class="btn-nav-fill">무료 시작</a>
+      <a href="signup.html" class="btn-nav-fill">회원가입</a>
     `
     renderAuthActions(navActions, guestHtml, false)
     renderAuthActions(mobileNavActions, guestHtml, false)

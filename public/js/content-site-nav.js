@@ -99,6 +99,10 @@
     '</button>' +
     '</div>' +
     '<div class="mobile-nav-panel" id="mobileNavPanel" hidden>' +
+    '<div class="mobile-nav-actions">' +
+    '<a href="' + loginHref + '" class="btn-nav-ghost">로그인</a>' +
+    '<a href="/signup.html" class="btn-nav-fill">회원가입</a>' +
+    '</div>' +
     '<ul class="mobile-nav-links">' +
     '<li class="mobile-nav-group">수비학</li>' +
     '<li><a href="/analysis.html">라이프코드</a></li>' +
@@ -129,10 +133,6 @@
     '<li><a href="/faq.html">FAQ</a></li>' +
     '<li><a href="/contact.html">문의</a></li>' +
     '</ul>' +
-    '<div class="mobile-nav-actions">' +
-    '<a href="' + loginHref + '" class="btn-nav-ghost">로그인</a>' +
-    '<a href="/analysis.html" class="btn-nav-fill">무료 분석</a>' +
-    '</div>' +
     '</div>' +
     '</nav>';
 
@@ -141,6 +141,7 @@
   function bind() {
     var btn = document.getElementById('navMenuBtn');
     var panel = document.getElementById('mobileNavPanel');
+    var chrome = document.getElementById('siteChrome');
     if (!btn || !panel || btn.getAttribute('data-bound') === '1') return;
     btn.setAttribute('data-bound', '1');
 
@@ -148,11 +149,16 @@
       panel.classList.remove('open');
       panel.hidden = true;
       btn.setAttribute('aria-expanded', 'false');
+      document.body.classList.remove('nav-menu-open');
+      if (chrome) chrome.classList.remove('is-nav-open');
     };
     var openPanel = function () {
       panel.hidden = false;
       panel.classList.add('open');
       btn.setAttribute('aria-expanded', 'true');
+      document.body.classList.add('nav-menu-open');
+      if (chrome) chrome.classList.add('is-nav-open');
+      panel.scrollTop = 0;
     };
     btn.addEventListener('click', function () {
       if (panel.classList.contains('open')) closePanel();

@@ -277,16 +277,21 @@ ul { list-style: none; }
   display: none;
   max-width: 1140px;
   margin: 8px auto 0;
-  padding: 0 16px;
+  padding: 0 16px 12px;
+  max-height: min(78vh, calc(100dvh - 88px));
+  overflow-x: hidden;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
 }
 .mobile-nav-panel.open { display: block; }
 .mobile-nav-panel-inner { display: block; }
 .mobile-nav-links {
   background: rgba(250,247,242,.98);
   border: 1px solid var(--border);
-  border-radius: 12px 12px 0 0;
-  border-bottom: none;
-  padding: 10px 12px;
+  border-radius: 0 0 12px 12px;
+  border-top: none;
+  padding: 10px 12px 14px;
 }
 .mobile-nav-links li a {
   display: block;
@@ -296,19 +301,32 @@ ul { list-style: none; }
 }
 .mobile-nav-links li a:hover { color: var(--brown); }
 .mobile-nav-actions {
+  position: sticky;
+  top: 0;
+  z-index: 2;
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
   padding: 12px;
   border: 1px solid var(--border);
-  border-top: 1px dashed var(--border);
-  border-radius: 0 0 12px 12px;
+  border-bottom: 1px dashed var(--border);
+  border-radius: 12px 12px 0 0;
   background: rgba(250,247,242,.98);
 }
 .mobile-nav-actions .btn-nav-ghost,
 .mobile-nav-actions .btn-nav-fill {
-  padding: 7px 12px;
-  font-size: 13px;
+  flex: 1 1 auto;
+  text-align: center;
+  padding: 10px 12px;
+  font-size: 14px;
+  font-weight: 600;
+}
+body.nav-menu-open {
+  overflow: hidden;
+  touch-action: none;
+}
+.site-chrome.is-nav-open .home-program-nav {
+  display: none;
 }
 .btn-nav-ghost {
   padding: 8px 18px;
@@ -1416,8 +1434,17 @@ section { padding: 100px 0; }
   .home-program-nav { padding: 0 16px; }
   .home-program-nav-inner { gap: 6px 12px; font-size: 11px; padding: 7px 0 9px; }
   .nav-links { display: none; }
-  .nav-actions { display: none; }
-  .nav-menu-btn { display: inline-flex; margin-left: auto; }
+  .nav-actions {
+    display: flex;
+    gap: 6px;
+    margin-right: 8px;
+  }
+  .nav-actions .btn-nav-fill { display: none; }
+  .nav-actions .btn-nav-ghost {
+    padding: 7px 12px;
+    font-size: 13px;
+  }
+  .nav-menu-btn { display: inline-flex; margin-left: 0; }
   .btn-nav-ghost, .btn-nav-fill {
     padding: 7px 12px;
     font-size: 13px;

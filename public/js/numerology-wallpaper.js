@@ -88,6 +88,68 @@ const hintEl = document.getElementById("hint");
 const metaEl = document.getElementById("metaInfo");
 const downloadBtn = document.getElementById("downloadBtn");
 const generateBtn = document.getElementById("generateBtn");
+const wallpaperGate = document.getElementById("wallpaperGate");
+const wallpaperApp = document.getElementById("wallpaperApp");
+
+let wallpaperLocked = false;
+
+function setWallpaperInteractive(enabled) {
+  const controls = [
+    birthInput,
+    nameInput,
+    pickSelect,
+    generateBtn,
+    downloadBtn,
+    ...modeInputs,
+    ...moodInputs,
+    ...colorInputs,
+    ...aspectInputs,
+  ];
+  controls.forEach((el) => {
+    if (el) el.disabled = !enabled;
+  });
+}
+
+function lockWallpaperUI(panelHtml) {
+  wallpaperLocked = true;
+  setWallpaperInteractive(false);
+  if (wallpaperApp) wallpaperApp.hidden = true;
+  if (wallpaperGate) {
+    wallpaperGate.hidden = false;
+    wallpaperGate.innerHTML =
+      panelHtml ||
+      (window.PaljaPlan?.productGatePanelHtml
+        ? PaljaPlan.productGatePanelHtml("wallpaper", {
+            title: "Private에서 이용 가능",
+            desc: "에너지 배경은 Private 플랜 전용입니다. 수비학 숫자를 폰·스토리 배경 PNG로 만들어 저장할 수 있어요.",
+            loggedIn: !!window.PALJA_LOGGED_IN,
+          })
+        : "Private 플랜에서 이용할 수 있습니다. <a href=\"pricing.html\">요금제 보기</a>");
+  }
+  setHint("에너지 배경은 Private 플랜 전용입니다.", "warn");
+  if (downloadBtn) downloadBtn.disabled = true;
+}
+
+async function ensureWallpaperAccess() {
+  if (window.PaljaProductBootstrap) {
+    await PaljaProductBootstrap.bootstrap({ product: "wallpaper", requireLogin: true });
+  }
+  if (!window.PaljaPlan) return true;
+  const allowed = await PaljaPlan.ensureBasicProductAccess("wallpaper", wallpaperGate || hintEl);
+  if (!allowed) {
+    lockWallpaperUI(wallpaperGate ? wallpaperGate.innerHTML : null);
+    return false;
+  }
+  wallpaperLocked = false;
+  if (wallpaperGate) {
+    wallpaperGate.hidden = true;
+    wallpaperGate.innerHTML = "";
+  }
+  if (wallpaperApp) wallpaperApp.hidden = false;
+  setWallpaperInteractive(true);
+  if (downloadBtn) downloadBtn.disabled = true;
+  return true;
+}
 
 function getCanvasSize() {
   if (state.aspect === "square") return { w: 1080, h: 1080 };
@@ -709,6 +771,7 @@ function wrapText(ctx, text, x, y, maxWidth, lineHeight, font, color) {
 }
 
 async function renderPreview() {
+  if (wallpaperLocked) return;
   const birth = parseBirthDate(state.birthDate);
   if (!birth) {
     setHint("생년월일을 입력해 주세요.", "warn");
@@ -745,6 +808,11 @@ async function renderPreview() {
 }
 
 async function downloadWallpaper() {
+  if (wallpaperLocked) return;
+  if (window.PaljaPlan && !(await PaljaPlan.ensureBasicProductAccess("wallpaper", wallpaperGate || hintEl))) {
+    lockWallpaperUI(wallpaperGate ? wallpaperGate.innerHTML : null);
+    return;
+  }
   const birth = parseBirthDate(state.birthDate);
   if (!birth) {
     setHint("생년월일을 먼저 입력해 주세요.", "warn");
@@ -857,10 +925,12 @@ function bindEvents() {
   downloadBtn?.addEventListener("click", downloadWallpaper);
 }
 
-function init() {
+async function init() {
   loadFromStorage();
   updateDownloadLabel();
   bindEvents();
+  const ok = await ensureWallpaperAccess();
+  if (!ok) return;
   if (state.birthDate) renderPreview();
   else setHint("생년월일을 입력하면 배경화면이 자동으로 만들어집니다.");
 }
