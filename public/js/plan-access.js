@@ -151,7 +151,7 @@
     var titles = {
       basic: 'B: Basic 이상',
       plus: 'P: Plus·Professional 이상',
-      private: 'S: Private',
+      private: 'S: 초대',
     };
     var t = labels[tier] ? tier : 'plus';
     var css = t === 'plus' ? 'pro' : (t === 'private' ? 'special' : t);
@@ -177,7 +177,7 @@
       '<p class="lc-guide-tier-legend">' +
       '<span class="lc-guide-tier-badge lc-guide-tier-badge--basic" title="B: Basic 이상">B</span> 베이직 이상 · ' +
       '<span class="lc-guide-tier-badge lc-guide-tier-badge--pro" title="P: Plus·Professional 이상">P</span> Plus·Professional 이상 · ' +
-      '<span class="lc-guide-tier-badge lc-guide-tier-badge--special" title="S: Private">S</span> Private' +
+      '<span class="lc-guide-tier-badge lc-guide-tier-badge--special" title="S: 초대">S</span> 초대' +
       '</p>'
     );
   }
@@ -205,12 +205,14 @@
     if (p === 'basic') return 'Basic';
     if (p === 'plus') return 'Plus';
     if (p === 'professional') return 'Professional';
-    if (p === 'private') return 'Private';
+    if (p === 'private') return '초대';
     return 'Basic';
   }
 
   function productGateMsg(product) {
-    return planKoLabel(productMinPlan(product)) + ' 이상 플랜에서 이용할 수 있습니다.';
+    var min = productMinPlan(product);
+    if (min === 'private') return '초대 회원만 이용할 수 있어요.';
+    return planKoLabel(min) + ' 이상 플랜에서 이용할 수 있습니다.';
   }
 
   function pageNextUrl() {

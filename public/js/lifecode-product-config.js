@@ -18,7 +18,7 @@ export const LIFECODE_PRODUCT = {
 
   readingGuideKicker: '라이프코드 단품에 포함된 모듈입니다.',
   readingGuideFootnote:
-    '제목 옆 <strong>B</strong>·<strong>P</strong>·<strong>S</strong> — B=베이직, P=Plus·Professional(결제), S=Private(Professional과 별도).',
+    '제목 옆 <strong>B</strong>·<strong>P</strong>·<strong>S</strong> — B=베이직, P=Plus·Professional(결제), S=초대.',
 
   pdfFilenamePrefix: '라이프코드',
 
@@ -159,7 +159,7 @@ export function buildLifecodeProductReadingGuideInner() {
     const labels = { basic: 'B', plus: 'P', private: 'S' };
     const t = labels[tier] ? tier : 'plus';
     const css = t === 'plus' ? 'pro' : (t === 'private' ? 'special' : t);
-    const title = t === 'private' ? 'S: Private' : (t === 'basic' ? 'B: Basic 이상' : 'P: Plus·Professional 이상');
+    const title = t === 'private' ? 'S: 초대' : (t === 'basic' ? 'B: Basic 이상' : 'P: Plus·Professional 이상');
     return `<span class="lc-guide-tier-badge lc-guide-tier-badge--${css}" title="${title} 플랜">${labels[tier] || labels[t] || 'P'}</span>`;
   };
   const legend =

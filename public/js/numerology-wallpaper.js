@@ -118,15 +118,9 @@ function lockWallpaperUI(panelHtml) {
     wallpaperGate.hidden = false;
     wallpaperGate.innerHTML =
       panelHtml ||
-      (window.PaljaPlan?.productGatePanelHtml
-        ? PaljaPlan.productGatePanelHtml("wallpaper", {
-            title: "Private에서 이용 가능",
-            desc: "에너지 배경은 Private 플랜 전용입니다.",
-            loggedIn: !!window.PALJA_LOGGED_IN,
-          })
-        : "에너지 배경은 Private 플랜 전용입니다. <a href=\"pricing.html\">요금제 보기</a>");
+      '<p style="margin:0;color:var(--muted);line-height:1.6;">이 도구는 초대 회원만 이용할 수 있어요.</p>';
   }
-  setHint("에너지 배경은 Private 플랜 전용입니다.", "warn");
+  setHint("이 도구는 초대 회원만 이용할 수 있어요.", "warn");
   if (downloadBtn) downloadBtn.disabled = true;
 }
 
@@ -137,7 +131,7 @@ async function ensureWallpaperAccess() {
     }
     if (!window.PaljaPlan) {
       lockWallpaperUI(
-        '플랜 확인에 실패했습니다. 페이지를 새로고침하거나 <a href="pricing.html">요금제</a>를 확인해 주세요.'
+        '확인에 실패했습니다. 페이지를 새로고침해 주세요.'
       );
       return false;
     }
@@ -146,11 +140,7 @@ async function ensureWallpaperAccess() {
     const allowed = PaljaPlan.hasProductAccess("wallpaper", plan, false);
     if (!allowed) {
       lockWallpaperUI(
-        PaljaPlan.productGatePanelHtml("wallpaper", {
-          title: "Private에서 이용 가능",
-          desc: "에너지 배경은 Private 플랜 전용입니다.",
-          loggedIn: !!window.PALJA_LOGGED_IN,
-        })
+        '<p style="margin:0;color:var(--muted);line-height:1.6;">이 도구는 초대 회원만 이용할 수 있어요.</p>'
       );
       return false;
     }
@@ -166,7 +156,7 @@ async function ensureWallpaperAccess() {
   } catch (err) {
     console.error("wallpaper access", err);
     lockWallpaperUI(
-      '플랜 확인 중 오류가 났습니다. 새로고침 후 다시 시도해 주세요. <a href="pricing.html">요금제 보기</a>'
+      '확인 중 오류가 났습니다. 새로고침 후 다시 시도해 주세요.'
     );
     return false;
   }
