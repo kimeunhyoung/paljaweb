@@ -485,6 +485,51 @@
     }
     .prep-memo-acc .prep-memo-h:first-child { margin-top: 0; }
     .prep-note { font-size: 11px; color: var(--muted); margin-top: 12px; }
+    /* 세션 브리핑 · 핵심 수 / 올해 흐름 가독성 개선 */
+    .counselor-prep-card { --prep-muted: #7a6650; }
+    .prep-sub, .prep-note { color: var(--prep-muted); }
+    .prep-box h4 { color: var(--warm-brown); }
+    .prep-hero, .prep-num .pn-val, .prep-year .py-val {
+      font-family: var(--font-serif); font-variant-numeric: lining-nums; font-feature-settings: "lnum" 1;
+      line-height: 1;
+    }
+    .prep-hero { display: flex; align-items: center; gap: 14px; padding: 12px 14px; border-radius: 10px;
+      background: var(--deep-brown); color: #fff; margin-bottom: 10px; }
+    .prep-hero .ph-val { font-size: 46px; font-weight: 700; color: var(--accent-lt); min-width: 1.4em; text-align: center; }
+    .prep-hero .ph-val small, .prep-num .pn-val small, .prep-year .py-val small { font-size: .45em; font-weight: 600; opacity: .75; margin-left: 2px; }
+    .prep-hero .ph-meta { display: flex; flex-direction: column; gap: 3px; min-width: 0; font-family: var(--font-body); }
+    .prep-hero .ph-label { font-size: 11px; letter-spacing: .06em; color: var(--accent); font-weight: 700; }
+    .prep-hero .ph-title { font-size: 16px; font-weight: 700; color: #fff; }
+    .prep-hero .ph-kw { font-size: 12px; color: rgba(255,255,255,.78); }
+    .prep-num-grid { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 6px; }
+    @media (max-width: 420px) { .prep-num-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+    .prep-num { display: flex; flex-direction: column; align-items: center; gap: 3px; padding: 9px 4px 8px;
+      background: var(--cream); border: 1px solid rgba(139,111,71,.25); border-radius: 8px; text-align: center; }
+    .prep-num .pn-val { font-size: 28px; font-weight: 700; color: var(--deep-brown); }
+    .prep-num .pn-label { font-size: 11.5px; font-weight: 700; color: var(--ink); }
+    .prep-num .pn-kw { font-size: 10.5px; color: var(--prep-muted); }
+    .prep-zodiac { display: flex; align-items: baseline; gap: 8px; margin-top: 8px; padding-top: 8px;
+      border-top: 1px dashed rgba(139,111,71,.25); font-size: 12px; color: var(--prep-muted); }
+    .prep-zodiac b { font-size: 14px; color: var(--deep-brown); }
+    .prep-year { display: flex; align-items: center; gap: 12px; margin-bottom: 8px; }
+    .prep-year .py-val { font-size: 40px; font-weight: 700; color: var(--deep-brown); min-width: 1.2em; }
+    .prep-year .py-meta { display: flex; flex-direction: column; gap: 2px; }
+    .prep-year .py-label { font-size: 11px; font-weight: 700; letter-spacing: .06em; color: var(--warm-brown); }
+    .prep-year .py-title { font-size: 16px; font-weight: 700; color: var(--ink); }
+    .prep-flow .py-desc { font-size: 12.5px; line-height: 1.65; color: var(--ink); margin: 0 0 10px; }
+    .prep-kv { display: grid; gap: 0; border-top: 1px solid var(--border); }
+    .prep-kv .kv-row { display: flex; gap: 10px; align-items: baseline; padding: 7px 0; border-bottom: 1px solid var(--border); font-size: 13px; }
+    .prep-kv .kv-k { flex: 0 0 76px; font-size: 11.5px; font-weight: 700; color: var(--warm-brown); }
+    .prep-kv .kv-v { color: var(--ink); }
+    .prep-kv .kv-v b { color: var(--deep-brown); }
+    .prep-kv .kv-row--sub { font-size: 12px; }
+    .prep-kv .kv-row--sub .kv-k, .prep-kv .kv-row--sub .kv-v { color: var(--prep-muted); }
+    @media print {
+      .prep-hero { background: #fff; color: var(--ink); border: 2px solid var(--deep-brown); }
+      .prep-hero .ph-val { color: var(--deep-brown); }
+      .prep-hero .ph-title { color: var(--ink); }
+      .prep-hero .ph-kw { color: var(--prep-muted); }
+    }
     .export-brand-header { text-align: center; padding: 4px 0 10px; margin-bottom: 6px; border-bottom: 1px solid var(--border); }
 
     /* ── 분석 결과 바로가기 (플로팅) ── */
@@ -6958,16 +7003,34 @@ function renderCounselorPrepCard(p) {
 
   const tone = (typeof numberTone === 'function') ? numberTone : () => '';
 
-  // 핵심 수 칩 (개인 핵심수)
-  const chips = [];
-  const chip = (label, val, sub) => { if (val != null && val !== '') chips.push(`<span class="prep-chip"><b>${esc(label)}</b> ${esc(String(val))}${sub ? ` <span style="color:var(--muted)">${esc(sub)}</span>` : ''}</span>`); };
-  chip('인생여정수', p.lpDisplay != null ? p.lpDisplay : p.lp);
-  if (p.destiny != null) chip('운명수', p.destiny);
-  if (p.soul != null) chip('혼의수', p.soul);
-  if (p.personality != null) chip('성격수', p.personality);
-  if (p.maturity != null) chip('완성수', p.maturity);
-  chip('문넘버', p.mn);
-  if (p.zodiac && p.zodiac !== '—') chip('별자리', p.zodiac);
+  // 핵심 수 — 인생여정수는 큰 히어로, 나머지는 숫자 타일 (숫자 크게 · 이름/키워드 작게)
+  const numHtml = (v) => {
+    const s = String(v);
+    const i = s.indexOf('/');
+    return i > 0 ? `${esc(s.slice(0, i))}<small>/${esc(s.slice(i + 1))}</small>` : esc(s);
+  };
+  const toneOf = (v) => { const n = parseInt(String(v), 10); return [1,2,3,4,5,6,7,8,9,11,22,33].includes(n) ? tone(n) : ''; };
+  const lpVal = p.lpDisplay != null ? p.lpDisplay : p.lp;
+  const lpDeep = prepExtractDeep(deepMap[p.lp]);
+  const heroHtml = (lpVal != null && lpVal !== '')
+    ? `<div class="prep-hero"><div class="ph-val">${numHtml(lpVal)}</div><div class="ph-meta">` +
+      `<span class="ph-label">인생여정수</span>` +
+      `<span class="ph-title">${esc(lpDeep.label || toneOf(p.lp))}</span>` +
+      `${lpDeep.keywords ? `<span class="ph-kw">${esc(lpDeep.keywords)}</span>` : ''}</div></div>`
+    : '';
+  const tiles = [];
+  const tile = (label, val) => {
+    if (val == null || val === '') return;
+    tiles.push(`<div class="prep-num"><span class="pn-val">${numHtml(val)}</span><span class="pn-label">${esc(label)}</span>${toneOf(val) ? `<span class="pn-kw">${esc(toneOf(val))}</span>` : ''}</div>`);
+  };
+  tile('운명수', p.destiny);
+  tile('혼의수', p.soul);
+  tile('성격수', p.personality);
+  tile('완성수', p.maturity);
+  tile('문넘버', p.mn);
+  const zodiacHtml = (p.zodiac && p.zodiac !== '—')
+    ? `<div class="prep-zodiac"><span>별자리</span><b>${esc(p.zodiac)}</b></div>` : '';
+  const coreHtml = `${heroHtml}${tiles.length ? `<div class="prep-num-grid">${tiles.join('')}</div>` : ''}${zodiacHtml}`;
 
   // 대주기 흐름 (3주기 전체) — 흐름 설명용
   const majorCards = Array.isArray(p.majorCards) ? p.majorCards : [];
@@ -6987,13 +7050,18 @@ function renderCounselorPrepCard(p) {
         `${i === curStageIdx ? '<span class="cy-now">현재</span>' : ''}</li>`).join('')}</ul>`
     : '';
 
-  // 올해 흐름
+  // 올해 흐름 — 개인년 숫자를 크게, 나머지는 라벨/값 행으로
   const pyKey = p.py;
-  const flowText = `올해는 ${flowPhrase[pyKey] ? esc(flowPhrase[pyKey]) + ' ' : ''}<b>개인년 ${esc(String(p.pyDisplay != null ? p.pyDisplay : pyKey))}번${titleMap[pyKey] ? ' · ' + esc(titleMap[pyKey]) : ''}</b> 시기입니다.` +
-    (yearStrat[pyKey] ? ` 목표: ${esc(yearStrat[pyKey].goal)}. 권유: ${esc(yearStrat[pyKey].action)}` : '') +
-    (p.ageVibNum != null ? `<br>연령진동수: <b>만 ${esc(String(p.ageVibAge))}세 · ${esc(String(p.ageVibNum))}번${titleMap[p.ageVibNum] ? ' · ' + esc(titleMap[p.ageVibNum]) : ''}</b>` : '') +
-    ((p.ageVibBack != null || p.ageVibFwd != null) ? `<br><span style="color:var(--muted);font-size:11px">전환형 보조 · 과거→현재 <b>${esc(String(p.ageVibBack))}번</b> · 현재→미래 <b>${esc(String(p.ageVibFwd))}번</b></span>` : '') +
-    (p.pm != null ? `<br>이번 달 키워드: <b>${esc(String(p.pm))}번 ${esc(monthKw[p.pm] || '')}</b>` : '');
+  const pyVal = p.pyDisplay != null ? p.pyDisplay : pyKey;
+  const kv = [];
+  if (p.ageVibNum != null) kv.push(`<div class="kv-row"><span class="kv-k">연령진동수</span><span class="kv-v"><b>${esc(String(p.ageVibNum))}번</b> · 만 ${esc(String(p.ageVibAge))}세${titleMap[p.ageVibNum] ? ' · ' + esc(titleMap[p.ageVibNum]) : ''}</span></div>`);
+  if (p.ageVibBack != null || p.ageVibFwd != null) kv.push(`<div class="kv-row kv-row--sub"><span class="kv-k">전환형 보조</span><span class="kv-v">과거→현재 <b>${esc(String(p.ageVibBack))}번</b> · 현재→미래 <b>${esc(String(p.ageVibFwd))}번</b></span></div>`);
+  if (p.pm != null) kv.push(`<div class="kv-row"><span class="kv-k">이번 달</span><span class="kv-v"><b>${esc(String(p.pm))}번</b>${monthKw[p.pm] ? ' · ' + esc(monthKw[p.pm]) : ''}</span></div>`);
+  const flowText =
+    `<div class="prep-year"><div class="py-val">${numHtml(pyVal)}</div><div class="py-meta"><span class="py-label">개인년</span><span class="py-title">${esc(titleMap[pyKey] || '')}</span></div></div>` +
+    ((flowPhrase[pyKey] || yearStrat[pyKey]) ? `<p class="py-desc">${flowPhrase[pyKey] ? `${esc(flowPhrase[pyKey])} 해입니다.` : ''}` +
+      (yearStrat[pyKey] ? ` <b>목표</b> ${esc(yearStrat[pyKey].goal)} · <b>권유</b> ${esc(yearStrat[pyKey].action)}` : '') + `</p>` : '') +
+    (kv.length ? `<div class="prep-kv">${kv.join('')}</div>` : '');
 
   // 격자 9칸 (로슈 4·9·2 / 풀 애로우 3·6·9) — 채워진 칸 강조 + 풀/빈 화살 이름
   let loshuGridHtml = '', arrowGridHtml = '';
@@ -7044,7 +7112,7 @@ function renderCounselorPrepCard(p) {
     <div class="prep-head"><span class="prep-badge">상담 준비</span><h3>${esc(p.clientName || '고객')} 세션 브리핑</h3></div>
     <div class="prep-sub">아래는 상담사용 요약입니다. (고객용 리포트 PDF에는 포함되지 않습니다)</div>
     <div class="prep-grid">
-      <div class="prep-box"><h4>핵심 수</h4><div class="prep-nums">${chips.join('')}</div></div>
+      <div class="prep-box prep-box--core"><h4>핵심 수</h4>${coreHtml}</div>
       <div class="prep-box"><h4>올해 흐름</h4><div class="prep-flow">${flowText}</div></div>
       ${majorFlowHtml ? `<div class="prep-box"><h4>대주기 흐름 (3주기)</h4>${majorFlowHtml}</div>` : ''}
       ${stageFlowHtml ? `<div class="prep-box"><h4>인생 4단계 · 절정수·도전수</h4>${stageFlowHtml}</div>` : ''}
