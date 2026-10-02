@@ -1331,73 +1331,6 @@
       margin: 0;
       padding: 0;
     }
-    .age-vib-box {
-      background: linear-gradient(180deg, rgba(200,169,110,.10), rgba(200,169,110,.04));
-      border: 1px solid rgba(200,169,110,.4);
-      border-radius: 12px;
-      padding: 14px 18px;
-      margin-bottom: 16px;
-      display: flex;
-      align-items: center;
-      gap: 16px;
-    }
-    .age-vib-box[hidden] { display: none; }
-    .age-vib-num {
-      flex-shrink: 0;
-      width: 58px;
-      height: 58px;
-      border-radius: 12px;
-      background: white;
-      border: 1px solid var(--border);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-family: var(--font-serif);
-      font-size: 30px;
-      font-weight: 300;
-      color: var(--accent);
-      line-height: 1;
-    }
-    .age-vib-body { flex: 1; min-width: 0; }
-    .age-vib-label {
-      font-size: 12px;
-      font-weight: 700;
-      color: var(--warm-brown);
-      margin-bottom: 3px;
-    }
-    .age-vib-label .age-vib-tag {
-      font-weight: 600;
-      color: var(--muted);
-      margin-left: 6px;
-    }
-    .age-vib-title { font-size: 13px; font-weight: 600; color: var(--text); margin-bottom: 4px; }
-    .age-vib-desc { font-size: 12px; color: var(--muted); line-height: 1.55; }
-    .age-vib-note { font-size: 11px; color: var(--muted); line-height: 1.5; margin-top: 6px; opacity: .92; }
-    .age-vib-alt {
-      font-size: 11.5px;
-      color: var(--warm-brown);
-      line-height: 1.5;
-      margin-top: 8px;
-      padding-top: 8px;
-      border-top: 1px dashed rgba(200,169,110,.45);
-    }
-    .age-vib-alt-tag {
-      display: inline-block;
-      font-size: 10px;
-      font-weight: 700;
-      color: var(--muted);
-      background: rgba(0,0,0,.04);
-      border-radius: 6px;
-      padding: 1px 6px;
-      margin-right: 6px;
-    }
-    .age-vib-alt-row { margin-bottom: 4px; }
-    .age-vib-alt-row:last-of-type { margin-bottom: 0; }
-    .age-vib-alt-hint { display: block; font-size: 10.5px; color: var(--muted); margin-top: 4px; }
-    @media (max-width: 640px) {
-      .age-vib-box { padding: 12px 14px; gap: 12px; }
-      .age-vib-num { width: 48px; height: 48px; font-size: 24px; }
-    }
     .flow-today-msg-label {
       font-family: var(--font-body);
       font-size: 11px;
@@ -6092,24 +6025,6 @@ window.NUMEROLOGY_DATA = (() => {
     33: "<b>[오늘 하루의 리듬 · 일간 흐름]</b><br><span class='kw'>오늘의 초점: 온기 · 가르침 · 회복</span><br>오늘은 <b>부드러운 말·케어·함께하는 시간</b>이 하루를 치유합니다. 누군가를 살짝 세워 주어도 기분이 채워집니다. 반대로 <b>경계 없이 다 맞추면</b> 저녁에 공허할 수 있고, <b>마음을 완전히 닫으면</b> 외로움이 깊어질 수 있습니다."
   };
 
-  /** 현재 흐름 — 연령진동수(만 나이 자릿수 합) 전용. 올해의 수 해설 톤을 나이 리듬으로 변환 */
-  N.PERSONAL_AGE_VIB_DEEP_MAP = {};
-  [1, 2, 3, 4, 5, 6, 7, 8, 9, 11, 22, 33].forEach((k) => {
-    const src = N.PERSONAL_YEAR_DEEP_MAP[k];
-    if (!src) return;
-    N.PERSONAL_AGE_VIB_DEEP_MAP[k] = src
-      .replace('[올해의 에너지 · 연간 흐름]', '[연령진동 · 나이의 리듬]')
-      .replace(/올해의 중심:/g, '이 나이의 중심:')
-      .replace(/올해는/g, '이 나이에서는')
-      .replace(/한 해가/g, '이 나이가')
-      .replace(/한 해를/g, '이 나이를')
-      .replace(/인 해입니다/g, '인 나이의 리듬입니다')
-      .replace(/좋은 해입니다/g, '좋은 나이의 리듬입니다')
-      .replace(/되는 해입니다/g, '되는 나이입니다')
-      .replace(/맞는 해입니다/g, '맞는 나이입니다')
-      .replace(/맞는 해/g, '맞는 나이')
-      .replace(/인 해/g, '인 나이');
-  });
 })();
 </script>
 <script src="js/majorCycleMap.js?v=20260508mc"></script>
@@ -6128,27 +6043,15 @@ window.NUMEROLOGY_DATA = (() => {
 const _ND = window.NUMEROLOGY_DATA;
 const { TITLE_MAP,TL_KEYWORD,FLOW_PHRASE,TL_COLOR,TL_DESC,DEEP_MAP,MOON_MAP,GROWTH_DATA,TITLE_SHORT,YEAR_STRATEGY,MONTHLY_KEYWORDS,DAY_HINT,DAY_ADVICE,LOSHU_STRENGTH_RULES,LOSHU_EMPTY_ARROW_RULES,LOSHU_WEAKNESS_RULES,LOSHU_INTENSITY_RULES,SEQ_ARROW_STRENGTH_RULES,SEQ_ARROW_EMPTY_RULES,INTERPRETATION_TEXTS,getZodiacInfo,
   CORE_LIFE_PATH_MAP,CORE_MOON_MAP,ZODIAC_CORE_DESC,CORE_DESTINY_MAP,CORE_SOUL_MAP,CORE_PERSONALITY_MAP,CORE_MATURITY_MAP,INTEGRATED_STORY,
-  PINNACLE_DEEP_MAP,CHALLENGE_DEEP_MAP,TIMELINE_YEAR_DEEP_MAP,PERSONAL_YEAR_DEEP_MAP,PERSONAL_MONTH_DEEP_MAP,PERSONAL_DAY_DEEP_MAP,PERSONAL_AGE_VIB_DEEP_MAP,
+  PINNACLE_DEEP_MAP,CHALLENGE_DEEP_MAP,TIMELINE_YEAR_DEEP_MAP,PERSONAL_YEAR_DEEP_MAP,PERSONAL_MONTH_DEEP_MAP,PERSONAL_DAY_DEEP_MAP,
   ACCORDION_LIFE_PATH,ACCORDION_MOON,ACCORDION_DESTINY,ACCORDION_SOUL,ACCORDION_PERSONALITY,ACCORDION_MATURITY,ACCORDION_ZODIAC } = _ND;
 
 function currentFlowDeepHtml(kind, v) {
-  const maps = { year: PERSONAL_YEAR_DEEP_MAP, month: PERSONAL_MONTH_DEEP_MAP, day: PERSONAL_DAY_DEEP_MAP, age: PERSONAL_AGE_VIB_DEEP_MAP };
+  const maps = { year: PERSONAL_YEAR_DEEP_MAP, month: PERSONAL_MONTH_DEEP_MAP, day: PERSONAL_DAY_DEEP_MAP };
   const row = maps[kind] && maps[kind][v];
   if (row) return row;
   if (kind === 'year' && TIMELINE_YEAR_DEEP_MAP && TIMELINE_YEAR_DEEP_MAP[v]) return TIMELINE_YEAR_DEEP_MAP[v];
   return DEEP_MAP[v] || '';
-}
-
-function ageVibAccordionHtml(av, at, atf) {
-  const avReduce = av.pre !== av.num ? ` → ${av.num}` : '';
-  const intro = `<p class="age-vib-acc-intro"><strong>연령진동수</strong>는 만 <strong>${av.age}세</strong>의 자릿수를 더해 <strong>${av.pre}${avReduce}</strong>로 읽습니다. 생일이 지날 때마다 바뀌며, 개인연도수(달력의 해)와 별도로 <strong>내 나이의 기본 리듬</strong>을 봅니다.</p>`;
-  const deep = currentFlowDeepHtml('age', av.num);
-  const alt = `<div class="age-vib-alt age-vib-alt--acc">
-    <div class="age-vib-alt-row"><span class="age-vib-alt-tag">전환형 · 과거→현재</span> 이전+현재 나이 ${at.prev}+${at.age}=${at.sum} → <strong>${at.num}번</strong> · ${TITLE_MAP[at.num] || ''}</div>
-    <div class="age-vib-alt-row"><span class="age-vib-alt-tag">전환형 · 현재→미래</span> 현재+다음 나이 ${atf.age}+${atf.next}=${atf.sum} → <strong>${atf.num}번</strong> · ${TITLE_MAP[atf.num] || ''}</div>
-    <span class="age-vib-alt-hint">한 나이에서 다음으로 넘어가는 ‘전환 에너지’를 보는 변형 방식입니다. (보조)</span>
-  </div>`;
-  return intro + (deep || '') + alt;
 }
 
 function flowYearAccordionHtml(pyClassic, pyTarot, yearLabel) {
@@ -6284,36 +6187,6 @@ function moonNumberSubline(mnPre, mn) {
 
 function sumYearDigits(year) {
   return String(year).split('').reduce((a, b) => Number(a) + Number(b), 0);
-}
-
-/** 만 나이 — 생일 경과 여부 반영 */
-function calcManAge(birthY, birthM, birthD, curY, curM, curD) {
-  let age = curY - birthY;
-  if (curM < birthM || (curM === birthM && curD < birthD)) age -= 1;
-  return Math.max(0, age);
-}
-
-/** 연령진동수 — 만 나이의 자릿수 합(마스터수 11·22·33 유지) */
-function calcAgeVibration(age) {
-  const a = Math.max(0, age | 0);
-  const pre = String(a).split('').reduce((s, c) => s + Number(c), 0);
-  return { age: a, pre, num: reduceToSingle(pre) };
-}
-
-/** 연령진동수(전환형·보조) — 이전 나이 + 현재 나이 → 환원 (과거→현재) */
-function calcAgeTransition(age) {
-  const a = Math.max(0, age | 0);
-  const prev = Math.max(0, a - 1);
-  const sum = prev + a;
-  return { age: a, prev, sum, num: reduceToSingle(sum) };
-}
-
-/** 연령진동수(전환형·보조) — 현재 나이 + 다음 나이 → 환원 (현재→미래) */
-function calcAgeTransitionForward(age) {
-  const a = Math.max(0, age | 0);
-  const next = a + 1;
-  const sum = a + next;
-  return { age: a, next, sum, num: reduceToSingle(sum) };
 }
 
 /** 올해의 수 = 연도 자릿수합 + 문 넘버(월·일 자릿수합) → 타로 0~21 (22→0) */
@@ -7054,8 +6927,6 @@ function renderCounselorPrepCard(p) {
   const pyKey = p.py;
   const pyVal = p.pyDisplay != null ? p.pyDisplay : pyKey;
   const kv = [];
-  if (p.ageVibNum != null) kv.push(`<div class="kv-row"><span class="kv-k">연령진동수</span><span class="kv-v"><b>${esc(String(p.ageVibNum))}번</b> · 만 ${esc(String(p.ageVibAge))}세${titleMap[p.ageVibNum] ? ' · ' + esc(titleMap[p.ageVibNum]) : ''}</span></div>`);
-  if (p.ageVibBack != null || p.ageVibFwd != null) kv.push(`<div class="kv-row kv-row--sub"><span class="kv-k">전환형 보조</span><span class="kv-v">과거→현재 <b>${esc(String(p.ageVibBack))}번</b> · 현재→미래 <b>${esc(String(p.ageVibFwd))}번</b></span></div>`);
   if (p.pm != null) kv.push(`<div class="kv-row"><span class="kv-k">이번 달</span><span class="kv-v"><b>${esc(String(p.pm))}번</b>${monthKw[p.pm] ? ' · ' + esc(monthKw[p.pm]) : ''}</span></div>`);
   const flowText =
     `<div class="prep-year"><div class="py-val">${numHtml(pyVal)}</div><div class="py-meta"><span class="py-label">개인년</span><span class="py-title">${esc(titleMap[pyKey] || '')}</span></div></div>` +
@@ -7753,7 +7624,7 @@ function buildReadingGuideCatalogInnerHtml() {
       )}
       ${lcReadingGuideCatalogRow(
         lcModuleNav('#nav-flow', '현재 흐름', 'basic'),
-        `수비학 개인연도·타로 올해의 수·연령진동수와 이번 달·오늘의 수 카드.`,
+        `수비학 개인연도·타로 올해의 수와 이번 달·오늘의 수 카드.`,
       )}
       ${(window.PaljaAnalysisAi && PaljaAnalysisAi.publicAiSectionsEnabled()) ? lcReadingGuideCatalogRow(
         lcModuleNav('#aiTodaySection', 'AI 오늘의 메시지', 'plus'),
@@ -8994,7 +8865,7 @@ async function runAnalysis() {
   if (hasBasicFlowAccess()) {
   if (flowBridgeEl) {
     flowBridgeEl.innerHTML = `<div class="timeline-bridge">
-      <p><strong>올해의 수</strong>는 <strong>수비학 개인연도</strong>(연·월·일 각 환원 후 합산)와 <strong>타로 올해의 수</strong>(<strong>${curY}년</strong> 연도 자릿수합 <strong>${curY_digitSum}</strong>+문 넘버 <strong>${mnPre}</strong> → 0~21)를 함께 봅니다. 카드에는 <strong>수비학/타로</strong> 순으로 표시됩니다. <strong>연령진동수</strong>는 만 나이의 자릿수 합으로, 생일마다 바뀌는 ‘내 나이의 리듬’을 봅니다. <strong>이번 달의 수</strong>는 타로 올해의 수에 <strong>${curM}월</strong>을, <strong>오늘의 수</strong>는 그 위에 <strong>${curD}일</strong>을 더해 줄인 값입니다.</p>
+      <p><strong>올해의 수</strong>는 <strong>수비학 개인연도</strong>(연·월·일 각 환원 후 합산)와 <strong>타로 올해의 수</strong>(<strong>${curY}년</strong> 연도 자릿수합 <strong>${curY_digitSum}</strong>+문 넘버 <strong>${mnPre}</strong> → 0~21)를 함께 봅니다. 카드에는 <strong>수비학/타로</strong> 순으로 표시됩니다. <strong>이번 달의 수</strong>는 타로 올해의 수에 <strong>${curM}월</strong>을, <strong>오늘의 수</strong>는 그 위에 <strong>${curD}일</strong>을 더해 줄인 값입니다.</p>
     </div>`;
   }
 
@@ -9013,25 +8884,15 @@ async function runAnalysis() {
   </div>`;
   }).join('');
 
-  const manAge = calcManAge(y, m, d, curY, curM, curD);
-  const av = calcAgeVibration(manAge);
-  const at = calcAgeTransition(manAge);
-  const atf = calcAgeTransitionForward(manAge);
-  const avReduceSuffix = av.pre !== av.num ? ` → ${av.num}` : '';
-
   document.getElementById('flowAccordion').innerHTML = [
     {k:'올해의 수', v:pyDisplay, pre:pyPreLabel, pyClassic, pyTarot:py, open:true},
-    {k:'연령진동수', v:av.num, pre:`만 ${av.age}세 · ${av.pre}${avReduceSuffix}`, isAge:true},
     {k:'이번 달의 수', v:pm, pre:(py + curM), kind:'month'},
     {k:'오늘의 수', v:pd, pre:(pm + curD), kind:'day'}
   ].map(i=>{
     const body = i.k === '올해의 수'
       ? flowYearAccordionHtml(i.pyClassic, i.pyTarot, curY)
-      : i.isAge
-        ? ageVibAccordionHtml(av, at, atf)
-        : currentFlowDeepHtml(i.kind, i.v);
-    const titleMeta = i.isAge ? i.pre : `전합 ${i.pre}`;
-    return accordion(`✦ ${i.k} ${i.v}번 (${titleMeta})`, body, !!i.open);
+      : currentFlowDeepHtml(i.kind, i.v);
+    return accordion(`✦ ${i.k} ${i.v}번 (전합 ${i.pre})`, body, !!i.open);
   }).join('');
 
   const todayDayLine = TL_DESC[pd] || '오늘의 리듬에 몸을 맡기며 하루를 살아가 보세요.';
@@ -9054,13 +8915,11 @@ async function runAnalysis() {
       flowBridgeEl.innerHTML = gateHTML(
         'basic',
         '현재 흐름',
-        '올해·이번 달·오늘의 수비학 개인연도·타로 올해의 수·연령진동수 해설을 확인할 수 있습니다.'
+        '올해·이번 달·오늘의 수비학 개인연도·타로 올해의 수 해설을 확인할 수 있습니다.'
       );
     }
     document.getElementById('flowRow').innerHTML = '';
     document.getElementById('flowAccordion').innerHTML = '';
-    const ageVibElFree = document.getElementById('ageVibBox');
-    if (ageVibElFree) { ageVibElFree.hidden = true; ageVibElFree.innerHTML = ''; }
     const flowTodayElFree = document.getElementById('flowTodayMsg');
     if (flowTodayElFree) flowTodayElFree.innerHTML = '';
   }
@@ -9641,10 +9500,6 @@ async function runAnalysis() {
   // ── 상담 준비 요약 카드 (상담사 모드 · ?client= 진입 시) ──
   if (COUNSELOR_CLIENT) {
     try {
-      const _prepManAge = calcManAge(y, m, d, curY, curM, curD);
-      const _prepAv = calcAgeVibration(_prepManAge);
-      const _prepAt = calcAgeTransition(_prepManAge);
-      const _prepAtf = calcAgeTransitionForward(_prepManAge);
       const _prepBirthStr = y.toString() + m.toString().padStart(2, '0') + d.toString().padStart(2, '0');
       const _prepCounts = Array(10).fill(0);
       for (const _c of _prepBirthStr) if (_c !== '0') _prepCounts[Number(_c)]++;
@@ -9659,8 +9514,6 @@ async function runAnalysis() {
         personality: personalityNum ? personalityNum.single : null,
         maturity: maturityNum ? maturityNum.single : null,
         zodiac: z && z.n ? z.n : '—',
-        ageVibNum: _prepAv.num, ageVibAge: _prepAv.age,
-        ageVibBack: _prepAt.num, ageVibFwd: _prepAtf.num,
         loshuCounts: _prepCounts,
         majorCards, cyData, curMajorIdx, curStageIdx,
       });
