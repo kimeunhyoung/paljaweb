@@ -6,7 +6,7 @@
   var FOOTER_ATTR = 'data-site-footer';
 
   function ensureCss() {
-    var href = '/css/site-footer.css?v=1';
+    var href = '/css/site-footer.css?v=2';
     var links = document.querySelectorAll('link[rel="stylesheet"]');
     for (var i = 0; i < links.length; i++) {
       var h = links[i].getAttribute('href') || '';
@@ -24,6 +24,7 @@
       FOOTER_ATTR +
       '="1">' +
       '<div class="site-footer-inner">' +
+      '<div class="site-footer-top">' +
       '<div class="site-footer-brand">' +
       '<a class="site-footer-logo" href="/index.html">' +
       '<span class="site-footer-mark" aria-hidden="true">八</span>' +
@@ -41,6 +42,7 @@
       '<a href="/terms.html">이용약관</a>' +
       '<a href="/privacy.html">개인정보처리방침</a>' +
       '</nav>' +
+      '</div>' +
       '<div class="site-footer-legal">' +
       '<p>상호 8코드(8CODE) · 대표 김태훈 · 사업자등록번호 624-55-00806</p>' +
       '<p>통신판매업 신고번호 제 2026-부산수영-0361 호 · 부산광역시 수영구 수영로 632-1</p>' +
