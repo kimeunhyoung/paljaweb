@@ -26,7 +26,7 @@
     rel="stylesheet"
   />
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="js/plan-access.js?v=14"></script>
+  <script src="js/plan-access.js?v=15"></script>
   <script src="js/product-plan-bootstrap.js?v=3"></script>
   <script src="js/attribution.js"></script>
   <script src="js/site-topbar.js?v=17" defer></script>
@@ -361,9 +361,11 @@
       </p>
     </section>
 
-    <div id="wallpaperGate" class="panel" hidden style="margin-bottom:18px;"></div>
+    <div id="wallpaperGate" class="panel" style="margin-bottom:18px;">
+      <p style="margin:0;color:var(--muted);line-height:1.6;">플랜을 확인하는 중입니다…</p>
+    </div>
 
-    <section class="layout" id="wallpaperApp">
+    <section class="layout" id="wallpaperApp" hidden>
       <aside class="panel">
         <h2>설정</h2>
 
@@ -523,6 +525,6 @@
     </section>
   </main>
 
-  <script src="js/numerology-wallpaper.js"></script>
+  <script src="js/numerology-wallpaper.js?v=20261002p"></script>
 </body>
 </html>
