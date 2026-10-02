@@ -7,14 +7,14 @@
   <title>수비학 달력 — 개인일수·오늘의 에너지 계산 | 팔자연구소 8CODE</title>
   <meta
     name="description"
-    content="수비학 달력으로 오늘의 에너지를 확인하세요. 생년월일 수비학 계산으로 개인연도수·개인월수·개인일수를 구하고, 날짜별 할 일·피할 일 가이드를 월간 캘린더로 제공합니다."
+    content="수비학 달력으로 오늘의 에너지를 확인하세요. 생년월일 수비학 계산으로 개인연도·개인월수·개인일수를 구하고, 날짜별 할 일·피할 일 가이드를 월간 캘린더로 제공합니다."
   />
-  <meta name="keywords" content="수비학, 수비학 달력, 수비학 계산, 개인일수, 개인연도수, 오늘의 에너지, 수비학 오늘">
+  <meta name="keywords" content="수비학, 수비학 달력, 수비학 계산, 개인일수, 개인연도, 오늘의 에너지, 수비학 오늘">
   <link rel="canonical" href="https://8code.kr/numerology-calendar.html">
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="팔자연구소 8CODE">
   <meta property="og:title" content="수비학 달력 — 개인일수·오늘의 에너지 계산 | 팔자연구소 8CODE">
-  <meta property="og:description" content="수비학 달력으로 개인연도수·개인월수·개인일수를 계산하고 오늘의 에너지를 확인하세요.">
+  <meta property="og:description" content="수비학 달력으로 개인연도·개인월수·개인일수를 계산하고 오늘의 에너지를 확인하세요.">
   <meta property="og:url" content="https://8code.kr/numerology-calendar.html">
   <meta property="og:image" content="https://8code.kr/og-share.png">
   <meta property="og:locale" content="ko_KR">
@@ -57,7 +57,7 @@
       background: var(--bg);
     }
     .page {
-      max-width: 1200px;
+      max-width: 1100px;
       margin: 0 auto;
       padding: 28px 20px 40px;
     }
@@ -102,7 +102,7 @@
       align-items: end;
     }
     .field label {
-      font-size: 12px;
+      font-size: 13px;
       color: var(--muted);
       font-weight: 700;
       display: inline-block;
@@ -127,7 +127,7 @@
       color: var(--ink);
       border-radius: 12px;
       padding: 11px 12px;
-      font-size: 14px;
+      font-size: 15px;
       font-weight: 700;
       cursor: pointer;
       font-family: inherit;
@@ -139,7 +139,7 @@
     }
     .hint {
       margin-top: 10px;
-      font-size: 13px;
+      font-size: 14px;
       color: var(--muted);
       min-height: 18px;
     }
@@ -168,7 +168,7 @@
       justify-content: flex-end;
     }
     .chip {
-      font-size: 12px;
+      font-size: 13px;
       color: var(--brand);
       background: var(--brand-soft);
       border-radius: 999px;
@@ -180,7 +180,7 @@
       flex-wrap: wrap;
       gap: 6px 14px;
       margin-bottom: 10px;
-      font-size: 12px;
+      font-size: 13px;
       color: var(--muted);
     }
     .calendar-legend strong {
@@ -195,7 +195,7 @@
     }
     .weekday div {
       text-align: center;
-      font-size: 12px;
+      font-size: 13px;
       color: var(--muted);
       font-weight: 700;
       padding-bottom: 6px;
@@ -225,7 +225,7 @@
       pointer-events: none;
     }
     .day-num {
-      font-size: 12px;
+      font-size: 13px;
       font-weight: 700;
       color: var(--muted);
     }
@@ -235,7 +235,7 @@
       justify-self: end;
       min-width: 20px;
       text-align: center;
-      font-size: 10px;
+      font-size: 11.5px;
       font-weight: 700;
       color: var(--brand);
       background: var(--brand-soft);
@@ -250,7 +250,7 @@
       line-height: 1;
     }
     .day-keyword {
-      font-size: 11px;
+      font-size: 12px;
       color: var(--muted);
       white-space: nowrap;
       overflow: hidden;
@@ -268,7 +268,7 @@
     .detail-date {
       margin-top: 6px;
       color: var(--muted);
-      font-size: 13px;
+      font-size: 14px;
     }
     .metric {
       margin-top: 12px;
@@ -284,7 +284,7 @@
     }
     .metric-label {
       color: var(--muted);
-      font-size: 11px;
+      font-size: 12px;
       font-weight: 700;
       letter-spacing: 0.04em;
     }
@@ -297,7 +297,7 @@
     }
     .card-title {
       margin: 14px 0 6px;
-      font-size: 13px;
+      font-size: 14px;
       color: var(--muted);
       font-weight: 700;
     }
@@ -306,7 +306,7 @@
       border-radius: 12px;
       background: #fff;
       padding: 12px;
-      font-size: 14px;
+      font-size: 15px;
       line-height: 1.65;
     }
     .guide {
@@ -317,16 +317,17 @@
     .guide-item {
       border-radius: 12px;
       padding: 10px 12px;
-      font-size: 13px;
+      font-size: 14px;
       line-height: 1.6;
     }
     .guide-item strong { display: block; margin-bottom: 4px; }
     .guide-item.do { background: #ecf8f5; color: #1b6155; }
     .guide-item.dont { background: #fff1ed; color: #7c3c2f; }
 
+    .ai-quota-badge[hidden], .ai-quota-badge:empty { display: none !important; }
     .ai-quota-badge {
       display: inline-block;
-      font-size: 11px;
+      font-size: 12px;
       font-weight: 600;
       color: var(--warm-brown);
       background: var(--brand-soft);
@@ -342,13 +343,13 @@
     }
     .ai-block-title {
       margin: 0 0 4px;
-      font-size: 13px;
+      font-size: 14px;
       font-weight: 700;
       color: var(--deep-brown);
     }
     .ai-block-desc {
       margin: 0 0 10px;
-      font-size: 12.5px;
+      font-size: 13.5px;
       line-height: 1.55;
       color: var(--muted);
     }
@@ -357,7 +358,7 @@
       border: 0;
       border-radius: 999px;
       padding: 10px 14px;
-      font-size: 13px;
+      font-size: 14px;
       font-weight: 700;
       cursor: pointer;
       background: var(--brand);
@@ -375,13 +376,13 @@
       border-radius: 12px;
       background: #fff;
       padding: 12px;
-      font-size: 13.5px;
+      font-size: 14.5px;
       line-height: 1.75;
       white-space: pre-wrap;
       color: var(--ink);
     }
-    .ai-result.is-empty { color: var(--muted); font-size: 13px; }
-    .ai-time-hint { font-size: 11.5px; color: var(--muted); margin: 6px 0 0; }
+    .ai-result.is-empty { color: var(--muted); font-size: 14px; }
+    .ai-time-hint { font-size: 12.5px; color: var(--muted); margin: 6px 0 0; }
     .ai-time-hint.is-loading { color: var(--brand); }
 
     @media (max-width: 980px) {
@@ -397,9 +398,17 @@
       .days { gap: 6px; }
       .day { min-height: 86px; padding: 7px; }
       .day-value { font-size: 18px; }
-      .day-sub { font-size: 9px; padding: 2px 5px; }
+      .day-sub { font-size: 11px; padding: 2px 5px; }
       .metric { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     }
+
+    /* ── 글꼴·크기·대비 통일 (다른 페이지와 같은 기준) ── */
+    body { font-family: 'Pretendard Variable', Pretendard, 'Noto Sans KR', sans-serif; font-variant-numeric: lining-nums; }
+    h1, h2, h3, .calendar-title, .card-title { font-family: 'Cormorant Garamond', 'Noto Serif KR', serif; }
+    :root { --sun: #b04a39; --good: #216f61; }
+    .day-sub, .chip, .metric-value { color: #795f3b; }
+    .life-tables .lt-disclaimer { color: #74604b !important; }
+    main p, main li { line-height: 1.7; }
   </style>
   <script src="js/plan-access.js?v=13"></script>
   <script src="js/attribution.js"></script>
@@ -416,7 +425,7 @@
   <main class="page">
     <section class="hero">
       <h1>수비학 달력</h1>
-      <p>로그인한 생년월일을 자동으로 불러와, 월간 흐름·날짜별 에너지 가이드와 <strong>오늘의 운세(AI)</strong>를 캘린더로 보여드립니다. Basic 이상 또는 <strong>3일 체험(1,900원)</strong>으로 이용할 수 있어요.</p>
+      <p>로그인하면 생년월일을 자동으로 불러와 월간 흐름과 날짜별 에너지 가이드, <strong>오늘의 운세(AI)</strong>를 달력으로 보여 드려요. Basic 이상 또는 <strong>3일 체험(1,900원)</strong>으로 이용할 수 있어요.</p>
     </section>
 
     <section class="layout">
@@ -465,30 +474,30 @@
     <section class="panel" style="margin-top:18px;padding:18px 20px;line-height:1.75;">
       <h2 style="margin:0 0 10px;font-size:20px;">수비학 달력이란?</h2>
       <p style="margin:0 0 14px;color:var(--muted);">
-        수비학 달력은 생년월일에서 도출한 <strong>개인연도수·개인월수·개인일수</strong>를 월간 캘린더로 보여주는 도구입니다.
-        매일이 똑같이 흘러가는 것 같아도, 수비학에서는 날짜마다 흐르는 에너지(숫자)가 다르다고 봅니다.
+        수비학 달력은 생년월일에서 도출한 <strong>개인연도·개인월수·개인일수</strong>를 월간 달력으로 보여 주는 도구예요.
+        매일이 똑같이 흘러가는 것 같아도, 수비학에서는 날짜마다 흐르는 에너지(숫자)가 다르다고 봐요.
         오늘 나에게 어떤 에너지가 흐르는지 미리 알면, 중요한 결정·휴식·새 시작의 타이밍을 더 지혜롭게 고를 수 있어요.
       </p>
 
       <h3 style="margin:18px 0 8px;font-size:16px;">개인일수란?</h3>
       <p style="margin:0 0 14px;color:var(--muted);">
-        개인일수는 <strong>개인월수 + 그날의 날짜</strong>를 한 자리(또는 마스터 넘버)로 환원한 숫자로, 그날 하루의 에너지 테마를 나타냅니다.
+        개인일수는 <strong>개인월수 + 그날의 날짜</strong>를 한 자리(또는 마스터 넘버)로 환원한 숫자로, 그날 하루의 에너지 테마를 나타내요.
         1은 시작·추진, 2는 협력·관계, 3은 표현·창의, 4는 안정·실무, 5는 변화·자유, 6은 책임·돌봄,
-        7은 성찰·휴식, 8은 성취·결단, 9는 마무리·정리의 흐름으로 읽습니다.
+        7은 성찰·휴식, 8은 성취·결단, 9는 마무리·정리의 흐름으로 읽어요.
       </p>
 
       <h3 style="margin:18px 0 8px;font-size:16px;">개인월수란?</h3>
       <p style="margin:0 0 14px;color:var(--muted);">
-        개인월수는 <strong>개인연도수 + 해당 월</strong>을 환원한 숫자로, 그 달 전체의 큰 흐름을 보여줍니다.
+        개인월수는 <strong>개인연도 + 해당 월</strong>을 환원한 숫자로, 그 달 전체의 큰 흐름을 보여 줘요.
         개인월수가 그 달의 배경 음악이라면, 개인일수는 그날 하루의 멜로디라고 생각하면 이해하기 쉬워요.
       </p>
 
       <h3 style="margin:18px 0 8px;font-size:16px;">오늘의 에너지 읽는 법</h3>
       <p style="margin:0 0 6px;color:var(--muted);">
         달력에서 <strong>오늘 날짜의 큰 숫자(개인일수)</strong>를 확인하고, 그 숫자의 테마에 맞춰 하루를 계획해 보세요.
-        예를 들어 개인일수가 1인 날은 새로운 일을 시작하기 좋고, 7인 날은 무리한 약속보다 혼자만의 정리·휴식이 어울립니다.
+        예를 들어 개인일수가 1인 날은 새로운 일을 시작하기 좋고, 7인 날은 무리한 약속보다 혼자만의 정리·휴식이 어울려요.
         팔자연구소 수비학 달력은 생년월일만 입력하면 오늘의 에너지와 함께 <strong>할 일·피할 일 가이드</strong>를 자동으로 제안하고,
-        <strong>오늘의 운세(AI)</strong>로 연애·일·금전까지 풀어 드립니다. (Basic 이상)
+        <strong>오늘의 운세(AI)</strong>로 연애·일·금전까지 풀어 드려요. (Basic 이상)
         오늘의 숫자를 폰 배경으로 쓰고 싶다면 <a href="numerology-wallpaper.html">에너지 배경</a>(Private)도 이용해 보세요.
       </p>
     </section>
@@ -496,6 +505,6 @@
 
   <script src="js/ai-quota-client.js"></script>
   <script src="js/numerology-life-tables.js?v=8"></script>
-  <script type="module" src="js/numerology-calendar.js"></script>
+  <script type="module" src="js/numerology-calendar.js?v=20261002e"></script>
 </body>
 </html>

@@ -6079,7 +6079,7 @@ window.NUMEROLOGY_DATA = (() => {
     21: "<b>[올해의 에너지 · 연간 흐름]</b><br><span class='kw'>올해의 중심: 완료 · 성과 · 한 토막의 끝</span><br>올해는 <b>한 토막을 끝내고 잠시 정리하는 해</b>입니다. 완성과 통합이 쌓일 때 보람이 큽니다. 반대로 <b>끝을 인정하지 않으면</b> 다음이 안 열리고, <b>완벽만 고집하면</b> 마지막 한 걸음이 늦어질 수 있습니다."
   };
 
-  /** 현재 흐름 — 이번 달의 수(퍼스널 먼스) 전용. 타임라인 연도 해석과 톤 통일 */
+  /** 현재 흐름 — 이번 달의 수(개인월수) 전용. 타임라인 연도 해석과 톤 통일 */
   N.PERSONAL_MONTH_DEEP_MAP = {
     1: "<b>[이번 달의 에너지 · 월간 흐름]</b><br><span class='kw'>이 달의 중심: 착수 · 방향 · 독립</span><br>한 달의 리듬이 <b>내가 먼저 움직이고 선을 긋는 일</b>을 요구합니다. 일·돈·관계에서 결단과 개척이 에너지를 먹습니다. 반대로 <b>모든 걸 혼자 짊어지면</b> 답답함이 쌓이고, <b>시작만 반복하고 마무리가 없으면</b> 한 달이 공중에 뜰 수 있습니다.",
     2: "<b>[이번 달의 에너지 · 월간 흐름]</b><br><span class='kw'>이 달의 중심: 연대 · 기다림 · 조율</span><br>이번 달은 <b>둘이 맞추고 기다리는 시간</b>이 가치를 내기 쉽습니다. 경청·타협·작은 약속이 쌓일 때 길이 열립니다. 반대로 <b>끝없이 맞추기만</b> 하면 지치고, <b>연락과 감정을 전부 끊으면</b> 외로움이 커질 수 있습니다.",
@@ -7343,7 +7343,7 @@ function renderMonthlyDetailPanel(mo, py) {
     : '';
   return `<div class="accordion open">
     <div class="accordion-header" onclick="this.parentElement.classList.toggle('open')">
-      <h4>✦ ${mo}월 · 개인월 ${pm2}번${masterNumTag(pm2)} · ${TITLE_MAP[pm2] || ''}</h4>
+      <h4>✦ ${mo}월 · 개인월수 ${pm2}번${masterNumTag(pm2)} · ${TITLE_MAP[pm2] || ''}</h4>
       <span class="accordion-arrow">▼</span>
     </div>
     <div class="accordion-body">
@@ -7677,7 +7677,7 @@ function buildReadingGuideCatalogInnerHtml() {
       ${lcReadingGuideCatalogRow(lcModuleNav('#pyramidRhythmSection', '인생리듬', 'private'), `활동기·정비기가 반복되는 36년 순환표.`)}
       ${lcReadingGuideCatalogRow(lcModuleNav('#timelineSection', '10년 타임라인 · 수비학', 'basic'), `앞으로 10년의 개인연도. <strong>Plus</strong> 이상은 100년 표 포함.`)}
       ${lcReadingGuideCatalogRow(lcModuleNav('#tlBlockTarot', '10년 타임라인 · 타로', 'private'), `타로 올해의 수 10년 차트와 100년 표.`)}
-      ${lcReadingGuideCatalogRow(lcModuleNav('#monthlySection', '월간 흐름', 'basic'), `올해 열두 달의 개인월.`)}
+      ${lcReadingGuideCatalogRow(lcModuleNav('#monthlySection', '월간 흐름', 'basic'), `올해 열두 달의 개인월수.`)}
       ${grp('③ 지금')}
       ${lcReadingGuideCatalogRow(lcModuleNav('#nav-flow', '현재 흐름', 'basic'), `올해·이번 달·오늘의 수와 그 해석.`)}
       ${aiOn ? lcReadingGuideCatalogRow(lcModuleNav('#aiTodaySection', 'AI 오늘의 메시지', 'plus'), `오늘의 흐름을 AI가 한 단락으로 정리해요.`) : ''}
@@ -8891,7 +8891,7 @@ async function runAnalysis() {
   const pyS = pyTarotParts.pre;
   const pyDisplay = personalYearValueLabel(pyClassic, py);
   const pyPreLabel = personalYearPreLabel(pyClassicParts.pre, pyTarotParts.pre);
-  // 개인월·개인일 — 수비학 달력과 동일하게 수비학 개인연도(pyClassic) 기준
+  // 개인월수·개인일수 — 수비학 달력과 동일하게 수비학 개인연도(pyClassic) 기준
   const pm = reduceToSingle(pyClassic + curM);
   const pd = reduceToSingle(pm + curD);
   const z = getZodiacInfo(m, d);
@@ -9224,7 +9224,7 @@ async function runAnalysis() {
       </div>`;
     }
     const monthlyBridge = `<div class="timeline-bridge">
-      <p>각 칸은 <strong>수비학 개인연도(${pyClassic}번)</strong>에 그 달의 월 숫자(1~12)를 더해 줄인 <strong>개인월</strong>입니다. 칸을 누르면 아래에 그 달 해석이 펼쳐집니다.</p>
+      <p>각 칸은 <strong>수비학 개인연도(${pyClassic}번)</strong>에 그 달의 월 숫자(1~12)를 더해 줄인 <strong>개인월수</strong>입니다. 칸을 누르면 아래에 그 달 해석이 펼쳐집니다.</p>
     </div>`;
     const detail = renderMonthlyDetailPanel(curM, pyClassic);
     document.getElementById('monthlyContent').innerHTML = `${monthlyBridge}<div class="monthly-board"><div class="monthly-grid">${cells}</div></div><div id="monthlyDetail">${detail}</div>`;

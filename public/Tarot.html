@@ -3044,7 +3044,7 @@ function selectTopic(t, el) {
 let birthReady = false;
 let bY, bM, bD, calcPy, calcPm, calcPd;
 
-/** 개인년·월·일 수별 “생활 테마” 힌트 (참고용, 카드 해석의 맥락으로 사용) */
+/** 개인연도·월수·일수별 “생활 테마” 힌트 (참고용, 카드 해석의 맥락으로 사용) */
 const YEAR_HINT = {
   1: '새 출발·독립의 기운이 강해요. 공부·자격·새 프로젝트 착수, 나만의 방향 정하기에 유리합니다.',
   2: '협력·관계·조율이 중심이에요. 파트너·계약·상담을 활용하면 좋고, 이직·이사는 천천히 비교해 보는 편이 안전합니다.',
@@ -3350,7 +3350,7 @@ function buildNumMergeBlock(questionTrim) {
       '<p class="num-merge-p" style="color:var(--muted);font-size:12px;">다음 달을 준비하는 <strong>지금</strong>의 시점에서, <strong>이번 달</strong> 에너지를 배경으로 읽어 보세요. 타로 카드는 다가올 달의 흐름을, 수비학은 지금 서 있는 달의 기운을 짚어 줍니다.</p>';
   } else if (!questionTrim && curEopt === 'year') {
     html +=
-      '<p class="num-merge-p" style="color:var(--muted);font-size:12px;"><strong>올해</strong> 개인년 에너지를 중심으로, <strong>이번 달</strong> 흐름을 함께 배경으로 읽어 보세요. 타로 카드는 한 해의 큰 흐름을, 수비학은 올해·지금 달의 기운을 짚어 줍니다.</p>';
+      '<p class="num-merge-p" style="color:var(--muted);font-size:12px;"><strong>올해</strong> 개인연도 에너지를 중심으로, <strong>이번 달</strong> 흐름을 함께 배경으로 읽어 보세요. 타로 카드는 한 해의 큰 흐름을, 수비학은 올해·지금 달의 기운을 짚어 줍니다.</p>';
   } else if (!questionTrim && curEopt === 'month') {
     html +=
       '<p class="num-merge-p" style="color:var(--muted);font-size:12px;"><strong>이번 달</strong> 에너지를 배경으로 읽어 보세요. 타로 카드는 이달의 흐름을, 수비학은 올해·이번 달의 기운을 짚어 줍니다.</p>';

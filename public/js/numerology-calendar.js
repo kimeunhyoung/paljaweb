@@ -49,6 +49,11 @@ const state = {
   detailCtx: null,
 };
 
+function aiKey(k) {
+  return `${state.birthDate || ""}|${k}`;
+}
+
+
 const birthDateInput = document.getElementById("birthDateInput");
 const prevMonthBtn = document.getElementById("prevMonthBtn");
 const todayBtn = document.getElementById("todayBtn");
@@ -106,11 +111,11 @@ function buildDailyAiPrompt(ctx) {
   L.push("[기본 정보]");
   L.push(`생년월일: ${birth.y}년 ${birth.m}월 ${birth.d}일`);
   L.push(`대상 날짜: ${formatLongDate(date)}`);
-  L.push(`개인연도수: ${personalYear} / 개인월수: ${personalMonth} / 개인일수: ${personalDay} / 일반일수: ${universalDay}`);
+  L.push(`개인연도: ${personalYear} / 개인월수: ${personalMonth} / 개인일수: ${personalDay} / 일반일수: ${universalDay}`);
   L.push(`오늘 키워드: ${guide.key}`);
   L.push(`이번 달 배경: ${monthMessage}`);
-  L.push(`기본 DO: ${guide.do}`);
-  L.push(`기본 DON'T: ${guide.dont}`);
+  L.push(`기본 할 일: ${guide.do}`);
+  L.push(`기본 피할 일: ${guide.dont}`);
   L.push("");
   L.push("[작성 형식 — 반드시 지키세요]");
   L.push("1) ## 제목만 사용. 아래 순서대로 작성하세요.");
@@ -122,7 +127,7 @@ function buildDailyAiPrompt(ctx) {
     "## 오늘의 한 줄 조언 — 짧고 기억하기 쉬운 한 문장",
   ].forEach((s, i) => L.push(`   ${i + 1}. ${s}`));
   L.push("2) 각 섹션 3~4문장(한 줄 조언은 1문장). 숫자 근거를 최소 1개 이상 언급하세요.");
-  L.push("3) 위 DO/DON'T를 그대로 복사하지 말고, 수비학 숫자에 맞게 새로 풀어 쓰세요.");
+  L.push("3) 위 할 일·피할 일을 그대로 복사하지 말고, 수비학 숫자에 맞게 새로 풀어 쓰세요.");
   L.push("4) 반드시 마지막 섹션까지 완성하세요.");
   return L.join("\n");
 }
@@ -135,13 +140,13 @@ function buildMonthlyAiPrompt(ctx) {
   L.push("[기본 정보]");
   L.push(`생년월일: ${birth.y}년 ${birth.m}월 ${birth.d}일`);
   L.push(`대상: ${year}년 ${month}월`);
-  L.push(`개인연도수: ${personalYear} / 개인월수: ${personalMonth}`);
+  L.push(`개인연도: ${personalYear} / 개인월수: ${personalMonth}`);
   L.push(`이번 달 메시지: ${monthMessage}`);
   L.push("");
   L.push("[작성 형식 — 반드시 지키세요]");
   L.push("1) ## 제목만 사용. 아래 순서대로 작성하세요.");
   [
-    "## 이번 달 전체 흐름 — 개인월수·개인연도수 연결(2~3문장)",
+    "## 이번 달 전체 흐름 — 개인월수·개인연도 연결(2~3문장)",
     "## 연애·관계 — 이 달 관계·가족 테마",
     "## 일·업무·커리어 — 이 달 업무·커리어 방향",
     "## 금전·재물 — 이 달 재정·소비·투자 흐름",
@@ -171,12 +176,14 @@ async function callNumerologyAi(mode) {
   if (!btn || !box) return;
 
   const ctx = state.detailCtx;
-  const cacheKeyStr = isDaily
+  const baseKey = isDaily
     ? formatDateKey(ctx.date)
     : formatMonthKey(ctx.year, ctx.month);
+  // 생년월일이 바뀌면 다른 사람의 해석이 보이지 않도록 생년월일까지 키에 포함
+  const cacheKeyStr = aiKey(baseKey);
   const feature = isDaily ? "numerology_daily" : "numerology_monthly";
   const prompt = isDaily ? buildDailyAiPrompt(ctx) : buildMonthlyAiPrompt(ctx);
-  const hash = PaljaAiQuota.hashKey(`v1:${mode}:${cacheKeyStr}:${state.birthDate}:${prompt}`);
+  const hash = PaljaAiQuota.hashKey(`v1:${mode}:${baseKey}:${state.birthDate}:${prompt}`);
 
   const prevLabel = btn.textContent;
   state.aiBusy[mode] = true;
@@ -184,7 +191,7 @@ async function callNumerologyAi(mode) {
   btn.textContent = "⏳ 해석 중…";
   btn.disabled = true;
   box.classList.remove("is-empty");
-  box.textContent = "해석을 생성하고 있어요…";
+  box.textContent = "해석을 만들고 있어요…";
   if (hint) hint.classList.add("is-loading");
 
   try {
@@ -194,13 +201,13 @@ async function callNumerologyAi(mode) {
       max_tokens: 4096,
       messages: [{ role: "user", content: prompt }],
     });
-    let out = text || "해석을 생성하지 못했어요.";
+    let out = text || "해석을 만들지 못했어요.";
     if (data?.stop_reason === "max_tokens") out += "\n\n(※ 해석이 길어 일부가 잘렸을 수 있어요.)";
     if (isDaily) state.aiCache.daily[cacheKeyStr] = out;
     else state.aiCache.monthly[cacheKeyStr] = out;
     const stillCurrent = isDaily
-      ? state.detailCtx && formatDateKey(state.detailCtx.date) === cacheKeyStr
-      : state.detailCtx && formatMonthKey(state.detailCtx.year, state.detailCtx.month) === cacheKeyStr;
+      ? state.detailCtx && aiKey(formatDateKey(state.detailCtx.date)) === cacheKeyStr
+      : state.detailCtx && aiKey(formatMonthKey(state.detailCtx.year, state.detailCtx.month)) === cacheKeyStr;
     if (stillCurrent && document.getElementById(box.id)) {
       box.textContent = out;
       box.classList.remove("is-empty");
@@ -208,8 +215,8 @@ async function callNumerologyAi(mode) {
     if (quota) PaljaAiQuota.applyQuotaBadge(numAiQuotaBadge, quota);
   } catch (e) {
     const stillCurrent = isDaily
-      ? state.detailCtx && formatDateKey(state.detailCtx.date) === cacheKeyStr
-      : state.detailCtx && formatMonthKey(state.detailCtx.year, state.detailCtx.month) === cacheKeyStr;
+      ? state.detailCtx && aiKey(formatDateKey(state.detailCtx.date)) === cacheKeyStr
+      : state.detailCtx && aiKey(formatMonthKey(state.detailCtx.year, state.detailCtx.month)) === cacheKeyStr;
     const errMsg = e.code === "quota_exceeded" || e.status === 429
       ? "이번 달 AI 크레딧을 모두 사용했어요."
       : e.message === "login_required"
@@ -221,8 +228,8 @@ async function callNumerologyAi(mode) {
     state.aiBusy[mode] = false;
     state.aiLoadingKey[mode] = null;
     const stillCurrent = isDaily
-      ? state.detailCtx && formatDateKey(state.detailCtx.date) === cacheKeyStr
-      : state.detailCtx && formatMonthKey(state.detailCtx.year, state.detailCtx.month) === cacheKeyStr;
+      ? state.detailCtx && aiKey(formatDateKey(state.detailCtx.date)) === cacheKeyStr
+      : state.detailCtx && aiKey(formatMonthKey(state.detailCtx.year, state.detailCtx.month)) === cacheKeyStr;
     if (stillCurrent) {
       const liveBtn = document.getElementById(isDaily ? "btnNumAiDaily" : "btnNumAiMonthly");
       if (liveBtn) {
@@ -358,10 +365,10 @@ function renderDetail(date, personalYear, personalMonth, personalDay, universalD
     monthMessage,
   };
 
-  const dailyCached = state.aiCache.daily[dailyKey];
-  const monthlyCached = state.aiCache.monthly[monthlyKey];
-  const dailyLoading = state.aiBusy.daily && state.aiLoadingKey.daily === dailyKey;
-  const monthlyLoading = state.aiBusy.monthly && state.aiLoadingKey.monthly === monthlyKey;
+  const dailyCached = state.aiCache.daily[aiKey(dailyKey)];
+  const monthlyCached = state.aiCache.monthly[aiKey(monthlyKey)];
+  const dailyLoading = state.aiBusy.daily && state.aiLoadingKey.daily === aiKey(dailyKey);
+  const monthlyLoading = state.aiBusy.monthly && state.aiLoadingKey.monthly === aiKey(monthlyKey);
   const aiDisabled = !state.aiServerOk;
 
   detailPanel.innerHTML = `
@@ -392,26 +399,26 @@ function renderDetail(date, personalYear, personalMonth, personalDay, universalD
     <div id="pyDomainsSlot"></div>
     <div class="guide">
       <div class="guide-item do">
-        <strong>DO</strong>
+        <strong>할 일</strong>
         ${guide.do}
       </div>
       <div class="guide-item dont">
-        <strong>DON'T</strong>
+        <strong>피할 일</strong>
         ${guide.dont}
       </div>
     </div>
     <div class="ai-block">
       <p class="ai-block-title">✨ AI 맞춤 운세</p>
-      <p class="ai-block-desc">기본 가이드 위에 연애·일·금전까지 풀어 드려요. 날짜·달마다 1크레딧 (24시간 캐시)</p>
+      <p class="ai-block-desc">기본 가이드 위에 연애·일·금전까지 풀어 드려요. 날짜·달마다 1크레딧이에요. 한 번 받은 해석은 24시간 동안 다시 볼 수 있어요.</p>
       <div class="ai-actions">
         <button type="button" class="ai-btn" id="btnNumAiDaily"${aiDisabled ? " disabled" : ""}>✨ AI 오늘 운세 (1크레딧)</button>
       </div>
-      <div class="ai-result${dailyCached || dailyLoading ? "" : " is-empty"}" id="numAiDailyResult">${dailyLoading ? "해석을 생성하고 있어요…" : (dailyCached || "「AI 오늘 운세」를 누르면 이 날짜 맞춤 해석을 받을 수 있어요.")}</div>
+      <div class="ai-result${dailyCached || dailyLoading ? "" : " is-empty"}" id="numAiDailyResult">${dailyLoading ? "해석을 만들고 있어요…" : (dailyCached || "「AI 오늘 운세」를 누르면 이 날짜 맞춤 해석을 받을 수 있어요.")}</div>
       <p class="ai-time-hint" id="numAiDailyHint">보통 20~40초 정도 걸려요.</p>
       <div class="ai-actions" style="margin-top:12px;">
         <button type="button" class="ai-btn ai-btn--soft" id="btnNumAiMonthly"${aiDisabled ? " disabled" : ""}>✨ AI 이번 달 흐름 (1크레딧)</button>
       </div>
-      <div class="ai-result${monthlyCached || monthlyLoading ? "" : " is-empty"}" id="numAiMonthlyResult">${monthlyLoading ? "해석을 생성하고 있어요…" : (monthlyCached || "「AI 이번 달 흐름」을 누르면 이 달 전체 테마를 풀어 드려요.")}</div>
+      <div class="ai-result${monthlyCached || monthlyLoading ? "" : " is-empty"}" id="numAiMonthlyResult">${monthlyLoading ? "해석을 만들고 있어요…" : (monthlyCached || "「AI 이번 달 흐름」을 누르면 이 달 전체 테마를 풀어 드려요.")}</div>
       <p class="ai-time-hint" id="numAiMonthlyHint">보통 20~40초 정도 걸려요.</p>
     </div>
   `;
@@ -435,7 +442,7 @@ function renderCalendar() {
     calendarDays.innerHTML = "";
     detailPanel.innerHTML = `
       <h2>생년월일을 먼저 입력해 주세요</h2>
-      <p class="detail-date">로그인 상태라면 자동으로 채워집니다.</p>
+      <p class="detail-date">로그인하면 프로필의 생년월일이 자동으로 채워져요.</p>
     `;
     return;
   }
@@ -518,7 +525,7 @@ function applyCalendarPlanGate() {
       <strong style="display:block;margin-bottom:8px;">여기서 확인할 수 있는 것</strong>
       <ul style="margin:0;padding-left:18px;color:var(--muted);line-height:1.7;">
         <li>월간 수비학 달력 · 개인연도/월수/일수</li>
-        <li>날짜별 에너지 가이드 (DO / DON'T)</li>
+        <li>날짜별 에너지 가이드 (할 일 / 피할 일)</li>
         <li><strong style="color:var(--ink);">오늘의 운세</strong> — AI 맞춤 해석 (연애·일·금전)</li>
         <li>AI 이번 달 흐름</li>
       </ul>
@@ -531,11 +538,11 @@ function applyCalendarPlanGate() {
   const panel = planApi?.productGatePanelHtml
     ? planApi.productGatePanelHtml("calendar", {
         title: "Basic 이상에서 이용 가능",
-        desc: "수비학 달력은 Basic 플랜 이상에서 열립니다. 짧게 써 보려면 아래 3일 체험을 이용해 보세요.",
+        desc: "수비학 달력은 Basic 플랜 이상에서 열려요. 잠깐 써 보고 싶다면 아래 3일 체험을 이용해 보세요.",
         extrasHtml: extras,
         loggedIn,
       })
-    : `${planApi?.BASIC_PRODUCT_GATE_MSG || "Basic 이상 플랜에서 이용할 수 있습니다."} <a href="pricing.html">요금제 보기</a>`;
+    : `${planApi?.BASIC_PRODUCT_GATE_MSG || "Basic 이상 플랜에서 이용할 수 있어요."} <a href="pricing.html">요금제 보기</a>`;
 
   authHint.innerHTML = panel;
   authHint.className = "hint warn";
@@ -584,7 +591,7 @@ async function loadBirthFromProfile() {
     const { data } = await supabase.auth.getSession();
     const session = data?.session;
     if (!session?.user?.id) {
-      setHint("로그인 정보가 없어 수동 입력 모드로 시작합니다.", "warn");
+      setHint("로그인하지 않아 생년월일을 직접 입력하는 방식으로 시작해요.", "warn");
       return;
     }
     const { data: profile, error } = await supabase
@@ -593,19 +600,19 @@ async function loadBirthFromProfile() {
       .eq("id", session.user.id)
       .single();
     if (error || !profile?.birth) {
-      setHint("프로필 생년월일이 없어 수동으로 입력해 주세요.", "warn");
+      setHint("프로필에 생년월일이 없어요. 직접 입력해 주세요.", "warn");
       return;
     }
     const normalized = formatDateInputValue(profile.birth);
     if (!normalized) {
-      setHint("프로필 생년월일 형식 확인이 필요합니다. 수동 입력해 주세요.", "warn");
+      setHint("프로필의 생년월일 형식을 읽지 못했어요. 직접 입력해 주세요.", "warn");
       return;
     }
     state.birthDate = normalized;
     birthDateInput.value = normalized;
-    setHint("로그인 사용자 생년월일을 자동으로 불러왔습니다.", "ok");
+    setHint("프로필의 생년월일을 불러왔어요.", "ok");
   } catch (e) {
-    setHint("자동 불러오기에 실패했습니다. 생년월일을 직접 입력해 주세요.", "warn");
+    setHint("생년월일을 불러오지 못했어요. 직접 입력해 주세요.", "warn");
   }
 }
 

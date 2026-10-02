@@ -713,7 +713,7 @@
     <div class="section-eyebrow">Pinnacle Cycles</div>
     <div class="section-title">인생 4대 전환기</div>
     <div style="font-size:13px;color:var(--text-muted);margin-bottom:20px;line-height:1.7">
-      수십 년 단위의 큰 에너지 흐름입니다. 개인년도가 그 해의 날씨라면, 절정수는 계절입니다.
+      수십 년 단위의 큰 에너지 흐름입니다. 개인연도가 그 해의 날씨라면, 절정수는 계절입니다.
     </div>
     <div class="pinnacle-bars" id="pinnacleBars"></div>
     <div class="pinnacle-labels" id="pinnacleLabels"></div>
@@ -775,7 +775,7 @@ function calcLifePath(m, d, y) {
   return reduce(rm + rd + ry, true);
 }
 
-// 개인년도 — 월+일 합산 그대로 유지, 연도만 환원 후 합산, 21까지 유지
+// 개인연도 — 월+일 합산 그대로 유지, 연도만 환원 후 합산, 21까지 유지
 function calcPersonalYear(m, d, targetYear) {
   const monthDaySum = reduce(m) + reduce(d); // 월, 일 각각 한자리로
   const yearSum = reduce(targetYear);         // 연도 한자리로
@@ -1033,7 +1033,7 @@ function renderYearCards(d) {
 
   document.getElementById('yearCardsRow').innerHTML = `
     <div class="year-card featured">
-      <div class="year-card-type">올해 개인년도 카드</div>
+      <div class="year-card-type">올해 개인연도 카드</div>
       <div class="year-card-tarot-num">${thisYearPY}</div>
       <div class="year-card-tarot-name">${thisYearTarot.emoji} ${thisYearTarot.kr}</div>
       <div class="year-card-meaning">${thisYearTarot.energy}</div>
@@ -1168,7 +1168,7 @@ async function streamAIReading(d) {
 - 생년월일: ${year}년 ${month}월 ${day}일
 - 인생여정수: ${lifePath} (타로: ${lifePathTarot.name} / ${lifePathTarot.kr})
 - 월+일 고정합: ${monthDayFixed} → 이 사람은 매년 ${monthDayFixed}번대 타로 카드의 에너지를 삽니다
-- 올해(2026년) 개인년도: ${thisYearPY} (타로: ${thisYearTarot.name} / ${thisYearTarot.kr})
+- 올해(2026년) 개인연도: ${thisYearPY} (타로: ${thisYearTarot.name} / ${thisYearTarot.kr})
 - 현재 절정수: ${pinnacleData.pinnacles[0]}, ${pinnacleData.pinnacles[1]}, ${pinnacleData.pinnacles[2]}, ${pinnacleData.pinnacles[3]}
 - 도전수 수: ${challenges.join(', ')}
 
@@ -1230,7 +1230,7 @@ async function streamYearDetail(targetYear, py, tarot) {
 
 - 인생여정수: ${lifePath}번
 - 월+일 고정합: ${monthDayFixed}
-- ${targetYear}년의 개인년도: ${py}번 (타로: ${tarot.name} / ${tarot.kr})
+- ${targetYear}년의 개인연도: ${py}번 (타로: ${tarot.name} / ${tarot.kr})
 
 이 사람에게 ${targetYear}년이 구체적으로 어떤 해인지, 재물과 삶의 흐름 중심으로 해석해주세요. 따뜻하고 실용적으로.`;
 
