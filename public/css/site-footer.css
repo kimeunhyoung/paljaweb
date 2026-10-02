@@ -1,0 +1,111 @@
+/**
+ * 팔자연구소 — 공통 하단 푸터
+ */
+.site-footer {
+  --sf-cream: #f5f0e8;
+  --sf-cream2: #efe8dc;
+  --sf-border: rgba(61, 43, 31, 0.1);
+  --sf-muted: #8a7a68;
+  --sf-ink: #2c1f0e;
+  --sf-deep: #4a3520;
+  --sf-font: 'Noto Sans KR', 'Pretendard Variable', Pretendard, -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+
+  margin-top: 48px;
+  background: var(--sf-cream2);
+  border-top: 1px solid var(--sf-border);
+  color: var(--sf-muted);
+  font-family: var(--sf-font);
+}
+
+.site-footer-inner {
+  max-width: 1140px;
+  margin: 0 auto;
+  padding: 28px 32px 24px;
+}
+
+.site-footer-brand {
+  margin-bottom: 14px;
+}
+
+.site-footer-logo {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  text-decoration: none;
+  color: var(--sf-deep);
+  font-weight: 700;
+  font-size: 14px;
+}
+
+.site-footer-mark {
+  width: 24px;
+  height: 24px;
+  border-radius: 7px;
+  background: linear-gradient(160deg, #5a402d 0%, #3d2b1f 70%);
+  color: var(--sf-cream);
+  font-size: 13px;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+}
+
+.site-footer-desc {
+  margin: 8px 0 0;
+  font-size: 12.5px;
+  line-height: 1.5;
+  color: var(--sf-muted);
+}
+
+.site-footer-nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 14px;
+  margin: 0 0 16px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--sf-border);
+}
+
+.site-footer-nav a {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--sf-deep);
+  text-decoration: none;
+  opacity: 0.85;
+}
+
+.site-footer-nav a:hover {
+  opacity: 1;
+  text-decoration: underline;
+}
+
+.site-footer-legal {
+  font-size: 11.5px;
+  line-height: 1.55;
+  color: var(--sf-muted);
+}
+
+.site-footer-legal p {
+  margin: 0 0 4px;
+}
+
+.site-footer-legal a {
+  color: var(--sf-muted);
+  text-decoration: underline;
+}
+
+.site-footer-legal a:hover {
+  color: var(--sf-deep);
+}
+
+.site-footer-copy {
+  margin-top: 10px !important;
+  font-size: 11.5px;
+}
+
+@media (max-width: 900px) {
+  .site-footer-inner {
+    padding: 24px 16px 20px;
+  }
+}

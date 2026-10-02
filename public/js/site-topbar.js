@@ -342,6 +342,29 @@
 
     bindNavDropdowns(mount.querySelector('.program-nav'));
     mount.setAttribute('data-topbar-rendered', '1');
+    ensureSiteFooter();
+  }
+
+  function ensureSiteFooter() {
+    function run() {
+      if (window.PaljaSiteFooter && typeof window.PaljaSiteFooter.mount === 'function') {
+        window.PaljaSiteFooter.mount();
+      }
+    }
+    if (window.PaljaSiteFooter) {
+      run();
+      return;
+    }
+    if (document.querySelector('script[data-palja-site-footer]')) {
+      document.querySelector('script[data-palja-site-footer]').addEventListener('load', run);
+      return;
+    }
+    var s = document.createElement('script');
+    s.src = '/js/site-footer.js?v=1';
+    s.defer = true;
+    s.setAttribute('data-palja-site-footer', '1');
+    s.addEventListener('load', run);
+    document.head.appendChild(s);
   }
 
   function init() {
