@@ -325,44 +325,33 @@
       color: var(--ink);
       margin: 0;
     }
-    .counselor-bar-actions { display: flex; gap: 10px; flex-wrap: wrap; justify-content: flex-end; align-items: center; }
-    .counselor-bar-link {
-      font-family: var(--font-body);
-      font-size: 14px;
-      font-weight: 600;
-      letter-spacing: 0.02em;
-      color: var(--cream);
-      text-decoration: none;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      padding: 7px 14px;
-      border-radius: 6px;
-      border: 1px solid var(--deep-brown);
-      background: var(--deep-brown);
-      white-space: nowrap;
-      transition: border-color .15s, background .15s, color .15s;
-    }
-    .counselor-bar-link:hover {
-      color: var(--accent-lt);
-      border-color: var(--accent);
-      background: rgba(74, 53, 32, 0.92);
-    }
+    .counselor-bar-actions { display: flex; gap: 8px; flex-wrap: wrap; justify-content: flex-end; align-items: center; }
     .counselor-bar-btn {
       font-family: var(--font-body);
       font-size: 12px;
       font-weight: 600;
       letter-spacing: .02em;
-      padding: 6px 12px;
+      padding: 7px 12px;
       border-radius: 6px;
       border: 1px solid var(--border);
       background: #fff;
       color: var(--deep-brown);
       cursor: pointer;
       box-shadow: none;
+      white-space: nowrap;
       transition: border-color .15s, background .15s, color .15s;
     }
     .counselor-bar-btn:hover { background: var(--parchment); border-color: var(--warm-brown); color: var(--ink); box-shadow:none; transform:none; }
+    #counselorReportBtn {
+      border-color: var(--deep-brown);
+      background: var(--deep-brown);
+      color: var(--cream);
+    }
+    #counselorReportBtn:hover {
+      background: rgba(74, 53, 32, 0.92);
+      border-color: var(--accent);
+      color: var(--accent-lt);
+    }
 
     /* 상담사: 저장된 고객 바로 고르기 */
     .client-pick-wrap {
@@ -4021,16 +4010,15 @@
 <body class="logo-style-classic">
 
 <!-- TOP BAR -->
-<div class="site-top" data-topbar-title="라이프코드" data-nav-current="lifecode" data-export="print,pdf" data-export-mode="toggle" data-pdf-handler="topbarPdfClick" data-print-handler="topbarPrintClick" data-login-next="analysis.html"></div>
+<div class="site-top" data-topbar-title="라이프코드" data-nav-current="lifecode" data-login-next="analysis.html"></div>
 
 <div id="counselorBar" class="counselor-bar" style="display:none;" aria-label="상담사 안내">
   <div class="counselor-bar-inner">
     <p class="counselor-bar-text">저장된 고객을 고르거나, 생년월일·이름을 직접 입력해 분석하세요. <strong>고객 표시 이름</strong>은 상담용 표기입니다. 결과는 인쇄·고객용 리포트로 쓸 수 있어요.</p>
     <div class="counselor-bar-actions">
-      <button type="button" class="counselor-bar-btn" id="counselorPrintBtn" onclick="topbarPrintClick()" hidden>인쇄</button>
-      <button type="button" class="counselor-bar-btn" id="counselorPdfBtn" onclick="topbarPdfClick()" hidden>PDF 저장</button>
       <button type="button" class="counselor-bar-btn" id="counselorReportBtn" onclick="exportCounselorReport()">고객용 리포트 PDF</button>
-      <a href="counselor.html" class="counselor-bar-link">상담사 허브</a>
+      <button type="button" class="counselor-bar-btn" id="counselorPrintBtn" onclick="topbarPrintClick()">인쇄</button>
+      <button type="button" class="counselor-bar-btn" id="counselorPdfBtn" onclick="topbarPdfClick()">PDF 저장</button>
     </div>
   </div>
 </div>
@@ -4547,35 +4535,6 @@ function waitForPaljaPlan(maxMs) {
   });
 }
 
-function waitForTopbarExport(maxMs) {
-  if (document.getElementById('topbarExportCluster')) return Promise.resolve();
-  const limit = typeof maxMs === 'number' ? maxMs : 2500;
-  const start = Date.now();
-  return new Promise((resolve) => {
-    const tick = () => {
-      if (document.getElementById('topbarExportCluster') || Date.now() - start >= limit) return resolve();
-      setTimeout(tick, 30);
-    };
-    tick();
-  });
-}
-
-function hasAnalysisResult() {
-  const resultArea = document.getElementById('resultArea');
-  return !!(resultArea && resultArea.style.display !== 'none');
-}
-
-/** 인쇄·PDF: 분석 결과가 있을 때만 표시 (모바일은 상담사 바로 이동) */
-function syncTopbarExportVisibility() {
-  const ready = hasAnalysisResult();
-  const cluster = document.getElementById('topbarExportCluster');
-  if (cluster) cluster.classList.toggle('is-visible', ready);
-  ['counselorPrintBtn', 'counselorPdfBtn'].forEach((id) => {
-    const el = document.getElementById(id);
-    if (el) el.hidden = !ready;
-  });
-}
-
 /** 고객용 리포트 PDF: 상담사 브랜드 머리글 + 잠금/업셀 제외(기존 로직) 으로 내보내기 */
 function exportCounselorReport() {
   const resultArea = document.getElementById('resultArea');
@@ -4946,12 +4905,10 @@ async function initAuth() {
     }
   }
 
-  // plan-access / site-topbar 가 defer 라서 세션 캐시가 빠르면 여기가 먼저 끝날 수 있음
+  // plan-access 가 defer 라서 세션 캐시가 빠르면 여기가 먼저 끝날 수 있음
   await waitForPaljaPlan(3000);
-  await waitForTopbarExport(2500);
 
-  // 상담사 고객 입력 필드 표시 (Professional / Private + 이용 기간 유효)
-  // 인쇄·PDF는 결과 나온 뒤에만 표시 (상단 공간 절약 + 레이스 버그 방지)
+  // 상담사 바: 고객용 PDF · 인쇄 · PDF 저장 (상단 메뉴의 상담사 허브와 중복 제거)
   if (window.PaljaPlan && PaljaPlan.hasCounselorAccess({ plan: USER_PLAN })) {
     const clientGroup = document.getElementById('clientGroup');
     if (clientGroup) clientGroup.style.display = 'flex';
@@ -4960,7 +4917,6 @@ async function initAuth() {
     await loadCounselorClientPicker(session);
     await loadPrefilledCounselorClient(session);
   }
-  syncTopbarExportVisibility();
 
   const nameEl = document.getElementById('inputName');
   const birthEl = document.getElementById('inputBirth');
@@ -9724,7 +9680,6 @@ async function runAnalysis() {
   document.getElementById('resultArea').style.display='block';
   document.getElementById('resultArea').scrollIntoView({behavior:'smooth'});
   showAnalysisJumpNav(true);
-  syncTopbarExportVisibility();
   await trackUsage('analysis');
   if (window.PaljaAnalytics?.track) window.PaljaAnalytics.track('analysis_complete');
   maybeShowGuestSignupModal();
