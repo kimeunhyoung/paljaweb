@@ -2427,6 +2427,10 @@ body.export-capturing .ai-result.empty{display:none !important;}
           else if (/일정|5년 중 언제/.test(title)) anchorId = ' id="tl-schedule"';
         }
         out.push('<h3 class="ai-md-h2"' + anchorId + '>' + inlineMd(escapeCounselorHtml(title)) + '</h3>');
+      } else if (/^#\s+/.test(line)) {
+        flushList();
+        flushTiming();
+        out.push('<h3 class="ai-md-h2">' + inlineMd(escapeCounselorHtml(line.replace(/^#\s+/, ''))) + '</h3>');
       } else if (/^>\s?/.test(line)) {
         flushList();
         flushTiming();

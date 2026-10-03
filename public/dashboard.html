@@ -1387,6 +1387,11 @@
     document.getElementById('greeting-name').textContent = displayName;
     document.getElementById('user-name').textContent = displayName;
     document.getElementById('user-avatar').textContent = initial;
+
+    // 로그인만 확인되면 바로 화면을 열고, 플랜·크레딧·기기는 이어서 채워요
+    document.getElementById('auth-guard').style.display = 'none';
+    document.getElementById('app').style.display = 'flex';
+
     const usage = await getUsageStats(user.id);
     const statAnalyses = document.getElementById('stat-analyses');
     const statReports = document.getElementById('stat-reports');
@@ -1507,10 +1512,6 @@
     if (location.hash === '#devices') {
       document.getElementById('devices')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
-
-    // Show app
-    document.getElementById('auth-guard').style.display = 'none';
-    document.getElementById('app').style.display = 'flex';
   }
 
   function bindQuickAnalysisCards() {
