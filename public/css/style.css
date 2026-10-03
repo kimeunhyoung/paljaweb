@@ -1524,3 +1524,81 @@ section { padding: 100px 0; }
 @media (max-width: 560px) {
   #pricing-pro .pricing-pro-features { grid-template-columns: 1fr; }
 }
+
+/* ===== 2026-10 메인 화면 · 고급스러운 톤 ===== */
+/* 1) 한글 강조어: 가짜 기울임 대신 명조체 + 테라코타 */
+.site-chrome ~ .hero .hero-title em,
+#about .about-text h2 em {
+  font-style: normal;
+  font-family: var(--font-serif);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: #b5532f;
+}
+
+/* 2) 서비스 카드: 진갈색 → 아이보리 카드 + 골드 라인 (상담사 카드만 진갈색 강조) */
+#services .service-cat-card {
+  position: relative;
+  background: #fffdf9;
+  color: var(--text);
+  border: 1px solid rgba(168,132,74,.24);
+  box-shadow: 0 1px 2px rgba(60,40,15,.04);
+  overflow: hidden;
+}
+#services .service-cat-card::before {
+  content: ''; position: absolute; left: 22px; right: 22px; top: 0; height: 2px;
+  background: linear-gradient(90deg, transparent, rgba(168,132,74,.55), transparent);
+}
+#services .service-cat-card:hover { border-color: rgba(168,132,74,.6); box-shadow: 0 16px 32px -18px rgba(60,40,15,.35); }
+#services .service-cat-kicker { font-family: var(--font-serif); font-size: 15px; font-weight: 600; color: #a8844a; letter-spacing: .08em; }
+#services .service-cat-title { color: var(--brown); }
+#services .service-cat-desc { color: var(--text2); }
+#services .service-cat-includes { color: #8a7461; }
+#services .service-cat-go { color: #b5532f; }
+#services .service-cat-card--pro { background: linear-gradient(135deg, #3d2b1f 0%, #533b28 100%); border-color: #3d2b1f; }
+#services .service-cat-card--pro::before { background: linear-gradient(90deg, transparent, rgba(212,168,67,.6), transparent); }
+#services .service-cat-card--pro .service-cat-kicker { color: #d4a843; }
+#services .service-cat-card--pro .service-cat-title { color: var(--cream); }
+#services .service-cat-card--pro .service-cat-desc { color: #d9c6a8; }
+#services .service-cat-card--pro .service-cat-includes { color: rgba(245,240,232,.6); }
+#services .service-cat-card--pro .service-cat-go { color: #e8c77a; }
+
+/* 3) 요금제: 안 되는 기능은 취소선 대신 안내 한 줄 */
+#pricing .plan-feature-list li.plan-more {
+  display: block; border-bottom: none; margin-top: 6px; padding: 10px 12px;
+  border-radius: 10px; background: rgba(168,132,74,.08);
+  font-size: 12.5px; line-height: 1.6; color: var(--text2);
+}
+#pricing .plan-feature-list li.plan-more::before { content: none; }
+#pricing .plan-feature-list li.plan-more strong { color: var(--brown); margin-right: 4px; }
+#pricing .pricing-card.featured .plan-feature-list li.plan-more { background: rgba(255,255,255,.07); color: rgba(245,240,232,.72); }
+#pricing .pricing-card.featured .plan-feature-list li.plan-more strong { color: #e8c77a; }
+
+/* 4) 프로그램 가이드: 밝은 줄 + 번호 */
+#guides .service-item,
+#guides .service-item.active {
+  background: #fffdf9; border: 1px solid rgba(168,132,74,.22);
+}
+#guides .service-list { gap: 10px; }
+#guides .service-item:hover { border-color: rgba(168,132,74,.6); transform: translateX(4px); }
+#guides .service-item-num,
+#guides .service-item.active .service-item-num { font-family: var(--font-serif); font-size: 18px; font-weight: 600; color: #a8844a; letter-spacing: .06em; }
+#guides .service-item-name,
+#guides .service-item.active .service-item-name { color: var(--brown); }
+#guides .service-item-desc,
+#guides .service-item.active .service-item-desc { color: var(--text2); }
+#guides .service-item-action,
+#guides .service-item.active .service-item-action { background: transparent; border: 1px solid rgba(181,83,47,.45); color: #b5532f; }
+#guides .service-item:hover .service-item-action { background: #b5532f; border-color: #b5532f; color: #fff; }
+
+/* 5) 첫 화면: 궁합 작은 카드가 큰 카드 글자를 가리지 않게 */
+@media (min-width: 901px) {
+  .site-chrome ~ .hero .hero-card-main { padding-bottom: 72px; }
+}
+
+/* 6) 상담사 띠: 대표 버튼 하나만 진하게, 나머지는 테두리 */
+.counselor-strip-actions .counselor-strip-btn { background: rgba(255,255,255,.04); border: 1px solid rgba(232,199,122,.35); color: #f1e6d2; }
+.counselor-strip-actions .counselor-strip-btn:hover { background: rgba(255,255,255,.09); border-color: rgba(232,199,122,.65); }
+.counselor-strip-actions .counselor-strip-btn:first-child { background: var(--terracotta); border-color: var(--terracotta); color: #fff; }
+.counselor-strip-actions .counselor-strip-btn:first-child:hover { background: #b85530; }
+.counselor-strip-actions .counselor-strip-btn-ghost { border-color: rgba(255,255,255,.3); }

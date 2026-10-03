@@ -587,7 +587,7 @@ async function populateHeroWithUser() {
         valEl.innerHTML = `${lpDisplay} <span class="card-num-pre">(환원 전 ${lpPreLabel})</span>`
       } else if (label.includes('문')) {
         valEl.innerHTML = `${mn} <span class="card-num-pre">(${mnPre !== mn ? `자릿수합 ${mnPre} → 타로 ${mn}` : `자릿수합 ${mnPre}`})</span>`
-      } else if (label.includes('개인 연도')) {
+      } else if (label.includes('개인연도') || label.includes('개인 연도')) {
         valEl.innerHTML = `${py} <span class="card-num-pre">(연 ${pyY}+월 ${pyM}+일 ${pyD}=${pyS})</span>`
       } else if (label.includes('별자리')) {
         valEl.innerHTML = `<span class="zodiac-symbol">${z.i}</span><span class="zodiac-name-small">${z.n}</span>`

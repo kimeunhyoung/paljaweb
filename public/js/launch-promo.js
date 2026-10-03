@@ -56,7 +56,7 @@
       '    <button type="button" class="counselor-promo-close" id="launchPromoClose" aria-label="닫기">×</button>' +
       '    <p class="counselor-promo-kicker">Launch offer</p>' +
       '    <h2 class="counselor-promo-title" id="launchPromoTitle">출시 기간 한정 · 구독료 할인 중</h2>' +
-      '    <p class="counselor-promo-lead">팔자연구소의 첫 시작을 함께하시는 분들께 드리는 특별 혜택입니다. Plus·Professional을 부담 없이 먼저 경험해 보세요.<br>새로운 기능과 추가 업데이트도 함께 진행 중입니다. 불편한 점이나 요청 사항이 있으시면 <a href="https://pf.kakao.com/_HXxmwX/chat" target="_blank" rel="noopener noreferrer">카카오톡</a>으로 남겨 주세요.</p>' +
+      '    <p class="counselor-promo-lead">팔자연구소를 처음 함께해 주시는 분들께 드리는 특별 혜택이에요. Plus·Professional을 부담 없이 먼저 경험해 보세요.<br>새로운 기능도 계속 추가하고 있어요. 불편한 점이나 요청 사항이 있으시면 <a href="https://pf.kakao.com/_HXxmwX/chat" target="_blank" rel="noopener noreferrer">카카오톡</a>으로 남겨 주세요.</p>' +
       '    <div class="launch-promo-prices">' +
       '      <div class="launch-promo-price-card">' +
       '        <span class="launch-promo-plan">Plus</span>' +
@@ -71,11 +71,11 @@
       '    </div>' +
       '    <div class="launch-promo-counselor">' +
       '      <h3 class="launch-promo-counselor-title">상담사이신가요?</h3>' +
-      '      <p class="launch-promo-counselor-lead">Professional로 고객 CRM·일정·<strong>AI 타로 리딩</strong>까지 한곳에서. 출시 기념가 <strong>29,900원/월</strong>입니다.</p>' +
+      '      <p class="launch-promo-counselor-lead">Professional로 고객 CRM·일정·<strong>AI 타로 리딩</strong>까지 한곳에서. 출시 기념가 <strong>29,900원/월</strong>이에요.</p>' +
       '      <ul class="launch-promo-counselor-points">' +
       '        <li>고객 CRM · 일정 캘린더 · 상담 기록</li>' +
       '        <li>타로 AI · 레노먼드 AI · 주역 AI 해석 초안</li>' +
-      '        <li>브랜디드 PDF · 재방문 관리</li>' +
+      '        <li>고객용 리포트 PDF · 재방문 관리</li>' +
       '      </ul>' +
       '      <a href="/for-counselors.html" class="launch-promo-counselor-cta">상담사 전용 안내 보기 →</a>' +
       '    </div>' +
