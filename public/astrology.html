@@ -4302,6 +4302,18 @@ body.export-capturing .ai-result.empty{display:none !important;}
   if (ASTRO_AI_API_ENABLED) checkAiServer();
   else refreshAiUi();
 
+  /** 마지막 섹션까지 다 나왔으면 「잘렸을 수 있어요」 안내를 붙이지 않아요 */
+  function chartAiLooksComplete(text) {
+    const t = String(text || '').trim();
+    if (!t) return false;
+    const endsWell = /[.!?)」요다]$/.test(t);
+    if (/##\s*나를 잘 쓰는 법/.test(t)) {
+      const tail = t.split(/##\s*나를 잘 쓰는 법/).pop();
+      return endsWell && (tail.match(/^\s*[-*]\s+\S/gm) || []).length >= 2;
+    }
+    return endsWell && /##\s*학업·성장/.test(t);
+  }
+
   async function callAstroAi() {
     if (!ASTRO_AI_API_ENABLED) {
       refreshAiUi();
@@ -4344,7 +4356,7 @@ body.export-capturing .ai-result.empty{display:none !important;}
         },
       });
       let out = text || streamed || '해석을 생성하지 못했어요.';
-      if (data?.stop_reason === 'max_tokens') {
+      if (data?.stop_reason === 'max_tokens' && !chartAiLooksComplete(out)) {
         out += '\n\n(※ 아주 긴 해석이라 일부가 잘렸을 수 있어요. 같은 내용으로 다시 요청하면 이어서 받을 수 있어요.)';
       }
       setAiResultBox(box, out, { open: true });
