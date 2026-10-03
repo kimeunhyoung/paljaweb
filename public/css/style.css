@@ -293,6 +293,23 @@ ul { list-style: none; }
   font-weight: 600;
 }
 .nav-actions { display: flex; gap: 10px; align-items: center; }
+/* 로그인 이름 — 가이드/요금제(.nav-links)와 동일 크기 */
+.nav-actions .nav-user-name {
+  display: inline-block;
+  max-width: 140px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 1.35;
+  color: var(--text2);
+  border: none;
+  background: none;
+  padding: 0;
+  margin: 0;
+}
 .nav-menu-btn {
   display: none;
   width: 40px;

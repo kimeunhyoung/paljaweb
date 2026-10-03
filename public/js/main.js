@@ -192,7 +192,7 @@ async function updateNav() {
       || String(sess.user.user_metadata?.full_name || '').trim()
       || String(sess.user.email || '').split('@')[0]
     const loggedInHtml = `
-      ${who ? `<span style="font-size:13px; color:var(--text2); max-width:140px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${escapeHtmlText(who)}님</span>` : ''}
+      ${who ? `<span class="nav-user-name">${escapeHtmlText(who)}님</span>` : ''}
       ${counselorNav}
       <a href="dashboard.html" class="btn-nav-ghost">마이페이지</a>
       <button class="btn-nav-fill logout-btn">로그아웃</button>
