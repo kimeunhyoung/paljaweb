@@ -243,11 +243,18 @@
   color: var(--tb-deep-brown);
   text-decoration: none;
   letter-spacing: 0.01em;
+  line-height: 1.2;
   display: inline-flex;
   align-items: center;
   gap: 10px;
   white-space: nowrap;
   flex-shrink: 0;
+}
+.site-top .topbar-logo-text {
+  font: inherit;
+  color: inherit;
+  letter-spacing: inherit;
+  line-height: inherit;
 }
 
 .site-top a.topbar-logo .topbar-logo-mark {

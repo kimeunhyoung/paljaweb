@@ -61,15 +61,17 @@ ul { list-style: none; }
   left: auto;
   right: auto;
   z-index: 1;
-  padding: 16px 0 12px;
+  /* 프로그램 site-top .topbar 와 동일: 바깥 32px + 안쪽 1140 */
+  padding: 10px 32px;
   transition: background-color 0.3s ease, padding 0.3s ease;
   background: transparent;
+  box-sizing: border-box;
 }
 .site-chrome.scrolled .navbar,
 .navbar.scrolled {
   background: rgba(250,247,242,0.95);
   backdrop-filter: blur(20px);
-  padding: 12px 0 10px;
+  padding: 10px 32px;
 }
 .site-chrome.scrolled {
   border-bottom: none;
@@ -204,29 +206,37 @@ ul { list-style: none; }
 .nav-inner {
   max-width: 1140px;
   margin: 0 auto;
-  padding: 0 32px;
+  padding: 0;
+  width: 100%;
   display: flex;
   align-items: center;
 }
 .nav-logo {
-  display: flex;
+  display: inline-flex;
   align-items: center;
   gap: 10px;
   margin-right: auto;
+  flex-shrink: 0;
+  text-decoration: none;
+  white-space: nowrap;
 }
 .logo-mark {
   width: 30px;
   height: 30px;
+  min-width: 30px;
+  min-height: 30px;
   background: linear-gradient(160deg, #5a402d 0%, #3d2b1f 65%, #2d1f16 100%);
   border-radius: 9px;
-  display: flex;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
-  font-family: var(--font-serif);
+  font-family: 'Noto Serif KR', serif;
   font-size: 17px;
+  line-height: 1;
   color: #f5f0e8;
   font-weight: 700;
   border: 1px solid rgba(245, 240, 232, 0.22);
+  box-sizing: border-box;
   position: relative;
   overflow: hidden;
   flex-shrink: 0;
@@ -250,12 +260,13 @@ ul { list-style: none; }
   pointer-events: none;
 }
 .logo-text {
-  /* 공통 site-top 로고와 동일: Noto Sans KR */
+  /* 공통 site-top .topbar-logo 와 동일 */
   font-family: 'Noto Sans KR', 'Pretendard Variable', Pretendard, -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
   font-size: 16px;
   font-weight: 700;
   color: #4a3520;
   letter-spacing: 0.01em;
+  line-height: 1.2;
 }
 .nav-links {
   display: flex;
@@ -1448,8 +1459,9 @@ section { padding: 100px 0; }
 
 /* ===== 반응형 ===== */
 @media (max-width: 900px) {
-  .navbar { padding: 12px 0; }
-  .nav-inner { padding: 0 16px; }
+  /* 프로그램 site-top 모바일과 동일: 바깥 16px + 안쪽 1140 */
+  .navbar { padding: 10px 16px; }
+  .nav-inner { padding: 0; }
   .home-program-nav { padding: 0 16px; }
     .home-program-nav-inner { gap: 0 12px; font-size: 11px; }
   .nav-links { display: none; }
@@ -1602,5 +1614,13 @@ section { padding: 100px 0; }
 .counselor-strip-actions .counselor-strip-btn:first-child:hover { background: #b85530; }
 .counselor-strip-actions .counselor-strip-btn-ghost { border-color: rgba(255,255,255,.3); }
 
-/* 상단 로고 시작선: 프로그램 내비(바깥 padding 32px + 1140)과 맞춤 */
-#siteChrome .nav-inner { max-width: calc(1140px + 64px); }
+/* 별자리 아이콘: 금색 테두리 원 + 금색 기호 (컬러 이모지 대신) */
+.zodiac-icon {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 34px; height: 34px; border-radius: 50%;
+  border: 1.5px solid #d4a843; color: #d4a843;
+  vertical-align: middle; flex-shrink: 0;
+}
+.zodiac-icon svg { width: 58%; height: 58%; fill: currentColor; display: block; }
+.card-num-val .zodiac-symbol.zodiac-icon { font-size: 0; margin-right: 8px; }
+.zodiac-icon--sm { width: 15px; height: 15px; border-width: 1px; margin: 0 2px; vertical-align: -3px; color: rgba(212,168,67,.75); border-color: rgba(212,168,67,.5); }

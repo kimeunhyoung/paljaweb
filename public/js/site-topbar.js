@@ -6,7 +6,7 @@
   if (!document.querySelector('link[href*="/css/site-topbar.css"]')) {
     var tbCss = document.createElement('link');
     tbCss.rel = 'stylesheet';
-    tbCss.href = '/css/site-topbar.css?v=16';
+    tbCss.href = '/css/site-topbar.css?v=17';
     (document.head || document.documentElement).appendChild(tbCss);
   }
   // 첫 페인트 전에 자리 + 로그인 깜빡임 방지 CSS를 즉시 주입
@@ -305,7 +305,8 @@
       '<div class="topbar-inner">' +
       '<div class="topbar-left">' +
       '<a class="topbar-logo" href="/index.html">' +
-      '<span class="topbar-logo-mark" aria-hidden="true">八</span>팔자연구소</a>' +
+      '<span class="topbar-logo-mark" aria-hidden="true">八</span>' +
+      '<span class="topbar-logo-text">팔자연구소</span></a>' +
       '<div class="topbar-sep"></div>' +
       '<span class="topbar-title">' + esc(title) + '</span>' +
       '</div>' +
@@ -416,7 +417,8 @@
       '<div class="topbar-inner">' +
       '<div class="topbar-left">' +
       '<a class="topbar-logo" href="/index.html">' +
-      '<span class="topbar-logo-mark" aria-hidden="true">八</span>팔자연구소</a>' +
+      '<span class="topbar-logo-mark" aria-hidden="true">八</span>' +
+      '<span class="topbar-logo-text">팔자연구소</span></a>' +
       titleHtml +
       '</div>' +
       '<nav class="topbar-links" aria-label="사이트 메뉴">' +
