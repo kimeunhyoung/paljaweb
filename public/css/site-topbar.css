@@ -455,11 +455,14 @@
   font-size: 12px;
 }
 
-.site-top .topbar-auth-row {
+.site-top .topbar-auth-row,
+.site-top [data-topbar-auth-guest]:not([hidden]),
+.site-top [data-topbar-auth-user]:not([hidden]) {
   display: inline-flex;
   align-items: center;
   gap: 6px;
   flex-wrap: nowrap;
+  flex-shrink: 0;
 }
 
 .site-top .topbar-auth-btn {
@@ -516,14 +519,26 @@
     flex-wrap: nowrap;
     min-width: 0;
   }
+  .site-top .topbar-auth-row,
+  .site-top [data-topbar-auth-guest]:not([hidden]),
+  .site-top [data-topbar-auth-user]:not([hidden]) {
+    flex-wrap: nowrap;
+    flex-shrink: 0;
+    gap: 5px;
+  }
+  .site-top .topbar-auth-link,
+  .site-top .back-btn {
+    font-size: 12px !important;
+  }
+  .site-top .topbar-auth-dot { font-size: 12px; }
   /* Professional → Pro (좁은 화면 두 줄 방지) */
   .site-top .plan-badge {
     padding: 4px 8px;
     font-size: 10px;
     letter-spacing: 0.03em;
   }
-  .site-top .plan-badge-long { display: none; }
-  .site-top .plan-badge-short { display: inline; }
+  .site-top .plan-badge-long { display: none !important; }
+  .site-top .plan-badge-short { display: inline !important; }
   /* 모바일: 상단 인쇄/PDF는 줄바꿈으로 공간을 많이 먹어서 숨김 → 상담사 바/본문에서 사용 */
   .site-top .topbar-export-cluster,
   .site-top .topbar-export-cluster.is-visible,

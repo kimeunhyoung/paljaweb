@@ -65,8 +65,8 @@
 <script src="js/ai-quota-client.js?v=2"></script>
 <script src="js/product-plan-bootstrap.js?v=1"></script>
 <script src="js/attribution.js"></script>
-  <script src="js/site-topbar.js?v=34" defer></script>
-<script src="js/topbar-session.js?v=13" defer></script>
+  <script src="js/site-topbar.js?v=35" defer></script>
+<script src="js/topbar-session.js?v=14" defer></script>
 <!-- 점성 차트 그리기(UMD 전역 astrochart) -->
 <script src="https://cdn.jsdelivr.net/npm/@astrodraw/astrochart@3.0.2/dist/astrochart.js"></script>
 <!-- 이미지 저장용 -->
@@ -82,7 +82,7 @@
 <script src="js/ai-raw-timeline-v1.js?v=1"></script>
 <script src="js/ai-raw-timeline-prompt-v2.js?v=3"></script>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css" crossorigin />
-<link rel="stylesheet" href="css/site-topbar.css?v=20" />
+<link rel="stylesheet" href="css/site-topbar.css?v=21" />
 <link rel="stylesheet" href="css/site-header.css?v=7" />
 <style>
 :root {
@@ -592,6 +592,43 @@ body{font-variant-numeric:lining-nums;}
 .rt-btn--share:hover{background:#94733f;color:#fff;}
 .rt-btn--share:disabled{background:#d9cbb2;border-color:#d9cbb2;color:#fff;}
 .transit-intro,.transit-ai-intro,.note{line-height:1.7;}
+
+/* ── 2단계: 구역 · 바로가기 · 트랜짓 접기 · PDF 옵션 ── */
+#exportOpts:not(.open){display:none !important;}
+.export-opts.open{flex-basis:100%;width:100%;margin-top:4px;border:1px solid rgba(168,132,74,.28);background:#fbf7ef;}
+.export-opts-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:4px;padding-top:10px;border-top:1px solid rgba(168,132,74,.18);}
+.astro-jump{position:sticky;top:var(--astro-top,0px);z-index:40;display:flex;gap:4px;margin:18px 0 0;padding:6px;
+  background:rgba(251,248,241,.94);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);
+  border:1px solid rgba(168,132,74,.28);border-radius:999px;box-shadow:0 6px 18px rgba(74,53,32,.07);
+  overflow-x:auto;scrollbar-width:none;}
+.astro-jump::-webkit-scrollbar{display:none;}
+.astro-jump a{flex:1 0 auto;text-align:center;padding:8px 14px;border-radius:999px;font-size:14px;font-weight:600;
+  color:var(--warm-brown);text-decoration:none;white-space:nowrap;transition:background .2s,color .2s;}
+.astro-jump a:hover{background:rgba(168,132,74,.12);}
+.astro-jump a.on{background:var(--deep-brown);color:#fff;}
+.astro-group-h{display:flex;align-items:flex-end;gap:14px;margin:46px 2px -6px;padding-bottom:12px;
+  border-bottom:1px solid rgba(168,132,74,.35);scroll-margin-top:calc(var(--astro-top,0px) + 76px);}
+.export-opts-row:not(:has(label:not([hidden]))){display:none;}
+.astro-group-h .agh-num{font-family:var(--font-serif);font-size:30px;line-height:1;color:#a8844a;font-weight:500;letter-spacing:.02em;}
+.astro-group-h .agh-title{font-family:var(--font-serif);font-size:21px;font-weight:600;color:var(--deep-brown);line-height:1.3;}
+.astro-group-h .agh-sub{font-size:13px;color:var(--muted);margin-top:3px;line-height:1.5;}
+#counselorReportCard{scroll-margin-top:calc(var(--astro-top,0px) + 76px);}
+body:not(.export-capturing) .transit-list.is-collapsed > .aspect-read-item:nth-child(n+5){display:none;}
+.transit-more-btn{display:block;width:100%;margin-top:10px;padding:10px 14px;border:1px dashed rgba(168,132,74,.45);
+  border-radius:12px;background:transparent;color:var(--warm-brown);font:inherit;font-size:14px;font-weight:600;cursor:pointer;}
+.transit-more-btn:hover{background:rgba(168,132,74,.08);}
+body.export-capturing .astro-jump,body.export-capturing .astro-group-h,body.export-capturing .transit-more-btn,
+body.export-capturing .ai-actions,body.export-capturing .transit-ai-row,body.export-capturing .transit-controls,
+body.export-capturing .timeline-ai-actions,body.export-capturing .ai-time-hint,body.export-capturing .transit-ai-intro,
+body.export-capturing .ai-result.empty{display:none !important;}
+@media print{ .astro-jump,.astro-group-h,.transit-more-btn{display:none !important;} }
+@media (max-width:560px){
+  .astro-jump{margin-left:-4px;margin-right:-4px;border-radius:14px;}
+  .astro-jump a{flex:0 0 auto;padding:8px 12px;font-size:13.5px;}
+  .astro-group-h{margin-top:38px;gap:11px;}
+  .astro-group-h .agh-num{font-size:25px;}
+  .astro-group-h .agh-title{font-size:19px;}
+}
 </style>
 </head>
 <body>
@@ -659,6 +696,13 @@ body{font-variant-numeric:lining-nums;}
   <div id="result">
     <div class="result-toolbar" id="resultToolbar">
       <div class="result-name" id="resultName"></div>
+      <div class="result-actions">
+        <button type="button" class="rt-btn" id="btnCopy" title="빅3·원소 요약을 클립보드로 복사">⧉ 요약 복사</button>
+        <button type="button" class="rt-btn" id="btnPrint" title="인쇄">인쇄</button>
+        <button type="button" class="rt-btn rt-btn--share" id="btnPdf" title="PDF 파일로 저장">⬇ PDF 저장</button>
+        <button type="button" class="rt-btn rt-btn--share" id="btnSaveClient" title="고객 카드에 AI 차트 해석 저장" hidden>AI 해석 고객 카드에 저장</button>
+        <button type="button" class="rt-btn rt-btn--share" id="btnShare" title="요약·링크 공유">↗ 공유</button>
+      </div>
       <div class="export-opts no-print" id="exportOpts">
         <div class="export-opts-head">
           <strong>PDF·인쇄 시 포함</strong>
@@ -681,8 +725,10 @@ body{font-variant-numeric:lining-nums;}
         <div class="export-opts-row">
           <span class="export-opts-label">AI·운세</span>
           <label><input type="checkbox" id="expAi"/> AI 차트 해석</label>
+          <label><input type="checkbox" id="expAiDeep"/> AI 주제별 심화</label>
           <label><input type="checkbox" id="expYear"/> 올해 운세</label>
           <label><input type="checkbox" id="expAiYear"/> AI 올해 운세</label>
+          <label><input type="checkbox" id="expTimeline"/> 5년 흐름</label>
           <label><input type="checkbox" id="expTransit"/> 트랜짓</label>
           <label><input type="checkbox" id="expAiTransit"/> AI 트랜짓 해석</label>
         </div>
@@ -690,20 +736,26 @@ body{font-variant-numeric:lining-nums;}
           <span class="export-opts-label">상담사</span>
           <label id="expReportLabel" hidden><input type="checkbox" id="expReport"/> 상담 요약</label>
         </div>
-      </div>
-      <div class="result-actions">
-        <button type="button" class="rt-btn" id="btnCopy" title="빅3·원소 요약을 클립보드로 복사">⧉ 요약 복사</button>
-        <button type="button" class="rt-btn" id="btnPrint" title="인쇄">인쇄</button>
-        <button type="button" class="rt-btn rt-btn--share" id="btnPdf" title="PDF 파일로 저장">⬇ PDF 저장</button>
-        <button type="button" class="rt-btn rt-btn--share" id="btnSaveClient" title="고객 카드에 AI 차트 해석 저장" hidden>AI 해석 고객 카드에 저장</button>
-        <button type="button" class="rt-btn rt-btn--share" id="btnShare" title="요약·링크 공유">↗ 공유</button>
+        <div class="export-opts-actions">
+          <button type="button" class="rt-btn rt-btn--share" id="btnExportGo">이 항목으로 PDF 저장</button>
+          <button type="button" class="rt-btn" id="btnExportClose">닫기</button>
+        </div>
       </div>
     </div>
+
+    <nav class="astro-jump no-print" id="astroJump" aria-label="결과 바로가기">
+      <a href="#grpNatal" data-target="grpNatal">타고난 차트</a>
+      <a href="#grpAi" data-target="grpAi">AI 해석</a>
+      <a href="#grpForecast" data-target="grpForecast">운세 · 흐름</a>
+      <a href="#counselorReportCard" data-target="counselorReportCard" id="jumpReport" hidden>상담 요약</a>
+    </nav>
 
     <div class="report-header" id="reportHeader">
       <div class="report-header-name" id="reportHeaderName">네이탈 차트</div>
       <div class="report-header-meta" id="reportHeaderMeta"></div>
     </div>
+
+    <div class="astro-group-h no-print" id="grpNatal"><span class="agh-num">01</span><div><div class="agh-title">타고난 차트</div><div class="agh-sub">빅3 · 원소 균형 · 네이탈 차트 · 행성 · 하우스 · 어스펙트</div></div></div>
 
     <div class="card" id="big3Card">
       <div class="card-title">✦ 빅3 — 태양 · 달 · 상승궁</div>
@@ -768,6 +820,8 @@ body{font-variant-numeric:lining-nums;}
       </div>
     </div>
 
+    <div class="astro-group-h no-print" id="grpAi"><span class="agh-num">02</span><div><div class="agh-title">AI 해석</div><div class="agh-sub">차트 전체 해석과 주제별 심화 해석</div></div></div>
+
     <!-- AI 차트 해석 (출생 차트) -->
     <div class="card" id="aiCard">
       <div class="card-title">✦ AI 차트 해석</div>
@@ -797,6 +851,8 @@ body{font-variant-numeric:lining-nums;}
       <div id="aiDeepResult" class="ai-result empty">차트를 계산한 뒤 주제를 선택해 주세요.</div>
       <p class="ai-time-hint" id="aiDeepHint">심화 해석은 보통 40초~1분 정도 걸려요. 저장된 주제는 다시 누르면 바로 보예요.</p>
     </div>
+
+    <div class="astro-group-h no-print" id="grpForecast"><span class="agh-num">03</span><div><div class="agh-title">운세 · 흐름</div><div class="agh-sub">올해 운세 · 앞으로 5년 · 오늘의 하늘</div></div></div>
 
     <!-- 올해 운세 심화 -->
     <div class="card" id="yearCard">
@@ -3637,6 +3693,13 @@ body{font-variant-numeric:lining-nums;}
         <div class="ari-text">${rich}</div>
       </div>`;
     }
+    function transitListHtml(list) {
+      const SHOW = 4;
+      const extra = list.length - SHOW;
+      let out = `<div class="aspect-read-list transit-list${extra > 0 ? ' is-collapsed' : ''}">${list.map(itemHtml).join('')}</div>`;
+      if (extra > 0) out += `<button type="button" class="transit-more-btn no-print" data-more="${extra}" aria-expanded="false">나머지 ${extra}개 더 보기</button>`;
+      return out;
+    }
     const fastHits = hits.filter((h) => FAST[h.tk]).slice(0, 8);
     const slowHits = hits.filter((h) => !FAST[h.tk]).slice(0, 8);
 
@@ -3654,11 +3717,11 @@ body{font-variant-numeric:lining-nums;}
       html += '<div class="transit-guide">읽는 법 · <strong>트랜짓 행성</strong>(요즘 들어온 기운) → <strong>본명 천체</strong>(내 삶의 영역)에 <span class="asp-tag asp-easy">조화</span>면 순조롭게, <span class="asp-tag asp-tense">긴장</span>이면 시험·마찰로 작용해요.</div>';
       if (fastHits.length) {
         html += '<div class="transit-sub-h">지금·이번 주 흐름 <span>빠른 행성 — 연애·일·금전·건강·학업 등 단기 운세</span></div>';
-        html += `<div class="aspect-read-list">${fastHits.map(itemHtml).join('')}</div>`;
+        html += transitListHtml(fastHits);
       }
       if (slowHits.length) {
         html += '<div class="transit-sub-h" style="margin-top:18px;">요즘의 큰 흐름 <span>느린 행성 — 몇 달~몇 년의 인생 테마</span></div>';
-        html += `<div class="aspect-read-list">${slowHits.map(itemHtml).join('')}</div>`;
+        html += transitListHtml(slowHits);
       }
     }
     $('transitResult').innerHTML = html;
@@ -4062,6 +4125,8 @@ body{font-variant-numeric:lining-nums;}
     ['expHouse', ['houseCard']],
     ['expAspect', ['aspectCard']],
     ['expAi', ['aiCard']],
+    ['expAiDeep', ['aiDeepCard']],
+    ['expTimeline', ['timelineCard']],
     ['expYear', ['yearForecast']],
     ['expAiYear', ['yearAiBlock']],
     ['expTransit', ['transitDataBlock']],
@@ -4100,6 +4165,13 @@ body{font-variant-numeric:lining-nums;}
         const el = $(cardId);
         if (el) el.classList.add('capture-off');
       });
+    });
+    // 카드 안의 항목을 모두 뺐으면 카드 제목까지 통째로 빼요
+    [['yearCard', ['expYear', 'expAiYear']], ['transitCard', ['expTransit', 'expAiTransit']]].forEach(([cardId, ids]) => {
+      if (ids.every((id) => !$(id) || !$(id).checked)) {
+        const card = $(cardId);
+        if (card) card.classList.add('capture-off');
+      }
     });
   }
 
@@ -7167,6 +7239,96 @@ body{font-variant-numeric:lining-nums;}
   syncTimelineSectionUi();
   applyLongFlowMaintenanceBadge();
   prefillFromCounselorHub();
+</script>
+
+
+<script>
+/* 2단계: 결과 바로가기 · 트랜짓 더 보기 · PDF/인쇄 옵션 패널 */
+(function () {
+  var $ = function (id) { return document.getElementById(id); };
+  // PDF·인쇄 옵션: 버튼을 누르면 먼저 포함 항목을 고르게 해요
+  var panel = $('exportOpts'), go = $('btnExportGo'), closeBtn = $('btnExportClose');
+  var actions = document.querySelector('.result-actions');
+  var mode = 'pdf', pass = false;
+  function openPanel(m) {
+    mode = m;
+    go.textContent = m === 'pdf' ? '이 항목으로 PDF 저장' : '이 항목으로 인쇄';
+    panel.classList.add('open');
+    panel.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+  }
+  function closePanel() { panel.classList.remove('open'); }
+  if (panel && go && actions) {
+    actions.addEventListener('click', function (e) {
+      var b = e.target.closest('#btnPdf,#btnPrint');
+      if (!b || pass) return;
+      e.stopPropagation(); e.preventDefault();
+      var m = b.id === 'btnPdf' ? 'pdf' : 'print';
+      if (panel.classList.contains('open') && mode === m) closePanel(); else openPanel(m);
+    }, true);
+    go.addEventListener('click', function () {
+      closePanel();
+      pass = true;
+      try { $(mode === 'pdf' ? 'btnPdf' : 'btnPrint').click(); } finally { pass = false; }
+    });
+    if (closeBtn) closeBtn.addEventListener('click', closePanel);
+  }
+
+  // 트랜짓 목록 더 보기 / 접기
+  document.addEventListener('click', function (e) {
+    var b = e.target.closest('.transit-more-btn');
+    if (!b) return;
+    var list = b.previousElementSibling;
+    if (!list) return;
+    var collapsed = list.classList.toggle('is-collapsed');
+    b.textContent = collapsed ? '나머지 ' + b.dataset.more + '개 더 보기' : '접기';
+    b.setAttribute('aria-expanded', collapsed ? 'false' : 'true');
+    if (collapsed) list.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+  });
+
+  // 바로가기 메뉴: 상단바 높이에 맞춰 붙고, 지금 보는 구역을 표시해요
+  var nav = $('astroJump');
+  if (!nav) return;
+  var links = Array.prototype.slice.call(nav.querySelectorAll('a'));
+  var report = $('counselorReportCard'), jumpReport = $('jumpReport');
+  function syncReport() { if (jumpReport && report) jumpReport.hidden = !!report.hidden; }
+  syncReport();
+  if (report && window.MutationObserver) new MutationObserver(syncReport).observe(report, { attributes: true, attributeFilter: ['hidden'] });
+  var lastTop = -1, ticking = false;
+  function update() {
+    ticking = false;
+    var bar = document.querySelector('.site-top');
+    var top = 0;
+    if (bar) {
+      var cs = getComputedStyle(bar);
+      if (cs.position === 'sticky' || cs.position === 'fixed') top = Math.max(0, Math.round(bar.getBoundingClientRect().bottom));
+    }
+    if (top !== lastTop) { lastTop = top; document.documentElement.style.setProperty('--astro-top', top + 'px'); }
+    var line = top + nav.offsetHeight + 40, cur = null;
+    links.forEach(function (a) {
+      if (a.hidden) return;
+      var t = $(a.dataset.target);
+      if (t && !t.hidden && t.getBoundingClientRect().top <= line) cur = a;
+    });
+    if (!cur) cur = links[0];
+    links.forEach(function (a) { a.classList.toggle('on', a === cur); });
+    if (cur && nav.scrollWidth > nav.clientWidth) {
+      var l = cur.offsetLeft - 8;
+      if (l < nav.scrollLeft || cur.offsetLeft + cur.offsetWidth > nav.scrollLeft + nav.clientWidth) nav.scrollLeft = l;
+    }
+  }
+  function req() { if (!ticking) { ticking = true; requestAnimationFrame(update); } }
+  window.addEventListener('scroll', req, { passive: true });
+  window.addEventListener('resize', req);
+  links.forEach(function (a) {
+    a.addEventListener('click', function (e) {
+      var t = $(a.dataset.target);
+      if (!t) return;
+      e.preventDefault();
+      t.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+  });
+  update();
+})();
 </script>
 
 </body>

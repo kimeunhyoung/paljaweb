@@ -6,7 +6,7 @@
   if (!document.querySelector('link[href*="/css/site-topbar.css"]')) {
     var tbCss = document.createElement('link');
     tbCss.rel = 'stylesheet';
-    tbCss.href = '/css/site-topbar.css?v=20';
+    tbCss.href = '/css/site-topbar.css?v=21';
     (document.head || document.documentElement).appendChild(tbCss);
   }
   // 첫 페인트 전에 자리 + 로그인 깜빡임 방지 CSS를 즉시 주입

@@ -16,7 +16,8 @@
     s.id = 'topbar-session-css';
     s.textContent =
       '[data-topbar-auth-user][hidden],[data-topbar-auth-guest][hidden]{display:none!important}' +
-      '[data-topbar-auth-guest]:not([hidden]),[data-topbar-auth-user]:not([hidden]){display:inline-flex;align-items:center;flex-wrap:wrap;gap:6px}' +
+      /* nowrap: wrap이면 PRO 옆에서 마이페이지/로그아웃만 2줄로 깨짐 */
+      '[data-topbar-auth-guest]:not([hidden]),[data-topbar-auth-user]:not([hidden]){display:inline-flex;align-items:center;flex-wrap:nowrap;gap:6px;flex-shrink:0}' +
       /* 세션 확인 전 게스트 문구가 잠깐 보이지 않게 */
       '[data-topbar-auth]:not([data-auth-ready="1"]) [data-topbar-auth-guest]{visibility:hidden!important}';
     document.head.appendChild(s);
