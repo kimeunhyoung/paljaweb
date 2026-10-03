@@ -54,6 +54,8 @@
   align-items: center;
   justify-content: space-between;
   gap: 16px;
+  flex-wrap: nowrap;
+  min-width: 0;
 }
 
 .site-top .topbar-links {
@@ -385,7 +387,10 @@
   font-weight: 700;
   line-height: 1.2;
   box-shadow: none;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
+.site-top .plan-badge-short { display: none; }
 
 /* Free만 연한 톤, 유료 플랜(Basic·Plus·Professional·Private)은 동일하게 진한 배지 */
 .site-top .plan-badge.free {
@@ -454,7 +459,7 @@
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
 }
 
 .site-top .topbar-auth-btn {
@@ -491,9 +496,34 @@
   .site-top .topbar {
     padding: 10px 16px;
   }
+  .site-top .topbar-inner {
+    gap: 8px;
+  }
+  .site-top .topbar-left {
+    gap: 8px;
+    min-width: 0;
+  }
+  /* 페이지 제목·구분선 숨겨 한 줄 유지 */
+  .site-top .topbar-sep,
+  .site-top .topbar-title {
+    display: none !important;
+  }
   .site-top .topbar-links {
     display: none;
   }
+  .site-top .topbar-right {
+    gap: 6px;
+    flex-wrap: nowrap;
+    min-width: 0;
+  }
+  /* Professional → Pro (좁은 화면 두 줄 방지) */
+  .site-top .plan-badge {
+    padding: 4px 8px;
+    font-size: 10px;
+    letter-spacing: 0.03em;
+  }
+  .site-top .plan-badge-long { display: none; }
+  .site-top .plan-badge-short { display: inline; }
   /* 모바일: 상단 인쇄/PDF는 줄바꿈으로 공간을 많이 먹어서 숨김 → 상담사 바/본문에서 사용 */
   .site-top .topbar-export-cluster,
   .site-top .topbar-export-cluster.is-visible,

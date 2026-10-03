@@ -6,7 +6,7 @@
   if (!document.querySelector('link[href*="/css/site-topbar.css"]')) {
     var tbCss = document.createElement('link');
     tbCss.rel = 'stylesheet';
-    tbCss.href = '/css/site-topbar.css?v=19';
+    tbCss.href = '/css/site-topbar.css?v=20';
     (document.head || document.documentElement).appendChild(tbCss);
   }
   // 첫 페인트 전에 자리 + 로그인 깜빡임 방지 CSS를 즉시 주입
@@ -411,7 +411,21 @@
     var userHidden = authHint.loggedIn ? '' : ' hidden';
     var authReadyAttr = authHint.loggedIn ? ' data-auth-ready="1"' : '';
     var badgeClass = 'plan-badge ' + esc(authHint.plan || 'free');
-    var badgeText = esc(authHint.planLabel || 'Free');
+    var badgeText = String(authHint.planLabel || 'Free');
+    var badgeShort =
+      /professional/i.test(badgeText) ? 'Pro' : badgeText;
+    var badgeHtml =
+      '<span class="' +
+      badgeClass +
+      '" id="plan-badge" title="' +
+      esc(badgeText) +
+      '">' +
+      '<span class="plan-badge-long">' +
+      esc(badgeText) +
+      '</span>' +
+      '<span class="plan-badge-short" aria-hidden="true">' +
+      esc(badgeShort) +
+      '</span></span>';
 
     mount.innerHTML =
       '<header class="topbar">' +
@@ -428,7 +442,8 @@
       '<a href="/pricing.html">요금제</a>' +
       '</nav>' +
       '<div class="topbar-right" data-topbar-auth' + authReadyAttr + ' aria-label="계정">' +
-      '<span class="' + badgeClass + '" id="plan-badge">' + badgeText + '</span>' +
+      badgeHtml +
+
       '<span class="topbar-auth-row" data-topbar-auth-guest' + guestHidden + '>' +
       '<a class="topbar-auth-link" href="/login.html?next=' + encodeURIComponent(loginNext) + '">로그인</a>' +
       '<span class="topbar-auth-dot" aria-hidden="true">·</span>' +

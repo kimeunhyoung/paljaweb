@@ -391,6 +391,8 @@ body.nav-menu-open {
   color: var(--text2);
   border: 1px solid var(--border2);
   transition: all 0.2s;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 .btn-nav-ghost:hover { background: var(--cream2); color: var(--brown); }
 .btn-nav-fill {
@@ -401,6 +403,8 @@ body.nav-menu-open {
   color: var(--cream);
   font-weight: 500;
   transition: all 0.2s;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 .btn-nav-fill:hover { background: var(--brown2); }
 
@@ -1487,28 +1491,40 @@ section { padding: 100px 0; }
 @media (max-width: 900px) {
   /* 프로그램 site-top 모바일과 동일: 바깥 16px + 안쪽 1140 */
   .navbar { padding: 10px 16px; }
-  .nav-inner { padding: 0; }
+  .nav-inner {
+    padding: 0;
+    flex-wrap: nowrap;
+    gap: 8px;
+    min-width: 0;
+  }
   .home-program-nav { padding: 0 16px; }
     .home-program-nav-inner { gap: 0 12px; font-size: 11px; }
   .nav-links { display: none; }
   .nav-actions {
     display: flex;
+    flex-wrap: nowrap;
     gap: 6px;
-    margin-right: 8px;
+    margin-right: 4px;
+    min-width: 0;
   }
+  /* 좁은 화면: 이름·상담사허브는 햄버거/프로그램줄에 있음 → 상단 버튼 줄바꿈 방지 */
+  .nav-actions .nav-user-name,
+  .nav-actions a[href*="counselor.html"] { display: none !important; }
   .nav-actions .btn-nav-fill { display: none; }
   .nav-actions .btn-nav-ghost {
-    padding: 7px 12px;
-    font-size: 13px;
+    padding: 7px 10px;
+    font-size: 12px;
+    white-space: nowrap;
   }
-  .nav-menu-btn { display: inline-flex; margin-left: 0; }
+  .nav-menu-btn { display: inline-flex; margin-left: 0; flex-shrink: 0; }
   .btn-nav-ghost, .btn-nav-fill {
-    padding: 7px 12px;
-    font-size: 13px;
+    padding: 7px 10px;
+    font-size: 12px;
     border-radius: 10px;
+    white-space: nowrap;
   }
   .logo-mark { width: 30px; height: 30px; font-size: 17px; }
-  .logo-text { font-size: 16px; }
+  .logo-text { font-size: 15px; }
   .hero {
     grid-template-columns: 1fr;
     padding-top: 108px;

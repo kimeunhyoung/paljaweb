@@ -96,6 +96,19 @@
     } catch (e) {}
   }
 
+  function setBadgeLabel(badge, plan, label) {
+    var text = label || 'Free';
+    var short = /professional/i.test(text) ? 'Pro' : text;
+    badge.className = 'plan-badge ' + (plan || 'free');
+    badge.setAttribute('title', text);
+    badge.innerHTML =
+      '<span class="plan-badge-long"></span><span class="plan-badge-short" aria-hidden="true"></span>';
+    var longEl = badge.querySelector('.plan-badge-long');
+    var shortEl = badge.querySelector('.plan-badge-short');
+    if (longEl) longEl.textContent = text;
+    if (shortEl) shortEl.textContent = short;
+  }
+
   function applyPlanToBadge(badge, profile) {
     var plan = window.PaljaPlan
       ? PaljaPlan.effectivePlan(profile)
@@ -105,8 +118,7 @@
       window.PaljaPlan && PaljaPlan.planKoLabel
         ? PaljaPlan.planKoLabel(plan)
         : plan.charAt(0).toUpperCase() + plan.slice(1);
-    badge.textContent = label;
-    badge.className = 'plan-badge ' + plan;
+    setBadgeLabel(badge, plan, label);
     cachePlan(plan, label);
   }
 
@@ -116,8 +128,7 @@
     sb.auth.getSession().then(function (res) {
       var session = res.data && res.data.session;
       if (!session) {
-        badge.textContent = 'Free';
-        badge.className = 'plan-badge free';
+        setBadgeLabel(badge, 'free', 'Free');
         clearPlanCache();
         markAuthReady();
         if (window.PaljaDevice && window.PaljaDevice.ensurePaidAccess) {
@@ -140,8 +151,7 @@
         if (pack && pack.session) {
           /* keep going */
         } else {
-          badge.textContent = 'Free';
-          badge.className = 'plan-badge free';
+          setBadgeLabel(badge, 'free', 'Free');
           clearPlanCache();
           markAuthReady();
           return;
@@ -150,8 +160,7 @@
       var profile = pack && pack.pres && pack.pres.data ? pack.pres.data : null;
       if (profile) applyPlanToBadge(badge, profile);
       else {
-        badge.textContent = 'Free';
-        badge.className = 'plan-badge free';
+        setBadgeLabel(badge, 'free', 'Free');
         /* 로그인 세션은 유지 — 플랜 캐시만 비움 (auth 캐시 지우면 다음 페이지에서 로그인 깜빡임) */
         clearPlanCache(false);
         cacheAuth(true);
