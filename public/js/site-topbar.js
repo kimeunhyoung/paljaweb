@@ -6,8 +6,19 @@
   if (!document.querySelector('link[href*="/css/site-topbar.css"]')) {
     var tbCss = document.createElement('link');
     tbCss.rel = 'stylesheet';
-    tbCss.href = '/css/site-topbar.css?v=13';
+    tbCss.href = '/css/site-topbar.css?v=14';
     (document.head || document.documentElement).appendChild(tbCss);
+  }
+  // 첫 페인트 전에 자리만이라도 잡히도록 critical CSS를 즉시 주입
+  if (!document.getElementById('palja-topbar-critical')) {
+    var crit = document.createElement('style');
+    crit.id = 'palja-topbar-critical';
+    crit.textContent =
+      '.site-top{min-height:92px;box-sizing:border-box;background:rgba(245,240,232,.98)}';
+    (document.head || document.documentElement).insertBefore(
+      crit,
+      (document.head || document.documentElement).firstChild
+    );
   }
 
   if (!document.querySelector('script[data-palja-analytics]')) {
@@ -398,9 +409,19 @@
       .forEach(render);
   }
 
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', init);
-  } else {
+  // mount가 이미 있으면 DOMContentLoaded를 기다리지 않고 바로 그려
+  // (본문이 먼저 전체가 보인 뒤 상단이 붙는 깜빡임을 줄임)
+  function boot() {
     init();
+  }
+  var mounts = document.querySelectorAll(
+    '.site-top[data-nav-current], .site-top[data-topbar-title], .site-top[data-topbar-variant="auth"]'
+  );
+  if (mounts.length) {
+    boot();
+  } else if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', boot);
+  } else {
+    boot();
   }
 })();

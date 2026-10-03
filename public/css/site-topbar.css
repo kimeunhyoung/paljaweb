@@ -30,6 +30,9 @@
   overflow: visible;
   font-family: var(--tb-font-nav) !important;
   -webkit-font-smoothing: antialiased;
+  /* JS로 메뉴가 채워지기 전에 본문이 위로 치솟지 않도록 자리 확보 */
+  min-height: 92px;
+  box-sizing: border-box;
 }
 
 .site-top .topbar {

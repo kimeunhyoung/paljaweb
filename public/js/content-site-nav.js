@@ -49,12 +49,23 @@
     (document.head || document.body).appendChild(s);
   }
 
+  if (!document.getElementById('palja-topbar-critical')) {
+    var crit = document.createElement('style');
+    crit.id = 'palja-topbar-critical';
+    crit.textContent =
+      '.site-top{min-height:92px;box-sizing:border-box;background:rgba(245,240,232,.98)}';
+    (document.head || document.documentElement).insertBefore(
+      crit,
+      (document.head || document.documentElement).firstChild
+    );
+  }
   ensureLink(
     'https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css',
     { crossorigin: 'anonymous' }
   );
-  ensureLink('/css/site-topbar.css?v=13');
-  ensureLink('/css/site-footer.css?v=4');  ensureLink('/css/site-header.css?v=7');
+  ensureLink('/css/site-topbar.css?v=14');
+  ensureLink('/css/site-footer.css?v=4');
+  ensureLink('/css/site-header.css?v=7');
 
   function isGuide() {
     return path.indexOf('/guide') === 0 || /\/guide(\/|\.html|$)/.test(path);
@@ -102,7 +113,7 @@
   }
 
   ensureScript('/js/plan-access.js?v=13');
-  ensureScript('/js/site-footer.js?v=4');  ensureScript('/js/site-topbar.js?v=23', function () {
+  ensureScript('/js/site-footer.js?v=4');  ensureScript('/js/site-topbar.js?v=24', function () {
     ensureScript('/js/topbar-session.js?v=9');
   });
 })();

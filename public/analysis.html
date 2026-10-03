@@ -31,12 +31,12 @@
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,500&family=Noto+Serif+KR:wght@400;500;600;700&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <!-- 상단 메뉴 자리 미리 확보 (JS 렌더 전 본문만 보이는 깜빡임 방지) -->
+  <link rel="stylesheet" href="css/site-topbar.css?v=14" />
+  <style id="palja-topbar-critical">.site-top{min-height:92px;box-sizing:border-box;background:rgba(245,240,232,.98)}</style>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="js/plan-access.js?v=13" defer></script>
   <script src="js/attribution.js"></script>
   <script src="js/analytics.js?v=1" defer></script>
-  <script src="js/site-topbar.js?v=23" defer></script>
-  <script src="js/topbar-session.js?v=7" defer></script>
   <!-- PDF: jsPDF 전역 → html2pdf 번들 → html2canvas(전역 API는 마지막 로드가 우선) -->
   <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.2/dist/jspdf.umd.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/html2pdf.js@0.10.2/dist/html2pdf.bundle.min.js"></script>
@@ -4002,15 +4002,17 @@
     #resultArea .section-label, #resultArea .lc-group-title, #resultArea h3, #resultArea .accordion-header h4 { font-family: var(--font-serif); }
   </style>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css" crossorigin />
-  <link rel="stylesheet" href="css/site-topbar.css?v=13" />
   <link rel="stylesheet" href="css/site-header.css?v=7" />
   <link rel="stylesheet" href="css/lifecode-product.css?v=1" />
   <link rel="stylesheet" href="css/life-tables.css?v=2" />
 </head>
 <body class="logo-style-classic">
 
-<!-- TOP BAR -->
+<!-- TOP BAR: 바로 아래에서 동기 로드해 본문보다 먼저 채움 -->
 <div class="site-top" data-topbar-title="라이프코드" data-nav-current="lifecode" data-login-next="analysis.html"></div>
+<script src="js/plan-access.js?v=13"></script>
+<script src="js/site-topbar.js?v=24"></script>
+<script src="js/topbar-session.js?v=9"></script>
 
 <div id="counselorBar" class="counselor-bar" style="display:none;" aria-label="상담사 안내">
   <div class="counselor-bar-inner">

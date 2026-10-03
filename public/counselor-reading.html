@@ -18,7 +18,7 @@
   <script src="js/counselor-tarot-deck.js?v=4"></script>
   <script src="js/counselor-copy-summary.js?v=6"></script>
   <script src="js/attribution.js"></script>
-  <script src="js/site-topbar.js?v=23" defer></script>
+  <script src="js/site-topbar.js?v=24" defer></script>
   <script src="js/topbar-session.js?v=7" defer></script>
   <style>
     :root {
@@ -665,9 +665,13 @@
     .ai-step-title, .section-title, .ai-mode-btn strong, .ai-depth-btn strong { font-family: var(--font-serif); }
     .ai-spread-suggest { margin-top: 2px; padding: 12px 14px; border-radius: 10px; background: rgba(139,111,71,.06); border: 1px dashed rgba(139,111,71,.3); }
     .ai-spread-suggest[hidden] { display: none; }
+    .ai-spread-suggest .ai-spread-row { margin: 12px 0 0; padding-top: 12px; border-top: 1px dashed rgba(139,111,71,.3); }
+    .ai-spread-suggest .ai-spread-row > div { flex: 1 1 260px; }
+    .ai-spread-suggest .ai-spread-row select { width: 100%; max-width: 420px; }
+    .ai-spread-suggest .ai-spread-row label { font-size: 12.5px; font-weight: 600; color: #5e4c39; }
   </style>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css" crossorigin />
-  <link rel="stylesheet" href="css/site-topbar.css?v=13" />
+  <link rel="stylesheet" href="css/site-topbar.css?v=14" />
   <link rel="stylesheet" href="css/site-header.css?v=7" />
 </head>
 <body>
@@ -755,7 +759,7 @@
           <label for="aiNote">추가 메모 (선택 · 고객에게 안 보임)</label>
           <textarea id="aiNote" maxlength="500" placeholder="지난 회차 포인트, 상담사가 알고 있는 맥락 등"></textarea>
         </div>
-        <div class="ai-step full"><span class="ai-step-num">3</span><span class="ai-step-title">카드 수</span></div>
+        <div class="ai-step full"><span class="ai-step-num">3</span><span class="ai-step-title">카드 수 · 배열</span></div>
       <div class="ai-mode-row full" role="tablist" aria-label="장수·배열 모드">
         <button type="button" class="ai-mode-btn active" id="aiModeBasic" data-mode="basic" role="tab" aria-selected="true">
           <strong>한 장 리딩</strong>
@@ -767,8 +771,14 @@
         </button>
       </div>
         <div id="aiSpreadSuggestWrap" class="full ai-spread-suggest" hidden>
-          <label>질문에 맞는 배열 추천 <span class="lbl-sub">눌러서 고르면 아래 카드 칸이 바뀌어요</span></label>
+          <label>질문에 맞는 추천 <span class="lbl-sub">누르면 바로 그 배열로 바뀌어요</span></label>
           <div id="aiSpreadSuggest" class="ai-chip-row" role="group" aria-label="배열 추천"></div>
+          <div class="ai-spread-row" id="aiSpreadRow">
+            <div>
+              <label for="aiSpreadPreset">전체 배열에서 고르기</label>
+              <select id="aiSpreadPreset"></select>
+            </div>
+          </div>
         </div>
         <div class="ai-step full"><span class="ai-step-num">4</span><span class="ai-step-title">해석 방식</span></div>
       <div class="ai-depth-row full" role="tablist" aria-label="해석 깊이">
@@ -788,12 +798,6 @@
             <button type="button" class="ai-voice-btn" id="aiCardVoiceBtn" title="마이크로 카드 이름 말하기">🎤 음성으로 카드</button>
           </div>
           <p class="ai-card-hint">칸에 <strong>소드7 · 완드왕 · 35</strong>처럼 입력하거나, <strong>「소드 칠」「완드 왕」「역방향 탑」</strong>처럼 말해서 넣을 수 있어요.</p>
-          <div class="ai-spread-row" id="aiSpreadRow">
-            <div>
-              <label for="aiSpreadPreset">스프레드 (칸 이름)</label>
-              <select id="aiSpreadPreset"></select>
-            </div>
-          </div>
           <div id="aiCardSlots" class="ai-card-slots"></div>
           <div class="ai-extra-bar" id="aiExtraBar">
             <div class="ai-extra-label">배열 밖에서 한 장 더</div>
@@ -2593,7 +2597,8 @@
         updateCreditHint();
         renderSpreadSuggest();
         setAiMsg('「' + sp.label + '」배열로 맞춰 두었어요. 카드를 넣고 해석을 만들어 보세요.');
-        if (spreadRow) spreadRow.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        const slotsBox = document.getElementById('aiCardSlots');
+        if (slotsBox) slotsBox.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
       }
 
       function archiveCurrentTurnIfNeeded() {
