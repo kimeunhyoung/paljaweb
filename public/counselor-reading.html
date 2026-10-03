@@ -18,8 +18,8 @@
   <script src="js/counselor-tarot-deck.js?v=4"></script>
   <script src="js/counselor-copy-summary.js?v=6"></script>
   <script src="js/attribution.js"></script>
-  <script src="js/site-topbar.js?v=25" defer></script>
-  <script src="js/topbar-session.js?v=10" defer></script>
+  <script src="js/site-topbar.js?v=27" defer></script>
+  <script src="js/topbar-session.js?v=12" defer></script>
   <style>
     :root {
       --cream: #f5f0e8;
@@ -684,105 +684,265 @@
     .ai-spread-suggest .ai-spread-row select { width: 100%; max-width: 420px; }
     .ai-spread-suggest .ai-spread-row label { font-size: 12.5px; font-weight: 600; color: #5e4c39; }
 
-    /* ── 고급스러운 리딩 폼 (아이보리 · 골드 라인 · 딥브라운 선택) ── */
+    /* ── 고급스러운 리딩 폼 (아이보리 · 절제된 골드 · 딥브라운) ── */
     .ai-draft-panel {
-      --lx-gold: #a8844a; --lx-gold-line: rgba(168,132,74,.28); --lx-ink: #3b2a17;
-      --lx-ivory: #fffdf9; --lx-sel: #3f2d1a; --lx-sel-text: #f6ecd8;
+      --lx-gold: #a8844a;
+      --lx-gold-line: rgba(168,132,74,.22);
+      --lx-ink: #3b2a17;
+      --lx-ivory: #fffdf9;
+      --lx-sel: #3f2d1a;
+      --lx-sel-text: #f6ecd8;
       position: relative;
-      background: linear-gradient(180deg, #fffdf9 0%, #fbf7ef 100%);
-      border: 1px solid var(--lx-gold-line); border-radius: 18px;
-      padding: 30px 34px 26px;
-      box-shadow: inset 0 1px 0 rgba(255,255,255,.9), 0 22px 44px -26px rgba(60,40,15,.32);
+      background: linear-gradient(180deg, #fffdf9 0%, #f8f3ea 100%);
+      border: 1px solid var(--lx-gold-line);
+      border-radius: 16px;
+      padding: 28px 30px 24px;
+      box-shadow: 0 18px 36px -28px rgba(60,40,15,.35);
     }
-    .ai-draft-panel::before {
-      content: ''; position: absolute; left: 34px; right: 34px; top: 0; height: 2px;
-      background: linear-gradient(90deg, transparent, var(--lx-gold), transparent); opacity: .55;
+    @media (max-width: 640px) {
+      .ai-draft-panel { padding: 20px 16px 18px; border-radius: 14px; }
     }
-    @media (max-width: 640px) { .ai-draft-panel { padding: 22px 18px 20px; } .ai-draft-panel::before { left: 18px; right: 18px; } }
 
-    /* 단계 머리 */
+    /* 단계: 가는 구분선만 — 골드 이중선/링은 줄여 덜 번잡하게 */
     .ai-draft-panel .ai-step {
-      align-items: center; gap: 12px; margin-top: 22px; padding-top: 26px; border-top: 0;
-      background: linear-gradient(90deg, transparent, rgba(168,132,74,.42) 18%, rgba(168,132,74,.42) 82%, transparent) top / 100% 1px no-repeat;
+      align-items: center;
+      gap: 10px;
+      margin-top: 20px;
+      padding-top: 18px;
+      border-top: 1px solid rgba(168,132,74,.18);
+      background: none;
     }
-    .ai-draft-panel .ai-draft-form > .ai-step:first-child { background: none; margin-top: 0; padding-top: 0; }
+    .ai-draft-panel .ai-draft-form > .ai-step:first-child {
+      margin-top: 0;
+      padding-top: 0;
+      border-top: 0;
+    }
     .ai-draft-panel .ai-step-num {
-      width: 30px; height: 30px; background: var(--lx-ivory); color: #8a6a35;
-      border: 1px solid var(--lx-gold); outline: 1px solid rgba(168,132,74,.28); outline-offset: 2px;
-      font-family: var(--font-serif); font-size: 15px; font-weight: 600;
+      width: 28px;
+      height: 28px;
+      background: #fff;
+      color: #7a5a2e;
+      border: 1px solid rgba(168,132,74,.45);
+      outline: none;
+      font-family: var(--font-serif);
+      font-size: 14px;
+      font-weight: 600;
     }
-    .ai-draft-panel .ai-step-title { font-family: var(--font-serif); font-size: 19px; font-weight: 600; color: var(--lx-ink); letter-spacing: -.01em; }
-    .ai-draft-panel .ai-step-sub { font-size: 13px; color: var(--muted); }
+    .ai-draft-panel .ai-step-title {
+      font-family: var(--font-serif);
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--lx-ink);
+      letter-spacing: -.01em;
+    }
+    .ai-draft-panel .ai-step-sub { font-size: 12.5px; color: var(--muted); }
 
     /* 입력칸 */
-    .ai-draft-panel .ai-draft-form label { font-size: 13px; font-weight: 600; color: #5e4c39; letter-spacing: .01em; margin-bottom: 7px; }
+    .ai-draft-panel .ai-draft-form label {
+      font-size: 13px;
+      font-weight: 600;
+      color: #5e4c39;
+      margin-bottom: 6px;
+    }
     .ai-draft-panel .ai-draft-form input:not([type="checkbox"]):not([type="radio"]),
     .ai-draft-panel .ai-draft-form select,
     .ai-draft-panel .ai-draft-form textarea {
-      background: var(--lx-ivory); border: 1px solid rgba(168,132,74,.3); border-radius: 10px;
+      background: #fff;
+      border: 1px solid rgba(168,132,74,.28);
+      border-radius: 10px;
       transition: border-color .15s, box-shadow .15s;
     }
     .ai-draft-panel .ai-draft-form textarea { padding: 12px 14px; line-height: 1.6; }
-    .ai-draft-panel .ai-draft-form input:focus, .ai-draft-panel .ai-draft-form select:focus, .ai-draft-panel .ai-draft-form textarea:focus {
-      outline: none; border-color: var(--lx-gold); box-shadow: 0 0 0 3px rgba(168,132,74,.16); background: #fff;
+    .ai-draft-panel .ai-draft-form input:focus,
+    .ai-draft-panel .ai-draft-form select:focus,
+    .ai-draft-panel .ai-draft-form textarea:focus {
+      outline: none;
+      border-color: rgba(168,132,74,.7);
+      box-shadow: 0 0 0 3px rgba(168,132,74,.12);
+      background: #fff;
     }
 
     /* 선택 카드 (카드 수 · 해석 방식) */
-    .ai-draft-panel .ai-mode-row, .ai-draft-panel .ai-depth-row { gap: 12px; }
-    .ai-draft-panel .ai-mode-btn, .ai-draft-panel .ai-depth-btn {
-      background: #fff; border: 1px solid rgba(168,132,74,.28); border-radius: 14px;
-      padding: 16px 50px 16px 18px; box-shadow: 0 1px 2px rgba(60,40,15,.04);
-      transition: border-color .18s, box-shadow .18s, transform .18s, background .18s;
+    .ai-draft-panel .ai-mode-row,
+    .ai-draft-panel .ai-depth-row { gap: 10px; }
+    .ai-draft-panel .ai-mode-btn,
+    .ai-draft-panel .ai-depth-btn {
+      background: #fff;
+      border: 1px solid rgba(168,132,74,.26);
+      border-radius: 12px;
+      padding: 14px 44px 14px 16px;
+      box-shadow: none;
+      transition: border-color .15s, background .15s, box-shadow .15s;
     }
-    .ai-draft-panel .ai-mode-btn:hover, .ai-draft-panel .ai-depth-btn:hover {
-      border-color: rgba(168,132,74,.65); transform: translateY(-1px);
-      box-shadow: 0 10px 22px -14px rgba(60,40,15,.4);
+    .ai-draft-panel .ai-mode-btn:hover,
+    .ai-draft-panel .ai-depth-btn:hover {
+      border-color: rgba(168,132,74,.55);
+      background: var(--lx-ivory);
+      transform: none;
+      box-shadow: none;
     }
-    .ai-draft-panel .ai-mode-btn strong, .ai-draft-panel .ai-depth-btn strong {
-      font-family: var(--font-serif); font-size: 17px; font-weight: 600; color: var(--lx-ink); margin-bottom: 4px;
+    .ai-draft-panel .ai-mode-btn strong,
+    .ai-draft-panel .ai-depth-btn strong {
+      font-family: var(--font-serif);
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--lx-ink);
+      margin-bottom: 3px;
     }
-    .ai-draft-panel .ai-mode-btn.active, .ai-draft-panel .ai-depth-btn.active {
-      background: linear-gradient(135deg, #3f2d1a 0%, #574027 100%); border: 1px solid #3f2d1a;
-      padding: 16px 50px 16px 18px; box-shadow: 0 12px 26px -14px rgba(40,26,10,.6);
+    .ai-draft-panel .ai-mode-btn.active,
+    .ai-draft-panel .ai-depth-btn.active {
+      background: var(--lx-sel);
+      border: 1px solid var(--lx-sel);
+      padding: 14px 44px 14px 16px;
+      box-shadow: none;
     }
-    .ai-draft-panel .ai-mode-btn.active strong, .ai-draft-panel .ai-depth-btn.active strong { color: var(--lx-sel-text); }
-    .ai-draft-panel .ai-mode-btn.active span, .ai-draft-panel .ai-depth-btn.active span { color: rgba(246,236,216,.78); }
+    .ai-draft-panel .ai-mode-btn.active strong,
+    .ai-draft-panel .ai-depth-btn.active strong { color: var(--lx-sel-text); }
+    .ai-draft-panel .ai-mode-btn.active span,
+    .ai-draft-panel .ai-depth-btn.active span { color: rgba(246,236,216,.78); }
     .ai-draft-panel .ai-depth-btn.active span b { color: #e8cf9c; }
-    .ai-draft-panel .ai-mode-btn.active::after, .ai-draft-panel .ai-depth-btn.active::after {
-      right: 16px; width: 22px; height: 22px; line-height: 22px; background: #c9a663; color: #3b2a17; font-weight: 700;
+    .ai-draft-panel .ai-mode-btn.active::after,
+    .ai-draft-panel .ai-depth-btn.active::after {
+      right: 14px;
+      width: 20px;
+      height: 20px;
+      line-height: 20px;
+      background: #c9a663;
+      color: #3b2a17;
+      font-weight: 700;
     }
 
-    /* 배열 고르기 상자 */
+    /* 배열 추천: ③단계 안에 묶인 느낌 */
     .ai-draft-panel .ai-spread-suggest {
-      background: rgba(168,132,74,.06); border: 1px solid rgba(168,132,74,.22); border-radius: 14px; padding: 18px 20px;
+      background: rgba(168,132,74,.05);
+      border: 1px solid rgba(168,132,74,.2);
+      border-radius: 12px;
+      padding: 14px 16px;
+      margin-top: 4px;
     }
-    .ai-draft-panel .ai-spread-suggest .ai-spread-row { border-top: 1px solid rgba(168,132,74,.2); padding-top: 14px; margin-top: 14px; }
-    .ai-draft-panel .ai-chip-row { gap: 10px; margin-top: 8px; }
+    .ai-draft-panel .ai-spread-suggest > label {
+      display: block;
+      margin-bottom: 2px;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--lx-ink);
+    }
+    .ai-draft-panel .ai-spread-suggest .lbl-sub {
+      font-weight: 500;
+      color: var(--muted);
+      margin-left: 4px;
+    }
+    .ai-draft-panel .ai-spread-suggest .ai-spread-row {
+      border-top: 1px solid rgba(168,132,74,.16);
+      padding-top: 12px;
+      margin-top: 12px;
+    }
+    .ai-draft-panel .ai-chip-row { gap: 8px; margin-top: 8px; }
     .ai-draft-panel .ai-suggest-chip {
-      background: #fff; border: 1px solid rgba(168,132,74,.35); border-radius: 12px; padding: 10px 16px;
-      color: var(--lx-ink); font-weight: 600; transition: border-color .15s, background .15s, box-shadow .15s;
+      background: #fff;
+      border: 1px solid rgba(168,132,74,.3);
+      border-radius: 999px;
+      padding: 8px 14px;
+      color: var(--lx-ink);
+      font-weight: 600;
+      font-size: 13px;
+      transition: border-color .15s, background .15s, color .15s;
     }
-    .ai-draft-panel .ai-suggest-chip:hover { background: #fff; border-color: var(--lx-gold); box-shadow: 0 6px 14px -10px rgba(60,40,15,.4); }
-    .ai-draft-panel .ai-suggest-chip.is-pick { background: var(--lx-sel); border-color: var(--lx-sel); color: var(--lx-sel-text); box-shadow: none; }
+    .ai-draft-panel .ai-suggest-chip:hover {
+      background: var(--lx-ivory);
+      border-color: rgba(168,132,74,.55);
+      box-shadow: none;
+    }
+    .ai-draft-panel .ai-suggest-chip.is-pick {
+      background: var(--lx-sel);
+      border-color: var(--lx-sel);
+      color: var(--lx-sel-text);
+    }
     .ai-draft-panel .ai-suggest-chip.is-pick .why { color: rgba(246,236,216,.72); }
 
     /* 카드 칸 */
-    .ai-draft-panel .ai-card-slot { background: #fbf6ec; border: 1px solid rgba(168,132,74,.28); border-radius: 14px; padding: 14px; }
-    .ai-draft-panel .ai-card-slot.is-target { border-color: var(--lx-gold); box-shadow: 0 0 0 3px rgba(168,132,74,.16); }
-    .ai-draft-panel .ai-card-slot.is-extra { background: #fff; border-style: dashed; }
+    .ai-draft-panel .ai-card-slot {
+      background: #fff;
+      border: 1px solid rgba(168,132,74,.24);
+      border-radius: 12px;
+      padding: 12px;
+    }
+    .ai-draft-panel .ai-card-slot.is-target {
+      border-color: rgba(168,132,74,.65);
+      box-shadow: 0 0 0 2px rgba(168,132,74,.12);
+    }
+    .ai-draft-panel .ai-card-slot.is-extra {
+      background: var(--lx-ivory);
+      border-style: dashed;
+    }
 
     /* 보조 버튼 · 실행 버튼 */
-    .ai-draft-panel .btn-sm.outline { border: 1px solid rgba(168,132,74,.4); border-radius: 999px; background: #fff; }
-    .ai-draft-panel .btn-sm.outline:hover { border-color: var(--lx-gold); background: var(--lx-ivory); }
-    .ai-draft-panel #aiDraftBtn {
-      background: linear-gradient(135deg, #3f2d1a 0%, #5a4128 100%); color: var(--lx-sel-text);
-      border-radius: 999px; padding: 12px 26px; font-weight: 600; letter-spacing: .02em;
-      box-shadow: 0 12px 24px -14px rgba(40,26,10,.7);
+    .ai-draft-panel .btn-sm.outline {
+      border: 1px solid rgba(168,132,74,.35);
+      border-radius: 999px;
+      background: #fff;
     }
-    .ai-draft-panel #aiDraftBtn:hover { filter: brightness(1.08); }
+    .ai-draft-panel .btn-sm.outline:hover {
+      border-color: rgba(168,132,74,.6);
+      background: var(--lx-ivory);
+    }
+    .ai-draft-panel #aiDraftBtn {
+      background: var(--lx-sel);
+      color: var(--lx-sel-text);
+      border: none;
+      border-radius: 999px;
+      padding: 12px 24px;
+      font-weight: 700;
+      letter-spacing: .02em;
+      box-shadow: none;
+    }
+    .ai-draft-panel #aiDraftBtn:hover {
+      filter: brightness(1.06);
+    }
+    .ai-draft-panel .ai-draft-actions {
+      margin-top: 8px;
+      padding-top: 16px;
+      border-top: 1px solid rgba(168,132,74,.14);
+      align-items: center;
+    }
+
+    /* 패널 안 보조 블록·결과도 같은 아이보리 톤으로 */
+    .ai-draft-panel .ai-client-sessions,
+    .ai-draft-panel .ai-num-brief,
+    .ai-draft-panel .ai-pick-accordion {
+      background: #fff;
+      border: 1px solid rgba(168,132,74,.2);
+      border-radius: 12px;
+    }
+    .ai-draft-panel .ai-client-sessions-head strong,
+    .ai-draft-panel .ai-num-brief-head strong {
+      font-family: var(--font-serif);
+      color: var(--lx-ink);
+    }
+    .ai-draft-panel .ai-credit-pill {
+      background: rgba(168,132,74,.08);
+      border: 1px solid rgba(168,132,74,.28);
+      color: var(--lx-ink);
+    }
+    .ai-draft-panel .ai-draft-out {
+      background: #fff;
+      border: 1px solid rgba(168,132,74,.22);
+      border-radius: 12px;
+      box-shadow: none;
+    }
+    .ai-draft-panel .ai-orient {
+      border-color: rgba(168,132,74,.3);
+    }
+    .ai-draft-panel .ai-orient button.active {
+      background: var(--lx-sel);
+      color: var(--lx-sel-text);
+    }
+    .ai-draft-panel .ai-client-tools .btn-sm.outline {
+      border-radius: 999px;
+    }
   </style>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css" crossorigin />
-  <link rel="stylesheet" href="css/site-topbar.css?v=14" />
+  <link rel="stylesheet" href="css/site-topbar.css?v=16" />
   <link rel="stylesheet" href="css/site-header.css?v=7" />
 </head>
 <body>

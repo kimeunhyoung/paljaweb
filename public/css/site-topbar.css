@@ -359,37 +359,33 @@
   text-transform: uppercase;
   padding: 5px 11px;
   border-radius: 999px;
-  border: none;
-  color: var(--tb-muted);
+  border: none !important;
+  color: #f5f0e8 !important;
+  background: var(--tb-deep-brown) !important;
   font-weight: 700;
   line-height: 1.2;
   box-shadow: none;
 }
 
+/* Free만 연한 톤, 유료 플랜(Basic·Plus·Professional·Private)은 동일하게 진한 배지 */
 .site-top .plan-badge.free {
-  color: var(--tb-warm-brown);
-  background: rgba(232, 213, 176, 0.45);
+  color: var(--tb-warm-brown) !important;
+  background: rgba(232, 213, 176, 0.45) !important;
 }
 
-.site-top .plan-badge.basic {
-  color: var(--tb-warm-brown);
-  background: var(--tb-accent-lt);
-}
-
+.site-top .plan-badge.basic,
 .site-top .plan-badge.pro,
-.site-top .plan-badge.plus {
-  color: var(--tb-teal);
-  background: var(--tb-teal-lt);
-}
-
-.site-top .plan-badge.professional {
-  color: #f5f0e8;
-  background: var(--tb-deep-brown);
-}
-
+.site-top .plan-badge.plus,
+.site-top .plan-badge.professional,
 .site-top .plan-badge.private {
-  color: #f5f0e8;
-  background: linear-gradient(135deg, #5a402d 0%, #3d2b1f 100%);
+  color: #f5f0e8 !important;
+  background: var(--tb-deep-brown) !important;
+}
+
+/* 세션 확인 전 ‘로그인’ 문구가 한 프레임이라도 보이지 않게 */
+.site-top [data-topbar-auth]:not([data-auth-ready="1"]) [data-topbar-auth-guest] {
+  visibility: hidden !important;
+  pointer-events: none;
 }
 
 .site-top .back-btn {

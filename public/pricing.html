@@ -21,8 +21,8 @@
   <script src="js/plan-access.js?v=13"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="js/attribution.js"></script>
-  <script src="js/site-topbar.js?v=25" defer></script>
-  <script src="js/topbar-session.js?v=10" defer></script>
+  <script src="js/site-topbar.js?v=27" defer></script>
+  <script src="js/topbar-session.js?v=12" defer></script>
 
   <style>
     :root {
@@ -186,20 +186,14 @@
       color: var(--warm-brown);
       background: rgba(232, 213, 176, 0.35);
     }
-    .topbar .plan-badge.basic {
-      border-color: var(--accent);
-      color: var(--warm-brown);
-      background: var(--accent-lt);
-    }
-    .topbar .plan-badge.pro {
-      border-color: var(--teal);
-      color: var(--teal);
-      background: var(--teal-lt);
-    }
-    .topbar .plan-badge.professional {
-      border-color: var(--deep-brown);
-      color: var(--deep-brown);
-      background: var(--parchment);
+    .topbar .plan-badge.basic,
+    .topbar .plan-badge.pro,
+    .topbar .plan-badge.plus,
+    .topbar .plan-badge.professional,
+    .topbar .plan-badge.private {
+      border: none;
+      color: #f5f0e8;
+      background: var(--deep-brown);
     }
     .topbar-link {
       font-family: var(--font-mono);
@@ -902,7 +896,7 @@
     }
   </style>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css" crossorigin />
-  <link rel="stylesheet" href="css/site-topbar.css?v=14" />
+  <link rel="stylesheet" href="css/site-topbar.css?v=16" />
   <link rel="stylesheet" href="css/site-header.css?v=7" />
 </head>
 <body>

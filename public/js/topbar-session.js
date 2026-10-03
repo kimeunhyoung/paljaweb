@@ -8,6 +8,7 @@
   var SUPABASE_ANON_KEY = 'sb_publishable_6S3W_oWrzG-Nv8wLK98gmg_q_KcB2I1';
   var PLAN_CACHE_KEY = 'palja_plan_cache';
   var PLAN_LABEL_KEY = 'palja_plan_label_cache';
+  var AUTH_CACHE_KEY = 'palja_auth_cache';
 
   function injectCss() {
     if (document.getElementById('topbar-session-css')) return;
@@ -15,8 +16,23 @@
     s.id = 'topbar-session-css';
     s.textContent =
       '[data-topbar-auth-user][hidden],[data-topbar-auth-guest][hidden]{display:none!important}' +
-      '[data-topbar-auth-guest]:not([hidden]),[data-topbar-auth-user]:not([hidden]){display:inline-flex;align-items:center;flex-wrap:wrap;gap:6px}';
+      '[data-topbar-auth-guest]:not([hidden]),[data-topbar-auth-user]:not([hidden]){display:inline-flex;align-items:center;flex-wrap:wrap;gap:6px}' +
+      /* 세션 확인 전 게스트 문구가 잠깐 보이지 않게 */
+      '[data-topbar-auth]:not([data-auth-ready="1"]) [data-topbar-auth-guest]{visibility:hidden!important}';
     document.head.appendChild(s);
+  }
+
+  function markAuthReady() {
+    document.querySelectorAll('[data-topbar-auth]').forEach(function (slot) {
+      slot.setAttribute('data-auth-ready', '1');
+    });
+  }
+
+  function cacheAuth(loggedIn) {
+    try {
+      if (loggedIn) localStorage.setItem(AUTH_CACHE_KEY, '1');
+      else localStorage.removeItem(AUTH_CACHE_KEY);
+    } catch (e) {}
   }
 
   function ensureSupabaseLib(cb) {
@@ -72,10 +88,11 @@
     } catch (e) {}
   }
 
-  function clearPlanCache() {
+  function clearPlanCache(alsoAuth) {
     try {
       localStorage.removeItem(PLAN_CACHE_KEY);
       localStorage.removeItem(PLAN_LABEL_KEY);
+      if (alsoAuth !== false) localStorage.removeItem(AUTH_CACHE_KEY);
     } catch (e) {}
   }
 
@@ -102,11 +119,13 @@
         badge.textContent = 'Free';
         badge.className = 'plan-badge free';
         clearPlanCache();
+        markAuthReady();
         if (window.PaljaDevice && window.PaljaDevice.ensurePaidAccess) {
           window.PaljaDevice.ensurePaidAccess(null, null);
         }
         return Promise.resolve(null);
       }
+      cacheAuth(true);
       return sb
         .from('profiles')
         .select('plan, plan_active_until, calendar_pass_until')
@@ -124,6 +143,7 @@
           badge.textContent = 'Free';
           badge.className = 'plan-badge free';
           clearPlanCache();
+          markAuthReady();
           return;
         }
       }
@@ -132,8 +152,11 @@
       else {
         badge.textContent = 'Free';
         badge.className = 'plan-badge free';
-        clearPlanCache();
+        /* 로그인 세션은 유지 — 플랜 캐시만 비움 (auth 캐시 지우면 다음 페이지에서 로그인 깜빡임) */
+        clearPlanCache(false);
+        cacheAuth(true);
       }
+      markAuthReady();
       if (window.PaljaDevice && pack && pack.session) {
         return window.PaljaDevice.ensurePaidAccess(pack.session.access_token, profile || { plan: 'free' });
       }
@@ -148,6 +171,7 @@
         var user = slot.querySelector('[data-topbar-auth-user]');
         if (!guest || !user) return;
         if (session) {
+          cacheAuth(true);
           setRow(guest, false);
           setRow(user, true);
         } else {
@@ -155,6 +179,7 @@
           setRow(user, false);
           clearPlanCache();
         }
+        slot.setAttribute('data-auth-ready', '1');
       });
     });
   }

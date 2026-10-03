@@ -6,15 +6,18 @@
   if (!document.querySelector('link[href*="/css/site-topbar.css"]')) {
     var tbCss = document.createElement('link');
     tbCss.rel = 'stylesheet';
-    tbCss.href = '/css/site-topbar.css?v=14';
+    tbCss.href = '/css/site-topbar.css?v=16';
     (document.head || document.documentElement).appendChild(tbCss);
   }
-  // 첫 페인트 전에 자리만이라도 잡히도록 critical CSS를 즉시 주입
+  // 첫 페인트 전에 자리 + 로그인 깜빡임 방지 CSS를 즉시 주입
+  // (topbar-session.js보다 먼저 그려지므로, 게스트 문구는 auth-ready 전까지 숨김)
   if (!document.getElementById('palja-topbar-critical')) {
     var crit = document.createElement('style');
     crit.id = 'palja-topbar-critical';
     crit.textContent =
-      '.site-top{min-height:92px;box-sizing:border-box;background:rgba(245,240,232,.98)}';
+      '.site-top{min-height:92px;box-sizing:border-box;background:rgba(245,240,232,.98)}' +
+      '[data-topbar-auth]:not([data-auth-ready="1"]) [data-topbar-auth-guest]{visibility:hidden!important;pointer-events:none}' +
+      '[data-topbar-auth-user][hidden],[data-topbar-auth-guest][hidden]{display:none!important}';
     (document.head || document.documentElement).insertBefore(
       crit,
       (document.head || document.documentElement).firstChild
@@ -313,30 +316,56 @@
       '</header>';
   }
 
-  /** localStorage 세션·플랜 캐시로 첫 페인트 깜빡임(로그인→Professional) 줄임 */
-  function peekAuthHint() {
-    var loggedIn = false;
+  /** localStorage/sessionStorage 세션·플랜 캐시로 첫 페인트 깜빡임(로그인→Professional) 줄임 */
+  function tokenFromRaw(raw) {
+    if (!raw) return false;
+    if (raw.indexOf('access_token') !== -1) return true;
+    if (raw.charAt(0) !== '{') return false;
     try {
-      for (var i = 0; i < localStorage.length; i++) {
-        var k = localStorage.key(i) || '';
-        if (k.indexOf('auth-token') === -1) continue;
-        var raw = localStorage.getItem(k);
-        if (!raw || raw.charAt(0) !== '{') continue;
-        var j = JSON.parse(raw);
-        var tok =
-          (j && j.access_token) ||
-          (j && j.currentSession && j.currentSession.access_token) ||
-          (j && j.session && j.session.access_token);
-        if (tok) {
-          loggedIn = true;
-          break;
+      var j = JSON.parse(raw);
+      return !!(
+        (j && j.access_token) ||
+        (j && j.currentSession && j.currentSession.access_token) ||
+        (j && j.session && j.session.access_token) ||
+        (j && j.user && j.access_token)
+      );
+    } catch (e) {
+      return false;
+    }
+  }
+
+  function scanStorageForToken(store) {
+    if (!store) return false;
+    try {
+      for (var i = 0; i < store.length; i++) {
+        var k = store.key(i) || '';
+        if (
+          k.indexOf('auth-token') === -1 &&
+          k.indexOf('-auth-token') === -1 &&
+          k.indexOf('sb-') !== 0
+        ) {
+          continue;
         }
+        if (tokenFromRaw(store.getItem(k))) return true;
       }
     } catch (e) {}
+    return false;
+  }
+
+  function hasStoredSessionToken() {
+    return scanStorageForToken(localStorage) || scanStorageForToken(sessionStorage);
+  }
+
+  function peekAuthHint() {
+    var cachedAuth = false;
+    try {
+      cachedAuth = localStorage.getItem('palja_auth_cache') === '1';
+    } catch (e0) {}
+    var loggedIn = cachedAuth || hasStoredSessionToken();
     var plan = 'free';
     var planLabel = 'Free';
     try {
-      plan = localStorage.getItem('palja_plan_cache') || 'free';
+      plan = localStorage.getItem('palja_plan_cache') || (loggedIn ? 'basic' : 'free');
       planLabel = localStorage.getItem('palja_plan_label_cache') || '';
       if (!planLabel) {
         planLabel =
@@ -376,6 +405,7 @@
     var authHint = peekAuthHint();
     var guestHidden = authHint.loggedIn ? ' hidden' : '';
     var userHidden = authHint.loggedIn ? '' : ' hidden';
+    var authReadyAttr = authHint.loggedIn ? ' data-auth-ready="1"' : '';
     var badgeClass = 'plan-badge ' + esc(authHint.plan || 'free');
     var badgeText = esc(authHint.planLabel || 'Free');
 
@@ -392,7 +422,7 @@
       '<a href="/nakshatra/index.html">학습자료실</a>' +
       '<a href="/pricing.html">요금제</a>' +
       '</nav>' +
-      '<div class="topbar-right" data-topbar-auth aria-label="계정">' +
+      '<div class="topbar-right" data-topbar-auth' + authReadyAttr + ' aria-label="계정">' +
       '<span class="' + badgeClass + '" id="plan-badge">' + badgeText + '</span>' +
       '<span class="topbar-auth-row" data-topbar-auth-guest' + guestHidden + '>' +
       '<a class="topbar-auth-link" href="/login.html?next=' + encodeURIComponent(loginNext) + '">로그인</a>' +
