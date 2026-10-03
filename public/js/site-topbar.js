@@ -6,7 +6,7 @@
   if (!document.querySelector('link[href*="/css/site-topbar.css"]')) {
     var tbCss = document.createElement('link');
     tbCss.rel = 'stylesheet';
-    tbCss.href = '/css/site-topbar.css?v=12';
+    tbCss.href = '/css/site-topbar.css?v=13';
     (document.head || document.documentElement).appendChild(tbCss);
   }
 

@@ -18,7 +18,7 @@
   <script src="js/counselor-tarot-deck.js?v=4"></script>
   <script src="js/counselor-copy-summary.js?v=6"></script>
   <script src="js/attribution.js"></script>
-  <script src="js/site-topbar.js?v=22" defer></script>
+  <script src="js/site-topbar.js?v=23" defer></script>
   <script src="js/topbar-session.js?v=7" defer></script>
   <style>
     :root {
@@ -663,9 +663,11 @@
     body { font-variant-numeric: lining-nums; }
     #app p, #app li, #app label { line-height: 1.65; }
     .ai-step-title, .section-title, .ai-mode-btn strong, .ai-depth-btn strong { font-family: var(--font-serif); }
+    .ai-spread-suggest { margin-top: 2px; padding: 12px 14px; border-radius: 10px; background: rgba(139,111,71,.06); border: 1px dashed rgba(139,111,71,.3); }
+    .ai-spread-suggest[hidden] { display: none; }
   </style>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css" crossorigin />
-  <link rel="stylesheet" href="css/site-topbar.css?v=12" />
+  <link rel="stylesheet" href="css/site-topbar.css?v=13" />
   <link rel="stylesheet" href="css/site-header.css?v=7" />
 </head>
 <body>
@@ -748,10 +750,6 @@
           </div>
           <textarea id="aiQuestion" maxlength="800" required placeholder="고객의 질문을 적어 주세요.&#10;예: 이직을 지금 해도 될까요? / 그 사람 마음이 궁금해요"></textarea>
           <p class="ai-voice-hint" id="aiVoiceHint">🎤 음성 입력은 한 문장씩 말하면 돼요 (크롬·엣지·안드로이드 권장). 이어서 말하려면 버튼을 다시 누르세요.</p>
-          <div id="aiSpreadSuggestWrap" style="margin-top:10px" hidden>
-            <label>배열 추천</label>
-            <div id="aiSpreadSuggest" class="ai-chip-row" role="group" aria-label="배열 추천"></div>
-          </div>
         </div>
         <div class="full">
           <label for="aiNote">추가 메모 (선택 · 고객에게 안 보임)</label>
@@ -768,6 +766,10 @@
           <span>3~9장 배열 · 질문에 맞는 배열을 추천해 드려요</span>
         </button>
       </div>
+        <div id="aiSpreadSuggestWrap" class="full ai-spread-suggest" hidden>
+          <label>질문에 맞는 배열 추천 <span class="lbl-sub">눌러서 고르면 아래 카드 칸이 바뀌어요</span></label>
+          <div id="aiSpreadSuggest" class="ai-chip-row" role="group" aria-label="배열 추천"></div>
+        </div>
         <div class="ai-step full"><span class="ai-step-num">4</span><span class="ai-step-title">해석 방식</span></div>
       <div class="ai-depth-row full" role="tablist" aria-label="해석 깊이">
         <button type="button" class="ai-depth-btn active" id="aiDepthCard" data-depth="card" role="tab" aria-selected="true">

@@ -323,22 +323,30 @@
   display: none;
   flex-direction: row;
   align-items: center;
-  gap: 8px;
-  flex-wrap: wrap;
+  gap: 6px;
+  flex-wrap: nowrap;
   justify-content: flex-end;
+  flex: 0 0 auto;
 }
 
 .site-top .topbar-export-cluster.is-visible,
 .site-top .topbar-export-cluster.is-always {
-  display: flex;
+  display: inline-flex;
 }
 
 .site-top .topbar-export-btns {
-  display: flex;
+  display: inline-flex;
   align-items: center;
-  gap: 8px;
-  flex-wrap: wrap;
+  gap: 6px;
+  flex-wrap: nowrap;
   justify-content: flex-end;
+}
+
+.site-top .topbar-export-btns .counselor-bar-btn {
+  font-size: 11px;
+  padding: 5px 10px;
+  white-space: nowrap;
+  flex: 0 0 auto;
 }
 
 .site-top .plan-badge {
@@ -466,6 +474,12 @@
   }
   .site-top .topbar-links {
     display: none;
+  }
+  /* 모바일: 상단 인쇄/PDF는 줄바꿈으로 공간을 많이 먹어서 숨김 → 상담사 바/본문에서 사용 */
+  .site-top .topbar-export-cluster,
+  .site-top .topbar-export-cluster.is-visible,
+  .site-top .topbar-export-cluster.is-always {
+    display: none !important;
   }
   .site-top .program-nav {
     padding: 0 16px;

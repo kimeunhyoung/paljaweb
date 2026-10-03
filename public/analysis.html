@@ -35,7 +35,7 @@
   <script src="js/plan-access.js?v=13" defer></script>
   <script src="js/attribution.js"></script>
   <script src="js/analytics.js?v=1" defer></script>
-  <script src="js/site-topbar.js?v=22" defer></script>
+  <script src="js/site-topbar.js?v=23" defer></script>
   <script src="js/topbar-session.js?v=7" defer></script>
   <!-- PDF: jsPDF 전역 → html2pdf 번들 → html2canvas(전역 API는 마지막 로드가 우선) -->
   <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.2/dist/jspdf.umd.min.js"></script>
@@ -214,26 +214,7 @@
       justify-content: flex-end;
       flex-shrink: 0;
     }
-    .topbar-export-cluster {
-      display: none;
-      flex-direction: row;
-      align-items: center;
-      gap: 8px;
-      flex-wrap: wrap;
-      justify-content: flex-end;
-    }
-    .topbar-export-cluster.is-visible { display: flex; }
-    .topbar-export-btns {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      flex-wrap: wrap;
-      justify-content: flex-end;
-    }
-    .topbar-export-btns .counselor-bar-btn {
-      font-size: 12px;
-      padding: 6px 12px;
-    }
+    /* 인쇄/PDF 표시는 /css/site-topbar.css 공통 규칙 사용 (모바일은 상단 숨김) */
     .plan-badge {
       font-family: var(--font-body);
       font-size: 11.5px;
@@ -4032,7 +4013,7 @@
     #resultArea .section-label, #resultArea .lc-group-title, #resultArea h3, #resultArea .accordion-header h4 { font-family: var(--font-serif); }
   </style>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css" crossorigin />
-  <link rel="stylesheet" href="css/site-topbar.css?v=12" />
+  <link rel="stylesheet" href="css/site-topbar.css?v=13" />
   <link rel="stylesheet" href="css/site-header.css?v=7" />
   <link rel="stylesheet" href="css/lifecode-product.css?v=1" />
   <link rel="stylesheet" href="css/life-tables.css?v=2" />
@@ -4046,6 +4027,8 @@
   <div class="counselor-bar-inner">
     <p class="counselor-bar-text">저장된 고객을 고르거나, 생년월일·이름을 직접 입력해 분석하세요. <strong>고객 표시 이름</strong>은 상담용 표기입니다. 결과는 인쇄·고객용 리포트로 쓸 수 있어요.</p>
     <div class="counselor-bar-actions">
+      <button type="button" class="counselor-bar-btn" id="counselorPrintBtn" onclick="topbarPrintClick()" hidden>인쇄</button>
+      <button type="button" class="counselor-bar-btn" id="counselorPdfBtn" onclick="topbarPdfClick()" hidden>PDF 저장</button>
       <button type="button" class="counselor-bar-btn" id="counselorReportBtn" onclick="exportCounselorReport()">고객용 리포트 PDF</button>
       <a href="counselor.html" class="counselor-bar-link">상담사 허브</a>
     </div>
@@ -4551,6 +4534,48 @@ async function loadCounselorClientPicker(session) {
   }
 }
 
+function waitForPaljaPlan(maxMs) {
+  if (window.PaljaPlan) return Promise.resolve();
+  const limit = typeof maxMs === 'number' ? maxMs : 3000;
+  const start = Date.now();
+  return new Promise((resolve) => {
+    const tick = () => {
+      if (window.PaljaPlan || Date.now() - start >= limit) return resolve();
+      setTimeout(tick, 30);
+    };
+    tick();
+  });
+}
+
+function waitForTopbarExport(maxMs) {
+  if (document.getElementById('topbarExportCluster')) return Promise.resolve();
+  const limit = typeof maxMs === 'number' ? maxMs : 2500;
+  const start = Date.now();
+  return new Promise((resolve) => {
+    const tick = () => {
+      if (document.getElementById('topbarExportCluster') || Date.now() - start >= limit) return resolve();
+      setTimeout(tick, 30);
+    };
+    tick();
+  });
+}
+
+function hasAnalysisResult() {
+  const resultArea = document.getElementById('resultArea');
+  return !!(resultArea && resultArea.style.display !== 'none');
+}
+
+/** 인쇄·PDF: 분석 결과가 있을 때만 표시 (모바일은 상담사 바로 이동) */
+function syncTopbarExportVisibility() {
+  const ready = hasAnalysisResult();
+  const cluster = document.getElementById('topbarExportCluster');
+  if (cluster) cluster.classList.toggle('is-visible', ready);
+  ['counselorPrintBtn', 'counselorPdfBtn'].forEach((id) => {
+    const el = document.getElementById(id);
+    if (el) el.hidden = !ready;
+  });
+}
+
 /** 고객용 리포트 PDF: 상담사 브랜드 머리글 + 잠금/업셀 제외(기존 로직) 으로 내보내기 */
 function exportCounselorReport() {
   const resultArea = document.getElementById('resultArea');
@@ -4921,16 +4946,21 @@ async function initAuth() {
     }
   }
 
+  // plan-access / site-topbar 가 defer 라서 세션 캐시가 빠르면 여기가 먼저 끝날 수 있음
+  await waitForPaljaPlan(3000);
+  await waitForTopbarExport(2500);
+
   // 상담사 고객 입력 필드 표시 (Professional / Private + 이용 기간 유효)
+  // 인쇄·PDF는 결과 나온 뒤에만 표시 (상단 공간 절약 + 레이스 버그 방지)
   if (window.PaljaPlan && PaljaPlan.hasCounselorAccess({ plan: USER_PLAN })) {
-    document.getElementById('clientGroup').style.display = 'flex';
+    const clientGroup = document.getElementById('clientGroup');
+    if (clientGroup) clientGroup.style.display = 'flex';
     const bar = document.getElementById('counselorBar');
     if (bar) bar.style.display = 'block';
-    const cluster = document.getElementById('topbarExportCluster');
-    if (cluster) cluster.classList.add('is-visible');
     await loadCounselorClientPicker(session);
     await loadPrefilledCounselorClient(session);
   }
+  syncTopbarExportVisibility();
 
   const nameEl = document.getElementById('inputName');
   const birthEl = document.getElementById('inputBirth');
@@ -9694,6 +9724,7 @@ async function runAnalysis() {
   document.getElementById('resultArea').style.display='block';
   document.getElementById('resultArea').scrollIntoView({behavior:'smooth'});
   showAnalysisJumpNav(true);
+  syncTopbarExportVisibility();
   await trackUsage('analysis');
   if (window.PaljaAnalytics?.track) window.PaljaAnalytics.track('analysis_complete');
   maybeShowGuestSignupModal();
