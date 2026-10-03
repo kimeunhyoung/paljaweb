@@ -185,7 +185,21 @@
     /* 타로 AI 가독성 개선: 단계 헤더 · 대비 · 선택 상태 */
     #workspace, .hub-intro { --muted: #74604b; }
     .hub-intro p { color: #5e4c39; }
-    .hub-plan { display: inline-block; font-size: 12px; font-weight: 700; color: var(--deep); border: 1px solid var(--deep); border-radius: 12px; padding: 1px 8px; margin-left: 4px; }
+    .hub-plan {
+      display: inline-block;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      color: #f5f0e8;
+      background: var(--deep);
+      border: none;
+      border-radius: 999px;
+      padding: 5px 11px;
+      margin-left: 6px;
+      vertical-align: middle;
+      line-height: 1.2;
+    }
     .ai-step { display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; margin: 14px 0 0; padding-top: 14px; border-top: 1px solid var(--border); }
     .ai-draft-form > .ai-step:first-child { margin-top: 0; padding-top: 0; border-top: 0; }
     .ai-step-num { flex: 0 0 auto; width: 22px; height: 22px; border-radius: 50%; background: var(--deep); color: #fff; font-size: 13px; font-weight: 700; display: inline-flex; align-items: center; justify-content: center; align-self: center; }
