@@ -115,8 +115,7 @@
     },
   ];
 
-  /* 요금제·가이드·학습자료실은 위 topbar-links에만 둔다(프로그램 줄 중복 방지).
-     FAQ 등만 data-nav-extra 로 프로그램 줄에 추가할 수 있다. */
+  /* 요금제·가이드·학습자료실·FAQ는 위 topbar-links / 푸터에만 둔다(프로그램 줄 중복 방지). */
   var NAV_FLAT = [];
 
   var NAV_CONTENT = {
