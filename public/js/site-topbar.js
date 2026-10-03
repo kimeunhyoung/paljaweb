@@ -115,12 +115,15 @@
     },
   ];
 
-  var NAV_FLAT = [{ id: 'pricing', href: '/pricing.html', label: '요금제' }];
+  /* 요금제·가이드·학습자료실은 위 topbar-links에만 둔다(프로그램 줄 중복 방지).
+     FAQ 등만 data-nav-extra 로 프로그램 줄에 추가할 수 있다. */
+  var NAV_FLAT = [];
 
   var NAV_CONTENT = {
     guide: { id: 'guide', href: '/guide/index.html', label: '가이드' },
     study: { id: 'study', href: '/nakshatra/index.html', label: '학습자료실' },
     faq: { id: 'faq', href: '/faq.html', label: 'FAQ' },
+    pricing: { id: 'pricing', href: '/pricing.html', label: '요금제' },
     about: { id: 'about', href: '/about.html', label: '소개' },
     contact: { id: 'contact', href: '/contact.html', label: '문의' },
   };

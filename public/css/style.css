@@ -250,7 +250,8 @@ ul { list-style: none; }
   pointer-events: none;
 }
 .logo-text {
-  font-family: var(--font-ui);
+  /* 공통 site-top 로고와 동일: Noto Sans KR */
+  font-family: 'Noto Sans KR', 'Pretendard Variable', Pretendard, -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
   font-size: 16px;
   font-weight: 700;
   color: #4a3520;
@@ -1515,8 +1516,6 @@ section { padding: 100px 0; }
 #pricing-pro .pricing-pro-features .pricing-pro-btn { margin: 6px 0 0 !important; width: 100%; }
 @media (max-width: 900px) {
   #pricing-pro .pricing-pro-card { grid-template-columns: 1fr; }
-  /* 위쪽 메뉴 두 번째 줄: 요금제는 햄버거 메뉴에도 있어 휴대폰에서는 숨겨 한 줄로 */
-  #siteChrome .home-program-nav-inner > a[href="pricing.html"] { display: none; }
   #siteChrome .home-program-nav-inner { gap: 0 10px; }
   /* 실제 메뉴 높이만큼 첫 화면을 내려서 가려지지 않게 */
   .site-chrome ~ .hero { padding-top: calc(var(--chrome-h, 108px) + 16px); }
@@ -1602,3 +1601,6 @@ section { padding: 100px 0; }
 .counselor-strip-actions .counselor-strip-btn:first-child { background: var(--terracotta); border-color: var(--terracotta); color: #fff; }
 .counselor-strip-actions .counselor-strip-btn:first-child:hover { background: #b85530; }
 .counselor-strip-actions .counselor-strip-btn-ghost { border-color: rgba(255,255,255,.3); }
+
+/* 상단 로고 시작선: 프로그램 내비(바깥 padding 32px + 1140)과 맞춤 */
+#siteChrome .nav-inner { max-width: calc(1140px + 64px); }

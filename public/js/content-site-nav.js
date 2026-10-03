@@ -99,7 +99,8 @@
     mount.setAttribute('data-topbar-title', meta.title);
     mount.setAttribute('data-nav-current', meta.current);
     mount.setAttribute('data-login-next', loginNext);
-    mount.setAttribute('data-nav-extra', 'guide,study,faq');
+    /* 가이드·학습자료실·요금제는 상단 topbar-links와 중복이라 넣지 않음. FAQ만 프로그램 줄에 유지 */
+    mount.setAttribute('data-nav-extra', 'faq');
     if (oldNav && oldNav.parentNode) {
       oldNav.parentNode.replaceChild(mount, oldNav);
     } else if (document.body) {
@@ -109,11 +110,11 @@
     if (!mount.getAttribute('data-topbar-title')) mount.setAttribute('data-topbar-title', meta.title);
     if (!mount.getAttribute('data-nav-current')) mount.setAttribute('data-nav-current', meta.current);
     if (!mount.getAttribute('data-login-next')) mount.setAttribute('data-login-next', loginNext);
-    if (!mount.getAttribute('data-nav-extra')) mount.setAttribute('data-nav-extra', 'guide,study,faq');
+    if (!mount.getAttribute('data-nav-extra')) mount.setAttribute('data-nav-extra', 'faq');
   }
 
   ensureScript('/js/plan-access.js?v=13');
-  ensureScript('/js/site-footer.js?v=5');  ensureScript('/js/site-topbar.js?v=28', function () {
+  ensureScript('/js/site-footer.js?v=5');  ensureScript('/js/site-topbar.js?v=29', function () {
     ensureScript('/js/topbar-session.js?v=12');
   });
 })();
