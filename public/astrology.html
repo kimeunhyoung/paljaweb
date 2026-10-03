@@ -1249,6 +1249,14 @@ body.export-capturing .ai-result.empty{display:none !important;}
       /^\d{1,2}\s*월/.test(rest);
   }
 
+  /** 「2027년은 …」「2027년 3월에…」처럼 같은 해 본문 문장 — 연도 제목(★/◆)을 덮어쓰지 않게 본문으로 둬요 */
+  function isSameYearSentenceLine(line, currentYear) {
+    if (!currentYear) return false;
+    const t = String(line || '').trim();
+    const m = t.match(/^(\d{4})\s*년(?:은|에는|에|\s+\d{1,2}월)/);
+    return !!(m && m[1] === String(currentYear) && t.length > 14);
+  }
+
   function parseTimelineYearLineMeta(line) {
     const t = String(line || '').trim();
     if (isTimelineYearPeriodStarLine(line)) return null;
@@ -1615,7 +1623,9 @@ body.export-capturing .ai-result.empty{display:none !important;}
       const chunk = buf.join('\n').trim();
       if (chunk) {
         const prev = String(sections.years[currentYear] || '').trim();
-        sections.years[currentYear] = prev ? (prev + '\n\n' + chunk) : chunk;
+        // 같은 블록을 두 번 읽어도(salvage 재파싱) 본문이 겹쳐 쌓이지 않게
+        if (!prev) sections.years[currentYear] = chunk;
+        else if (!prev.includes(chunk)) sections.years[currentYear] = prev + '\n\n' + chunk;
       }
       buf = [];
     };
@@ -1641,6 +1651,7 @@ body.export-capturing .ai-result.empty{display:none !important;}
         buf.push(line);
         continue;
       }
+      if (isSameYearSentenceLine(line, currentYear)) { buf.push(line); continue; }
       const ym = yearLineMeta(line);
       if (ym) {
         flushYear();
@@ -1757,6 +1768,7 @@ body.export-capturing .ai-result.empty{display:none !important;}
             buf.push(line);
             continue;
           }
+          if (isSameYearSentenceLine(line, currentYear)) { buf.push(line); continue; }
           const ym = yearLineMeta(line);
           if (ym) {
             flush();
@@ -4725,7 +4737,7 @@ body.export-capturing .ai-result.empty{display:none !important;}
     if (HAS_PROFESSIONAL) {
       prompt +=
         '\n\n[상담사용 근거 줄 — 이 요청에만 적용]\n' +
-        '- `## 연도별 해석`에서 **★·◆ 표시가 붙은 해에만**, 그 해 블록 **맨 끝**에 근거 한 줄을 붙인다. 형식: `> 근거: 토성–중천 사각 (2027년 6~9월 정점)`\n' +
+        '- `## 연도별 해석`에서 **★·◆ 표시가 붙은 해마다 빠짐없이**(◆ 해도 포함), 그 해 블록 **맨 끝**에 근거 한 줄을 붙인다. 형식: `> 근거: 토성–중천 사각 (2027년 6~9월 정점)`\n' +
         '- 근거는 transitEpisodes·progMoonEvents의 **lineKo와 peakYm**에서 그 해 가장 강한 것 **1~2개만** 옮겨 쓴다. JSON에 없는 행성·각을 만들지 마라.\n' +
         '- 각 이름은 합·육각·사각·삼각·충으로 쓴다 (육합 → 육각). orb·숫자 각도·영문 키는 쓰지 마라.\n' +
         '- 행성·각 이름은 **이 근거 줄에서만** 허용. 5년 전체 스토리·본문 문장·「5년 중 언제」 섹션에는 넣지 마라. 표시 없는 해에는 근거 줄을 넣지 마라.';
