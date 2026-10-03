@@ -3928,22 +3928,22 @@ body.export-capturing .ai-result.empty{display:none !important;}
     const yf = LAST_YEAR_FORECAST;
     const L = [];
     L.push(
-      '당신은 따뜻하고 통찰력 있는 전문 점성가입니다. 아래 출생 차트와 올해 프로그레션·솔라 리턴을 바탕으로 **올해 1년** 운세를 한국어로 써 주세요. ' +
-      '트랜짓·이번 주 운세는 제외하세요. 단정적 예언·공포 조장은 금지하고, 참고용 톤으로 다정하게 써 주세요. ' +
-      '건강은 의학적 진단이 아닌 생활·에너지·스트레스 관리 관점으로만 다루세요. ' +
+      '당신은 따뜻하지만 돌려 말하지 않는 전문 점성가입니다. 아래 출생 차트와 올해 프로그레션·솔라 리턴을 바탕으로 **올해 1년** 운세를 한국어로 써 주세요. ' +
+      '트랜짓·이번 주 운세는 제외하세요. 단정적 예언·공포 조장은 금지하고, 「무조건」「대박」 같은 보장 문구도 쓰지 마세요. ' +
+      '건강은 의학적 진단이 아닌 생활·에너지·스트레스 관리 관점으로만 다루세요. 투자 종목·수익률 단정 금지. ' +
       '일반 독자도 바로 이해할 수 있게, 전문 용어는 쉬운 말로 풀어 주세요. ' +
       '답변은 해요체(~해요, ~이에요)로 쓰세요. 점성 용어는 화면과 같게 합·육각·사각·삼각·충으로 쓰고, 트라인·스퀘어·섹스타일 같은 외래어 표기는 쓰지 마세요.',
     );
     L.push('');
-    appendChartContextLines(L, LAST_CTX, LAST_ASPECTS, LAST_KNOWN);
-    L.push('');
-    L.push('[올해 운세 · 프로그레션 & 솔라 리턴 · ' + currentYearKey() + '년]');
-    L.push('프로그레션(만 ' + yf.age + '세): 태양 ' + yf.progSun + ' · 달 ' + yf.progMoon);
-    L.push('솔라 리턴: ' + fmtYmd(yf.srDate) + (yf.srAsc ? ' · 상승궁 ' + yf.srAsc : '') + (yf.srSunHouse ? ' · 태양 ' + yf.srSunHouse + '하우스' : ''));
-    L.push('솔라 리턴 적용 기간: ' + fmtYmd(yf.srDate) + ' 생일부터 다음 생일 전까지 1년 (지금 이 기간 안에 있어요). 「올해」는 이 1년을 뜻해요.');
+    L.push('[읽는 법 — 가장 중요]');
+    L.push('1) 솔라 리턴의 상승궁·태양 하우스·달·각진 하우스(1·4·7·10) 행성이 올해의 큰 무대예요. 이걸 출생 차트 성향과 **엮어서** 「이 사람에게 올해는 이런 해」로 쓰세요.');
+    L.push('2) **시기(몇 월)는 [올해 시기 데이터]에 있는 것만** 쓰세요. 데이터에 없는 달을 지어내지 마세요. 시기 데이터가 없으면 달 이름 없이 「상반기·하반기」 정도로만 말하세요.');
+    L.push('3) 아래 데이터에 없는 행성·하우스·각은 지어내지 마세요. 근거는 문장 끝 괄호에 짧게, 섹션마다 1~2개만. 오차 숫자·도수는 쓰지 마세요.');
+    L.push('4) 연애·일·금전·건강·배움 섹션은 그 주제와 연결되는 근거가 약하면 「올해 이 주제는 크게 움직이기보다 유지하는 흐름이에요」처럼 짧고 솔직하게 쓰고, 억지로 채우지 마세요.');
+    L.push('5) 굵게(**…**)는 섹션마다 핵심 구절 1개만.');
     L.push('');
     L.push('[작성 형식 — 반드시 지키세요]');
-    L.push('1) ## 제목만 사용(이모지 남발 금지). 아래 순서대로 **모두** 작성하세요.');
+    L.push('## 제목만 사용(이모지 금지). 아래 순서대로 **모두** 작성하세요.');
     L.push('## 0. 3초 브리핑 노트 (한눈에 보는 올해 요약)');
     L.push('불릿 3줄만. 쉬운 말. 0번과 아래 본문이 같은 문장을 반복하지 마세요.');
     L.push('- **올해 한 줄 테마:** (올해를 관통하는 키워드를 쉬운 한 문장으로)');
@@ -3951,17 +3951,30 @@ body.export-capturing .ai-result.empty{display:none !important;}
     L.push('- **올해 바로 쓸 팁:** (일상에서 당장 해볼 수 있는 행동 1줄)');
     L.push('');
     [
-      '## 1. 올해 전체 테마 — 프로그레션·솔라 리턴을 쉬운 말로 연결(3~4문장)',
-      '## 2. 연애·관계 — 올해 관계·가족에서 조심할 점과 기회',
-      '## 3. 일·적성·커리어 — 올해 업무·커리어에서 힘이 실리는 방향',
-      '## 4. 금전·재물 — 올해 재정·자원 흐름과 현실적 태도',
-      '## 5. 건강·에너지 관리 — 올해 스트레스·회복·생활 리듬 (의학 진단 아님)',
-      '## 6. 학업·성장 — 올해 배움·시험·자격·집중',
-      '## 7. 올해 실천 로드맵 — 분기별로 바로 해볼 행동 2~3가지',
-    ].forEach((s) => L.push(s));
-    L.push('2) 1~6번 각 섹션 3~4문장. 프로그레션·솔라 리턴 근거를 최소 1개 이상 언급하세요.');
-    L.push('3) 출생 차트 성향과 올해 테마를 모순 없이 연결하세요. 「무조건 대박」「반드시 실패」식 단정 금지.');
-    L.push('4) 반드시 0번 브리핑과 7번까지 완성하세요.');
+      '## 1. 올해 전체 테마 — 솔라 리턴·프로그레션을 출생 차트와 엮어서 (3~4문장)',
+      '## 2. 연애·관계 — 올해 관계·가족에서 기회와 조심할 점 (2~3문장)',
+      '## 3. 일·커리어 — 올해 일에서 힘이 실리는 방향 (2~3문장)',
+      '## 4. 금전·재물 — 올해 돈 흐름과 현실적인 태도 (2~3문장)',
+      '## 5. 건강·에너지 관리 — 올해 스트레스·회복·생활 리듬 (2~3문장, 의학 진단 아님)',
+      '## 6. 배움·성장 — 올해 배움·시험·자격·집중 (2~3문장)',
+      '## 7. 올해 실천 로드맵 — [올해 시기 데이터]의 달에 맞춰 「○월 무렵: 할 일」 2~4줄. 시기 데이터가 없으면 「올해 꼭 할 것 2가지 / 피할 것 1가지」로',
+    ].forEach((x) => L.push(x));
+    L.push('반드시 0번 브리핑과 7번까지 완성하고 중간에 끊지 마세요.');
+    L.push('');
+    appendChartContextLines(L, LAST_CTX, LAST_ASPECTS, LAST_KNOWN);
+    L.push('');
+    L.push('[올해 운세 · 프로그레션 & 솔라 리턴 · ' + currentYearKey() + '년]');
+    L.push('적용 기간: ' + fmtYmd(yf.srDate) + ' 생일부터 다음 생일 전까지 1년 (지금 이 기간 안에 있어요). 「올해」는 이 1년을 뜻해요.');
+    L.push('프로그레션(만 ' + yf.age + '세): 태양 ' + yf.progSun + ' · 달 ' + yf.progMoon);
+    L.push('솔라 리턴 상승궁: ' + (yf.srAsc || '(계산 불가)') + (yf.srMc ? ' · 솔라 리턴 중천(MC): ' + yf.srMc : ''));
+    if (yf.srSunHouse) L.push('솔라 리턴 태양: ' + yf.srSunHouse + '하우스 (올해 핵심 무대)');
+    if (yf.srMoon) L.push('솔라 리턴 달: ' + yf.srMoon + (yf.srMoonHouse ? ' / ' + yf.srMoonHouse + '하우스' : '') + ' (올해 마음이 쏠리는 곳)');
+    if (yf.srAngular && yf.srAngular.length) L.push('솔라 리턴 각진 하우스(1·4·7·10) 행성 — 올해 겉으로 크게 드러나는 힘: ' + yf.srAngular.join(', '));
+    if (yf.srPlanets && yf.srPlanets.length) L.push('솔라 리턴 행성 하우스: ' + yf.srPlanets.join(', '));
+    L.push('');
+    L.push('[올해 시기 데이터 — 프로그레션 이벤트]');
+    if (yf.progEvents && yf.progEvents.length) yf.progEvents.forEach((e) => L.push(' - ' + e));
+    else L.push(' - (올해 안에 정확히 맞는 프로그레션 이벤트 없음 — 달 이름을 지어내지 마세요)');
     return L.join('\n');
   }
 
@@ -4052,6 +4065,82 @@ body.export-capturing .ai-result.empty{display:none !important;}
   function fmtYmd(o) { return o.y + '.' + o.mo + '.' + o.da; }
 
   // ── 올해 운세: 2차 프로그레션 + 솔라 리턴 ──
+  // ── 올해 운세 보조 데이터: 프로그레션 달 이벤트(월) · 솔라 리턴 주요 배치 ──
+  function computeYearForecastExtras(progH, best) {
+    const out = { progMoonDeg: null, progEvents: [], srMoon: '', srMoonHouse: '', srMc: '', srAngular: [], srPlanets: [] };
+    const age = LAST_YEAR_FORECAST.age;
+    const prog1 = addDays(LAST_BIRTH.y, LAST_BIRTH.mo, LAST_BIRTH.da, age + 1);
+    const progH1 = new Horoscope({
+      origin: new Origin({
+        year: prog1.y, month: prog1.mo - 1, date: prog1.da,
+        hour: LAST_BIRTH.hh, minute: LAST_BIRTH.mi,
+        latitude: LAST_COORDS.lat, longitude: LAST_COORDS.lng,
+      }),
+      houseSystem: 'placidus', zodiac: 'tropical',
+      aspectPoints: ['bodies'], aspectWithPoints: ['bodies'], aspectTypes: ['major'], language: 'en',
+    });
+    const sr = best.date;
+    const monthLabel = (t) => {
+      const d = new Date(sr.y, sr.mo - 1, sr.da);
+      d.setDate(d.getDate() + Math.round(t * 365));
+      return d.getFullYear() + '년 ' + (d.getMonth() + 1) + '월';
+    };
+    const ASP = [[0, '합'], [60, '육각'], [90, '사각'], [120, '삼각'], [180, '충']];
+    const natalKeys = ['sun', 'moon', 'mercury', 'venus', 'mars', 'jupiter', 'saturn'];
+    if (!LAST_BIRTH.unknownTime) natalKeys.push('asc', 'mc');
+    const nameOf = (k) => (k === 'asc' ? '상승점' : k === 'mc' ? '중천(MC)' : ((M.PLANETS[k] && M.PLANETS[k].ko) || k));
+    const events = [];
+    const scan = (label, d0, d1) => {
+      if (d0 == null || d1 == null) return;
+      const delta = ((d1 - d0) % 360 + 360) % 360;
+      if (delta <= 0 || delta > 40) return;
+      natalKeys.forEach((nk) => {
+        const nd = NATAL_DEGS[nk];
+        if (nd == null) return;
+        ASP.forEach(([a, ko]) => {
+          const targets = a === 0 || a === 180 ? [nd + a] : [nd + a, nd - a];
+          targets.forEach((tg) => {
+            const need = ((tg - d0) % 360 + 360) % 360;
+            if (need <= delta) {
+              const t = need / delta;
+              events.push({ t, text: monthLabel(t) + ' 무렵 — ' + label + ' ' + ko + ' 본명 ' + nameOf(nk) });
+            }
+          });
+        });
+      });
+      const nextCusp = Math.floor(d0 / 30) * 30 + 30;
+      const needSign = nextCusp - d0;
+      if (needSign <= delta) {
+        const t = needSign / delta;
+        events.push({ t, text: monthLabel(t) + ' 무렵 — ' + label + ' ' + M.signFromDegree(nextCusp % 360).sign.ko + '로 이동' });
+      }
+    };
+    const pm0 = deg(progH.CelestialBodies.moon);
+    out.progMoonDeg = pm0;
+    scan('프로그레션 달', pm0, deg(progH1.CelestialBodies.moon));
+    scan('프로그레션 태양', deg(progH.CelestialBodies.sun), deg(progH1.CelestialBodies.sun));
+    events.sort((x, y) => x.t - y.t);
+    out.progEvents = events.slice(0, 10).map((e) => e.text);
+
+    const th = best.horoscope;
+    const houseOf = (b) => (b && b.House && b.House.id) ? b.House.id : '';
+    const mb = th.CelestialBodies.moon;
+    if (mb) {
+      out.srMoon = M.signFromDegree(deg(mb)).sign.ko;
+      out.srMoonHouse = houseOf(mb);
+    }
+    try { if (th.Midheaven) out.srMc = M.signFromDegree(deg(th.Midheaven)).sign.ko; } catch (e) { /* ignore */ }
+    ['sun', 'moon', 'mercury', 'venus', 'mars', 'jupiter', 'saturn'].forEach((k) => {
+      const b = th.CelestialBodies[k];
+      const h = houseOf(b);
+      if (!b || !h) return;
+      const nm = (M.PLANETS[k] && M.PLANETS[k].ko) || k;
+      out.srPlanets.push(nm + ' ' + h + '하우스');
+      if ([1, 4, 7, 10].indexOf(Number(h)) >= 0) out.srAngular.push(nm + '(' + h + '하우스)');
+    });
+    return out;
+  }
+
   async function computeYearForecast() {
     const box = $('yearForecast');
     if (!box || !LAST_BIRTH || !LAST_COORDS || libError || !Origin || !Horoscope) return;
@@ -4107,11 +4196,16 @@ body.export-capturing .ai-result.empty{display:none !important;}
         age, progDate: prog, progSun: pSun.sign.ko, progMoon: pMoon.sign.ko,
         srDate: best.date, srHour: best.hour, srAsc: srAsc ? srAsc.ko : '', srSunHouse: srSunH,
       };
+      try {
+        Object.assign(LAST_YEAR_FORECAST, computeYearForecastExtras(progH, best));
+      } catch (e) {
+        console.warn('[year extras]', e);
+      }
 
       let html = '<div class="year-block"><h4>2차 프로그레션 (만 ' + age + '세 · ' + fmtYmd(prog) + ' 기준)</h4>';
       html += '<p>내면 성장의 방향 — <strong>프로그레션 태양 ' + pSun.sign.glyph + ' ' + pSun.sign.ko + '</strong>, ';
       html += '<strong>프로그레션 달 ' + pMoon.sign.glyph + ' ' + pMoon.sign.ko + '</strong>. ';
-      html += '올해 감정·정체성의 내면 테마가 이 별자리 에너지로 움직이에요.</p></div>';
+      html += '올해 감정·정체성의 내면 테마가 이 별자리 에너지로 움직여요.</p></div>';
 
       html += '<div class="year-block"><h4>솔라 리턴 (' + fmtYmd(best.date) + ' ' + best.hour + ':00 근처)</h4>';
       html += '<p>생일 전후 태양이 돌아오는 순간의 차트 — <strong>올해 1년의 큰 테마</strong>예요. ';
