@@ -82,9 +82,9 @@
     if (!quota || quota.limit == null) return '';
     const rem = quota.remaining != null ? quota.remaining : Math.max(0, quota.limit - (quota.used || 0));
     if (quota.counselorTrial) {
-      return `체험 AI ${rem}/${quota.limit}크레딧`;
+      return `체험 AI 크레딧 ${rem}/${quota.limit}`;
     }
-    return `이번 달 AI ${rem}/${quota.limit}크레딧`;
+    return `이번 달 AI 크레딧 ${rem}/${quota.limit}`;
   }
 
   function applyQuotaBadge(el, quota) {

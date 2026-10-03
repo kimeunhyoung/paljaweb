@@ -108,15 +108,15 @@
   };
 
   var PERSONAL_YEAR = {
-    1: { phase: '파종과 발아', career: '창업 / 새 직장', money: '투자·사업 시작 검토', love: '새로운 만남', health: '새 건강 습관 시작' },
-    2: { phase: '파종과 발아', career: '팀워크 / 협력', money: '꾸준한 저축', love: '관계 깊어짐', health: '휴식 · 신경계 돌보기' },
-    3: { phase: '파종과 발아', career: '창의 / 홍보', money: '수입·지출 동반', love: '인기 · 매력 상승', health: '과로 주의 · 목·리듬' },
-    4: { phase: '성장과 확장', career: '성실 / 인정', money: '안정 자산 · 부동산', love: '실질적 결합 · 약속', health: '관절 · 생활 리듬' },
-    5: { phase: '성장과 확장', career: '이직 / 큰 변화', money: '변동성 · 비상금', love: '새바람 · 관계 흔들림', health: '호흡 · 불규칙 생활 경계' },
-    6: { phase: '성장과 확장', career: '리더 / 돌봄', money: '가정 · 부동산', love: '가족 행사 · 책임', health: '스트레스 · 심장 쪽 돌봄' },
-    7: { phase: '수확과 비움', career: '연구 / 전문성', money: '모험 자제 · 신중', love: '혼자만의 시간', health: '면역 · 수면 질' },
-    8: { phase: '수확과 비움', career: '승진 / 사업 확장', money: '강한 금전운 · 투자', love: '바빠서 소홀해지기 쉬움', health: '과로 · 심혈관 돌봄' },
-    9: { phase: '수확과 비움', career: '프로젝트 완결', money: '지출 · 기부 선순환', love: '관계 정리 · 용서', health: '디톡스 · 감정 해소' }
+    1: { phase: '씨 뿌리고 싹 틔우는 해', career: '창업 / 새 직장', money: '새 수입원 · 새 일 구상', love: '새로운 만남', health: '새 건강 습관 시작' },
+    2: { phase: '씨 뿌리고 싹 틔우는 해', career: '팀워크 / 협력', money: '꾸준한 저축', love: '관계 깊어짐', health: '충분한 휴식 · 마음 다독이기' },
+    3: { phase: '씨 뿌리고 싹 틔우는 해', career: '창의 / 홍보', money: '수입도 지출도 늘어남', love: '인기 · 매력 상승', health: '과로 주의 · 생활 리듬 지키기' },
+    4: { phase: '키우고 넓히는 해', career: '성실 / 인정', money: '안정 자산 · 부동산', love: '실질적 결합 · 약속', health: '꾸준한 운동 · 생활 리듬' },
+    5: { phase: '키우고 넓히는 해', career: '이직 / 큰 변화', money: '돈 흐름 출렁임 · 비상금 챙기기', love: '새바람 · 관계 흔들림', health: '불규칙한 생활 주의' },
+    6: { phase: '키우고 넓히는 해', career: '리더 / 돌봄', money: '가정 · 부동산', love: '가족 행사 · 책임', health: '스트레스 관리 · 나도 돌보기' },
+    7: { phase: '거두고 비우는 해', career: '연구 / 전문성', money: '모험 자제 · 신중', love: '혼자만의 시간', health: '면역 · 잠의 질' },
+    8: { phase: '거두고 비우는 해', career: '승진 / 사업 확장', money: '돈 흐름 활발 · 큰 결정은 신중히', love: '바빠서 소홀해지기 쉬움', health: '과로 주의 · 쉬는 시간 챙기기' },
+    9: { phase: '거두고 비우는 해', career: '프로젝트 완결', money: '지출 · 기부 선순환', love: '관계 정리 · 용서', health: '디톡스 · 감정 해소' }
   };
 
   function esc(s) {
@@ -190,7 +190,7 @@
       esc(d.tip) +
       '</p>' +
       (note
-        ? '<p class="lt-disclaimer">성향 가이드이며 투자·의료 조언이 아닙니다.</p>'
+        ? '<p class="lt-disclaimer">성향을 보는 참고용이에요. 투자·의료 조언은 아니에요.</p>'
         : '') +
       '</div>'
     );
@@ -201,15 +201,19 @@
     var p = getPersonalYearDomains(py);
     if (!p) return '';
     var yearLabel = opts.yearLabel ? esc(opts.yearLabel) + ' · ' : '';
+    // 마스터(11·22·33)는 원래 숫자를 그대로 보여 주고, 풀이는 한 자리 흐름으로 읽음
+    var shown = opts.displayNum != null && String(opts.displayNum) !== '' ? esc(opts.displayNum) : String(p.n);
+    var reducedNote = shown !== String(p.n) ? p.n + '의 흐름으로 읽어요 · ' : '';
     return (
       '<div class="life-tables py-domains" id="pyDomainsContent">' +
       '<div class="lt-head"><span class="lt-num">' +
-      p.n +
+      shown +
       '</span><div><div class="lt-title">' +
       yearLabel +
       '개인연도 ' +
-      p.n +
-      ' · 4가지 영역</div><div class="lt-sub">' +
+      shown +
+      ' · 올해의 흐름</div><div class="lt-sub">' +
+      reducedNote +
       esc(p.phase) +
       '</div></div></div>' +
       '<div class="lt-grid4">' +
@@ -226,7 +230,7 @@
       esc(p.health) +
       '</div></div>' +
       '</div>' +
-      '<p class="lt-disclaimer">한 해의 테마 요약이며, 확정 예언·투자·의료 조언이 아닙니다.</p>' +
+      '<p class="lt-disclaimer">한 해 흐름을 요약한 참고용이에요. 확정된 예언이나 투자·의료 조언은 아니에요.</p>' +
       '</div>'
     );
   }

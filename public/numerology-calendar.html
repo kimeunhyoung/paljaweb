@@ -418,10 +418,10 @@
   </style>
   <script src="js/plan-access.js?v=13"></script>
   <script src="js/attribution.js"></script>
-  <script src="js/site-topbar.js?v=32" defer></script>
+  <script src="js/site-topbar.js?v=33" defer></script>
   <script src="js/topbar-session.js?v=12" defer></script>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css" crossorigin />
-  <link rel="stylesheet" href="css/site-topbar.css?v=18" />
+  <link rel="stylesheet" href="css/site-topbar.css?v=19" />
   <link rel="stylesheet" href="css/site-header.css?v=8" />
   <link rel="stylesheet" href="css/life-tables.css?v=2" />
 </head>
@@ -462,7 +462,7 @@
           </div>
           <p class="calendar-legend">
             <span><strong>큰 숫자</strong> · 개인일수</span>
-            <span><strong>작은 숫자</strong> · 일반일수</span>
+            <span><strong>작은 숫자</strong> · 일반일수 (누구에게나 같은 그날의 숫자)</span>
           </p>
           <div class="weekday" aria-hidden="true">
             <div>일</div><div>월</div><div>화</div><div>수</div><div>목</div><div>금</div><div>토</div>
@@ -480,7 +480,7 @@
     <section class="panel" style="margin-top:18px;padding:18px 20px;line-height:1.75;">
       <h2 style="margin:0 0 10px;font-size:20px;">수비학 달력이란?</h2>
       <p style="margin:0 0 14px;color:var(--muted);">
-        수비학 달력은 생년월일에서 도출한 <strong>개인연도·개인월수·개인일수</strong>를 월간 달력으로 보여 주는 도구예요.
+        수비학 달력은 생년월일로 계산한 <strong>개인연도·개인월수·개인일수</strong>를 월간 달력으로 보여 주는 도구예요.
         매일이 똑같이 흘러가는 것 같아도, 수비학에서는 날짜마다 흐르는 에너지(숫자)가 다르다고 봐요.
         오늘 나에게 어떤 에너지가 흐르는지 미리 알면, 중요한 결정·휴식·새 시작의 타이밍을 더 지혜롭게 고를 수 있어요.
       </p>
@@ -490,6 +490,12 @@
         개인일수는 <strong>개인월수 + 그날의 날짜</strong>를 한 자리(또는 마스터 넘버)로 환원한 숫자로, 그날 하루의 에너지 테마를 나타내요.
         1은 시작·추진, 2는 협력·관계, 3은 표현·창의, 4는 안정·실무, 5는 변화·자유, 6은 책임·돌봄,
         7은 성찰·휴식, 8은 성취·결단, 9는 마무리·정리의 흐름으로 읽어요.
+      </p>
+
+      <h3 style="margin:18px 0 8px;font-size:16px;">일반일수란?</h3>
+      <p style="margin:0 0 14px;color:var(--muted);">
+        일반일수는 생년월일과 상관없이 <strong>그날의 날짜(연·월·일)만</strong> 더해 줄인 숫자예요. 누구에게나 똑같이 흐르는 그날의 바탕 분위기라서,
+        내 개인일수와 함께 보면 "오늘 세상의 흐름"과 "오늘 나의 흐름"을 나눠 볼 수 있어요.
       </p>
 
       <h3 style="margin:18px 0 8px;font-size:16px;">개인월수란?</h3>
@@ -508,8 +514,8 @@
     </section>
   </main>
 
-  <script src="js/ai-quota-client.js"></script>
-  <script src="js/numerology-life-tables.js?v=8"></script>
-  <script type="module" src="js/numerology-calendar.js?v=20261003a"></script>
+  <script src="js/ai-quota-client.js?v=20261003"></script>
+  <script src="js/numerology-life-tables.js?v=9"></script>
+  <script type="module" src="js/numerology-calendar.js?v=20261003b"></script>
 </body>
 </html>

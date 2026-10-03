@@ -7,16 +7,16 @@ const supabase = createClient(
 
 const DAILY_GUIDE = {
   1: { key: "시작", do: "작게라도 시작 버튼을 누르세요. 결단이 흐름을 열어요.", dont: "완벽할 때까지 미루지 마세요." },
-  2: { key: "조율", do: "협업과 대화로 간극을 메우세요. 듣는 힘이 성과를 만들어요.", dont: "감정 누적 후 한 번에 터뜨리지 마세요." },
+  2: { key: "조율", do: "협업과 대화로 간극을 메우세요. 듣는 힘이 성과를 만들어요.", dont: "감정을 쌓아 두었다가 한 번에 터뜨리지 마세요." },
   3: { key: "표현", do: "아이디어를 말과 글로 꺼내 공유하세요.", dont: "반응이 두려워 표현을 접지 마세요." },
   4: { key: "정리", do: "루틴 정비, 자료 정리, 우선순위 재배치에 집중하세요.", dont: "근거 없이 일을 늘리지 마세요." },
-  5: { key: "변화", do: "새 도구, 새 관점, 새 루트를 실험하세요.", dont: "충동적 결정으로 약속을 흔들지 마세요." },
+  5: { key: "변화", do: "새 도구, 새 관점, 새 방법을 시도해 보세요.", dont: "충동적 결정으로 약속을 흔들지 마세요." },
   6: { key: "돌봄", do: "관계 회복과 책임 정리에 시간을 쓰세요.", dont: "모든 문제를 혼자 떠안지 마세요." },
   7: { key: "통찰", do: "분석, 공부, 리서치처럼 깊이 파는 작업에 잘 맞아요.", dont: "답이 빨리 안 나온다고 조급해하지 마세요." },
   8: { key: "성과", do: "돈, 계약, 목표 관리처럼 결과 지향 업무를 밀어붙이세요.", dont: "관계의 온도를 무시한 채 성과만 보지 마세요." },
   9: { key: "마무리", do: "정리, 회고, 놓아주기를 통해 다음 사이클을 준비하세요.", dont: "끝난 일을 붙들고 에너지를 소모하지 마세요." },
   11: { key: "영감", do: "직관이 좋은 날이에요. 기록하고 조용히 실행하세요.", dont: "과한 자극과 소음으로 직관을 흐리지 마세요." },
-  22: { key: "구현", do: "큰 계획을 실제 일정과 구조로 옮기세요.", dont: "완벽주의 때문에 착수를 늦추지 마세요." },
+  22: { key: "구현", do: "큰 계획을 실제 일정과 구조로 옮기세요.", dont: "완벽주의 때문에 시작을 늦추지 마세요." },
   33: { key: "치유", do: "누군가를 돕는 행동이 오히려 내 균형을 되찾아 줘요.", dont: "경계를 잃고 무리하게 퍼주지 마세요." },
 };
 
@@ -427,6 +427,7 @@ function renderDetail(date, personalYear, personalMonth, personalDay, universalD
     const pyClassic = reduceNumber(personalYear, false);
     pySlot.innerHTML = PaljaLifeTables.renderPersonalYearTableHtml(pyClassic, {
       yearLabel: String(year) + "년",
+      displayNum: personalYear,
     });
   }
   bindDetailAiEvents();

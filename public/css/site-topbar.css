@@ -25,7 +25,8 @@
   position: sticky;
   top: 0;
   z-index: 100;
-  background: #f5f0e8;
+  /* 페이지 인라인 반투명(.site-top rgba) 덮어쓰기 방지 */
+  background: #f5f0e8 !important;
   box-shadow: 0 6px 18px rgba(45, 38, 28, 0.06);
   overflow: visible;
   font-family: var(--tb-font-nav) !important;
@@ -37,7 +38,9 @@
 
 .site-top .topbar {
   min-height: 52px;
-  background: #f5f0e8;
+  background: #f5f0e8 !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
   border-bottom: 1px solid var(--tb-border);
   padding: 10px 32px;
   box-sizing: border-box;
@@ -80,7 +83,9 @@
 
 .site-top .program-nav {
   border-bottom: 1px solid var(--tb-border);
-  background: #ffffff;
+  background: #ffffff !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
   padding: 0 32px;
   overflow: visible;
   position: relative;
@@ -88,14 +93,14 @@
 }
 
 .site-top .program-nav-inner {
-  max-width: var(--tb-content-max);
+  max-width: var(--tb-content-max) !important;
   margin: 0 auto;
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   gap: 0 14px;
   min-height: 40px;
-  padding: 0;
+  padding: 0 !important;
   font-family: var(--tb-font-nav) !important;
   font-size: 12px !important;
   font-weight: 600 !important;
@@ -237,12 +242,12 @@
 
 .site-top .topbar-logo {
   font-family: 'Noto Sans KR', sans-serif !important;
-  font-size: 16px;
-  font-weight: 700;
-  color: #4a3520;
+  font-size: 16px !important;
+  font-weight: 700 !important;
+  color: #4a3520 !important;
   text-decoration: none;
   letter-spacing: 0.01em;
-  display: inline-flex;
+  display: inline-flex !important;
   align-items: center;
   gap: 10px;
   height: 30px;

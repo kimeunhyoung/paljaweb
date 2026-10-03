@@ -63,7 +63,7 @@
     'https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css',
     { crossorigin: 'anonymous' }
   );
-  ensureLink('/css/site-topbar.css?v=18');
+  ensureLink('/css/site-topbar.css?v=19');
   ensureLink('/css/site-footer.css?v=5');
   ensureLink('/css/site-header.css?v=7');
 
@@ -112,7 +112,7 @@
   }
 
   ensureScript('/js/plan-access.js?v=13');
-  ensureScript('/js/site-footer.js?v=5');  ensureScript('/js/site-topbar.js?v=32', function () {
+  ensureScript('/js/site-footer.js?v=5');  ensureScript('/js/site-topbar.js?v=33', function () {
     ensureScript('/js/topbar-session.js?v=12');
   });
 })();
