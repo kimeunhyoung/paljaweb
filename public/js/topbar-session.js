@@ -1,10 +1,13 @@
 /**
  * [data-topbar-auth]: 로그인 시 게스트(로그인·가입) 숨김, 유저(로그아웃 등)만 표시.
  * 인라인 display와 [hidden] 충돌 방지용 CSS를 주입합니다.
+ * 플랜/로그인 상태는 localStorage 캐시로 첫 페인트 깜빡임을 줄입니다.
  */
 (function () {
   var SUPABASE_URL = 'https://sghsryumnrnftyjoqmwf.supabase.co';
   var SUPABASE_ANON_KEY = 'sb_publishable_6S3W_oWrzG-Nv8wLK98gmg_q_KcB2I1';
+  var PLAN_CACHE_KEY = 'palja_plan_cache';
+  var PLAN_LABEL_KEY = 'palja_plan_label_cache';
 
   function injectCss() {
     if (document.getElementById('topbar-session-css')) return;
@@ -62,16 +65,32 @@
     }
   }
 
+  function cachePlan(plan, label) {
+    try {
+      if (plan) localStorage.setItem(PLAN_CACHE_KEY, plan);
+      if (label) localStorage.setItem(PLAN_LABEL_KEY, label);
+    } catch (e) {}
+  }
+
+  function clearPlanCache() {
+    try {
+      localStorage.removeItem(PLAN_CACHE_KEY);
+      localStorage.removeItem(PLAN_LABEL_KEY);
+    } catch (e) {}
+  }
+
   function applyPlanToBadge(badge, profile) {
     var plan = window.PaljaPlan
       ? PaljaPlan.effectivePlan(profile)
       : ((profile && profile.plan) || 'free');
     if (plan === 'pro') plan = 'plus';
-    badge.textContent =
+    var label =
       window.PaljaPlan && PaljaPlan.planKoLabel
         ? PaljaPlan.planKoLabel(plan)
         : plan.charAt(0).toUpperCase() + plan.slice(1);
+    badge.textContent = label;
     badge.className = 'plan-badge ' + plan;
+    cachePlan(plan, label);
   }
 
   function syncPlanBadge(sb) {
@@ -82,6 +101,7 @@
       if (!session) {
         badge.textContent = 'Free';
         badge.className = 'plan-badge free';
+        clearPlanCache();
         if (window.PaljaDevice && window.PaljaDevice.ensurePaidAccess) {
           window.PaljaDevice.ensurePaidAccess(null, null);
         }
@@ -103,6 +123,7 @@
         } else {
           badge.textContent = 'Free';
           badge.className = 'plan-badge free';
+          clearPlanCache();
           return;
         }
       }
@@ -111,6 +132,7 @@
       else {
         badge.textContent = 'Free';
         badge.className = 'plan-badge free';
+        clearPlanCache();
       }
       if (window.PaljaDevice && pack && pack.session) {
         return window.PaljaDevice.ensurePaidAccess(pack.session.access_token, profile || { plan: 'free' });
@@ -131,6 +153,7 @@
         } else {
           setRow(guest, true);
           setRow(user, false);
+          clearPlanCache();
         }
       });
     });
@@ -186,6 +209,7 @@
             window.PaljaAttribution.syncWithToken(session.access_token);
           }
         }
+        if (event === 'SIGNED_OUT') clearPlanCache();
         withPaljaDevice(function () {
           syncPlanBadge(sb);
           syncSlots(sb);
@@ -195,6 +219,7 @@
         var t = e.target && e.target.closest && e.target.closest('[data-topbar-auth-signout]');
         if (!t) return;
         e.preventDefault();
+        clearPlanCache();
         sb.auth.signOut().then(function () {
           window.location.reload();
         });

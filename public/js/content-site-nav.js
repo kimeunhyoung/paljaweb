@@ -113,7 +113,7 @@
   }
 
   ensureScript('/js/plan-access.js?v=13');
-  ensureScript('/js/site-footer.js?v=4');  ensureScript('/js/site-topbar.js?v=24', function () {
-    ensureScript('/js/topbar-session.js?v=9');
+  ensureScript('/js/site-footer.js?v=4');  ensureScript('/js/site-topbar.js?v=25', function () {
+    ensureScript('/js/topbar-session.js?v=10');
   });
 })();

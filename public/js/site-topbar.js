@@ -313,6 +313,48 @@
       '</header>';
   }
 
+  /** localStorage 세션·플랜 캐시로 첫 페인트 깜빡임(로그인→Professional) 줄임 */
+  function peekAuthHint() {
+    var loggedIn = false;
+    try {
+      for (var i = 0; i < localStorage.length; i++) {
+        var k = localStorage.key(i) || '';
+        if (k.indexOf('auth-token') === -1) continue;
+        var raw = localStorage.getItem(k);
+        if (!raw || raw.charAt(0) !== '{') continue;
+        var j = JSON.parse(raw);
+        var tok =
+          (j && j.access_token) ||
+          (j && j.currentSession && j.currentSession.access_token) ||
+          (j && j.session && j.session.access_token);
+        if (tok) {
+          loggedIn = true;
+          break;
+        }
+      }
+    } catch (e) {}
+    var plan = 'free';
+    var planLabel = 'Free';
+    try {
+      plan = localStorage.getItem('palja_plan_cache') || 'free';
+      planLabel = localStorage.getItem('palja_plan_label_cache') || '';
+      if (!planLabel) {
+        planLabel =
+          plan === 'professional'
+            ? 'Professional'
+            : plan === 'private'
+              ? 'Private'
+              : plan === 'plus' || plan === 'pro'
+                ? 'Plus'
+                : plan === 'basic'
+                  ? 'Basic'
+                  : 'Free';
+      }
+      if (plan === 'pro') plan = 'plus';
+    } catch (e2) {}
+    return { loggedIn: loggedIn, plan: plan, planLabel: planLabel };
+  }
+
   function render(mount) {
     if (!mount || mount.getAttribute('data-topbar-rendered') === '1') return;
 
@@ -331,6 +373,11 @@
         esc(title) +
         '</span>'
       : '';
+    var authHint = peekAuthHint();
+    var guestHidden = authHint.loggedIn ? ' hidden' : '';
+    var userHidden = authHint.loggedIn ? '' : ' hidden';
+    var badgeClass = 'plan-badge ' + esc(authHint.plan || 'free');
+    var badgeText = esc(authHint.planLabel || 'Free');
 
     mount.innerHTML =
       '<header class="topbar">' +
@@ -346,14 +393,14 @@
       '<a href="/pricing.html">요금제</a>' +
       '</nav>' +
       '<div class="topbar-right" data-topbar-auth aria-label="계정">' +
-      '<span class="plan-badge free" id="plan-badge">Free</span>' +
-      '<span class="topbar-auth-row" data-topbar-auth-guest>' +
+      '<span class="' + badgeClass + '" id="plan-badge">' + badgeText + '</span>' +
+      '<span class="topbar-auth-row" data-topbar-auth-guest' + guestHidden + '>' +
       '<a class="topbar-auth-link" href="/login.html?next=' + encodeURIComponent(loginNext) + '">로그인</a>' +
       '<span class="topbar-auth-dot" aria-hidden="true">·</span>' +
       '<a class="topbar-auth-link" href="/signup.html?next=' + encodeURIComponent(loginNext) + '">회원가입</a>' +
       '</span>' +
       exportHtml +
-      '<span class="topbar-auth-row" data-topbar-auth-user hidden>' +
+      '<span class="topbar-auth-row" data-topbar-auth-user' + userHidden + '>' +
       '<a class="back-btn" href="/dashboard.html">마이페이지</a>' +
       '<span class="topbar-auth-dot" aria-hidden="true">·</span>' +
       '<button type="button" class="topbar-auth-link topbar-auth-btn" data-topbar-auth-signout>로그아웃</button>' +
