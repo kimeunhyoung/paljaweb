@@ -53,7 +53,7 @@
     var crit = document.createElement('style');
     crit.id = 'palja-topbar-critical';
     crit.textContent =
-      '.site-top{min-height:92px;box-sizing:border-box;background:rgba(245,240,232,.98)}';
+      '.site-top{min-height:92px;box-sizing:border-box;background:#f5f0e8}';
     (document.head || document.documentElement).insertBefore(
       crit,
       (document.head || document.documentElement).firstChild
@@ -63,7 +63,7 @@
     'https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css',
     { crossorigin: 'anonymous' }
   );
-  ensureLink('/css/site-topbar.css?v=17');
+  ensureLink('/css/site-topbar.css?v=18');
   ensureLink('/css/site-footer.css?v=5');
   ensureLink('/css/site-header.css?v=7');
 
@@ -112,7 +112,7 @@
   }
 
   ensureScript('/js/plan-access.js?v=13');
-  ensureScript('/js/site-footer.js?v=5');  ensureScript('/js/site-topbar.js?v=31', function () {
+  ensureScript('/js/site-footer.js?v=5');  ensureScript('/js/site-topbar.js?v=32', function () {
     ensureScript('/js/topbar-session.js?v=12');
   });
 })();

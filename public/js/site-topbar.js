@@ -6,7 +6,7 @@
   if (!document.querySelector('link[href*="/css/site-topbar.css"]')) {
     var tbCss = document.createElement('link');
     tbCss.rel = 'stylesheet';
-    tbCss.href = '/css/site-topbar.css?v=17';
+    tbCss.href = '/css/site-topbar.css?v=18';
     (document.head || document.documentElement).appendChild(tbCss);
   }
   // 첫 페인트 전에 자리 + 로그인 깜빡임 방지 CSS를 즉시 주입
@@ -15,7 +15,8 @@
     var crit = document.createElement('style');
     crit.id = 'palja-topbar-critical';
     crit.textContent =
-      '.site-top{min-height:92px;box-sizing:border-box;background:rgba(245,240,232,.98)}' +
+      '.site-top{min-height:92px;box-sizing:border-box;background:#f5f0e8}' +
+
       '[data-topbar-auth]:not([data-auth-ready="1"]) [data-topbar-auth-guest]{visibility:hidden!important;pointer-events:none}' +
       '[data-topbar-auth-user][hidden],[data-topbar-auth-guest][hidden]{display:none!important}';
     (document.head || document.documentElement).insertBefore(

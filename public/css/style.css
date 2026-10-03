@@ -46,7 +46,7 @@ ul { list-style: none; }
 .link-reset { text-decoration: none; }
 .link-inline { text-decoration: none; display: inline-block; }
 
-/* ===== 네비게이션 ===== */
+/* ===== 네비게이션 (프로그램 .site-top 과 동일 불투명 크림) ===== */
 .site-chrome {
   position: fixed;
   top: 0;
@@ -54,6 +54,8 @@ ul { list-style: none; }
   right: 0;
   z-index: 100;
   overflow: visible;
+  background: #f5f0e8;
+  box-shadow: 0 6px 18px rgba(45, 38, 28, 0.06);
 }
 .navbar {
   position: relative;
@@ -63,24 +65,22 @@ ul { list-style: none; }
   z-index: 1;
   /* 프로그램 site-top .topbar 와 동일: 바깥 32px + 안쪽 1140 */
   padding: 10px 32px;
-  transition: background-color 0.3s ease, padding 0.3s ease;
-  background: transparent;
+  background: #f5f0e8;
+  border-bottom: 1px solid rgba(139, 111, 71, 0.15);
   box-sizing: border-box;
 }
 .site-chrome.scrolled .navbar,
 .navbar.scrolled {
-  background: rgba(250,247,242,0.95);
-  backdrop-filter: blur(20px);
+  background: #f5f0e8;
   padding: 10px 32px;
 }
 .site-chrome.scrolled {
   border-bottom: none;
-  box-shadow: 0 8px 24px rgba(45, 38, 28, 0.06);
+  box-shadow: 0 6px 18px rgba(45, 38, 28, 0.06);
 }
 .home-program-nav {
-  border-bottom: 1px solid var(--border);
-  background: rgba(255, 255, 255, 0.72);
-  backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(139, 111, 71, 0.15);
+  background: #ffffff;
   padding: 0 32px;
   scroll-margin-top: 8px;
   overflow: visible;
@@ -88,7 +88,7 @@ ul { list-style: none; }
   z-index: 20;
 }
 .site-chrome.scrolled .home-program-nav {
-  background: rgba(255, 255, 255, 0.92);
+  background: #ffffff;
 }
 .home-program-nav-inner {
   max-width: 1140px;
@@ -194,7 +194,7 @@ ul { list-style: none; }
 }
 .home-program-nav.is-pulse {
   box-shadow: inset 0 -3px 0 var(--terracotta, #c4603a);
-  background: rgba(255, 248, 240, 0.95);
+  background: #fff8f0;
   transition: box-shadow 0.2s, background 0.2s;
 }
 .hero-program-note {
@@ -215,10 +215,13 @@ ul { list-style: none; }
   display: inline-flex;
   align-items: center;
   gap: 10px;
+  height: 30px;
   margin-right: auto;
   flex-shrink: 0;
   text-decoration: none;
   white-space: nowrap;
+  font-family: 'Noto Sans KR', sans-serif;
+  -webkit-font-smoothing: antialiased;
 }
 .logo-mark {
   width: 30px;
@@ -253,6 +256,7 @@ ul { list-style: none; }
   position: absolute;
   right: 2px;
   top: 0;
+  font-family: 'Noto Serif KR', serif;
   font-size: 11px;
   font-weight: 700;
   color: rgba(255, 255, 255, 0.3);
@@ -260,13 +264,18 @@ ul { list-style: none; }
   pointer-events: none;
 }
 .logo-text {
-  /* 공통 site-top .topbar-logo 와 동일 */
-  font-family: 'Noto Sans KR', 'Pretendard Variable', Pretendard, -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
-  font-size: 16px;
-  font-weight: 700;
-  color: #4a3520;
+  /* site-top .topbar-logo-text 와 동일 — 마크 높이(30)에 맞춤 */
+  display: inline-block;
+  height: 30px;
+  font-family: 'Noto Sans KR', sans-serif !important;
+  font-size: 16px !important;
+  font-weight: 700 !important;
+  font-style: normal;
+  color: #4a3520 !important;
   letter-spacing: 0.01em;
-  line-height: 1.2;
+  line-height: 30px;
+  margin: 0;
+  padding: 0;
 }
 .nav-links {
   display: flex;

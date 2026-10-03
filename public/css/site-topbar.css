@@ -25,7 +25,7 @@
   position: sticky;
   top: 0;
   z-index: 100;
-  background: rgba(245, 240, 232, 0.98);
+  background: #f5f0e8;
   box-shadow: 0 6px 18px rgba(45, 38, 28, 0.06);
   overflow: visible;
   font-family: var(--tb-font-nav) !important;
@@ -37,10 +37,10 @@
 
 .site-top .topbar {
   min-height: 52px;
-  background: rgba(245, 240, 232, 0.92);
-  backdrop-filter: blur(8px);
+  background: #f5f0e8;
   border-bottom: 1px solid var(--tb-border);
   padding: 10px 32px;
+  box-sizing: border-box;
 }
 
 .site-top .topbar-inner {
@@ -80,8 +80,7 @@
 
 .site-top .program-nav {
   border-bottom: 1px solid var(--tb-border);
-  background: rgba(255, 255, 255, 0.72);
-  backdrop-filter: blur(12px);
+  background: #ffffff;
   padding: 0 32px;
   overflow: visible;
   position: relative;
@@ -237,24 +236,33 @@
 }
 
 .site-top .topbar-logo {
-  font-family: var(--tb-font-nav) !important;
+  font-family: 'Noto Sans KR', sans-serif !important;
   font-size: 16px;
   font-weight: 700;
-  color: var(--tb-deep-brown);
+  color: #4a3520;
   text-decoration: none;
   letter-spacing: 0.01em;
-  line-height: 1.2;
   display: inline-flex;
   align-items: center;
   gap: 10px;
+  height: 30px;
   white-space: nowrap;
   flex-shrink: 0;
+  -webkit-font-smoothing: antialiased;
 }
 .site-top .topbar-logo-text {
-  font: inherit;
-  color: inherit;
-  letter-spacing: inherit;
-  line-height: inherit;
+  /* 메인 .logo-text 와 동일 — 마크 높이(30)에 맞춤 */
+  display: inline-block;
+  height: 30px;
+  font-family: 'Noto Sans KR', sans-serif !important;
+  font-size: 16px !important;
+  font-weight: 700 !important;
+  font-style: normal;
+  color: #4a3520 !important;
+  letter-spacing: 0.01em;
+  line-height: 30px;
+  margin: 0;
+  padding: 0;
 }
 
 .site-top a.topbar-logo .topbar-logo-mark {
