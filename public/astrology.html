@@ -2434,7 +2434,14 @@ body.export-capturing .ai-result.empty{display:none !important;}
       } else if (/^>\s?/.test(line)) {
         flushList();
         flushTiming();
-        out.push('<div class="ai-md-quote">' + inlineMd(escapeCounselorHtml(line.replace(/^>\s?/, ''))) + '</div>');
+        // 이어진 인용 줄(> …)은 상자 하나로 묶어요
+        const qParts = [line.replace(/^>\s?/, '')];
+        while (i + 1 < lines.length && /^>\s?/.test(lines[i + 1])) {
+          i += 1;
+          qParts.push(lines[i].replace(/^>\s?/, ''));
+        }
+        const qHtml = qParts.filter((q) => q.trim()).map((q) => inlineMd(escapeCounselorHtml(q))).join('<br>');
+        if (qHtml) out.push('<div class="ai-md-quote">' + qHtml + '</div>');
       } else if (/^[-*]\s+/.test(line)) {
         flushTiming();
         if (!inList) {
