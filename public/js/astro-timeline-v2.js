@@ -599,7 +599,7 @@
     });
     var line =
       (PLANET_KR[cur.tk] || cur.tk) + '–' + (PLANET_KR[cur.nk] || cur.nk) +
-      ' ' + (ASPECT_KR[cur.key] || cur.key) + ' 에피소드';
+      ' ' + (ASPECT_KR[cur.key] || cur.key) + ' 시기';
     if (cur.hadRetrograde) line += ' (역행 포함)';
     return {
       signature: cur.signature,

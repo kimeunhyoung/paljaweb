@@ -74,9 +74,9 @@
 <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
 <!-- 데이터 -->
 <script src="js/astro-cities.js?v=1"></script>
-<script src="js/astro-meanings.js?v=2"></script>
+<script src="js/astro-meanings.js?v=3"></script>
 <script src="js/astro-timeline.js?v=1"></script>
-<script src="js/astro-timeline-v2.js?v=7"></script>
+<script src="js/astro-timeline-v2.js?v=8"></script>
 <script src="js/astro-house-rulers.js?v=1"></script>
 <script src="js/astro-life-timeline.js?v=1"></script>
 <script src="js/ai-raw-timeline-v1.js?v=1"></script>
@@ -145,6 +145,8 @@ body{font-family:var(--font-body);background:var(--cream);color:var(--ink);min-h
 .big3-card{background:linear-gradient(165deg,#fffef9,#faf6ee);border:1px solid var(--border);border-radius:14px;padding:18px;text-align:center;}
 .big3-card .b3-role{font-size:11px;letter-spacing:.1em;color:var(--muted);text-transform:uppercase;}
 .big3-card .b3-glyph{font-size:34px;line-height:1;margin:8px 0 4px;color:var(--accent);}
+.zodiac-icon{display:inline-flex;align-items:center;justify-content:center;width:44px;height:44px;border-radius:50%;border:1.5px solid #c9a663;color:#b08d57;}
+.zodiac-icon svg{width:56%;height:56%;fill:currentColor;display:block;}
 .big3-card .b3-sign{font-family:var(--font-serif);font-size:18px;font-weight:600;color:var(--deep-brown);}
 .big3-card .b3-text{font-size:12.5px;line-height:1.7;color:var(--ink);margin-top:10px;text-align:left;}
 
@@ -589,7 +591,7 @@ body.export-capturing #wheelCard .note{display:none !important;}
 <section class="hero">
   <div class="hero-tag">점성학 · 점성학 차트</div>
   <h1 class="hero-title">점성학 차트<br><em>네이탈 출생 차트</em></h1>
-  <p class="hero-desc">태어난 날짜·시간·장소로 행성의 위치와 <strong>12하우스</strong>, <strong>상승궁(Asc)</strong>을 계산해 원형 네이탈 차트를 그려 드립니다. 정확한 차트에는 <strong>출생 시간</strong>이 필요해요.</p>
+  <p class="hero-desc">태어난 날짜·시간·장소로 행성의 위치와 <strong>12하우스</strong>, <strong>상승궁(Asc)</strong>을 계산해 원형 네이탈 차트를 그려 드려요. 정확한 차트에는 <strong>출생 시간</strong>이 필요해요.</p>
   <nav class="astro-subnav" aria-label="점성학 메뉴">
     <span class="is-current" aria-current="page">☉ 네이탈 차트</span>
     <a href="vedic.html">ॐ 인도점성학 차트</a>
@@ -614,7 +616,7 @@ body.export-capturing #wheelCard .note{display:none !important;}
           </select>
         </div>
       </div>
-      <p class="client-pick-hint">고객을 고르면 이름·생년월일·출생 시간·출생지가 채워집니다.</p>
+      <p class="client-pick-hint">고객을 고르면 이름·생년월일·출생 시간·출생지가 채워져요.</p>
     </div>
     <div class="form-grid">
       <div class="field">
@@ -737,7 +739,7 @@ body.export-capturing #wheelCard .note{display:none !important;}
       <button type="button" class="card-title acc-head">✦ 행성 해석<span class="acc-chev" aria-hidden="true">⌄</span></button>
       <div class="acc-body">
         <div class="planet-read-list" id="planetReadList"></div>
-        <div class="note">행성이 어떤 <strong>별자리</strong>에 있는지는 그 에너지가 “어떻게” 드러나는지를, 어떤 <strong>하우스</strong>에 있는지는 “어느 삶의 영역”에서 작동하는지를 보여 줍니다.</div>
+        <div class="note">행성이 어떤 <strong>별자리</strong>에 있는지는 그 에너지가 “어떻게” 드러나는지를, 어떤 <strong>하우스</strong>에 있는지는 “어느 삶의 영역”에서 작동하는지를 보여 줘요.</div>
       </div>
     </div>
 
@@ -752,7 +754,7 @@ body.export-capturing #wheelCard .note{display:none !important;}
       <button type="button" class="card-title acc-head">✦ 주요 어스펙트<span class="acc-chev" aria-hidden="true">⌄</span></button>
       <div class="acc-body">
         <div class="aspect-read-list" id="aspectList"></div>
-        <div class="note">어스펙트(각)는 행성 사이의 각도 관계예요. 합(0°)·육각(60°)·사각(90°)·삼각(120°)·충(180°)이 대표적입니다. <span class="asp-tag asp-easy">조화</span>는 자연스러운 강점, <span class="asp-tag asp-tense">긴장</span>은 성장의 마찰입니다.</div>
+        <div class="note">어스펙트(각)는 행성 사이의 각도 관계예요. 합(0°)·육각(60°)·사각(90°)·삼각(120°)·충(180°)이 대표적이에요. <span class="asp-tag asp-easy">조화</span>는 자연스러운 강점, <span class="asp-tag asp-tense">긴장</span>은 성장의 마찰이에요.</div>
       </div>
     </div>
 
@@ -760,10 +762,10 @@ body.export-capturing #wheelCard .note{display:none !important;}
     <div class="card" id="aiCard">
       <div class="card-title">✦ AI 차트 해석</div>
       <span class="ai-quota-badge" id="aiQuotaBadge" hidden></span>
-      <p class="transit-intro">행성·하우스·어스펙트를 서로 연결해 차트 전체의 핵심 성향·강점·과제를 종합 분석합니다.
-        한 번 생성한 해석은 저장되어 다시 볼 때 크레딧이 차감되지 않습니다.
+      <p class="transit-intro">행성·하우스·어스펙트를 서로 연결해 차트 전체의 핵심 성향·강점·과제를 종합 분석해요.
+        한 번 생성한 해석은 저장되어 다시 볼 때 크레딧이 차감되지 않아요.
         <strong>올해 운세</strong>와 <strong>지금·이번 주 흐름</strong>은 아래에서 따로 볼 수 있어요.
-        고객이 연결되어 있으면 해석이 <strong>고객 카드에 자동 저장</strong>됩니다.</p>
+        고객이 연결되어 있으면 해석이 <strong>고객 카드에 자동 저장</strong>돼요.</p>
       <div class="ai-actions no-print">
         <button type="button" class="rt-btn rt-btn--share" id="btnAiRun" disabled>✨ AI 차트 해석 (3크레딧)</button>
       </div>
@@ -774,7 +776,7 @@ body.export-capturing #wheelCard .note{display:none !important;}
     <!-- 주제별 심화 (전체 해석 없이 단독 이용 가능) -->
     <div class="card ai-deep-card" id="aiDeepCard">
       <div class="card-title">✦ 주제별 심화 해석</div>
-      <p class="transit-intro"><strong>재물·연애·일·학업</strong> 중 주제만 골라 깊게 볼 수 있어요. 고객을 고른 뒤 생성하면 고객 카드에 저장됩니다. <span class="ai-quota-cost">(최초 각 2크레딧)</span></p>
+      <p class="transit-intro"><strong>재물·연애·일·학업</strong> 중 주제만 골라 깊게 볼 수 있어요. 고객을 고른 뒤 생성하면 고객 카드에 저장돼요. <span class="ai-quota-cost">(최초 각 2크레딧)</span></p>
       <div class="ai-actions no-print">
         <button type="button" class="rt-btn rt-btn--share" id="btnAiMoney" disabled>💰 재물·금전 (2크레딧)</button>
         <button type="button" class="rt-btn rt-btn--share" id="btnAiLove" disabled>💕 연애·관계 (2크레딧)</button>
@@ -783,17 +785,17 @@ body.export-capturing #wheelCard .note{display:none !important;}
       </div>
       <p class="ai-deep-topic" id="aiDeepTopic" hidden></p>
       <div id="aiDeepResult" class="ai-result empty">차트를 계산한 뒤 주제를 선택해 주세요.</div>
-      <p class="ai-time-hint" id="aiDeepHint">심화 해석은 보통 40초~1분 정도 걸려요. 저장된 주제는 다시 누르면 바로 보입니다.</p>
+      <p class="ai-time-hint" id="aiDeepHint">심화 해석은 보통 40초~1분 정도 걸려요. 저장된 주제는 다시 누르면 바로 보예요.</p>
     </div>
 
     <!-- 올해 운세 심화 -->
     <div class="card" id="yearCard">
       <div class="card-title">✦ 올해 운세 · 프로그레션 · 솔라 리턴</div>
-      <p class="transit-intro">2차 프로그레션(하루=1년)과 솔라 리턴(태양이 돌아오는 날의 차트)으로 <strong>올해 1년의 큰 테마</strong>를 봅니다. 출생 시간이 있을 때 더 정확해요.</p>
-      <div id="yearForecast" class="transit-result"><div class="transit-empty">차트 계산 후 자동으로 표시됩니다.</div></div>
+      <p class="transit-intro">2차 프로그레션(하루=1년)과 솔라 리턴(태양이 돌아오는 날의 차트)으로 <strong>올해 1년의 큰 테마</strong>를 봐요. 출생 시간이 있을 때 더 정확해요.</p>
+      <div id="yearForecast" class="transit-result"><div class="transit-empty">차트를 계산하면 자동으로 보여 드려요.</div></div>
       <div class="transit-ai-block no-print" id="yearAiBlock" hidden>
         <p class="transit-ai-intro">위 올해 운세를 본 뒤 <strong>AI 올해 운세</strong>로 연애·일·금전·건강·학업 테마를 풀어 볼 수 있어요.
-          같은 해·같은 차트면 다시 열어도 크레딧이 차감되지 않습니다. <span class="ai-quota-cost">(최초 1크레딧)</span></p>
+          같은 해·같은 차트면 다시 열어도 크레딧이 차감되지 않아요. <span class="ai-quota-cost">(최초 1크레딧)</span></p>
         <div class="transit-ai-row">
           <button type="button" class="rt-btn rt-btn--share" id="btnYearAi" disabled>✨ AI 올해 운세 (1크레딧)</button>
         </div>
@@ -803,10 +805,11 @@ body.export-capturing #wheelCard .note{display:none !important;}
     </div>
 
     <!-- 인생 운의 흐름 (만 20~80) -->
-    <div class="card" id="lifeTimelineCard">
-      <div class="card-title">✦ 인생 운의 흐름 (만 20~80세)<span class="card-maint-badge">업데이트중 — 클릭하지 마세요</span></div>
-      <p class="transit-intro">느린 행성 트랜짓으로 <strong>인생 전체의 큰 줄기·변곡점</strong>을 봅니다.
-        기회·결실·변화·압력·활동을 서로 다른 종류로 구분하며, 확정 예언이 아닙니다.
+    <!-- 계산 오류 수정 전까지 숨김 (다시 열 때 hidden 과 style 을 지우면 됨) -->
+    <div class="card" id="lifeTimelineCard" hidden style="display:none">
+      <div class="card-title">✦ 인생 운의 흐름 (만 20~80세)</div>
+      <p class="transit-intro">느린 행성 트랜짓으로 <strong>인생 전체의 큰 줄기·변곡점</strong>을 봐요.
+        기회·결실·변화·압력·활동을 서로 다른 종류로 구분하며, 확정 예언이 아니에요.
         시기별 상세는 아래 <strong>앞으로 5년</strong> AI를 이용하세요.</p>
       <div id="lifeTimelineDataBlock">
         <div class="transit-controls">
@@ -816,7 +819,7 @@ body.export-capturing #wheelCard .note{display:none !important;}
       </div>
       <div class="transit-ai-block no-print" id="lifeTimelineAiBlock" hidden>
         <p class="transit-ai-intro">인생 구간·하이라이트를 AI로 풀 수 있어요.
-          같은 차트면 다시 열어도 크레딧이 차감되지 않습니다. <span class="ai-quota-cost">(최초 3크레딧)</span></p>
+          같은 차트면 다시 열어도 크레딧이 차감되지 않아요. <span class="ai-quota-cost">(최초 3크레딧)</span></p>
         <div class="transit-ai-row">
           <button type="button" class="rt-btn rt-btn--share" id="btnLifeTimelineAi" disabled>✨ AI 인생 흐름 풀기 (3크레딧)</button>
         </div>
@@ -828,7 +831,7 @@ body.export-capturing #wheelCard .note{display:none !important;}
     <!-- 장기 운 타임라인 (5년) -->
     <div class="card" id="timelineCard">
       <div class="card-title">✦ 장기 운의 흐름 · 상태 타임라인 (5년)</div>
-      <p class="transit-intro">목성·토성·천왕성·해왕성·명왕성 트랜짓으로 <strong>앞으로 5년</strong> 흐름을 봅니다.
+      <p class="transit-intro">목성·토성·천왕성·해왕성·명왕성 트랜짓으로 <strong>앞으로 5년</strong> 흐름을 봐요.
         차트를 계산한 뒤 AI로 풀어 읽을 수 있어요. 출생 시간이 있으면 프로그레스 달(하우스 이동)도 반영돼요.</p>
       <div id="timelineDataBlock">
         <div class="transit-controls" id="timelineLegacyControls">
@@ -840,7 +843,7 @@ body.export-capturing #wheelCard .note{display:none !important;}
       <div class="transit-ai-block no-print" id="timelineAiBlock" hidden>
         <p class="transit-ai-intro"><strong>AI로 5년 흐름 풀기</strong>를 누르면 5년 스토리·연도별·일정이 <strong>한 번에</strong> 나와요.
           아래 <strong>주제별 상세</strong>에서 금전·연애·이사 등 그 주제만 시기·활용·주의를 더 볼 수 있어요.
-          같은 차트·같은 기간·같은 주제면 다시 열어도 크레딧이 차감되지 않습니다. <span class="ai-quota-cost">(5년 2크레딧 · 주제별 1크레딧)</span></p>
+          같은 차트·같은 기간·같은 주제면 다시 열어도 크레딧이 차감되지 않아요. <span class="ai-quota-cost">(5년 2크레딧 · 주제별 1크레딧)</span></p>
         <div class="timeline-ai-actions">
           <div class="transit-ai-row">
             <button type="button" class="rt-btn rt-btn--share" id="btnTimelineAi" disabled>✨ AI로 5년 흐름 풀기 (2크레딧)</button>
@@ -848,13 +851,13 @@ body.export-capturing #wheelCard .note{display:none !important;}
         </div>
         <div id="timelineYearTabBar" class="timeline-year-tab-bar" hidden>
           <p class="timeline-nav-label">5년 스토리 · 연도별</p>
-          <p class="timeline-nav-hint" id="timelineYearTabHint">전체·연도·일정 탭으로 나눠 볼 수 있습니다.</p>
+          <p class="timeline-nav-hint" id="timelineYearTabHint">전체·연도·일정 탭으로 나눠 볼 수 있어요.</p>
           <div id="timelineYearTabs" class="timeline-year-tabs"></div>
         </div>
         <div id="timelineTopicBlock" class="timeline-topic-block" hidden>
           <div class="timeline-topic-intro" id="timelineTopicIntro">
             <p class="timeline-nav-label">주제별 상세 <span class="ai-quota-cost">(주제당 1크레딧)</span></p>
-            <p class="timeline-nav-hint">시기 · 활용 · 주의를 주제별로 봅니다.</p>
+            <p class="timeline-nav-hint">시기 · 활용 · 주의를 주제별로 봐요.</p>
           </div>
           <div id="timelineTopicSlot" class="timeline-topic-slot"></div>
           <div id="timelineTopicResult" class="ai-result empty" hidden></div>
@@ -867,7 +870,7 @@ body.export-capturing #wheelCard .note{display:none !important;}
     <!-- 트랜짓(오늘의 운세) -->
     <div class="card" id="transitCard">
       <div class="card-title">✦ 오늘의 하늘 · 트랜짓</div>
-      <p class="transit-intro">지금 이 순간 하늘의 행성들이 <strong>나의 출생 차트</strong>에 어떤 각을 맺는지를 봅니다. 요즘의 흐름·기회·과제를 읽는 ‘운세’예요.</p>
+      <p class="transit-intro">지금 이 순간 하늘의 행성들이 <strong>나의 출생 차트</strong>에 어떤 각을 맺는지를 봐요. 요즘의 흐름·기회·과제를 읽는 ‘운세’예요.</p>
       <div id="transitDataBlock">
         <div class="transit-controls">
           <label class="transit-date-row">기준 날짜
@@ -880,14 +883,14 @@ body.export-capturing #wheelCard .note{display:none !important;}
       <div class="transit-ai-block no-print" id="transitAiBlock" hidden>
         <p class="transit-ai-intro">트랜짓을 본 뒤 아래에서 <strong>이번 주·요즘 큰 흐름</strong>을 AI로 풀어 볼 수 있어요. <strong>같은 트랜짓 각 구성</strong>이면 다시 열어도 크레딧이 차감되지 않으며, 저장된 해석을 바로 보여 드려요. <span class="ai-quota-cost">(최초 각 1크레딧)</span></p>
         <div class="transit-ai-row">
-          <button type="button" class="rt-btn rt-btn--share" id="btnTransitAiFast" disabled>✨ AI 이번 주 운세</button>
+          <button type="button" class="rt-btn rt-btn--share" id="btnTransitAiFast" disabled>✨ AI 이번 주 운세 (1크레딧)</button>
         </div>
         <div id="transitAiFastResult" class="ai-result empty">위에서 「오늘의 트랜짓 보기」를 누른 뒤 「AI 이번 주 운세」를 이용해 주세요.</div>
         <p class="ai-time-hint" id="transitAiFastHint">보통 20~40초 정도 걸려요.</p>
         <div class="transit-ai-row" style="margin-top:14px;">
-          <button type="button" class="rt-btn rt-btn--share" id="btnTransitAiSlow" disabled>✨ AI 요즘 큰 흐름</button>
+          <button type="button" class="rt-btn rt-btn--share" id="btnTransitAiSlow" disabled>✨ AI 요즘 큰 흐름 (1크레딧)</button>
         </div>
-        <div id="transitAiSlowResult" class="ai-result empty">느린 행성 트랜짓 기준으로 몇 달~수년 테마를 봅니다.</div>
+        <div id="transitAiSlowResult" class="ai-result empty">느린 행성 트랜짓 기준으로 몇 달~수년 테마를 봐요.</div>
         <p class="ai-time-hint" id="transitAiSlowHint">보통 20~40초 정도 걸려요.</p>
       </div>
     </div>
@@ -895,9 +898,9 @@ body.export-capturing #wheelCard .note{display:none !important;}
     <!-- 상담사용 한 장 요약 (Professional 전용) -->
     <div class="card" id="counselorReportCard" hidden>
       <div class="card-title">✦ 상담사용 한 장 요약 리포트</div>
-      <p class="transit-intro">빅3·핵심 어스펙트·트랜짓·올해 흐름을 <strong>상담 전 브리핑</strong> 형식으로 정리합니다. 복사·인쇄용이에요.
-        <strong>고객 카드 저장</strong>은 위 AI 차트 해석이 우선입니다.</p>
-      <div id="counselorReport" class="counselor-report">차트를 계산하면 요약이 생성됩니다.</div>
+      <p class="transit-intro">빅3·핵심 어스펙트·트랜짓·올해 흐름을 <strong>상담 전 브리핑</strong> 형식으로 정리해요. 복사·인쇄용이에요.
+        <strong>고객 카드 저장</strong>은 위 AI 차트 해석이 우선이에요.</p>
+      <div id="counselorReport" class="counselor-report">차트를 계산하면 요약이 만들어져요.</div>
       <div class="ai-actions no-print">
         <button type="button" class="rt-btn" id="btnReportCopy">⧉ 요약 복사</button>
         <button type="button" class="rt-btn" id="btnReportPrint">🖨 요약만 인쇄</button>
@@ -905,15 +908,15 @@ body.export-capturing #wheelCard .note{display:none !important;}
     </div>
 
     <div class="note">
-      ※ 트로피컬 황도 · 플라시더스 하우스 기준입니다. 출생 시간이 정확할수록 상승궁·하우스가 정확해집니다.
-      서머타임 등 시간대는 출생지 좌표로 자동 계산됩니다. 본 결과는 교육·오락 목적의 참고 자료입니다.
+      ※ 트로피컬 황도 · 플라시더스 하우스 기준이에요. 출생 시간이 정확할수록 상승궁·하우스가 정확해져요.
+      서머타임 등 시간대는 출생지 좌표로 자동 계산돼요. 본 결과는 교육·오락 목적의 참고 자료예요.
     </div>
   </div>
 </div>
 
 <section class="astro-seo-intro">
   <h2>점성학 차트 무료 — 출생·네이탈 차트 계산</h2>
-  <p><strong>점성학 차트</strong>(네이탈 차트·출생 차트)는 생년월일·출생 시간·출생지로 무료 계산할 수 있습니다. 태양·달·상승궁 <strong>빅3</strong>, 행성 위치, 12하우스, 원소·모달리티, 어스펙트 그리드, <strong>점성학</strong> 트랜짓(오늘의 운세), 올해 운세까지 한곳에서 확인하세요.</p>
+  <p><strong>점성학 차트</strong>(네이탈 차트·출생 차트)는 생년월일·출생 시간·출생지만 있으면 무료로 계산할 수 있어요. 태양·달·상승궁 <strong>빅3</strong>, 행성 위치, 12하우스, 원소·모달리티, 어스펙트 그리드를 무료로 보고, <strong>점성학</strong> 트랜짓(오늘의 운세)·올해 운세·AI 해석은 Basic부터 이용할 수 있어요.</p>
   <p><a href="guide/what-is-astrology.html">점성학이란?</a> · <a href="guide/astrology.html">점성학 차트 보는 법</a> · <a href="astrology-couple.html">커플 시너스트리</a> · <a href="analysis.html">수비학 계산</a> · <a href="numerology-calendar.html">수비학 달력</a></p>
 </section>
 
@@ -944,6 +947,27 @@ body.export-capturing #wheelCard .note{display:none !important;}
 
   const M = window.ASTRO_MEANINGS;
   const CITIES = window.ASTRO_CITIES || [];
+  // 별자리 아이콘 (기기마다 컬러 이모지로 바뀌지 않게 그림으로 그림 · 글리프 출처: DejaVu Sans, 자유 라이선스)
+  const ZODIAC_GLYPH_RAW = {
+    '♈': ['M854 0Q854 600 711.0 986.5Q568 1373 399 1373Q270 1373 253.0 1274.5Q236 1176 236 1142Q236 1014 320 886H186Q93 1018 93 1179Q93 1311 174.5 1404.5Q256 1498 402 1498Q774 1498 905 725Q913 676 918 636Q922 676 930 725Q1062 1498 1433 1498Q1580 1498 1661.0 1404.5Q1742 1311 1742 1179Q1742 1018 1649 886H1515Q1600 1014 1600 1143Q1600 1177 1583.0 1275.0Q1566 1373 1436 1373Q1268 1373 1125.0 986.5Q982 600 982 0Z', '27 -1639 1781 1781'],
+    '♉': ['M917 860Q770 860 667.0 756.5Q564 653 564.0 506.0Q564 359 667.0 256.0Q770 153 917.0 153.0Q1064 153 1167.5 256.0Q1271 359 1271.0 506.0Q1271 653 1168.5 756.5Q1066 860 917 860ZM917 1010Q1048 1015 1124 1076Q1210 1142 1258.5 1232.0Q1307 1322 1387.5 1409.0Q1468 1496 1653 1496V1388Q1530 1388 1446.5 1232.0Q1363 1076 1232 968Q1211 949 1188 934Q1234 904 1277 863Q1423 714 1423 504Q1423 295 1275.5 147.5Q1128 0 917 0Q709 0 561.0 147.5Q413 295 413 504Q413 714 561 863Q602 905 650 935Q626 949 605 968Q476 1076 390.5 1232.0Q305 1388 183 1388V1496Q368 1496 461.0 1409.0Q554 1322 590.0 1232.0Q626 1142 711 1076Q788 1015 917 1010Z', '110 -1556 1616 1616'],
+    '♊': ['M530 1276Q362 1298 192 1350V1498Q539 1408 919.0 1408.0Q1299 1408 1642 1498V1347Q1466 1300 1300 1276V222Q1466 199 1642 152V0Q1299 91 919.0 91.0Q539 91 192 0V148Q362 201 530 222ZM682 234Q798 247 915 247Q915 247 1148 234V1265Q1032 1252 915 1252Q915 1252 682 1265Z', '108 -1558 1618 1618'],
+    '♋': ['M1251 241Q1345 241 1411.5 307.5Q1478 374 1478.0 469.0Q1478 564 1412.0 630.0Q1346 696 1251.0 696.0Q1156 696 1090.0 630.0Q1024 564 1024.0 469.0Q1024 374 1090.0 307.5Q1156 241 1251 241ZM1060 64Q748 66 566.0 86.0Q384 106 231 149V273Q484 189 666.0 178.0Q848 167 907 167Q1037 167 1029 193Q898 301 898 468Q898 615 1000.5 718.5Q1103 822 1250 822Q1399 822 1502.0 718.5Q1605 615 1605.0 468.0Q1605 321 1501 218Q1428 141 1305.0 103.0Q1182 65 1060 64ZM585 759Q679 759 745.5 825.0Q812 891 812.0 986.0Q812 1081 745.5 1147.0Q679 1213 585.0 1213.0Q491 1213 424.0 1147.0Q357 1081 357.0 986.0Q357 891 423.5 825.0Q490 759 585 759ZM775 1391Q1088 1389 1270.0 1368.5Q1452 1348 1605 1305V1182Q1352 1266 1171.0 1276.5Q990 1287 932 1287Q799 1287 807 1261Q938 1153 938 987Q938 839 835.5 735.5Q733 632 586 632Q437 632 334.0 735.5Q231 839 231 987Q231 1133 335 1236Q408 1313 530.5 1351.5Q653 1390 775 1391Z', '176 -1469 1484 1484'],
+    '♌': ['M660 396Q735 425 760.0 481.5Q785 538 785 577Q785 612 771 647Q742 722 685.5 747.0Q629 772 590 772Q554 772 519 758Q444 728 419.5 672.5Q395 617 395 578Q395 543 409 507Q439 431 494.5 406.5Q550 382 589 382Q624 382 660 396ZM672 1134Q672 1295 783.5 1395.5Q895 1496 1075 1496Q1247 1496 1356.0 1385.5Q1465 1275 1465 1099Q1465 912 1320.0 661.0Q1175 410 1175 230Q1179 106 1313 103Q1384 103 1484 191L1549 119Q1422 0 1311 0Q1212 0 1140.0 60.5Q1068 121 1068 232Q1068 431 1211.5 671.5Q1355 912 1355 1106Q1355 1240 1273.0 1322.5Q1191 1405 1059 1405Q932 1405 857.0 1327.5Q782 1250 782 1121Q782 1061 805.0 988.5Q828 916 853 854Q890 756 894.5 692.0Q899 628 899 611Q899 524 867 456Q816 341 700 296Q644 274 588 274Q528 274 441.5 311.5Q355 349 308 469Q286 523 286 579Q286 639 313 699Q364 813 481 859Q536 880 591 880Q667 880 741 839Q749 839 749 852Q749 878 710.5 970.0Q672 1062 672 1134Z', '110 -1556 1616 1616'],
+    '♍': ['M680 1496Q743 1496 802.5 1397.0Q862 1298 862 1170Q902 1289 1001.0 1392.5Q1100 1496 1175 1496Q1237 1496 1278.0 1412.5Q1319 1329 1319 1110V908Q1367 1033 1432.5 1092.5Q1498 1152 1566 1152Q1626 1152 1676.0 1036.0Q1726 920 1726 647Q1726 239 1345 -82Q1346 -176 1492 -369H1324Q1278 -328 1204 -167Q1037 -268 862 -275V-159Q1053 -131 1177 -44L1168 173V1028Q1168 1046 1168 1063Q1168 1344 1122 1345Q1064 1344 997.5 1235.5Q931 1127 868 927V0H717V922Q717 1243 701.5 1296.0Q686 1349 651 1349Q651 1349 650 1349Q650 1349 649 1349Q608 1349 518.5 1236.0Q429 1123 410 908V0H261V1089Q261 1279 109 1470H251Q369 1391 405 1215Q428 1308 519.5 1402.0Q611 1496 680 1496ZM1319 618V58Q1577 308 1601 646Q1601 839 1578.5 908.5Q1556 978 1528 978Q1528 978 1524 978Q1494 978 1422.5 875.0Q1351 772 1319 618Z', '-90 -1571 2014 2014'],
+    '♎': ['M171 259H1665V107H171ZM728 506H171V658H525Q458 762 458 893Q458 1078 586.5 1207.5Q715 1337 900 1337Q1086 1337 1215.5 1207.5Q1345 1078 1345 893Q1345 762 1277 658H1665V506H1072V658H1071Q1089 671 1106 688Q1192 773 1192 894Q1192 1016 1107.0 1101.0Q1022 1186 900.0 1186.0Q778 1186 693.0 1101.0Q608 1016 608 894Q608 773 693 688Q709 671 728 658Z', '111 -1529 1614 1614'],
+    '♏': ['M1280 271Q1280 160 1331.5 97.5Q1383 35 1472 34H1561V152H1565L1768 -21L1565 -196L1561 -192V-74H1472Q1269 -74 1201 46Q1157 120 1149 238L1128 1028Q1128 1046 1128 1063Q1128 1344 1082 1345Q1024 1344 957.5 1235.5Q891 1127 828 927V0H677V922Q677 1243 661.5 1296.0Q646 1349 611 1349Q611 1349 610 1349Q610 1349 609 1349Q568 1349 478.5 1236.0Q389 1123 370 908V0H221V1089Q221 1279 69 1470H211Q329 1391 365 1215Q388 1308 479.5 1402.0Q571 1496 640 1496Q703 1496 762.5 1397.0Q822 1298 822 1170Q862 1289 961.0 1392.5Q1060 1496 1135 1496Q1197 1496 1238.0 1412.5Q1279 1329 1279 1110V908L1280 272Z', '1 -1567 1835 1835'],
+    '♐': ['M1514 728V1236L809 531L1126 214L1018 106L701 423L277 -1L276 0L170 106L169 107L593 531L276 848L277 849L383 955L384 956L701 639L1406 1344H898V1496H1666V728Z', '109 -1556 1617 1617'],
+    '♑': ['M851 1496Q958 1496 998.5 1063.0Q1039 630 1064 634Q1173 855 1368 855Q1489 855 1565.5 760.0Q1642 665 1642 562Q1642 417 1570.5 331.5Q1499 246 1357 246Q1202 246 1080 379Q1036 219 973.0 111.5Q910 4 772 0H604V118L758 119Q880 123 985 499Q935 515 903.0 909.5Q871 1304 813 1304Q777 1304 700.0 1070.5Q623 837 623 642Q623 627 623 613L465 611Q465 864 394.5 1112.0Q324 1360 192 1366V1463Q339 1463 419.5 1352.0Q500 1241 540 966Q586 1167 631 1255Q672 1346 733.0 1421.0Q794 1496 851 1496ZM1137 510Q1230 365 1360 365Q1521 365 1530 562Q1523 719 1364 738Q1212 738 1137 510Z', '109 -1556 1616 1616'],
+    '♒': ['M176 413Q501 684 616 684Q661 684 674 644Q698 573 754.0 573.0Q810 573 896.0 644.0Q982 715 1038 715Q1092 715 1116 644Q1142 573 1199.0 573.0Q1256 573 1342 644Q1385 680 1426 680Q1550 680 1659 364L1565 313Q1502 498 1407 498Q1356 498 1296 445Q1210 369 1154.0 369.0Q1098 369 1073 444Q1045 522 986 522Q931 522 848 455Q761 384 706 384Q650 384 625 456Q601 526 547 526Q492 526 363.0 419.5Q234 313 229 313L176 411ZM176 884Q500 1153 616 1153Q660 1153 674 1114Q698 1044 754 1044Q809 1044 895 1114Q982 1186 1037.0 1186.0Q1092 1186 1115 1114Q1142 1044 1198 1044Q1255 1044 1341 1114Q1384 1149 1425 1149Q1550 1149 1659 834L1565 784Q1502 969 1407 969Q1356 969 1296 915Q1209 838 1154 838Q1098 838 1072 914Q1045 992 986 992Q931 992 847 924Q761 853 705 853Q650 853 625 925Q601 997 546.0 997.0Q491 997 362.5 890.5Q234 784 229 784L176 881Z', '117 -1550 1602 1602'],
+    '♓': ['M1038 665 797 662Q765 324 487 3L322 0Q629 351 656 662H360V834H656Q628 1144 321 1496L487 1493Q765 1173 797 834H1039Q1070 1173 1349 1493L1514 1496Q1207 1144 1180 834H1475L1474 662H1178Q1207 351 1514 0L1348 3Q1069 324 1038 662Z', '110 -1556 1616 1616'],
+  }
+  
+  function zodiacIconHtml(sign) {
+    const g = sign && ZODIAC_GLYPH_RAW[String(sign.glyph || '').replace('\uFE0E', '')];
+    if (!g) return sign ? sign.glyph : '';
+    return `<span class="zodiac-icon"><svg viewBox="${g[1]}" aria-hidden="true" focusable="false"><path transform="scale(1,-1)" d="${g[0]}"/></svg></span>`;
+  }
   const $ = (id) => document.getElementById(id);
 
   // 상담사 허브 연계: client 파라미터가 있으면 차트 요약을 고객 카드에 저장 가능
@@ -2009,7 +2033,7 @@ body.export-capturing #wheelCard .note{display:none !important;}
         .filter(Boolean);
       let introHtml =
         '<p class="timeline-nav-label">주제별 상세 <span class="ai-quota-cost">(주제당 1크레딧)</span></p>' +
-        '<p class="timeline-nav-hint">시기 · 활용 · 주의를 주제별로 봅니다.</p>';
+        '<p class="timeline-nav-hint">시기 · 활용 · 주의를 주제별로 봐요.</p>';
       if (weakLabels.length) {
         introHtml += '<p class="timeline-topic-weak-note">이 기간 차트에서 변화 신호가 약한 주제: ' +
           weakLabels.join(' · ') + '</p>';
@@ -2032,7 +2056,7 @@ body.export-capturing #wheelCard .note{display:none !important;}
       btn.dataset.topic = topicId;
       btn.disabled = !canUse;
       if (weak) {
-        btn.title = '이 기간 「' + meta.label + '」 주제의 변화 신호가 약합니다.';
+        btn.title = '이 기간 「' + meta.label + '」 주제의 변화 신호가 약해요.';
       }
       if (TIMELINE_TOPIC_AI_BUSY && TIMELINE_TOPIC_TAB === topicId) {
         btn.disabled = true;
@@ -2106,7 +2130,7 @@ body.export-capturing #wheelCard .note{display:none !important;}
       '「활용·주의」: ' + urHint + ' 무리하면 안 되는 때 1~2문장.\n' +
       '신호가 weak/none이면 「이 5년엔 ' + meta.label + ' 쪽 신호가 뚜렷하지 않음」을 먼저 밝히고, 있는 eps만 짧게.\n' +
       '**고객 본문에 JSON 키·필드명(utilizeRecommendations, domainScan, items 등)·백틱 코드명 출력 금지.**\n' +
-      '**굵게(`**…**`) = 시기 핵심 명사 1~2개만.** 조언 문장 굵게 금지.';
+      '**굵게(`**…**`) = 시기 핵심 명사 1~2개만.** 조언 문장 굵게 금지.\n\n[말투] ' + '답변은 해요체(~해요, ~이에요)로 쓰세요. 점성 용어는 화면과 같게 합·육각·사각·삼각·충으로 쓰고, 트라인·스퀘어·섹스타일 같은 외래어 표기는 쓰지 마세요.';
     return prompt;
   }
 
@@ -2156,8 +2180,8 @@ body.export-capturing #wheelCard .note{display:none !important;}
     const isYear = /^\d{4}$/.test(String(TIMELINE_YEAR_TAB || ''));
     if (tabHint && years.length > 0) {
       tabHint.textContent = isYear
-        ? TIMELINE_YEAR_TAB + '년 해석만 보고 있습니다.'
-        : '전체·연도·일정 탭으로 나눠 볼 수 있습니다.';
+        ? TIMELINE_YEAR_TAB + '년 해석만 보고 있어요.'
+        : '전체·연도·일정 탭으로 나눠 볼 수 있어요.';
     }
     el.querySelectorAll('.timeline-year-tab').forEach((btn) => {
       btn.addEventListener('click', () => {
@@ -2454,10 +2478,10 @@ body.export-capturing #wheelCard .note{display:none !important;}
     const hint = $('aiTimeHint');
     if (hint) {
       if (opts && opts.fromCache) {
-        hint.textContent = '고객 카드에 저장된 AI 해석입니다. 다시 생성하면 크레딧이 차감되고 내용이 갱신됩니다.';
+        hint.textContent = '고객 카드에 저장된 AI 해석이에요. 다시 만들면 크레딧이 차감되고 내용이 새로 바뀌어요.';
         hint.classList.remove('is-loading');
       } else if (opts && opts.saved) {
-        hint.textContent = '고객 카드에 AI 해석을 저장했습니다. 다음에 고객을 고르면 크레딧 없이 다시 볼 수 있어요.';
+        hint.textContent = '고객 카드에 AI 해석을 저장했어요. 다음에 고객을 고르면 크레딧 없이 다시 볼 수 있어요.';
         hint.classList.remove('is-loading');
       }
     }
@@ -2556,11 +2580,11 @@ body.export-capturing #wheelCard .note{display:none !important;}
     }
     if (hint) {
       if (opts && opts.fromCache) {
-        hint.textContent = '고객 카드에 저장된 심화 해석입니다. 같은 버튼을 한 번 더 누르면 크레딧으로 새로 생성합니다. (프롬프트가 바뀌었으면 두 번째 클릭이 새 해석입니다.)';
+        hint.textContent = '고객 카드에 저장된 심화 해석이에요. 같은 버튼을 한 번 더 누르면 크레딧을 써서 새로 만들어요.';
       } else if (opts && opts.saved) {
-        hint.textContent = '고객 카드에 저장했습니다. 다음에 고객을 고르면 크레딧 없이 다시 볼 수 있어요.';
+        hint.textContent = '고객 카드에 저장했어요. 다음에 고객을 고르면 크레딧 없이 다시 볼 수 있어요.';
       } else {
-        hint.textContent = '심화 해석은 보통 40초~1분 정도 걸려요. 저장된 주제는 다시 누르면 바로 보입니다.';
+        hint.textContent = '심화 해석은 보통 40초~1분 정도 걸려요. 저장된 주제는 다시 누르면 바로 보예요.';
       }
       hint.classList.remove('is-loading');
     }
@@ -2599,7 +2623,7 @@ body.export-capturing #wheelCard .note{display:none !important;}
       refreshAiUi();
     } catch (e) { /* 게스트/오류 시 무료 권한 */ }
   })();
-  const LOCK_HTML = '<div class="astro-lock"><span class="lock-emoji">🔒</span><div><strong>Basic 이상 플랜</strong>에서 볼 수 있는 심화 분석이에요. 어스펙트 해설·트랜짓(오늘의 운세)·행성 상세 해석·AI 해석이 열립니다.</div><a href="pricing.html">요금제 보기 →</a></div>';
+  const LOCK_HTML = '<div class="astro-lock"><span class="lock-emoji">🔒</span><div><strong>Basic 이상 플랜</strong>에서 볼 수 있는 심화 분석이에요. 어스펙트 해설·트랜짓(오늘의 운세)·행성 상세 해석·AI 해석이 열려요.</div><a href="pricing.html">요금제 보기 →</a></div>';
   const AI_LOCK_HTML = '<div class="astro-lock"><span class="lock-emoji">🔒</span><div><strong>AI 해석</strong>은 Basic 이상에서 이용하거나, 아래 AI 크레딧으로 먼저 써 볼 수 있어요.<br><span style="display:block;margin-top:8px;font-size:12.5px;line-height:1.55;color:#7a6b58"><strong>1,000원</strong> = +2 &nbsp;·&nbsp; <strong>2,000원</strong> = +5 &nbsp;·&nbsp; <strong>3,500원</strong> = +10</span></div><div style="display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:12px"><a href="ai-buy.html?product=ai_5" class="astro-lock-cta" style="display:inline-block;padding:10px 14px;border-radius:8px;background:#4a3520;color:#fff;text-decoration:none;font-weight:600;font-size:13px">AI +5 · 2,000원</a><a href="ai-buy.html?product=ai_10" class="astro-lock-cta" style="display:inline-block;padding:10px 14px;border-radius:8px;background:rgba(74,53,32,.12);color:#4a3520;text-decoration:none;font-weight:600;font-size:13px">AI +10 · 3,500원</a><a href="pricing.html" style="display:inline-block;padding:10px 14px;border-radius:8px;border:1px solid rgba(74,53,32,.25);color:#4a3520;text-decoration:none;font-weight:600;font-size:13px">요금제 보기</a></div></div>';
 
   function hasAiAccess() {
@@ -2646,7 +2670,7 @@ body.export-capturing #wheelCard .note{display:none !important;}
     if (sel.value === 'manual') {
       const lat = parseFloat($('inLat').value), lng = parseFloat($('inLng').value);
       if (Number.isNaN(lat) || Number.isNaN(lng)) return null;
-      return { lat, lng, label: `위 ${lat}, 경 ${lng}` };
+      return { lat, lng, label: `${lat >= 0 ? '북위' : '남위'} ${Math.abs(lat).toFixed(2)}° · ${lng >= 0 ? '동경' : '서경'} ${Math.abs(lng).toFixed(2)}°` };
     }
     const c = CITIES[parseInt(sel.value, 10)];
     return c ? { lat: c.lat, lng: c.lng, label: c.ko } : null;
@@ -2744,7 +2768,7 @@ body.export-capturing #wheelCard .note{display:none !important;}
     const stamp = chartStampForTransitAi();
     const dstr = LAST_TRANSIT && LAST_TRANSIT.dstr ? LAST_TRANSIT.dstr : '';
     if (!aspectKey || !stamp) return '';
-    return 'v4:' + mode + ':' + aspectKey + ':' + dstr + ':' + stamp;
+    return 'v5:' + mode + ':' + aspectKey + ':' + dstr + ':' + stamp;
   }
 
   function transitAiLocalKey(mode) {
@@ -2794,7 +2818,7 @@ body.export-capturing #wheelCard .note{display:none !important;}
     setAiResultBox(box, text);
     const hint = $(mode === 'fast' ? 'transitAiFastHint' : 'transitAiSlowHint');
     if (hint) {
-      hint.textContent = '저장된 해석입니다. 같은 트랜짓 각 구성이면 크레딧 없이 다시 볼 수 있어요.';
+      hint.textContent = '저장된 해석이에요. 같은 트랜짓 각 구성이면 크레딧 없이 다시 볼 수 있어요.';
       hint.classList.remove('is-loading');
     }
     return true;
@@ -2993,7 +3017,7 @@ body.export-capturing #wheelCard .note{display:none !important;}
       setAiResultBox(box, '차트를 계산한 뒤 주제를 선택해 주세요.', { empty: true });
       if (topicEl) topicEl.hidden = true;
     } else if (!String(box.dataset.aiRaw || box.textContent || '').includes('생성하고') && !DEEP_AI_TOPIC) {
-      setAiResultBox(box, '주제를 선택해 주세요. 고객을 고른 뒤 생성하면 카드에 저장됩니다.', { empty: true });
+      setAiResultBox(box, '주제를 선택해 주세요. 고객을 고른 뒤 생성하면 카드에 저장돼요.', { empty: true });
       if (topicEl) topicEl.hidden = true;
     }
   }
@@ -3013,7 +3037,7 @@ body.export-capturing #wheelCard .note{display:none !important;}
     nameEl.appendChild(birthSpan);
     const parts = [];
     if (city) parts.push(`출생지: ${city}`);
-    parts.push('Tropical · Placidus');
+    parts.push('트로피컬 · 플라시더스');
     parts.push('팔자연구소 · 8code.kr');
     metaEl.textContent = parts.join(' · ');
   }
@@ -3028,18 +3052,23 @@ body.export-capturing #wheelCard .note{display:none !important;}
     const moonDeg = deg(horoscope.CelestialBodies.moon);
     const sunSign = M.signFromDegree(sunDeg).sign;
     const moonSign = M.signFromDegree(moonDeg).sign;
+    // 출생 시간을 모르면 정오 기준. 달은 하루 약 13° 움직이므로 별자리 경계 근처면 알림
+    const moonInSign = M.signFromDegree(moonDeg).degInSign;
+    const moonNote = (opts.unknownTime && (moonInSign < 7 || moonInSign > 23))
+      ? '<div class="b3-text" style="margin-top:6px;color:#9a6b2f">출생 시간을 몰라 정오 기준으로 계산했어요. 달이 별자리 경계 근처라 실제 달 별자리는 앞뒤 별자리일 수도 있어요.</div>'
+      : '';
     let big3 = `
       <div class="big3-card">
         <div class="b3-role">태양 · 자아</div>
-        <div class="b3-glyph">${sunSign.glyph}</div>
+        <div class="b3-glyph">${zodiacIconHtml(sunSign)}</div>
         <div class="b3-sign">${M.PLANETS.sun.glyph} ${sunSign.ko}</div>
         <div class="b3-text">${M.SUN_IN_SIGN[sunSign.key] || ''}</div>
       </div>
       <div class="big3-card">
         <div class="b3-role">달 · 감정</div>
-        <div class="b3-glyph">${moonSign.glyph}</div>
+        <div class="b3-glyph">${zodiacIconHtml(moonSign)}</div>
         <div class="b3-sign">${M.PLANETS.moon.glyph} ${moonSign.ko}</div>
-        <div class="b3-text">${M.MOON_IN_SIGN[moonSign.key] || ''}</div>
+        <div class="b3-text">${M.MOON_IN_SIGN[moonSign.key] || ''}</div>${moonNote}
       </div>`;
     let ascSign = null;
     if (!opts.unknownTime) {
@@ -3048,12 +3077,12 @@ body.export-capturing #wheelCard .note{display:none !important;}
       big3 += `
         <div class="big3-card">
           <div class="b3-role">상승궁 · 첫인상</div>
-          <div class="b3-glyph">${ascSign.glyph}</div>
+          <div class="b3-glyph">${zodiacIconHtml(ascSign)}</div>
           <div class="b3-sign">Asc ${ascSign.ko}</div>
           <div class="b3-text">${M.ASC_IN_SIGN[ascSign.key] || ''}</div>
         </div>`;
     } else {
-      big3 += `<div class="big3-card"><div class="b3-role">상승궁</div><div class="b3-glyph">⏱</div><div class="b3-sign">시간 필요</div><div class="b3-text">상승궁은 출생 시간이 있어야 계산할 수 있어요. 시간을 입력하면 표시됩니다.</div></div>`;
+      big3 += `<div class="big3-card"><div class="b3-role">상승궁</div><div class="b3-glyph">⏱</div><div class="b3-sign">시간 필요</div><div class="b3-text">상승궁은 출생 시간이 있어야 계산할 수 있어요. 시간을 입력하면 표시돼요.</div></div>`;
     }
     $('big3').innerHTML = big3;
 
@@ -3075,7 +3104,7 @@ body.export-capturing #wheelCard .note{display:none !important;}
       const pk = bodyKoFromKey(key);
       const houseId = (b.House && b.House.id) ? b.House.id : '';
       const isRetro = (typeof b.isRetrograde === 'function') ? b.isRetrograde() : b.isRetrograde;
-      const retro = isRetro ? '<span class="retro">R</span>' : '';
+      const retro = isRetro ? '<span class="retro">역행</span>' : '';
       natalDegs[key] = d;
       rows += `<tr>
         <td><span class="glyph">${pk.glyph}</span>${pk.ko}</td>
@@ -3088,7 +3117,7 @@ body.export-capturing #wheelCard .note{display:none !important;}
         const signText = M.planetInSign(key, s.sign.key);
         const houseText = (!opts.unknownTime && houseId) ? M.planetInHouse(key, houseId) : '';
         planetReads.push({ ko: pk.ko, sign: s.sign.ko, house: houseId, retro: isRetro });
-        const retroR = isRetro ? '<span class="pr-retro">R 역행</span>' : '';
+        const retroR = isRetro ? '<span class="pr-retro">역행</span>' : '';
         readHtml += `<div class="planet-read-item">
           <div class="pr-glyph">${pk.glyph}</div>
           <div class="pr-body">
@@ -3201,7 +3230,7 @@ body.export-capturing #wheelCard .note{display:none !important;}
       const now = new Date();
       td.value = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0') + '-' + String(now.getDate()).padStart(2, '0');
     }
-    $('transitResult').innerHTML = '<div class="transit-empty">위 “오늘의 트랜짓 보기”를 누르면 현재 흐름이 표시됩니다.</div>';
+    $('transitResult').innerHTML = '<div class="transit-empty">위 “오늘의 트랜짓 보기”를 누르면 현재 흐름이 표시돼요.</div>';
 
     if (opts.unknownTime) {
       $('yearForecast').innerHTML = '<div class="transit-empty">출생 시간이 있어야 프로그레션·솔라 리턴을 계산할 수 있어요.</div>';
@@ -3400,7 +3429,7 @@ body.export-capturing #wheelCard .note{display:none !important;}
     const tbody = table ? table.querySelector('tbody') : null;
     if (!tbody) return;
     const defs = [
-      { key: 'fortune', glyph: '⊗', ko: '포르투나', role: '행운·성취의 지점' },
+      { key: 'fortune', glyph: '⊗', ko: '행운점', role: '행운·성취의 지점 (포르투나)' },
       { key: 'vertex', glyph: 'Vx', ko: '버텍스', role: '운명적 만남·전환점' },
     ];
     defs.forEach((p) => {
@@ -3585,7 +3614,7 @@ body.export-capturing #wheelCard .note{display:none !important;}
       moon: '약 하루', sun: '며칠', mercury: '며칠', venus: '며칠', mars: '1~2주',
       jupiter: '수 주~2개월', saturn: '수개월', uranus: '수개월~1년+', neptune: '수개월~수년', pluto: '수개월~수년',
     };
-    const natalLabelKeys = { sun:'태양', moon:'달', mercury:'수성', venus:'금성', mars:'화성', jupiter:'목성', saturn:'토성', uranus:'천왕성', neptune:'해왕성', pluto:'명왕성', asc:'상승궁', mc:'중천점', chiron:'카이런', northnode:'북교점', southnode:'남교점', lilith:'릴리스', fortune:'포르투나', vertex:'버텍스' };
+    const natalLabelKeys = { sun:'태양', moon:'달', mercury:'수성', venus:'금성', mars:'화성', jupiter:'목성', saturn:'토성', uranus:'천왕성', neptune:'해왕성', pluto:'명왕성', asc:'상승궁', mc:'중천점', chiron:'카이런', northnode:'북교점', southnode:'남교점', lilith:'릴리스', fortune:'행운점', vertex:'버텍스' };
     const labelOf = (k) => (M.bodyLabel ? M.bodyLabel(k) : (natalLabelKeys[k] || k));
     function itemHtml(h) {
       const tName = labelOf(h.tk);
@@ -3728,7 +3757,7 @@ body.export-capturing #wheelCard .note{display:none !important;}
   function buildChartAiPrompt(ctx, aspects, knownKeys) {
     const L = [];
 
-    L.push('당신은 따뜻하고 통찰력 있는 전문 점성가입니다. 아래 출생 차트를 바탕으로 전문 용어는 쉽게 풀어 한국어로 해석해 주세요. 단정적 예언·공포 조장은 금지하고, 참고용 자기이해 톤으로 다정하게 써 주세요. 건강은 의학적 진단이 아닌 생활·에너지·스트레스 관리 관점으로만 다루세요. 트랜짓·올해 운세·이번 주 운세는 이 요청에 포함하지 마세요.');
+    L.push('당신은 따뜻하고 통찰력 있는 전문 점성가입니다. 아래 출생 차트를 바탕으로 전문 용어는 쉽게 풀어 한국어로 해석해 주세요. 단정적 예언·공포 조장은 금지하고, 참고용 자기이해 톤으로 다정하게 써 주세요. 건강은 의학적 진단이 아닌 생활·에너지·스트레스 관리 관점으로만 다루세요. 트랜짓·올해 운세·이번 주 운세는 이 요청에 포함하지 마세요. 답변은 해요체(~해요, ~이에요)로 쓰세요. 점성 용어는 화면과 같게 합·육각·사각·삼각·충으로 쓰고, 트라인·스퀘어·섹스타일 같은 외래어 표기는 쓰지 마세요.');
     L.push('');
     appendChartContextLines(L, ctx, aspects, knownKeys);
 
@@ -3763,7 +3792,8 @@ body.export-capturing #wheelCard .note{display:none !important;}
       '당신은 따뜻하고 통찰력 있는 전문 점성가입니다. 아래 출생 차트와 올해 프로그레션·솔라 리턴을 바탕으로 **올해 1년** 운세를 한국어로 써 주세요. ' +
       '트랜짓·이번 주 운세는 제외하세요. 단정적 예언·공포 조장은 금지하고, 참고용 톤으로 다정하게 써 주세요. ' +
       '건강은 의학적 진단이 아닌 생활·에너지·스트레스 관리 관점으로만 다루세요. ' +
-      '일반 독자도 바로 이해할 수 있게, 전문 용어는 쉬운 말로 풀어 주세요.',
+      '일반 독자도 바로 이해할 수 있게, 전문 용어는 쉬운 말로 풀어 주세요. ' +
+      '답변은 해요체(~해요, ~이에요)로 쓰세요. 점성 용어는 화면과 같게 합·육각·사각·삼각·충으로 쓰고, 트라인·스퀘어·섹스타일 같은 외래어 표기는 쓰지 마세요.',
     );
     L.push('');
     appendChartContextLines(L, LAST_CTX, LAST_ASPECTS, LAST_KNOWN);
@@ -3771,19 +3801,20 @@ body.export-capturing #wheelCard .note{display:none !important;}
     L.push('[올해 운세 · 프로그레션 & 솔라 리턴 · ' + currentYearKey() + '년]');
     L.push('프로그레션(만 ' + yf.age + '세): 태양 ' + yf.progSun + ' · 달 ' + yf.progMoon);
     L.push('솔라 리턴: ' + fmtYmd(yf.srDate) + (yf.srAsc ? ' · 상승궁 ' + yf.srAsc : '') + (yf.srSunHouse ? ' · 태양 ' + yf.srSunHouse + '하우스' : ''));
+    L.push('솔라 리턴 적용 기간: ' + fmtYmd(yf.srDate) + ' 생일부터 다음 생일 전까지 1년 (지금 이 기간 안에 있어요). 「올해」는 이 1년을 뜻해요.');
     L.push('');
     L.push('[작성 형식 — 반드시 지키세요]');
     L.push('1) ## 제목만 사용(이모지 남발 금지). 아래 순서대로 **모두** 작성하세요.');
     L.push('## 0. 3초 브리핑 노트 (한눈에 보는 올해 요약)');
     L.push('불릿 3줄만. 쉬운 말. 0번과 아래 본문이 같은 문장을 반복하지 마세요.');
     L.push('- **올해 한 줄 테마:** (올해를 관통하는 키워드를 쉬운 한 문장으로)');
-    L.push('- **가장 힘이 실는 영역:** (연애·일·금전·건강·배움 중 어디에 에너지가 모이는지)');
+    L.push('- **가장 힘이 실리는 영역:** (연애·일·금전·건강·배움 중 어디에 에너지가 모이는지)');
     L.push('- **올해 바로 쓸 팁:** (일상에서 당장 해볼 수 있는 행동 1줄)');
     L.push('');
     [
       '## 1. 올해 전체 테마 — 프로그레션·솔라 리턴을 쉬운 말로 연결(3~4문장)',
       '## 2. 연애·관계 — 올해 관계·가족에서 조심할 점과 기회',
-      '## 3. 일·적성·커리어 — 올해 업무·커리어에서 힘이 실는 방향',
+      '## 3. 일·적성·커리어 — 올해 업무·커리어에서 힘이 실리는 방향',
       '## 4. 금전·재물 — 올해 재정·자원 흐름과 현실적 태도',
       '## 5. 건강·에너지 관리 — 올해 스트레스·회복·생활 리듬 (의학 진단 아님)',
       '## 6. 학업·성장 — 올해 배움·시험·자격·집중',
@@ -3809,7 +3840,8 @@ body.export-capturing #wheelCard .note{display:none !important;}
       ' 트랜짓을 바탕으로, 일반 독자가 읽는 「오늘의 운세」처럼 실전 조언을 한국어로 써 주세요. ' +
       '단정적 예언·공포 조장은 금지하고, 참고용 톤으로 다정하게 써 주세요. ' +
       '건강은 의학적 진단이 아닌 생활·에너지·스트레스 관리 관점으로만 다루세요. ' +
-      '전문 용어는 쉬운 말로 풀고, 「그래서 오늘은/이번 주는 이렇게 하면 좋아요」가 보이게 쓰세요.',
+      '전문 용어는 쉬운 말로 풀고, 「그래서 오늘은/이번 주는 이렇게 하면 좋아요」가 보이게 쓰세요. ' +
+      '답변은 해요체(~해요, ~이에요)로 쓰세요. 점성 용어는 화면과 같게 합·육각·사각·삼각·충으로 쓰고, 트라인·스퀘어·섹스타일 같은 외래어 표기는 쓰지 마세요.',
     );
     L.push('');
     appendChartContextLines(L, LAST_CTX, LAST_ASPECTS, LAST_KNOWN);
@@ -3905,10 +3937,12 @@ body.export-capturing #wheelCard .note{display:none !important;}
       });
 
       const natalSun = NATAL_DEGS.sun;
+      // 지금이 속한 1년 = 가장 최근(지난) 생일의 솔라 리턴. 올해 생일 전이면 작년 생일 기준
+      const srYear = now < bday ? curY - 1 : curY;
       let best = { diff: 999 };
       for (let dOff = -3; dOff <= 3; dOff++) {
         for (let h = 0; h < 24; h++) {
-          const bd = addDays(curY, LAST_BIRTH.mo, LAST_BIRTH.da, dOff);
+          const bd = addDays(srYear, LAST_BIRTH.mo, LAST_BIRTH.da, dOff);
           const o = new Origin({
             year: bd.y, month: bd.mo - 1, date: bd.da, hour: h, minute: 0,
             latitude: LAST_COORDS.lat, longitude: LAST_COORDS.lng,
@@ -3938,12 +3972,12 @@ body.export-capturing #wheelCard .note{display:none !important;}
       let html = '<div class="year-block"><h4>📈 2차 프로그레션 (만 ' + age + '세 · ' + fmtYmd(prog) + ' 기준)</h4>';
       html += '<p>내면 성장의 방향 — <strong>프로그레션 태양 ' + pSun.sign.glyph + ' ' + pSun.sign.ko + '</strong>, ';
       html += '<strong>프로그레션 달 ' + pMoon.sign.glyph + ' ' + pMoon.sign.ko + '</strong>. ';
-      html += '올해 감정·정체성의 내면 테마가 이 별자리 에너지로 움직입니다.</p></div>';
+      html += '올해 감정·정체성의 내면 테마가 이 별자리 에너지로 움직이에요.</p></div>';
 
       html += '<div class="year-block"><h4>☀ 솔라 리턴 (' + fmtYmd(best.date) + ' ' + best.hour + ':00 근처)</h4>';
       html += '<p>생일 전후 태양이 돌아오는 순간의 차트 — <strong>올해 1년의 큰 테마</strong>예요. ';
       if (srAsc) html += '솔라 리턴 상승궁 <strong>' + srAsc.glyph + ' ' + srAsc.ko + '</strong> · ';
-      if (srSunH) html += '솔라 리턴 태양 <strong>' + srSunH + '하우스</strong> 영역이 올해 핵심 무대입니다.';
+      if (srSunH) html += '솔라 리턴 태양 <strong>' + srSunH + '하우스</strong> 영역이 올해 핵심 무대예요.';
       html += '</p></div>';
 
       box.innerHTML = html;
@@ -4005,7 +4039,7 @@ body.export-capturing #wheelCard .note{display:none !important;}
     const box = $('counselorReport');
     if (!box || !HAS_PROFESSIONAL) return;
     const txt = buildCounselorReportText();
-    box.textContent = txt || '차트를 계산하면 요약이 생성됩니다.';
+    box.textContent = txt || '차트를 계산하면 요약이 만들어져요.';
   }
 
   // ── 저장·인쇄 포함 옵션 (화면 표시에는 영향 없음, 캡처/인쇄 직전에만 적용) ──
@@ -4155,7 +4189,7 @@ body.export-capturing #wheelCard .note{display:none !important;}
     }
     const payload = buildChartAiPayload(LAST_CTX, LAST_ASPECTS, LAST_KNOWN);
     const cacheKey = window.PaljaAiQuota
-      ? PaljaAiQuota.hashKey('v9:chart:' + JSON.stringify(payload))
+      ? PaljaAiQuota.hashKey('v10:chart:' + JSON.stringify(payload))
       : JSON.stringify(payload).slice(0, 200);
     let streamed = '';
     try {
@@ -4227,7 +4261,7 @@ body.export-capturing #wheelCard .note{display:none !important;}
     }
     if (slowBox) {
       slowBox.className = 'ai-result empty';
-      slowBox.textContent = '느린 행성 트랜짓 기준으로 몇 달~수년 테마를 봅니다.';
+      slowBox.textContent = '느린 행성 트랜짓 기준으로 몇 달~수년 테마를 봐요.';
     }
     refreshTransitAiUi();
   }
@@ -4279,7 +4313,7 @@ body.export-capturing #wheelCard .note{display:none !important;}
   function timelineCacheKey() {
     const stamp = chartStampForTransitAi();
     if (!stamp) return '';
-    const prefix = isAiRawTimelineV1Enabled() ? 'raw_v46' : 'v7';
+    const prefix = isAiRawTimelineV1Enabled() ? 'raw_v47' : 'v8';
     if (LAST_TIMELINE && LAST_TIMELINE.fromYm && LAST_TIMELINE.toYm) {
       return `${prefix}:timeline:${stamp}:${LAST_TIMELINE.fromYm}:${LAST_TIMELINE.toYm}`;
     }
@@ -4356,7 +4390,7 @@ body.export-capturing #wheelCard .note{display:none !important;}
     if (btn) {
       btn.disabled = isLongFlowMaintenance() || isTimelineAiApiBlocked() || !AI_SERVER_OK || TIMELINE_AI_BUSY || TIMELINE_SCAN_BUSY;
       if (isTimelineAiApiBlocked()) {
-        btn.title = '개발 모드: 5년 AI API 호출이 꺼져 있어요 (?noTimelineAi=1). 저장된 결과만 볼 수 있습니다.';
+        btn.title = '개발 모드: 5년 AI API 호출이 꺼져 있어요 (?noTimelineAi=1). 저장된 결과만 볼 수 있어요.';
       }
     }
     if (TIMELINE_AI_SECTIONS) {
@@ -4599,6 +4633,7 @@ body.export-capturing #wheelCard .note{display:none !important;}
     if (urItems && urItems.length) {
       prompt += '\n- `## 5년 중 언제` 항목은 utilizeRecommendations.items **' + urItems.length + '개만** (목록 밖 추가 금지).';
     }
+    prompt += '\n\n[말투] ' + '답변은 해요체(~해요, ~이에요)로 쓰세요. 점성 용어는 화면과 같게 합·육각·사각·삼각·충으로 쓰고, 트라인·스퀘어·섹스타일 같은 외래어 표기는 쓰지 마세요.';
     return prompt;
   }
 
@@ -5123,7 +5158,7 @@ body.export-capturing #wheelCard .note{display:none !important;}
       : '입력 fromYm~toYm에 포함된 연도만';
 
     const L = [];
-    L.push('당신은 출생 차트와 장기 트랜짓을 근거로 현실적인 해석을 제공하는 전문 점성가입니다.');
+    L.push('당신은 출생 차트와 장기 트랜짓을 근거로 현실적인 해석을 제공하는 전문 점성가입니다. ' + '답변은 해요체(~해요, ~이에요)로 쓰세요. 점성 용어는 화면과 같게 합·육각·사각·삼각·충으로 쓰고, 트라인·스퀘어·섹스타일 같은 외래어 표기는 쓰지 마세요.');
     L.push('');
     L.push(
       '아래 출생 차트와 5년 장기 운 타임라인 v2(4축·상태 구간·에피소드·엔진 판정)를 바탕으로,\n' +
@@ -5588,7 +5623,7 @@ body.export-capturing #wheelCard .note{display:none !important;}
       } else if (!partial) {
         setAiResultBox(box, 'AI 해석을 일시적으로 사용할 수 없어요.', { plain: true });
       } else {
-        showStatus('연결이 끊겼어요. 받은 내용까지 표시해 두었어요. 「AI로 5년 흐름 풀기」를 다시 누르면 이어서 시도합니다.', 'err');
+        showStatus('연결이 끊겼어요. 받은 내용까지 표시해 두었어요. 「AI로 5년 흐름 풀기」를 다시 누르면 이어서 시도해요.', 'err');
         setTimelineAiResult(partial, { open: true, formatWarn: true });
       }
     } finally {
@@ -5775,7 +5810,7 @@ body.export-capturing #wheelCard .note{display:none !important;}
     }
     const prompt = buildYearAiPrompt();
     const cacheKey = window.PaljaAiQuota
-      ? PaljaAiQuota.hashKey(`v2:year:${yKey}:` + prompt)
+      ? PaljaAiQuota.hashKey(`v3:year:${yKey}:` + prompt)
       : prompt.slice(0, 200);
     let streamed = '';
     try {
@@ -5852,7 +5887,7 @@ body.export-capturing #wheelCard .note{display:none !important;}
       setAiResultBox(box, stored);
       saveTransitAiLocal(mode, stored);
       if (hint) {
-        hint.textContent = '저장된 해석입니다. 같은 트랜짓 각 구성이면 크레딧이 다시 차감되지 않아요.';
+        hint.textContent = '저장된 해석이에요. 같은 트랜짓 각 구성이면 크레딧이 다시 차감되지 않아요.';
         hint.classList.remove('is-loading');
       }
       btn.textContent = prev;
@@ -5866,7 +5901,7 @@ body.export-capturing #wheelCard .note{display:none !important;}
       hint.classList.add('is-loading');
     }
     const prompt = buildTransitAiPrompt(mode);
-    const cacheRaw = transitAiCacheRaw(mode) || `v4:${mode}:fallback:` + prompt.slice(0, 120);
+    const cacheRaw = transitAiCacheRaw(mode) || `v5:${mode}:fallback:` + prompt.slice(0, 120);
     const cacheKey = window.PaljaAiQuota
       ? PaljaAiQuota.hashKey(cacheRaw)
       : cacheRaw.slice(0, 200);
@@ -5894,7 +5929,7 @@ body.export-capturing #wheelCard .note{display:none !important;}
       if (hint) {
         hint.textContent = cached
           ? '서버 캐시에서 불러왔어요. 같은 트랜짓 각 구성이면 크레딧이 다시 차감되지 않아요.'
-          : '해석을 저장해 두었어요. 같은 트랜짓 각 구성이면 다시 볼 때 크레딧이 차감되지 않습니다.';
+          : '해석을 저장해 두었어요. 같은 트랜짓 각 구성이면 다시 볼 때 크레딧이 차감되지 않아요.';
         hint.classList.remove('is-loading');
       }
       if (quota) {
@@ -5978,7 +6013,7 @@ body.export-capturing #wheelCard .note{display:none !important;}
     const EI = M.ELEMENT_INFO || {};
     let note = '';
     if (elements[top] > 0) {
-      note = `<strong>${top} 원소</strong>가 가장 강합니다 — ${EI[top] ? EI[top].desc : ''}`;
+      note = `<strong>${top} 원소</strong>가 가장 강해요 — ${EI[top] ? EI[top].desc : ''}`;
       if (elements[bottom] === 0) {
         note += `<br><strong>${bottom} 원소</strong>는 거의 없네요 — ${EI[bottom] ? EI[bottom].low : ''}`;
       }
@@ -6071,14 +6106,14 @@ body.export-capturing #wheelCard .note{display:none !important;}
       radix.aspects();
     } catch (e) {
       console.error('차트 그리기 실패', e);
-      paper.innerHTML = '<div class="note">차트를 그리지 못했습니다. 새로고침 후 다시 시도해 주세요.</div>';
+      paper.innerHTML = '<div class="note">차트를 그리지 못했어요. 새로고침한 뒤 다시 시도해 주세요.</div>';
     }
   }
 
   async function calculate() {
     hideStatus();
     if (libError || !Origin || !Horoscope) {
-      showStatus('점성 계산 도구를 불러오지 못했습니다. 네트워크를 확인하고 새로고침해 주세요.', 'err');
+      showStatus('점성 계산 도구를 불러오지 못했어요. 인터넷 연결을 확인하고 새로고침해 주세요.', 'err');
       return;
     }
     const dateVal = $('inDate').value;
@@ -6119,7 +6154,7 @@ body.export-capturing #wheelCard .note{display:none !important;}
       render(horoscope, { unknownTime, coordLabel: coords.label, displayName });
     } catch (e) {
       console.error(e);
-      showStatus('계산 중 오류가 발생했습니다. 입력값(특히 좌표)을 확인해 주세요.', 'err');
+      showStatus('계산 중 오류가 생겼어요. 입력값(특히 좌표)을 확인해 주세요.', 'err');
     } finally {
       $('calcBtn').disabled = false;
     }
@@ -6469,7 +6504,7 @@ body.export-capturing #wheelCard .note{display:none !important;}
     L.push(
       '당신은 전문 점성가입니다. 아래 인생 운의 흐름(만 20~80) 요약을 바탕으로 한국어로 해석하세요. ' +
       '기회·결실·변화·압력·활동을 같은 종류의 대운으로 뭉개지 마세요. 확정·공포 금지. ' +
-      'importance/점수는 길흉이 아니라 계산 우선순위 메타입니다.'
+      'importance/점수는 길흉이 아니라 계산 우선순위 메타입니다. ' + '답변은 해요체(~해요, ~이에요)로 쓰세요. 점성 용어는 화면과 같게 합·육각·사각·삼각·충으로 쓰고, 트라인·스퀘어·섹스타일 같은 외래어 표기는 쓰지 마세요.'
     );
     if (LAST_CTX) {
       L.push('빅3: 태양 ' + LAST_CTX.sunSign.ko + ' · 달 ' + LAST_CTX.moonSign.ko +
@@ -6647,7 +6682,7 @@ body.export-capturing #wheelCard .note{display:none !important;}
     }
     const payload = buildChartAiPayload(LAST_CTX, LAST_ASPECTS, LAST_KNOWN);
     const cacheKey = window.PaljaAiQuota
-      ? PaljaAiQuota.hashKey('v16:deep:' + meta.feature + ':' + JSON.stringify(payload))
+      ? PaljaAiQuota.hashKey('v17:deep:' + meta.feature + ':' + JSON.stringify(payload))
       : meta.feature + JSON.stringify(payload).slice(0, 120);
     let streamed = '';
     try {
@@ -6682,7 +6717,7 @@ body.export-capturing #wheelCard .note{display:none !important;}
           const errMsg = String(saved.error || '');
           showStatus(
             /astro_deep|column|schema/i.test(errMsg)
-              ? '심화 해석은 됐지만 저장 컬럼이 없습니다. Supabase에서 counselor_clients_astro_deep.sql 을 실행해 주세요.'
+              ? '심화 해석은 만들었지만 고객 카드에 저장하지 못했어요. 관리자에게 문의해 주세요.'
               : '심화 해석은 됐지만 고객 카드 저장에 실패했어요: ' + errMsg,
             'err',
           );
@@ -6710,7 +6745,7 @@ body.export-capturing #wheelCard .note{display:none !important;}
     } finally {
       DEEP_AI_BUSY = false;
       if (hint && hint.classList.contains('is-loading')) {
-        hint.textContent = '심화 해석은 보통 40초~1분 정도 걸려요. 저장된 주제는 다시 누르면 바로 보입니다.';
+        hint.textContent = '심화 해석은 보통 40초~1분 정도 걸려요. 저장된 주제는 다시 누르면 바로 보예요.';
         hint.classList.remove('is-loading');
       }
       if (topicEl && DEEP_AI_CACHE[topic]) {
@@ -6805,8 +6840,8 @@ body.export-capturing #wheelCard .note{display:none !important;}
       flashBtn(btn, '✓ 저장됨');
       showStatus(
         LAST_AI_CHART_TEXT
-          ? '고객 카드에 AI 차트 해석을 저장했습니다.'
-          : '고객 카드에 차트 요약을 저장했습니다. (AI 해석이 있으면 그게 더 유용해요)',
+          ? '고객 카드에 AI 차트 해석을 저장했어요.'
+          : '고객 카드에 차트 요약을 저장했어요. (AI 해석이 있으면 그쪽이 더 유용해요)',
         'info'
       );
     } catch (e) {
@@ -6950,12 +6985,12 @@ body.export-capturing #wheelCard .note{display:none !important;}
   function counselorPrefillStatus({ dt, tm, city, hasCoords }) {
     if (!dt) return '고객 생년월일을 불러오지 못했어요. 직접 입력해 주세요.';
     if (tm && (city || hasCoords)) {
-      return '저장된 고객에서 <strong>이름·생년월일·출생 시간·출생지</strong>를 불러왔어요. 확인 후 차트를 계산합니다.';
+      return '저장된 고객에서 <strong>이름·생년월일·출생 시간·출생지</strong>를 불러왔어요. 바로 차트를 계산해 드려요.';
     }
     if (tm) {
-      return '이름·생년월일·출생 시간을 불러왔어요. <strong>출생지</strong>를 확인한 뒤 “차트 계산하기”를 눌러주세요.';
+      return '이름·생년월일·출생 시간을 불러왔어요. <strong>출생지</strong>를 확인한 뒤 “차트 계산하기”를 눌러 주세요.';
     }
-    return '생년월일을 불러왔어요. 정확한 차트를 위해 <strong>출생 시간</strong>과 <strong>출생지</strong>를 입력한 뒤 “차트 계산하기”를 눌러주세요. (시간을 모르면 “시간 모름”을 체크)';
+    return '생년월일을 불러왔어요. 정확한 차트를 위해 <strong>출생 시간</strong>과 <strong>출생지</strong>를 입력한 뒤 “차트 계산하기”를 눌러 주세요. (시간을 모르면 “시간 모름”을 체크)';
   }
 
   function setActiveClientId(clientId, updateUrl) {
