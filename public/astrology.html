@@ -856,7 +856,7 @@ body.export-capturing .ai-result.empty{display:none !important;}
       </div>
       <p class="ai-deep-topic" id="aiDeepTopic" hidden></p>
       <div id="aiDeepResult" class="ai-result empty">차트를 계산한 뒤 주제를 선택해 주세요.</div>
-      <p class="ai-time-hint" id="aiDeepHint">심화 해석은 보통 40초~1분 정도 걸려요. 저장된 주제는 다시 누르면 바로 보예요.</p>
+      <p class="ai-time-hint" id="aiDeepHint">심화 해석은 보통 40초~1분 정도 걸려요. 저장된 주제는 다시 누르면 바로 볼 수 있어요.</p>
     </div>
 
     <div class="astro-group-h no-print" id="grpForecast"><span class="agh-num">03</span><div><div class="agh-title">운세 · 흐름</div><div class="agh-sub">올해 운세 · 앞으로 5년 · 오늘의 하늘</div></div></div>
@@ -2669,7 +2669,7 @@ body.export-capturing .ai-result.empty{display:none !important;}
       } else if (opts && opts.saved) {
         hint.textContent = '고객 카드에 저장했어요. 다음에 고객을 고르면 크레딧 없이 다시 볼 수 있어요.';
       } else {
-        hint.textContent = '심화 해석은 보통 40초~1분 정도 걸려요. 저장된 주제는 다시 누르면 바로 보예요.';
+        hint.textContent = '심화 해석은 보통 40초~1분 정도 걸려요. 저장된 주제는 다시 누르면 바로 볼 수 있어요.';
       }
       hint.classList.remove('is-loading');
     }
@@ -3845,6 +3845,42 @@ body.export-capturing .ai-result.empty{display:none !important;}
     };
   }
 
+  /** AI에 보내는 확장 데이터(행성 도수·어스펙트 오차). 캐시 키는 기존 payload로 만들어 저장된 결과를 그대로 써요 */
+  function buildChartAiPayloadRich(ctx, aspects, knownKeys) {
+    const base = buildChartAiPayload(ctx, aspects, knownKeys);
+    const rich = Object.assign({}, base);
+    try {
+      const koToKey = {};
+      Object.keys(M.PLANETS || {}).forEach((k) => { if (M.PLANETS[k] && M.PLANETS[k].ko) koToKey[M.PLANETS[k].ko] = k; });
+      rich.planets = (base.planets || []).map((row) => {
+        const k = koToKey[row.ko];
+        const d = k != null ? NATAL_DEGS[k] : null;
+        if (d == null) return row;
+        const sd = M.signFromDegree(d);
+        return Object.assign({}, row, { deg: Math.round(sd.degInSign * 10) / 10 });
+      });
+      const ANG = { conjunction: 0, sextile: 60, square: 90, trine: 120, opposition: 180 };
+      const aspKo = { conjunction: '합', opposition: '충', trine: '삼각', square: '사각', sextile: '육각' };
+      const ranked = [];
+      (aspects || []).forEach((a) => {
+        const kk = aspKo[a.aspectKey];
+        if (!kk) return;
+        if (knownKeys.indexOf(a.point1Key) < 0 || knownKeys.indexOf(a.point2Key) < 0) return;
+        const n1 = (M.PLANETS[a.point1Key] && M.PLANETS[a.point1Key].ko) || a.point1Key;
+        const n2 = (M.PLANETS[a.point2Key] && M.PLANETS[a.point2Key].ko) || a.point2Key;
+        const d1 = NATAL_DEGS[a.point1Key];
+        const d2 = NATAL_DEGS[a.point2Key];
+        const orb = (d1 != null && d2 != null) ? Math.abs(angDiff(d1, d2) - ANG[a.aspectKey]) : null;
+        ranked.push({ t: n1 + ' ' + kk + ' ' + n2, orb });
+      });
+      ranked.sort((x, y) => (x.orb == null ? 99 : x.orb) - (y.orb == null ? 99 : y.orb));
+      rich.aspectsRanked = ranked.map((r) => r.t + (r.orb == null ? '' : ' (오차 ' + r.orb.toFixed(1) + '°' + (r.orb <= 3 ? ' · 강함' : '') + ')'));
+    } catch (e) {
+      console.warn('[chart ai rich payload]', e);
+    }
+    return { base, rich };
+  }
+
   // ── AI 차트 해석 프롬프트 (레거시·캐시키 보조 — 서버 조립 전환 후 미사용) ──
   function buildChartAiPrompt(ctx, aspects, knownKeys) {
     const L = [];
@@ -4288,9 +4324,9 @@ body.export-capturing .ai-result.empty{display:none !important;}
       timeHint.textContent = '해석이 나오는 대로 바로 표시돼요. 창을 닫지 말고 기다려 주세요.';
       timeHint.classList.add('is-loading');
     }
-    const payload = buildChartAiPayload(LAST_CTX, LAST_ASPECTS, LAST_KNOWN);
+    const { base: payloadBase, rich: payload } = buildChartAiPayloadRich(LAST_CTX, LAST_ASPECTS, LAST_KNOWN);
     const cacheKey = window.PaljaAiQuota
-      ? PaljaAiQuota.hashKey('v10:chart:' + JSON.stringify(payload))
+      ? PaljaAiQuota.hashKey('v10:chart:' + JSON.stringify(payloadBase))
       : JSON.stringify(payload).slice(0, 200);
     let streamed = '';
     try {
@@ -6789,9 +6825,9 @@ body.export-capturing .ai-result.empty{display:none !important;}
       hint.textContent = '해석이 나오는 대로 바로 표시돼요. 창을 닫지 말고 기다려 주세요.';
       hint.classList.add('is-loading');
     }
-    const payload = buildChartAiPayload(LAST_CTX, LAST_ASPECTS, LAST_KNOWN);
+    const { base: payloadBase, rich: payload } = buildChartAiPayloadRich(LAST_CTX, LAST_ASPECTS, LAST_KNOWN);
     const cacheKey = window.PaljaAiQuota
-      ? PaljaAiQuota.hashKey('v17:deep:' + meta.feature + ':' + JSON.stringify(payload))
+      ? PaljaAiQuota.hashKey('v17:deep:' + meta.feature + ':' + JSON.stringify(payloadBase))
       : meta.feature + JSON.stringify(payload).slice(0, 120);
     let streamed = '';
     try {
@@ -6854,7 +6890,7 @@ body.export-capturing .ai-result.empty{display:none !important;}
     } finally {
       DEEP_AI_BUSY = false;
       if (hint && hint.classList.contains('is-loading')) {
-        hint.textContent = '심화 해석은 보통 40초~1분 정도 걸려요. 저장된 주제는 다시 누르면 바로 보예요.';
+        hint.textContent = '심화 해석은 보통 40초~1분 정도 걸려요. 저장된 주제는 다시 누르면 바로 볼 수 있어요.';
         hint.classList.remove('is-loading');
       }
       if (topicEl && DEEP_AI_CACHE[topic]) {
