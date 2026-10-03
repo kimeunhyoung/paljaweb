@@ -4,7 +4,7 @@
  */
 (function (global) {
   var FOOTER_ATTR = 'data-site-footer';
-  var CSS_HREF = '/css/site-footer.css?v=4';
+  var CSS_HREF = '/css/site-footer.css?v=5';
   var cssReady = null;
 
   function ensureCss(done) {

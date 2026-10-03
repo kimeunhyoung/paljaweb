@@ -45,25 +45,56 @@ footer.site-footer .site-footer-brand {
 footer.site-footer .site-footer-logo {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
   text-decoration: none;
   color: var(--sf-deep);
   font-weight: 700;
-  font-size: 14px;
+  font-size: 16px;
+  letter-spacing: 0.01em;
 }
 
+/* 상단 topbar-logo-mark와 동일 마크 */
 footer.site-footer .site-footer-mark {
-  width: 24px;
-  height: 24px;
-  border-radius: 7px;
-  background: linear-gradient(160deg, #5a402d 0%, #3d2b1f 70%);
+  width: 30px;
+  height: 30px;
+  min-width: 30px;
+  min-height: 30px;
+  border-radius: 9px;
+  background: linear-gradient(160deg, #5a402d 0%, #3d2b1f 65%, #2d1f16 100%);
   color: var(--sf-cream);
-  font-size: 13px;
+  font-family: 'Noto Serif KR', serif;
+  font-size: 17px;
   font-weight: 700;
+  line-height: 1;
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  border: 1px solid rgba(245, 240, 232, 0.22);
+  box-sizing: border-box;
+  position: relative;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+footer.site-footer .site-footer-mark::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.16), rgba(255, 255, 255, 0) 46%);
+  pointer-events: none;
+}
+
+footer.site-footer .site-footer-mark::after {
+  content: '八';
+  position: absolute;
+  right: 2px;
+  top: 0;
+  font-family: 'Noto Serif KR', serif;
+  font-size: 11px;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.3);
   line-height: 1;
+  pointer-events: none;
 }
 
 footer.site-footer .site-footer-desc {
