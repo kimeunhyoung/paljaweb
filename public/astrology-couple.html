@@ -5,14 +5,14 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <title>점성학 커플 차트 — 시너스트리 궁합 계산 | 팔자연구소 8CODE</title>
-<meta name="description" content="점성학 커플 차트·시너스트리 궁합. 두 사람의 출생 차트를 비교해 태양·달·금성·화성 케미와 점성학 궁합을 분석합니다.">
+<meta name="description" content="점성학 커플 차트·시너스트리 궁합. 두 사람의 출생 차트를 비교해 태양·달·금성·화성 케미와 점성학 궁합을 분석해요.">
 <meta name="keywords" content="점성학, 점성학 차트, 점성학 궁합, 시너스트리, 커플 차트, 출생 차트, 네이탈 차트">
 <meta name="naver-site-verification" content="370eed788420c69530c0a0b934ae1a232210dad7">
 <link rel="canonical" href="https://8code.kr/astrology-couple.html">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="팔자연구소 8CODE">
 <meta property="og:title" content="커플 차트 · 시너스트리 궁합 — 팔자연구소 8CODE">
-<meta property="og:description" content="두 사람의 출생 차트를 비교해 관계의 케미를 분석합니다.">
+<meta property="og:description" content="두 사람의 출생 차트를 비교해 관계의 케미를 분석해요.">
 <meta property="og:url" content="https://8code.kr/astrology-couple.html">
 <meta property="og:image" content="https://8code.kr/og-share.png">
 <meta property="og:locale" content="ko_KR">
@@ -21,26 +21,26 @@
 <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="js/plan-access.js?v=13"></script>
-<script src="js/ai-quota-client.js?v=1"></script>
+<script src="js/ai-quota-client.js?v=2"></script>
 <script src="js/product-plan-bootstrap.js?v=1"></script>
 <script src="js/attribution.js"></script>
   <script src="js/site-topbar.js?v=35" defer></script>
 <script src="js/topbar-session.js?v=14" defer></script>
 <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
 <script src="js/astro-cities.js?v=1"></script>
-<script src="js/astro-meanings.js?v=2"></script>
+<script src="js/astro-meanings.js?v=3"></script>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css" crossorigin />
 <link rel="stylesheet" href="css/site-topbar.css?v=21" />
 <link rel="stylesheet" href="css/site-header.css?v=7" />
 <style>
 :root {
   --cream:#f5f0e8; --parchment:#ede5d4; --sand:#d4c4a8;
-  --warm-brown:#8b6f47; --deep-brown:#4a3520; --ink:#2c1f0e;
-  --accent:#c8a96e; --accent-lt:#e8d5b0; --muted:#9a8570;
+  --warm-brown:#795f3b; --deep-brown:#4a3520; --ink:#2c1f0e;
+  --accent:#c8a96e; --accent-lt:#e8d5b0; --muted:#74604b;
   --border:rgba(139,111,71,.15); --shadow:rgba(44,31,14,.08);
   --teal:#2e8b7a; --teal-lt:rgba(46,139,122,.12);
   --rose:#c47a8f; --rose-lt:rgba(196,122,143,.12);
-  --font-serif:'Noto Serif KR',serif; --font-body:'Noto Serif KR',serif;
+  --font-serif:'Noto Serif KR',serif; --font-body:'Pretendard Variable',Pretendard,'Noto Sans KR',sans-serif;
 }
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
 html{scroll-behavior:smooth;}
@@ -48,12 +48,12 @@ body{font-family:var(--font-body);background:var(--cream);color:var(--ink);min-h
 .wrap{max-width:1000px;margin:0 auto;padding:0 20px 80px;}
 
 .hero{padding:40px 20px 8px;text-align:center;}
-.hero-tag{display:inline-block;font-size:12px;letter-spacing:.16em;color:var(--rose);font-weight:700;text-transform:uppercase;margin-bottom:12px;}
+.hero-tag{display:inline-block;font-size:13px;letter-spacing:.16em;color:var(--rose);font-weight:700;text-transform:uppercase;margin-bottom:12px;}
 .hero-title{font-family:var(--font-serif);font-size:clamp(26px,5vw,40px);font-weight:600;line-height:1.25;color:var(--deep-brown);}
-.hero-title em{font-style:italic;color:var(--rose);}
+.hero-title em{font-style:normal;color:var(--rose);}
 .hero-desc{max-width:620px;margin:14px auto 0;color:var(--muted);font-size:15px;line-height:1.8;}
 .astro-subnav{display:flex;justify-content:center;gap:10px;margin:22px auto 0;padding:0 20px;max-width:560px;}
-.astro-subnav a,.astro-subnav span{flex:1;text-align:center;padding:13px 14px;border-radius:14px;font-size:14px;font-weight:700;text-decoration:none;border:2px solid var(--border);background:rgba(255,255,255,.55);color:var(--deep-brown);transition:border-color .15s,background .15s,transform .12s;}
+.astro-subnav a,.astro-subnav span{flex:1;text-align:center;padding:13px 14px;border-radius:14px;font-size:15px;font-weight:700;text-decoration:none;border:2px solid var(--border);background:rgba(255,255,255,.55);color:var(--deep-brown);transition:border-color .15s,background .15s,transform .12s;}
 .astro-subnav a:hover{border-color:var(--accent);background:rgba(255,255,255,.9);transform:translateY(-1px);}
 .astro-subnav .is-current{background:var(--rose);color:#fff;border-color:var(--rose);box-shadow:0 4px 14px rgba(196,92,122,.28);}
 .astro-subnav a.natal-link{border-color:var(--accent);background:linear-gradient(145deg,#fffaf3,#f5ead8);color:var(--deep-brown);}
@@ -72,12 +72,12 @@ body{font-family:var(--font-body);background:var(--cream);color:var(--ink);min-h
 .client-pick-wrap{display:none;margin:0 0 14px;padding:0 0 12px;border-bottom:1px solid #e8ddcb;}
 .client-pick-wrap.is-visible{display:block;}
 .client-pick-row{display:grid;grid-template-columns:minmax(100px,1fr) minmax(140px,1.3fr);gap:8px;align-items:end;}
-.client-pick-hint{margin:8px 0 0;font-size:12.5px;line-height:1.5;color:var(--muted);}
+.client-pick-hint{margin:8px 0 0;font-size:13.5px;line-height:1.5;color:var(--muted);}
 .field{display:flex;flex-direction:column;gap:6px;margin-bottom:12px;}
-.field label{font-size:12.5px;font-weight:600;color:var(--warm-brown);}
+.field label{font-size:13.5px;font-weight:600;color:var(--warm-brown);}
 .input-field,select.input-field{width:100%;padding:11px 13px;border:1px solid var(--border);border-radius:10px;background:#fff;font-family:inherit;font-size:14.5px;color:var(--ink);}
 .input-field:focus,select.input-field:focus{outline:none;border-color:var(--accent);}
-.check-row{display:flex;align-items:center;gap:7px;font-size:12.5px;color:var(--muted);}
+.check-row{display:flex;align-items:center;gap:7px;font-size:13.5px;color:var(--muted);}
 .manual-coords{display:none;grid-template-columns:1fr 1fr;gap:10px;margin-top:8px;}
 .manual-coords.show{display:grid;}
 .analyze-btn{margin-top:20px;width:100%;padding:15px;border:none;border-radius:12px;background:var(--rose);color:#fff;font-family:var(--font-serif);font-size:17px;font-weight:600;cursor:pointer;transition:.15s;}
@@ -85,7 +85,7 @@ body{font-family:var(--font-body);background:var(--cream);color:var(--ink);min-h
 .analyze-btn:disabled{opacity:.6;cursor:not-allowed;transform:none;}
 @media (max-width:680px){.client-pick-row{grid-template-columns:1fr;}}
 
-.status{margin-top:18px;padding:14px 16px;border-radius:10px;font-size:14px;line-height:1.7;display:none;}
+.status{margin-top:18px;padding:14px 16px;border-radius:10px;font-size:15px;line-height:1.7;display:none;}
 .status.show{display:block;}
 .status.err{background:rgba(184,85,85,.1);color:#b85555;border:1px solid rgba(184,85,85,.25);}
 .status.info{background:var(--teal-lt);color:var(--teal);border:1px solid rgba(46,139,122,.25);}
@@ -96,53 +96,53 @@ body{font-family:var(--font-body);background:var(--cream);color:var(--ink);min-h
 .result-toolbar{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-top:24px;}
 .result-name{font-family:var(--font-serif);font-size:17px;font-weight:600;color:var(--deep-brown);}
 .result-actions{display:flex;gap:8px;flex-wrap:wrap;}
-.rt-btn{background:#fff;border:1px solid var(--border);border-radius:10px;padding:9px 14px;font-family:inherit;font-size:13px;font-weight:600;color:var(--warm-brown);cursor:pointer;transition:.15s;text-decoration:none;display:inline-flex;align-items:center;}
+.rt-btn{background:#fff;border:1px solid var(--border);border-radius:10px;padding:9px 14px;font-family:inherit;font-size:14px;font-weight:600;color:var(--warm-brown);cursor:pointer;transition:.15s;text-decoration:none;display:inline-flex;align-items:center;}
 .rt-btn:hover{background:var(--accent-lt);border-color:var(--accent);color:var(--deep-brown);}
 .rt-btn--share{background:var(--rose);color:#fff;border-color:var(--rose);}
 .rt-btn--share:hover{background:#b86a80;color:#fff;}
 
 .duo-big3{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
 .duo-col{border:1px solid var(--border);border-radius:12px;padding:16px;background:linear-gradient(165deg,#fffef9,#faf6ee);}
-.duo-col h4{font-size:13px;margin-bottom:10px;}
+.duo-col h4{font-size:14px;margin-bottom:10px;}
 .duo-col.a h4{color:var(--teal);}
 .duo-col.b h4{color:var(--rose);}
-.duo-line{font-size:13px;line-height:1.9;color:var(--ink);}
+.duo-line{font-size:14px;line-height:1.9;color:var(--ink);}
 .duo-line .g{color:var(--accent);margin-right:3px;}
 
 .score-wrap{text-align:center;padding:8px 0 4px;}
 .score-num{font-family:var(--font-serif);font-size:44px;font-weight:700;color:var(--rose);line-height:1;}
-.score-label{font-size:14px;color:var(--deep-brown);font-weight:600;margin-top:8px;}
+.score-label{font-size:15px;color:var(--deep-brown);font-weight:600;margin-top:8px;}
 .score-bar{height:14px;border-radius:8px;background:var(--cream);border:1px solid var(--border);overflow:hidden;margin:14px auto 0;max-width:420px;}
 .score-fill{height:100%;border-radius:8px;background:linear-gradient(90deg,var(--rose),var(--accent));}
-.score-detail{font-size:12.5px;color:var(--muted);margin-top:12px;line-height:1.7;}
+.score-detail{font-size:13.5px;color:var(--muted);margin-top:12px;line-height:1.7;}
 
 .syn-list{display:flex;flex-direction:column;gap:8px;}
 .syn-item{background:var(--cream);border:1px solid var(--border);border-radius:12px;padding:11px 14px;border-left:3px solid var(--accent);}
 .syn-item.easy{border-left-color:#5f93b8;}
 .syn-item.tense{border-left-color:#d98b5f;}
 .syn-item.strong{border-left-color:var(--rose);}
-.syn-title{font-size:13.5px;font-weight:600;color:var(--deep-brown);display:flex;align-items:center;gap:6px;flex-wrap:wrap;}
+.syn-title{font-size:14.5px;font-weight:600;color:var(--deep-brown);display:flex;align-items:center;gap:6px;flex-wrap:wrap;}
 .syn-sym{font-size:15px;color:var(--accent);}
-.syn-text{font-size:12px;line-height:1.6;color:var(--muted);margin-top:4px;}
-.tag{display:inline-block;font-size:10.5px;font-weight:700;padding:1px 7px;border-radius:10px;margin-left:4px;}
+.syn-text{font-size:13px;line-height:1.6;color:var(--muted);margin-top:4px;}
+.tag{display:inline-block;font-size:12px;font-weight:700;padding:1px 7px;border-radius:10px;margin-left:4px;}
 .tag-easy{background:rgba(95,147,184,.15);color:#3f6f93;}
 .tag-tense{background:rgba(217,139,95,.16);color:#a9602f;}
 .tag-strong{background:var(--rose-lt);color:var(--rose);}
 .who-a{color:var(--teal);font-weight:700;}
 .who-b{color:var(--rose);font-weight:700;}
 
-.note{font-size:12px;color:var(--muted);line-height:1.7;margin-top:12px;background:var(--cream);border-radius:10px;padding:12px 14px;}
-.ai-prompt-box{width:100%;border:1px solid var(--border);border-radius:10px;background:var(--cream);padding:13px 15px;font-family:inherit;font-size:12.5px;line-height:1.7;color:var(--ink);resize:vertical;}
+.note{font-size:13px;color:var(--muted);line-height:1.7;margin-top:12px;background:var(--cream);border-radius:10px;padding:12px 14px;}
+.ai-prompt-box{width:100%;border:1px solid var(--border);border-radius:10px;background:var(--cream);padding:13px 15px;font-family:inherit;font-size:13.5px;line-height:1.7;color:var(--ink);resize:vertical;}
 .ai-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px;}
-.ai-result{margin-top:14px;padding:14px 16px;background:rgba(255,255,255,.65);border:1px solid #e8ddcb;border-radius:12px;font-size:13.5px;line-height:1.75;white-space:pre-wrap;}
-.ai-result.empty{color:var(--muted);font-size:13px;}
-.ai-quota-badge{display:inline-block;font-size:11px;font-weight:600;color:var(--warm-brown);background:var(--accent-lt);border:1px solid var(--accent);border-radius:999px;padding:4px 10px;margin:0 0 10px;}
-.ai-time-hint{font-size:12px;color:var(--muted);margin-top:8px;line-height:1.6;}
+.ai-result{margin-top:14px;padding:14px 16px;background:rgba(255,255,255,.65);border:1px solid #e8ddcb;border-radius:12px;font-size:14.5px;line-height:1.75;white-space:pre-wrap;}
+.ai-result.empty{color:var(--muted);font-size:14px;}
+.ai-quota-badge{display:inline-block;font-size:12px;font-weight:600;color:var(--warm-brown);background:var(--accent-lt);border:1px solid var(--accent);border-radius:999px;padding:4px 10px;margin:0 0 10px;}
+.ai-time-hint{font-size:13px;color:var(--muted);margin-top:8px;line-height:1.6;}
 .ai-time-hint.is-loading{color:var(--rose);}
-.ai-prompt-details summary{cursor:pointer;font-size:12.5px;color:var(--warm-brown);font-weight:600;}
-.intro{font-size:13px;line-height:1.7;color:var(--muted);margin-bottom:14px;}
+.ai-prompt-details summary{cursor:pointer;font-size:13.5px;color:var(--warm-brown);font-weight:600;}
+.intro{font-size:14px;line-height:1.7;color:var(--muted);margin-bottom:14px;}
 
-.site-legal-footer{max-width:1000px;margin:40px auto 0;padding:20px;border-top:1px solid var(--border);font-size:12px;color:var(--muted);line-height:1.8;text-align:center;}
+.site-legal-footer{max-width:1000px;margin:40px auto 0;padding:20px;border-top:1px solid var(--border);font-size:13px;color:var(--muted);line-height:1.8;text-align:center;}
 .site-legal-footer a{color:var(--muted);text-decoration:none;}
 .site-legal-footer a:hover{color:var(--deep-brown);}
 
@@ -156,6 +156,21 @@ body{font-family:var(--font-body);background:var(--cream);color:var(--ink);min-h
   body{background:#fff;}
   .card{box-shadow:none;border-color:#ddd;break-inside:avoid;}
 }
+
+/* 본문 Pretendard · 제목 명조 */
+.card-title,.person-box h3,.result-name,.score-num,.hero-title{font-family:var(--font-serif);}
+.hero-desc,.intro,.syn-text,.note{line-height:1.75;}
+.syn-text{color:#6b5844;}
+/* AI 결과 마크다운 */
+.ai-result.ai-md{white-space:normal;font-size:15px;line-height:1.85;color:var(--ink);}
+.ai-md h3{font-family:var(--font-serif);font-size:17px;font-weight:600;color:var(--deep-brown);margin:22px 0 8px;padding-bottom:6px;border-bottom:1px dashed rgba(139,111,71,.25);}
+.ai-md h3:first-child{margin-top:2px;}
+.ai-md h4{font-size:15.5px;font-weight:700;color:var(--warm-brown);margin:16px 0 6px;}
+.ai-md p{margin:0 0 10px;}
+.ai-md ul{margin:4px 0 12px;padding-left:20px;}
+.ai-md li{margin:4px 0;}
+.ai-md strong{color:var(--deep-brown);background:linear-gradient(transparent 60%,rgba(196,122,143,.18) 60%);}
+.ai-md blockquote{margin:8px 0;padding:8px 12px;border-left:3px solid var(--rose);background:var(--rose-lt);border-radius:0 10px 10px 0;}
 </style>
 </head>
 <body>
@@ -165,7 +180,7 @@ body{font-family:var(--font-body);background:var(--cream);color:var(--ink);min-h
 <section class="hero">
   <div class="hero-tag">Synastry · 커플 차트</div>
   <h1 class="hero-title">두 별의<br><em>케미스트리</em></h1>
-  <p class="hero-desc">두 사람의 출생 차트를 겹쳐, 태양·달·금성·화성이 맺는 각을 통해 <strong>끌림·정서·소통</strong>의 궁합을 읽습니다. 출생 시간을 알면 더 정확해요.</p>
+  <p class="hero-desc">두 사람의 출생 차트를 겹쳐, 태양·달·금성·화성이 맺는 각을 통해 <strong>끌림·정서·소통</strong>의 궁합을 읽어요. 출생 시간을 알면 더 정확해요.</p>
   <nav class="astro-subnav" aria-label="점성학 메뉴">
     <a href="astrology.html" class="natal-link">☉ 네이탈 차트</a>
     <a href="vedic.html" class="vedic-link">ॐ 인도점성학 차트</a>
@@ -240,7 +255,7 @@ body{font-family:var(--font-body);background:var(--cream);color:var(--ink);min-h
       <div class="result-actions">
         <button type="button" class="rt-btn" id="btnCopy">⧉ 요약 복사</button>
         <button type="button" class="rt-btn" id="btnImage">⬇ 이미지 저장</button>
-        <button type="button" class="rt-btn" id="btnPrint">🖨 인쇄·PDF</button>
+        <button type="button" class="rt-btn" id="btnPrint">인쇄·PDF</button>
       </div>
     </div>
 
@@ -261,23 +276,23 @@ body{font-family:var(--font-body);background:var(--cream);color:var(--ink);min-h
 
     <div class="card">
       <div class="card-title">✦ 시너스트리 · 관계의 각</div>
-      <p class="intro">한 사람의 행성이 상대의 행성과 맺는 각입니다. <span class="who-a">첫 번째 사람</span>의 행성 → <span class="who-b">두 번째 사람</span>의 행성 순으로 표시돼요.</p>
+      <p class="intro">한 사람의 행성이 상대의 행성과 맺는 각이에요. <span class="who-a">첫 번째 사람</span>의 행성 → <span class="who-b">두 번째 사람</span>의 행성 순으로 표시돼요.</p>
       <div class="syn-list" id="synList"></div>
     </div>
 
     <div class="card" id="aiCard">
       <div class="card-title">✦ AI 궁합 해석</div>
       <span class="ai-quota-badge" id="aiQuotaBadge" hidden></span>
-      <p class="intro">궁합 분석 후 <strong>AI 궁합 해석</strong>으로 끌림·소통·연애·일·금전·건강·학업까지 풀어 볼 수 있어요.</p>
+      <p class="intro">궁합 분석 후 <strong>AI 궁합 해석</strong>으로 끌림·정서·소통·신뢰·생활 습관까지 두 사람의 관계를 풀어 볼 수 있어요. 한 번 만든 해석은 다시 열어도 크레딧이 차감되지 않아요.</p>
       <div class="ai-actions no-print">
-        <button type="button" class="rt-btn rt-btn--share" id="btnAiRun" disabled>✨ AI 궁합 해석 (4크레딧)</button>
+        <button type="button" class="rt-btn rt-btn--share" id="btnAiRun" disabled>AI 궁합 해석 (4크레딧)</button>
       </div>
       <div id="aiResult" class="ai-result empty">궁합 분석 후 <strong>AI 궁합 해석</strong> 버튼을 눌러 주세요.</div>
       <p class="ai-time-hint" id="aiTimeHint">궁합 해석은 보통 30초~1분 정도 걸려요. 창을 닫지 말고 잠시만 기다려 주세요.</p>
     </div>
 
     <div class="note">
-      ※ 트로피컬 황도 기준. 시너스트리는 두 차트의 행성 간 각도를 비교합니다. 출생 시간이 정확할수록 달·상승궁 궁합이 정확해집니다. 본 결과는 교육·오락 목적의 참고 자료입니다.
+      ※ 트로피컬 황도 기준이에요. 시너스트리는 두 차트의 행성 사이 각도를 비교해요. 출생 시간이 정확할수록 달·상승궁·하우스 궁합이 정확해져요. 본 결과는 교육·오락 목적의 참고 자료예요.
     </div>
   </div>
 </div>
@@ -354,6 +369,8 @@ body{font-family:var(--font-body);background:var(--cream);color:var(--ink);min-h
   })();
 
   let LAST_AI_PROMPT = '';
+  let LAST_AI_TEXT = '';
+  let AI_BUSY = false;
   let AI_SERVER_OK = false;
   const ASTRO_AI_API_ENABLED = true;
 
@@ -380,13 +397,16 @@ body{font-family:var(--font-body);background:var(--cream);color:var(--ink);min-h
     }
     btn.hidden = false;
     const canRun = !!LAST_AI_PROMPT;
-    btn.disabled = !canRun;
+    if (!AI_BUSY) btn.disabled = !canRun;
     if (!canRun) return;
-    const busy = box.textContent.includes('생성하고') || box.textContent.includes('해석 중');
-    if (busy) return;
+    if (AI_BUSY) return;
+    if (LAST_AI_TEXT) {
+      setCoupleAiBox(box, LAST_AI_TEXT);
+      return;
+    }
     box.className = 'ai-result';
     if (AI_SERVER_OK) {
-      box.innerHTML = '<strong>✨ AI 궁합 해석</strong>을 누르면 두 사람의 시너스트리를 풀어 드려요.';
+      box.innerHTML = '<strong>AI 궁합 해석</strong>을 누르면 두 사람의 시너스트리를 풀어 드려요.';
     } else {
       box.innerHTML = 'AI 서버가 아직 준비되지 않았어요. 잠시 후 다시 시도해 주세요.';
     }
@@ -420,38 +440,51 @@ body{font-family:var(--font-body);background:var(--cream);color:var(--ink);min-h
       return;
     }
     const prev = btn.textContent;
-    btn.textContent = '⏳ 해석 중…'; btn.disabled = true;
+    AI_BUSY = true;
+    btn.textContent = '해석 중…'; btn.disabled = true;
     box.className = 'ai-result';
     box.textContent = '궁합 해석을 생성하고 있어요…';
     const timeHint = $('aiTimeHint');
     if (timeHint) timeHint.classList.add('is-loading');
     const prompt = LAST_AI_PROMPT;
-    const cacheKey = window.PaljaAiQuota ? PaljaAiQuota.hashKey('v1:couple:' + prompt) : prompt.slice(0, 200);
+    const cacheKey = window.PaljaAiQuota ? PaljaAiQuota.hashKey('v2:couple:' + prompt) : prompt.slice(0, 200);
+    let streamed = '';
     try {
       if (!window.PaljaAiQuota) throw new Error('no_quota_client');
-      const { text, quota, data } = await PaljaAiQuota.callAi({
+      const call = typeof PaljaAiQuota.callAiStream === 'function' ? PaljaAiQuota.callAiStream : PaljaAiQuota.callAi;
+      const { text, quota, data } = await call({
         feature: 'astro_couple',
         cacheKey,
         max_tokens: 8192,
         messages: [{ role: 'user', content: prompt }],
+        onDelta: (chunk) => {
+          streamed += chunk;
+          setCoupleAiBox(box, streamed);
+        },
       });
-      let out = text || '해석을 생성하지 못했어요.';
-      if (data?.stop_reason === 'max_tokens') {
+      let out = text || streamed || '해석을 생성하지 못했어요.';
+      if (data?.stop_reason === 'max_tokens' && !coupleAiLooksComplete(out)) {
         out += '\n\n(※ 아주 긴 해석이라 일부가 잘렸을 수 있어요. 같은 내용으로 다시 요청하면 이어서 받을 수 있어요.)';
       }
-      box.textContent = out;
+      LAST_AI_TEXT = out;
+      setCoupleAiBox(box, out);
       if (quota) PaljaAiQuota.applyQuotaBadge($('aiQuotaBadge'), quota);
     } catch (e) {
       console.error(e);
+      LAST_AI_TEXT = '';
       if (e.code === 'quota_exceeded' || e.status === 429) {
+        box.className = 'ai-result';
         box.innerHTML = '이번 달 AI 크레딧을 모두 사용했어요. <a href="ai-buy.html?product=ai_5">AI 크레딧 충전</a> 또는 <a href="pricing.html">요금제</a>를 확인해 주세요.';
         if (e.quota) PaljaAiQuota.applyQuotaBadge($('aiQuotaBadge'), e.quota);
       } else if (e.message === 'login_required') {
+        box.className = 'ai-result';
         box.textContent = 'AI 해석은 로그인 후 이용할 수 있어요.';
       } else {
+        box.className = 'ai-result';
         box.textContent = 'AI 해석을 일시적으로 사용할 수 없어요. 잠시 후 다시 시도해 주세요.';
       }
     } finally {
+      AI_BUSY = false;
       btn.textContent = prev; btn.disabled = false;
       if (timeHint) timeHint.classList.remove('is-loading');
     }
@@ -558,14 +591,14 @@ body{font-family:var(--font-body);background:var(--cream);color:var(--ink);min-h
       render(ha, hb, A, B);
     } catch (e) {
       console.error(e);
-      showStatus('계산 중 오류가 발생했습니다. 입력값(특히 좌표)을 확인해 주세요.', 'err');
+      showStatus('계산 중 오류가 났어요. 입력값(특히 좌표)을 확인해 주세요.', 'err');
     } finally { $('calcBtn').disabled = false; }
   }
 
   function bigSign(h, key) { const b = key === 'asc' ? h.Ascendant : h.CelestialBodies[key]; const d = b ? deg(b) : null; return d != null ? M.signFromDegree(d).sign : null; }
 
   function render(ha, hb, A, B) {
-    const nameA = A.name || '첫 번째', nameB = B.name || '두 번째';
+    const nameA = A.name || '첫 번째 사람', nameB = B.name || '두 번째 사람';
     $('resultName').textContent = nameA + ' ♥ ' + nameB;
 
     // 빅3
@@ -586,6 +619,20 @@ body{font-family:var(--font-body);background:var(--cream);color:var(--ink);min-h
     const meaning = M.ASPECT_MEANING || {};
     const tagOf = { easy: '<span class="tag tag-easy">조화</span>', tense: '<span class="tag tag-tense">긴장</span>', strong: '<span class="tag tag-strong">강한 끌림</span>' };
 
+    const SYN_ASPECT_TEXT = {
+      conjunction: '서로를 강하게 의식하게 되는 연결이에요. 같은 방향이면 큰 힘이 되고, 엇갈리면 부딪힘도 커져요.',
+      trine: '애쓰지 않아도 자연스럽게 잘 맞는 부분이에요.',
+      sextile: '조금만 마음을 쓰면 서로 돕게 되는 부분이에요.',
+      square: '부딪히기 쉬운 지점이지만, 맞춰 가면 관계를 키우는 자극이 돼요.',
+      opposition: '서로 반대라 끌리기도 하고 줄다리기가 생기기도 해요.',
+    };
+    const SYN_AREA = { sun: '자아·삶의 방향', moon: '감정·안정감', mercury: '말·생각', venus: '애정·취향', mars: '행동력·욕구', jupiter: '너그러움·성장', saturn: '책임·현실감', asc: '첫인상·태도' };
+    const josaKo = (w, withB, withoutB) => {
+      const ch = String(w || '').trim().slice(-1);
+      const code = ch.charCodeAt(0) - 0xAC00;
+      const has = code >= 0 && code <= 11171 && code % 28 !== 0;
+      return w + (has ? withB : withoutB);
+    };
     const hits = [];
     Object.keys(degA).forEach((ak) => {
       Object.keys(degB).forEach((bk) => {
@@ -602,7 +649,10 @@ body{font-family:var(--font-body);background:var(--cream);color:var(--ink);min-h
       const m = meaning[h.key] || { tone: '', text: '' };
       if (m.tone === 'easy') easy++; else if (m.tone === 'tense') tense++; else if (m.tone === 'strong') strong++;
       const pairNote = M.synastryPairNote(h.ak, h.bk);
-      const base = m.text + (pairNote ? ' · ' + pairNote : '');
+      const lead = pairNote ||
+        (josaKo(nameA + '의 ' + (SYN_AREA[h.ak] || labelKo[h.ak]), '과', '와') + ' ' +
+          josaKo(nameB + '의 ' + (SYN_AREA[h.bk] || labelKo[h.bk]), '이', '가') + ' 만나는 자리예요.');
+      const base = lead + ' ' + (SYN_ASPECT_TEXT[h.key] || m.text);
       synHtml += `<div class="syn-item ${m.tone}">
         <div class="syn-title"><span class="syn-sym">${ASPECT_SYM[h.key] || ''}</span><span class="who-a">${nameA}</span> ${labelKo[h.ak]} ${ASPECT_KR[h.key]} <span class="who-b">${nameB}</span> ${labelKo[h.bk]}${tagOf[m.tone] || ''}</div>
         <div class="syn-text">${base}</div>
@@ -619,7 +669,7 @@ body{font-family:var(--font-body);background:var(--cream);color:var(--ink);min-h
     $('scoreNum').textContent = score;
     $('scoreFill').style.width = score + '%';
     let label;
-    if (score >= 85) label = '천생연분 케미 ✨';
+    if (score >= 85) label = '천생연분 케미';
     else if (score >= 72) label = '잘 통하는 사이';
     else if (score >= 58) label = '서로를 키워 주는 관계';
     else label = '노력으로 깊어지는 관계';
@@ -628,8 +678,9 @@ body{font-family:var(--font-body);background:var(--cream);color:var(--ink);min-h
 
     // AI 프롬프트는 서버 호출용으로만 보관 (화면 노출·복사 없음)
     LAST_AI_PROMPT = buildAiPrompt(nameA, nameB, ha, hb, A, B, hits, labelKo);
+    LAST_AI_TEXT = '';
     $('aiResult').className = 'ai-result empty';
-    $('aiResult').innerHTML = '<strong>✨ AI 궁합 해석</strong>을 누르면 두 사람의 시너스트리를 풀어 드려요.';
+    $('aiResult').innerHTML = '<strong>AI 궁합 해석</strong>을 누르면 두 사람의 시너스트리를 풀어 드려요.';
     refreshAiUi();
 
     // 요약
@@ -640,40 +691,131 @@ body{font-family:var(--font-body);background:var(--cream);color:var(--ink);min-h
     $('result').scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
 
+  function houseStartDeg(hh) { try { return hh.ChartPosition.StartPosition.Ecliptic.DecimalDegrees; } catch (e) { return null; } }
+  function houseOfDegIn(h, d) {
+    const cusps = (h.Houses || []).map(houseStartDeg);
+    if (d == null || cusps.length !== 12 || cusps.some((c) => c == null)) return '';
+    for (let i = 0; i < 12; i += 1) {
+      const a = cusps[i];
+      const b = cusps[(i + 1) % 12];
+      const span = ((b - a) % 360 + 360) % 360;
+      const off = ((d - a) % 360 + 360) % 360;
+      if (off < span) return String(i + 1);
+    }
+    return '';
+  }
+
   function buildAiPrompt(nameA, nameB, ha, hb, A, B, hits, labelKo) {
     const L = [];
-    L.push('당신은 따뜻하고 통찰력 있는 전문 점성가입니다. 아래 두 사람의 출생 차트 궁합(시너스트리)을 한국어로 다정하게 해석해 주세요. 단정적 예언·공포 조장은 금지하고, 참고용 톤으로 써 주세요. 건강은 의학적 진단이 아닌 생활·에너지·스트레스 관리 관점으로만 다루세요.');
+    L.push('당신은 따뜻하지만 돌려 말하지 않는 전문 점성가입니다. 아래 두 사람의 시너스트리(궁합)를 한국어로 해석해 주세요. ' +
+      '답변은 해요체(~해요, ~이에요)로 쓰세요. 점성 용어는 화면과 같게 합·육각·사각·삼각·충으로 쓰고, 트라인·스퀘어·섹스타일 같은 외래어 표기는 쓰지 마세요. ' +
+      '「헤어진다」「결혼한다」「천생연분이다」 같은 단정·운명 판정과 공포 조장은 금지예요. 두 사람의 관계 형태(연인·부부·썸 등)를 단정하지 말고 「두 사람」「관계」로 쓰세요.');
     L.push('');
-    function pdesc(name, h, unknown) {
-      const sun = bigSign(h, 'sun'), moon = bigSign(h, 'moon'), ven = bigSign(h, 'venus'), mar = bigSign(h, 'mars');
-      const asc = unknown ? null : bigSign(h, 'asc');
-      return `${name}: 태양 ${sun ? sun.ko : '-'}, 달 ${moon ? moon.ko : '-'}, 금성 ${ven ? ven.ko : '-'}, 화성 ${mar ? mar.ko : '-'}` + (asc ? `, 상승궁 ${asc.ko}` : '');
-    }
-    L.push('[' + nameA + ']'); L.push(pdesc(nameA, ha, A.unknown));
-    L.push('[' + nameB + ']'); L.push(pdesc(nameB, hb, B.unknown));
-    L.push('');
-    if (hits && hits.length) {
-      L.push('주요 시너스트리 각:');
-      hits.slice(0, 12).forEach((h) => {
-        L.push(' - ' + nameA + ' ' + labelKo[h.ak] + ' ' + ASPECT_KR[h.key] + ' ' + nameB + ' ' + labelKo[h.bk]);
-      });
-    }
+    L.push('[읽는 법 — 가장 중요]');
+    L.push('1) 시너스트리 각은 오차가 작은 순서예요. 위쪽(오차 3° 이내)을 중심으로 쓰고, 아래쪽은 보조로만.');
+    L.push('2) 「하우스 겹침」은 한 사람의 행성이 상대의 어느 삶의 영역(하우스)을 건드리는지예요. 7·5·8하우스는 애정·친밀감, 4하우스는 집·편안함, 10하우스는 사회적 역할, 6하우스는 일상 습관이에요. 각과 함께 엮어서 쓰세요.');
+    L.push('3) 누가 누구에게 어떻게 느끼는지 방향을 살려 쓰세요. (예: 「' + nameA + ' 님은 ' + nameB + ' 님에게서 ~를 느끼기 쉬워요」)');
+    L.push('4) 아래 데이터에 없는 행성·각·하우스는 지어내지 마세요. 근거는 문장 끝 괄호에 짧게(예: (' + nameA + ' 금성 삼각 ' + nameB + ' 화성)), 섹션마다 1~2개만. 오차 숫자는 쓰지 마세요.');
+    L.push('5) 근거가 약한 섹션은 「이 부분은 큰 신호가 없어 무난한 편이에요」처럼 짧고 솔직하게. 억지로 채우지 마세요.');
+    L.push('6) 굵게(**…**)는 섹션마다 핵심 구절 1개만.');
     L.push('');
     L.push('[작성 형식 — 반드시 지키세요]');
-    L.push('1) ## 제목만 사용. 아래 순서대로 **모든 섹션**을 빠짐없이 작성하세요.');
+    L.push('## 제목만 사용(### 소제목·이모지 금지). 아래 순서대로 **모두** 작성하세요.');
     [
-      '## 끌림·케미 — 태양·금성·화성·달 시너스트리로 두 사람의 끌림과 정서적 반응',
-      '## 소통·갈등 — 수성·화성·토성 각으로 대화 스타일·마찰·화해 포인트',
-      '## 연애·관계 — 장기 관계·친밀감·신뢰·경계',
-      '## 일·커리어 — 함께 일할 때·서로의 야망·역할 분담',
-      '## 금전·재물 — 돈·소비·가치관·재정 협력',
-      '## 건강·에너지 — 서로의 스트레스·회복·생활 리듬 맞춤 (의학 진단 아님)',
-      '## 학업·성장 — 함께 배우고 성장할 때·서로의 학습 스타일',
-      '## 장기 조언 — 관계를 건강하게 키우는 실천 팁 2~3가지',
-    ].forEach((s, i) => L.push(`   ${i + 1}. ${s}`));
-    L.push('2) 각 섹션 3~4문장. 시너스트리 각·행성 근거를 최소 1개 이상 언급하세요.');
-    L.push('3) 반드시 마지막 섹션까지 완성하세요.');
+      '## 한눈에 보는 두 사람 — 불릿 3줄. 이 관계의 가장 큰 끌림 / 가장 조심할 지점 / 이 관계의 장점을 삶의 말로',
+      '## 끌림·케미 — 3~4문장. 금성·화성·태양·상승 연결로 서로에게 끌리는 이유',
+      '## 정서·안정감 — 2~3문장. 달 연결로 함께 있을 때 편안한지, 감정 리듬이 맞는지',
+      '## 소통·갈등 — 3~4문장. 수성·화성·사각·충으로 대화 방식, 자주 부딪히는 지점, 화해하는 법',
+      '## 오래가는 힘 — 2~3문장. 토성·목성 연결로 신뢰·책임·서로를 키워 주는 힘',
+      '## 생활·돈 맞추기 — 2~3문장. 생활 습관·돈 쓰는 방식이 맞는지 (하우스 겹침·금성·토성 근거, 단정 금지)',
+      '## 관계를 키우는 법 — 불릿 3줄. 위 내용에서 나온, 두 사람이 바로 해볼 수 있는 행동',
+    ].forEach((x) => L.push(x));
+    L.push('반드시 마지막 섹션까지 완성하고 중간에 끊지 마세요.');
+    L.push('');
+    const KEYS = ['sun', 'moon', 'mercury', 'venus', 'mars', 'jupiter', 'saturn', 'uranus', 'neptune', 'pluto'];
+    function pblock(name, h, unknown) {
+      L.push('[' + name + ']' + (unknown ? ' (출생 시간 미상 — 하우스·상승궁 없음, 달은 하루 중 위치라 참고만)' : ''));
+      KEYS.forEach((k) => {
+        const b = h.CelestialBodies[k];
+        const d = b ? deg(b) : null;
+        if (d == null) return;
+        const sf = M.signFromDegree(d);
+        const hs = unknown ? '' : houseOfDegIn(h, d);
+        L.push(' - ' + ((M.PLANETS[k] && M.PLANETS[k].ko) || k) + ': ' + sf.sign.ko + ' ' + Math.floor(sf.degInSign) + '°' + (hs ? ' / ' + hs + '하우스' : ''));
+      });
+      if (!unknown) {
+        const asc = bigSign(h, 'asc');
+        let mc = null;
+        try { mc = h.Midheaven ? M.signFromDegree(deg(h.Midheaven)).sign : null; } catch (e) { mc = null; }
+        if (asc) L.push(' - 상승궁: ' + asc.ko);
+        if (mc) L.push(' - 중천(MC): ' + mc.ko);
+      }
+    }
+    pblock(nameA, ha, A.unknown);
+    pblock(nameB, hb, B.unknown);
+    L.push('');
+    if (hits && hits.length) {
+      L.push('[시너스트리 각 — 오차 작은 순]');
+      hits.slice(0, 14).forEach((h) => {
+        L.push(' - ' + nameA + ' ' + labelKo[h.ak] + ' ' + ASPECT_KR[h.key] + ' ' + nameB + ' ' + labelKo[h.bk] + ' (오차 ' + h.orbOff.toFixed(1) + '°)');
+      });
+    } else {
+      L.push('[시너스트리 각] 뚜렷한 주요 각이 적어요 — 무난하고 자극이 적은 관계로 읽고, 지어내지 마세요.');
+    }
+    const OV = ['sun', 'moon', 'mercury', 'venus', 'mars', 'jupiter', 'saturn'];
+    function overlay(fromName, fromH, toName, toH, toUnknown) {
+      if (toUnknown) return;
+      const parts = [];
+      OV.forEach((k) => {
+        const b = fromH.CelestialBodies[k];
+        const d = b ? deg(b) : null;
+        const hs = houseOfDegIn(toH, d);
+        if (hs) parts.push(((M.PLANETS[k] && M.PLANETS[k].ko) || k) + '→' + hs + '하우스');
+      });
+      if (parts.length) L.push(' - ' + fromName + '의 행성이 ' + toName + '의 하우스에: ' + parts.join(', '));
+    }
+    L.push('');
+    L.push('[하우스 겹침]');
+    const before = L.length;
+    overlay(nameA, ha, nameB, hb, B.unknown);
+    overlay(nameB, hb, nameA, ha, A.unknown);
+    if (L.length === before) L.push(' - (두 사람 모두 출생 시간이 없어 하우스 겹침은 계산하지 않았어요)');
     return L.join('\n');
+  }
+
+  // ── AI 결과 마크다운 → HTML (##·###·불릿·굵게·인용) ──
+  function coupleMdToHtml(text) {
+    const esc = (t) => String(t).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    const inline = (t) => esc(t).replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+    const lines = String(text || '').replace(/\r\n/g, '\n').split('\n');
+    const out = [];
+    let inList = false;
+    const closeList = () => { if (inList) { out.push('</ul>'); inList = false; } };
+    lines.forEach((line) => {
+      const t = line.trim();
+      if (!t) { closeList(); return; }
+      if (/^#{1,2}\s+/.test(t)) { closeList(); out.push('<h3>' + inline(t.replace(/^#{1,2}\s+/, '')) + '</h3>'); return; }
+      if (/^#{3,}\s+/.test(t)) { closeList(); out.push('<h4>' + inline(t.replace(/^#{3,}\s+/, '')) + '</h4>'); return; }
+      if (/^[-*•]\s+/.test(t)) { if (!inList) { out.push('<ul>'); inList = true; } out.push('<li>' + inline(t.replace(/^[-*•]\s+/, '')) + '</li>'); return; }
+      if (/^>\s?/.test(t)) { closeList(); out.push('<blockquote>' + inline(t.replace(/^>\s?/, '')) + '</blockquote>'); return; }
+      if (/^---+$/.test(t)) { closeList(); return; }
+      closeList();
+      out.push('<p>' + inline(t) + '</p>');
+    });
+    closeList();
+    return out.join('');
+  }
+  function setCoupleAiBox(box, text) {
+    box.className = 'ai-result ai-md';
+    let src = String(text || '');
+    if ((src.match(/\*\*/g) || []).length % 2 === 1) src += '**';
+    box.innerHTML = coupleMdToHtml(src);
+  }
+  function coupleAiLooksComplete(text) {
+    const t = String(text || '').trim();
+    if (!/##\s*관계를 키우는 법/.test(t)) return false;
+    const tail = t.split(/##\s*관계를 키우는 법/).pop();
+    return (tail.match(/^\s*[-*•]\s+\S/gm) || []).length >= 2 && /[.!?)」요다]$/.test(t);
   }
 
   $('calcBtn').addEventListener('click', calculate);
