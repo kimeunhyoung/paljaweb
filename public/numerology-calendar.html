@@ -390,6 +390,8 @@
     .ai-result.is-md li { margin: 3px 0; }
     .ai-time-hint { font-size: 12.5px; color: var(--muted); margin: 6px 0 0; }
     .ai-time-hint.is-loading { color: var(--brand); }
+    .ai-result.is-streaming > :last-child::after { content: ""; display: inline-block; width: 2px; height: 1em; margin-left: 2px; background: var(--brand); vertical-align: text-bottom; animation: numAiBlink .9s step-end infinite; }
+    @keyframes numAiBlink { 50% { opacity: 0; } }
 
     @media (max-width: 980px) {
       .layout { grid-template-columns: 1fr; }
@@ -522,6 +524,6 @@
 
   <script src="js/ai-quota-client.js?v=20261003"></script>
   <script src="js/numerology-life-tables.js?v=9"></script>
-  <script type="module" src="js/numerology-calendar.js?v=20261005b"></script>
+  <script type="module" src="js/numerology-calendar.js?v=20261005c"></script>
 </body>
 </html>

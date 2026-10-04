@@ -158,25 +158,44 @@ async function callNumerologyAi(mode) {
   btn.disabled = true;
   box.classList.remove("is-empty");
   box.textContent = "해석을 만들고 있어요…";
-  if (hint) hint.classList.add("is-loading");
+  if (hint) {
+    hint.classList.add("is-loading");
+    hint.textContent = "해석이 나오는 대로 바로 표시돼요.";
+  }
 
   try {
-    const { text, quota, data } = await PaljaAiQuota.callAi({
+    // 나오는 대로 바로 보여 주기 (서버 SSE 스트리밍)
+    const isCurrentKey = () => (isDaily
+      ? state.detailCtx && aiKey(formatDateKey(state.detailCtx.date)) === cacheKeyStr
+      : state.detailCtx && aiKey(formatMonthKey(state.detailCtx.year, state.detailCtx.month)) === cacheKeyStr);
+    let streamed = "";
+    const { text, quota, data, streamIncomplete } = await PaljaAiQuota.callAiStream({
       feature,
       max_tokens: 4096,
       payload,
+      onDelta: (chunk) => {
+        streamed += chunk;
+        const live = document.getElementById(box.id);
+        if (!live || !isCurrentKey()) return;
+        live.innerHTML = numAiHtml(streamed);
+        live.classList.add("is-md", "is-streaming");
+        live.classList.remove("is-empty");
+      },
     });
-    let out = text || "해석을 만들지 못했어요.";
+    const incomplete = !!streamIncomplete || data?.stop_reason === "stream_cut";
+    let out = text || streamed || "해석을 만들지 못했어요.";
     if (data?.stop_reason === "max_tokens") out += "\n\n(※ 해석이 길어 일부가 잘렸을 수 있어요.)";
-    if (isDaily) state.aiCache.daily[cacheKeyStr] = out;
+    if (incomplete) out += "\n\n(※ 연결이 끊겨 여기까지만 받았어요. 다시 눌러 주세요.)";
+    else if (isDaily) state.aiCache.daily[cacheKeyStr] = out;
     else state.aiCache.monthly[cacheKeyStr] = out;
     const stillCurrent = isDaily
       ? state.detailCtx && aiKey(formatDateKey(state.detailCtx.date)) === cacheKeyStr
       : state.detailCtx && aiKey(formatMonthKey(state.detailCtx.year, state.detailCtx.month)) === cacheKeyStr;
-    if (stillCurrent && document.getElementById(box.id)) {
-      box.innerHTML = numAiHtml(out);
-      box.classList.add("is-md");
-      box.classList.remove("is-empty");
+    const liveBox = document.getElementById(box.id);
+    if (stillCurrent && liveBox) {
+      liveBox.innerHTML = numAiHtml(out);
+      liveBox.classList.remove("is-streaming", "is-empty");
+      liveBox.classList.add("is-md");
     }
     if (quota) PaljaAiQuota.applyQuotaBadge(numAiQuotaBadge, quota);
   } catch (e) {
@@ -188,7 +207,11 @@ async function callNumerologyAi(mode) {
       : e.message === "login_required"
         ? "AI 운세는 로그인 후 이용할 수 있어요."
         : "AI 해석을 일시적으로 사용할 수 없어요.";
-    if (stillCurrent && document.getElementById(box.id)) box.textContent = errMsg;
+    const errBox = document.getElementById(box.id);
+    if (stillCurrent && errBox) {
+      errBox.classList.remove("is-streaming", "is-md");
+      errBox.textContent = errMsg;
+    }
     if (e.quota) PaljaAiQuota.applyQuotaBadge(numAiQuotaBadge, e.quota);
   } finally {
     state.aiBusy[mode] = false;
@@ -203,7 +226,10 @@ async function callNumerologyAi(mode) {
         liveBtn.disabled = !state.aiServerOk;
       }
       const liveHint = document.getElementById(isDaily ? "numAiDailyHint" : "numAiMonthlyHint");
-      if (liveHint) liveHint.classList.remove("is-loading");
+      if (liveHint) {
+        liveHint.classList.remove("is-loading");
+        liveHint.textContent = "보통 20~40초 정도 걸려요.";
+      }
     }
   }
 }

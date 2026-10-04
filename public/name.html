@@ -22,7 +22,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="js/plan-access.js?v=13"></script>
-<script src="js/ai-quota-client.js?v=1"></script>
+<script src="js/ai-quota-client.js?v=20261003"></script>
 <script src="js/product-plan-bootstrap.js?v=3"></script>
 <script src="js/attribution.js"></script>
   <script src="js/site-topbar.js?v=35" defer></script>
@@ -393,6 +393,8 @@ select.input-field option{background:#2d2418;color:#f5f0e8;}
 .ai-dot{width:6px;height:6px;border-radius:50%;background:var(--accent);animation:pulse 1.8s ease-in-out infinite;}
 @keyframes pulse{0%,100%{opacity:1;transform:scale(1);}50%{opacity:.4;transform:scale(.8);}}
 .ai-text{font-size:14px;line-height:1.9;color:var(--ink);font-family:var(--font-serif);}
+.ai-text.is-streaming > p:last-child::after{content:"";display:inline-block;width:2px;height:1em;margin-left:2px;background:var(--gold,#a8844a);vertical-align:text-bottom;animation:nameAiBlink .9s step-end infinite;}
+@keyframes nameAiBlink{50%{opacity:0}}
 .name-ai-start{text-align:center;padding:6px 0 2px;}
 .name-ai-start-lead{font-size:14px;line-height:1.7;color:var(--ink);margin:0 0 14px;}
 .name-ai-start-btn{display:inline-block;background:var(--warm-brown);color:#fff;border:0;border-radius:999px;padding:11px 22px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;}
@@ -1910,14 +1912,32 @@ async function callAI(results,baseName,birthDate,lp,dist,purposeInput){
   };
   try{
     if (!window.PaljaAiQuota) throw new Error('no_quota_client');
-    const { text, quota } = await PaljaAiQuota.callAi({
+    // 나오는 대로 바로 보여 주기 (서버 SSE 스트리밍)
+    let streamed='';
+    const head=`<div class="ai-tag"><div class="ai-dot"></div>AI 종합 의견</div>`;
+    const { text, quota, data, streamIncomplete } = await PaljaAiQuota.callAiStream({
       feature: 'name_opinion',
       max_tokens: 1200,
       payload,
+      onDelta: (chunk) => {
+        streamed += chunk;
+        const w=document.getElementById('aiWrap');
+        if(!w) return;
+        w.innerHTML=head+`<div class="ai-text is-streaming">${nameAiTextHtml(streamed)}</div>`;
+      },
     });
+    const incomplete = !!streamIncomplete || data?.stop_reason === 'stream_cut';
+    const finalText = text || streamed;
     const wrapOk=document.getElementById('aiWrap');
-    wrapOk.dataset.state='done';
-    wrapOk.innerHTML=`<div class="ai-tag"><div class="ai-dot"></div>AI 종합 의견</div><div class="ai-text">${nameAiTextHtml(text)}</div>`;
+    wrapOk.dataset.state= incomplete ? 'error' : 'done';
+    wrapOk.innerHTML=head+`<div class="ai-text">${nameAiTextHtml(finalText)}</div>`+(incomplete?`<p class="name-ai-start-note" style="margin-top:8px">연결이 끊겨 여기까지만 받았어요. 다시 눌러 주세요.</p>`:'');
+    if (incomplete) {
+      const again=document.createElement('button');
+      again.type='button'; again.className='name-ai-start-btn'; again.textContent='다시 받기';
+      again.style.marginTop='12px';
+      again.addEventListener('click',()=>renderNameAiStart(results,baseName,birthDate,lp,dist,purposeInput));
+      wrapOk.appendChild(again);
+    }
     if (quota) PaljaAiQuota.applyQuotaBadge(document.getElementById('nameAiQuotaBadge'), quota);
   }catch(e){
     const msg = nameAiQuotaMessage(e);
