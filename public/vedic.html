@@ -14,7 +14,7 @@
   })();
 </script>
 <title>인도점성학(베다) 차트 무료 — 라시·낙샤트라·다샤 계산 | 팔자연구소 8CODE</title>
-<meta name="description" content="인도점성학(베다 점성학) 출생 차트를 무료로 계산하세요. 항성황도(라히리) 기준 라시 차트, 행성별 낙샤트라와 파다, 상승궁, 빔쇼타리 다샤를 보여 드립니다.">
+<meta name="description" content="인도점성학(베다 점성학) 출생 차트를 무료로 계산하세요. 항성황도(라히리) 기준 라시 차트, 행성별 낙샤트라와 파다, 상승궁, 빔쇼타리 다샤를 보여 드려요.">
 <meta name="keywords" content="인도점성학, 베다 점성학, 조티쉬, 라시 차트, 낙샤트라, 빔쇼타리 다샤, 항성황도, 라히리">
 <link rel="canonical" href="https://8code.kr/vedic.html">
 <meta property="og:type" content="website">
@@ -36,7 +36,7 @@
 <script src="js/site-topbar.js?v=35" defer></script>
 <script src="js/topbar-session.js?v=14" defer></script>
 <script src="js/astro-cities.js?v=1"></script>
-<script src="js/vedic-core.js?v=1"></script>
+<script src="js/vedic-core.js?v=2"></script>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css" crossorigin />
 <link rel="stylesheet" href="css/site-topbar.css?v=21" />
 <link rel="stylesheet" href="css/site-header.css?v=7" />
@@ -115,6 +115,9 @@ table.t th,table.t td{border-bottom:1px solid var(--border);padding:10px 10px;te
 table.t th{background:var(--cream);color:var(--warm-brown);font-size:12.5px;}
 table.t tr.cur td{background:rgba(200,169,110,.22);font-weight:600;}
 table.t a{color:var(--warm-brown);}
+#dashaIntro a,#nowDasha a{color:var(--warm-brown);}
+.tbl-hint{display:none;font-size:12px;color:var(--muted);margin:0 0 6px;}
+@media (max-width:640px){.tbl-hint{display:block;}}
 .warn{margin-top:14px;border-left:4px solid #c96a6a;background:#fdf1f1;padding:10px 14px;font-size:13.5px;line-height:1.75;border-radius:0 8px 8px 0;}
 .note{margin-top:14px;border-left:4px solid var(--accent);background:#fbf6ea;padding:10px 14px;font-size:13.5px;line-height:1.75;border-radius:0 8px 8px 0;}
 .sub-title{font-size:14px;font-weight:700;color:var(--deep-brown);margin:22px 0 8px;}
@@ -138,7 +141,7 @@ table.t a{color:var(--warm-brown);}
 <section class="hero">
   <div class="hero-tag">인도점성학 · 베다 점성학</div>
   <h1 class="hero-title">인도점성학 차트<br><em>라시 · 낙샤트라 · 다샤</em></h1>
-  <p class="hero-desc">태어난 날짜·시간·장소로 <strong>항성황도(라히리)</strong> 기준의 라시 차트와 행성별 <strong>낙샤트라·파다</strong>, <strong>빔쇼타리 다샤</strong>를 계산합니다. 서양 점성학과 별자리가 약 24° 달라서, 같은 사람도 다른 별자리로 나옵니다.</p>
+  <p class="hero-desc">태어난 날짜·시간·장소로 <strong>항성황도(라히리)</strong> 기준의 라시 차트와 행성별 <strong>낙샤트라·파다</strong>, <strong>빔쇼타리 다샤</strong>를 계산해요. 서양 점성학과 별자리가 약 24° 달라서, 같은 사람도 다른 별자리로 나와요.</p>
   <nav class="astro-subnav" aria-label="점성학 메뉴">
     <a href="astrology.html">☉ 네이탈 차트</a>
     <span class="is-current" aria-current="page">ॐ 인도점성학 차트</span>
@@ -162,7 +165,7 @@ table.t a{color:var(--warm-brown);}
           </select>
         </div>
       </div>
-      <p class="client-pick-hint">고객을 고르면 이름·생년월일·출생 시간·출생지가 채워집니다.</p>
+      <p class="client-pick-hint">고객을 고르면 이름·생년월일·출생 시간·출생지가 채워져요.</p>
     </div>
     <div class="form-grid">
       <div class="field">
@@ -201,19 +204,35 @@ table.t a{color:var(--warm-brown);}
     <div class="card">
       <div class="card-title">✦ 라시 차트 <span style="font-size:13px;font-weight:400;color:var(--muted)">남인도식 · 별자리 칸 고정</span></div>
       <div class="si" id="siChart"></div>
-      <p class="legend">칸의 위치는 별자리로 고정되어 있습니다(왼쪽 위 칸이 물고기자리, 시계 방향으로 양자리·황소자리…). <b>Asc</b>가 표시된 칸이 상승궁(라그나)입니다. 행성 옆 숫자는 해당 별자리 안의 도수, (R)는 역행입니다.</p>
+      <p class="legend">칸의 위치는 별자리로 고정되어 있어요(왼쪽 위 칸이 물고기자리, 시계 방향으로 양자리·황소자리…). <b>Asc</b>가 표시된 칸이 상승궁(라그나)예요. 행성 옆 숫자는 해당 별자리 안의 도수, (R)는 역행이에요.</p>
+    </div>
+
+    <div class="card">
+      <div class="card-title">✦ 나밤샤 차트 (D9) <span style="font-size:13px;font-weight:400;color:var(--muted)">별자리를 9칸으로 나눈 분할 차트</span></div>
+      <div class="si" id="d9Chart"></div>
+      <p class="legend">나밤샤는 한 별자리(30°)를 3°20′씩 9칸으로 나눠, 행성이 어느 칸에 있는지를 다시 12별자리에 배치한 차트예요. 결혼·배우자, 그리고 행성이 실제로 얼마나 힘을 쓰는지 볼 때 라시 차트와 함께 봐요. 라시와 나밤샤에서 같은 별자리에 있는 행성(바르고타마)은 힘이 강하다고 봐요.</p>
+      <div id="d9Note"></div>
     </div>
 
     <div class="card">
       <div class="card-title">✦ 행성 위치 · 낙샤트라</div>
+      <p class="tbl-hint">표가 길면 옆으로 밀어서 보세요 →</p>
       <div class="tbl-wrap"><table class="t" id="grahaTbl"></table></div>
       <div class="note" id="houseNote"></div>
+      <div class="note">품위: <b>고양</b>(가장 힘이 좋은 자리) · <b>물라트리코나</b>(자기 별자리 중 특히 편한 구간) · <b>자기 별자리</b> · <b>쇠약</b>(힘을 쓰기 어려운 자리). 파라샤라 기준이에요. 라후·케투의 품위는 학파마다 달라 표시하지 않았어요.</div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">✦ 행성의 시선 · 그라하 드리슈티 <span style="font-size:13px;font-weight:400;color:var(--muted)">별자리 단위로 보는 인도식 어스펙트</span></div>
+      <p class="tbl-hint">표가 길면 옆으로 밀어서 보세요 →</p>
+      <div class="tbl-wrap"><table class="t" id="drishtiTbl"></table></div>
+      <div class="note">인도점성학에서는 모든 행성이 자기 자리에서 7번째 별자리를 바라봐요. 여기에 화성은 4·8번째, 목성은 5·9번째, 토성은 3·10번째를 더 봐요(자기 자리를 1번째로 셈). 서양점성학처럼 도수 차이(각도)로 보지 않고 별자리 단위로 봐요. 라후·케투의 시선은 학파마다 달라 넣지 않았어요.</div>
     </div>
 
     <div class="card" id="lordCard" style="display:none">
       <div class="card-title">✦ 하우스 주인 <span style="font-size:13px;font-weight:400;color:var(--muted)">각 하우스의 주인이 어디에 있는가</span></div>
       <div class="tbl-wrap"><table class="t" id="lordTbl"></table></div>
-      <div class="note">하우스 주인은 그 하우스 별자리를 다스리는 행성입니다. '읽기'를 누르면 학습 노트의 해당 배치 해설로 이동합니다. 읽기는 기본 해석이며 주인의 힘과 함께 있는 행성, 바라보는 행성을 같이 봐야 합니다. 일부 해설은 회원 전용입니다. 라후와 케투는 하우스 주인으로 보지 않았습니다.</div>
+      <div class="note">하우스 주인은 그 하우스 별자리를 다스리는 행성이에요. '읽기'를 누르면 학습 노트의 해당 배치 해설로 이동해요. 읽기는 기본 해석이며 주인의 힘과 함께 있는 행성, 바라보는 행성을 같이 봐야 해요. 일부 해설은 회원 전용이에요. 라후와 케투는 하우스 주인으로 보지 않았어요.</div>
     </div>
 
     <div class="card">
@@ -225,22 +244,22 @@ table.t a{color:var(--warm-brown);}
       <div class="tbl-wrap"><table class="t" id="antarTbl"></table></div>
       <div class="sub-title">지금 시기 읽기</div>
       <div id="nowDasha" style="font-size:14px;color:var(--deep-brown);line-height:1.8;"></div>
-      <div class="note">다샤 날짜는 1년을 365.25일로 계산한 값입니다. 프로그램마다 1년의 길이를 다르게 잡아 며칠 정도 차이가 날 수 있습니다. 첫 마하다샤는 출생 전에 이미 시작되어 있으면, 표에는 출생 시점의 남은 기간이 반영된 종료일이 나옵니다.</div>
+      <div class="note">다샤 날짜는 1년을 365.25일로 계산한 값이에요. 프로그램마다 1년의 길이를 다르게 잡아 며칠 정도 차이가 날 수 있어요. 첫 마하다샤는 출생 전에 이미 시작되어 있으면, 표에는 출생 시점의 남은 기간이 반영된 종료일이 나와요.</div>
     </div>
 
     <div class="card">
       <div class="card-title">✦ 계산 기준과 한계</div>
       <div class="note" style="margin-top:0">
         <b>계산 기준</b><br>
-        · 항성황도, 라히리(치트라파크샤) 아야남사 (<span id="ayaVal"></span>)를 열대황도 위치에서 뺀 값입니다.<br>
-        · 하우스는 별자리 하나가 한 하우스인 전체별자리(Whole Sign) 방식이며, 상승궁이 있는 별자리가 1하우스입니다.<br>
-        · 라후·케투는 계산 라이브러리의 교점 값을 사용합니다. 전통에 따라 평균 교점과 진짜 교점 중 무엇을 쓰는지가 달라 최대 1~2° 정도 차이가 날 수 있습니다.<br>
-        · 천왕성·해왕성·명왕성은 전통 베다 점성학에서 쓰지 않아 제외했습니다.
+        · 항성황도, 라히리(치트라파크샤) 아야남사 (<span id="ayaVal"></span>)를 열대황도 위치에서 뺀 값이에요.<br>
+        · 하우스는 별자리 하나가 한 하우스인 전체별자리(Whole Sign) 방식이며, 상승궁이 있는 별자리가 1하우스예요.<br>
+        · 라후·케투는 전통 방식대로 평균 교점(Mean Node)을 써요. 진짜 교점(True Node)을 쓰는 프로그램과는 최대 1~2° 정도 차이가 날 수 있어요.<br>
+        · 천왕성·해왕성·명왕성은 전통 베다 점성학에서 쓰지 않아 제외했어요.
       </div>
       <div class="warn">
-        <b>참고용 계산입니다.</b> 아야남사는 일반 세차 근사식으로 계산했고, 다른 프로그램과 도수가 몇 분~몇 단위로 다를 수 있습니다. 라시·낙샤트라·파다 경계 가까이에 있는 값은 출생 시간이 몇 분만 달라도 결과가 바뀌니, 그런 경우에는 아래에 따로 안내합니다. 이 페이지는 계산 결과만 보여 주며, 당사자의 성격이나 운명을 단정하는 근거로 쓰지 마세요.
+        <b>참고용 계산이에요.</b> 아야남사는 세차 근사식으로 계산해요. 전문 천문 계산(스위스 에페메리스)과 비교하면 행성 도수 차이는 1분(1/60°) 안팎이에요. 라시·낙샤트라·파다 경계 가까이에 있는 값은 출생 시간이 몇 분만 달라도 결과가 바뀌니, 그런 경우에는 아래에 따로 안내해요. 이 페이지는 계산 결과만 보여 주며, 당사자의 성격이나 운명을 단정하는 근거로 쓰지 마세요.
       </div>
-      <p class="links" style="margin-top:14px;font-size:14px;line-height:1.8;">낙샤트라 신화와 상징은 <a href="nakshatra/index.html">낙샤트라 학습 노트</a>에서 자세히 볼 수 있습니다.</p>
+      <p class="links" style="margin-top:14px;font-size:14px;line-height:1.8;">낙샤트라 신화와 상징은 <a href="nakshatra/index.html">낙샤트라 학습 노트</a>에서 자세히 볼 수 있어요.</p>
     </div>
   </div>
 </div>
@@ -392,7 +411,7 @@ table.t a{color:var(--warm-brown);}
     }
     let html = '<p style="margin:0 0 6px"><b>마하다샤</b> ' + block(cur.lord, cur.lord, null) + '</p>';
     if (sub) html += '<p style="margin:0 0 6px"><b>안타르다샤</b> ' + block(sub.lord, cur.lord, sub.lord) + '</p>';
-    html += '<p style="margin:0;font-size:12.5px;color:var(--muted)">위 내용은 기본 읽기로 가는 링크이며, 시기와 사건을 확정하지 않습니다. 일부 해설은 회원 전용입니다.</p>';
+    html += '<p style="margin:0;font-size:12.5px;color:var(--muted)">위 내용은 기본 읽기로 가는 링크이며, 시기와 사건을 확정하지 않아요. 일부 해설은 회원 전용이에요.</p>';
     $('nowDasha').innerHTML = html;
   }
   function grahaLink(key) {
@@ -479,7 +498,7 @@ table.t a{color:var(--warm-brown);}
   function counselorPrefillStatus({ dt, tm, city, hasCoords }) {
     if (!dt) return '고객 생년월일을 불러오지 못했어요. 직접 입력해 주세요.';
     if (tm && (city || hasCoords)) {
-      return '저장된 고객에서 <strong>이름·생년월일·출생 시간·출생지</strong>를 불러왔어요. 확인 후 차트를 계산합니다.';
+      return '저장된 고객에서 <strong>이름·생년월일·출생 시간·출생지</strong>를 불러왔어요. 확인 후 차트를 계산해요.';
     }
     if (tm) {
       return '이름·생년월일·출생 시간을 불러왔어요. <strong>출생지</strong>를 확인한 뒤 “차트 계산하기”를 눌러주세요.';
@@ -613,7 +632,7 @@ table.t a{color:var(--warm-brown);}
     $('resTitle').textContent = '✦ ' + (ctx.name ? ctx.name + ' 님의 ' : '') + '인도점성학 차트';
 
     const sum = [];
-    sum.push(['상승궁(라그나)', lagna ? signLabel(lagna.rashi) : '시간 미상', lagna ? fmtDeg(lagna.deg) + ' · ' + nakName(lagna.nak) + ' ' + lagna.pada + '파다' : '출생 시간을 모르면 계산하지 않습니다']);
+    sum.push(['상승궁(라그나)', lagna ? signLabel(lagna.rashi) : '시간 미상', lagna ? fmtDeg(lagna.deg) + ' · ' + nakName(lagna.nak) + ' ' + lagna.pada + '파다' : '출생 시간을 모르면 계산하지 않아요']);
     sum.push(['달 라시 (찬드라 라그나)', signLabel(moon.rashi), fmtDeg(moon.deg)]);
     sum.push(['달 낙샤트라', nakLink(moon.nak, nakName(moon.nak) + ' ' + moon.pada + '파다'), '낙샤트라 주인: ' + GK[moon.nakLord]]);
     sum.push(['태양 라시', signLabel(sun.rashi), fmtDeg(sun.deg) + ' · ' + nakName(sun.nak) + ' ' + sun.pada + '파다']);
@@ -621,62 +640,83 @@ table.t a{color:var(--warm-brown);}
 
     const warns = [];
     if (ctx.unknownTime) {
-      warns.push('출생 시간을 입력하지 않아 정오 12:00 기준으로 계산했습니다. 달은 하루 약 13° 이동하므로 실제 출생 시간에 따라 달의 도수가 최대 약 ±6° 달라질 수 있고, 그러면 달 낙샤트라와 다샤도 바뀔 수 있습니다. 상승궁과 하우스는 계산하지 않았습니다.');
+      warns.push('출생 시간을 입력하지 않아 정오 12:00 기준으로 계산했어요. 달은 하루 약 13° 이동하므로 실제 출생 시간에 따라 달의 도수가 최대 약 ±6° 달라질 수 있고, 그러면 달 낙샤트라와 다샤도 바뀔 수 있어요. 상승궁과 하우스는 계산하지 않았어요.');
     }
     const T = 0.3;
-    if (moon.nakEdge < T) warns.push('달이 낙샤트라 경계에서 ' + moon.nakEdge.toFixed(2) + '° 이내에 있습니다. 출생 시간이 몇 분만 달라도 낙샤트라와 다샤가 바뀔 수 있으니, 출생 시간을 정확히 꼭 확인하세요.');
+    if (moon.nakEdge < T) warns.push('달이 낙샤트라 경계에서 ' + moon.nakEdge.toFixed(2) + '° 이내에 있어요. 출생 시간이 몇 분만 달라도 낙샤트라와 다샤가 바뀔 수 있으니, 출생 시간을 정확히 꼭 확인하세요.');
     else {
       const padaEdge = (function () { const r = moon.sid % V.PADA_SPAN; return Math.min(r, V.PADA_SPAN - r); })();
-      if (padaEdge < T) warns.push('달이 파다 경계에서 ' + padaEdge.toFixed(2) + '° 이내에 있습니다. 출생 시간에 따라 파다가 달라질 수 있습니다.');
+      if (padaEdge < T) warns.push('달이 파다 경계에서 ' + padaEdge.toFixed(2) + '° 이내에 있어요. 출생 시간에 따라 파다가 달라질 수 있어요.');
     }
     grahas.concat(lagna ? [lagna] : []).forEach((g) => {
       if (g.rashiEdge < T) {
         const nm = g.key === 'lagna' ? '상승궁' : GK[g.key];
-        warns.push(nm + '(이/가) 별자리 경계에서 ' + g.rashiEdge.toFixed(2) + '° 이내입니다. 계산 방식(아야남사, 출생 시간)이 조금만 달라도 별자리가 바뀔 수 있습니다.');
+        warns.push(nm + '(이/가) 별자리 경계에서 ' + g.rashiEdge.toFixed(2) + '° 이내예요. 계산 방식(아야남사, 출생 시간)이 조금만 달라도 별자리가 바뀔 수 있어요.');
       }
     });
     $('warns').innerHTML = warns.length ? '<div class="warn">' + warns.map((w) => '· ' + esc(w)).join('<br>') + '</div>' : '';
 
-    const POS = { 11: [0, 0], 0: [0, 1], 1: [0, 2], 2: [0, 3], 3: [1, 3], 4: [2, 3], 5: [3, 3], 6: [3, 2], 7: [3, 1], 8: [3, 0], 9: [2, 0], 10: [1, 0] };
-    const cells = {};
-    for (let r = 0; r < 12; r++) cells[r] = [];
-    grahas.forEach((g) => {
-      const mark = (g.retro && g.key !== 'rahu' && g.key !== 'ketu') ? ' (R)' : '';
-      cells[g.rashi].push('<span class="g' + (g.key === 'moon' ? ' moon' : '') + '">' + V.GRAHA_SHORT[g.key] + ' ' + Math.floor(g.deg) + '°' + mark + '</span>');
-    });
-    let html = '';
-    for (let row = 0; row < 4; row++) {
-      for (let col = 0; col < 4; col++) {
-        if ((row === 1 || row === 2) && (col === 1 || col === 2)) {
-          if (row === 1 && col === 1) {
-            html += '<div class="mid"><b>' + esc(ctx.name || '라시 차트') + '</b><span>' + esc(ctx.dateLabel) + '<br>' + esc(ctx.place) + '<br>라히리 항성황도</span></div>';
+    function drawSouthChart(targetId, signOf, labelOf, lagnaSign, midHtml) {
+      const POS = { 11: [0, 0], 0: [0, 1], 1: [0, 2], 2: [0, 3], 3: [1, 3], 4: [2, 3], 5: [3, 3], 6: [3, 2], 7: [3, 1], 8: [3, 0], 9: [2, 0], 10: [1, 0] };
+      const cells = {};
+      for (let r = 0; r < 12; r++) cells[r] = [];
+      grahas.forEach((g) => {
+        cells[signOf(g)].push('<span class="g' + (g.key === 'moon' ? ' moon' : '') + '">' + labelOf(g) + '</span>');
+      });
+      let html = '';
+      for (let row = 0; row < 4; row++) {
+        for (let col = 0; col < 4; col++) {
+          if ((row === 1 || row === 2) && (col === 1 || col === 2)) {
+            if (row === 1 && col === 1) html += '<div class="mid">' + midHtml + '</div>';
+            continue;
           }
-          continue;
+          const sign = Object.keys(POS).find((k) => POS[k][0] === row && POS[k][1] === col);
+          const isL = lagnaSign != null && lagnaSign === Number(sign);
+          html += '<div class="c' + (isL ? ' lagna' : '') + '"><span class="sn">' + V.SIGNS[sign].sa + '</span>' + cells[sign].join('') + '</div>';
         }
-        const sign = Object.keys(POS).find((k) => POS[k][0] === row && POS[k][1] === col);
-        const isL = lagna && lagna.rashi === Number(sign);
-        html += '<div class="c' + (isL ? ' lagna' : '') + '"><span class="sn">' + V.SIGNS[sign].sa + '</span>' + cells[sign].join('') + '</div>';
       }
+      $(targetId).innerHTML = html;
     }
-    $('siChart').innerHTML = html;
+    const retroMark = (g) => (g.retro && g.key !== 'rahu' && g.key !== 'ketu') ? ' (R)' : '';
+    drawSouthChart('siChart', (g) => g.rashi, (g) => V.GRAHA_SHORT[g.key] + ' ' + Math.floor(g.deg) + '°' + retroMark(g), lagna ? lagna.rashi : null,
+      '<b>' + esc(ctx.name || '라시 차트') + '</b><span>' + esc(ctx.dateLabel) + '<br>' + esc(ctx.place) + '<br>라히리 항성황도</span>');
+    drawSouthChart('d9Chart', (g) => g.d9, (g) => V.GRAHA_SHORT[g.key] + (g.d9 === g.rashi ? ' ★' : '') + retroMark(g), lagna ? lagna.d9 : null,
+      '<b>나밤샤 (D9)</b><span>' + esc(ctx.name || '') + '<br>★ 바르고타마<br>(라시와 같은 별자리)</span>');
+    const d9Warn = grahas.concat(lagna ? [lagna] : []).filter((g) => g.d9Edge < 0.1)
+      .map((g) => (g.key === 'lagna' ? '상승궁' : GK[g.key]));
+    $('d9Note').innerHTML = d9Warn.length
+      ? '<div class="warn">· ' + esc(d9Warn.join(', ')) + '의 나밤샤 위치가 칸 경계에서 0.1° 이내예요. 나밤샤 칸은 3°20′으로 좁아서 출생 시간이 몇 분만 달라도 바뀔 수 있어요.</div>'
+      : '';
 
-    let tb = '<tr><th>행성</th><th>라시</th><th>도수</th><th>낙샤트라 (파다)</th><th>낙샤트라 주인</th>' + (lagna ? '<th>하우스</th>' : '') + '<th>비고</th></tr>';
+    const DIG_KO = { exalted: '고양', debilitated: '쇠약', moolatrikona: '물라트리코나', own: '자기 별자리' };
+    let tb = '<tr><th>행성</th><th>라시</th><th>도수</th><th>낙샤트라 (파다)</th><th>낙샤트라 주인</th>' + (lagna ? '<th>하우스</th>' : '') + '<th>품위</th><th>나밤샤</th><th>비고</th></tr>';
     const rows = (lagna ? [lagna] : []).concat(grahas);
     rows.forEach((g) => {
       const isL = g.key === 'lagna';
       const note = (g.retro && !isL && g.key !== 'rahu' && g.key !== 'ketu') ? '역행' : '';
       tb += '<tr><td>' + (isL ? '상승궁' : grahaLink(g.key)) + '</td><td>' + signLink(g.rashi) + '</td><td>' + fmtDeg(g.deg) + '</td><td>' +
         nakLink(g.nak, nakName(g.nak)) + ' ' + g.pada + '파다</td><td>' + grahaLink(g.nakLord) + '</td>' +
-        (lagna ? '<td>' + houseLink(isL ? 1 : g.house) + '</td>' : '') + '<td>' + note + '</td></tr>';
+        (lagna ? '<td>' + houseLink(isL ? 1 : g.house) + '</td>' : '') + '<td>' + (DIG_KO[g.dignity] || '') + '</td><td>' + signLabel(g.d9) + (g.d9 === g.rashi ? ' · 바르고타마' : '') + '</td><td>' + note + '</td></tr>';
     });
     $('grahaTbl').innerHTML = tb;
     renderLords(lagna, grahas);
-    $('houseNote').innerHTML = lagna ? '하우스는 전체별자리 방식입니다. 상승궁이 ' + signLabel(lagna.rashi) + '이므로 이 별자리가 1하우스이고, 다음 별자리가 2하우스입니다.' : '출생 시간을 모르면 상승궁과 하우스를 계산하지 않습니다.';
+    let dt = '<tr><th>행성</th><th>있는 자리</th><th>바라보는 자리</th><th>시선을 받는 행성</th></tr>';
+    grahas.forEach((g) => {
+      const ds = V.drishtiSigns(g.key, g.rashi);
+      if (!ds.length) return;
+      const where = signLabel(g.rashi) + (lagna ? ' · ' + g.house + '하우스' : '');
+      const targets = ds.map((d) => d.nth + '번째 ' + V.SIGNS[d.rashi].sa + (lagna ? '(' + (((d.rashi - lagna.rashi + 12) % 12) + 1) + '하우스)' : '')).join(', ');
+      const hit = [];
+      ds.forEach((d) => grahas.forEach((o) => { if (o.key !== g.key && o.rashi === d.rashi) hit.push(GK[o.key]); }));
+      dt += '<tr><td>' + grahaLink(g.key) + '</td><td>' + where + '</td><td>' + targets + '</td><td>' + (hit.length ? hit.join(', ') : '—') + '</td></tr>';
+    });
+    $('drishtiTbl').innerHTML = dt;
+    $('houseNote').innerHTML = lagna ? '하우스는 전체별자리 방식이에요. 상승궁이 ' + signLabel(lagna.rashi) + '이므로 이 별자리가 1하우스이고, 다음 별자리가 2하우스예요.' : '출생 시간을 모르면 상승궁과 하우스를 계산하지 않아요.';
     $('ayaVal').textContent = ayanamsa.toFixed(2) + '°';
 
     const d = V.dasha(moon.sid, ctx.birthMs);
     const now = Date.now();
-    $('dashaIntro').innerHTML = '달이 ' + nakLink(moon.nak, nakName(moon.nak)) + '(주인 ' + GK[moon.nakLord] + ')에 있어서 <b>' + GK[d.firstLord] + ' 마하다샤</b>로 시작합니다. 출생 시점에 이 마하다샤가 약 <b>' + d.balanceYears.toFixed(1) + '년</b> 남아 있었습니다.';
+    $('dashaIntro').innerHTML = '달이 ' + nakLink(moon.nak, nakName(moon.nak)) + '(주인 ' + GK[moon.nakLord] + ')에 있어서 <b>' + GK[d.firstLord] + ' 마하다샤</b>로 시작해요. 출생 시점에 이 마하다샤가 약 <b>' + d.balanceYears.toFixed(1) + '년</b> 남아 있었어요.';
     let mt = '<tr><th>마하다샤</th><th>기간(년)</th><th>시작</th><th>종료</th></tr>';
     let cur = null;
     d.list.forEach((m, i) => {
@@ -698,7 +738,7 @@ table.t a{color:var(--warm-brown);}
     } else {
       $('nowDasha').innerHTML = '';
       $('antarTitle').textContent = '현재 마하다샤 정보 없음';
-      $('antarTbl').innerHTML = '<tr><td>120년 주기를 벗어난 날짜입니다.</td></tr>';
+      $('antarTbl').innerHTML = '<tr><td>120년 주기를 벗어난 날짜예요.</td></tr>';
     }
 
     $('result').classList.add('show');
@@ -707,7 +747,7 @@ table.t a{color:var(--warm-brown);}
 
   async function calculate() {
     hideStatus();
-    if (!Origin || !Horoscope) { showStatus('계산 라이브러리를 불러오지 못했습니다. 새로고침해 주세요.', 'err'); return; }
+    if (!Origin || !Horoscope) { showStatus('계산 라이브러리를 불러오지 못했어요. 새로고침해 주세요.', 'err'); return; }
     const dateVal = $('inDate').value;
     if (!dateVal) { showStatus('생년월일을 입력해 주세요.', 'err'); return; }
     const unknownTime = $('timeUnknown').checked;
@@ -734,7 +774,7 @@ table.t a{color:var(--warm-brown);}
       render(data, { name: ($('inName').value || '').trim(), dateLabel, place: coords.label, unknownTime, birthMs });
     } catch (e) {
       console.error(e);
-      showStatus('계산 중 오류가 발생했습니다. 입력값(특히 좌표)을 확인해 주세요.', 'err');
+      showStatus('계산 중 오류가 발생했어요. 입력값(특히 좌표)을 확인해 주세요.', 'err');
     } finally {
       $('calcBtn').disabled = false;
     }

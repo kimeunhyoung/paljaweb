@@ -70,6 +70,9 @@
       g.deg = g.sid - g.rashi * 30;
       var n = nakOf(g.sid); g.nak = n.index; g.pada = n.pada; g.nakLord = n.lord; g.nakFrac = n.frac;
       g.rashiEdge = boundaryDist(g.sid, 30);
+      g.d9 = navamsaOf(g.sid);
+      g.d9Edge = boundaryDist(g.sid, 30 / 9);
+      g.dignity = dignity(g.key, g.rashi, g.deg);
       g.nakEdge = boundaryDist(g.sid, NAK_SPAN);
     });
     if (lagna) grahas.forEach(function (g) { g.house = ((g.rashi - lagna.rashi + 12) % 12) + 1; });
@@ -101,10 +104,37 @@
     return { list: list, balanceYears: firstFull - elapsed, firstLord: n.lord };
   }
 
+  /** 나밤샤(D9): 한 별자리를 3°20'씩 9칸으로 나눔. 불(양)·흙(염소)·바람(천칭)·물(게) 순서 규칙을 한 식으로 */
+  function navamsaOf(sid) { return Math.floor(norm(sid) / (30 / 9)) % 12; }
+
+  /** 행성 품위(파라샤라 기준). 라후·케투는 학파마다 달라 표시하지 않음 */
+  var EXALT = { sun: 0, moon: 1, mars: 9, mercury: 5, jupiter: 3, venus: 11, saturn: 6 };
+  var MT = { sun: [4, 0, 20], moon: [1, 3, 30], mars: [0, 0, 12], mercury: [5, 15, 20], jupiter: [8, 0, 10], venus: [6, 0, 15], saturn: [10, 0, 20] };
+  function dignity(key, rashi, deg) {
+    if (!(key in EXALT)) return '';
+    var mt = MT[key];
+    if (key === 'moon' && rashi === 1) return deg < 3 ? 'exalted' : 'moolatrikona';
+    if (key === 'mercury' && rashi === 5) return deg < 15 ? 'exalted' : (deg < 20 ? 'moolatrikona' : 'own');
+    if (rashi === EXALT[key]) return 'exalted';
+    if (rashi === (EXALT[key] + 6) % 12) return 'debilitated';
+    if (rashi === mt[0] && deg >= mt[1] && deg < mt[2]) return 'moolatrikona';
+    if (SIGN_LORD[rashi] === key) return 'own';
+    return '';
+  }
+
+  /** 그라하 드리슈티: 자기 자리에서 n번째 별자리(자기 자리=1번째). 라후·케투는 학파마다 달라 제외 */
+  var DRISHTI = { sun: [7], moon: [7], mercury: [7], venus: [7], mars: [4, 7, 8], jupiter: [5, 7, 9], saturn: [3, 7, 10] };
+  function drishtiSigns(key, rashi) {
+    var list = DRISHTI[key];
+    if (!list) return [];
+    return list.map(function (n) { return { nth: n, rashi: (rashi + n - 1) % 12 }; });
+  }
+
   var api = {
     SIGNS: SIGNS, SIGN_LORD: SIGN_LORD, NAK: NAK, GRAHA_KO: GRAHA_KO, GRAHA_SHORT: GRAHA_SHORT,
     DASHA_YEARS: DASHA_YEARS, NAK_SPAN: NAK_SPAN, PADA_SPAN: PADA_SPAN,
-    lahiriAyanamsa: lahiriAyanamsa, build: build, dasha: dasha, norm: norm
+    lahiriAyanamsa: lahiriAyanamsa, build: build, dasha: dasha, norm: norm,
+    navamsaOf: navamsaOf, dignity: dignity, drishtiSigns: drishtiSigns, DRISHTI: DRISHTI
   };
   if (typeof module !== 'undefined' && module.exports) module.exports = api; else root.VedicCore = api;
 })(typeof window !== 'undefined' ? window : this);
