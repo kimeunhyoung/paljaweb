@@ -281,7 +281,7 @@
       '<div class="lt-sub">나를 보는 나 vs 삶의 큰 길</div></div></div>' +
       '<div class="psy-pair">' +
       '<div class="psy-card">' +
-      '<div class="psy-label">사이킥 (생일 일)</div>' +
+      '<div class="psy-label">사이킥 (태어난 날)</div>' +
       '<div class="psy-num">' +
       psy.single +
       '</div>' +
