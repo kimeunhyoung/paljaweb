@@ -1912,7 +1912,7 @@ async function callAI(results,baseName,birthDate,lp,dist,purposeInput){
     if (!window.PaljaAiQuota) throw new Error('no_quota_client');
     const { text, quota } = await PaljaAiQuota.callAi({
       feature: 'name_opinion',
-      max_tokens: 600,
+      max_tokens: 1200,
       payload,
     });
     const wrapOk=document.getElementById('aiWrap');

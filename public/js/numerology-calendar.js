@@ -174,7 +174,8 @@ async function callNumerologyAi(mode) {
       ? state.detailCtx && aiKey(formatDateKey(state.detailCtx.date)) === cacheKeyStr
       : state.detailCtx && aiKey(formatMonthKey(state.detailCtx.year, state.detailCtx.month)) === cacheKeyStr;
     if (stillCurrent && document.getElementById(box.id)) {
-      box.textContent = out;
+      box.innerHTML = numAiHtml(out);
+      box.classList.add("is-md");
       box.classList.remove("is-empty");
     }
     if (quota) PaljaAiQuota.applyQuotaBadge(numAiQuotaBadge, quota);
@@ -205,6 +206,33 @@ async function callNumerologyAi(mode) {
       if (liveHint) liveHint.classList.remove("is-loading");
     }
   }
+}
+
+function escNumAi(t) {
+  return String(t == null ? "" : t).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+}
+
+/** AI 해석(마크다운 일부: ## 제목, **굵게**, - 목록)을 안전한 HTML로 */
+function numAiHtml(text) {
+  const lines = String(text || "").replace(/\r\n/g, "\n").split("\n");
+  const out = [];
+  let list = false;
+  const inline = (s) => escNumAi(s).replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>");
+  for (const raw of lines) {
+    const line = raw.trim();
+    if (/^-\s+/.test(line)) {
+      if (!list) { out.push("<ul>"); list = true; }
+      out.push("<li>" + inline(line.replace(/^-\s+/, "")) + "</li>");
+      continue;
+    }
+    if (list) { out.push("</ul>"); list = false; }
+    if (!line) continue;
+    const h = line.match(/^#{1,4}\s+(.+)$/);
+    if (h) out.push("<h4>" + inline(h[1]) + "</h4>");
+    else out.push("<p>" + inline(line) + "</p>");
+  }
+  if (list) out.push("</ul>");
+  return out.join("");
 }
 
 function bindDetailAiEvents() {
@@ -374,16 +402,16 @@ function renderDetail(date, personalYear, personalMonth, personalDay, universalD
     </div>
     <div class="ai-block">
       <p class="ai-block-title">✨ AI 맞춤 운세</p>
-      <p class="ai-block-desc">기본 가이드 위에 연애·일·금전까지 풀어 드려요. 날짜·달마다 1크레딧이에요. 한 번 받은 해석은 24시간 동안 다시 볼 수 있어요.</p>
+      <p class="ai-block-desc">기본 가이드 위에 연애·일·금전까지 풀어 드려요. 날짜·달마다 1크레딧이에요. 같은 날짜·같은 달은 다시 열어도 차감되지 않아요.</p>
       <div class="ai-actions">
         <button type="button" class="ai-btn" id="btnNumAiDaily"${aiDisabled ? " disabled" : ""}>✨ AI 오늘 운세 (1크레딧)</button>
       </div>
-      <div class="ai-result${dailyCached || dailyLoading ? "" : " is-empty"}" id="numAiDailyResult">${dailyLoading ? "해석을 만들고 있어요…" : (dailyCached || "「AI 오늘 운세」를 누르면 이 날짜 맞춤 해석을 받을 수 있어요.")}</div>
+      <div class="ai-result${dailyCached && !dailyLoading ? " is-md" : ""}${dailyCached || dailyLoading ? "" : " is-empty"}" id="numAiDailyResult">${dailyLoading ? "해석을 만들고 있어요…" : (dailyCached ? numAiHtml(dailyCached) : "「AI 오늘 운세」를 누르면 이 날짜 맞춤 해석을 받을 수 있어요.")}</div>
       <p class="ai-time-hint" id="numAiDailyHint">보통 20~40초 정도 걸려요.</p>
       <div class="ai-actions" style="margin-top:12px;">
         <button type="button" class="ai-btn ai-btn--soft" id="btnNumAiMonthly"${aiDisabled ? " disabled" : ""}>✨ AI 이번 달 흐름 (1크레딧)</button>
       </div>
-      <div class="ai-result${monthlyCached || monthlyLoading ? "" : " is-empty"}" id="numAiMonthlyResult">${monthlyLoading ? "해석을 만들고 있어요…" : (monthlyCached || "「AI 이번 달 흐름」을 누르면 이 달 전체 테마를 풀어 드려요.")}</div>
+      <div class="ai-result${monthlyCached && !monthlyLoading ? " is-md" : ""}${monthlyCached || monthlyLoading ? "" : " is-empty"}" id="numAiMonthlyResult">${monthlyLoading ? "해석을 만들고 있어요…" : (monthlyCached ? numAiHtml(monthlyCached) : "「AI 이번 달 흐름」을 누르면 이 달 전체 테마를 풀어 드려요.")}</div>
       <p class="ai-time-hint" id="numAiMonthlyHint">보통 20~40초 정도 걸려요.</p>
     </div>
   `;
