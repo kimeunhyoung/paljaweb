@@ -129,4 +129,106 @@ function checkCouple() {
 }
 checkCouple();
 
+const numerology = require('../lib/numerology-ai-prompts');
+function checkNumerology() {
+  const { clientHashKey } = require('../lib/astro-flow-ai-prompts');
+  const dailyPayload = {
+    mode: 'daily',
+    birthDate: '1979-04-07',
+    baseKey: '2026-10-05',
+    birth: { y: 1979, m: 4, d: 7 },
+    dateLabel: '2026년 10월 5일 (월)',
+    personalYear: 3,
+    personalMonth: 4,
+    personalDay: 5,
+    universalDay: 6,
+    guide: {
+      key: '변화',
+      do: '새 도구, 새 관점, 새 방법을 시도해 보세요.',
+      dont: '충동적 결정으로 약속을 흔들지 마세요.',
+    },
+    monthMessage: '기반을 다지는 달이에요. 정리하고 꾸준히 반복하는 게 성과를 만들어요.',
+  };
+  const dailyPrompt = numerology.buildDailyAiPrompt(dailyPayload);
+  assert.ok(dailyPrompt.includes('대상 날짜: 2026년 10월 5일 (월)'), 'daily date');
+  assert.ok(dailyPrompt.includes('## 오늘의 한 줄 조언'), 'daily sections');
+  const dailyKey = numerology.resolveNumerologyCacheKey('numerology_daily', dailyPayload);
+  assert.strictEqual(
+    dailyKey,
+    clientHashKey(`v1:daily:${dailyPayload.baseKey}:${dailyPayload.birthDate}:${dailyPrompt}`),
+    'daily cacheKey',
+  );
+
+  const monthlyPayload = {
+    mode: 'monthly',
+    birthDate: '1979-04-07',
+    baseKey: '2026-10',
+    birth: { y: 1979, m: 4, d: 7 },
+    year: 2026,
+    month: 10,
+    personalYear: 3,
+    personalMonth: 4,
+    monthMessage: '기반을 다지는 달이에요. 정리하고 꾸준히 반복하는 게 성과를 만들어요.',
+  };
+  const monthlyPrompt = numerology.buildMonthlyAiPrompt(monthlyPayload);
+  assert.ok(monthlyPrompt.includes('대상: 2026년 10월'), 'monthly target');
+  assert.ok(monthlyPrompt.includes('## 이번 달 실천 포인트'), 'monthly sections');
+  const monthlyKey = numerology.resolveNumerologyCacheKey('numerology_monthly', monthlyPayload);
+  assert.strictEqual(
+    monthlyKey,
+    clientHashKey(`v1:monthly:${monthlyPayload.baseKey}:${monthlyPayload.birthDate}:${monthlyPrompt}`),
+    'monthly cacheKey',
+  );
+  console.log('OK numerology', 'dailyKey=', dailyKey, 'monthlyKey=', monthlyKey);
+}
+checkNumerology();
+
+const nameAi = require('../lib/name-ai-prompts');
+function checkName() {
+  const { clientHashKey } = require('../lib/astro-flow-ai-prompts');
+  const opinionPayload = {
+    scoringKey: 'general',
+    purposeLabel: '👤 일반 이름',
+    bucketHint: '균형 잡힌 에너지, 부르기 편한 인상',
+    baseName: '김은형',
+    birthDate: '1979-04-07',
+    lpDesc: '인생여정수 4번 · 기반 — 안정과 체계',
+    lpVal: 4,
+    missingStr: '생년월일 부족수: 7번(탐구)',
+    excessStr: '',
+    namesStr: '• 은형: 운명수 8번(성취), 혼의수 3번(표현), 성격수 5번(변화), 종합점수 88점',
+    topName: '은형',
+    topScore: 88,
+    cautionName: '',
+    cautionScore: null,
+  };
+  const opinionPrompt = nameAi.buildNameOpinionPrompt(opinionPayload);
+  assert.ok(opinionPrompt.includes('추천 1위: 은형 (88점)'), 'opinion top');
+  assert.ok(opinionPrompt.includes('부족한 수를 이름이 어떻게 채워주는지도 언급하세요.'), 'opinion missing hint');
+  assert.strictEqual(nameAi.resolveNameCacheKey('name_opinion', opinionPayload), clientHashKey(opinionPrompt));
+
+  const recommendPayload = {
+    scoringKey: 'general',
+    purposeLabel: '👤 일반 이름',
+    purposeDesc: '균형 잡힌 에너지, 부르기 편한 인상',
+    surname: '김',
+    gender: '여',
+    syllable: '2',
+    lpLine: '인생여정수: 4번(기반) — 안정',
+    missingStr: '생년월일에 없는 수(이름으로 채우면 좋음): 7번(탐구)',
+    excessStr: '',
+    energyDesc: '',
+    extra: '',
+  };
+  const recommendPrompt = nameAi.buildRecommendPrompt(recommendPayload);
+  assert.ok(recommendPrompt.includes('성(姓): 김'), 'recommend surname');
+  assert.ok(recommendPrompt.includes('"names":'), 'recommend json');
+  assert.strictEqual(
+    nameAi.resolveNameCacheKey('name_recommend', recommendPayload),
+    clientHashKey('v2:' + recommendPrompt),
+  );
+  console.log('OK name', 'opinionChars=', opinionPrompt.length, 'recommendChars=', recommendPrompt.length);
+}
+checkName();
+
 console.log('All parity checks passed.');

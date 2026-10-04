@@ -1891,38 +1891,29 @@ async function callAI(results,baseName,birthDate,lp,dist,purposeInput){
   const excessStr=dist?.excess.length?`과잉수: ${dist.excess.map(n=>`${n}번(${tr(n).name})`).join(', ')}`:'';
   const lpDesc=lp?`인생여정수 ${lp.val}번 · ${tr(lp.val).name} — ${tr(lp.val).desc}`:'';
   const bucketHint = PURPOSE_SCORING[pCtx.scoringKey]?.desc || '';
-  const openPara = lp
-    ? `첫 문단: 이 사람의 인생여정수(${lp.val}번)가 삶에서 어떤 방향과 숙제를 갖는지 한 문장으로 짚고 시작하세요.`
-    : `첫 문단: 사용자가 선택한 이름 목적(${pCtx.label})에 맞는 에너지 기준을 한 문장으로 짚고 시작하세요.`;
-  const secondPara = lp
-    ? `둘째 문단: 1위 이름이 왜 이 인생여정수와 잘 맞는지, 그리고 "${pCtx.label}" 맥락에 어떻게 맞는지 에너지 조화를 스토리로 설명하세요. ${missingStr?`부족한 수를 이름이 어떻게 채워주는지도 언급하세요.`:''}`
-    : `둘째 문단: 1위 이름이 선택 목적 "${pCtx.label}"에 왜 잘 맞는지 수비학·소리 관점에서 설명하세요.`;
-
-  const prompt=`당신은 수비학 전문 상담사입니다. 아래 데이터를 바탕으로 깊이 있고 따뜻한 네임코드 코멘트를 작성해주세요.
-
-이름 목적(사용자 선택): ${pCtx.label}
-${bucketHint?`이 맥락에서 선호되는 에너지 방향(참고): ${bucketHint}`:''}
-${baseName?`대상: ${baseName}\n`:''}${birthDate?`생년월일: ${birthDate}\n`:''}${lpDesc?`${lpDesc}\n`:''}${missingStr?`${missingStr}\n`:''}${excessStr?`${excessStr}\n`:''}
-분석된 이름 (종합점수 순):
-${namesStr}
-
-추천 1위: ${results[0]?.name} (${Math.min(results[0]?.totalScore,99)}점)
-${results.length>1?`주의 이름: ${results[results.length-1]?.name} (${Math.min(results[results.length-1]?.totalScore,99)}점)`:''}
-
-작성 지침 (반드시 따르세요):
-1. ${openPara}
-2. ${secondPara}
-3. 다음 관점도 반영하세요: ${getPurposePromptExtra(pCtx.scoringKey, pCtx.label)}
-4. 점수가 낮은 이름이 있다면 왜 "${pCtx.label}" 맥락이나 에너지와 맞지 않는지 구체적으로 설명하세요.
-5. 마지막 문장: "이름은 평생 불리는 에너지입니다. 수비학 점수와 함께 직접 소리 내어 불러보며 느낌도 꼭 확인해보세요." 로 마무리하세요.
-6. 번호·목록 없이 자연스러운 문단으로만, 3~4문단으로 작성하세요.`;
+  const last = results.length > 1 ? results[results.length - 1] : null;
+  const payload = {
+    scoringKey: pCtx.scoringKey,
+    purposeLabel: pCtx.label,
+    bucketHint,
+    baseName: baseName || '',
+    birthDate: birthDate || '',
+    lpDesc,
+    lpVal: lp ? lp.val : null,
+    missingStr,
+    excessStr,
+    namesStr,
+    topName: results[0]?.name || '',
+    topScore: Math.min(results[0]?.totalScore ?? 0, 99),
+    cautionName: last ? last.name : '',
+    cautionScore: last != null ? Math.min(last.totalScore, 99) : null,
+  };
   try{
     if (!window.PaljaAiQuota) throw new Error('no_quota_client');
     const { text, quota } = await PaljaAiQuota.callAi({
       feature: 'name_opinion',
-      cacheKey: PaljaAiQuota.hashKey(prompt),
       max_tokens: 600,
-      messages: [{ role: 'user', content: prompt }],
+      payload,
     });
     const wrapOk=document.getElementById('aiWrap');
     wrapOk.dataset.state='done';
@@ -1975,18 +1966,27 @@ async function runRecommend(){
     ? `원하는 에너지(운명수 기준): ${chips.map(v=>`${v}번(${tr(Number(v)).name})`).join(', ')}`
     : missingStr ? `부족한 수를 채우는 방향으로 추천` : '';
 
-  // AI에게 목적별 이름·브랜드·닉네임 추천 (숫자 계산은 로컬)
-  const prompt = buildRecommendPrompt({
-    purposeCtx, surname, gender, syllable, lp, missingStr, excessStr, energyDesc, extra,
-  });
+  // AI에게 목적별 이름·브랜드·닉네임 추천 (숫자 계산은 로컬, 프롬프트는 서버 조립)
+  const payload = {
+    scoringKey: purposeCtx.scoringKey,
+    purposeLabel: purposeCtx.label,
+    purposeDesc: PURPOSE_SCORING[purposeCtx.scoringKey]?.desc || '',
+    surname,
+    gender,
+    syllable,
+    lpLine: lp ? `인생여정수: ${lp.val}번(${tr(lp.val).name}) — ${tr(lp.val).key}` : '',
+    missingStr,
+    excessStr,
+    energyDesc,
+    extra,
+  };
 
   try {
     if (!window.PaljaAiQuota) throw new Error('no_quota_client');
     const { text, quota } = await PaljaAiQuota.callAi({
       feature: 'name_recommend',
-      cacheKey: PaljaAiQuota.hashKey('v2:' + prompt),
       max_tokens: 500,
-      messages: [{ role: 'user', content: prompt }],
+      payload,
     });
     const raw = text || '';
     const cleaned = raw.replace(/```json|```/g,'').trim();

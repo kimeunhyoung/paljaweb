@@ -103,59 +103,26 @@ async function checkAiServer() {
   }
 }
 
-function buildDailyAiPrompt(ctx) {
-  const { birth, date, personalYear, personalMonth, personalDay, universalDay, guide, monthMessage } = ctx;
-  const L = [];
-  L.push("당신은 따뜻하고 통찰력 있는 수비학 전문가입니다. 아래 숫자를 바탕으로 오늘의 운세를 한국어로 써 주세요. 단정적 예언·공포 조장은 금지하고, 참고용·자기이해 톤으로 다정하게 써 주세요.");
-  L.push("");
-  L.push("[기본 정보]");
-  L.push(`생년월일: ${birth.y}년 ${birth.m}월 ${birth.d}일`);
-  L.push(`대상 날짜: ${formatLongDate(date)}`);
-  L.push(`개인연도: ${personalYear} / 개인월수: ${personalMonth} / 개인일수: ${personalDay} / 일반일수: ${universalDay}`);
-  L.push(`오늘 키워드: ${guide.key}`);
-  L.push(`이번 달 배경: ${monthMessage}`);
-  L.push(`기본 할 일: ${guide.do}`);
-  L.push(`기본 피할 일: ${guide.dont}`);
-  L.push("");
-  L.push("[작성 형식 — 반드시 지키세요]");
-  L.push("1) ## 제목만 사용. 아래 순서대로 작성하세요.");
-  [
-    "## 오늘의 에너지 — 개인일수·일반일수를 연결한 하루 전체 흐름(2~3문장)",
-    "## 연애·관계 — 오늘 대인·연애 실전 조언",
-    "## 일·업무·커리어 — 오늘 일과·업무 흐름",
-    "## 금전·소비 — 오늘 수입·지출·소비 주의·기회",
-    "## 오늘의 한 줄 조언 — 짧고 기억하기 쉬운 한 문장",
-  ].forEach((s, i) => L.push(`   ${i + 1}. ${s}`));
-  L.push("2) 각 섹션 3~4문장(한 줄 조언은 1문장). 숫자 근거를 최소 1개 이상 언급하세요.");
-  L.push("3) 위 할 일·피할 일을 그대로 복사하지 말고, 수비학 숫자에 맞게 새로 풀어 쓰세요.");
-  L.push("4) 반드시 마지막 섹션까지 완성하세요.");
-  return L.join("\n");
-}
-
-function buildMonthlyAiPrompt(ctx) {
-  const { birth, year, month, personalYear, personalMonth, monthMessage } = ctx;
-  const L = [];
-  L.push("당신은 따뜻하고 통찰력 있는 수비학 전문가입니다. 아래 숫자를 바탕으로 이번 달 흐름을 한국어로 써 주세요. 단정적 예언·공포 조장은 금지하고, 참고용 톤으로 다정하게 써 주세요.");
-  L.push("");
-  L.push("[기본 정보]");
-  L.push(`생년월일: ${birth.y}년 ${birth.m}월 ${birth.d}일`);
-  L.push(`대상: ${year}년 ${month}월`);
-  L.push(`개인연도: ${personalYear} / 개인월수: ${personalMonth}`);
-  L.push(`이번 달 메시지: ${monthMessage}`);
-  L.push("");
-  L.push("[작성 형식 — 반드시 지키세요]");
-  L.push("1) ## 제목만 사용. 아래 순서대로 작성하세요.");
-  [
-    "## 이번 달 전체 흐름 — 개인월수·개인연도 연결(2~3문장)",
-    "## 연애·관계 — 이 달 관계·가족 테마",
-    "## 일·업무·커리어 — 이 달 업무·커리어 방향",
-    "## 금전·재물 — 이 달 재정·소비·투자 흐름",
-    "## 이번 달 실천 포인트 — 구체적 행동 2~3가지",
-  ].forEach((s, i) => L.push(`   ${i + 1}. ${s}`));
-  L.push("2) 각 섹션 3~4문장. 숫자 근거를 최소 1개 이상 언급하세요.");
-  L.push("3) 위 월 메시지를 그대로 복사하지 말고 새로 풀어 쓰세요.");
-  L.push("4) 반드시 마지막 섹션까지 완성하세요.");
-  return L.join("\n");
+function buildNumerologyAiPayload(mode, ctx) {
+  const isDaily = mode === "daily";
+  const baseKey = isDaily ? formatDateKey(ctx.date) : formatMonthKey(ctx.year, ctx.month);
+  return {
+    mode,
+    birthDate: state.birthDate,
+    baseKey,
+    birth: ctx.birth,
+    dateLabel: isDaily ? formatLongDate(ctx.date) : "",
+    year: ctx.year,
+    month: ctx.month,
+    personalYear: ctx.personalYear,
+    personalMonth: ctx.personalMonth,
+    personalDay: ctx.personalDay,
+    universalDay: ctx.universalDay,
+    guide: ctx.guide
+      ? { key: ctx.guide.key, do: ctx.guide.do, dont: ctx.guide.dont }
+      : null,
+    monthMessage: ctx.monthMessage,
+  };
 }
 
 async function callNumerologyAi(mode) {
@@ -182,8 +149,7 @@ async function callNumerologyAi(mode) {
   // 생년월일이 바뀌면 다른 사람의 해석이 보이지 않도록 생년월일까지 키에 포함
   const cacheKeyStr = aiKey(baseKey);
   const feature = isDaily ? "numerology_daily" : "numerology_monthly";
-  const prompt = isDaily ? buildDailyAiPrompt(ctx) : buildMonthlyAiPrompt(ctx);
-  const hash = PaljaAiQuota.hashKey(`v1:${mode}:${baseKey}:${state.birthDate}:${prompt}`);
+  const payload = buildNumerologyAiPayload(mode, ctx);
 
   const prevLabel = btn.textContent;
   state.aiBusy[mode] = true;
@@ -197,9 +163,8 @@ async function callNumerologyAi(mode) {
   try {
     const { text, quota, data } = await PaljaAiQuota.callAi({
       feature,
-      cacheKey: hash,
       max_tokens: 4096,
-      messages: [{ role: "user", content: prompt }],
+      payload,
     });
     let out = text || "해석을 만들지 못했어요.";
     if (data?.stop_reason === "max_tokens") out += "\n\n(※ 해석이 길어 일부가 잘렸을 수 있어요.)";
