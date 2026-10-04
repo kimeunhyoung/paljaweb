@@ -29,7 +29,7 @@
           out.push('</ul>');
           inList = false;
         }
-        out.push('<hr>');
+        out.push('<hr style="margin:16px 0 0;border:0;border-top:1px solid rgba(139,111,71,.28);">');
         continue;
       }
       var h = line.match(/^(#{1,3})\s+(.+)$/);
@@ -39,16 +39,16 @@
           inList = false;
         }
         var n = h[1].length;
-        out.push('<h' + n + '>' + inlineFormat(h[2]) + '</h' + n + '>');
+        out.push('<h' + n + ' style="margin:' + (out.length ? '18px' : '0') + ' 0 8px;">' + inlineFormat(h[2]) + '</h' + n + '>');
         continue;
       }
       var li = line.match(/^[-*]\s+(.+)$/);
       if (li) {
         if (!inList) {
-          out.push('<ul>');
+          out.push('<ul style="margin:6px 0 12px;padding-left:1.4em;list-style:disc outside;">');
           inList = true;
         }
-        out.push('<li>' + inlineFormat(li[1]) + '</li>');
+        out.push('<li style="margin:4px 0;">' + inlineFormat(li[1]) + '</li>');
         continue;
       }
       if (!trimmed) {
@@ -62,10 +62,10 @@
         out.push('</ul>');
         inList = false;
       }
-      out.push('<p>' + inlineFormat(line) + '</p>');
+      out.push('<p style="margin:0 0 10px;">' + inlineFormat(line) + '</p>');
     }
     if (inList) out.push('</ul>');
-    return out.join('\n');
+    return out.join('');
   }
 
   function setReadingOutput(el, text, opts) {
