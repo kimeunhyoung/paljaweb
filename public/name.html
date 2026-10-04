@@ -393,6 +393,11 @@ select.input-field option{background:#2d2418;color:#f5f0e8;}
 .ai-dot{width:6px;height:6px;border-radius:50%;background:var(--accent);animation:pulse 1.8s ease-in-out infinite;}
 @keyframes pulse{0%,100%{opacity:1;transform:scale(1);}50%{opacity:.4;transform:scale(.8);}}
 .ai-text{font-size:14px;line-height:1.9;color:var(--ink);font-family:var(--font-serif);}
+.name-ai-start{text-align:center;padding:6px 0 2px;}
+.name-ai-start-lead{font-size:14px;line-height:1.7;color:var(--ink);margin:0 0 14px;}
+.name-ai-start-btn{display:inline-block;background:var(--warm-brown);color:#fff;border:0;border-radius:999px;padding:11px 22px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;}
+.name-ai-start-btn:disabled{opacity:.6;cursor:default;}
+.name-ai-start-note{font-size:12px;color:var(--muted);margin:10px 0 0;line-height:1.6;}
 .ai-quota-badge{font-size:11px;font-weight:600;color:var(--warm-brown);background:var(--accent-lt);border:1px solid var(--accent);border-radius:999px;padding:5px 12px;margin:12px auto 0;display:inline-block;}
 .ai-loading{display:flex;align-items:center;gap:10px;font-size:12px;color:var(--muted);font-family:var(--font-mono);}
 .ai-spinner{width:14px;height:14px;border:1.5px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .8s linear infinite;}
@@ -697,10 +702,7 @@ select.input-field option{background:#2d2418;color:#f5f0e8;}
       <span class="section-label">AI 종합 의견</span>
       <div class="section-line"></div>
     </div>
-    <div class="ai-wrap" id="aiWrap">
-      <div class="ai-tag"><div class="ai-dot"></div>AI 분석 중</div>
-      <div class="ai-loading"><div class="ai-spinner"></div>종합 분석을 생성하고 있습니다...</div>
-    </div>
+    <div class="ai-wrap" id="aiWrap"></div>
   </div>
 </div>
 
@@ -749,7 +751,7 @@ async function savePDF() {
       document.querySelector('.rank-header'),
       ...document.querySelectorAll('.name-card-v2'),
       document.querySelector('.compare-table-wrap'),
-      document.getElementById('aiWrap'),
+      document.getElementById('aiWrap')?.dataset.state === 'done' ? document.getElementById('aiWrap') : null,
     ].filter(el => el && el.offsetParent !== null);
 
     let yPos = margin;
@@ -1830,7 +1832,8 @@ async function runAnalysis(){
 
   document.getElementById('resultArea').style.display='block';
   document.getElementById('resultArea').scrollIntoView({behavior:'smooth'});
-  callAI(sorted,baseName,birthDate,lp,dist,purposeCtx);
+  // AI 종합 의견은 자동으로 만들지 않고, 버튼을 눌렀을 때만 (크레딧 차감 동의)
+  renderNameAiStart(sorted,baseName,birthDate,lp,dist,purposeCtx);
   document.getElementById('analyzeBtn').disabled=false;
 }
 
@@ -1851,6 +1854,36 @@ function nameAiQuotaMessage(err) {
 }
 
 // ── AI 코멘트 ──
+const NAME_AI_COST = 1; // 서버 name_opinion 비용과 같게 유지
+
+function escapeNameAiHtml(s){
+  return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+function nameAiTextHtml(text){
+  return String(text||'').trim().split(/\n\s*\n/).map(p=>p.trim()).filter(Boolean)
+    .map(p=>'<p style="margin:0 0 12px;">'+escapeNameAiHtml(p).replace(/\*\*([^*]+)\*\*/g,'<strong>$1</strong>').replace(/\n/g,'<br>')+'</p>').join('');
+}
+
+function renderNameAiStart(results,baseName,birthDate,lp,dist,purposeCtx){
+  const wrap=document.getElementById('aiWrap');
+  if(!wrap) return;
+  wrap.dataset.state='ready';
+  wrap.innerHTML=`<div class="ai-tag"><div class="ai-dot"></div>AI 종합 의견</div>
+    <div class="name-ai-start">
+      <p class="name-ai-start-lead">입력한 이름들을 생년월일·목적과 함께 AI가 이야기로 풀어 드려요.</p>
+      <button type="button" class="name-ai-start-btn" id="nameAiStartBtn">AI 종합 의견 받기 (${NAME_AI_COST}크레딧)</button>
+      <p class="name-ai-start-note">누르면 ${NAME_AI_COST}크레딧이 차감돼요. 24시간 안에 같은 이름·조건으로 다시 열면 차감되지 않아요.</p>
+    </div>`;
+  const btn=document.getElementById('nameAiStartBtn');
+  if(btn) btn.addEventListener('click',()=>{
+    btn.disabled=true;
+    wrap.dataset.state='loading';
+    wrap.innerHTML=`<div class="ai-tag"><div class="ai-dot"></div>AI 종합 의견</div>
+      <div class="ai-loading"><div class="ai-spinner"></div>종합 의견을 만들고 있어요...</div>`;
+    callAI(results,baseName,birthDate,lp,dist,purposeCtx);
+  });
+}
+
 async function callAI(results,baseName,birthDate,lp,dist,purposeInput){
   const pCtx = normalizePurposeArg(purposeInput);
   const namesStr=results.map(r=>`• ${r.name}: 운명수 ${r.nums.expression.val}(${tr(r.nums.expression.val).name}), 혼의수 ${r.nums.soul.val}(${tr(r.nums.soul.val).name}), 성격수 ${r.nums.personality.val}(${tr(r.nums.personality.val).name}), 종합점수 ${Math.min(r.totalScore,99)}점`).join('\n');
@@ -1891,11 +1924,22 @@ ${results.length>1?`주의 이름: ${results[results.length-1]?.name} (${Math.mi
       max_tokens: 600,
       messages: [{ role: 'user', content: prompt }],
     });
-    document.getElementById('aiWrap').innerHTML=`<div class="ai-tag"><div class="ai-dot"></div>AI 종합 의견</div><div class="ai-text">${text}</div>`;
+    const wrapOk=document.getElementById('aiWrap');
+    wrapOk.dataset.state='done';
+    wrapOk.innerHTML=`<div class="ai-tag"><div class="ai-dot"></div>AI 종합 의견</div><div class="ai-text">${nameAiTextHtml(text)}</div>`;
     if (quota) PaljaAiQuota.applyQuotaBadge(document.getElementById('nameAiQuotaBadge'), quota);
   }catch(e){
     const msg = nameAiQuotaMessage(e);
-    document.getElementById('aiWrap').innerHTML=`<div class="ai-tag">AI 분석</div><div class="ai-text" style="color:var(--muted)">${msg || 'AI 분석을 일시적으로 사용할 수 없습니다.'}</div>`;
+    const wrapErr=document.getElementById('aiWrap');
+    wrapErr.dataset.state='error';
+    wrapErr.innerHTML=`<div class="ai-tag">AI 종합 의견</div><div class="ai-text" style="color:var(--muted)">${escapeNameAiHtml(msg || 'AI 의견을 지금 불러오지 못했어요. 잠시 후 다시 눌러 주세요.')}</div>`;
+    if (!msg) {
+      const again=document.createElement('button');
+      again.type='button'; again.className='name-ai-start-btn'; again.textContent='다시 시도';
+      again.style.marginTop='12px';
+      again.addEventListener('click',()=>renderNameAiStart(results,baseName,birthDate,lp,dist,purposeInput));
+      wrapErr.appendChild(again);
+    }
   }
 }
 
