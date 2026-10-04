@@ -2864,7 +2864,7 @@ body.export-capturing .ai-result.empty{display:none !important;}
     const stamp = chartStampForTransitAi();
     const dstr = LAST_TRANSIT && LAST_TRANSIT.dstr ? LAST_TRANSIT.dstr : '';
     if (!aspectKey || !stamp) return '';
-    return 'v5:' + mode + ':' + aspectKey + ':' + dstr + ':' + stamp;
+    return 'v6:' + mode + ':' + aspectKey + ':' + dstr + ':' + stamp;
   }
 
   function transitAiLocalKey(mode) {
@@ -3678,6 +3678,97 @@ body.export-capturing .ai-result.empty{display:none !important;}
     });
   }
 
+  // ── AI 트랜짓용 데이터: 오차·트랜짓 하우스·영역 태그·이번 주 정점일 ──
+  const TRANSIT_AI_SKIP_NATAL = { lilith: 1, fortune: 1, vertex: 1 };
+  function natalHouseOfDeg(d) {
+    if (d == null || !LAST_HOROSCOPE || (LAST_BIRTH && LAST_BIRTH.unknownTime)) return '';
+    const cusps = (LAST_HOROSCOPE.Houses || []).map(houseStart);
+    if (cusps.length !== 12 || cusps.some((c) => c == null)) return '';
+    for (let i = 0; i < 12; i += 1) {
+      const a = cusps[i];
+      const b = cusps[(i + 1) % 12];
+      const span = ((b - a) % 360 + 360) % 360;
+      const off = ((d - a) % 360 + 360) % 360;
+      if (off < span) return String(i + 1);
+    }
+    return '';
+  }
+  function transitDomainTags(tk, nk) {
+    const t = [];
+    if (['venus', 'moon'].includes(tk) || ['venus', 'moon', 'mars'].includes(nk)) t.push('연애');
+    if (['sun', 'mars', 'mercury', 'saturn'].includes(tk) || ['sun', 'mars', 'mercury', 'saturn', 'mc'].includes(nk)) t.push('일');
+    if (['venus', 'jupiter', 'saturn'].includes(tk) || ['venus', 'jupiter', 'saturn', 'pluto'].includes(nk)) t.push('금전');
+    if (['mars', 'moon', 'sun'].includes(tk) || ['mars', 'moon', 'sun', 'chiron'].includes(nk)) t.push('건강');
+    if (['mercury', 'jupiter'].includes(tk) || ['mercury', 'jupiter', 'sun', 'saturn'].includes(nk)) t.push('배움');
+    return t;
+  }
+  function buildTransitAiData(hits, tDegs, dateObj, labelOf, INFLUENCE) {
+    const FASTK = { sun: 1, mercury: 1, venus: 1, mars: 1 };
+    const line = (h) => {
+      const th = natalHouseOfDeg(tDegs[h.tk]);
+      const nh = natalHouseOfDeg(NATAL_DEGS[h.nk]);
+      const key = (M.transitPairNote ? M.transitPairNote(h.tk, h.nk, h.key) : '').replace(/<[^>]+>/g, '');
+      const first = key.split(/(?<=요)\.\s*/)[0];
+      const tags = transitDomainTags(h.tk, h.nk);
+      return '트랜짓 ' + labelOf(h.tk) + ' ' + (ASPECT_KR2[h.key] || '') + ' 본명 ' + labelOf(h.nk) +
+        ' · 오차 ' + h.orbOff.toFixed(1) + '°' +
+        (th ? ' · 지금 위치: 내 ' + th + '하우스' : '') +
+        (nh ? ' · 본명 위치: ' + nh + '하우스' : '') +
+        (INFLUENCE[h.tk] ? ' · 영향 ' + INFLUENCE[h.tk] : '') +
+        (first ? ' — ' + first.replace(/\.$/, '') : '') +
+        (tags.length ? ' [관련: ' + tags.join('·') + ']' : '');
+    };
+    const ok = (h) => !TRANSIT_AI_SKIP_NATAL[h.nk];
+    const fastAi = hits.filter((h) => FASTK[h.tk] && ok(h)).slice(0, 8).map(line);
+    const slowAi = hits.filter((h) => !FASTK[h.tk] && h.tk !== 'moon' && ok(h)).slice(0, 8).map(line);
+
+    // 이번 주(7일) 빠른 행성 정점일
+    const weekPeaks = [];
+    const best = {};
+    const DAYS = ['일', '월', '화', '수', '목', '금', '토'];
+    for (let i = 0; i < 7; i += 1) {
+      const dd = new Date(dateObj.y, dateObj.mo - 1, dateObj.da + i);
+      const th = new Horoscope({
+        origin: new Origin({ year: dd.getFullYear(), month: dd.getMonth(), date: dd.getDate(), hour: 12, minute: 0, latitude: LAST_COORDS.lat, longitude: LAST_COORDS.lng }),
+        houseSystem: 'placidus', zodiac: 'tropical', aspectPoints: ['bodies'], aspectWithPoints: ['bodies'], aspectTypes: ['major'], language: 'en',
+      });
+      Object.keys(FASTK).forEach((tk) => {
+        const d = deg(th.CelestialBodies[tk]);
+        if (d == null) return;
+        Object.keys(NATAL_DEGS).forEach((nk) => {
+          if (TRANSIT_AI_SKIP_NATAL[nk]) return;
+          const nd = NATAL_DEGS[nk];
+          if (nd == null) return;
+          const diff = angDiff(d, nd);
+          [[0, 'conjunction'], [60, 'sextile'], [90, 'square'], [120, 'trine'], [180, 'opposition']].forEach(([a, key]) => {
+            const orb = Math.abs(diff - a);
+            const id = tk + '|' + nk + '|' + key;
+            if (orb <= 1.0 && (!best[id] || orb < best[id].orb)) best[id] = { orb, tk, nk, key, date: dd };
+          });
+        });
+      });
+    }
+    Object.keys(best).forEach((id) => {
+      const b = best[id];
+      weekPeaks.push({
+        t: b.date.getTime(),
+        text: (b.date.getMonth() + 1) + '월 ' + b.date.getDate() + '일(' + DAYS[b.date.getDay()] + ') 무렵 정점 — 트랜짓 ' +
+          labelOf(b.tk) + ' ' + (ASPECT_KR2[b.key] || '') + ' 본명 ' + labelOf(b.nk) + ' [관련: ' + transitDomainTags(b.tk, b.nk).join('·') + ']',
+      });
+    });
+    weekPeaks.sort((a, b) => a.t - b.t);
+    const end = new Date(dateObj.y, dateObj.mo - 1, dateObj.da + 6);
+    const moonD = tDegs.moon;
+    const moonH = natalHouseOfDeg(moonD);
+    return {
+      fastAi,
+      slowAi,
+      weekPeaks: weekPeaks.slice(0, 10).map((w) => w.text),
+      weekRange: dateObj.mo + '월 ' + dateObj.da + '일 ~ ' + (end.getMonth() + 1) + '월 ' + end.getDate() + '일',
+      moonToday: moonD != null ? M.signFromDegree(moonD).sign.ko + (moonH ? ' · 내 ' + moonH + '하우스' : '') : '',
+    };
+  }
+
   function renderTransit(th, dateObj) {
     // 트랜짓 행성: 빠른 행성 위주(태양·달·수성·금성·화성)와 느린 행성(목성~명왕성)
     const transitKeys = ['sun','moon','mercury','venus','mars','jupiter','saturn','uranus','neptune','pluto'];
@@ -3766,6 +3857,11 @@ body.export-capturing .ai-result.empty{display:none !important;}
       fastFp: transitAspectFingerprint(fastHits),
       slowFp: transitAspectFingerprint(slowHits),
     };
+    try {
+      Object.assign(LAST_TRANSIT, buildTransitAiData(hits, tDegs, dateObj, labelOf, INFLUENCE));
+    } catch (e) {
+      console.warn('[transit ai data]', e);
+    }
     const fastBox = $('transitAiFastResult');
     const slowBox = $('transitAiSlowResult');
     if (!applyStoredTransitAi('fast') && fastBox) {
@@ -3982,53 +4078,46 @@ body.export-capturing .ai-result.empty{display:none !important;}
   function buildTransitAiPrompt(mode) {
     const L = [];
     const isFast = mode === 'fast';
-    const buckets = isFast ? LAST_TRANSIT.fastBuckets : LAST_TRANSIT.slowBuckets;
-    const lines = isFast ? LAST_TRANSIT.fast : LAST_TRANSIT.slow;
-    const periodLabel = isFast ? '지금·이번 주 (빠른 행성 — 며칠~2주)' : '요즘의 큰 흐름 (느린 행성 — 수주~수년)';
+    const T = LAST_TRANSIT;
+    const lines = (isFast ? T.fastAi : T.slowAi) || (isFast ? T.fast : T.slow);
 
     L.push(
-      '당신은 따뜻하고 통찰력 있는 전문 점성가입니다. 아래 출생 차트와 ' +
-      (isFast ? '이번 주' : '요즘 큰') +
-      ' 트랜짓을 바탕으로, 일반 독자가 읽는 「오늘의 운세」처럼 실전 조언을 한국어로 써 주세요. ' +
-      '단정적 예언·공포 조장은 금지하고, 참고용 톤으로 다정하게 써 주세요. ' +
-      '건강은 의학적 진단이 아닌 생활·에너지·스트레스 관리 관점으로만 다루세요. ' +
-      '전문 용어는 쉬운 말로 풀고, 「그래서 오늘은/이번 주는 이렇게 하면 좋아요」가 보이게 쓰세요. ' +
+      '당신은 따뜻하지만 돌려 말하지 않는 전문 점성가입니다. 아래 출생 차트와 ' + (isFast ? '이번 주' : '요즘 큰') +
+      ' 트랜짓을 바탕으로, 일반 독자가 읽는 운세처럼 실전 조언을 한국어로 써 주세요. ' +
+      '단정적 예언·공포 조장·「무조건」「대박」 같은 보장 문구는 금지. 건강은 의학적 진단이 아닌 생활·에너지·스트레스 관리 관점으로만, 금전은 투자 종목·수익률 단정 금지. ' +
       '답변은 해요체(~해요, ~이에요)로 쓰세요. 점성 용어는 화면과 같게 합·육각·사각·삼각·충으로 쓰고, 트라인·스퀘어·섹스타일 같은 외래어 표기는 쓰지 마세요.',
     );
     L.push('');
-    appendChartContextLines(L, LAST_CTX, LAST_ASPECTS, LAST_KNOWN);
-    L.push('');
-    L.push('[트랜짓 · ' + LAST_TRANSIT.dstr + ' 기준]');
-    L.push(periodLabel + ':');
-    if (lines.length) {
-      lines.forEach((s) => L.push(' - ' + s));
-      appendTransitBucketLines(L, '  ↳ 영역별 참고', buckets);
+    L.push('[읽는 법 — 가장 중요]');
+    L.push('1) 목록은 오차가 작은(정확한) 순서예요. 위쪽 항목을 중심으로 쓰고, 아래쪽은 보조로만.');
+    L.push('2) 「지금 위치: 내 N하우스」는 트랜짓 행성이 지나는 내 하우스, 곧 **어느 삶의 영역에서** 일이 벌어지는지예요. 이걸 출생 차트 성향과 엮어서 「이 사람에게 지금 이런 일」로 쓰세요.');
+    if (isFast) {
+      L.push('3) **요일·날짜는 [이번 주 정점일]에 있는 것만** 쓰세요. 없는 날짜를 지어내지 마세요. 달(月) 트랜짓은 하루짜리라 이번 주 전체 흐름의 근거로 쓰지 마세요.');
     } else {
-      L.push(' - 이 기간에 해당하는 주요 트랜짓 각이 거의 없어요. 잔잔한 시기로 해석하되 출생 차트와 연결해 주세요.');
+      L.push('3) 각 항목의 「영향」 기간을 지키세요. 목성(수 주~2개월)과 해왕성·명왕성(수개월~수년)을 같은 무게로 쓰지 마세요. 날짜를 지어내지 마세요.');
     }
-
+    L.push('4) [관련] 태그가 없는 주제는 신호가 약한 거예요. 그 섹션은 「이 주제는 이번엔 조용한 편이에요」처럼 1~2문장으로 솔직하게 쓰고, 억지로 채우지 마세요.');
+    L.push('5) 아래 데이터에 없는 행성·각·하우스는 지어내지 마세요. 근거는 문장 끝 괄호에 짧게(예: (트랜짓 금성 충 카이런)), 섹션마다 1~2개만. 오차 숫자는 고객 글에 쓰지 마세요.');
+    L.push('6) 굵게(**…**)는 섹션마다 핵심 구절 1개만.');
     L.push('');
     L.push('[작성 형식 — 반드시 지키세요]');
-    L.push('1) ## 제목만 사용(이모지 남발 금지). 아래 순서대로 **모두** 작성하세요.');
+    L.push('## 제목만 사용(이모지 금지). 아래 순서대로 **모두** 작성하세요.');
     if (isFast) {
       L.push('## 0. 3초 브리핑 노트 (한눈에 보는 이번 주)');
       L.push('불릿 3줄만. 쉬운 말. 0번과 아래 본문이 같은 문장을 반복하지 마세요.');
       L.push('- **이번 주 한 줄:** (분위기·키워드를 쉬운 한 문장으로)');
       L.push('- **힘이 실리는 영역:** (연애·일·금전·건강·배움 중 어디가 움직이는지)');
-      L.push('- **오늘·이번 주 바로 쓸 팁:** (당장 할 수 있는 행동 1줄)');
+      L.push('- **이번 주 바로 쓸 팁:** (당장 할 수 있는 행동 1줄)');
       L.push('');
       [
-        '## 1. 이번 주 전체 흐름 — 빠른 트랜짓을 쉬운 말로 요약(3~4문장)',
-        '## 2. 연애·관계 — 기회·주의·대화/만남 팁. 트랜짓 근거 1개 이상',
-        '## 3. 일·적성·커리어 — 일정·협업·집중이 잘 되는 타이밍',
-        '## 4. 금전·재물 — 수입·지출·소비에서 조심할 점과 기회',
-        '## 5. 건강·에너지 — 스트레스·회복·생활 리듬 (의학 진단 아님)',
-        '## 6. 학업·성장 — 공부·시험·자격·집중 리듬',
-        '## 7. 오늘의 한 줄 조언 — 짧고 기억하기 쉬운 한 문장',
-      ].forEach((s) => L.push(s));
-      L.push('2) 1~6번 각 섹션 3~4문장(7번은 1문장). 트랜짓·차트 근거를 최소 1개 이상 언급하세요.');
-      L.push('3) 출생 차트 성향과 트랜짓을 모순 없이 연결하세요. 빠른 트랜짓 데이터만 사용하세요.');
-      L.push('4) 반드시 0번 브리핑과 7번까지 완성하세요.');
+        '## 1. 이번 주 전체 흐름 — 3~4문장. 정점일이 있으면 「○일 무렵」으로 흐름을 짚어 주세요',
+        '## 2. 연애·관계 — 2~3문장 (신호가 약하면 1~2문장)',
+        '## 3. 일·커리어 — 2~3문장 (신호가 약하면 1~2문장)',
+        '## 4. 금전·재물 — 2~3문장 (신호가 약하면 1~2문장)',
+        '## 5. 건강·에너지 — 2~3문장 (의학 진단 아님)',
+        '## 6. 배움·성장 — 2~3문장 (신호가 약하면 1~2문장)',
+        '## 7. 이번 주 한 줄 조언 — 짧고 기억하기 쉬운 한 문장',
+      ].forEach((x) => L.push(x));
     } else {
       L.push('## 0. 3초 브리핑 노트 (한눈에 보는 큰 흐름)');
       L.push('불릿 3줄만. 쉬운 말. 0번과 아래 본문이 같은 문장을 반복하지 마세요.');
@@ -4037,17 +4126,34 @@ body.export-capturing .ai-result.empty{display:none !important;}
       L.push('- **길게 가져갈 팁:** (조급해하지 말고 꾸준히 할 행동 1줄)');
       L.push('');
       [
-        '## 1. 요즘 큰 흐름 요약 — 느린 트랜짓 테마를 쉬운 말로(3~4문장)',
-        '## 2. 연애·관계 — 몇 달 단위 관계·가족에서 조심할 점과 기회',
-        '## 3. 일·적성·커리어 — 몇 달~수년 커리어·책임 테마와 실전 태도',
-        '## 4. 금전·재물 — 몇 달~수년 재정·자원 테마 (종목·수익률 단정 금지)',
-        '## 5. 건강·에너지 — 몇 달~수년 스트레스·회복·생활 리듬 (의학 진단 아님)',
-        '## 6. 학업·성장 — 몇 달~수년 배움·시험·자격·성장 테마',
-        '## 7. 큰 흐름 실천 포인트 — 조급함 없이 가져갈 행동 2~3가지',
-      ].forEach((s) => L.push(s));
-      L.push('2) 1~6번 각 섹션 3~4문장. 트랜짓·차트 근거를 최소 1개 이상 언급하세요.');
-      L.push('3) 출생 차트 성향과 트랜짓을 모순 없이 연결하세요. 느린 트랜짓 데이터만 사용하세요.');
-      L.push('4) 반드시 0번 브리핑과 7번까지 완성하세요.');
+        '## 1. 요즘 큰 흐름 요약 — 3~4문장. 오래가는 것(해왕성·명왕성·천왕성·토성)과 몇 주짜리(목성)를 구분해서',
+        '## 2. 연애·관계 — 2~3문장 (신호가 약하면 1~2문장)',
+        '## 3. 일·커리어 — 2~3문장 (신호가 약하면 1~2문장)',
+        '## 4. 금전·재물 — 2~3문장 (종목·수익률 단정 금지)',
+        '## 5. 건강·에너지 — 2~3문장 (의학 진단 아님)',
+        '## 6. 배움·성장 — 2~3문장 (신호가 약하면 1~2문장)',
+        '## 7. 큰 흐름 실천 포인트 — 조급함 없이 가져갈 행동 2~3가지 (불릿)',
+      ].forEach((x) => L.push(x));
+    }
+    L.push('반드시 0번 브리핑과 7번까지 완성하고 중간에 끊지 마세요.');
+    L.push('');
+    appendChartContextLines(L, LAST_CTX, LAST_ASPECTS, LAST_KNOWN);
+    L.push('');
+    if (isFast) {
+      L.push('[이번 주 트랜짓 · ' + (T.weekRange || T.dstr) + ']');
+      if (T.moonToday) L.push('오늘 달 위치(하루짜리 참고): ' + T.moonToday);
+      L.push('빠른 행성 트랜짓 (오차 작은 순):');
+    } else {
+      L.push('[요즘 큰 흐름 트랜짓 · ' + T.dstr + ' 기준]');
+      L.push('느린 행성 트랜짓 (오차 작은 순):');
+    }
+    if (lines && lines.length) lines.forEach((x) => L.push(' - ' + x));
+    else L.push(' - 이 기간에 해당하는 주요 트랜짓 각이 거의 없어요. 잔잔한 시기로 해석하되 출생 차트와 연결해 주세요.');
+    if (isFast) {
+      L.push('');
+      L.push('[이번 주 정점일 — 이 날짜만 쓰세요]');
+      if (T.weekPeaks && T.weekPeaks.length) T.weekPeaks.forEach((x) => L.push(' - ' + x));
+      else L.push(' - (이번 주 안에 정확히 맞는 정점 없음 — 요일·날짜를 지어내지 마세요)');
     }
     return L.join('\n');
   }
@@ -6163,7 +6269,7 @@ body.export-capturing .ai-result.empty{display:none !important;}
       hint.classList.add('is-loading');
     }
     const prompt = buildTransitAiPrompt(mode);
-    const cacheRaw = transitAiCacheRaw(mode) || `v5:${mode}:fallback:` + prompt.slice(0, 120);
+    const cacheRaw = transitAiCacheRaw(mode) || `v6:${mode}:fallback:` + prompt.slice(0, 120);
     const cacheKey = window.PaljaAiQuota
       ? PaljaAiQuota.hashKey(cacheRaw)
       : cacheRaw.slice(0, 200);
