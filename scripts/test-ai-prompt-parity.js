@@ -231,4 +231,40 @@ function checkName() {
 }
 checkName();
 
+const timeline = require('../lib/astro-timeline-ai-prompts');
+function checkTimeline() {
+  const { clientHashKey } = require('../lib/astro-flow-ai-prompts');
+  const aiRaw = {
+    window: { fromYm: '2026-08', toYm: '2031-07' },
+    utilizeRecommendations: { items: [{ kind: 'peakUtilize', label: '발표' }] },
+    domainScan: { domains: { money: { labelKo: '금전', level: 'moderate' } } },
+    transitEpisodes: [{ lineKo: '목성 삼각 태양', peakYm: '2027-06' }],
+  };
+  const payload = {
+    aiRaw,
+    hasProfessional: false,
+    cacheKeyRaw: 'raw_v47:timeline:stamp:2026-08:2031-07',
+  };
+  const prompt = timeline.buildTimelineAiPrompt(payload);
+  assert.ok(prompt.includes('--- RAW PAYLOAD (JSON) ---'), 'raw marker');
+  assert.ok(prompt.includes('2026년, 2027년, 2028년, 2029년, 2030년, 2031년'), 'years');
+  assert.ok(prompt.includes('[말투]'), 'tone');
+  assert.ok(!prompt.includes('[상담사용 근거 줄'), 'no pro extras');
+  const key = timeline.resolveTimelineCacheKey(payload, prompt);
+  assert.strictEqual(key, clientHashKey(payload.cacheKeyRaw + ':' + prompt.slice(0, 400)));
+
+  const proPrompt = timeline.buildTimelineAiPrompt({ ...payload, hasProfessional: true });
+  assert.ok(proPrompt.includes('[상담사용 근거 줄'), 'pro extras');
+
+  const topicPrompt = timeline.buildTimelineTopicAiPrompt({
+    aiRaw,
+    topicLabel: '금전',
+    cacheKeyRaw: payload.cacheKeyRaw + ':topic:money:tp1',
+  });
+  assert.ok(topicPrompt.includes('[주제 상세 모드 — 「금전」만]'), 'topic mode');
+  assert.ok(topicPrompt.includes('## 이 주제 한 줄기'), 'topic sections');
+  console.log('OK astro_timeline', 'promptChars=', prompt.length, 'cacheKey=', key);
+}
+checkTimeline();
+
 console.log('All parity checks passed.');

@@ -80,7 +80,7 @@
 <script src="js/astro-house-rulers.js?v=1"></script>
 <script src="js/astro-life-timeline.js?v=1"></script>
 <script src="js/ai-raw-timeline-v1.js?v=1"></script>
-<script src="js/ai-raw-timeline-prompt-v2.js?v=4"></script>
+<script src="js/ai-raw-timeline-prompt-v2.js?v=5"></script>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css" crossorigin />
 <link rel="stylesheet" href="css/site-topbar.css?v=21" />
 <link rel="stylesheet" href="css/site-header.css?v=7" />
@@ -5765,13 +5765,12 @@ body.export-capturing .ai-result.empty{display:none !important;}
     return new Promise((resolve) => setTimeout(resolve, ms));
   }
 
-  async function requestTimelineAiOnce(cacheKey, cacheKeyRaw, prompt, onDelta, continuePartial) {
+  async function requestTimelineAiOnce(cacheKeyRaw, apiPayload, onDelta, continuePartial) {
     return PaljaAiQuota.callAiStream({
       feature: 'astro_timeline',
-      cacheKey,
       cacheKeyRaw,
       max_tokens: 8192,
-      messages: [{ role: 'user', content: prompt }],
+      payload: apiPayload,
       continuePartial: continuePartial || undefined,
       onDelta,
     });
@@ -5826,9 +5825,15 @@ body.export-capturing .ai-result.empty{display:none !important;}
       hint.textContent = '해석을 완성하는 중이에요. 1~2분 걸릴 수 있어요. 창을 닫지 말고 기다려 주세요.';
       hint.classList.add('is-loading');
     }
-    let prompt;
+    let apiPayload;
     try {
-      prompt = buildTimelineAiPrompt();
+      buildTimelineAiPrompt(); // LAST_AI_RAW_PAYLOAD 준비
+      if (!LAST_AI_RAW_PAYLOAD) throw new Error('no_raw_payload');
+      apiPayload = {
+        aiRaw: LAST_AI_RAW_PAYLOAD,
+        hasProfessional: !!HAS_PROFESSIONAL,
+        cacheKeyRaw,
+      };
     } catch (e) {
       console.error(e);
       TIMELINE_AI_BUSY = false;
@@ -5837,9 +5842,6 @@ body.export-capturing .ai-result.empty{display:none !important;}
       setAiResultBox(box, '타임라인 데이터를 준비하지 못했어요. 차트를 다시 계산해 주세요.', { plain: true });
       return;
     }
-    const cacheKey = window.PaljaAiQuota
-      ? PaljaAiQuota.hashKey(cacheKeyRaw + ':' + prompt.slice(0, 400))
-      : cacheKeyRaw;
     let accumulated = '';
     const maxAttempts = 2;
     try {
@@ -5868,9 +5870,8 @@ body.export-capturing .ai-result.empty{display:none !important;}
             setTimelineAiResult(accumulated, { open: true, timelineMode: true, accordion: false, resetTab: false });
           };
           const result = await requestTimelineAiOnce(
-            cacheKey,
             cacheKeyRaw,
-            prompt,
+            apiPayload,
             onDelta,
             continueFrom || undefined
           );
@@ -5999,9 +6000,16 @@ body.export-capturing .ai-result.empty{display:none !important;}
     setAiResultBox(box, '');
     scrollTimelineTopicIntoView(box);
     if (hint) hint.classList.add('is-loading');
-    let prompt;
+    let apiPayload;
     try {
-      prompt = buildAiRawTimelineTopicPrompt(topicId);
+      if (!LAST_AI_RAW_PAYLOAD) buildAiRawTimelineCustomerPrompt();
+      if (!LAST_AI_RAW_PAYLOAD) throw new Error('no_raw_payload');
+      const filtered = filterPayloadForTimelineTopic(LAST_AI_RAW_PAYLOAD, topicId);
+      apiPayload = {
+        aiRaw: filtered,
+        topicLabel: meta.label,
+        cacheKeyRaw,
+      };
     } catch (e) {
       console.error(e);
       TIMELINE_TOPIC_AI_BUSY = false;
@@ -6010,16 +6018,13 @@ body.export-capturing .ai-result.empty{display:none !important;}
       if (hint) hint.classList.remove('is-loading');
       return;
     }
-    const cacheKey = window.PaljaAiQuota
-      ? PaljaAiQuota.hashKey(cacheKeyRaw + ':' + prompt.slice(0, 400))
-      : cacheKeyRaw;
     let streamed = '';
     try {
       const { text, quota, data } = await PaljaAiQuota.callAiStream({
         feature: 'astro_timeline_topic',
-        cacheKey,
+        cacheKeyRaw,
         max_tokens: 6144,
-        messages: [{ role: 'user', content: prompt }],
+        payload: apiPayload,
         onDelta: (chunk) => {
           streamed += chunk;
           setAiResultBox(box, prepareTimelineTopicDetailMarkdown(topicId, streamed), { open: true, timelineMode: true });
