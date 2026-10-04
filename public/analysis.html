@@ -653,6 +653,8 @@
       html, body { background: #fff !important; }
       #resultArea { display: block !important; }
       .export-print-hide { display: none !important; }
+      .accordion .accordion-body { display: block !important; }
+      .accordion-arrow { display: none !important; }
       #tlBlockLife, #classicLifeChart, #tarotLifeChart, .tarot-life-chart, .tarot-life-table-wrap, .tarot-life-table { break-inside: avoid; page-break-inside: avoid; }
     }
 
@@ -5080,8 +5082,8 @@ ${R} .section {
   animation: none !important;
   animation-delay: 0s !important;
 }
-${R} .accordion.open .accordion-arrow {
-  transform: rotate(180deg) !important;
+${R} .accordion-arrow {
+  display: none !important;
 }
 ${R} .accordion.open .accordion-body {
   max-height: none !important;
@@ -5160,6 +5162,8 @@ function buildAnalysisPdfClone(el, hiddenIds) {
   if (tlLeft && tlLeft.querySelectorAll('.timeline-block').length === 0 && !tlLeft.querySelector('.timeline-dual, .chart-inner')) tlLeft.remove();
   // sticky 탭만 빼고, ①②③ 그룹 제목은 PDF에도 남김
   clone.querySelectorAll('.lc-group-bar').forEach((n) => n.remove());
+  // 종이·PDF에서는 펼칠 수 없으니 접힌 항목을 모두 펼쳐 넣어요
+  clone.querySelectorAll('.accordion').forEach((a) => a.classList.add('open'));
   pdfForceOpenAllDetailsForPdf(clone);
   const flatStyle = document.createElement('style');
   flatStyle.textContent = getPdfFlatCss();
@@ -5497,146 +5501,122 @@ async function downloadAnalysisPdf(hiddenIds) {
   }
   if (panels.length === 0) panels = [clone];
 
-  const wEst = Math.max(clone.scrollWidth, clone.offsetWidth, capPx, 1);
-  const hEst = Math.max(clone.scrollHeight, clone.offsetHeight, 1);
-
-  let pdfScale = Math.min(1, maxCssPxBudget / hEst, maxCssPxBudget / wEst);
-  pdfScale = Math.max(0.12, Math.floor(pdfScale * 1000) / 1000);
-
-  /* 한 페이지(A4 본문)에 들어가는 콘텐츠 높이(css px). 캡처 단위를 이보다 작게 쪼개
-     문단·표가 페이지 경계에서 잘리지 않고 통째로 다음 페이지로 넘어가게 한다. */
-  const innerHmmForFit = 297 - marginMm * 2;
-  /* 한 조각(캡처 단위)의 최대 높이를 한 페이지의 이 비율로 제한한다.
-     값이 작을수록 덩어리가 잘게 쪼개져 페이지 빈 공간이 줄어든다(대신 조각 수↑). */
-  const PDF_CHUNK_PAGE_RATIO = 0.45;
-  const pageFitCssPx = Math.max(360, Math.floor(capPx * (innerHmmForFit / innerWmm) * PDF_CHUNK_PAGE_RATIO));
-
-  let captureRoots = [];
-  for (let iter = 0; iter < 18; iter++) {
-    const maxCssH = Math.min(
-      Math.max(240, Math.floor(maxCssPxBudget / pdfScale)),
-      pageFitCssPx
-    );
-    captureRoots = panels.flatMap((p) => pdfSplitCaptureRoots(p, maxCssH, 0));
-    if (captureRoots.length === 0) captureRoots = [clone];
-    const hMax = Math.max(
-      ...captureRoots.map((n) => Math.max(n.scrollHeight, n.offsetHeight, 1)),
-      1
-    );
-    if (hMax * pdfScale <= maxCssPxBudget && wEst * pdfScale <= maxCssPxBudget) break;
-    pdfScale = Math.floor((pdfScale - 0.005) * 1000) / 1000;
-    if (pdfScale < 0.12) break;
-  }
-
-  const hMaxChunk = Math.max(
-    ...captureRoots.map((n) => Math.max(n.scrollHeight, n.offsetHeight, 1)),
-    1
-  );
-  /** 조각별로 캔버스가 짧아졌으므로 스케일을 다시 올려 화질 개선(상한 2) */
-  pdfScale = Math.min(2, maxCssPxBudget / hMaxChunk, maxCssPxBudget / wEst);
-  pdfScale = Math.max(0.18, Math.round(pdfScale * 100) / 100);
-  if (hMaxChunk * pdfScale > maxCssPxBudget + 2) {
-    pdfScale = (maxCssPxBudget / hMaxChunk) * 0.99;
-    pdfScale = Math.max(0.18, Math.round(pdfScale * 1000) / 1000);
-  }
-
   const JsPDF = getJsPdfConstructor();
   const hasHtml2Canvas = typeof html2canvas === 'function';
+  const pdfScale = 1; // html2pdf 대체 경로용
 
-  async function snapshotNode(node) {
-    /* <table>·CSS grid 컨테이너가 캡처 '최상위 루트'가 되면 html2canvas가 내용을 비운 채
-       그리는 문제가 있다(잘게 쪼개 단독 분리될 때 3칸 그리드·절정/도전수 표가 사라지는 원인).
-       중립 div로 한 겹 감싸 캡처하면 정상 렌더된다. 클론은 캡처 후 폐기되므로 원복 불필요. */
-    let target = node;
-    try {
-      const disp = window.getComputedStyle(node).display;
-      const needsWrap = node.tagName === 'TABLE' || disp === 'grid' || disp === 'inline-grid';
-      if (needsWrap && node.parentNode) {
-        const wrap = node.ownerDocument.createElement('div');
-        const wrapW = Math.ceil(Math.max(node.scrollWidth, node.offsetWidth, capPx));
-        wrap.style.cssText =
-          `display:block;overflow:visible;background:#f5f0e8;box-sizing:border-box;width:${wrapW}px;`;
-        node.parentNode.insertBefore(wrap, node);
-        wrap.appendChild(node);
-        target = wrap;
-        void wrap.offsetHeight;
-      }
-    } catch (e) { /* 실패 시 노드를 직접 캡처 */ }
-    const win = pdfHtml2CanvasWindowSize(target, capPx);
-    return html2canvas(target, {
-      scale: pdfScale,
-      useCORS: true,
-      logging: false,
-      backgroundColor: '#f5f0e8',
-      scrollX: 0,
-      scrollY: 0,
-      windowWidth: win.windowWidth,
-      windowHeight: win.windowHeight,
-      onclone: pdfHtml2CanvasOnClone,
-    });
-  }
+  /* 패널(섹션) 하나를 통째로 캡처한 뒤, 글줄·칸을 자르지 않는 위치에서만 페이지를 나눠요.
+     모든 패널을 같은 배율(mm/px)로, 화면과 같은 가로 위치에 배치해서 폭이 들쭉날쭉하지 않아요. */
+  const cloneRect = clone.getBoundingClientRect();
+  const mmPerPx = innerWmm / capPx;
+  const pageHmm = 297;
+  const pageBottomMm = pageHmm - marginMm;
 
-  /** 세로로 긴 캔버스를 페이지 안에 들어가는 픽셀 높이로 자름 */
-  function sliceCanvasVertically(canvas, maxPxSlice) {
-    const slices = [];
-    let sy = 0;
-    while (sy < canvas.height) {
-      const ph = Math.min(maxPxSlice, canvas.height - sy);
-      const sub = document.createElement('canvas');
-      sub.width = canvas.width;
-      sub.height = ph;
-      sub.getContext('2d').drawImage(canvas, 0, sy, canvas.width, ph, 0, 0, canvas.width, ph);
-      slices.push(sub);
-      sy += ph;
+  function panelSafeBreaks(panel) {
+    const pr = panel.getBoundingClientRect();
+    const blocks = [];
+    const doc = panel.ownerDocument;
+    const walker = doc.createTreeWalker(panel, NodeFilter.SHOW_TEXT);
+    let tn;
+    while ((tn = walker.nextNode())) {
+      if (!tn.textContent.trim()) continue;
+      const range = doc.createRange();
+      range.selectNodeContents(tn);
+      Array.from(range.getClientRects()).forEach((r) => {
+        if (r.height > 0) blocks.push([r.top - pr.top, r.bottom - pr.top]);
+      });
     }
-    return slices.length ? slices : [canvas];
+    panel.querySelectorAll('img, svg, canvas, .loshu-cell, .bar-col, .bar-body, .monthly-cell, tr, .stage-step').forEach((e) => {
+      const r = e.getBoundingClientRect();
+      if (r.height > 0 && r.height < 400) blocks.push([r.top - pr.top, r.bottom - pr.top]);
+    });
+    /* 격자·표·막대그래프·카드 묶음은 한 쪽 안에 통째로 들어가게(중간에서 안 나눔) */
+    panel.querySelectorAll('*').forEach((e) => {
+      const d = window.getComputedStyle(e).display;
+      if (!(d === 'grid' || d === 'inline-grid' || d === 'table' || e.classList.contains('chart-inner') || e.classList.contains('stage-progress-wrap'))) return;
+      const r = e.getBoundingClientRect();
+      if (r.height > 0 && r.height < 650) blocks.push([r.top - pr.top, r.bottom - pr.top]);
+    });
+    const cands = new Set();
+    blocks.forEach(([t, b]) => { cands.add(Math.ceil(b + 3)); cands.add(Math.floor(t - 3)); });
+    const ok = (y) => blocks.every(([t, b]) => !(t + 0.5 < y && y < b - 0.5));
+    return Array.from(cands).filter((y) => y > 20 && y < pr.height - 4 && ok(y)).sort((a, b) => a - b);
   }
 
   try {
     if (hasHtml2Canvas && JsPDF) {
-      const canvases = [];
-      for (const node of captureRoots) {
-        const c = await snapshotNode(node);
-        if (!c.width || !c.height) throw new Error('PDF 캔버스 실패');
-        canvases.push(c);
-      }
-
-      const pageHmm = 297;
-      const innerHmm = pageHmm - marginMm * 2;
-      const jpegQ = 0.95;
       const pdf = new JsPDF({ unit: 'mm', format: 'a4', orientation: 'portrait' });
       let yCursor = marginMm;
+      let pageHasContent = false;
+      const jpegQ = 0.92;
+      const minChunkPx = (pageHmm - marginMm * 2) / mmPerPx * 0.18;
 
-      function addFreshPage() {
-        pdf.addPage();
-        yCursor = marginMm;
-      }
+      for (let pi = 0; pi < panels.length; pi++) {
+        const panel = panels[pi];
+        const pr = panel.getBoundingClientRect();
+        const panelH = Math.ceil(Math.max(pr.height, 1));
+        const panelW = Math.ceil(Math.max(pr.width, 1));
+        const scale = Math.max(0.6, Math.min(2, (MAX_CANVAS_PX - BUFFER) / panelH));
+        const win = pdfHtml2CanvasWindowSize(panel, capPx);
+        const canvas = await html2canvas(panel, {
+          scale,
+          useCORS: true,
+          logging: false,
+          backgroundColor: '#f5f0e8',
+          scrollX: 0,
+          scrollY: 0,
+          windowWidth: win.windowWidth,
+          windowHeight: win.windowHeight,
+          onclone: pdfHtml2CanvasOnClone,
+        });
+        if (!canvas.width || !canvas.height) throw new Error('PDF 캔버스 실패');
+        const pxScale = canvas.width / panelW;
+        const breaks = panelSafeBreaks(panel);
+        const xMm = marginMm + Math.max(0, pr.left - cloneRect.left) * mmPerPx;
+        const wMm = Math.min(innerWmm, panelW * mmPerPx);
 
-      for (let ci = 0; ci < canvases.length; ci++) {
-        const c = canvases[ci];
-        /* 모든 조각을 같은 배율(mm/px)로 배치: 폭이 좁은 조각이 페이지 폭으로 확대돼 글자가 커지지 않게 */
-        const mmPerPx = Math.min(innerWmm / Math.max(1, c.width), innerWmm / Math.max(1, capPx * pdfScale));
-        const maxPxSlice = Math.max(
-          160,
-          Math.floor((innerHmm / mmPerPx) * 0.99)
-        );
-        const rowSlices =
-          c.height <= maxPxSlice + 2 ? [c] : sliceCanvasVertically(c, maxPxSlice);
-
-        for (let si = 0; si < rowSlices.length; si++) {
-          const sub = rowSlices[si];
-          const wMm = sub.width * mmPerPx;
-          const hMm = sub.height * mmPerPx;
-          if (yCursor + hMm > pageHmm - marginMm + 0.05) {
-            addFreshPage();
+        let y0 = 0;
+        while (y0 < panelH - 1) {
+          let roomPx = (pageBottomMm - yCursor) / mmPerPx;
+          let y1;
+          if (panelH - y0 <= roomPx) {
+            y1 = panelH;
+          } else {
+            const fit = breaks.filter((b) => b > y0 + 4 && b <= y0 + roomPx);
+            y1 = fit.length ? fit[fit.length - 1] : null;
+            if ((y1 == null || y1 - y0 < minChunkPx) && pageHasContent) {
+              pdf.addPage();
+              yCursor = marginMm;
+              pageHasContent = false;
+              continue;
+            }
+            if (y1 == null) y1 = Math.min(panelH, y0 + Math.floor(roomPx));
           }
-          pdf.addImage(sub.toDataURL('image/jpeg', jpegQ), 'JPEG', marginMm + (innerWmm - wMm) / 2, yCursor, wMm, hMm);
+          const sy = Math.round(y0 * pxScale);
+          const sh = Math.max(1, Math.min(canvas.height - sy, Math.round((y1 - y0) * pxScale)));
+          const sub = document.createElement('canvas');
+          sub.width = canvas.width;
+          sub.height = sh;
+          sub.getContext('2d').drawImage(canvas, 0, sy, canvas.width, sh, 0, 0, canvas.width, sh);
+          const hMm = (y1 - y0) * mmPerPx * (wMm / (panelW * mmPerPx));
+          pdf.addImage(sub.toDataURL('image/jpeg', jpegQ), 'JPEG', xMm, yCursor, wMm, hMm);
           yCursor += hMm;
+          pageHasContent = true;
+          y0 = y1;
+          if (y0 < panelH - 1) {
+            pdf.addPage();
+            yCursor = marginMm;
+            pageHasContent = false;
+          }
         }
-
-        if (ci < canvases.length - 1) {
-          if (yCursor + SECTION_GAP_MM > pageHmm - marginMm + 0.05) addFreshPage();
-          else yCursor += SECTION_GAP_MM;
+        if (pi < panels.length - 1) {
+          if (yCursor + SECTION_GAP_MM > pageBottomMm) {
+            pdf.addPage();
+            yCursor = marginMm;
+            pageHasContent = false;
+          } else {
+            yCursor += SECTION_GAP_MM;
+          }
         }
       }
       pdf.save(fname);
