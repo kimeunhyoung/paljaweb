@@ -69,6 +69,10 @@ body{font-family:var(--font-body);background:var(--cream);color:var(--ink);min-h
 .person-box h3{font-family:var(--font-serif);font-size:15px;color:var(--deep-brown);margin-bottom:14px;}
 .person-box.a h3{color:var(--teal);}
 .person-box.b h3{color:var(--rose);}
+.client-pick-wrap{display:none;margin:0 0 14px;padding:0 0 12px;border-bottom:1px solid #e8ddcb;}
+.client-pick-wrap.is-visible{display:block;}
+.client-pick-row{display:grid;grid-template-columns:minmax(100px,1fr) minmax(140px,1.3fr);gap:8px;align-items:end;}
+.client-pick-hint{margin:8px 0 0;font-size:12.5px;line-height:1.5;color:var(--muted);}
 .field{display:flex;flex-direction:column;gap:6px;margin-bottom:12px;}
 .field label{font-size:12.5px;font-weight:600;color:var(--warm-brown);}
 .input-field,select.input-field{width:100%;padding:11px 13px;border:1px solid var(--border);border-radius:10px;background:#fff;font-family:inherit;font-size:14.5px;color:var(--ink);}
@@ -79,6 +83,7 @@ body{font-family:var(--font-body);background:var(--cream);color:var(--ink);min-h
 .analyze-btn{margin-top:20px;width:100%;padding:15px;border:none;border-radius:12px;background:var(--rose);color:#fff;font-family:var(--font-serif);font-size:17px;font-weight:600;cursor:pointer;transition:.15s;}
 .analyze-btn:hover{background:#b86a80;transform:translateY(-1px);}
 .analyze-btn:disabled{opacity:.6;cursor:not-allowed;transform:none;}
+@media (max-width:680px){.client-pick-row{grid-template-columns:1fr;}}
 
 .status{margin-top:18px;padding:14px 16px;border-radius:10px;font-size:14px;line-height:1.7;display:none;}
 .status.show{display:block;}
@@ -174,6 +179,21 @@ body{font-family:var(--font-body);background:var(--cream);color:var(--ink);min-h
     <div class="persons">
       <div class="person-box a">
         <h3>● 첫 번째 사람</h3>
+        <div class="client-pick-wrap" id="aClientPickWrap">
+          <div class="client-pick-row">
+            <div class="field" style="margin-bottom:0">
+              <label for="aClientPickSearch">고객 찾기</label>
+              <input class="input-field" id="aClientPickSearch" type="search" placeholder="이름·생년월일" autocomplete="off"/>
+            </div>
+            <div class="field" style="margin-bottom:0">
+              <label for="aClientPickSelect">저장된 고객</label>
+              <select class="input-field" id="aClientPickSelect" aria-label="첫 번째 사람 고객 선택">
+                <option value="">— 직접 입력 —</option>
+              </select>
+            </div>
+          </div>
+          <p class="client-pick-hint">고객을 고르면 이름·생년월일·출생 시간·출생지가 채워져요.</p>
+        </div>
         <div class="field"><label>이름 (선택)</label><input class="input-field" id="aName" type="text" placeholder="표시용"/></div>
         <div class="field"><label>생년월일</label><input class="input-field" id="aDate" type="date"/></div>
         <div class="field"><label>출생 시간</label><input class="input-field" id="aTime" type="time"/>
@@ -185,6 +205,21 @@ body{font-family:var(--font-body);background:var(--cream);color:var(--ink);min-h
       </div>
       <div class="person-box b">
         <h3>● 두 번째 사람</h3>
+        <div class="client-pick-wrap" id="bClientPickWrap">
+          <div class="client-pick-row">
+            <div class="field" style="margin-bottom:0">
+              <label for="bClientPickSearch">고객 찾기</label>
+              <input class="input-field" id="bClientPickSearch" type="search" placeholder="이름·생년월일" autocomplete="off"/>
+            </div>
+            <div class="field" style="margin-bottom:0">
+              <label for="bClientPickSelect">저장된 고객</label>
+              <select class="input-field" id="bClientPickSelect" aria-label="두 번째 사람 고객 선택">
+                <option value="">— 직접 입력 —</option>
+              </select>
+            </div>
+          </div>
+          <p class="client-pick-hint">고객을 고르면 이름·생년월일·출생 시간·출생지가 채워져요.</p>
+        </div>
         <div class="field"><label>이름 (선택)</label><input class="input-field" id="bName" type="text" placeholder="표시용"/></div>
         <div class="field"><label>생년월일</label><input class="input-field" id="bDate" type="date"/></div>
         <div class="field"><label>출생 시간</label><input class="input-field" id="bTime" type="time"/>
@@ -267,12 +302,39 @@ body{font-family:var(--font-body);background:var(--cream);color:var(--ink);min-h
   const CITIES = window.ASTRO_CITIES || [];
   const $ = (id) => document.getElementById(id);
 
-  // 커플 차트는 Basic 이상 기능
+  // 커플 차트는 Basic 이상 기능 · 고객 선택은 상담사(Professional) 계정
   const SUPABASE_URL = 'https://sghsryumnrnftyjoqmwf.supabase.co';
   const SUPABASE_ANON_KEY = 'sb_publishable_6S3W_oWrzG-Nv8wLK98gmg_q_KcB2I1';
   let sbClient = null;
   try { if (window.supabase && window.supabase.createClient) sbClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY); } catch (e) {}
   let HAS_BASIC = false;
+  let HAS_PROFESSIONAL = false;
+  let COUNSELOR_UID = '';
+  let COUNSELOR_CLIENT_ROWS = [];
+  let ACTIVE_CLIENT_A = '';
+  let ACTIVE_CLIENT_B = '';
+
+  function escapeCounselorHtml(s) {
+    return String(s == null ? '' : s)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
+  }
+  function normalizeIsoDate(raw) {
+    if (!raw) return '';
+    const s = String(raw).trim();
+    const m = s.match(/^(\d{4})-(\d{2})-(\d{2})/);
+    return m ? m[1] + '-' + m[2] + '-' + m[3] : '';
+  }
+  function normalizeTimeHm(raw) {
+    if (!raw) return '';
+    const s = String(raw).trim();
+    const m = s.match(/^(\d{1,2}):(\d{2})/);
+    if (!m) return '';
+    return String(m[1]).padStart(2, '0') + ':' + m[2];
+  }
+
   const accessReady = (async () => {
     try {
       if (!sbClient) return;
@@ -280,6 +342,12 @@ body{font-family:var(--font-body);background:var(--cream);color:var(--ink);min-h
       if (!session) return;
       const { data: profile } = await sbClient.from('profiles').select('plan, plan_active_until').eq('id', session.user.id).single();
       HAS_BASIC = window.PaljaPlan ? window.PaljaPlan.isPlanAtLeast(profile || {}, 'basic') : false;
+      HAS_PROFESSIONAL = window.PaljaPlan ? window.PaljaPlan.hasCounselorAccess(profile || {}) : false;
+      if (window.PALJA_DEVICE_LIMIT_HIT) HAS_PROFESSIONAL = false;
+      if (HAS_PROFESSIONAL) {
+        COUNSELOR_UID = session.user.id;
+        await loadCounselorClientPickers();
+      }
     } catch (e) {}
     if (ASTRO_AI_API_ENABLED) await checkAiServer();
     else refreshAiUi();
@@ -633,30 +701,239 @@ body{font-family:var(--font-body);background:var(--cream);color:var(--ink);min-h
     finally { btn.textContent = prev; btn.disabled = false; }
   });
 
-  // URL 파라미터 프리필 (상담사 허브 등): a_name,a_date,a_time,a_city,a_lat,a_lng / b_*
-  (function prefill() {
+  function applyCityPrefill(prefix, cityName) {
+    if (!cityName) return false;
+    const raw = String(cityName).trim();
+    let idx = CITIES.findIndex((c) => c.ko === raw);
+    if (idx < 0) idx = CITIES.findIndex((c) => raw.includes(c.ko) || c.ko.includes(raw));
+    if (idx < 0) return false;
+    $(prefix + 'City').value = String(idx);
+    const box = $(prefix + 'Manual');
+    if (box) box.classList.remove('show');
+    return true;
+  }
+
+  function applyCoordsPrefill(prefix, latRaw, lngRaw) {
+    const lat = parseFloat(latRaw);
+    const lng = parseFloat(lngRaw);
+    if (Number.isNaN(lat) || Number.isNaN(lng)) return false;
+    $(prefix + 'City').value = 'manual';
+    const box = $(prefix + 'Manual');
+    if (box) box.classList.add('show');
+    $(prefix + 'Lat').value = String(lat);
+    $(prefix + 'Lng').value = String(lng);
+    return true;
+  }
+
+  function resetBirthPlaceFields(prefix) {
+    const city = $(prefix + 'City');
+    if (city) city.value = '0';
+    const box = $(prefix + 'Manual');
+    if (box) box.classList.remove('show');
+    if ($(prefix + 'Lat')) $(prefix + 'Lat').value = '';
+    if ($(prefix + 'Lng')) $(prefix + 'Lng').value = '';
+  }
+
+  function applyBirthPrefill(prefix, data) {
+    const nm = (data.name || '').trim();
+    const dt = normalizeIsoDate(data.date);
+    const tm = normalizeTimeHm(data.time);
+    const city = (data.city || '').trim();
+    $(prefix + 'Name').value = nm;
+    if (dt) $(prefix + 'Date').value = dt;
+    else $(prefix + 'Date').value = '';
+    if (tm) {
+      $(prefix + 'Time').value = tm;
+      const unk = $(prefix + 'Unknown');
+      if (unk) { unk.checked = false; $(prefix + 'Time').disabled = false; }
+    } else {
+      $(prefix + 'Time').value = '';
+      const unk = $(prefix + 'Unknown');
+      if (unk) { unk.checked = false; $(prefix + 'Time').disabled = false; }
+    }
+    resetBirthPlaceFields(prefix);
+    let hasCoords = applyCoordsPrefill(prefix, data.lat, data.lng);
+    if (!hasCoords && city) applyCityPrefill(prefix, city);
+    const placeOk = hasCoords || !!city;
+    return { nm, dt, tm, city: placeOk ? (city || 'coords') : '', hasCoords };
+  }
+
+  function counselorPrefillStatus(sideLabel, merged) {
+    if (!merged || !merged.dt) return sideLabel + ' 생년월일을 불러오지 못했어요. 직접 입력해 주세요.';
+    if (merged.tm && merged.city) {
+      return sideLabel + '에서 <strong>이름·생년월일·출생 시간·출생지</strong>를 불러왔어요.';
+    }
+    if (merged.tm) {
+      return sideLabel + ' 이름·생년월일·출생 시간을 불러왔어요. <strong>출생지</strong>를 확인해 주세요.';
+    }
+    return sideLabel + ' 생년월일을 불러왔어요. <strong>출생 시간</strong>과 <strong>출생지</strong>를 입력해 주세요.';
+  }
+
+  function setActiveClient(prefix, clientId, updateUrl) {
+    if (prefix === 'a') ACTIVE_CLIENT_A = clientId || '';
+    else ACTIVE_CLIENT_B = clientId || '';
+    if (!updateUrl) return;
+    try {
+      const url = new URL(location.href);
+      if (ACTIVE_CLIENT_A) url.searchParams.set('a_client', ACTIVE_CLIENT_A);
+      else url.searchParams.delete('a_client');
+      if (ACTIVE_CLIENT_B) url.searchParams.set('b_client', ACTIVE_CLIENT_B);
+      else url.searchParams.delete('b_client');
+      history.replaceState({}, '', url.pathname + url.search + url.hash);
+    } catch (_) { /* ignore */ }
+  }
+
+  function populateCounselorClientSelect(prefix, filterText) {
+    const sel = $(prefix + 'ClientPickSelect');
+    if (!sel) return;
+    const q = String(filterText || '').trim().toLowerCase().replace(/\s+/g, '');
+    const cur = sel.value;
+    const rows = !q
+      ? COUNSELOR_CLIENT_ROWS
+      : COUNSELOR_CLIENT_ROWS.filter((c) => {
+          const dn = String(c.display_name || '').toLowerCase().replace(/\s+/g, '');
+          const ln = String(c.legal_name || '').toLowerCase().replace(/\s+/g, '');
+          const birth = String(c.birth_date || '').toLowerCase();
+          return dn.includes(q) || ln.includes(q) || birth.includes(q);
+        });
+    sel.innerHTML = '<option value="">— 직접 입력 —</option>' + rows.map((c) => {
+      const label = (c.display_name || c.legal_name || '고객') +
+        (c.birth_date ? ' · ' + String(c.birth_date).slice(0, 10) : '');
+      return '<option value="' + c.id + '">' + escapeCounselorHtml(label) + '</option>';
+    }).join('');
+    if (cur && COUNSELOR_CLIENT_ROWS.some((c) => c.id === cur)) sel.value = cur;
+  }
+
+  function applyCounselorClientRow(prefix, row, opts) {
+    if (!row) return null;
+    const merged = applyBirthPrefill(prefix, {
+      name: (row.display_name || row.legal_name || '').trim(),
+      date: row.birth_date,
+      time: row.birth_time,
+      city: row.birth_city,
+      lat: row.birth_lat,
+      lng: row.birth_lng,
+    });
+    setActiveClient(prefix, row.id, !!(opts && opts.updateUrl));
+    const sel = $(prefix + 'ClientPickSelect');
+    if (sel && opts && opts.syncSelect !== false) {
+      if (![...sel.options].some((o) => o.value === row.id)) {
+        populateCounselorClientSelect(prefix, ($(prefix + 'ClientPickSearch') || {}).value || '');
+      }
+      sel.value = row.id;
+    }
+    return merged;
+  }
+
+  function personLooksComplete(prefix) {
+    const p = readPerson(prefix);
+    return !p.err;
+  }
+
+  async function maybeAutoCalculate() {
+    if (!personLooksComplete('a') || !personLooksComplete('b')) return;
+    if (ACTIVE_CLIENT_A && ACTIVE_CLIENT_B && ACTIVE_CLIENT_A === ACTIVE_CLIENT_B) {
+      showStatus('같은 고객을 양쪽에 고르셨어요. 서로 다른 고객을 선택해 주세요.', 'err');
+      return;
+    }
+    try { await calculate(); } catch (_) { /* ignore */ }
+  }
+
+  async function loadCounselorClientPickers() {
+    if (!sbClient || !COUNSELOR_UID) return;
+    ['a', 'b'].forEach((prefix) => {
+      const wrap = $(prefix + 'ClientPickWrap');
+      if (wrap) wrap.classList.add('is-visible');
+    });
+
+    const { data, error } = await sbClient
+      .from('counselor_clients')
+      .select('id,display_name,legal_name,birth_date,birth_time,birth_city,birth_lat,birth_lng')
+      .eq('counselor_id', COUNSELOR_UID)
+      .order('display_name', { ascending: true });
+
+    COUNSELOR_CLIENT_ROWS = (!error && data) ? data : [];
+    populateCounselorClientSelect('a', ($('aClientPickSearch') || {}).value || '');
+    populateCounselorClientSelect('b', ($('bClientPickSearch') || {}).value || '');
+
+    if (ACTIVE_CLIENT_A && COUNSELOR_CLIENT_ROWS.some((c) => c.id === ACTIVE_CLIENT_A)) {
+      $('aClientPickSelect').value = ACTIVE_CLIENT_A;
+    }
+    if (ACTIVE_CLIENT_B && COUNSELOR_CLIENT_ROWS.some((c) => c.id === ACTIVE_CLIENT_B)) {
+      $('bClientPickSelect').value = ACTIVE_CLIENT_B;
+    }
+
+    ['a', 'b'].forEach((prefix) => {
+      const sel = $(prefix + 'ClientPickSelect');
+      const search = $(prefix + 'ClientPickSearch');
+      if (sel && !sel.dataset.bound) {
+        sel.dataset.bound = '1';
+        sel.addEventListener('change', async () => {
+          const id = sel.value;
+          if (!id) {
+            setActiveClient(prefix, '', true);
+            return;
+          }
+          const row = COUNSELOR_CLIENT_ROWS.find((c) => c.id === id);
+          if (!row) return;
+          const merged = applyCounselorClientRow(prefix, row, { updateUrl: true, syncSelect: false });
+          const side = prefix === 'a' ? '첫 번째 사람' : '두 번째 사람';
+          showStatus(counselorPrefillStatus(side, merged || {}), 'info');
+          await maybeAutoCalculate();
+        });
+      }
+      if (search && !search.dataset.bound) {
+        search.dataset.bound = '1';
+        search.addEventListener('input', () => populateCounselorClientSelect(prefix, search.value));
+      }
+    });
+  }
+
+  // URL 파라미터 프리필 (상담사 허브 등): a_name,a_date… / b_* · a_client · b_client
+  (async function prefill() {
     try {
       const qs = new URLSearchParams(location.search);
-      function set(prefix, p) {
-        const nm = qs.get(p + '_name'), dt = qs.get(p + '_date'), tm = qs.get(p + '_time'), city = qs.get(p + '_city');
-        const lat = qs.get(p + '_lat'), lng = qs.get(p + '_lng');
-        if (nm) $(prefix + 'Name').value = nm;
-        if (dt) $(prefix + 'Date').value = dt;
-        if (tm && /^\d{1,2}:\d{2}/.test(tm)) $(prefix + 'Time').value = tm.slice(0, 5);
-        const latN = parseFloat(lat), lngN = parseFloat(lng);
-        if (!Number.isNaN(latN) && !Number.isNaN(lngN)) {
-          $(prefix + 'City').value = 'manual';
-          const box = $(prefix + 'Manual');
-          if (box) box.classList.add('show');
-          $(prefix + 'Lat').value = String(latN);
-          $(prefix + 'Lng').value = String(lngN);
-        } else if (city) {
-          const idx = CITIES.findIndex((c) => c.ko === city);
-          if (idx >= 0) $(prefix + 'City').value = String(idx);
+      ACTIVE_CLIENT_A = qs.get('a_client') || '';
+      ACTIVE_CLIENT_B = qs.get('b_client') || '';
+
+      function setFromQs(prefix, p) {
+        const nm = qs.get(p + '_name');
+        const dt = qs.get(p + '_date');
+        const tm = qs.get(p + '_time');
+        const city = qs.get(p + '_city');
+        const lat = qs.get(p + '_lat');
+        const lng = qs.get(p + '_lng');
+        if (!nm && !dt && !tm && !city && !lat && !lng) return null;
+        return applyBirthPrefill(prefix, { name: nm || '', date: dt || '', time: tm || '', city: city || '', lat, lng });
+      }
+
+      let mergedA = setFromQs('a', 'a');
+      let mergedB = setFromQs('b', 'b');
+
+      await accessReady;
+
+      if (HAS_PROFESSIONAL && COUNSELOR_CLIENT_ROWS.length) {
+        if (ACTIVE_CLIENT_A) {
+          const row = COUNSELOR_CLIENT_ROWS.find((c) => c.id === ACTIVE_CLIENT_A);
+          if (row) mergedA = applyCounselorClientRow('a', row, { updateUrl: false }) || mergedA;
+        }
+        if (ACTIVE_CLIENT_B) {
+          const row = COUNSELOR_CLIENT_ROWS.find((c) => c.id === ACTIVE_CLIENT_B);
+          if (row) mergedB = applyCounselorClientRow('b', row, { updateUrl: false }) || mergedB;
         }
       }
-      set('a', 'a'); set('b', 'b');
-      if (qs.get('a_date') && qs.get('b_date')) showStatus('두 사람 정보를 불러왔어요. 출생지·시간을 확인한 뒤 “궁합 분석하기”를 눌러주세요.', 'info');
+
+      if ((mergedA && mergedA.dt) || (mergedB && mergedB.dt) || qs.get('a_date') || qs.get('b_date')) {
+        const parts = [];
+        if (mergedA && mergedA.dt) parts.push(counselorPrefillStatus('첫 번째 사람', mergedA));
+        if (mergedB && mergedB.dt) parts.push(counselorPrefillStatus('두 번째 사람', mergedB));
+        if (!parts.length) parts.push('두 사람 정보를 불러왔어요. 출생지·시간을 확인한 뒤 “궁합 분석하기”를 눌러주세요.');
+        showStatus(parts.join('<br>'), 'info');
+      }
+
+      if (personLooksComplete('a') && personLooksComplete('b')) {
+        await maybeAutoCalculate();
+      }
     } catch (e) { /* ignore */ }
   })();
 </script>

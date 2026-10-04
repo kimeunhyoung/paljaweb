@@ -3018,6 +3018,7 @@
         return null;
       }
       const qs = new URLSearchParams();
+      qs.set('a_client', a.id);
       qs.set('a_name', (a.display_name || a.legal_name || '').trim());
       qs.set('a_date', a.birth_date);
       if (a.birth_time) qs.set('a_time', a.birth_time);
@@ -3026,6 +3027,7 @@
         qs.set('a_lat', String(a.birth_lat));
         qs.set('a_lng', String(a.birth_lng));
       }
+      qs.set('b_client', b.id);
       qs.set('b_name', (b.display_name || b.legal_name || '').trim());
       qs.set('b_date', b.birth_date);
       if (b.birth_time) qs.set('b_time', b.birth_time);
