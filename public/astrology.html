@@ -80,7 +80,6 @@
 <script src="js/astro-house-rulers.js?v=1"></script>
 <script src="js/astro-life-timeline.js?v=1"></script>
 <script src="js/ai-raw-timeline-v1.js?v=1"></script>
-<script src="js/ai-raw-timeline-prompt-v2.js?v=5"></script>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css" crossorigin />
 <link rel="stylesheet" href="css/site-topbar.css?v=21" />
 <link rel="stylesheet" href="css/site-header.css?v=7" />
@@ -2179,44 +2178,6 @@ body.export-capturing .ai-result.empty{display:none !important;}
       return;
     }
     box.hidden = true;
-  }
-
-  function buildAiRawTimelineTopicPrompt(topicId) {
-    const meta = TIMELINE_TOPIC_META[topicId];
-    if (!meta) throw new Error('bad_topic');
-    if (!LAST_AI_RAW_PAYLOAD) {
-      buildAiRawTimelineCustomerPrompt();
-    }
-    if (!LAST_AI_RAW_PAYLOAD) throw new Error('no_payload');
-    const filtered = filterPayloadForTimelineTopic(LAST_AI_RAW_PAYLOAD, topicId);
-    let prompt = AiRawTimelinePromptV2.buildCustomerPrompt(filtered);
-    const w = filtered.window;
-    if (w && w.fromYm && w.toYm) {
-      prompt += '\n\n[기간] ' + w.fromYm + ' ~ ' + w.toYm;
-    }
-    const domInfo = filtered.domainScan && filtered.domainScan.domains
-      ? Object.keys(filtered.domainScan.domains).map((k) => {
-        const d = filtered.domainScan.domains[k];
-        return d.labelKo + '(' + d.level + ')';
-      }).join(', ')
-      : '신호 약함';
-    const urCount = filtered.utilizeRecommendations && filtered.utilizeRecommendations.items
-      ? filtered.utilizeRecommendations.items.length : 0;
-    const urHint = urCount > 0
-      ? '추천 실행 시기 ' + urCount + '개를 bullet 1~4개로 쓴다.'
-      : '추천 실행 시기 목록이 **비어 있음** — 「적극 권장할 만한 실행 시기가 뚜렷하지 않아요」처럼 자연스럽게만 쓴다.';
-    prompt +=
-      '\n\n[주제 상세 모드 — 「' + meta.label + '」만]\n' +
-      '위 JSON은 **' + meta.label + '** 주제만 필터한 5년 raw입니다. 5년 전체 스토리·연도별 해석·다른 주제 **절대 금지**.\n' +
-      'domainScan(주제 판정): ' + domInfo + '\n' +
-      '출력 첫 줄: **' + meta.label + ' · 5년 흐름** (단독). 그다음 **3섹션만**:\n' +
-      '## 이 주제 한 줄기\n## 시기별 흐름\n## 활용·주의\n' +
-      '「시기별 흐름」: window 구간에서 **' + meta.label + '** 관련 eps·peakYm·progMoon이 있는 달·계절마다 **2~3문장** (최소 2블록). 시기 줄은 `2027년 봄(3~5월)` 형태.\n' +
-      '「활용·주의」: ' + urHint + ' 무리하면 안 되는 때 1~2문장.\n' +
-      '신호가 weak/none이면 「이 5년엔 ' + meta.label + ' 쪽 신호가 뚜렷하지 않음」을 먼저 밝히고, 있는 eps만 짧게.\n' +
-      '**고객 본문에 JSON 키·필드명(utilizeRecommendations, domainScan, items 등)·백틱 코드명 출력 금지.**\n' +
-      '**굵게(`**…**`) = 시기 핵심 명사 1~2개만.** 조언 문장 굵게 금지.\n\n[말투] ' + '답변은 해요체(~해요, ~이에요)로 쓰세요. 점성 용어는 화면과 같게 합·육각·사각·삼각·충으로 쓰고, 트라인·스퀘어·섹스타일 같은 외래어 표기는 쓰지 마세요.';
-    return prompt;
   }
 
   function paintTimelineTabView() {
@@ -4869,12 +4830,10 @@ body.export-capturing .ai-result.empty{display:none !important;}
     return { y: Number(m[1]), mo: Number(m[2]) };
   }
 
-  function buildAiRawTimelineCustomerPrompt() {
+  /** 5년 AI용 RAW JSON만 준비 (지시문·프롬프트는 서버에서 조립) */
+  function prepareAiRawTimelinePayload() {
     if (!window.AiRawTimelineV1 || typeof AiRawTimelineV1.build !== 'function') {
       throw new Error('ai_raw_builder_missing');
-    }
-    if (!window.AiRawTimelinePromptV2 || typeof AiRawTimelinePromptV2.buildCustomerPrompt !== 'function') {
-      throw new Error('ai_raw_prompt_missing');
     }
     if (!LAST_BIRTH || !LAST_COORDS) throw new Error('no_birth');
     const from = parseYmParts(LAST_TIMELINE && LAST_TIMELINE.fromYm) || (() => {
@@ -4905,38 +4864,12 @@ body.export-capturing .ai-result.empty{display:none !important;}
     payload.utilizeRecommendations = buildUtilizeRecommendations(payload, LAST_TIMELINE);
     payload.domainScan = buildDomainScan(payload);
     LAST_AI_RAW_PAYLOAD = payload;
-    let prompt = AiRawTimelinePromptV2.buildCustomerPrompt(payload);
-    const w = payload.window;
-    if (w && w.fromYm && w.toYm) {
-      const y0 = Number(String(w.fromYm).slice(0, 4));
-      const y1 = Number(String(w.toYm).slice(0, 4));
-      if (Number.isFinite(y0) && Number.isFinite(y1) && y1 >= y0) {
-        const years = [];
-        for (let y = y0; y <= y1; y++) years.push(y + '년');
-        prompt +=
-          '\n\n[연도·시기 필수]\n' +
-          '- 기간(fromYm~toYm): ' + w.fromYm + ' ~ ' + w.toYm + '\n' +
-          '- `## 연도별 해석`에 **' + years.join(', ') + '** 를 모두 오름차순으로 포함 (첫 해 생략 금지).\n' +
-          '- 계절·월만 쓸 때 **연도 필수** (✗ `가을부터` ✓ `2026년 가을(9~11월)부터`).\n' +
-          '- JSON 키 `window`는 기간 데이터일 뿐 — 고객 문장에 `창구`·`창이 열` 등으로 쓰지 마라.';
-      }
-    }
-    const urItems = payload.utilizeRecommendations && payload.utilizeRecommendations.items;
-    if (urItems && urItems.length) {
-      prompt += '\n- `## 5년 중 언제` 항목은 utilizeRecommendations.items **' + urItems.length + '개 안에서만** (목록 밖 추가 금지). 시기가 겹치고 주제가 비슷한 항목은 **한 줄로 합쳐** 개수를 줄여도 돼요.';
-    }
-    if (HAS_PROFESSIONAL) {
-      prompt +=
-        '\n\n[상담사용 근거 줄 — 이 요청에만 적용]\n' +
-        '- `## 연도별 해석`에서 **★·◆ 표시가 붙은 해마다 빠짐없이**(◆ 해도 포함), 그 해 블록 **맨 끝**에 근거 한 줄을 붙인다. 형식: `> 근거: 토성–중천 사각 (2027년 6~9월 정점)`\n' +
-        '- 근거는 transitEpisodes·progMoonEvents의 **lineKo와 peakYm**에서 그 해 가장 강한 것 **1~2개만** 옮겨 쓴다. JSON에 없는 행성·각을 만들지 마라.\n' +
-        '- 각 이름은 합·육각·사각·삼각·충으로 쓴다 (육합 → 육각). orb·숫자 각도·영문 키는 쓰지 마라.\n' +
-        '- 행성·각 이름은 **이 근거 줄에서만** 허용. 5년 전체 스토리·본문 문장·「5년 중 언제」 섹션에는 넣지 마라. 표시 없는 해에는 근거 줄을 넣지 마라.';
-    }
-    prompt += '\n\n[말투] ' + '답변은 해요체(~해요, ~이에요)로 쓰세요. 점성 용어는 화면과 같게 합·육각·사각·삼각·충으로 쓰고, 트라인·스퀘어·섹스타일 같은 외래어 표기는 쓰지 마세요.';
-    return prompt;
+    return payload;
   }
-
+  /** @deprecated 이름 호환 — RAW만 준비 */
+  function buildAiRawTimelineCustomerPrompt() {
+    return prepareAiRawTimelinePayload();
+  }
   function formatYmShort(ym) {
     const m = String(ym || '').match(/^(\d{4})-(\d{2})/);
     if (!m) return String(ym || '');
@@ -5432,7 +5365,7 @@ body.export-capturing .ai-result.empty{display:none !important;}
   function ensureRawTimelinePayload() {
     if (!isAiRawTimelineV1Enabled() || LAST_AI_RAW_PAYLOAD) return;
     try {
-      buildAiRawTimelineCustomerPrompt();
+      prepareAiRawTimelinePayload();
     } catch (e) {
       console.warn('[rawTimelinePayload]', e);
       LAST_AI_RAW_PAYLOAD = null;
@@ -5440,327 +5373,11 @@ body.export-capturing .ai-result.empty{display:none !important;}
   }
 
   function buildTimelineAiPrompt() {
-    if (isAiRawTimelineV1Enabled()) {
-      return buildAiRawTimelineCustomerPrompt();
+    if (!isAiRawTimelineV1Enabled()) {
+      throw new Error('raw_timeline_required');
     }
-    const AT = window.AstroTimelineV2;
-    const currentDate = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Seoul' }).format(new Date());
-    const fromYm = (LAST_TIMELINE && LAST_TIMELINE.fromYm) || '';
-    const toYm = (LAST_TIMELINE && LAST_TIMELINE.toYm) || '';
-    const y0 = fromYm ? Number(String(fromYm).slice(0, 4)) : NaN;
-    const y1 = toYm ? Number(String(toYm).slice(0, 4)) : NaN;
-    const yearList = [];
-    if (Number.isFinite(y0) && Number.isFinite(y1) && y1 >= y0) {
-      for (let y = y0; y <= y1; y++) yearList.push(y);
-    }
-    const yearSpanHint = yearList.length
-      ? yearList.join(', ')
-      : '입력 fromYm~toYm에 포함된 연도만';
-
-    const L = [];
-    L.push('당신은 출생 차트와 장기 트랜짓을 근거로 현실적인 해석을 제공하는 전문 점성가입니다. ' + '답변은 해요체(~해요, ~이에요)로 쓰세요. 점성 용어는 화면과 같게 합·육각·사각·삼각·충으로 쓰고, 트라인·스퀘어·섹스타일 같은 외래어 표기는 쓰지 마세요.');
-    L.push('');
-    L.push(
-      '아래 출생 차트와 5년 장기 운 타임라인 v2(4축·상태 구간·에피소드·엔진 판정)를 바탕으로,\n' +
-      '앞으로 5년 흐름을 일반 사용자도 「언제 무엇이 중요해지는지」를 쉽게 이해하도록 한국어로 설명하세요.\n' +
-      '연도 섹션은 유지하되, 같은 주제의 연속 흐름(예: 금전→일)은 연도를 넘나들며 한 이야기로 연결하세요.\n' +
-      '연애·일·금전을 따로 큰 섹션으로 나누지 마세요. 영역별 신호는 각 연도 안에서, 그해에 실제로 강한 것만 자연스럽게 녹이세요.\n' +
-      '건강·가족·이동·환경·학습·성장도 입력 themes에 잡힌 때만 언급하고, 매 연도 7영역을 강제로 채우지 마세요.\n' +
-      '건강·가족은 확정 질병·가정 파탄으로 단정하지 마세요. 이동·환경은 약한 신호로 이사를 단정하지 마세요.'
-    );
-    L.push('');
-    L.push(
-      '이 해석의 목적은 미래 사건을 예언하는 것이 아니라,\n' +
-      '각 시기에 어떤 주제가 활성화되고 어떤 선택·조정·활용이 중요해지는지를 알려주는 것입니다.'
-    );
-    L.push('');
-    L.push(
-      '「좋은 운 / 나쁜 운」으로 단순화하지 말고,\n' +
-      '엔진이 준 시기 성격을 현실적인 생활 언어로 번역하세요.\n' +
-      '확장기·전환기·재편·확장과 부담 같은 엔진/상태 라벨을 사용자 문장에 반복하지 마세요.'
-    );
-    L.push('');
-    L.push('[현재 기준 날짜]');
-    L.push(currentDate);
-    L.push('');
-    L.push('[타임라인 구간]');
-    L.push((fromYm || '?') + ' ~ ' + (toYm || '?') + ' (해석할 연도: ' + yearSpanHint + ')');
-    L.push('');
-    if (LAST_CTX) {
-      L.push('[출생 차트]');
-      L.push(
-        '빅3: 태양 ' + LAST_CTX.sunSign.ko +
-        ' · 달 ' + LAST_CTX.moonSign.ko +
-        (LAST_CTX.ascSign ? ' · 상승궁 ' + LAST_CTX.ascSign.ko : ' · 상승궁 미상')
-      );
-      if (LAST_CTX.displayName) L.push('이름: ' + LAST_CTX.displayName);
-    }
-    L.push('');
-    L.push(AT && LAST_TIMELINE ? AT.buildAiSummary(LAST_TIMELINE) : '');
-    L.push('');
-    L.push('────────────────────');
-    L.push('[가장 중요한 해석 원칙]');
-    L.push('────────────────────');
-    L.push('');
-    L.push(
-      '1. 입력 데이터가 보여주는 것은 특정 시기에 어떤 주제가 강하게 활성화되는지와 그 시기의 성격입니다.\n' +
-      '특정 사건의 발생을 확정하는 데이터가 아닙니다.'
-    );
-    L.push('');
-    L.push(
-      '2. 높은 점수·별점·강한 활성도를 자동으로 \'좋은 운\'으로 해석하지 마세요.\n' +
-      '압박이나 긴장 역시 자동으로 \'나쁜 운\'으로 해석하지 마세요.\n' +
-      '별점은 5년 안에서의 세기(강도)일 뿐이며, 어떻게 읽을지는 엔진 판정의 한국어 headline/note가 우선입니다.\n' +
-      '예: 기회★가 높아도 판정이 「기회는 크지만 변화가 큰 시기」「기회와 부담이 함께 큰 시기」이면 \'최고의 호재\'라고 쓰지 마세요.\n' +
-      '입력의 영문 primary는 내부 식별용입니다. 사용자 답변에는 쓰지 마세요.'
-    );
-    L.push('');
-    L.push(
-      '3. 시간적으로 A가 먼저 나타나고 B가 나중에 나타난다는 이유만으로\n' +
-      '\'A 때문에 B가 발생한다\'는 인과관계를 만들지 마세요.\n\n' +
-      '예:\n' +
-      '"커리어에서 뿌린 씨앗이 금전이라는 열매로 돌아온다"\n' +
-      '"앞선 노력이 수익으로 연결된다"\n' +
-      '같은 표현은 실제 점성학적 근거가 명확하지 않다면 사용하지 마세요.'
-    );
-    L.push('');
-    L.push(
-      '4. 입력에 직접 근거가 없는 구체 사건(이직·퇴사·승진·창업·이사·동거·결혼·이별·새 연인·보증·대출·공동투자·유산·큰 지출·취업·사업 성공·수익·투자 수익·재산 증가·계약 성사 등)을\n' +
-      '확정적으로 만들어내지 마세요.\n' +
-      '불가피하게 예시를 들 때는 「~할 수도 있다」「가능성이 있다」처럼 가능성임을 분명히 하고,\n' +
-      '근거 없이 특정 사건으로 채우지 마세요.\n\n' +
-      '대신 「일의 방향 조정」「관계에서의 중요한 선택」「재정에 관한 판단」처럼 주제 수준의 표현을 우선하세요.\n\n' +
-      '예:\n' +
-      '"이사나 직업 변화가 관계에 영향을 줄 수 있어요" → 금지(근거 없는 구체 사건)\n' +
-      '"생활 환경이나 일상의 변화가 관계의 안정감에 영향을 줄 수 있어요" → 허용\n' +
-      '"동거나 공식적인 관계 전환을 서두르지 마세요" → 금지\n' +
-      '"관계에 관한 중요한 결정은 서두르지 않는 편이 좋아요" → 허용'
-    );
-    L.push('');
-    L.push(
-      '5. 특정 시기에 신호가 약하거나 뚜렷한 특징이 없다면\n' +
-      '억지로 의미를 만들어내지 말고\n' +
-      '"이 기간에는 특별히 강한 신호가 두드러지지 않아요"라고 짧게 설명할 수 있습니다.\n' +
-      '신호 약한 연도는 짧게 쓰고, 모든 해를 같은 분량·비슷한 표현으로 채우지 마세요.\n\n' +
-      '연도별 상대 차이: 각 연도를 독립적으로 비슷한 말로 반복하지 말고,\n' +
-      '입력의 기회·부담·변화·판정이 뒷받침하는 범위에서 앞뒤 연도와 비교해 그해 성격이 드러나게 하세요.\n' +
-      '예(데이터 근거가 있을 때만):\n' +
-      '- 상대적으로 시도·제안을 검토해 볼 만한 해\n' +
-      '- 결정·운영을 평소보다 신중히 할 해\n' +
-      '- 이전 흐름에서 다음 흐름으로 무게가 넘어가는 해\n' +
-      '억지로 모든 연도를 좋음/나쁨 순위로 만들지 마세요. 근거가 약한 대비는 만들지 마세요.'
-    );
-    L.push('');
-    L.push(
-      '6. 같은 주목 구간·같은 에피소드를 연도 안·연도 사이·마지막 하이라이트에서 같은 문장으로 반복하지 마세요.\n' +
-      '한 시기에 연애·일·금전이 함께 강하면 「이 변화는 일뿐 아니라 관계·금전에도 겹칠 수 있는 흐름이에요」처럼 한 번에 묶으세요.\n' +
-      '해당 영역과 실제 관련성이 약하면 그 영역은 그 해에서 생략하세요.'
-    );
-    L.push('');
-    L.push(
-      '7. 점성학 용어를 쓸 때는 바로 현실 의미를 붙이세요.\n' +
-      '본문은 「언제·무엇이 중요한지」가 먼저이고, 점성 근거는 각 연도 끝에 **점성 근거:** 한 줄로만 짧게 두세요.'
-    );
-    L.push('');
-    L.push(
-      '8. 주제 활성(peak / theme★)과 에피소드 역할을 분리하세요.\n' +
-      '- 주제 활성·theme★는 "언제 해당 주제가 강하게 부각되는가"의 보조 지표일 뿐, 사건 발생·길흉이 아니다.\n' +
-      '- theme★5 = 그 주제가 5년 중 특히 강하게 부각되는 시기. 사용자 답변에 theme★ 표기를 쓰지 말고 위처럼 풀어 쓰세요.\n' +
-      '- peak/활성만으로 성공·수익·연애 성사·역할 변화 등을 자동 추론하지 마세요.\n' +
-      '- 「무엇이 어떻게」는 그 시기에 겹치는 주요 에피소드(행성·포인트·aspect) 성격으로 읽으세요. peak=WHEN, episode=WHAT/HOW.\n\n' +
-      '에피소드 시작·정점·종료는 점성학적 영향의 시간적 강도·진행 단계일 뿐입니다. 실제 사건 서사로 자동 번역하지 마세요.\n' +
-      '금지 예:\n' +
-      '- 시작 = 실제 문제가 생긴다\n' +
-      '- 정점 = 실제 사건이 발생한다\n' +
-      '- 종료 = 문제가 해결된다 / 안정된다 / 자리를 잡는다 / 관계가 회복된다 / 방향이 선명해진다\n' +
-      '「정리된다」「안정된다」「문제가 끝난다」 등 결론은 다른 입력(판정·축·상태·주제 활성)이 함께 지지할 때만.\n' +
-      '근거가 부족하면 다음처럼만 쓰세요: 「해당 흐름이 정점을 지난다」「영향의 강도가 점차 달라지는 구간」「다음 흐름으로 넘어가는 시기」.'
-    );
-    L.push('');
-    L.push(
-      '9. 시제·시점 표현은 반드시 [현재 기준 날짜](' + currentDate + ')를 기준으로 하세요.\n' +
-      '- 이미 시작된 흐름: "현재 시작된", "지금 진행 중인"\n' +
-      '- 아직 앞: "앞두고", "다가올"\n' +
-      '- 지난 구간: "지나간", "이미 시작된"\n' +
-      '- 현재 월이 이미 진행 중이면 "오기 전", "시작되기 전"이라고 쓰지 마세요.\n' +
-      '- 올해 안 액션은 실제 남은 기간 안에서만 제안하세요.'
-    );
-    L.push('');
-    L.push(
-      '10. 엔진 판정(입력의 주목 타이밍 · headline · note · stars)은 타이밍 라벨의 권위 있는 기준입니다. AI는 설명만 합니다.\n' +
-      '- 입력 headline과 모순되는 길흉·호재·불운 단정을 하지 마세요. UI 판정명·별점·헤드라인과 같은 방향으로 쓰세요.\n' +
-      '- 「안정적으로 활용하기 좋은 시기」는 입력에 그 타이밍이 실제로 있을 때만 언급. 없으면 결핍으로 강조하지 말고 생략.\n' +
-      '- 기회성이 실제로 강한 연도·월은 「조심하세요」로만 끝내지 마세요.\n' +
-      '  무엇을 활용해 볼지 주제 수준으로 분명히 쓰세요(예: 커리어 기회가 강하면 새로운 시도·제안·외부 활동·확장 검토).\n' +
-      '  승진·취업 성공·투자 수익·결혼 등 입력이 지지하지 않는 구체 사건은 만들지 마세요.\n' +
-      '- 「기회는 크지만 변화가 큰 시기」→ 움직여 볼 가치는 있으나 변화가 크므로 선택적으로 실행. 과잉확장 주의.\n' +
-      '- 「기회와 부담이 함께 큰 시기」→ 성과를 노려 볼 수 있지만 책임·부담까지 감당할 범위에서 실행.\n' +
-      '- 「주의가 필요한 시기」「변화가 큰 시기」→ 주의·전환 초점. 자동으로 재앙·실패로 쓰지 마세요.\n' +
-      '- 별점=세기, headline=읽는 법. 둘을 뒤바꾸지 마세요.\n' +
-      '- 중요한 월·구간을 적을 때는 엔진이 준 기간만 쓰고, 새 구간을 만들지 마세요.\n' +
-      '  형식 예: 2028년 4~5월 | 결정·계약을 평소보다 신중히 볼 때\n' +
-      '  (엔진 headline은 내부 참고. 사용자 문장에는 생활어로 번역)'
-    );
-    L.push('');
-    L.push('────────────────────');
-    L.push('[문체 규칙 · 출력 용어]');
-    L.push('────────────────────');
-    L.push('');
-    L.push('점성학을 전혀 모르는 사람이 읽는다고 가정하세요.');
-    L.push('');
-    L.push(
-      '최종 사용자 답변에 내부 개발/데이터 용어를 그대로 쓰지 마세요.\n' +
-      '금지 예: keyTimings, rawAxes, state, segments, episodes, themes, theme★, primary,\n' +
-      'stableUtilize, utilizeInChange, opportunityWithLoad, cautionChange, bigChange, mostCaution,\n' +
-      'period, phase, event, vsPrev, meaning, howToUse 등.\n' +
-      '추가 금지(엔진 국면/상태 라벨을 상담문에 반복): 확장, 부담, 변화, 전환, 재편,\n' +
-      '확장과 부담, 주의가 필요한 변화, 선택적 실행, 확장기, 압박기, 도약·재편기.\n' +
-      '내부 입력은 그대로 읽되, 출력은 생활 언어로만 풀어요.\n' +
-      '예: 「확장과 부담」→ 「움직일 여지는 있으나 책임·변수도 같이 커지는 때」\n' +
-      '예: 「주의가 필요한 변화」→ 「결정·계약을 평소보다 신중히 볼 때」\n' +
-      '예: 「전환/재편」→ 「방향·역할·구조를 다시 맞추는 때」\n' +
-      '예: theme★5 → 「해당 주제가 특히 강하게 부각되는 시기」'
-    );
-    L.push('');
-    L.push(
-      'V3 period 목록은 합치거나 지우지 마세요(엔진 원본 유지).\n' +
-      '다만 상담문에서는 같은 주제의 연속 period를 짧은 단위로 나열하지 말고 한 이야기로 연결하세요.\n' +
-      '예: 2027(시도·점검) → 2028 상반(조율 본격) → 2028 하반(일로 무게 이동).\n' +
-      'event(예: 2030.04)는 챕터에 흡수하지 말고, 앞뒤 흐름 사이 독립 이정표로 왜 중요한지만 짧게.'
-    );
-    L.push('');
-    L.push(
-      '\'삶의 지층\'\n' +
-      '\'안개 속에서 새 지형을 그린다\'\n' +
-      '\'파도가 밀려온다\'\n' +
-      '\'재편의 에너지\'\n' +
-      '\'관계의 문이 열린다\'\n' +
-      '\'금전의 씨앗이 열매가 된다\'\n' +
-      '같은 추상적·문학적 비유로 핵심 내용을 대신하지 마세요.'
-    );
-    L.push('');
-    L.push(
-      '각 연도에서 사용자가 바로 알 수 있어야 합니다.\n' +
-      '① 그해의 전체 성격\n' +
-      '② 특히 중요한 달·구간\n' +
-      '③ 어떤 삶의 영역이 중요해지는지(강한 것만)\n' +
-      '④ 기회를 활용할 때인지, 변화에 대응할 때인지\n' +
-      '⑤ 무엇을 조심할지\n' +
-      '⑥ 그해를 어떻게 보내면 좋은지'
-    );
-    L.push('');
-    L.push(
-      '확정적·공포적인 표현은 피하되,\n' +
-      '지나치게 모호하거나 모든 사람에게 적용될 수 있는 말도 피하세요.\n' +
-      '전체 해석은 반복을 줄여 짧게, 읽기 쉽게 유지하세요.'
-    );
-    L.push('');
-    L.push('────────────────────');
-    L.push('[출력 형식 — 연도별]');
-    L.push('────────────────────');
-    L.push('');
-    L.push('영역별(연애/일/금전/주의) 대형 섹션을 쓰지 마세요. 아래 순서만 따르세요.');
-    L.push('');
-    L.push('## 1. 앞으로 5년, 한눈에 보기');
-    L.push('');
-    L.push(
-      '5년 전체에서 가장 중요한 흐름만 쉬운 문장 3~5개로 요약하세요.\n' +
-      '세부 연도 내용은 뒤와 중복하지 마세요.\n' +
-      '입력에 잡힌 주목 타이밍이 있으면 그 성격을 반영하되, 내부 용어·결핍 강조는 하지 마세요.\n' +
-      '마지막에 반드시:\n' +
-      '**한마디로:** ...\n' +
-      '(1문장)'
-    );
-    L.push('');
-    if (yearList.length) {
-      yearList.forEach(function (y, idx) {
-        const n = idx + 2;
-        let cover = y + '년 전체';
-        const fromM = (fromYm && String(fromYm).length >= 7) ? Number(String(fromYm).slice(5, 7)) : 1;
-        const toM = (toYm && String(toYm).length >= 7) ? Number(String(toYm).slice(5, 7)) : 12;
-        if (y === y0 && y === y1) {
-          cover = y + '년 ' + fromM + '월~' + toM + '월(타임라인에 포함된 달만)';
-        } else if (y === y0 && fromM > 1) {
-          cover = y + '년 ' + fromM + '월~12월(타임라인에 포함된 달만)';
-        } else if (y === y1 && toM < 12) {
-          cover = y + '년 1월~' + toM + '월(타임라인에 포함된 달만)';
-        }
-        L.push('## ' + n + '. ' + y + '년 | {그 해를 가장 잘 설명하는 쉬운 제목}');
-        L.push('');
-        L.push(
-          '범위: ' + cover + '\n' +
-          '- 그해만 고립시켜 쓰지 마세요. 앞해·뒤해와 이어지는 주제 이동이 있으면 한 문장으로 연결하세요.\n' +
-          '- 시간순으로 그해의 중요 흐름을 설명하되, 엔진 국면 라벨을 나열하지 마세요.\n' +
-          '- 앞뒤 연도와 비교해 그해 성격이 드러나게 하세요(데이터 근거 범위 안에서). 비슷한 상투 문장으로 해를 채우지 마세요.\n' +
-          '- 연애·일·금전을 매번 강제 소제목으로 나누지 마세요. 데이터상 그해에 강하게 부각된 영역만 언급하세요.\n' +
-          '  (예: 일과 금전만 강하면 관계는 생략)\n' +
-          '- 여러 영역이 동시에 강하면 겹침을 한 번에 설명하세요.\n' +
-          '- 기회성이 강한 달·구간은 활용 방향(시도·제안·외부 활동 등)을 분명히 쓰고, 리스크가 겹치면 함께 쓰세요. 「조심만」으로 끝내지 마세요.\n' +
-          '- 중요한 달·구간은 한눈에 보이게(엔진 기간만, 새 구간 창작 금지):\n' +
-          '  2028년 4~5월 | 결정·계약을 평소보다 신중히 볼 때\n' +
-          '- 연도 끝에 1~2문장: **이렇게 보내세요:** ...\n' +
-          '- 필요하면 맨 끝에 **점성 근거:** 한 줄.\n' +
-          '- 신호가 약한 해는 짧게.'
-        );
-        L.push('');
-      });
-    } else {
-      L.push('## 2~N. {연도}년 | {쉬운 제목}');
-      L.push('');
-      L.push(
-        '입력 fromYm~toYm에 포함된 각 연도마다 위와 같은 규칙으로 섹션을 만드세요.\n' +
-        '부분 연도는 포함된 달만 해석하세요.'
-      );
-      L.push('');
-    }
-    const rememberN = yearList.length ? yearList.length + 2 : 'N+1';
-    const prepN = yearList.length ? yearList.length + 3 : 'N+2';
-    L.push('## ' + rememberN + '. 5년 중 꼭 기억할 시기');
-    L.push('');
-    L.push(
-      '엔진 판정·입력 데이터 기준으로 정말 중요한 시기만 3~5개 골라 짧게 나열하세요.\n' +
-      '연도별 본문과 같은 설명을 길게 반복하지 마세요. 한 줄 요약이면 충분합니다.\n' +
-      '엔진 라벨(확장과 부담·주의가 필요한 변화 등) 대신 생활어로 쓰세요.\n\n' +
-      '형식 예(내용은 예시 — 실제 입력에 맞게):\n' +
-      '2027년 봄 — 움직일 여지는 있으나 선택적으로 실행할 때\n' +
-      '2028년 4~5월 — 결정·계약을 평소보다 신중히 볼 때\n' +
-      '2030년 4월 — 일·역할 쪽에서 속도를 낮춰 점검할 이정표\n\n' +
-      '「안정적으로 활용하기 좋은 시기」는 입력에 있을 때만 넣고, 없으면 만들지 마세요.'
-    );
-    L.push('');
-    L.push('## ' + prepN + '. 지금부터 준비할 한 가지');
-    L.push('');
-    L.push(
-      '현재 기준 날짜(' + currentDate + ')부터 실행할 수 있는 행동 하나만, 2~4문장으로 구체적으로 제안하세요.\n' +
-      '올해 안 액션은 남은 기간 안에서만.\n' +
-      '\'기회를 잡으세요\' \'자신을 믿으세요\' \'변화를 받아들이세요\' 같은 추상 조언 금지.\n' +
-      '구체 사건 확정 금지 원칙을 지키세요.'
-    );
-    L.push('');
-    L.push('────────────────────');
-    L.push('[최종 검증]');
-    L.push('────────────────────');
-    L.push('');
-    L.push(
-      '출력하기 전에 스스로 확인하세요.\n\n' +
-      '- 영역별 대형 섹션이 아니라 연도별 구조인가?\n' +
-      '- 연도마다 비슷한 표현으로 평탄화되지 않고, 데이터 근거로 상대적 성격이 드러나는가? (억지 순위는 아닌가?)\n' +
-      '- 기회성이 강한 시기를 「조심하세요」로만 끝내지 않고, 활용 방향과 (필요 시) 리스크를 함께 썼는가?\n' +
-      '- 에피소드 시작/정점/종료를 문제 발생·사건·해결/안정으로 자동 번역하지 않았는가?\n' +
-      '- 내부 용어(keyTimings, theme★, primary, stableUtilize 등)가 사용자 문장에 남아 있지 않은가?\n' +
-      '- 같은 시기를 여러 곳에서 같은 문장으로 반복하지 않았는가?\n' +
-      '- 약한 영역·약한 해를 억지로 채우지 않았는가?\n' +
-      '- 입력에 없는 구체 사건을 확정(또는 근거 없는 예시)으로 쓰지 않았는가?\n' +
-      '- 높은 점수·theme★를 좋은 운·사건으로 단순 번역하지 않았는가?\n' +
-      '- 판정 headline·별점 방향과 모순되지 않는가?\n' +
-      '- 각 연월·구간이 입력에 존재하는가?\n' +
-      '- 시제가 현재 기준 날짜(' + currentDate + ')와 맞는가?\n' +
-      '- 일반인이 읽고 \'그래서 언제 무엇이 중요하지?\'에 바로 답이 되는가?\n\n' +
-      '위 조건을 만족하지 않는 문장은 수정한 뒤 출력하세요.'
-    );
-    return L.join('\n');
+    return prepareAiRawTimelinePayload();
   }
-
   function sleepMs(ms) {
     return new Promise((resolve) => setTimeout(resolve, ms));
   }
@@ -5827,7 +5444,7 @@ body.export-capturing .ai-result.empty{display:none !important;}
     }
     let apiPayload;
     try {
-      buildTimelineAiPrompt(); // LAST_AI_RAW_PAYLOAD 준비
+      prepareAiRawTimelinePayload();
       if (!LAST_AI_RAW_PAYLOAD) throw new Error('no_raw_payload');
       apiPayload = {
         aiRaw: LAST_AI_RAW_PAYLOAD,
@@ -6002,7 +5619,7 @@ body.export-capturing .ai-result.empty{display:none !important;}
     if (hint) hint.classList.add('is-loading');
     let apiPayload;
     try {
-      if (!LAST_AI_RAW_PAYLOAD) buildAiRawTimelineCustomerPrompt();
+      if (!LAST_AI_RAW_PAYLOAD) prepareAiRawTimelinePayload();
       if (!LAST_AI_RAW_PAYLOAD) throw new Error('no_raw_payload');
       const filtered = filterPayloadForTimelineTopic(LAST_AI_RAW_PAYLOAD, topicId);
       apiPayload = {

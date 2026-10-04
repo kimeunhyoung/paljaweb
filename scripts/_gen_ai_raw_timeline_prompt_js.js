@@ -37,6 +37,6 @@ const out = [
   '})(typeof window !== \'undefined\' ? window : global);',
   '',
 ].join('\n');
-const dest = path.join(__dirname, '..', 'public', 'js', 'ai-raw-timeline-prompt-v2.js');
+const dest = path.join(__dirname, '..', 'lib', 'ai-raw-timeline-prompt-v2.js');
 fs.writeFileSync(dest, out);
 console.log('wrote', dest, 'chars', out.length, 'system', system.length);
