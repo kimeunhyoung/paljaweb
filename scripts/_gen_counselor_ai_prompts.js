@@ -1,5 +1,11 @@
 /**
  * Generate lib/counselor-ai-prompts.js — prompt bodies stored via JSON.stringify.
+ *
+ * ⚠ DO NOT run casually: lib/counselor-ai-prompts.js may contain hand-edited
+ * prompt rules (reversed cards, Lenormand/I Ching/Kirke, etc.). Regenerating
+ * from HTML will overwrite those edits. Only run when you intentionally sync
+ * from counselor-reading.html (or related sources) and re-apply patches after.
+ *
  * node scripts/_gen_counselor_ai_prompts.js
  */
 'use strict';

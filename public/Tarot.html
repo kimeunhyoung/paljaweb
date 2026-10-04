@@ -5465,8 +5465,9 @@ function formatTarotAiHtml(text) {
   return lines
     .map(function (line) {
       const m = line.match(/^##\s+(.+)\s*$/);
-      if (m) return '<span class="ai-h">' + escapeHtml(m[1]) + '</span>';
-      return escapeHtml(line);
+      if (m) return '<span class="ai-h">' + escapeHtml(m[1].replace(/\*\*/g, '')) + '</span>';
+      // **굵게** → 강조 (짝이 안 맞는 ** 는 그대로 지움)
+      return escapeHtml(line).replace(/\*\*([^*]+?)\*\*/g, '<strong>$1</strong>').replace(/\*\*/g, '');
     })
     .join('<br>');
 }
