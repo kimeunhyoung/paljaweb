@@ -7426,7 +7426,8 @@ function buildMajorCycleFourStageIntro(userAge, curMajorIdx, curStageIdx, majorD
   const stName = `${curStageIdx + 1}단계 — ${stLab}`;
   return `<div class="timeline-bridge">
     <p><strong>인생 4단계</strong>는 생년월일로 나눈 <strong>절정수(환경)</strong>와 <strong>도전수(과제)</strong> 네 구간이에요. 바로 위 <strong>대주기</strong>보다 잘게 쪼개어, 지금 어느 막에 있는지 숫자로 짚어 줘요.</p>
-    <p>지금 <strong>${userAge}세</strong>는 <strong>대주기</strong> 기준 <strong>${mj.title}</strong> <span class="cycle-major-age">(${mj.age})</span>예요. <strong>절정수·도전수 4단계</strong> 중에서는 <strong>${stName}</strong>에 머무르고 있어요.</p>
+    <p>올해는 <strong>${userAge}세가 되는 해</strong>로, <strong>대주기</strong> 기준 <strong>${mj.title}</strong> <span class="cycle-major-age">(${mj.age})</span>에 있어요. <strong>절정수·도전수 4단계</strong> 중에서는 <strong>${stName}</strong>에 머무르고 있어요.</p>
+    <p class="cycle-major-sub">나이는 생일과 상관없이 <strong>올해 연도 기준</strong>으로 계산해요. 개인연도가 1월 1일에 바뀌는 것처럼, 대주기·4단계도 해가 바뀔 때 넘어가요.</p>
     <p class="cycle-major-sub">대주기가 말하는 <em>큰 장면</em>과, 4단계가 말하는 <em>지금 막</em>을 함께 보면 방향 잡기가 쉬워져요.</p>
   </div>`;
 }
@@ -8080,7 +8081,7 @@ function renderPyramidRhythmHTML(lifePathSingle, userAge) {
       <div class="pyramid-top-row">
         <div class="pyramid-tri-col">${renderPyramidTriangleSvg(pos)}</div>
         <div class="pyramid-status-col">
-          <p class="loshu-snapshot" style="margin-bottom:12px">전체 자릿수 합 인생여정수 <strong>${lifePathSingle}</strong>번 · 첫 36년 순환표 시작 <strong>${s1}세</strong> (${formulaNote}) · 현재 <strong>${userAge}세</strong> · 표 기준 <strong>${maxAge}세</strong>까지 36년 순환표 <strong>${cycles.length}</strong>회</p>
+          <p class="loshu-snapshot" style="margin-bottom:12px">전체 자릿수 합 인생여정수 <strong>${lifePathSingle}</strong>번 · 첫 36년 순환표 시작 <strong>${s1}세</strong> (${formulaNote}) · 올해 <strong>${userAge}세</strong>가 되는 해 · 표 기준 <strong>${maxAge}세</strong>까지 36년 순환표 <strong>${cycles.length}</strong>회</p>
           ${nowHtml}
         </div>
       </div>
@@ -9605,7 +9606,7 @@ async function runAnalysis() {
               </tbody>
             </table>
           </div>
-          <p class="utg-foot">가로 스크롤로 전체 나이를 탐색하세요. 현재 나이(${userAge}세)는 강조 표시돼요.</p>
+          <p class="utg-foot">가로 스크롤로 전체 나이를 탐색하세요. 올해 나이(${userAge}세가 되는 해)는 강조 표시돼요.</p>
         </div>`;
     }
   }
