@@ -804,6 +804,51 @@
     }
     .export-picker-btn--go:hover { background: var(--warm-brown); border-color: var(--warm-brown); }
 
+    /* ── PDF 생성 대기 안내 ── */
+    .pdf-busy-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 1100;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      background: rgba(45, 38, 28, 0.55);
+    }
+    .pdf-busy-overlay.is-open { display: flex; }
+    .pdf-busy-card {
+      width: 100%;
+      max-width: 360px;
+      padding: 28px 24px;
+      text-align: center;
+      background: var(--cream);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      box-shadow: 0 18px 50px rgba(45, 38, 28, 0.28);
+    }
+    .pdf-busy-spinner {
+      width: 36px;
+      height: 36px;
+      margin: 0 auto 16px;
+      border: 3px solid rgba(139, 111, 71, 0.25);
+      border-top-color: var(--warm-brown);
+      border-radius: 50%;
+      animation: pdfBusySpin 0.8s linear infinite;
+    }
+    @keyframes pdfBusySpin { to { transform: rotate(360deg); } }
+    .pdf-busy-title {
+      margin: 0 0 8px;
+      font-family: var(--font-serif);
+      font-size: 18px;
+      color: var(--deep-brown);
+    }
+    .pdf-busy-desc {
+      margin: 0;
+      font-size: 14px;
+      line-height: 1.55;
+      color: var(--muted);
+    }
+
     /* ── 내보내기 머리글 (이름·생년월일) ── */
     .export-doc-header {
       text-align: center;
@@ -4566,19 +4611,41 @@ function topbarPrintClick() {
   openExportPicker('print');
 }
 
-function runPdfExport(hiddenIds) {
-  const btn = document.getElementById('topbarPdfBtn');
-  const prevText = btn ? btn.textContent : '';
-  if (btn) {
-    btn.textContent = '⏳ 생성 중...';
-    btn.disabled = true;
-  }
-  downloadAnalysisPdf(hiddenIds).finally(() => {
-    if (btn) {
-      btn.textContent = prevText || '⬇ PDF 저장';
-      btn.disabled = false;
-    }
+let PDF_BUSY = false;
+
+function ensurePdfBusyOverlay() {
+  let el = document.getElementById('pdfBusyOverlay');
+  if (el) return el;
+  el = document.createElement('div');
+  el.id = 'pdfBusyOverlay';
+  el.className = 'pdf-busy-overlay';
+  el.setAttribute('role', 'status');
+  el.setAttribute('aria-live', 'polite');
+  el.innerHTML = `
+    <div class="pdf-busy-card">
+      <div class="pdf-busy-spinner" aria-hidden="true"></div>
+      <p class="pdf-busy-title">PDF를 만들고 있어요</p>
+      <p class="pdf-busy-desc">항목이 많으면 10~40초 정도 걸릴 수 있어요.<br>창을 닫거나 새로고침하지 말고 기다려 주세요.</p>
+    </div>`;
+  document.body.appendChild(el);
+  return el;
+}
+
+function setPdfBusy(on) {
+  PDF_BUSY = !!on;
+  ensurePdfBusyOverlay().classList.toggle('is-open', on);
+  ['counselorPdfBtn', 'counselorReportBtn', 'counselorPrintBtn', 'exportPickerGo'].forEach((id) => {
+    const b = document.getElementById(id);
+    if (!b) return;
+    b.disabled = on;
+    if (id === 'counselorPdfBtn') b.textContent = on ? '생성 중...' : 'PDF 저장';
+    if (id === 'counselorReportBtn') b.textContent = on ? '생성 중...' : '고객용 리포트 PDF';
   });
+}
+
+function runPdfExport(hiddenIds) {
+  if (PDF_BUSY) return;
+  downloadAnalysisPdf(hiddenIds);
 }
 
 // ── 내보내기 섹션 선택 ──
@@ -5424,6 +5491,7 @@ function promptPdfUpgrade() {
 
 /** Plus+ · 분석 결과 영역을 PDF로 저장 (브라우저 클라이언트 생성) · hiddenIds 지정 시 해당 항목 제외 */
 async function downloadAnalysisPdf(hiddenIds) {
+  if (PDF_BUSY) return;
   if (typeof html2pdf === 'undefined') {
     alert('PDF 도구를 불러오지 못했어요. 네트워크를 확인한 뒤 새로고침해 주세요.');
     return;
@@ -5434,6 +5502,11 @@ async function downloadAnalysisPdf(hiddenIds) {
     return;
   }
 
+  setPdfBusy(true);
+  let host = null;
+  let prevHostCss = '';
+
+  try {
   const rawName =
     (document.getElementById('inputClient')?.value || '').trim() ||
     (document.getElementById('inputName')?.value || '').trim() ||
@@ -5442,13 +5515,13 @@ async function downloadAnalysisPdf(hiddenIds) {
   const birth = (document.getElementById('inputBirth')?.value || '').replace(/-/g, '');
   const fname = `팔자연구소_라이프코드_${safeName}_${birth || 'nodate'}.pdf`;
 
-  let host = document.getElementById('pdfRenderHost');
+  host = document.getElementById('pdfRenderHost');
   if (!host) {
     host = document.createElement('div');
     host.id = 'pdfRenderHost';
     document.body.appendChild(host);
   }
-  const prevHostCss = host.style.cssText;
+  prevHostCss = host.style.cssText;
   host.style.cssText =
     'position:fixed;left:-14000px;top:0;width:820px;background:#f5f0e8;overflow:visible;pointer-events:none;z-index:0;';
 
@@ -5543,7 +5616,6 @@ async function downloadAnalysisPdf(hiddenIds) {
     return Array.from(cands).filter((y) => y > 20 && y < pr.height - 4 && ok(y)).sort((a, b) => a - b);
   }
 
-  try {
     if (hasHtml2Canvas && JsPDF) {
       const pdf = new JsPDF({ unit: 'mm', format: 'a4', orientation: 'portrait' });
       let yCursor = marginMm;
@@ -5668,9 +5740,12 @@ async function downloadAnalysisPdf(hiddenIds) {
     console.error(e);
     alert('PDF 생성 중 오류가 났어요. 용량이 큰 경우 인쇄 → PDF 저장을 이용해 보세요.');
   } finally {
-    host.innerHTML = '';
-    host.style.cssText = prevHostCss;
+    if (host) {
+      host.innerHTML = '';
+      host.style.cssText = prevHostCss;
+    }
     COUNSELOR_REPORT_MODE = false;
+    setPdfBusy(false);
   }
 }
 </script>
