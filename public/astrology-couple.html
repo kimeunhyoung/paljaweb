@@ -368,7 +368,8 @@ body{font-family:var(--font-body);background:var(--cream);color:var(--ink);min-h
     else refreshAiUi();
   })();
 
-  let LAST_AI_PROMPT = '';
+  let LAST_AI_PROMPT = ''; // 레거시 호환(비움 유지)
+  let LAST_AI_PAYLOAD = null;
   let LAST_AI_TEXT = '';
   let AI_BUSY = false;
   let AI_SERVER_OK = false;
@@ -396,7 +397,7 @@ body{font-family:var(--font-body);background:var(--cream);color:var(--ink);min-h
       return;
     }
     btn.hidden = false;
-    const canRun = !!LAST_AI_PROMPT;
+    const canRun = !!LAST_AI_PAYLOAD;
     if (!AI_BUSY) btn.disabled = !canRun;
     if (!canRun) return;
     if (AI_BUSY) return;
@@ -431,7 +432,7 @@ body{font-family:var(--font-body);background:var(--cream);color:var(--ink);min-h
   async function callCoupleAi() {
     if (!ASTRO_AI_API_ENABLED) { refreshAiUi(); return; }
     if (!HAS_BASIC) { showStatus('AI 해석은 Basic 이상 요금제에서 이용할 수 있어요.', 'err'); return; }
-    if (!LAST_AI_PROMPT) return;
+    if (!LAST_AI_PAYLOAD) return;
     const btn = $('btnAiRun');
     const box = $('aiResult');
     if (!AI_SERVER_OK) {
@@ -446,17 +447,14 @@ body{font-family:var(--font-body);background:var(--cream);color:var(--ink);min-h
     box.textContent = '궁합 해석을 생성하고 있어요…';
     const timeHint = $('aiTimeHint');
     if (timeHint) timeHint.classList.add('is-loading');
-    const prompt = LAST_AI_PROMPT;
-    const cacheKey = window.PaljaAiQuota ? PaljaAiQuota.hashKey('v2:couple:' + prompt) : prompt.slice(0, 200);
     let streamed = '';
     try {
       if (!window.PaljaAiQuota) throw new Error('no_quota_client');
       const call = typeof PaljaAiQuota.callAiStream === 'function' ? PaljaAiQuota.callAiStream : PaljaAiQuota.callAi;
       const { text, quota, data } = await call({
         feature: 'astro_couple',
-        cacheKey,
         max_tokens: 8192,
-        messages: [{ role: 'user', content: prompt }],
+        payload: LAST_AI_PAYLOAD,
         onDelta: (chunk) => {
           streamed += chunk;
           setCoupleAiBox(box, streamed);
@@ -676,8 +674,9 @@ body{font-family:var(--font-body);background:var(--cream);color:var(--ink);min-h
     $('scoreLabel').textContent = label;
     $('scoreDetail').innerHTML = `조화로운 각 <strong>${easy + strong}</strong> · 긴장의 각 <strong>${tense}</strong><br>긴장의 각은 ‘나쁨’이 아니라 서로를 성장시키는 마찰이에요.`;
 
-    // AI 프롬프트는 서버 호출용으로만 보관 (화면 노출·복사 없음)
-    LAST_AI_PROMPT = buildAiPrompt(nameA, nameB, ha, hb, A, B, hits, labelKo);
+    // AI: 데이터만 보관 → 서버가 지시문 조립 (캐시키 동일 유지)
+    LAST_AI_PAYLOAD = buildCoupleAiPayload(nameA, nameB, ha, hb, A, B, hits, labelKo);
+    LAST_AI_PROMPT = '';
     LAST_AI_TEXT = '';
     $('aiResult').className = 'ai-result empty';
     $('aiResult').innerHTML = '<strong>AI 궁합 해석</strong>을 누르면 두 사람의 시너스트리를 풀어 드려요.';
@@ -705,34 +704,8 @@ body{font-family:var(--font-body);background:var(--cream);color:var(--ink);min-h
     return '';
   }
 
-  function buildAiPrompt(nameA, nameB, ha, hb, A, B, hits, labelKo) {
+  function buildCoupleAiPayload(nameA, nameB, ha, hb, A, B, hits, labelKo) {
     const L = [];
-    L.push('당신은 따뜻하지만 돌려 말하지 않는 전문 점성가입니다. 아래 두 사람의 시너스트리(궁합)를 한국어로 해석해 주세요. ' +
-      '답변은 해요체(~해요, ~이에요)로 쓰세요. 점성 용어는 화면과 같게 합·육각·사각·삼각·충으로 쓰고, 트라인·스퀘어·섹스타일 같은 외래어 표기는 쓰지 마세요. ' +
-      '「헤어진다」「결혼한다」「천생연분이다」 같은 단정·운명 판정과 공포 조장은 금지예요. 두 사람의 관계 형태(연인·부부·썸 등)를 단정하지 말고 「두 사람」「관계」로 쓰세요.');
-    L.push('');
-    L.push('[읽는 법 — 가장 중요]');
-    L.push('1) 시너스트리 각은 오차가 작은 순서예요. 위쪽(오차 3° 이내)을 중심으로 쓰고, 아래쪽은 보조로만.');
-    L.push('2) 「하우스 겹침」은 한 사람의 행성이 상대의 어느 삶의 영역(하우스)을 건드리는지예요. 7·5·8하우스는 애정·친밀감, 4하우스는 집·편안함, 10하우스는 사회적 역할, 6하우스는 일상 습관이에요. 각과 함께 엮어서 쓰세요.');
-    L.push('3) 누가 누구에게 어떻게 느끼는지 방향을 살려 쓰세요. (예: 「' + nameA + ' 님은 ' + nameB + ' 님에게서 ~를 느끼기 쉬워요」)');
-    L.push('4) 아래 데이터에 없는 행성·각·하우스는 지어내지 마세요. 근거는 문장 끝 괄호에 짧게(예: (' + nameA + ' 금성 삼각 ' + nameB + ' 화성)), 섹션마다 1~2개만. 오차 숫자는 쓰지 마세요.');
-    L.push('5) 근거가 약한 섹션은 「이 부분은 큰 신호가 없어 무난한 편이에요」처럼 짧고 솔직하게. 억지로 채우지 마세요.');
-    L.push('6) 굵게(**…**)는 섹션마다 짧은 핵심 구절 1개만 (문장 전체 굵게 금지).');
-    L.push('7) 섹션별 문장 수를 꼭 지키세요. 두 사람이 같은 별자리에 같은 행성이 있으면 「둘 다 ○○자리 달이라」처럼 분명하게 쓰고, 「같은 자리에 있진 않지만」처럼 헷갈리는 말은 쓰지 마세요.');
-    L.push('');
-    L.push('[작성 형식 — 반드시 지키세요]');
-    L.push('## 제목만 사용(### 소제목·이모지 금지). 아래 순서대로 **모두** 작성하세요.');
-    [
-      '## 한눈에 보는 두 사람 — 아래 3줄 그대로의 형식으로: 「- **가장 큰 끌림:** …」 「- **조심할 지점:** …」 「- **이 관계의 장점:** …」 (각 한 문장, 쉬운 말)',
-      '## 끌림·케미 — 3~4문장. 금성·화성·태양·상승 연결로 서로에게 끌리는 이유',
-      '## 정서·안정감 — 2~3문장. 달 연결로 함께 있을 때 편안한지, 감정 리듬이 맞는지',
-      '## 소통·갈등 — 3~4문장. 수성·화성·사각·충으로 대화 방식, 자주 부딪히는 지점, 화해하는 법',
-      '## 오래가는 힘 — 2~3문장. 토성·목성 연결로 신뢰·책임·서로를 키워 주는 힘',
-      '## 생활·돈 맞추기 — 2~3문장. 생활 습관·돈 쓰는 방식이 맞는지 (하우스 겹침·금성·토성 근거, 단정 금지)',
-      '## 관계를 키우는 법 — 불릿 3줄. 위 내용에서 나온, 두 사람이 바로 해볼 수 있는 행동',
-    ].forEach((x) => L.push(x));
-    L.push('반드시 마지막 섹션까지 완성하고 중간에 끊지 마세요.');
-    L.push('');
     const KEYS = ['sun', 'moon', 'mercury', 'venus', 'mars', 'jupiter', 'saturn', 'uranus', 'neptune', 'pluto'];
     function pblock(name, h, unknown) {
       L.push('[' + name + ']' + (unknown ? ' (출생 시간 미상 — 하우스·상승궁 없음, 달은 하루 중 위치라 참고만)' : ''));
@@ -781,7 +754,7 @@ body{font-family:var(--font-body);background:var(--cream);color:var(--ink);min-h
     overlay(nameA, ha, nameB, hb, B.unknown);
     overlay(nameB, hb, nameA, ha, A.unknown);
     if (L.length === before) L.push(' - (두 사람 모두 출생 시간이 없어 하우스 겹침은 계산하지 않았어요)');
-    return L.join('\n');
+    return { nameA, nameB, dataLines: L };
   }
 
   // ── AI 결과 마크다운 → HTML (##·###·불릿·굵게·인용) ──

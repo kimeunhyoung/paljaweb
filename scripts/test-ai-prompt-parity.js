@@ -93,4 +93,40 @@ function checkSanitize() {
 checkYear();
 checkTransit();
 checkSanitize();
+
+const couple = require('../lib/astro-couple-ai-prompts');
+function checkCouple() {
+  const payload = {
+    nameA: '김은형',
+    nameB: '홍길동',
+    dataLines: [
+      '[김은형]',
+      ' - 태양: 염소 3° / 1하우스',
+      ' - 달: 게 12° / 7하우스',
+      ' - 상승궁: 염소',
+      '[홍길동]',
+      ' - 태양: 양 10° / 5하우스',
+      ' - 달: 사자 2° / 9하우스',
+      ' - 상승궁: 사자',
+      '',
+      '[시너스트리 각 — 오차 작은 순]',
+      ' - 김은형 금성 삼각 홍길동 화성 (오차 1.2°)',
+      '',
+      '[하우스 겹침]',
+      ' - 김은형의 행성이 홍길동의 하우스에: 금성→7하우스',
+    ],
+  };
+  const prompt = couple.buildCoupleAiPrompt(payload);
+  assert.ok(prompt.includes('김은형 님은 홍길동 님에게서'), 'names in instructions');
+  assert.ok(prompt.includes('[시너스트리 각'), 'has synastry');
+  assert.ok(prompt.includes('## 관계를 키우는 법'), 'has sections');
+  const key = couple.resolveCoupleCacheKey(payload);
+  const { clientHashKey } = require('../lib/astro-flow-ai-prompts');
+  assert.strictEqual(key, clientHashKey('v2:couple:' + prompt), 'couple cacheKey');
+  const msgs = couple.buildCoupleCachedMessages(payload);
+  assert.strictEqual(msgs[0].role, 'user');
+  console.log('OK astro_couple', 'promptChars=', prompt.length, 'cacheKey=', key);
+}
+checkCouple();
+
 console.log('All parity checks passed.');
