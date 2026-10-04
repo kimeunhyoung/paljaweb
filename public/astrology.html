@@ -2796,7 +2796,7 @@ body.export-capturing .ai-result.empty{display:none !important;}
   let LIFE_AI_CACHE = { key: '', text: '' };
   let LIFE_AI_BUSY = false;
   let LIFE_SCAN_BUSY = false;
-  const TRANSIT_AI_MEM = { fast: { key: '', text: '' }, slow: { key: '', text: '' } };
+  const TRANSIT_AI_MEM = { fast: { key: '', stamp: '', text: '' }, slow: { key: '', stamp: '', text: '' } };
 
   /** 트랜짓 히트 배열 → 캐시용 각 구성 지문 (행성·본명·각 종류) */
   function transitAspectFingerprint(hits) {
@@ -2807,12 +2807,26 @@ body.export-capturing .ai-result.empty{display:none !important;}
       .join('|');
   }
 
+  function chartStampCoordPart(v) {
+    if (v == null || v === '') return '';
+    const n = Number(v);
+    return Number.isFinite(n) ? n.toFixed(4) : '';
+  }
+
+  /** 출생일시·좌표·이름 — AI 캐시키용 (좌표는 LAST_COORDS 기준) */
   function chartStampForTransitAi() {
     const b = LAST_BIRTH || {};
-    const lat = LAST_CTX && LAST_CTX.lat != null ? LAST_CTX.lat : '';
-    const lng = LAST_CTX && LAST_CTX.lng != null ? LAST_CTX.lng : '';
+    const latRaw = LAST_COORDS && LAST_COORDS.lat != null
+      ? LAST_COORDS.lat
+      : (LAST_CTX && LAST_CTX.lat != null ? LAST_CTX.lat : '');
+    const lngRaw = LAST_COORDS && LAST_COORDS.lng != null
+      ? LAST_COORDS.lng
+      : (LAST_CTX && LAST_CTX.lng != null ? LAST_CTX.lng : '');
     const name = (LAST_CTX && LAST_CTX.displayName) || '';
-    return [b.y, b.mo, b.da, b.hh, b.mi, b.unknownTime ? 1 : 0, lat, lng, name].join('|');
+    return [
+      b.y, b.mo, b.da, b.hh, b.mi, b.unknownTime ? 1 : 0,
+      chartStampCoordPart(latRaw), chartStampCoordPart(lngRaw), name,
+    ].join('|');
   }
 
   function transitAiAspectKey(mode) {
@@ -2843,6 +2857,8 @@ body.export-capturing .ai-result.empty{display:none !important;}
       const obj = JSON.parse(raw);
       if (!obj || !obj.text || !obj.aspectKey) return '';
       if (obj.aspectKey !== transitAiAspectKey(mode)) return '';
+      // 예전 저장분(stamp 없음)은 출생지 변경과 구분 불가 → 재사용하지 않음
+      if (!obj.stamp || obj.stamp !== chartStampForTransitAi()) return '';
       return String(obj.text);
     } catch (e) {
       return '';
@@ -2853,12 +2869,13 @@ body.export-capturing .ai-result.empty{display:none !important;}
     try {
       const k = transitAiLocalKey(mode);
       const aspectKey = transitAiAspectKey(mode);
-      if (!k || !aspectKey || !text) return;
+      const stamp = chartStampForTransitAi();
+      if (!k || !aspectKey || !stamp || !text) return;
       localStorage.setItem(
         k,
-        JSON.stringify({ aspectKey: aspectKey, text: String(text), savedAt: Date.now() }),
+        JSON.stringify({ aspectKey: aspectKey, stamp: stamp, text: String(text), savedAt: Date.now() }),
       );
-      TRANSIT_AI_MEM[mode] = { key: aspectKey, text: String(text) };
+      TRANSIT_AI_MEM[mode] = { key: aspectKey, stamp: stamp, text: String(text) };
     } catch (e) { /* ignore */ }
   }
 
@@ -2866,8 +2883,13 @@ body.export-capturing .ai-result.empty{display:none !important;}
     const box = $(mode === 'fast' ? 'transitAiFastResult' : 'transitAiSlowResult');
     if (!box) return false;
     const aspectKey = transitAiAspectKey(mode);
+    const stamp = chartStampForTransitAi();
     let text = '';
-    if (TRANSIT_AI_MEM[mode] && TRANSIT_AI_MEM[mode].key === aspectKey) {
+    if (
+      TRANSIT_AI_MEM[mode] &&
+      TRANSIT_AI_MEM[mode].key === aspectKey &&
+      TRANSIT_AI_MEM[mode].stamp === stamp
+    ) {
       text = TRANSIT_AI_MEM[mode].text;
     }
     if (!text) text = loadTransitAiLocal(mode);
@@ -3266,6 +3288,8 @@ body.export-capturing .ai-result.empty{display:none !important;}
     }
     LAST_CTX = {
       displayName: opts.displayName, unknownTime: opts.unknownTime, coordLabel: opts.coordLabel,
+      lat: LAST_COORDS && LAST_COORDS.lat != null ? LAST_COORDS.lat : null,
+      lng: LAST_COORDS && LAST_COORDS.lng != null ? LAST_COORDS.lng : null,
       sunSign, moonSign, ascSign, planetReads, houseCusps, mcSign,
     };
     LAST_ASPECTS = aspects; LAST_KNOWN = knownKeys; LAST_TRANSIT = null;
@@ -4506,6 +4530,8 @@ body.export-capturing .ai-result.empty{display:none !important;}
   }
 
   function resetTransitAiResults() {
+    TRANSIT_AI_MEM.fast = { key: '', stamp: '', text: '' };
+    TRANSIT_AI_MEM.slow = { key: '', stamp: '', text: '' };
     const fastBox = $('transitAiFastResult');
     const slowBox = $('transitAiSlowResult');
     if (fastBox) {
