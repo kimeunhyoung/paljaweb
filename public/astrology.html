@@ -2050,6 +2050,12 @@ body.export-capturing .ai-result.empty{display:none !important;}
     return base ? base + ':topic:' + topicId + ':tp1' : '';
   }
 
+  /** 주제별 로컬/메모리 재사용 키 — 월 구간 제외 */
+  function timelineTopicStorageCacheKey(topicId) {
+    const base = timelineStorageCacheKey();
+    return base ? base + ':topic:' + topicId + ':tp1' : '';
+  }
+
   /** 차트 domainScan + 필터 eps 기준 — 주제별 상세 제공 가능 여부 */
   function timelineTopicSignalLevel(topicId) {
     const meta = TIMELINE_TOPIC_META[topicId];
@@ -2091,7 +2097,7 @@ body.export-capturing .ai-result.empty{display:none !important;}
     const meta = TIMELINE_TOPIC_META[topicId];
     const base = meta ? timelineTopicLabel(topicId) : topicId;
     const cached = TIMELINE_TOPIC_AI_CACHE[topicId];
-    const key = timelineTopicCacheKey(topicId);
+    const key = timelineTopicStorageCacheKey(topicId);
     if (cached && cached.key === key && cached.text && validateTimelineTopicDetailFormat(cached.text)) {
       return base + ' ✓';
     }
@@ -2167,7 +2173,7 @@ body.export-capturing .ai-result.empty{display:none !important;}
       return;
     }
     const cached = TIMELINE_TOPIC_AI_CACHE[tid];
-    const key = timelineTopicCacheKey(tid);
+    const key = timelineTopicStorageCacheKey(tid);
     if (cached && cached.key === key && cached.text) {
       box.hidden = false;
       setAiResultBox(box, prepareTimelineTopicDetailMarkdown(tid, cached.text), { open: true, timelineMode: true });
@@ -4589,6 +4595,9 @@ body.export-capturing .ai-result.empty{display:none !important;}
     refreshTimelineAiUi();
   }
 
+  const TIMELINE_AI_LOCAL_TTL_MS = 182 * 24 * 60 * 60 * 1000;
+
+  /** API·완성도 검사용 — 기간(fromYm:toYm) 포함 */
   function timelineCacheKey() {
     const stamp = chartStampForTransitAi();
     if (!stamp) return '';
@@ -4604,38 +4613,73 @@ body.export-capturing .ai-result.empty{display:none !important;}
     return '';
   }
 
+  /** 로컬/서버 저장 조회용 — 월 구간 제외(stamp만). 6개월간 재조회 */
+  function timelineStorageCacheKey() {
+    const stamp = chartStampForTransitAi();
+    if (!stamp) return '';
+    const prefix = isAiRawTimelineV1Enabled() ? 'raw_v47' : 'v8';
+    return `${prefix}:timeline:${stamp}`;
+  }
+
+  /** 저장된 해석 기간으로 LAST_TIMELINE·탭 연도를 맞춘다 */
+  function applySavedTimelineWindow(fromYm, toYm) {
+    const a = String(fromYm || '').trim();
+    const b = String(toYm || '').trim();
+    if (!/^\d{4}-\d{2}$/.test(a) || !/^\d{4}-\d{2}$/.test(b)) return false;
+    if (!LAST_TIMELINE) LAST_TIMELINE = { fromYm: a, toYm: b };
+    else {
+      LAST_TIMELINE.fromYm = a;
+      LAST_TIMELINE.toYm = b;
+    }
+    return true;
+  }
+
   function timelineAiLocalKey() {
-    const raw = timelineCacheKey();
+    const raw = timelineStorageCacheKey();
     if (!raw || !window.PaljaAiQuota) return '';
-    return 'palja:astroTimelineV2:' + PaljaAiQuota.hashKey(raw);
+    return 'palja:astroTimelineV3:' + PaljaAiQuota.hashKey(raw);
   }
 
   function loadTimelineAiLocal() {
     try {
       const k = timelineAiLocalKey();
-      if (!k) return '';
+      if (!k) return null;
       const raw = localStorage.getItem(k);
-      if (!raw) return '';
+      if (!raw) return null;
       const obj = JSON.parse(raw);
-      if (!obj || !obj.text || obj.key !== timelineCacheKey()) return '';
+      const storageKey = timelineStorageCacheKey();
+      if (!obj || !obj.text || obj.key !== storageKey) return null;
+      if (!obj.savedAt || Date.now() - Number(obj.savedAt) > TIMELINE_AI_LOCAL_TTL_MS) {
+        try { localStorage.removeItem(k); } catch (e) { /* ignore */ }
+        return null;
+      }
+      if (obj.fromYm && obj.toYm) applySavedTimelineWindow(obj.fromYm, obj.toYm);
       const text = String(obj.text);
       if (!validateTimelineAiCustomerFormat(text)) {
         try { localStorage.removeItem(k); } catch (e) { /* ignore */ }
-        return '';
+        return null;
       }
-      return text;
+      return { text: text, fromYm: obj.fromYm || '', toYm: obj.toYm || '' };
     } catch (e) {
-      return '';
+      return null;
     }
   }
 
   function saveTimelineAiLocal(text) {
     try {
       const k = timelineAiLocalKey();
-      const key = timelineCacheKey();
+      const key = timelineStorageCacheKey();
+      const fromYm = LAST_TIMELINE && LAST_TIMELINE.fromYm ? LAST_TIMELINE.fromYm : '';
+      const toYm = LAST_TIMELINE && LAST_TIMELINE.toYm ? LAST_TIMELINE.toYm : '';
       if (!k || !key || !text) return;
-      localStorage.setItem(k, JSON.stringify({ key: key, text: String(text), savedAt: Date.now() }));
-      TIMELINE_AI_CACHE = { key: key, text: String(text) };
+      localStorage.setItem(k, JSON.stringify({
+        key: key,
+        text: String(text),
+        fromYm: fromYm,
+        toYm: toYm,
+        savedAt: Date.now(),
+      }));
+      TIMELINE_AI_CACHE = { key: key, text: String(text), fromYm: fromYm, toYm: toYm };
     } catch (e) { /* ignore */ }
   }
 
@@ -4685,12 +4729,25 @@ body.export-capturing .ai-result.empty{display:none !important;}
       setAiResultBox(box, TIMELINE_AI_FULL_TEXT, { open: true, timelineMode: true, accordion: false });
       return;
     }
-    const key = timelineCacheKey();
+    const key = timelineStorageCacheKey();
     let text = '';
-    if (TIMELINE_AI_CACHE.key === key && TIMELINE_AI_CACHE.text) text = TIMELINE_AI_CACHE.text;
-    if (!text) text = loadTimelineAiLocal();
+    if (TIMELINE_AI_CACHE.key === key && TIMELINE_AI_CACHE.text) {
+      if (TIMELINE_AI_CACHE.fromYm && TIMELINE_AI_CACHE.toYm) {
+        applySavedTimelineWindow(TIMELINE_AI_CACHE.fromYm, TIMELINE_AI_CACHE.toYm);
+      }
+      text = TIMELINE_AI_CACHE.text;
+    }
+    if (!text) {
+      const local = loadTimelineAiLocal();
+      if (local && local.text) text = local.text;
+    }
     if (text) {
-      TIMELINE_AI_CACHE = { key: key, text: text };
+      TIMELINE_AI_CACHE = {
+        key: key,
+        text: text,
+        fromYm: (LAST_TIMELINE && LAST_TIMELINE.fromYm) || '',
+        toYm: (LAST_TIMELINE && LAST_TIMELINE.toYm) || '',
+      };
       setTimelineAiResult(text, { open: !(TIMELINE_AI_BUSY) });
       return;
     }
@@ -5443,11 +5500,27 @@ body.export-capturing .ai-result.empty{display:none !important;}
       return;
     }
     const cacheKeyRaw = timelineCacheKey();
+    const storageKey = timelineStorageCacheKey();
     const localHit = loadTimelineAiLocal();
-    if ((TIMELINE_AI_CACHE.key === cacheKeyRaw && TIMELINE_AI_CACHE.text) || localHit) {
-      const t = TIMELINE_AI_CACHE.text || localHit;
-      TIMELINE_AI_CACHE = { key: cacheKeyRaw, text: t };
+    if ((TIMELINE_AI_CACHE.key === storageKey && TIMELINE_AI_CACHE.text) || localHit) {
+      if (TIMELINE_AI_CACHE.fromYm && TIMELINE_AI_CACHE.toYm) {
+        applySavedTimelineWindow(TIMELINE_AI_CACHE.fromYm, TIMELINE_AI_CACHE.toYm);
+      }
+      const t = TIMELINE_AI_CACHE.text || (localHit && localHit.text) || '';
+      TIMELINE_AI_CACHE = {
+        key: storageKey,
+        text: t,
+        fromYm: (LAST_TIMELINE && LAST_TIMELINE.fromYm) || '',
+        toYm: (LAST_TIMELINE && LAST_TIMELINE.toYm) || '',
+      };
       setTimelineAiResult(t);
+      if (hint) {
+        const w = LAST_TIMELINE;
+        hint.textContent = w && w.fromYm && w.toYm
+          ? '저장된 해석이에요 (' + w.fromYm + ' ~ ' + w.toYm + '). 같은 차트면 약 6개월간 크레딧 없이 다시 볼 수 있어요.'
+          : '저장된 해석이에요. 같은 차트면 약 6개월간 크레딧 없이 다시 볼 수 있어요.';
+        hint.classList.remove('is-loading');
+      }
       return;
     }
     if (isAiRawTimelineV1Enabled() && !LAST_TIMELINE && !TIMELINE_SCAN_BUSY) {
@@ -5521,6 +5594,10 @@ body.export-capturing .ai-result.empty{display:none !important;}
           if (myGen !== TIMELINE_AI_GEN) return;
           quota = result.quota;
           lastData = result.data;
+          const savedWin = lastData && lastData._palja && lastData._palja.window;
+          if (savedWin && savedWin.fromYm && savedWin.toYm) {
+            applySavedTimelineWindow(savedWin.fromYm, savedWin.toYm);
+          }
           const piece = result.text || attemptDelta || '';
           accumulated = cleanTimelineAiText(continueFrom, { append: piece });
           truncated = lastData && (lastData.stop_reason === 'max_tokens' || lastData.stop_reason === 'stream_cut');
@@ -5621,8 +5698,9 @@ body.export-capturing .ai-result.empty{display:none !important;}
       return;
     }
     const cacheKeyRaw = timelineTopicCacheKey(topicId);
+    const topicStorageKey = timelineTopicStorageCacheKey(topicId);
     const cached = TIMELINE_TOPIC_AI_CACHE[topicId];
-    if (cached && cached.key === cacheKeyRaw && cached.text && validateTimelineTopicDetailFormat(cached.text)) {
+    if (cached && cached.key === topicStorageKey && cached.text && validateTimelineTopicDetailFormat(cached.text)) {
       box.hidden = false;
       setAiResultBox(box, prepareTimelineTopicDetailMarkdown(topicId, cached.text), { open: true, timelineMode: true });
       scrollTimelineTopicIntoView(box);
@@ -5677,7 +5755,7 @@ body.export-capturing .ai-result.empty{display:none !important;}
       const topicOk = validateTimelineTopicDetailFormat(out);
       if (data?.stop_reason === 'max_tokens') out += '\n\n(※ 해석이 길어 일부가 잘렸을 수 있어요.)';
       if (topicOk) {
-        TIMELINE_TOPIC_AI_CACHE[topicId] = { key: cacheKeyRaw, text: out };
+        TIMELINE_TOPIC_AI_CACHE[topicId] = { key: topicStorageKey, text: out };
       } else {
         delete TIMELINE_TOPIC_AI_CACHE[topicId];
       }
@@ -5698,7 +5776,10 @@ body.export-capturing .ai-result.empty{display:none !important;}
       } else if (!streamed) {
         setAiResultBox(box, 'AI 해석을 일시적으로 사용할 수 없어요.', { plain: true });
       } else if (validateTimelineTopicDetailFormat(streamed)) {
-        TIMELINE_TOPIC_AI_CACHE[topicId] = { key: cacheKeyRaw, text: prepareTimelineTopicDetailMarkdown(topicId, streamed) };
+        TIMELINE_TOPIC_AI_CACHE[topicId] = {
+          key: topicStorageKey,
+          text: prepareTimelineTopicDetailMarkdown(topicId, streamed),
+        };
         setAiResultBox(box, TIMELINE_TOPIC_AI_CACHE[topicId].text, { open: true, timelineMode: true });
       } else {
         setAiResultBox(box, prepareTimelineTopicDetailMarkdown(topicId, streamed), { open: true, timelineMode: true });

@@ -251,18 +251,32 @@ function checkTimeline() {
   assert.ok(prompt.includes('[말투]'), 'tone');
   assert.ok(!prompt.includes('[상담사용 근거 줄'), 'no pro extras');
   const key = timeline.resolveTimelineCacheKey(payload, prompt);
-  assert.strictEqual(key, clientHashKey(payload.cacheKeyRaw + ':' + prompt.slice(0, 400)));
+  const stable = timeline.stableTimelineStorageRaw(payload.cacheKeyRaw);
+  assert.strictEqual(stable, 'raw_v47:timeline:stamp');
+  assert.strictEqual(key, clientHashKey(stable + ':' + prompt.slice(0, 400)));
+  const keyLater = timeline.resolveTimelineCacheKey({
+    ...payload,
+    cacheKeyRaw: 'raw_v47:timeline:stamp:2027-02:2032-01',
+  }, prompt);
+  assert.strictEqual(keyLater, key, 'month shift keeps storage key');
+  const win = timeline.windowFromTimelineCacheKey(payload.cacheKeyRaw);
+  assert.deepStrictEqual(win, { fromYm: '2026-08', toYm: '2031-07' });
 
   const proPrompt = timeline.buildTimelineAiPrompt({ ...payload, hasProfessional: true });
   assert.ok(proPrompt.includes('[상담사용 근거 줄'), 'pro extras');
 
+  const topicRaw = payload.cacheKeyRaw + ':topic:money:tp1';
   const topicPrompt = timeline.buildTimelineTopicAiPrompt({
     aiRaw,
     topicLabel: '금전',
-    cacheKeyRaw: payload.cacheKeyRaw + ':topic:money:tp1',
+    cacheKeyRaw: topicRaw,
   });
   assert.ok(topicPrompt.includes('[주제 상세 모드 — 「금전」만]'), 'topic mode');
   assert.ok(topicPrompt.includes('## 이 주제 한 줄기'), 'topic sections');
+  assert.strictEqual(
+    timeline.stableTimelineStorageRaw(topicRaw),
+    'raw_v47:timeline:stamp:topic:money:tp1',
+  );
   console.log('OK astro_timeline', 'promptChars=', prompt.length, 'cacheKey=', key);
 }
 checkTimeline();
