@@ -22,7 +22,7 @@
   <script src="js/plan-access.js?v=13"></script>
   <script src="js/product-plan-bootstrap.js?v=3"></script>
   <script src="js/attribution.js"></script>
-  <script src="js/site-topbar.js?v=35" defer></script>
+  <script src="js/site-topbar.js?v=36" defer></script>
   <script src="js/topbar-session.js?v=14" defer></script>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css" crossorigin/>
   <link rel="stylesheet" href="css/birth-date-picker.css">
@@ -611,8 +611,12 @@ async function loadCounselorClientPickers() {
     const setVal = (id, v) => { const el = document.getElementById(id); if (el && v) el.value = v; };
     setVal('p48Name1', n1); setVal('p48Name2', n2);
     setVal('p48Dob1', d1); setVal('p48Dob2', d2);
-    if (qs.get('auto') === '1' && d1 && d2 && typeof runP48Compat === 'function') {
-      runP48Compat();
+    if (qs.get('auto') === '1' && d1 && d2) {
+      // 궁합 계산 스크립트(defer)가 아직 안 올라왔으면 DOMContentLoaded 뒤에 실행
+      const runAuto = () => { if (typeof window.runP48Compat === 'function') window.runP48Compat(); };
+      if (typeof window.runP48Compat === 'function') runAuto();
+      else if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', runAuto, { once: true });
+      else window.addEventListener('load', runAuto, { once: true });
     }
   } catch (e) { /* ignore */ }
 

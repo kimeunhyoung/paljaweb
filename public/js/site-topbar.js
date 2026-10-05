@@ -94,6 +94,7 @@
         { id: 'relation-all', href: '/services.html#relation', label: '전체 보기' },
         { id: 'harmony', href: '/compatibility.html', label: '소울하모니' },
         { id: 'p48', href: '/period48-compat.html', label: '48궁합' },
+        { id: 'astro-couple', href: '/astrology-couple.html', label: '커플 차트' },
       ],
     },
     {
