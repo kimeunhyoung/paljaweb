@@ -2679,42 +2679,64 @@
         return picked;
       }
 
-      function renderSpreadSuggest() {
-        if (!spreadSuggestEl) return;
-        const wrap = document.getElementById('aiSpreadSuggestWrap');
+      /** renderSpreadSuggest ↔ applySuggestedSpread ↔ setMode 재귀로 UI가 멈추는 것 방지 */
+      let spreadSuggestBusy = false;
+
+      /** 선택형 질문이면 칸이 비어 있을 때 선택 A/B로 맞춤(메시지·스크롤 없이) */
+      function ensureChoiceSpreadIfNeeded() {
         const q = (qEl && qEl.value) || '';
         const cardsEmpty = slots.every((s) => s.num == null);
-
-        // 기본/심화 공통: 선택형이고 칸이 비어 있으면 선택 A/B로 맞춤(심화로 전환)
-        if (
-          isChoiceQuestion(q) &&
-          cardsEmpty &&
-          spreadId !== 'choice_ab'
-        ) {
-          applySuggestedSpread('choice_ab');
-          return;
-        }
-
-        // 기본 리딩(1장)에서는 배열 추천 UI만 숨김
+        if (!isChoiceQuestion(q) || !cardsEmpty || spreadId === 'choice_ab') return false;
+        const sp = SPREADS.find((s) => s.id === 'choice_ab');
+        if (!sp) return false;
+        // spreadId를 먼저 바꿔야 setMode/renderSpreadSuggest 재진입 때 루프가 안 돌아요
+        spreadId = 'choice_ab';
         if (mode !== 'advanced') {
-          if (wrap) wrap.hidden = true;
-          spreadSuggestEl.innerHTML = '';
-          return;
+          mode = 'advanced';
+          syncModeButtons();
         }
-        if (wrap) wrap.hidden = false;
-        const rows = rankSpreadSuggestions(q);
-        spreadSuggestEl.innerHTML = rows.map((r) =>
-          '<button type="button" class="ai-suggest-chip' + (spreadId === r.id ? ' is-pick' : '') +
-          '" data-spread="' + r.id + '">' + escapeHtml(r.label) +
-          (r.why ? '<span class="why">' + escapeHtml(r.why) + '</span>' : '') +
-          '</button>'
-        ).join('');
+        applySpreadLabels('choice_ab');
+        renderSlots();
+        updateCreditHint();
+        return true;
+      }
+
+      function renderSpreadSuggest() {
+        if (!spreadSuggestEl || spreadSuggestBusy) return;
+        spreadSuggestBusy = true;
+        try {
+          const wrap = document.getElementById('aiSpreadSuggestWrap');
+          const q = (qEl && qEl.value) || '';
+          ensureChoiceSpreadIfNeeded();
+
+          // 기본 리딩(1장)에서는 배열 추천 UI만 숨김
+          if (mode !== 'advanced') {
+            if (wrap) wrap.hidden = true;
+            spreadSuggestEl.innerHTML = '';
+            return;
+          }
+          if (wrap) wrap.hidden = false;
+          const rows = rankSpreadSuggestions(q);
+          spreadSuggestEl.innerHTML = rows.map((r) =>
+            '<button type="button" class="ai-suggest-chip' + (spreadId === r.id ? ' is-pick' : '') +
+            '" data-spread="' + r.id + '">' + escapeHtml(r.label) +
+            (r.why ? '<span class="why">' + escapeHtml(r.why) + '</span>' : '') +
+            '</button>'
+          ).join('');
+        } finally {
+          spreadSuggestBusy = false;
+        }
       }
 
       function applySuggestedSpread(id) {
         const sp = SPREADS.find((s) => s.id === id);
         if (!sp || id === 'custom') return;
-        setMode('advanced');
+        // setMode → renderSpreadSuggest 전에 spreadId를 먼저 고정 (선택형 자동적용 재귀 차단)
+        spreadId = id;
+        if (mode !== 'advanced') {
+          mode = 'advanced';
+          syncModeButtons();
+        }
         applySpreadLabels(id);
         renderSlots();
         updateCreditHint();
