@@ -3941,8 +3941,8 @@
     </div>
     <div class="timeline-bridge">
       <p>아래 <strong>수비학</strong>과 <strong>타로</strong>로 앞으로 10년을 봅니다. 막대·연도 카드를 누르면 그 해 해석이 펼쳐집니다. <strong>Plus</strong>에서는 수비학 <strong>인생 전반(100년)</strong> 표가, <strong>Private</strong>에서는 타로 10년·100년과 인생리듬이 열립니다.</p>
-      <p><strong>수비학 개인연도</strong> — 연·월·일을 각각 환원(1~9, 11, 22)한 뒤 더합니다. 9년 주기의 완성·새 출발을 읽습니다.</p>
-      <p><strong>타로 올해의 수</strong> — 연도 자릿수합+문 넘버(환원 전 합)을 더해 메이저 아르카나 0~21로 읽습니다. 현재 흐름의 올해의 수와 같습니다.</p>
+      <p><strong>수비학 개인연도</strong> — 연·월·일을 각각 환원(1~9, 11, 22)한 뒤 더해요. 9년 주기의 완성·새 출발을 읽어요.</p>
+      <p><strong>타로 올해의 수</strong> — 연도 자릿수합+문 넘버(환원 전 합)을 더해 메이저 아르카나 0~21로 읽어요. 현재 흐름의 타로 올해의 수와 같아요.</p>
     </div>
     <div id="timelineContent"></div>
   </div>
@@ -6621,10 +6621,11 @@ function buildMajorCycleFourStageIntro(userAge, curMajorIdx, curStageIdx, majorD
   const stLab = stageSeasons[curStageIdx] || stageSeasons[0] || '';
   const stName = `${curStageIdx + 1}단계 — ${stLab}`;
   return `<div class="timeline-bridge">
-    <p><strong>인생 4단계</strong>는 생년월일로 나눈 <strong>절정수(환경)</strong>과 <strong>도전수(과제)</strong> 네 구간입니다. 바로 위 <strong>대주기</strong>보다 잘게 쪼개어, 지금 어느 막에 있는지 숫자로 짚어 줍니다.</p>
-    <p>올해는 <strong>${userAge}세가 되는 해</strong>로, <strong>대주기</strong> 기준 <strong>${mj.title}</strong> <span class="cycle-major-age">(${mj.age})</span>에 있습니다. <strong>절정수·도전수 4단계</strong> 중에서는 <strong>${stName}</strong>에 머무르고 있어요.</p>
-    <p class="cycle-major-sub">나이는 생일과 상관없이 <strong>올해 연도 기준</strong>으로 계산합니다. 개인연도가 1월 1일에 바뀌는 것처럼, 대주기·4단계도 해가 바뀔 때 넘어갑니다.</p>
-    <p class="cycle-major-sub">대주기가 말하는 <em>큰 장면</em>과, 4단계가 말하는 <em>지금 막</em>을 함께 보면 방향 잡기가 쉬워집니다.</p>
+    <p><strong>인생 4단계</strong>는 생년월일로 나눈 <strong>절정수(환경)</strong>와 <strong>도전수(과제)</strong> 네 구간이에요. 바로 위 <strong>대주기</strong>보다 잘게 쪼개어, 지금 어느 막에 있는지 숫자로 짚어 줘요.</p>
+    <p>올해는 <strong>${userAge}세가 되는 해</strong>로, <strong>대주기</strong> 기준 <strong>${mj.title}</strong> <span class="cycle-major-age">(${mj.age})</span>에 있어요. <strong>절정수·도전수 4단계</strong> 중에서는 <strong>${stName}</strong>에 머무르고 있어요.</p>
+    <p class="cycle-major-sub">나이는 생일과 상관없이 <strong>올해 연도 기준</strong>으로 계산해요. 개인연도가 1월 1일에 바뀌는 것처럼, 대주기·4단계도 해가 바뀔 때 넘어가요.</p>
+    <p class="cycle-major-sub"><strong>절정수 계산</strong> — 생월·생일·생년을 각각 환원할 때 <strong>11·22·33은 유지</strong>한 뒤 더해요. 인생여정수(연·월·일 각 환원)와 대주기와 같은 방식이에요. (예: 11월·29일이면 월 11 + 일 11 → 1단계 절정 22) <strong>도전수</strong>는 월·일·연을 1~9로만 줄인 뒤 차이를 냅니다.</p>
+    <p class="cycle-major-sub">대주기가 말하는 <em>큰 장면</em>과, 4단계가 말하는 <em>지금 막</em>을 함께 보면 방향 잡기가 쉬워져요.</p>
   </div>`;
 }
 
@@ -6923,6 +6924,10 @@ function buildReadingGuideCatalogInnerHtml() {
   `;
 }
 
+function lcNumWord(v) {
+  const t = String(v);
+  return t.indexOf('/') >= 0 ? t : `${t}번`;
+}
 function lcNumCell(label, value, sub, cellClass) {
   const v = (value !== undefined && value !== null && value !== '') ? String(value) : '—';
   const subHtml = sub ? `<div class="lc-glance-sub">${sub}</div>` : '';
@@ -7353,11 +7358,11 @@ function buildLcPriorityAtGlanceHtml(ctx) {
     h += lcNumCell('완성수', '—', '');
   }
   if (ctx.flowLocked) {
-    h += lcNumCellLocked('올해의 수', 'lc-glance-cell--flow');
-    h += lcNumCellLocked('이번 달의 수', 'lc-glance-cell--flow');
+    h += lcNumCellLocked('개인연도', 'lc-glance-cell--flow');
+    h += lcNumCellLocked('개인월수', 'lc-glance-cell--flow');
   } else {
-    h += lcNumCell('올해의 수', ctx.pyClassic ?? ctx.py, ctx.pyClassicPre != null ? `환원 전 ${ctx.pyClassicPre}` : '');
-    h += lcNumCell('이번 달의 수', ctx.pm, ctx.pmPre != null ? `환원 전 ${ctx.pmPre}` : '');
+    h += lcNumCell('개인연도', ctx.pyClassic ?? ctx.py, ctx.pyClassicPre != null ? `환원 전 ${ctx.pyClassicPre}` : '', 'lc-glance-cell--flow');
+    h += lcNumCell('개인월수', ctx.pm, ctx.pmPre != null ? `환원 전 ${ctx.pmPre}` : '', 'lc-glance-cell--flow');
   }
   if (ctx.majorNum != null && ctx.pinnacle != null && ctx.challenge != null) {
     if (ctx.cycleLocked) {
@@ -8163,37 +8168,37 @@ async function runAnalysis() {
   if (hasBasicFlowAccess()) {
   if (flowBridgeEl) {
     flowBridgeEl.innerHTML = `<div class="timeline-bridge">
-      <p><strong>올해의 수</strong>는 <strong>수비학 개인연도</strong>(연·월·일 각 환원 후 합산)와 <strong>타로 올해의 수</strong>(<strong>${curY}년</strong> 연도 자릿수합 <strong>${curY_digitSum}</strong>+문 넘버 <strong>${mnPre}</strong> → 0~21)를 함께 봅니다. 카드에는 <strong>수비학/타로</strong> 순으로 표시됩니다. <strong>이번 달의 수</strong>는 수비학 개인연도에 <strong>${curM}월</strong>을, <strong>오늘의 수</strong>는 그 위에 <strong>${curD}일</strong>을 더해 줄인 값입니다. (수비학 달력과 동일)</p>
+      <p>올해는 <strong>수비학 개인연도</strong>(연·월·일 각 환원 후 합산)와 <strong>타로 올해의 수</strong>(<strong>${curY}년</strong> 연도 자릿수합 <strong>${curY_digitSum}</strong>+문 넘버 <strong>${mnPre}</strong> → 0~21)를 함께 봐요. 카드에는 <strong>수비학/타로</strong> 순으로 표시돼요. <strong>개인월수</strong>는 수비학 개인연도에 <strong>${curM}월</strong>을, <strong>개인일수</strong>는 그 위에 <strong>${curD}일</strong>을 더해 줄인 값이에요. (수비학 달력과 동일)</p>
     </div>`;
   }
 
   document.getElementById('flowRow').innerHTML = [
-    {label:`${curY}년 올해의 수`, num:pyDisplay, pre:pyPreLabel, pyClassic, pyTarot:py},
-    {label:`${curM}월 이번 달의 수`, num:pm, pre:(pyClassic + curM)},
-    {label:`오늘 ${curD}일의 수`, num:pd, pre:(pm + curD)}
+    {label:`${curY}년 개인연도 · 타로`, num:pyDisplay, pre:pyPreLabel, pyClassic, pyTarot:py, year:true},
+    {label:`${curM}월 개인월수`, num:pm, pre:(pyClassic + curM)},
+    {label:`오늘(${curD}일) 개인일수`, num:pd, pre:(pm + curD), day:true}
   ].map(f=>{
-    const isYear = f.label.includes('올해');
+    const isYear = !!f.year;
     const hint = isYear ? flowYearCardHint(f.pyClassic, f.pyTarot) : (TL_DESC[f.num] || '');
     return `<div class="flow-card">
     <div class="flow-card-label">${f.label}</div>
     <div class="flow-card-num">${f.num}<span class="pre-sum">(환원 전 ${f.pre})</span></div>
-    <div class="flow-card-title">${isYear ? flowYearCardTitle(f.pyClassic, f.pyTarot) : (TITLE_MAP[f.num]||'')}</div>
+    <div class="flow-card-title">${isYear ? flowYearCardTitle(f.pyClassic, f.pyTarot) : (f.day ? String(TITLE_MAP[f.num]||'').replace(/의 시기$/, '') : (TITLE_MAP[f.num]||''))}</div>
     ${hint ? `<div class="flow-card-hint">${hint}</div>` : ''}
   </div>`;
   }).join('');
 
   document.getElementById('flowAccordion').innerHTML = [
-    {k:'올해의 수', v:pyDisplay, pre:pyPreLabel, pyClassic, pyTarot:py, open:true},
-    {k:'이번 달의 수', v:pm, pre:(pyClassic + curM), kind:'month'},
-    {k:'오늘의 수', v:pd, pre:(pm + curD), kind:'day'}
+    {k:'개인연도 · 타로 올해의 수', v:pyDisplay, pre:pyPreLabel, pyClassic, pyTarot:py, open:true, kind:'year'},
+    {k:'개인월수', v:pm, pre:(pyClassic + curM), kind:'month'},
+    {k:'개인일수', v:pd, pre:(pm + curD), kind:'day'}
   ].map(i=>{
-    const body = i.k === '올해의 수'
+    const body = i.kind === 'year'
       ? flowYearAccordionHtml(i.pyClassic, i.pyTarot, curY)
       : currentFlowDeepHtml(i.kind, i.v);
-    return accordion(`✦ ${i.k} ${i.v}번 (환원 전 ${i.pre})`, body, !!i.open);
+    const numWord = (typeof lcNumWord === 'function') ? lcNumWord(i.v) : (i.v + '번');
+    return accordion(`✦ ${i.k} ${numWord} · 환원 전 ${i.pre}`, body, !!i.open);
   }).join('');
 
-  const todayDayLine = TL_DESC[pd] || '오늘의 리듬에 몸을 맡기며 하루를 살아가 보세요.';
   const todayHintParagraph = (DAY_HINT && DAY_HINT[pd])
     ? `<p class="flow-today-msg-hint">${escapeHtml(DAY_HINT[pd])}</p>`
     : '';
@@ -8202,9 +8207,9 @@ async function runAnalysis() {
     flowTodayEl.innerHTML = `
       <div class="flow-today-msg-label">오늘의 메시지</div>
       <p class="flow-today-msg-body">
-      올해(<strong>${pyDisplay}</strong>번)의 <strong class="flow-today-em flow-today-em--y">${FLOW_PHRASE[pyClassic] || flowYearHint(py) || ''}</strong> 바탕 위에서
+      올해(개인연도 <strong>${pyClassic}번</strong>)의 <strong class="flow-today-em flow-today-em--y">${FLOW_PHRASE[pyClassic] || flowYearHint(py) || ''}</strong> 바탕 위에서
       이번 달(${pm}번)은 <strong class="flow-today-em flow-today-em--m">${FLOW_PHRASE[pm]||''}</strong> 리듬을 더하고,
-      오늘 하루는 <strong class="flow-today-em flow-today-em--d">${pd}번 · ${todayDayLine}</strong> 쪽으로 겹쳐 있습니다.
+      오늘 하루는 <strong class="flow-today-em flow-today-em--d">${pd}번 · ${FLOW_PHRASE[pd] || ''}</strong> 흐름이 겹쳐 있어요.
       </p>${todayHintParagraph}`;
   }
 
@@ -8213,7 +8218,7 @@ async function runAnalysis() {
       flowBridgeEl.innerHTML = gateHTML(
         'basic',
         '현재 흐름',
-        '올해·이번 달·오늘의 수비학 개인연도·타로 올해의 수와 해설을 확인할 수 있습니다.'
+        '올해·이번 달·오늘의 수비학 개인연도·타로 올해의 수 해설을 확인할 수 있어요.'
       );
     }
     document.getElementById('flowRow').innerHTML = '';
@@ -8312,13 +8317,13 @@ async function runAnalysis() {
     document.getElementById('timelineContent').innerHTML = `<div class="timeline-dual">
       <section class="timeline-block" id="tlBlockClassic">
         <h3 class="timeline-block-title">수비학 개인연도</h3>
-        <p class="timeline-block-bridge">연·월·일을 각각 1~9(11, 22)로 환원한 뒤 더합니다. 9년 주기의 완성(9번)과 새 출발을 읽는 수비학 개인연도입니다.</p>
+        <p class="timeline-block-bridge">연·월·일을 각각 1~9(11, 22)로 환원한 뒤 더해요. 9년 주기의 완성(9번)과 새 출발을 읽는 수비학 개인연도예요.</p>
         ${classicTL.html}
         ${classicLifeBlock.html}
       </section>
       <section class="timeline-block" id="tlBlockTarot">
         <h3 class="timeline-block-title">10년 타임라인 · 타로 ${lcTierBadge('private')}</h3>
-        <p class="timeline-block-bridge">연도 자릿수합+문 넘버(환원 전 합)을 더해 메이저 아르카나 0~21로 읽습니다. 아래 <strong>현재 흐름</strong>의 올해의 수와 같으며, Private에서는 100년 인생전반표가 이어집니다.</p>
+        <p class="timeline-block-bridge">연도 자릿수합+문 넘버(환원 전 합)을 더해 메이저 아르카나 0~21로 읽어요. <strong>현재 흐름</strong>의 올해의 수와 같으며, Private에서는 100년 인생전반표가 이어져요.</p>
         ${tarotTL.html}
         ${tarotLifeBlock.html}
       </section>
@@ -8332,7 +8337,7 @@ async function runAnalysis() {
       tarotLifeBlock.bind();
     }, 50);
   } else {
-    document.getElementById('timelineContent').innerHTML = gateHTML('basic','10년 타임라인','수비학 개인연도 10년 차트는 <strong>Basic</strong> 이상에서 확인할 수 있습니다.');
+    document.getElementById('timelineContent').innerHTML = gateHTML('basic','10년 타임라인','수비학 개인연도 10년 차트는 <strong>Basic</strong> 이상에서 확인할 수 있어요.');
   }
 
   // ── 6. 월간 흐름 (Basic+) ──
@@ -8350,7 +8355,7 @@ async function runAnalysis() {
       </div>`;
     }
     const monthlyBridge = `<div class="timeline-bridge">
-      <p>각 칸은 <strong>수비학 개인연도(${pyClassic}번)</strong>에 그 달의 월 숫자(1~12)를 더해 줄인 <strong>개인월수</strong>입니다. 칸을 누르면 아래에 그 달 해석이 펼쳐집니다.</p>
+      <p>각 칸은 <strong>수비학 개인연도(${pyClassic}번)</strong>에 그 달의 월 숫자(1~12)를 더해 줄인 <strong>개인월수</strong>예요. 칸을 누르면 아래에 그 달 해석이 펼쳐져요.</p>
     </div>`;
     const detail = renderMonthlyDetailPanel(curM, pyClassic);
     document.getElementById('monthlyContent').innerHTML = `${monthlyBridge}<div class="monthly-board"><div class="monthly-grid">${cells}</div></div><div id="monthlyDetail">${detail}</div>`;
