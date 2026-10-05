@@ -3614,16 +3614,14 @@ body.export-capturing .ai-result.empty{display:none !important;}
   }
 
   // ── 어스펙트 그리드(삼각 표) ──
-  const GRID_ORDER = ['sun','moon','mercury','venus','mars','jupiter','saturn','uranus','neptune','pluto','chiron','northnode','southnode','lilith','fortune','vertex','asc','mc'];
-  const GRID_LABEL = { asc: 'AC', mc: 'MC', fortune: '⊗', vertex: 'Vx', southnode: '☋' };
-  // 그리드 전용 어스펙트(메이저 + 마이너), 오브를 조금 넓혀 더 촘촘하게
+  // 핵심만: 태양~명왕성 + AC·MC, 메이저 5각 (보조점·마이너는 휠/행성표에만)
+  const GRID_ORDER = ['sun','moon','mercury','venus','mars','jupiter','saturn','uranus','neptune','pluto','asc','mc'];
+  const GRID_LABEL = { asc: 'AC', mc: 'MC' };
   const GRID_ASPECTS = [
     { key: 'conjunction', a: 0,   orb: 7, tone: 'strong', sym: '☌', kr: '합' },
-    { key: 'semisextile', a: 30,  orb: 2, tone: 'easy',   sym: '⚺', kr: '30도각(세미섹스타일)' },
     { key: 'sextile',     a: 60,  orb: 4, tone: 'easy',   sym: '⚹', kr: '육각' },
     { key: 'square',      a: 90,  orb: 6, tone: 'tense',  sym: '□', kr: '사각' },
     { key: 'trine',       a: 120, orb: 6, tone: 'easy',   sym: '△', kr: '삼각' },
-    { key: 'quincunx',    a: 150, orb: 3, tone: 'tense',  sym: '⚻', kr: '150도각(퀸컹스)' },
     { key: 'opposition',  a: 180, orb: 7, tone: 'tense',  sym: '☍', kr: '충' },
   ];
   function findGridAspect(d1, d2) {
