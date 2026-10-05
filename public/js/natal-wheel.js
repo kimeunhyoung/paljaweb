@@ -22,7 +22,8 @@
     jupiter: 'Jupiter', saturn: 'Saturn', uranus: 'Uranus', neptune: 'Neptune', pluto: 'Pluto',
     chiron: 'Chiron', northnode: 'NNode', southnode: 'SNode', lilith: 'Lilith', fortune: 'Fortune'
   };
-  // 원차트 안쪽 선: 메이저 5각만 (오른쪽 삼각 표와 별개)
+  // 원차트 안쪽 선: 읽는 순서 위주(태양·달·ASC 강조 + 개인·사회 행성)
+  // 메이저 5각만. 천왕·해왕·명왕·보조점은 오른쪽 표/행성표에서 봄.
   var ASPECTS = [
     { key: 'conjunction', a: 0, orb: 8, color: '#888888' },
     { key: 'opposition', a: 180, orb: 8, color: '#c0392b' },
@@ -30,6 +31,7 @@
     { key: 'trine', a: 120, orb: 7, color: '#2980b9' },
     { key: 'sextile', a: 60, orb: 5, color: '#27ae60' }
   ];
+  var ASPECT_FOCUS = { sun: 1, moon: 1, asc: 1 };
 
   function el(name, attrs, parent) {
     var e = document.createElementNS(NS, name);
@@ -245,7 +247,7 @@
       }, gP);
     });
 
-    // ── 어스펙트 선 (예전 라이브러리 색·종류에 맞춤) ──
+    // ── 어스펙트 선 (읽는 핵심만) ──
     var gL = el('g', {}, svg);
     var aspPts = pts.filter(function (p) { return (data.aspectKeys || []).indexOf(p.key) >= 0; })
       .map(function (p) { return { key: p.key, lon: p.lon }; });
@@ -262,12 +264,15 @@
           var A = ASPECTS[k];
           var off = Math.abs(diff - A.a);
           if (off > A.orb) continue;
+          var focus = !!(ASPECT_FOCUS[kA] || ASPECT_FOCUS[kB]);
           var p1 = pt(aspPts[x1].lon, R_i - 1), p2 = pt(aspPts[x2].lon, R_i - 1);
           el('line', {
             x1: p1.x, y1: p1.y, x2: p2.x, y2: p2.y,
             stroke: A.color,
-            'stroke-width': (1.15 * u).toFixed(2),
-            'stroke-opacity': off > A.orb * 0.65 ? '0.55' : '0.85'
+            'stroke-width': ((focus ? 1.55 : 1.05) * u).toFixed(2),
+            'stroke-opacity': focus
+              ? (off > A.orb * 0.65 ? '0.7' : '0.95')
+              : (off > A.orb * 0.65 ? '0.4' : '0.62')
           }, gL);
           break;
         }
