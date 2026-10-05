@@ -220,11 +220,11 @@
       symbol(SYMBOL[p.key], g.x, g.y, ink, p.minor ? gs * 0.88 : gs, gP);
 
       var si = Math.floor(p.lon / 30);
-      var w = Math.floor(p.lon % 30);
+      var d = p.lon % 30; var w = Math.floor(d); var m = Math.floor((d - w) * 60 + 1e-6);
       var tDeg = pt(p.disp, R_deg);
-      el('circle', { cx: tDeg.x, cy: tDeg.y, r: Math.max(8 * u, 7), fill: PAPER, stroke: 'none' }, gP);
-      text(tDeg.x, tDeg.y, w + '°' + (p.retro ? 'R' : ''), {
-        'font-size': fs(compact ? 10 : 11.5, 8.5),
+      el('circle', { cx: tDeg.x, cy: tDeg.y, r: Math.max(9 * u, 7.5), fill: PAPER, stroke: 'none' }, gP);
+      text(tDeg.x, tDeg.y, w + '°' + String(m).padStart(2, '0') + "'" + (p.retro ? 'R' : ''), {
+        'font-size': fs(compact ? 9.5 : 11, 8),
         'font-weight': 700,
         fill: p.retro ? '#c8412f' : ink,
         stroke: PAPER, 'stroke-width': 2.8 * u, 'paint-order': 'stroke fill'
