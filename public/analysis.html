@@ -4672,6 +4672,15 @@ function collectExportUnits() {
     const prep = document.getElementById('counselorPrepCard');
     if (exportUnitVisible(prep)) {
       units.push({ id: 'counselorPrepCard', label: '상담사용 요약 (세션 브리핑)' });
+      const recent = document.getElementById('counselorRecentSession');
+      if (exportUnitVisible(recent)) {
+        units.push({
+          id: 'counselorRecentSession',
+          label: '최근 상담 · 이어가기',
+          group: '상담사용 요약',
+          defaultChecked: false,
+        });
+      }
     }
   }
 
@@ -4790,14 +4799,18 @@ function openExportPicker(mode) {
       lastGroup = null;
     }
     const itemCls = u.group ? 'export-picker-item export-picker-item--sub' : 'export-picker-item';
+    const checkedAttr = u.defaultChecked === false ? '' : ' checked';
     return `${head}
     <label class="${itemCls}">
-      <input type="checkbox" value="${u.id}" checked>
+      <input type="checkbox" value="${u.id}"${checkedAttr}>
       <span>${escapeHtml(u.label)}</span>
     </label>`;
   }).join('');
   const allBox = document.getElementById('exportPickerAll');
-  if (allBox) allBox.checked = true;
+  if (allBox) {
+    const boxes = Array.from(document.querySelectorAll('#exportPickerList input[type=checkbox]'));
+    allBox.checked = boxes.length > 0 && boxes.every((b) => b.checked);
+  }
 
   document.getElementById('exportPickerModal').classList.add('is-open');
 }
@@ -7152,7 +7165,7 @@ function renderCounselorPrepCard(p) {
     if (rs.next_focus) bits.push(`<div class="memo-focus"><strong>다음 포인트</strong> ${esc(String(rs.next_focus))}</div>`);
     if (rs.summary) bits.push(buildPrepMemoAccordion(rs.summary));
     if (bits.length) {
-      memoHtml = `<div class="prep-box prep-box--wide prep-box--recent-session"><h4>최근 상담 · 이어가기</h4><div class="prep-memo"><span class="memo-date">${esc(String(rs.session_date || ''))}</span>${bits.join('')}</div></div>`;
+      memoHtml = `<div class="prep-box prep-box--wide prep-box--recent-session" id="counselorRecentSession"><h4>최근 상담 · 이어가기</h4><div class="prep-memo"><span class="memo-date">${esc(String(rs.session_date || ''))}</span>${bits.join('')}</div></div>`;
     }
   }
 
