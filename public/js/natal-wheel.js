@@ -67,9 +67,9 @@
     var R_h = R_out * (compact ? 0.44 : 0.47);   // 하우스 링을 조금 안쪽으로 — 행성 라벨 여유
     var R_i = R_h - 20 * u;
     var R_g = R_t - (compact ? 11 : 13) * u; // 행성 기호
-    var R_deg = R_g - (compact ? 18 : 21) * u; // 2°
-    var R_sign = R_deg - (compact ? 17 : 19) * u; // 별자리
-    var R_min = R_sign - (compact ? 16 : 18) * u; // 43'
+    var R_deg = R_g - (compact ? Math.max(18 * u, 14) : 22 * u); // 2°
+    var R_sign = R_deg - (compact ? 17 : 21) * u; // 별자리
+    var R_min = R_sign - (compact ? 16 : 21) * u; // 43' (별자리 기호와 겹치지 않게 간격 넓힘)
     var R_lab = R_min; // 축 틈: 기호~분
 
     function ang(lon) { return Math.PI + (norm(lon) - asc) * Math.PI / 180; }
@@ -152,8 +152,11 @@
     var pts = (data.points || []).filter(function (p) { return p && isFinite(p.lon) && SYMBOL[p.key]; })
       .map(function (p) { return { key: p.key, lon: norm(p.lon), retro: !!p.retro, minor: !!p.minor, disp: norm(p.lon) }; })
       .sort(function (a, b) { return a.lon - b.lon; });
-    var minSep = (compact ? Math.max(22 * u, 14) : 26 * u) / R_g * 180 / Math.PI;
-    spread(pts, minSep, 22);
+    // 겹치지 않을 만큼만 최소로 벌려요(제 각도에서 크게 꺾이지 않게)
+    var minSep = compact
+      ? Math.max(26 * u, 17) / R_g * 180 / Math.PI
+      : Math.max(21 * u / R_g, 16 * u / R_min) * 180 / Math.PI;
+    spread(pts, minSep); // 보통은 조금만 움직이고, 행성이 아주 몰린 차트에서만 더 벌어져요
 
     // ── 하우스 + 축 ──
     var gH = el('g', {}, svg);
@@ -199,10 +202,16 @@
         stroke: PAPER, 'stroke-width': 4 * u, 'paint-order': 'stroke fill'
       }, gA);
       if (!compact && (a[0] === 'ASC' || a[0] === 'MC')) {
-        var q = pt(a[1] + (a[0] === 'ASC' ? -5.5 : 5.5), R_out + Math.max(13 * u, 12));
+        // 축 도수는 이름 위(아래)에 — 화면 밖으로 잘리지 않게 가장자리에서 안쪽으로 맞춤
         var si = Math.floor(norm(a[1]) / 30);
-        text(q.x, q.y, fmtDM(a[1]), {
-          'font-size': fs(10, 8), 'font-weight': 700, fill: EL_INK[si % 4],
+        var dy = (p.y < c ? 1 : -1) * 13 * u;
+        var qx = p.x, anchor = 'middle', half = 18 * u;
+        if (qx - half < 2) { qx = 2; anchor = 'start'; }
+        else if (qx + half > S - 2) { qx = S - 2; anchor = 'end'; }
+        var qy = a[0] === 'MC' ? p.y : p.y + (Math.abs(p.y - c) < 40 * u ? -13 * u : dy);
+        if (a[0] === 'MC') { qx = p.x + (p.x < c ? -22 * u : 22 * u); anchor = p.x < c ? 'end' : 'start'; }
+        text(qx, qy, fmtDM(a[1]), {
+          'font-size': fs(10, 8), 'font-weight': 700, fill: EL_INK[si % 4], 'text-anchor': anchor,
           stroke: PAPER, 'stroke-width': 3.5 * u, 'paint-order': 'stroke fill'
         }, gA);
       }
@@ -212,6 +221,8 @@
     var gP = el('g', {}, svg);
     pts.forEach(function (p) {
       line(p.lon, R_z, R_t - 2 * u, { stroke: INK, 'stroke-width': 1.4 * u }, gP);
+      // 어스펙트 원 위에도 실제 도수 표시(작은 눈금) — 선이 이 점에서 출발해요
+      line(p.lon, R_i, R_i + 5 * u, { stroke: p.minor ? SOFT : INK, 'stroke-width': 1.2 * u }, gP);
       var a = pt(p.lon, R_t - 2 * u), b = pt(p.disp, R_g + 6 * u);
       el('line', { x1: a.x, y1: a.y, x2: b.x, y2: b.y, stroke: SOFT, 'stroke-width': 0.85 * u }, gP);
 
@@ -223,6 +234,16 @@
 
       var si = Math.floor(p.lon / 30);
       var d = p.lon % 30; var w = Math.floor(d); var m = Math.floor((d - w) * 60 + 1e-6);
+      if (compact) {
+        // 모바일: 기호 + 도(역행 R)만 — 작은 화면에서 글자가 겹치지 않게
+        var tc = pt(p.disp, R_deg);
+        el('circle', { cx: tc.x, cy: tc.y, r: Math.max(6.5 * u, 6), fill: PAPER, stroke: 'none' }, gP);
+        text(tc.x, tc.y, w + '°' + (p.retro ? 'R' : ''), {
+          'font-size': fs(10, 9), 'font-weight': 700, fill: p.retro ? '#c8412f' : ink,
+          stroke: PAPER, 'stroke-width': 2.4 * u, 'paint-order': 'stroke fill'
+        }, gP);
+        return;
+      }
       // Astro-Seek식: 도 / 별자리 / 분을 위아래로 따로 (간격 확보)
       var tDeg = pt(p.disp, R_deg);
       el('circle', { cx: tDeg.x, cy: tDeg.y, r: Math.max(6.5 * u, 5.5), fill: PAPER, stroke: 'none' }, gP);
@@ -249,7 +270,8 @@
 
     // ── 어스펙트 선 (읽는 핵심만) ──
     var gL = el('g', {}, svg);
-    var aspPts = pts.filter(function (p) { return (data.aspectKeys || []).indexOf(p.key) >= 0; })
+    var OUTER = { uranus: 1, neptune: 1, pluto: 1 };
+    var aspPts = pts.filter(function (p) { return (data.aspectKeys || []).indexOf(p.key) >= 0 || OUTER[p.key]; })
       .map(function (p) { return { key: p.key, lon: p.lon }; });
     if (data.withAngles) {
       aspPts.push({ key: 'asc', lon: asc });
@@ -264,15 +286,21 @@
           var A = ASPECTS[k];
           var off = Math.abs(diff - A.a);
           if (off > A.orb) continue;
+          if (A.key === 'conjunction') break; // 합은 행성이 붙어 보이니 선 생략
+          // 천왕·해왕·명왕은 개인 행성·축과 3° 이내로 정확할 때만 (세대 공통 각 생략)
+          var outerA = OUTER[kA], outerB = OUTER[kB];
+          if ((outerA && outerB) || ((outerA || outerB) && off > 3)) break;
           var focus = !!(ASPECT_FOCUS[kA] || ASPECT_FOCUS[kB]);
+          var tight = 1 - off / A.orb; // 1 = 정확
           var p1 = pt(aspPts[x1].lon, R_i - 1), p2 = pt(aspPts[x2].lon, R_i - 1);
+          // 정확할수록 굵고 진하게, 느슨하면 가늘고 점선 (Astro-Seek식 강약)
           el('line', {
             x1: p1.x, y1: p1.y, x2: p2.x, y2: p2.y,
             stroke: A.color,
-            'stroke-width': ((focus ? 1.55 : 1.05) * u).toFixed(2),
-            'stroke-opacity': focus
-              ? (off > A.orb * 0.65 ? '0.7' : '0.95')
-              : (off > A.orb * 0.65 ? '0.4' : '0.62')
+            'stroke-width': ((0.8 + 2.4 * tight * tight + (focus ? 0.35 : 0)) * u).toFixed(2),
+            'stroke-opacity': (0.5 + 0.45 * tight).toFixed(2),
+            'stroke-dasharray': tight < 0.4 ? (4 * u).toFixed(1) + ',' + (3 * u).toFixed(1) : 'none',
+            'stroke-linecap': 'round'
           }, gL);
           break;
         }
@@ -281,32 +309,65 @@
     return true;
   }
 
-  /** Astro-Seek식: 바깥 링에서 각도만 펼침 (최대 maxOff°) */
-  function spread(pts, sep, maxOff) {
+  /**
+   * 겹치는 행성을 각도로만 최소한 벌린다.
+   * 가까운 행성끼리 묶음을 만들고, 묶음 안에서 sep 간격으로 고르게 놓되 묶음의 중심은 실제 위치 평균에 둔다.
+   * 묶음끼리 다시 닿으면 합쳐서 반복 — 보통 차트는 1~3°만 움직이고, 아주 몰린 차트만 크게 벌어져요.
+   */
+  function spread(pts, sep) {
     var n = pts.length;
     if (n < 2) return;
-    maxOff = maxOff == null ? 18 : maxOff;
-    if (sep * n > 330) sep = 330 / n;
-    var it, i;
-    for (it = 0; it < 140; it++) {
-      var moved = false;
-      for (i = 0; i < n; i++) {
-        var a = pts[i], b = pts[(i + 1) % n];
-        var gap = norm(b.disp - a.disp);
-        if (n === 2 && gap > 180) continue;
-        if (gap < sep) {
-          var push = (sep - gap) / 2 + 0.01;
-          a.disp = norm(a.disp - push);
-          b.disp = norm(b.disp + push);
-          moved = true;
+    if (sep * n > 340) sep = 340 / n;
+    // 가장 넓은 빈틈 다음부터 시작해서 원을 일렬로 편다
+    var order = pts.slice().sort(function (a, b) { return a.lon - b.lon; });
+    var bestGap = -1, start = 0;
+    for (var i = 0; i < n; i++) {
+      var g = norm(order[(i + 1) % n].lon - order[i].lon);
+      if (n === 1) g = 360;
+      if (g > bestGap) { bestGap = g; start = (i + 1) % n; }
+    }
+    var base = order[start].lon;
+    var lin = [];
+    for (var k = 0; k < n; k++) {
+      var p = order[(start + k) % n];
+      lin.push({ p: p, x: norm(p.lon - base) });
+    }
+    // 묶음 만들기
+    var groups = lin.map(function (o) { return { items: [o], center: o.x }; });
+    function place(gr) {
+      var m = gr.items.reduce(function (s0, o) { return s0 + o.x; }, 0) / gr.items.length;
+      gr.start = m - sep * (gr.items.length - 1) / 2;
+      gr.end = gr.start + sep * (gr.items.length - 1);
+    }
+    groups.forEach(place);
+    var changed = true;
+    while (changed) {
+      changed = false;
+      for (var gi = 0; gi < groups.length - 1; gi++) {
+        if (groups[gi + 1].start - groups[gi].end < sep - 1e-6) {
+          groups[gi].items = groups[gi].items.concat(groups[gi + 1].items);
+          groups.splice(gi + 1, 1);
+          place(groups[gi]);
+          changed = true;
+          break;
         }
       }
-      if (!moved) break;
+      // 처음과 끝 묶음이 원을 돌아 닿는 경우
+      if (!changed && groups.length > 1) {
+        var first = groups[0], last = groups[groups.length - 1];
+        if (first.start + 360 - last.end < sep - 1e-6) {
+          first.items.forEach(function (o) { o.x += 360; });
+          last.items = last.items.concat(first.items);
+          groups.shift();
+          place(last);
+          changed = true;
+        }
+      }
     }
-    pts.forEach(function (p) {
-      var d = norm(p.disp - p.lon); if (d > 180) d -= 360;
-      if (d > maxOff) p.disp = norm(p.lon + maxOff);
-      if (d < -maxOff) p.disp = norm(p.lon - maxOff);
+    groups.forEach(function (gr) {
+      gr.items.forEach(function (o, idx) {
+        o.p.disp = norm(base + gr.start + idx * sep);
+      });
     });
   }
 
