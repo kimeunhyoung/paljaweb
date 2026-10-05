@@ -65,10 +65,11 @@
     var R_t = R_z - 13 * u;
     var R_h = R_out * (compact ? 0.47 : 0.5);
     var R_i = R_h - 20 * u;
-    var R_g = R_t - (compact ? 12 : 14) * u; // 기호
-    var R_deg = R_g - (compact ? 15 : 17) * u; // 도수(분만 빼고 °)
-    var R_sign = R_deg - (compact ? 14 : 16) * u; // 별자리 기호
-    var R_lab = R_sign; // 축 틈 계산용(기호~별자리 구간)
+    var R_g = R_t - (compact ? 12 : 14) * u; // 행성 기호
+    var R_deg = R_g - (compact ? 14 : 16) * u; // 2°
+    var R_sign = R_deg - (compact ? 13 : 15) * u; // 별자리
+    var R_min = R_sign - (compact ? 13 : 15) * u; // 43'
+    var R_lab = R_min; // 축 틈: 기호~분
 
     function ang(lon) { return Math.PI + (norm(lon) - asc) * Math.PI / 180; }
     function pt(lon, r) { var t = ang(lon); return { x: c + r * Math.cos(t), y: c - r * Math.sin(t) }; }
@@ -164,7 +165,7 @@
       pts.forEach(function (p) {
         if (angDiff(p.disp, axisLon) > 4.2 && angDiff(p.lon, axisLon) > 3.2) return;
         // 행성 기호·도수·별자리 있는 반지름만 살짝 띄움
-        gaps.push({ lo: R_sign - axisPad, hi: R_g + axisPad });
+        gaps.push({ lo: R_min - axisPad, hi: R_g + axisPad });
       });
       return gaps;
     }
@@ -221,18 +222,28 @@
 
       var si = Math.floor(p.lon / 30);
       var d = p.lon % 30; var w = Math.floor(d); var m = Math.floor((d - w) * 60 + 1e-6);
+      // Astro-Seek식: 도 / 별자리 / 분을 위아래로 따로
       var tDeg = pt(p.disp, R_deg);
-      el('circle', { cx: tDeg.x, cy: tDeg.y, r: Math.max(9 * u, 7.5), fill: PAPER, stroke: 'none' }, gP);
-      text(tDeg.x, tDeg.y, w + '°' + String(m).padStart(2, '0') + "'" + (p.retro ? 'R' : ''), {
-        'font-size': fs(compact ? 9.5 : 11, 8),
+      el('circle', { cx: tDeg.x, cy: tDeg.y, r: Math.max(8 * u, 7), fill: PAPER, stroke: 'none' }, gP);
+      text(tDeg.x, tDeg.y, w + '°', {
+        'font-size': fs(compact ? 10 : 11.5, 8.5),
         'font-weight': 700,
-        fill: p.retro ? '#c8412f' : ink,
+        fill: ink,
         stroke: PAPER, 'stroke-width': 2.8 * u, 'paint-order': 'stroke fill'
       }, gP);
 
       var tSign = pt(p.disp, R_sign);
       el('circle', { cx: tSign.x, cy: tSign.y, r: Math.max(8 * u, 7), fill: PAPER, stroke: 'none' }, gP);
       symbol(SIGN_NAMES[si], tSign.x, tSign.y, EL_INK[si % 4], (compact ? 0.55 : 0.62) * u, gP);
+
+      var tMin = pt(p.disp, R_min);
+      el('circle', { cx: tMin.x, cy: tMin.y, r: Math.max(8 * u, 7), fill: PAPER, stroke: 'none' }, gP);
+      text(tMin.x, tMin.y, String(m).padStart(2, '0') + "'" + (p.retro ? 'R' : ''), {
+        'font-size': fs(compact ? 9.5 : 10.5, 8),
+        'font-weight': 600,
+        fill: p.retro ? '#c8412f' : '#5d4c3a',
+        stroke: PAPER, 'stroke-width': 2.6 * u, 'paint-order': 'stroke fill'
+      }, gP);
     });
 
     // ── 어스펙트 선 (예전 라이브러리 색·종류에 맞춤) ──
