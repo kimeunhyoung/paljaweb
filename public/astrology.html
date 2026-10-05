@@ -69,6 +69,8 @@
 <script src="js/topbar-session.js?v=14" defer></script>
 <!-- 점성 차트 그리기(UMD 전역 astrochart) -->
 <script src="https://cdn.jsdelivr.net/npm/@astrodraw/astrochart@3.0.2/dist/astrochart.js"></script>
+<!-- 원판은 직접 그리고(js/natal-wheel.js), astrochart는 별자리·행성 기호 모양만 빌려 써요 -->
+<script src="js/natal-wheel.js?v=3"></script>
 <!-- 이미지 저장용 -->
 <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.2/dist/jspdf.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
@@ -6325,6 +6327,36 @@ body.export-capturing .ai-result.empty{display:none !important;}
     const payload = buildWheelPlanetPayload(horoscope);
     const { planets, cusps } = payload;
     if (cusps.length !== 12 || cusps.some((c) => c == null)) return false;
+    // 새 원판 (Astro-Seek 수준의 눈금·도·분 표기 · 겹침 방지)
+    if (window.PaljaNatalWheel && typeof window.PaljaNatalWheel.draw === 'function') {
+      try {
+        const pts = [];
+        ['sun','moon','mercury','venus','mars','jupiter','saturn','uranus','neptune','pluto','chiron'].forEach((k) => {
+          const b = horoscope.CelestialBodies[k];
+          const d = b ? deg(b) : null;
+          if (d != null) pts.push({ key: k, lon: d, retro: bodySpeedForChart(b) < 0 });
+        });
+        ['northnode','lilith'].forEach((k) => {
+          const b = horoscope.CelestialPoints && horoscope.CelestialPoints[k];
+          const d = b ? deg(b) : (k === 'lilith' ? NATAL_DEGS.lilith : null);
+          if (d != null) pts.push({ key: k, lon: d, retro: false });
+        });
+        // 보조점: 남교점(북교점 정반대) · 행운점(사이트 계산값, 낮·밤 공식)
+        const sn = (horoscope.CelestialPoints && horoscope.CelestialPoints.southnode) ? deg(horoscope.CelestialPoints.southnode) : NATAL_DEGS.southnode;
+        if (sn != null) pts.push({ key: 'southnode', lon: sn, retro: false, minor: true });
+        if (NATAL_DEGS.fortune != null) pts.push({ key: 'fortune', lon: NATAL_DEGS.fortune, retro: false, minor: true });
+        const ok = window.PaljaNatalWheel.draw(paperId, size, {
+          points: pts,
+          cusps,
+          aspectKeys: ['sun','moon','mercury','venus','mars','jupiter','saturn','uranus','neptune','pluto'],
+          withAngles: true,
+        });
+        if (ok) return true;
+      } catch (e) {
+        console.error('새 원판 그리기 실패 — 기존 방식으로 그려요', e);
+        paper.innerHTML = '';
+      }
+    }
     try {
       const settings = opts.size != null
         ? Object.assign({}, ASTRO_CHART_SETTINGS, {
