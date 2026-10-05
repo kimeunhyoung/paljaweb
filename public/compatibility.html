@@ -389,6 +389,47 @@ body {
 }
 .card-label::after { content:''; flex:1; height:1px; background: rgba(200,169,110,.18); }
 
+.client-pick-wrap {
+  display: none;
+  margin: 0 0 16px;
+  padding: 0 0 14px;
+  border-bottom: 1px solid rgba(200,169,110,.18);
+}
+.client-pick-wrap.is-visible { display: block; }
+.client-pick-row {
+  display: grid;
+  grid-template-columns: minmax(100px, 1fr) minmax(140px, 1.4fr);
+  gap: 10px;
+  align-items: end;
+}
+.client-pick-hint {
+  margin: 8px 0 0;
+  font-size: 11px;
+  line-height: 1.5;
+  color: rgba(245,240,232,.46);
+  letter-spacing: 0.2px;
+}
+.client-pick-wrap select {
+  width: 100%;
+  background: rgba(245,240,232,.08);
+  border: 1px solid rgba(200,169,110,.22);
+  border-radius: 8px;
+  padding: 12px 14px;
+  color: var(--cream);
+  font-family: var(--font-serif);
+  font-size: 14px;
+  outline: none;
+  color-scheme: dark;
+}
+.client-pick-wrap select:focus {
+  border-color: var(--accent);
+  background: rgba(200,169,110,.06);
+}
+.client-pick-wrap select option { color: #2c1f0e; background: #f5f0e8; }
+@media (max-width: 680px) {
+  .client-pick-row { grid-template-columns: 1fr; }
+}
+
 .field { margin-bottom: 14px; }
 .field label {
   display: block;
@@ -1222,6 +1263,21 @@ body, .hero-desc, .field input, .field-hint, .card-label, .field label,
   <div class="input-panel">
     <div class="person-card">
       <div class="card-label">첫 번째 사람</div>
+      <div class="client-pick-wrap" id="clientPickWrap1">
+        <div class="client-pick-row">
+          <div class="field" style="margin-bottom:0">
+            <label for="clientPickSearch1">고객 찾기</label>
+            <input type="search" id="clientPickSearch1" placeholder="이름·생년월일" autocomplete="off">
+          </div>
+          <div class="field" style="margin-bottom:0">
+            <label for="clientPickSelect1">저장된 고객</label>
+            <select id="clientPickSelect1" aria-label="첫 번째 사람 고객 선택">
+              <option value="">— 직접 입력 —</option>
+            </select>
+          </div>
+        </div>
+        <p class="client-pick-hint">고객을 고르면 이름·생년월일이 채워져요.</p>
+      </div>
       <div class="field">
         <label>이름</label>
         <input type="text" id="name1" placeholder="김은형 · Kim Eunhyoung" autocomplete="off">
@@ -1245,6 +1301,21 @@ body, .hero-desc, .field input, .field-hint, .card-label, .field label,
 
     <div class="person-card">
       <div class="card-label">두 번째 사람</div>
+      <div class="client-pick-wrap" id="clientPickWrap2">
+        <div class="client-pick-row">
+          <div class="field" style="margin-bottom:0">
+            <label for="clientPickSearch2">고객 찾기</label>
+            <input type="search" id="clientPickSearch2" placeholder="이름·생년월일" autocomplete="off">
+          </div>
+          <div class="field" style="margin-bottom:0">
+            <label for="clientPickSelect2">저장된 고객</label>
+            <select id="clientPickSelect2" aria-label="두 번째 사람 고객 선택">
+              <option value="">— 직접 입력 —</option>
+            </select>
+          </div>
+        </div>
+        <p class="client-pick-hint">고객을 고르면 이름·생년월일이 채워져요.</p>
+      </div>
       <div class="field">
         <label>이름</label>
         <input type="text" id="name2" placeholder="이민준 · Lee Minjun" autocomplete="off">
@@ -2223,10 +2294,113 @@ function doReset() {
     if (window.PaljaBirthDatePicker?.clearInput) PaljaBirthDatePicker.clearInput(id);
     else document.getElementById(id).value = '';
   });
+  ['clientPickSelect1','clientPickSelect2'].forEach((id) => {
+    const el = document.getElementById(id);
+    if (el) el.value = '';
+  });
+  ['clientPickSearch1','clientPickSearch2'].forEach((id) => {
+    const el = document.getElementById(id);
+    if (el) el.value = '';
+  });
+  if (typeof populateCounselorClientSelect === 'function') {
+    populateCounselorClientSelect(1, '');
+    populateCounselorClientSelect(2, '');
+  }
   window.scrollTo({ top:0, behavior:'smooth' });
 }
 
 document.addEventListener('keydown', e=>{ if(e.key==='Enter') runAnalysis(); });
+
+/* ── 상담사: 저장된 고객으로 A/B 채우기 (라이프코드·베다와 동일) ── */
+const SUPABASE_URL = 'https://sghsryumnrnftyjoqmwf.supabase.co';
+const SUPABASE_ANON_KEY = 'sb_publishable_6S3W_oWrzG-Nv8wLK98gmg_q_KcB2I1';
+let sbCompat = null;
+try {
+  const g = window.supabase;
+  if (g && typeof g.createClient === 'function') {
+    sbCompat = g.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  }
+} catch (_) {}
+let COUNSELOR_CLIENT_ROWS = [];
+let COUNSELOR_UID = '';
+
+function escHtml(s) {
+  return String(s == null ? '' : s)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+
+function populateCounselorClientSelect(side, filterText) {
+  const sel = document.getElementById('clientPickSelect' + side);
+  if (!sel) return;
+  const q = String(filterText || '').trim().toLowerCase().replace(/\s+/g, '');
+  const cur = sel.value;
+  const rows = !q
+    ? COUNSELOR_CLIENT_ROWS
+    : COUNSELOR_CLIENT_ROWS.filter((c) => {
+        const dn = String(c.display_name || '').toLowerCase().replace(/\s+/g, '');
+        const ln = String(c.legal_name || '').toLowerCase().replace(/\s+/g, '');
+        const birth = String(c.birth_date || '').toLowerCase();
+        return dn.includes(q) || ln.includes(q) || birth.includes(q);
+      });
+  sel.innerHTML = '<option value="">— 직접 입력 —</option>' + rows.map((c) => {
+    const label = (c.display_name || c.legal_name || '고객') +
+      (c.birth_date ? ' · ' + String(c.birth_date).slice(0, 10) : '');
+    return '<option value="' + c.id + '">' + escHtml(label) + '</option>';
+  }).join('');
+  if (cur && COUNSELOR_CLIENT_ROWS.some((c) => c.id === cur)) sel.value = cur;
+}
+
+function applyCounselorClientToSide(side, row) {
+  if (!row) return;
+  const nameEl = document.getElementById('name' + side);
+  const dobEl = document.getElementById('dob' + side);
+  const name = ((row.legal_name || row.display_name || '') + '').trim();
+  const birth = row.birth_date ? String(row.birth_date).slice(0, 10) : '';
+  if (nameEl) nameEl.value = name;
+  if (dobEl && birth) {
+    dobEl.value = birth;
+    dobEl.dispatchEvent(new Event('change', { bubbles: true }));
+  }
+}
+
+async function loadCounselorClientPickers() {
+  const wrap1 = document.getElementById('clientPickWrap1');
+  const wrap2 = document.getElementById('clientPickWrap2');
+  if (!wrap1 || !wrap2 || !sbCompat || !COUNSELOR_UID) return;
+  wrap1.classList.add('is-visible');
+  wrap2.classList.add('is-visible');
+
+  const { data, error } = await sbCompat
+    .from('counselor_clients')
+    .select('id,display_name,legal_name,birth_date')
+    .eq('counselor_id', COUNSELOR_UID)
+    .order('display_name', { ascending: true });
+
+  COUNSELOR_CLIENT_ROWS = (!error && data) ? data : [];
+  populateCounselorClientSelect(1, (document.getElementById('clientPickSearch1') || {}).value || '');
+  populateCounselorClientSelect(2, (document.getElementById('clientPickSearch2') || {}).value || '');
+
+  [1, 2].forEach((side) => {
+    const sel = document.getElementById('clientPickSelect' + side);
+    const search = document.getElementById('clientPickSearch' + side);
+    if (sel && !sel.dataset.bound) {
+      sel.dataset.bound = '1';
+      sel.addEventListener('change', () => {
+        const id = sel.value;
+        if (!id) return;
+        const row = COUNSELOR_CLIENT_ROWS.find((c) => c.id === id);
+        if (row) applyCounselorClientToSide(side, row);
+      });
+    }
+    if (search && !search.dataset.bound) {
+      search.dataset.bound = '1';
+      search.addEventListener('input', () => populateCounselorClientSelect(side, search.value));
+    }
+  });
+}
 
 (async function ensureAuthGate() {
   if (window.PaljaProductBootstrap) {
@@ -2243,6 +2417,23 @@ document.addEventListener('keydown', e=>{ if(e.key==='Enter') runAnalysis(); });
       if (typeof runAnalysis === 'function') await runAnalysis();
     }
   } catch (e) { /* ignore */ }
+
+  // 상담사(프로)면 고객 선택 UI 노출
+  try {
+    if (!sbCompat) return;
+    const { data: { session } } = await sbCompat.auth.getSession();
+    if (!session) return;
+    const { data: profile } = await sbCompat
+      .from('profiles')
+      .select('plan, plan_active_until, calendar_pass_until')
+      .eq('id', session.user.id)
+      .single();
+    let hasPro = window.PaljaPlan ? window.PaljaPlan.hasCounselorAccess(profile || {}) : false;
+    if (window.PALJA_DEVICE_LIMIT_HIT) hasPro = false;
+    if (!hasPro) return;
+    COUNSELOR_UID = session.user.id;
+    await loadCounselorClientPickers();
+  } catch (_) { /* ignore */ }
 })();
 </script>
 <div class="birth-picker-backdrop" id="birthPickerBackdrop" hidden aria-hidden="true">
