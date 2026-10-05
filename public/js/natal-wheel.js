@@ -66,7 +66,9 @@
     var R_h = R_out * (compact ? 0.47 : 0.5);
     var R_i = R_h - 20 * u;
     var R_g = R_t - (compact ? 12 : 14) * u; // 기호
-    var R_lab = R_g - (compact ? 16 : 18) * u; // 도수(기호 바로 안쪽 한 줄)
+    var R_deg = R_g - (compact ? 15 : 17) * u; // 도수(분만 빼고 °)
+    var R_sign = R_deg - (compact ? 14 : 16) * u; // 별자리 기호
+    var R_lab = R_sign; // 축 틈 계산용(기호~별자리 구간)
 
     function ang(lon) { return Math.PI + (norm(lon) - asc) * Math.PI / 180; }
     function pt(lon, r) { var t = ang(lon); return { x: c + r * Math.cos(t), y: c - r * Math.sin(t) }; }
@@ -156,13 +158,13 @@
     el('circle', { cx: c, cy: c, r: R_h, fill: '#fbf6ec', stroke: LINE, 'stroke-width': 1 * u }, gH);
     el('circle', { cx: c, cy: c, r: R_i, fill: '#ffffff', stroke: LINE, 'stroke-width': 1 * u }, gH);
 
-    var axisPad = Math.max(12 * u, 10);
+    var axisPad = Math.max(11 * u, 9);
     function planetGapsNear(axisLon) {
       var gaps = [];
       pts.forEach(function (p) {
         if (angDiff(p.disp, axisLon) > 4.2 && angDiff(p.lon, axisLon) > 3.2) return;
-        // 기호·도수 있는 반지름만 살짝 띄움 (구간 전체 삭제 아님)
-        gaps.push({ lo: R_lab - axisPad, hi: R_g + axisPad });
+        // 행성 기호·도수·별자리 있는 반지름만 살짝 띄움
+        gaps.push({ lo: R_sign - axisPad, hi: R_g + axisPad });
       });
       return gaps;
     }
@@ -171,8 +173,8 @@
       var cu = data.cusps[h];
       var axis = h === 0 || h === 3 || h === 6 || h === 9;
       if (axis) {
-        // Astro-Seek처럼 중심~외곽까지 굵게, 행성 자리만 틈
-        lineGaps(cu, 0, R_out, planetGapsNear(cu), { stroke: INK, 'stroke-width': 2.6 * u }, gH);
+        // 가운데 어스펙트 원(R_i 안)에는 ASC/MC/IC 굵은 선 없음 — 하우스~외곽만
+        lineGaps(cu, R_i, R_out, planetGapsNear(cu), { stroke: INK, 'stroke-width': 2.6 * u }, gH);
       } else {
         line(cu, R_i, R_z, { stroke: LINE, 'stroke-width': 0.9 * u, 'stroke-opacity': 0.75 }, gH);
       }
@@ -212,22 +214,25 @@
       el('line', { x1: a.x, y1: a.y, x2: b.x, y2: b.y, stroke: SOFT, 'stroke-width': 0.85 * u }, gP);
 
       var g = pt(p.disp, R_g);
-      // 축선 위에서도 기호가 뜨도록 바탕 원
-      el('circle', { cx: g.x, cy: g.y, r: Math.max(11 * u, 9), fill: PAPER, stroke: 'none' }, gP);
+      el('circle', { cx: g.x, cy: g.y, r: Math.max(10 * u, 8.5), fill: PAPER, stroke: 'none' }, gP);
       var ink = p.minor ? '#8a7558' : INK;
       var gs = compact ? Math.max(0.92 * u, 0.66) : 1.05 * u;
       symbol(SYMBOL[p.key], g.x, g.y, ink, p.minor ? gs * 0.88 : gs, gP);
 
-      var d = p.lon % 30; var w = Math.floor(d); var m = Math.floor((d - w) * 60 + 1e-6);
-      var label = w + '°' + String(m).padStart(2, '0') + "'" + (p.retro ? 'R' : '');
-      var t = pt(p.disp, R_lab);
-      el('circle', { cx: t.x, cy: t.y, r: Math.max(10 * u, 8), fill: PAPER, stroke: 'none' }, gP);
-      text(t.x, t.y, label, {
-        'font-size': fs(compact ? 9.5 : 11, 8),
+      var si = Math.floor(p.lon / 30);
+      var w = Math.floor(p.lon % 30);
+      var tDeg = pt(p.disp, R_deg);
+      el('circle', { cx: tDeg.x, cy: tDeg.y, r: Math.max(8 * u, 7), fill: PAPER, stroke: 'none' }, gP);
+      text(tDeg.x, tDeg.y, w + '°' + (p.retro ? 'R' : ''), {
+        'font-size': fs(compact ? 10 : 11.5, 8.5),
         'font-weight': 700,
         fill: p.retro ? '#c8412f' : ink,
-        stroke: PAPER, 'stroke-width': 3 * u, 'paint-order': 'stroke fill'
+        stroke: PAPER, 'stroke-width': 2.8 * u, 'paint-order': 'stroke fill'
       }, gP);
+
+      var tSign = pt(p.disp, R_sign);
+      el('circle', { cx: tSign.x, cy: tSign.y, r: Math.max(8 * u, 7), fill: PAPER, stroke: 'none' }, gP);
+      symbol(SIGN_NAMES[si], tSign.x, tSign.y, EL_INK[si % 4], (compact ? 0.55 : 0.62) * u, gP);
     });
 
     // ── 어스펙트 선 (예전 라이브러리 색·종류에 맞춤) ──
