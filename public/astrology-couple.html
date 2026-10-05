@@ -130,6 +130,16 @@ body{font-family:var(--font-body);background:var(--cream);color:var(--ink);min-h
 .tag-strong{background:var(--rose-lt);color:var(--rose);}
 .tag-unsure{background:rgba(116,96,75,.12);color:var(--muted);}
 .syn-item.unsure{opacity:.82;}
+.syn-groups{display:flex;flex-direction:column;gap:22px;}
+.syn-group-title{font-family:var(--font-serif);font-size:16px;font-weight:600;color:var(--deep-brown);margin:0 0 10px;display:flex;align-items:baseline;gap:8px;flex-wrap:wrap;}
+.syn-group-title small{font-family:var(--font-body);font-size:13px;font-weight:500;color:var(--muted);}
+.syn-group-empty{font-size:14px;color:var(--muted);background:var(--cream);border-radius:10px;padding:10px 14px;line-height:1.6;word-break:keep-all;}
+.syn-more{margin-top:8px;}
+.syn-more>summary{cursor:pointer;font-size:14px;font-weight:600;color:var(--warm-brown);padding:6px 2px;list-style:none;}
+.syn-more>summary::-webkit-details-marker{display:none;}
+.syn-more>summary::before{content:'＋ ';}
+.syn-more[open]>summary::before{content:'－ ';}
+.syn-more>.syn-list{margin-top:6px;}
 .who-a{color:var(--teal);font-weight:700;}
 .who-b{color:var(--rose);font-weight:700;}
 
@@ -279,8 +289,8 @@ body{font-family:var(--font-body);background:var(--cream);color:var(--ink);min-h
 
     <div class="card">
       <div class="card-title">✦ 시너스트리 · 관계의 각</div>
-      <p class="intro">한 사람의 행성이 상대의 행성과 맺는 각이에요. <span class="who-a">첫 번째 사람</span>의 행성 → <span class="who-b">두 번째 사람</span>의 행성 순으로 표시돼요.</p>
-      <div class="syn-list" id="synList"></div>
+      <p class="intro">한 사람의 행성이 상대의 행성과 맺는 각을 주제별로 묶었어요. <span class="who-a">첫 번째 사람</span>의 행성 → <span class="who-b">두 번째 사람</span>의 행성 순으로 표시하고, 묶음마다 영향이 큰 각부터 보여 드려요.</p>
+      <div class="syn-groups" id="synList"></div>
     </div>
 
     <div class="card" id="aiCard">
@@ -627,36 +637,72 @@ body{font-family:var(--font-body);background:var(--cream);color:var(--ink);min-h
     // 합(☌)은 행성에 따라 끌림이 될 수도 부담이 될 수도 있어서 「강한 연결」로 표시해요
     const tagOf = { easy: '<span class="tag tag-easy">조화</span>', tense: '<span class="tag tag-tense">긴장</span>', strong: '<span class="tag tag-strong">강한 연결</span>' };
 
-    const SYN_ASPECT_TEXT = {
-      conjunction: '서로를 강하게 의식하게 되는 연결이에요. 같은 방향이면 큰 힘이 되고, 엇갈리면 부딪힘도 커져요.',
-      trine: '애쓰지 않아도 자연스럽게 잘 맞는 부분이에요.',
-      sextile: '조금만 마음을 쓰면 서로 돕게 되는 부분이에요.',
-      square: '부딪히기 쉬운 지점이지만, 맞춰 가면 관계를 키우는 자극이 돼요.',
-      opposition: '서로 반대라 끌리기도 하고 줄다리기가 생기기도 해요.',
+    // 행성 쌍마다 [주제, 조화(삼각·육각)일 때, 긴장(사각·충)일 때, 합일 때] 설명
+    // 키: 두 행성 키를 알파벳 순으로 '_' 연결 (asc=상승궁)
+    const SYN_TEXT = {
+      asc_asc: ['두 사람이 세상을 대하는 태도·첫인상이 만나는 자리예요.', '처음 만났을 때부터 편하고 말이 잘 통하는 느낌을 주기 쉬워요.', '겉으로 드러나는 태도가 달라 처음엔 어색하거나 오해가 생기기 쉬워요.', '세상을 대하는 방식이 닮아서 첫눈에 익숙한 느낌을 받기 쉬워요.'],
+      asc_jupiter: ['한 사람의 너그러움·낙관(목성)이 상대의 첫인상·태도에 닿는 자리예요.', '함께 있으면 상대를 더 넉넉하고 자신 있게 만들어 줘요.', '좋은 뜻의 응원이 과한 기대나 간섭으로 느껴질 수 있어요.', '만나면 기분이 좋아지고 서로를 크게 봐 주는 사이가 되기 쉬워요.'],
+      asc_mars: ['한 사람의 행동력·욕구(화성)가 상대의 첫인상·태도에 닿는 자리예요.', '서로에게 활력을 주고 같이 움직이고 싶게 만들어요.', '자극이 강해서 말투나 속도 때문에 쉽게 부딪힐 수 있어요.', '첫눈에 강한 자극과 끌림을 느끼기 쉬워요. 다만 다툼도 그만큼 빨리 붙을 수 있어요.'],
+      asc_mercury: ['한 사람의 말·생각(수성)이 상대의 첫인상·태도에 닿는 자리예요.', '대화가 매끄럽고 서로의 말을 잘 알아들어요.', '말하는 방식이 달라 의도와 다르게 받아들이기 쉬워요.', '처음부터 이야기가 잘 통하고 말로 가까워지기 쉬워요.'],
+      asc_moon: ['한 사람의 감정(달)이 상대의 첫인상·태도에 닿는 자리예요.', '상대 곁에서 마음이 편해지고 돌봄을 주고받기 쉬워요.', '감정 반응이 상대의 태도와 엇갈려 서운함이 쌓이기 쉬워요.', '정서적으로 금방 친숙해지는 느낌을 받기 쉬워요.'],
+      asc_saturn: ['한 사람의 책임감·현실감(토성)이 상대의 첫인상·태도에 닿는 자리예요.', '서로에게 믿음직하고 든든한 인상을 줘요.', '한쪽이 상대에게 평가받거나 통제받는다고 느껴 위축되기 쉬워요.', '진지하고 무게 있는 관계로 느껴져요. 안정감과 부담이 함께 올 수 있어요.'],
+      asc_sun: ['한 사람의 자아·삶의 방향(태양)이 상대의 첫인상·태도에 닿는 자리예요.', '서로를 있는 그대로 인정하고 북돋아 주기 쉬워요.', '각자 드러내고 싶은 모습이 부딪혀 주도권 다툼이 생기기 쉬워요.', '서로의 존재감을 강하게 느끼고 금방 가까워지기 쉬워요.'],
+      asc_venus: ['한 사람의 애정·취향(금성)이 상대의 첫인상·태도에 닿는 자리예요.', '상대를 보기만 해도 호감이 가고 다정하게 대하기 쉬워요.', '호감은 있지만 표현 방식이나 취향이 엇갈려 아쉬움이 생기기 쉬워요.', '외모·분위기에서 오는 첫인상 호감이 크게 작용해요.'],
+      jupiter_jupiter: ['두 사람의 가치관·믿음(목성)이 만나는 자리예요. 나이가 비슷하면 흔히 생기는 각이라 비중은 작아요.', '추구하는 가치와 즐거움이 비슷해 함께 성장하기 쉬워요.', '무엇을 옳다고 믿는지가 달라 의견이 갈릴 수 있어요.', '세상을 보는 큰 방향이 닮았어요.'],
+      jupiter_mars: ['한 사람의 행동력(화성)과 상대의 확장·낙관(목성)이 만나는 자리예요.', '같이 무언가를 시작하면 힘이 붙고 잘 풀리기 쉬워요.', '의욕이 앞서 무리하거나 과하게 밀어붙이기 쉬워요.', '함께 있으면 도전하고 싶은 에너지가 커져요.'],
+      jupiter_mercury: ['한 사람의 말·생각(수성)과 상대의 넓은 시야(목성)가 만나는 자리예요.', '대화가 생각을 넓혀 주고 서로 배울 점이 많아요.', '큰 그림과 세부가 엇갈려 말이 겉돌거나 약속이 과해질 수 있어요.', '대화가 즐겁고 아이디어가 잘 커져요.'],
+      jupiter_moon: ['한 사람의 감정(달)과 상대의 너그러움(목성)이 만나는 자리예요.', '상대가 감정을 넉넉하게 받아 줘서 마음이 놓여요.', '돌봄이 지나치거나 기대가 커져서 서운함이 생길 수 있어요.', '함께 있으면 마음이 따뜻하고 넉넉해지는 느낌을 받아요.'],
+      jupiter_saturn: ['한 사람의 확장(목성)과 상대의 신중함(토성)이 만나는 자리예요. 나이가 비슷하면 흔한 각이라 비중은 작아요.', '추진과 신중함이 균형을 이뤄 계획을 현실로 만들기 좋아요.', '한쪽은 넓히려 하고 한쪽은 줄이려 해서 속도 차이가 생겨요.', '꿈과 현실 감각이 한데 묶여요.'],
+      jupiter_sun: ['한 사람의 자아(태양)와 상대의 너그러움·성장(목성)이 만나는 자리예요.', '서로의 장점을 키워 주고 함께 있으면 자신감이 생겨요.', '격려가 지나쳐 허세나 과한 기대로 흐를 수 있어요.', '서로를 크게 믿어 주고 북돋우는 힘이 강해요.'],
+      jupiter_venus: ['한 사람의 애정(금성)과 상대의 너그러움(목성)이 만나는 자리예요.', '다정함과 즐거움이 넘치고 함께하는 시간이 풍요로워요.', '즐거움이나 씀씀이가 과해지기 쉬워 절제가 필요해요.', '애정이 넉넉하게 오가고 함께 있으면 기분이 좋아지는 조합이에요.'],
+      mars_mars: ['두 사람의 행동력·욕구(화성)가 만나는 자리예요.', '움직이는 속도와 방식이 잘 맞아 같은 팀이 되면 강해요.', '추진하는 방식이 달라 경쟁하거나 쉽게 다툴 수 있어요.', '에너지가 비슷하게 뜨거워서 함께 달리기도, 정면으로 부딪치기도 쉬워요.'],
+      mars_mercury: ['한 사람의 말·생각(수성)과 상대의 행동력(화성)이 만나는 자리예요.', '대화가 활기차고 생각을 바로 행동으로 옮기기 좋아요.', '말이 날카로워지기 쉬워 논쟁이 말다툼으로 번질 수 있어요.', '토론이 뜨겁고 자극적이에요. 말투만 조심하면 좋은 자극이 돼요.'],
+      mars_moon: ['한 사람의 감정(달)과 상대의 욕구·행동(화성)이 만나는 자리예요.', '감정과 열정이 잘 맞물려 서로를 생기 있게 만들어요.', '상대의 거친 반응이 감정을 건드려 쉽게 상처를 주고받을 수 있어요.', '감정이 강하게 자극돼서 열정과 예민함이 함께 커져요.'],
+      mars_saturn: ['한 사람의 행동력(화성)과 상대의 통제·책임감(토성)이 만나는 자리예요.', '열정과 끈기가 합쳐져 함께 일을 끝까지 해내기 좋아요.', '한쪽은 밀고 한쪽은 막는 느낌이라 답답함과 마찰이 생기기 쉬워요.', '서로의 힘을 조절해 주는 관계가 되기도, 서로를 억누르는 관계가 되기도 해요.'],
+      mars_sun: ['한 사람의 자아(태양)와 상대의 행동력·욕구(화성)가 만나는 자리예요.', '서로에게 활력을 주고 함께하면 추진력이 생겨요.', '고집과 자존심이 부딪혀 주도권 다툼이 생기기 쉬워요.', '강하게 끌리고 자극을 주고받아요. 열정만큼 다툼도 뜨거울 수 있어요.'],
+      mars_venus: ['한 사람의 애정(금성)과 상대의 욕구(화성)가 만나는, 끌림·설렘의 대표 축이에요.', '설렘과 끌림이 자연스럽게 오가는 좋은 케미예요.', '끌림은 강하지만 원하는 방식이 달라 밀당이나 자극으로 흐르기 쉬워요.', '강한 이끌림과 설렘이 있는 대표적인 케미예요.'],
+      mercury_mercury: ['두 사람의 말·생각(수성)이 만나는 자리예요.', '생각의 속도와 말하는 방식이 잘 맞아 대화가 편해요.', '생각하는 방식이 달라 같은 말도 다르게 이해하기 쉬워요.', '관심사와 말투가 닮아 대화가 끊이지 않아요.'],
+      mercury_moon: ['한 사람의 감정(달)과 상대의 말·생각(수성)이 만나는 자리예요.', '감정을 말로 잘 풀어낼 수 있어 서로 이해받는 느낌이 들어요.', '감정으로 말하는 쪽과 논리로 답하는 쪽이 엇갈리기 쉬워요.', '마음을 말로 잘 알아주는 사이예요.'],
+      mercury_saturn: ['한 사람의 말·생각(수성)과 상대의 신중함·책임감(토성)이 만나는 자리예요.', '대화가 차분하고 현실적이라 함께 계획을 세우기 좋아요.', '한쪽의 말이 지적이나 무시처럼 들려 대화가 무거워지기 쉬워요.', '진지하고 깊은 대화가 가능하지만 말이 딱딱해질 수 있어요.'],
+      mercury_sun: ['한 사람의 자아(태양)와 상대의 말·생각(수성)이 만나는 자리예요.', '서로의 생각을 잘 이해하고 말이 잘 통해요.', '의견을 내는 방식이 엇갈려 말로 부딪히기 쉬워요.', '상대의 생각을 잘 알아듣고 대화로 가까워지기 쉬워요.'],
+      mercury_venus: ['한 사람의 애정(금성)과 상대의 말·생각(수성)이 만나는 자리예요.', '다정한 말이 잘 오가고 함께 이야기하는 시간이 즐거워요.', '애정 표현과 말하는 방식이 어긋나 섭섭함이 생길 수 있어요.', '말로 애정을 잘 표현하고 대화 자체가 즐거운 사이예요.'],
+      moon_moon: ['두 사람의 감정 리듬(달)이 만나는 자리예요.', '감정 반응이 비슷해 함께 있으면 편안해요.', '감정이 반응하는 방식이 달라 서로의 마음을 배우는 시간이 필요해요.', '감정의 결이 닮아 말하지 않아도 통하는 느낌이 들기 쉬워요.'],
+      moon_saturn: ['한 사람의 감정(달)과 상대의 책임감·무게(토성)가 만나는 자리예요.', '상대가 정서적 버팀목이 되어 주고 오래가는 안정감을 줘요.', '감정이 억눌리거나 차갑게 받아들여진다고 느끼기 쉬워요.', '진지한 결속과 책임감이 생기지만 감정의 무게도 함께 와요.'],
+      moon_sun: ['한 사람의 본질(태양)과 상대의 정서(달)가 만나는, 궁합의 핵심 축이에요.', '서로의 마음을 잘 알아주고 깊은 안정감을 주고받아요.', '원하는 것과 느끼는 것이 엇갈려 「왜 몰라줄까」 하는 거리감이 생기기 쉬워요.', '서로를 채워 주는 짝처럼 느끼기 쉬운 강한 연결이에요.'],
+      moon_venus: ['한 사람의 감정(달)과 상대의 애정(금성)이 만나는 자리예요.', '함께 있으면 편안하고 사랑받는 느낌이 들어요.', '애정은 있지만 표현 방식이 달라 정서적으로 엇갈리기 쉬워요.', '다정함과 정서적 친밀감이 크게 느껴지는 조합이에요.'],
+      saturn_saturn: ['두 사람의 책임감·현실 감각(토성)이 만나는 자리예요. 나이가 비슷하면 흔한 각이라 비중은 작아요.', '삶의 우선순위와 현실 감각이 비슷해요.', '인생의 과제와 시기가 엇갈려 서로의 짐이 무겁게 느껴질 수 있어요.', '비슷한 시기에 비슷한 고민을 겪기 쉬워요.'],
+      saturn_sun: ['한 사람의 자아(태양)와 상대의 책임감·틀(토성)이 만나는 자리예요.', '서로에게 믿음과 안정감을 주고 오래가는 관계의 바탕이 돼요.', '한쪽이 상대에게 눌리거나 평가받는다고 느껴 부담이 되기 쉬워요.', '헌신과 책임감으로 강하게 묶이지만 무겁게 느껴질 때도 있어요.'],
+      saturn_venus: ['한 사람의 애정(금성)과 상대의 책임감(토성)이 만나는 자리예요.', '진지하고 오래가는 애정으로 이어지기 좋아요.', '애정 표현이 막히거나 냉정하게 느껴져 서운함이 생길 수 있어요.', '책임감 있는 사랑이지만 표현은 조심스러워지기 쉬워요.'],
+      sun_sun: ['두 사람의 기본 성향(태양)이 만나는 자리예요.', '삶의 방향이 잘 맞아 서로를 쉽게 이해해요.', '추구하는 방향이 달라 자존심이 부딪히기 쉬워요.', '기본 성향이 닮아 공감이 크지만 같은 약점도 함께 가져요.'],
+      sun_venus: ['한 사람의 자아(태양)와 상대의 애정(금성)이 만나는 자리예요.', '서로를 매력적으로 느끼고 아껴 주는 따뜻한 조합이에요.', '호감은 있지만 원하는 방식이 달라 애정이 엇갈리게 느껴질 수 있어요.', '호감과 인정이 크게 오가는 다정한 연결이에요.'],
+      venus_venus: ['두 사람의 애정·취향(금성)이 만나는 자리예요.', '좋아하는 것과 사랑하는 방식이 잘 맞아요.', '취향과 애정 표현 방식이 달라 맞춰 가는 노력이 필요해요.', '취향이 닮아 함께 즐길 거리가 많아요.'],
     };
-    const SYN_AREA = { sun: '자아·삶의 방향', moon: '감정·안정감', mercury: '말·생각', venus: '애정·취향', mars: '행동력·욕구', jupiter: '너그러움·성장', saturn: '책임·현실감', asc: '첫인상·태도' };
-    // 행성 쌍의 「주제」만 말해요. 좋고 나쁨은 뒤에 붙는 각(조화·긴장) 설명이 정해요
-    // (예전엔 사각인데도 「너그러운 조합」처럼 좋은 말이 붙어 앞뒤가 엇갈렸어요)
-    const SYN_PAIR_THEME = {
-      moon_sun: '본질(태양)과 정서(달)가 만나는, 궁합의 핵심 축이에요.',
-      sun_venus: '호감과 애정 표현이 오가는 축이에요.',
-      mars_venus: '끌림·설렘·케미를 보여 주는 축이에요.',
-      moon_venus: '정서적 친밀감과 다정함을 보여 주는 축이에요.',
-      mars_moon: '감정(달)과 욕구·행동(화성)이 만나는 축이에요.',
-      mercury_mercury: '대화 방식과 생각의 속도가 맞는지를 보여 줘요.',
-      moon_moon: '두 사람의 감정 리듬을 보여 줘요.',
-      sun_sun: '두 사람의 기본 성향이 닮았는지, 다른지를 보여 줘요.',
-      venus_venus: '취향과 사랑하는 방식을 보여 줘요.',
-      saturn_sun: '책임·신뢰·관계의 틀을 보여 주는 축이에요.',
-      moon_saturn: '정서적 안정감과 감정의 무게를 보여 주는 축이에요.',
-      saturn_venus: '애정의 진지함과 오래가는 힘을 보여 주는 축이에요.',
-      jupiter_sun: '서로의 성장과 너그러움을 보여 주는 축이에요.',
-      jupiter_venus: '즐거움과 다정함을 보여 주는 축이에요.',
-      mars_mars: '추진력과 경쟁심이 만나는 축이에요.',
+    const synPairKey = (a, b) => [a, b].sort().join('_');
+    // 주제 문장은 실제 이름으로 만들어요(누구의 어떤 행성인지 헷갈리지 않게)
+    const PLANET_ROLE = { sun: '자아·삶의 방향(태양)', moon: '감정(달)', mercury: '말·생각(수성)', venus: '애정·취향(금성)', mars: '행동력·욕구(화성)', jupiter: '너그러움·성장(목성)', saturn: '책임감·현실 감각(토성)', asc: '첫인상·태도(상승궁)' };
+    const SYN_EXTRA = {
+      moon_sun: '궁합의 핵심 축이에요.',
+      mars_venus: '끌림·설렘을 보여 주는 대표 축이에요.',
+      jupiter_jupiter: '나이가 비슷하면 흔히 생기는 각이라 비중은 작아요.',
+      saturn_saturn: '나이가 비슷하면 흔히 생기는 각이라 비중은 작아요.',
+      jupiter_saturn: '나이가 비슷하면 흔히 생기는 각이라 비중은 작아요.',
     };
-    const pairTheme = (a, b) => SYN_PAIR_THEME[[a, b].sort().join('_')] || '';
+    // 주제별 묶음: 달 → 정서, 수성 → 소통, 목성·토성 → 신뢰·성장, 나머지(태양·금성·화성·상승궁) → 끌림
+    const SYN_GROUPS = [
+      { id: 'attract', title: '끌림·케미', sub: '태양·금성·화성·상승궁' },
+      { id: 'emotion', title: '정서·안정감', sub: '달' },
+      { id: 'talk', title: '소통·생각', sub: '수성' },
+      { id: 'trust', title: '신뢰·성장', sub: '토성·목성' },
+    ];
+    const synGroupOf = (a, b) => {
+      const s = [a, b];
+      if (s.includes('moon')) return 'emotion';
+      if (s.includes('mercury')) return 'talk';
+      if (s.includes('saturn') || s.includes('jupiter')) return 'trust';
+      return 'attract';
+    };
     const josaKo = (w, withB, withoutB) => {
-      const ch = String(w || '').trim().slice(-1);
+      const ch = String(w || '').trim().replace(/\([^)]*\)$/, '').trim().slice(-1);
       const code = ch.charCodeAt(0) - 0xAC00;
       const has = code >= 0 && code <= 11171 && code % 28 !== 0;
       return w + (has ? withB : withoutB);
@@ -675,24 +721,44 @@ body{font-family:var(--font-body);background:var(--cream);color:var(--ink);min-h
     hits.forEach((h) => { h.unsure = (h.ak === 'moon' && A.unknown) || (h.bk === 'moon' && B.unknown); });
     let easy = 0, tense = 0, strong = 0;
     let synHtml = '';
+    const groupHtml = { attract: [], emotion: [], talk: [], trust: [] };
     hits.slice(0, 16).forEach((h) => {
       const m = meaning[h.key] || { tone: '', text: '' };
       if (!h.unsure) {
         if (m.tone === 'easy') easy++; else if (m.tone === 'tense') tense++; else if (m.tone === 'strong') strong++;
       }
-      const pairNote = pairTheme(h.ak, h.bk);
-      const lead = pairNote ||
-        (josaKo(nameA + '의 ' + (SYN_AREA[h.ak] || labelKo[h.ak]), '과', '와') + ' ' +
-          josaKo(nameB + '의 ' + (SYN_AREA[h.bk] || labelKo[h.bk]), '이', '가') + ' 만나는 자리예요.');
-      const base = lead + ' ' + (SYN_ASPECT_TEXT[h.key] || m.text);
+      const tx = SYN_TEXT[synPairKey(h.ak, h.bk)];
+      const toneIdx = m.tone === 'easy' ? 1 : m.tone === 'tense' ? 2 : 3;
+      const pk = synPairKey(h.ak, h.bk);
+      const lead = josaKo(nameA + '의 ' + (PLANET_ROLE[h.ak] || labelKo[h.ak]), '과', '와') + ' ' +
+        josaKo(nameB + '의 ' + (PLANET_ROLE[h.bk] || labelKo[h.bk]), '이', '가') + ' 만나는 자리예요.' +
+        (SYN_EXTRA[pk] ? ' ' + SYN_EXTRA[pk] : '');
+      const base = tx
+        ? lead + ' ' + tx[toneIdx]
+        : (josaKo(nameA + '의 ' + labelKo[h.ak], '과', '와') + ' ' + josaKo(nameB + '의 ' + labelKo[h.bk], '이', '가') + ' 만나는 자리예요. ' + (m.text || ''));
       const unsureTag = h.unsure ? '<span class="tag tag-unsure">시간 미상 · 참고</span>' : '';
       const unsureText = h.unsure ? ' (출생 시간을 몰라 달의 위치가 정확하지 않아서 참고로만 봐 주세요.)' : '';
-      synHtml += `<div class="syn-item ${m.tone}${h.unsure ? ' unsure' : ''}">
+      groupHtml[synGroupOf(h.ak, h.bk)].push(`<div class="syn-item ${m.tone}${h.unsure ? ' unsure' : ''}">
         <div class="syn-title"><span class="syn-sym">${ASPECT_SYM[h.key] || ''}</span><span class="who-a">${escapeCounselorHtml(nameA)}</span> ${labelKo[h.ak]} ${ASPECT_KR[h.key]} <span class="who-b">${escapeCounselorHtml(nameB)}</span> ${labelKo[h.bk]}${tagOf[m.tone] || ''}${unsureTag}</div>
         <div class="syn-text">${escapeCounselorHtml(base)}${unsureText}</div>
-      </div>`;
+      </div>`);
     });
-    $('synList').innerHTML = synHtml || '<div class="note">두 차트 사이에 뚜렷한 주요 각이 적네요. 서로 자극은 덜하지만 편안한 관계일 수 있어요.</div>';
+    // 주제별로 묶고, 묶음마다 오차가 작은(강한) 3개만 먼저 보여 줘요
+    const SHOW_FIRST = 3;
+    SYN_GROUPS.forEach((g) => {
+      const items = groupHtml[g.id];
+      synHtml += `<section class="syn-group"><h4 class="syn-group-title">${g.title}<small>${g.sub}${items.length ? ' · ' + items.length + '개' : ''}</small></h4>`;
+      if (!items.length) {
+        synHtml += '<p class="syn-group-empty">이 영역에는 뚜렷한 각이 없어요. 큰 자극도 큰 걸림도 적은 편이에요.</p>';
+      } else {
+        synHtml += '<div class="syn-list">' + items.slice(0, SHOW_FIRST).join('') + '</div>';
+        if (items.length > SHOW_FIRST) {
+          synHtml += `<details class="syn-more"><summary>${items.length - SHOW_FIRST}개 더 보기</summary><div class="syn-list">${items.slice(SHOW_FIRST).join('')}</div></details>`;
+        }
+      }
+      synHtml += '</section>';
+    });
+    $('synList').innerHTML = hits.length ? synHtml : '<div class="note">두 차트 사이에 뚜렷한 주요 각이 적네요. 서로 자극은 덜하지만 편안한 관계일 수 있어요.</div>';
 
     // 궁합 지수: 조화/강한끌림은 +, 긴장은 약한 - (긴장도 관계의 활력이므로 과하게 깎지 않음)
     const total = easy + tense + strong;
@@ -842,6 +908,10 @@ body{font-family:var(--font-body);background:var(--cream);color:var(--ink);min-h
   }
   $('btnCopy').addEventListener('click', () => copyText(LAST_SUMMARY, $('btnCopy')));
   $('btnPrint').addEventListener('click', () => window.print());
+  // 인쇄·PDF에는 접혀 있는 각까지 모두 나오게 펼쳐요
+  window.addEventListener('beforeprint', () => {
+    document.querySelectorAll('#synList details.syn-more').forEach((d) => { d.open = true; });
+  });
   $('btnImage').addEventListener('click', async () => {
     if (typeof html2canvas !== 'function') { showStatus('이미지 저장 도구를 불러오지 못했어요.', 'err'); return; }
     const btn = $('btnImage'); const prev = btn.textContent; btn.textContent = '⏳ 생성 중…'; btn.disabled = true;
