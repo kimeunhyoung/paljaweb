@@ -228,9 +228,9 @@
   var ASPECT_MEANING = {
     conjunction: { tone: 'strong', text: '두 힘이 한데 뭉쳐 강하게 증폭돼요. 같은 방향으로 작동해 장점도 과제도 함께 커져요.' },
     opposition:  { tone: 'tense',  text: '두 힘이 마주 보며 긴장·균형을 만들어요. 양극을 통합하는 것이 과제예요.' },
-    trine:       { tone: 'easy',   text: '두 힘이 자연스럽게 흐르는 재능·강점. 애쓰지 않아도 잘 통합돼요.' },
+    trine:       { tone: 'easy',   text: '두 힘이 자연스럽게 어우러져 재능·강점이 돼요. 애쓰지 않아도 잘 통합돼요.' },
     square:      { tone: 'tense',  text: '두 힘이 부딪치며 성장의 마찰을 만들어요. 넘어서면 큰 추진력이 돼요.' },
-    sextile:     { tone: 'easy',   text: '두 힘이 서로 돕는 기회. 조금만 움직이면 좋은 결과로 이어져요.' }
+    sextile:     { tone: 'easy',   text: '두 힘이 서로 도와요. 조금만 움직이면 좋은 결과로 이어져요.' }
   };
 
   // ── 원소 · 모달리티 정보 ──
@@ -275,7 +275,7 @@
   var EXTRA_AREA = {
     asc: '나 자신·첫인상·몸', mc: '커리어·사회적 위치·명예',
     fortune: '행운·성취가 모이는 지점', vertex: '운명적 만남·전환점',
-    northnode: '삶의 성장 방향', southnode: '익숙한 과거 패턴', lilith: '본능·억압된 욕망', chiron: '상처와 치유'
+    northnode: '삶의 성장 방향', southnode: '익숙한 과거 패턴', lilith: '본능·억압된 욕망', chiron: '상처·치유'
   };
   var ASP_KR = { conjunction: '합', opposition: '충', trine: '삼각', square: '사각', sextile: '육각' };
 
@@ -284,6 +284,7 @@
     return EXTRA_LABELS[k] || k;
   }
   function bodyArea(k) {
+    if (EXTRA_AREA[k]) return EXTRA_AREA[k];
     if (PLANETS[k]) return PLANETS[k].role.split('·')[0].trim();
     return EXTRA_AREA[k] || bodyLabel(k);
   }
@@ -299,18 +300,35 @@
   }
   function josa(w, withB, withoutB) { return w + (hasBatchim(w) ? withB : withoutB); }
 
+  // 출생 차트(한 사람) 전용 행성쌍 주제 — 커플용 문구(「함께 있으면」 등)를 쓰지 않아요.
+  // 좋고 나쁨은 뒤에 붙는 각(조화·긴장) 설명이 정해요.
+  var NATAL_PAIR = {
+    moon_sun: '의지(태양)와 감정(달)이 얼마나 한 방향으로 움직이는지를 보여 줘요.',
+    sun_venus: '자기다움과 애정·취향이 만나는 자리예요.',
+    mars_venus: '애정과 욕구, 끌림을 표현하는 방식이 만나는 자리예요.',
+    moon_venus: '감정과 애정 표현이 만나는 자리예요.',
+    mars_moon: '감정과 행동·욕구가 만나는 자리예요.',
+    mercury_moon: '감정과 생각·말이 만나는 자리예요.',
+    saturn_sun: '자아와 책임·한계가 만나는 자리예요.',
+    moon_saturn: '감정과 책임감·절제가 만나는 자리예요.',
+    saturn_venus: '애정과 책임·진지함이 만나는 자리예요.',
+    jupiter_sun: '자아와 확장·낙관이 만나는 자리예요.',
+    jupiter_venus: '애정과 즐거움·풍요가 만나는 자리예요.',
+    mars_sun: '자아와 의지·추진력이 만나는 자리예요.',
+    mars_saturn: '추진력과 절제·인내가 만나는 자리예요.'
+  };
   function aspectPairNote(p1, p2, aspectKey) {
     var asp = ASPECT_MEANING[aspectKey];
     if (!asp) return '';
-    var pair = synastryPairNote(p1, p2);
+    var pair = NATAL_PAIR[synastryPairKey(p1, p2)] || '';
     var n1 = bodyLabel(p1), n2 = bodyLabel(p2);
     var ak = ASP_KR[aspectKey] || aspectKey;
     if (pair) {
-      return n1 + ' ' + ak + ' ' + n2 + ' — ' + pair + ' 이 조합에서는 ' + asp.text;
+      return n1 + ' ' + ak + ' ' + n2 + ' — ' + pair + ' ' + asp.text;
     }
     var a1 = bodyArea(p1), a2 = bodyArea(p2);
     if (asp.tone === 'easy') {
-      return josa(a1, '과', '와') + ' ' + josa(a2, '이', '가') + ' ' + ak + '으로 자연스럽게 연결돼요. ' + asp.text + ' 일상에서 ' + josa(a1, '과', '와') + ' ' + josa(a2, '을', '를') + ' 함께 쓰면 강점이 드러나요.';
+      return josa(a1, '과', '와') + ' ' + josa(a2, '이', '가') + ' ' + ak + '으로 부드럽게 연결돼요. ' + asp.text + ' 일상에서 ' + josa(a1, '과', '와') + ' ' + josa(a2, '을', '를') + ' 함께 쓰면 강점이 드러나요.';
     }
     if (asp.tone === 'tense') {
       return josa(a1, '과', '와') + ' ' + a2 + ' 사이에 ' + ak + '의 긴장이 있어요. ' + asp.text + ' ' + josa(a1, '과', '와') + ' ' + josa(a2, '이', '가') + ' 부딪칠 때 한쪽만 고집하지 않도록 조율해 보세요.';
@@ -331,7 +349,7 @@
     mars_moon: '감정 반응이 빨라지고 충동이 올 수 있어요. 말과 행동에 한 박자 쉬세요.',
     venus_venus: '관계·돈·미적 취향에 변화의 바람이 불어요.',
     pluto_sun: '근본적인 자아 변형·재탄생의 에너지예요. 낡은 정체성을 내려놓을 수 있어요.',
-    neptune_mc: '커리어·방향에 이상과 혼란이 섞이에요. 비전은 키우되 현실 확인이 필요해요.',
+    neptune_mc: '커리어·방향에 이상과 혼란이 섞여요. 비전은 키우되 현실 확인이 필요해요.',
     uranus_asc: '외모·첫인상·삶의 방식에 돌발 변화가 올 수 있어요.',
     saturn_moon: '감정적으로 무겁거나 책임감이 커지는 시기예요. 혼자 버티지 마세요.'
   };
