@@ -60,12 +60,15 @@
     var u = S / 600; // 기준 600px 대비 배율
     function fs(px, min) { return Math.max(px * u, min || 0).toFixed(2); }
 
-    var R_label = S / 2 - 2;            // 축 이름(ASC·MC) 놓을 바깥 여백
     var R_out = S / 2 - Math.max(26 * u, 24);  // 별자리 링 바깥 (축 이름 자리 확보)
     var R_z = R_out - 40 * u;           // 별자리 링 안쪽
     var R_t = R_z - 13 * u;             // 눈금 끝
     var R_h = R_out * (compact ? 0.47 : 0.5);   // 하우스 번호 링 바깥
     var R_i = R_h - 20 * u;             // 어스펙트 원
+    var R_g = R_t - (compact ? 14 : 16) * u; // 행성 기호 링
+    // 행성·도수 라벨이 차지하는 구간 (이 구간만 축선을 끊음)
+    var R_gapIn = Math.max(R_h, R_g - (compact ? 26 : 74) * u);
+    var R_gapOut = R_z;
 
     function ang(lon) { return Math.PI + (norm(lon) - asc) * Math.PI / 180; }
     function pt(lon, r) { var t = ang(lon); return { x: c + r * Math.cos(t), y: c - r * Math.sin(t) }; }
@@ -124,8 +127,8 @@
     }
 
     // ── 하우스 ──
-    // Astro-Seek식: 굵은 ASC/MC 축은 어스펙트 원(R_i) 안쪽만.
-    // 행성·도수 링(R_i~R_z)은 비우고, 별자리 링에서만 얇게 이어 붙여요.
+    // 어스펙트 원(가운데 그리드)에는 굵은 축을 그리지 않음.
+    // 하우스 링 ↔ 별자리 링으로 굵게 잇되, 행성·도수 구간(R_gapIn~R_gapOut)만 비움.
     var gH = el('g', {}, svg);
     el('circle', { cx: c, cy: c, r: R_h, fill: '#fbf6ec', stroke: LINE, 'stroke-width': 1 * u }, gH);
     el('circle', { cx: c, cy: c, r: R_i, fill: '#ffffff', stroke: LINE, 'stroke-width': 1 * u }, gH);
@@ -133,10 +136,16 @@
       var cu = data.cusps[h];
       var axis = h === 0 || h === 3 || h === 6 || h === 9;
       if (axis) {
-        line(cu, 0, R_i, { stroke: INK, 'stroke-width': 2.6 * u }, gH);
-        line(cu, R_z, R_out, { stroke: INK, 'stroke-width': 1.35 * u }, gH);
+        if (R_gapIn > R_i + 1) {
+          line(cu, R_i, R_gapIn, { stroke: INK, 'stroke-width': 2.6 * u }, gH);
+        }
+        if (R_out > R_gapOut + 1) {
+          line(cu, R_gapOut, R_out, { stroke: INK, 'stroke-width': 2.6 * u }, gH);
+        }
       } else {
-        line(cu, R_i, R_z, { stroke: LINE, 'stroke-width': 0.9 * u, 'stroke-opacity': 0.75 }, gH);
+        if (R_gapIn > R_i + 1) {
+          line(cu, R_i, R_gapIn, { stroke: LINE, 'stroke-width': 0.9 * u, 'stroke-opacity': 0.75 }, gH);
+        }
       }
       var next = data.cusps[(h + 1) % 12];
       var span = norm(next - cu);
@@ -144,28 +153,19 @@
       text(hm.x, hm.y, String(h + 1), { 'font-size': fs(11, 8), fill: '#8a7558', 'font-weight': 600 }, gH);
     }
 
-    // ── 축 이름 (ASC·DSC·MC·IC) — 굵은 선이 끝나는 안쪽 원 가장자리에 둠 ──
+    // ── 축 이름 (ASC·DSC·MC·IC) — 바깥 여백 (행성 링과 겹치지 않게) ──
     var gA = el('g', {}, svg);
     function fmtDM(lon) {
       var d = norm(lon) % 30; var w = Math.floor(d); var m = Math.floor((d - w) * 60 + 1e-6);
       return w + '°' + String(m).padStart(2, '0') + "'";
     }
-    var axisLabelR = R_i + Math.max(11 * u, 10);
     [['ASC', data.cusps[0]], ['DSC', data.cusps[6]], ['MC', data.cusps[9]], ['IC', data.cusps[3]]].forEach(function (a) {
-      var p = pt(a[1], axisLabelR);
-      // 흰 테두리로 하우스 번호·배경과 겹쳐도 읽히게
-      text(p.x, p.y, a[0], {
-        'font-size': fs(11, 8), 'font-weight': 800, fill: INK,
-        stroke: '#fffdf8', 'stroke-width': 3.5 * u, 'paint-order': 'stroke fill'
-      }, gA);
+      var p = pt(a[1], R_out + Math.max(13 * u, 12));
+      text(p.x, p.y, a[0], { 'font-size': fs(11, 8), 'font-weight': 800, fill: INK }, gA);
       if (!compact && (a[0] === 'ASC' || a[0] === 'MC')) {
-        var degOff = (a[0] === 'ASC' ? -7 : 7);
-        var q = pt(a[1] + degOff, axisLabelR);
+        var q = pt(a[1] + (a[0] === 'ASC' ? -5.5 : 5.5), R_out + Math.max(13 * u, 12));
         var si = Math.floor(norm(a[1]) / 30);
-        text(q.x, q.y, fmtDM(a[1]), {
-          'font-size': fs(10, 8), 'font-weight': 700, fill: EL_INK[si % 4],
-          stroke: '#fffdf8', 'stroke-width': 3.2 * u, 'paint-order': 'stroke fill'
-        }, gA);
+        text(q.x, q.y, fmtDM(a[1]), { 'font-size': fs(10, 8), 'font-weight': 700, fill: EL_INK[si % 4] }, gA);
       }
     });
 
@@ -173,7 +173,6 @@
     var pts = (data.points || []).filter(function (p) { return p && isFinite(p.lon) && SYMBOL[p.key]; })
       .map(function (p) { return { key: p.key, lon: norm(p.lon), retro: !!p.retro, minor: !!p.minor, disp: norm(p.lon) }; })
       .sort(function (a, b) { return a.lon - b.lon; });
-    var R_g = R_t - (compact ? 14 : 16) * u;
     var minSep = (compact ? Math.max(34 * u, 19) : 34 * u) / R_g * 180 / Math.PI;
     spread(pts, minSep);
 
