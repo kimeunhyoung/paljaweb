@@ -4790,14 +4790,19 @@ function openExportPicker(mode) {
       lastGroup = null;
     }
     const itemCls = u.group ? 'export-picker-item export-picker-item--sub' : 'export-picker-item';
+    // 상담사용 요약은 기본 해제 — 고객에게 줄 PDF에 실수로 섞이지 않게
+    const checkedAttr = u.id === 'counselorPrepCard' ? '' : ' checked';
     return `${head}
     <label class="${itemCls}">
-      <input type="checkbox" value="${u.id}" checked>
+      <input type="checkbox" value="${u.id}"${checkedAttr}>
       <span>${escapeHtml(u.label)}</span>
     </label>`;
   }).join('');
   const allBox = document.getElementById('exportPickerAll');
-  if (allBox) allBox.checked = true;
+  if (allBox) {
+    const boxes = Array.from(document.querySelectorAll('#exportPickerList input[type=checkbox]'));
+    allBox.checked = boxes.length > 0 && boxes.every((b) => b.checked);
+  }
 
   document.getElementById('exportPickerModal').classList.add('is-open');
 }
@@ -4855,6 +4860,8 @@ function applyExportHide(hiddenIds) {
   });
   const ra = document.getElementById('resultArea');
   if (ra) exportLockedTargets(ra).forEach((el) => el.classList.add('export-print-hide'));
+  // 최근 상담·이어가기는 인쇄물에도 넣지 않음
+  document.querySelectorAll('.prep-box--recent-session').forEach((el) => el.classList.add('export-print-hide'));
   pruneEmptyExportContainers(document, (el) => el.classList.add('export-print-hide'));
 }
 
@@ -5233,6 +5240,8 @@ function buildAnalysisPdfClone(el, hiddenIds) {
   // 하위 차트를 다 빼거나 잠금만 남은 경우: 제목·읽는 법 껍데기도 제거
   // (빈 .timeline-dual 래퍼가 남아도 섹션을 남기지 않음)
   pruneEmptyExportContainers(clone, (n) => n.remove());
+  // 최근 상담·이어가기: 상담사 화면 전용 — PDF/인쇄 산출물에 넣지 않음
+  clone.querySelectorAll('.prep-box--recent-session').forEach((n) => n.remove());
   // sticky 탭만 빼고, ①②③ 그룹 제목은 PDF에도 남김
   clone.querySelectorAll('.lc-group-bar').forEach((n) => n.remove());
   // 종이·PDF에서는 펼칠 수 없으니 접힌 항목을 모두 펼쳐 넣어요
@@ -5242,10 +5251,10 @@ function buildAnalysisPdfClone(el, hiddenIds) {
   flatStyle.textContent = getPdfFlatCss();
   clone.insertBefore(flatStyle, clone.firstChild);
   pdfReplaceAllDetailsForPdf(clone);
-  // 상담사 고객용 리포트: 브랜드(이름/로고) 머리글 삽입
+  // 상담사 고객용 리포트: 브랜드(이름/로고) 머리글 삽입 · 상담 준비 카드 전체 제외
   if (COUNSELOR_REPORT_MODE) {
     const prep = clone.querySelector('#counselorPrepCard');
-    if (prep) prep.remove(); // 상담사용 준비 카드는 고객 리포트에서 제외
+    if (prep) prep.remove();
     const hdr = clone.querySelector('#analysisExportHeader');
     const brand = readCounselorBrand();
     if (hdr && (brand.name || brand.logo)) {
@@ -7151,7 +7160,7 @@ function renderCounselorPrepCard(p) {
     if (rs.next_focus) bits.push(`<div class="memo-focus"><strong>다음 포인트</strong> ${esc(String(rs.next_focus))}</div>`);
     if (rs.summary) bits.push(buildPrepMemoAccordion(rs.summary));
     if (bits.length) {
-      memoHtml = `<div class="prep-box prep-box--wide"><h4>최근 상담 · 이어가기</h4><div class="prep-memo"><span class="memo-date">${esc(String(rs.session_date || ''))}</span>${bits.join('')}</div></div>`;
+      memoHtml = `<div class="prep-box prep-box--wide prep-box--recent-session"><h4>최근 상담 · 이어가기</h4><div class="prep-memo"><span class="memo-date">${esc(String(rs.session_date || ''))}</span>${bits.join('')}</div></div>`;
     }
   }
 
