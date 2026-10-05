@@ -63,12 +63,12 @@
     var R_out = S / 2 - Math.max(26 * u, 24);
     var R_z = R_out - 40 * u;
     var R_t = R_z - 13 * u;
-    var R_h = R_out * (compact ? 0.47 : 0.5);
+    var R_h = R_out * (compact ? 0.44 : 0.47);   // 하우스 링을 조금 안쪽으로 — 행성 라벨 여유
     var R_i = R_h - 20 * u;
-    var R_g = R_t - (compact ? 12 : 14) * u; // 행성 기호
-    var R_deg = R_g - (compact ? 14 : 16) * u; // 2°
-    var R_sign = R_deg - (compact ? 13 : 15) * u; // 별자리
-    var R_min = R_sign - (compact ? 13 : 15) * u; // 43'
+    var R_g = R_t - (compact ? 11 : 13) * u; // 행성 기호
+    var R_deg = R_g - (compact ? 18 : 21) * u; // 2°
+    var R_sign = R_deg - (compact ? 17 : 19) * u; // 별자리
+    var R_min = R_sign - (compact ? 16 : 18) * u; // 43'
     var R_lab = R_min; // 축 틈: 기호~분
 
     function ang(lon) { return Math.PI + (norm(lon) - asc) * Math.PI / 180; }
@@ -151,8 +151,8 @@
     var pts = (data.points || []).filter(function (p) { return p && isFinite(p.lon) && SYMBOL[p.key]; })
       .map(function (p) { return { key: p.key, lon: norm(p.lon), retro: !!p.retro, minor: !!p.minor, disp: norm(p.lon) }; })
       .sort(function (a, b) { return a.lon - b.lon; });
-    var minSep = (compact ? Math.max(18 * u, 12) : 20 * u) / R_g * 180 / Math.PI;
-    spread(pts, minSep, 18);
+    var minSep = (compact ? Math.max(22 * u, 14) : 26 * u) / R_g * 180 / Math.PI;
+    spread(pts, minSep, 22);
 
     // ── 하우스 + 축 ──
     var gH = el('g', {}, svg);
@@ -215,34 +215,34 @@
       el('line', { x1: a.x, y1: a.y, x2: b.x, y2: b.y, stroke: SOFT, 'stroke-width': 0.85 * u }, gP);
 
       var g = pt(p.disp, R_g);
-      el('circle', { cx: g.x, cy: g.y, r: Math.max(10 * u, 8.5), fill: PAPER, stroke: 'none' }, gP);
+      el('circle', { cx: g.x, cy: g.y, r: Math.max(8.5 * u, 7), fill: PAPER, stroke: 'none' }, gP);
       var ink = p.minor ? '#8a7558' : INK;
-      var gs = compact ? Math.max(0.92 * u, 0.66) : 1.05 * u;
+      var gs = compact ? Math.max(0.9 * u, 0.64) : 1.0 * u;
       symbol(SYMBOL[p.key], g.x, g.y, ink, p.minor ? gs * 0.88 : gs, gP);
 
       var si = Math.floor(p.lon / 30);
       var d = p.lon % 30; var w = Math.floor(d); var m = Math.floor((d - w) * 60 + 1e-6);
-      // Astro-Seek식: 도 / 별자리 / 분을 위아래로 따로
+      // Astro-Seek식: 도 / 별자리 / 분을 위아래로 따로 (간격 확보)
       var tDeg = pt(p.disp, R_deg);
-      el('circle', { cx: tDeg.x, cy: tDeg.y, r: Math.max(8 * u, 7), fill: PAPER, stroke: 'none' }, gP);
+      el('circle', { cx: tDeg.x, cy: tDeg.y, r: Math.max(6.5 * u, 5.5), fill: PAPER, stroke: 'none' }, gP);
       text(tDeg.x, tDeg.y, w + '°', {
-        'font-size': fs(compact ? 10 : 11.5, 8.5),
+        'font-size': fs(compact ? 9.5 : 11, 8),
         'font-weight': 700,
         fill: ink,
-        stroke: PAPER, 'stroke-width': 2.8 * u, 'paint-order': 'stroke fill'
+        stroke: PAPER, 'stroke-width': 2.4 * u, 'paint-order': 'stroke fill'
       }, gP);
 
       var tSign = pt(p.disp, R_sign);
-      el('circle', { cx: tSign.x, cy: tSign.y, r: Math.max(8 * u, 7), fill: PAPER, stroke: 'none' }, gP);
-      symbol(SIGN_NAMES[si], tSign.x, tSign.y, EL_INK[si % 4], (compact ? 0.55 : 0.62) * u, gP);
+      el('circle', { cx: tSign.x, cy: tSign.y, r: Math.max(6.5 * u, 5.5), fill: PAPER, stroke: 'none' }, gP);
+      symbol(SIGN_NAMES[si], tSign.x, tSign.y, EL_INK[si % 4], (compact ? 0.52 : 0.58) * u, gP);
 
       var tMin = pt(p.disp, R_min);
-      el('circle', { cx: tMin.x, cy: tMin.y, r: Math.max(8 * u, 7), fill: PAPER, stroke: 'none' }, gP);
+      el('circle', { cx: tMin.x, cy: tMin.y, r: Math.max(6.5 * u, 5.5), fill: PAPER, stroke: 'none' }, gP);
       text(tMin.x, tMin.y, String(m).padStart(2, '0') + "'" + (p.retro ? 'R' : ''), {
-        'font-size': fs(compact ? 9.5 : 10.5, 8),
+        'font-size': fs(compact ? 9 : 10, 7.5),
         'font-weight': 600,
         fill: p.retro ? '#c8412f' : '#5d4c3a',
-        stroke: PAPER, 'stroke-width': 2.6 * u, 'paint-order': 'stroke fill'
+        stroke: PAPER, 'stroke-width': 2.2 * u, 'paint-order': 'stroke fill'
       }, gP);
     });
 
