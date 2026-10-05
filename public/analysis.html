@@ -4687,13 +4687,18 @@ function collectExportUnits() {
     if (node.id === 'timelineSection') {
       [
         ['tlBlockClassic', '수비학 개인연도 (10년)'],
-        ['tlClassicLifeChart', '수비학 개인연도 (100년)'],
+        ['classicLifeChart', '수비학 개인연도 (100년)'],
         ['tlBlockTarot', '10년 타임라인 · 타로'],
       ].forEach(([id, label]) => {
         const sub = document.getElementById(id);
         if (!sub) return;
         if (!exportUnitVisible(sub)) return;
-        if (sub.querySelector('.feature-gate, .timeline-life-gate')) return; // 미개방 인생전반 제외
+        // 실제 차트 없이 잠금·업셀 안내만 있으면 제외.
+        // (예전: life-gate가 일부만 있어도 블록 전체를 빼서, 선택 UI에 안 나오는데 PDF엔 항상 들어갔음)
+        const hasChart = !!sub.querySelector(
+          '[data-timeline-mode], .timeline-wrap, .tarot-life-chart, .chart-inner'
+        );
+        if (!hasChart && sub.querySelector('.feature-gate, .timeline-life-gate')) return;
         units.push({ id, label, group: '10년 타임라인' });
       });
       return;
@@ -4822,11 +4827,14 @@ function confirmExportPicker() {
 /** 빈 껍데기만 남는 컨테이너(타임라인 섹션 등) 처리: 콜백으로 숨김/제거 */
 function pruneEmptyExportContainers(scope, hideOrRemove) {
   const tl = scope.querySelector('#timelineSection');
-  if (tl) {
-    const blocks = Array.from(tl.querySelectorAll('.timeline-block'));
-    const anyLeft = blocks.some((b) => !b.classList.contains('export-print-hide'));
-    if (blocks.length && !anyLeft) hideOrRemove(tl);
-  }
+  if (!tl) return;
+  const blocks = Array.from(tl.querySelectorAll('.timeline-block'));
+  const anyLeft = blocks.some((b) => {
+    if (b.classList.contains('export-print-hide')) return false;
+    // 차트 없이 안내만 남은 블록은 “남은 콘텐츠”로 보지 않음
+    return !!b.querySelector('[data-timeline-mode], .timeline-wrap, .tarot-life-chart, .chart-inner');
+  });
+  if (!anyLeft) hideOrRemove(tl);
 }
 
 /** 잠금(업셀) 안내는 PDF·인쇄에 넣지 않아요: 타임라인 블록 안이면 그 블록만, 아니면 그 섹션을 빼요 */
@@ -5220,12 +5228,11 @@ function buildAnalysisPdfClone(el, hiddenIds) {
       const node = clone.querySelector('#' + (window.CSS && CSS.escape ? CSS.escape(id) : id));
       if (node) node.remove();
     });
-    const tl = clone.querySelector('#timelineSection');
-    if (tl && tl.querySelectorAll('.timeline-block').length === 0) tl.remove();
   }
   exportLockedTargets(clone).forEach((n) => n.remove());
-  const tlLeft = clone.querySelector('#timelineSection');
-  if (tlLeft && tlLeft.querySelectorAll('.timeline-block').length === 0 && !tlLeft.querySelector('.timeline-dual, .chart-inner')) tlLeft.remove();
+  // 하위 차트를 다 빼거나 잠금만 남은 경우: 제목·읽는 법 껍데기도 제거
+  // (빈 .timeline-dual 래퍼가 남아도 섹션을 남기지 않음)
+  pruneEmptyExportContainers(clone, (n) => n.remove());
   // sticky 탭만 빼고, ①②③ 그룹 제목은 PDF에도 남김
   clone.querySelectorAll('.lc-group-bar').forEach((n) => n.remove());
   // 종이·PDF에서는 펼칠 수 없으니 접힌 항목을 모두 펼쳐 넣어요
