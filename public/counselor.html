@@ -666,6 +666,9 @@
       padding: 7px 10px; border: 1px solid var(--border); border-radius: 8px;
       font-family: var(--font-body); font-size: 13px; background: #fff; color: var(--ink);
     }
+    .push-remind-perm { font-size: 12px; line-height: 1.45; flex: 1 1 100%; margin: 0; color: var(--muted); word-break: keep-all; }
+    .push-remind-perm.warn { color: #a5462f; font-weight: 600; }
+    .push-remind-perm button { margin-left: 6px; font-size: 12px; padding: 3px 10px; border-radius: 999px; border: 1px solid var(--border); background: #fff; color: var(--deep); cursor: pointer; }
     .push-remind-hint { font-size: 12px; color: var(--muted); line-height: 1.45; flex: 1 1 100%; word-break: keep-all; overflow-wrap: break-word; }
 
     /* 타로 AI */
@@ -1265,6 +1268,7 @@
           <option value="30" selected>30분 전</option>
         </select>
         <p class="push-remind-hint">일정에 <strong>시작 시간</strong>을 넣어 두면, 이 화면이 열려 있을 때 정한 시간 전에 브라우저 알림을 한 번 보내 드려요. (오전 요약 알림과는 따로 동작해요)</p>
+        <p class="push-remind-perm" id="remindPermStatus" aria-live="polite"></p>
       </div>
     </div>
 
@@ -3256,10 +3260,60 @@
         const saved = raw == null || raw === '' ? NaN : Number(raw);
         if ([0, 10, 20, 30].includes(saved)) sel.value = String(saved);
       } catch (_) { /* ignore */ }
+      // 이 기기(브라우저)의 알림 권한 상태를 보여 줘요 — 권한이 없으면 알림이 조용히 안 가던 문제
+      const permEl = document.getElementById('remindPermStatus');
+      function renderRemindPerm() {
+        if (!permEl) return;
+        permEl.className = 'push-remind-perm';
+        if (Number(sel.value) <= 0) { permEl.textContent = ''; return; }
+        if (typeof Notification === 'undefined') {
+          permEl.classList.add('warn');
+          permEl.textContent = '이 브라우저는 알림을 지원하지 않아요.';
+          return;
+        }
+        if (Notification.permission === 'granted') {
+          permEl.textContent = '이 기기에서 알림이 허용되어 있어요.';
+          return;
+        }
+        permEl.classList.add('warn');
+        if (Notification.permission === 'denied') {
+          permEl.textContent = '이 기기에서 알림이 차단되어 있어요. 주소창 왼쪽 자물쇠(사이트 설정)에서 알림을 「허용」으로 바꿔 주세요.';
+          return;
+        }
+        permEl.textContent = '이 기기에서는 아직 알림을 허용하지 않았어요.';
+        const b = document.createElement('button');
+        b.type = 'button';
+        b.textContent = '알림 허용';
+        b.addEventListener('click', () => {
+          Promise.resolve(Notification.requestPermission()).catch(() => {}).then(renderRemindPerm);
+        });
+        permEl.appendChild(b);
+      }
       sel.addEventListener('change', () => {
         try { localStorage.setItem(REMIND_LS_KEY, sel.value); } catch (_) { /* ignore */ }
         if (Number(sel.value) > 0 && typeof Notification !== 'undefined' && Notification.permission === 'default') {
-          Notification.requestPermission().catch(() => {});
+          Promise.resolve(Notification.requestPermission()).catch(() => {}).then(renderRemindPerm);
+        }
+        renderRemindPerm();
+      });
+      renderRemindPerm();
+
+      // 다른 기기(휴대폰 등)에서 넣은 일정도 알림에 잡히도록, 열려 있는 동안 일정을 주기적으로 다시 불러와요
+      let lastEventsSync = Date.now();
+      async function syncEventsIfStale(force) {
+        if (Number(sel.value) <= 0) return;
+        if (!force && Date.now() - lastEventsSync < 120000) return;
+        lastEventsSync = Date.now();
+        try {
+          await loadEvents();
+          if (typeof renderDashboard === 'function') renderDashboard();
+          if (typeof renderCalendar === 'function') renderCalendar();
+        } catch (_) { /* ignore */ }
+      }
+      document.addEventListener('visibilitychange', () => {
+        if (document.visibilityState === 'visible') {
+          renderRemindPerm();
+          syncEventsIfStale(true).then(tickRemind);
         }
       });
 
@@ -3289,6 +3343,7 @@
       async function tickRemind() {
         const mins = Number(sel.value) || 0;
         if (mins <= 0) return;
+        await syncEventsIfStale(false);
         if (typeof Notification === 'undefined' || Notification.permission !== 'granted') return;
         const today = ymd(new Date());
         const nowMin = nowKstMinutes();
