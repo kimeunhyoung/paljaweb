@@ -22,14 +22,13 @@
     jupiter: 'Jupiter', saturn: 'Saturn', uranus: 'Uranus', neptune: 'Neptune', pluto: 'Pluto',
     chiron: 'Chiron', northnode: 'NNode', southnode: 'SNode', lilith: 'Lilith', fortune: 'Fortune'
   };
-  // 예전 astrochart 설정에 맞춘 색·오브
+  // 원차트 안쪽 선: 메이저 5각만 (오른쪽 삼각 표와 별개)
   var ASPECTS = [
     { key: 'conjunction', a: 0, orb: 8, color: '#888888' },
     { key: 'opposition', a: 180, orb: 8, color: '#c0392b' },
     { key: 'square', a: 90, orb: 7, color: '#e74c3c' },
     { key: 'trine', a: 120, orb: 7, color: '#2980b9' },
-    { key: 'sextile', a: 60, orb: 5, color: '#27ae60' },
-    { key: 'quincunx', a: 150, orb: 3, color: '#9b59b6' }
+    { key: 'sextile', a: 60, orb: 5, color: '#27ae60' }
   ];
 
   function el(name, attrs, parent) {
