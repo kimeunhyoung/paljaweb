@@ -162,6 +162,49 @@ body{font-family:var(--font-body);background:var(--cream);color:var(--ink);min-h
 .chart-grid-hint{margin-top:6px;font-size:11px;line-height:1.5;color:var(--muted);}
 .aspect-grid.compact td{width:var(--ag-cell,22px);height:var(--ag-cell,22px);min-width:0;font-size:14px;}
 
+/* PDF·인쇄용 대형 네이탈 차트 시트 (화면에서는 숨김) */
+#chartSheetExport{
+  position:fixed;left:-12000px;top:0;width:920px;background:#fff;color:#2a2118;
+  padding:18px 20px 16px;box-sizing:border-box;z-index:-1;pointer-events:none;
+  font-family:var(--font-sans,system-ui,sans-serif);
+}
+#chartSheetExport.is-print-ready{
+  position:static;left:auto;top:auto;width:auto;max-width:100%;
+  opacity:1;z-index:auto;pointer-events:auto;padding:0 0 12px;
+  page-break-after:always;break-after:page;
+}
+.sheet-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:10px;border-bottom:1px solid #e6dccb;padding-bottom:10px;}
+.sheet-title{font-family:var(--font-serif);font-size:20px;font-weight:700;color:#3d2e1f;line-height:1.3;}
+.sheet-birth{font-size:14px;font-weight:500;color:#7a6a58;}
+.sheet-meta{font-size:12px;color:#8a7a68;line-height:1.5;margin-top:3px;}
+.sheet-brand{font-size:12px;color:#8a7a68;text-align:right;line-height:1.45;white-space:nowrap;}
+.sheet-brand strong{display:block;font-family:var(--font-serif);font-size:14px;color:#3d2e1f;font-weight:700;}
+.sheet-sec{font-family:var(--font-serif);font-size:15px;font-weight:700;color:#3d2e1f;margin:4px 0 8px;}
+.sheet-wheel{display:flex;justify-content:center;margin:0 auto 12px;}
+#chartSheetPaper{width:820px;height:820px;margin:0 auto;}
+#chartSheetPaper svg{display:block;width:820px!important;height:820px!important;max-width:none!important;}
+.sheet-panels{display:grid;grid-template-columns:1.15fr 1fr auto;gap:12px;align-items:start;}
+.sheet-panel{border:1px solid #e6dccb;border-radius:10px;padding:8px 8px 6px;background:#faf8f4;min-width:0;}
+.sheet-panel-h{font-size:11px;font-weight:700;letter-spacing:.06em;color:#8a7a68;text-align:center;margin-bottom:6px;}
+.sheet-planet-table{width:100%;border-collapse:collapse;font-size:11.5px;}
+.sheet-planet-table th,.sheet-planet-table td{padding:3px 4px;border-bottom:1px solid #eadfce;text-align:left;white-space:nowrap;}
+.sheet-planet-table th{color:#8a7a68;font-weight:600;font-size:10.5px;background:#f3eee4;}
+.sheet-planet-table .glyph{margin-right:3px;color:#8b5e3c;}
+.sheet-planet-table .retro{font-size:10px;}
+.sheet-grid-wrap{overflow:hidden;display:flex;justify-content:center;}
+.sheet-grid-wrap .aspect-grid td{width:18px;height:18px;min-width:18px;font-size:12px;border-color:#e6dccb;}
+.sheet-grid-wrap .aspect-grid .ag-head{font-size:12px;background:rgba(139,111,71,.08);}
+.sheet-bal-table{border-collapse:collapse;font-size:11px;margin:0 auto;}
+.sheet-bal-table th,.sheet-bal-table td{border:1px solid #e0d4c2;padding:4px 7px;text-align:center;min-width:28px;}
+.sheet-bal-table th{background:#f3eee4;color:#6b5a48;font-weight:600;}
+.sheet-bal-table td{background:#fff;font-weight:700;color:#3d2e1f;}
+.sheet-hint{margin-top:8px;font-size:10.5px;color:#8a7a68;line-height:1.5;text-align:center;}
+.sheet-foot{margin-top:10px;padding:8px 10px;background:#f3eee4;border-radius:8px;font-size:10.5px;color:#7a6a58;line-height:1.55;}
+@media print{
+  #chartSheetExport.is-print-ready #chartSheetPaper,
+  #chartSheetExport.is-print-ready #chartSheetPaper svg{width:min(820px,92vw)!important;height:auto!important;max-width:92vw!important;}
+}
+
 table.astro-table{width:100%;border-collapse:collapse;font-size:14.5px;}
 table.astro-table th,table.astro-table td{padding:9px 8px;border-bottom:1px solid var(--border);text-align:left;}
 table.astro-table th{font-size:13px;color:var(--muted);font-weight:600;background:var(--parchment);}
@@ -279,7 +322,7 @@ table.astro-table td .glyph{font-size:16px;margin-right:4px;color:var(--accent);
 .aspect-grid .ag-cell.g-easy{color:#2f8f5b;font-weight:700;}
 .aspect-grid .ag-cell.g-tense{color:#c0492f;font-weight:700;}
 .aspect-grid .ag-cell.g-strong{color:var(--deep-brown);font-weight:700;}
-@media print{ .accordion .acc-body{display:block !important;} .accordion .acc-chev{display:none;} .export-opts,.no-print{display:none !important;} .capture-off{display:none !important;} }
+@media print{ .accordion .acc-body{display:block !important;} .accordion .acc-chev{display:none;} .export-opts,.no-print{display:none !important;} .capture-off{display:none !important;} #chartSheetExport:not(.is-print-ready){display:none !important;} }
 .export-opts{display:flex;flex-direction:column;align-items:stretch;gap:8px;padding:12px 14px;margin-bottom:12px;background:rgba(139,111,71,.06);border-radius:12px;font-size:13.5px;color:var(--muted);}
 .export-opts-head{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 10px;}
 .export-opts-head strong{font-size:14px;color:var(--deep-brown);}
@@ -717,7 +760,7 @@ body.export-capturing .ai-result.empty{display:none !important;}
         </div>
         <div class="export-opts-row">
           <span class="export-opts-label">출생</span>
-          <label><input type="checkbox" id="expWheel" checked/> 네이탈 차트+어스펙트</label>
+          <label><input type="checkbox" id="expWheel" checked/> 네이탈 차트 시트(크게)</label>
           <label><input type="checkbox" id="expBig3"/> 빅3</label>
           <label><input type="checkbox" id="expBalance"/> 원소·모달리티</label>
         </div>
@@ -759,6 +802,35 @@ body.export-capturing .ai-result.empty{display:none !important;}
     <div class="report-header" id="reportHeader">
       <div class="report-header-name" id="reportHeaderName">네이탈 차트</div>
       <div class="report-header-meta" id="reportHeaderMeta"></div>
+    </div>
+
+    <!-- PDF·인쇄 전용 대형 차트 시트 (화면에는 안 보임) -->
+    <div id="chartSheetExport" aria-hidden="true">
+      <div class="sheet-head">
+        <div>
+          <div class="sheet-title" id="sheetTitle">네이탈 차트</div>
+          <div class="sheet-meta" id="sheetMeta"></div>
+        </div>
+        <div class="sheet-brand"><strong>팔자연구소</strong>8code.kr</div>
+      </div>
+      <div class="sheet-sec">◆ 네이탈 차트</div>
+      <div class="sheet-wheel"><div id="chartSheetPaper"></div></div>
+      <div class="sheet-panels">
+        <div class="sheet-panel">
+          <div class="sheet-panel-h">행성 위치</div>
+          <div id="sheetPlanetTable"></div>
+        </div>
+        <div class="sheet-panel">
+          <div class="sheet-panel-h">어스펙트 그리드</div>
+          <div class="sheet-grid-wrap" id="sheetAspectGrid"></div>
+          <div class="sheet-hint">☌합 ☍충 △삼 □사 ⚹육 · 초록 조화 · 빨강 긴장</div>
+        </div>
+        <div class="sheet-panel">
+          <div class="sheet-panel-h">원소 · 모달리티</div>
+          <div id="sheetBalanceMatrix"></div>
+        </div>
+      </div>
+      <div class="sheet-foot" id="sheetFoot">트로피컬 · 플라시더스. 출생 시각이 정확할수록 상승궁·하우스 정확도가 올라가요.</div>
     </div>
 
     <div class="astro-group-h no-print" id="grpNatal"><span class="agh-num">01</span><div><div class="agh-title">타고난 차트</div><div class="agh-sub">빅3 · 원소 균형 · 네이탈 차트 · 행성 · 하우스 · 어스펙트</div></div></div>
@@ -4378,6 +4450,7 @@ body.export-capturing .ai-result.empty{display:none !important;}
   function endExportCapture(reopen) {
     if (reopen) reopen.forEach((c) => c.classList.remove('open'));
     clearExportHide();
+    clearChartSheetMount();
   }
 
   function scheduleExportCleanup() {
@@ -4395,9 +4468,17 @@ body.export-capturing .ai-result.empty{display:none !important;}
 
   function runExportPrint() {
     beginExportCapture();
+    const useSheet = wantsChartSheetExport();
+    const sheet = $('chartSheetExport');
+    if (useSheet && sheet) {
+      populateChartSheet();
+      sheet.classList.add('is-print-ready');
+      const wheel = $('wheelCard');
+      if (wheel) wheel.classList.add('capture-off');
+    }
     scheduleExportCleanup();
     requestAnimationFrame(() => {
-      if (LAST_HOROSCOPE) drawWheel(LAST_HOROSCOPE);
+      if (LAST_HOROSCOPE && !useSheet) drawWheel(LAST_HOROSCOPE);
       requestAnimationFrame(() => window.print());
     });
   }
@@ -6076,6 +6157,7 @@ body.export-capturing .ai-result.empty{display:none !important;}
 
   // 아스트라·Astro-Seek 스타일: 4원소 색상 링 + 조화/긴장 어스펙트 선
   const WHEEL_MAX_PX = 540;
+  const CHART_SHEET_WHEEL_PX = 820;
   const ASTRO_CHART_SETTINGS = {
     COLOR_BACKGROUND: '#ffffff',
     CIRCLE_COLOR: '#3d3d3d',
@@ -6113,15 +6195,7 @@ body.export-capturing .ai-result.empty{display:none !important;}
     },
   };
 
-  function drawWheel(horoscope) {
-    const paper = $('astroPaper');
-    if (!paper) return;
-    paper.innerHTML = '';
-    const wrap = paper.closest('.chart-wheel-wrap') || paper.parentElement;
-    const exportCap = document.body.classList.contains('export-capturing') || window.matchMedia('print').matches;
-    const cap = exportCap ? 520 : WHEEL_MAX_PX;
-    const wrapW = wrap ? Math.min(wrap.clientWidth, window.innerWidth - 56) : cap;
-    const size = Math.min(Math.max(wrapW, 0) || paper.clientWidth || cap, cap);
+  function buildWheelPlanetPayload(horoscope) {
     const planets = {};
     const map = M.CHART_KEY;
     ['sun','moon','mercury','venus','mars','jupiter','saturn','uranus','neptune','pluto','chiron'].forEach((k) => {
@@ -6136,15 +6210,186 @@ body.export-capturing .ai-result.empty{display:none !important;}
     if (NATAL_DEGS.fortune != null) planets.Fortune = [NATAL_DEGS.fortune];
     if (NATAL_DEGS.vertex != null) planets.Vertex = [NATAL_DEGS.vertex];
     const cusps = (horoscope.Houses || []).map(houseStart);
-    if (cusps.length !== 12 || cusps.some((c) => c == null)) return;
+    return { planets, cusps };
+  }
+
+  function drawWheel(horoscope, opts) {
+    opts = opts || {};
+    const paperId = opts.paperId || 'astroPaper';
+    const paper = $(paperId);
+    if (!paper) return false;
+    paper.innerHTML = '';
+    let size;
+    if (opts.size != null) {
+      size = opts.size;
+    } else {
+      const wrap = paper.closest('.chart-wheel-wrap') || paper.parentElement;
+      const exportCap = document.body.classList.contains('export-capturing') || window.matchMedia('print').matches;
+      const cap = exportCap ? 520 : WHEEL_MAX_PX;
+      const wrapW = wrap ? Math.min(wrap.clientWidth, window.innerWidth - 56) : cap;
+      size = Math.min(Math.max(wrapW, 0) || paper.clientWidth || cap, cap);
+    }
+    const payload = buildWheelPlanetPayload(horoscope);
+    const { planets, cusps } = payload;
+    if (cusps.length !== 12 || cusps.some((c) => c == null)) return false;
     try {
-      const chart = new astrochart.Chart('astroPaper', size, size, ASTRO_CHART_SETTINGS);
+      const settings = opts.size != null
+        ? Object.assign({}, ASTRO_CHART_SETTINGS, { MARGIN: 28, PADDING: 12, POINTS_STROKE: 1.9, SIGNS_STROKE: 1.4 })
+        : ASTRO_CHART_SETTINGS;
+      const chart = new astrochart.Chart(paperId, size, size, settings);
       const radix = chart.radix({ planets, cusps });
       radix.addPointsOfInterest({ As: [cusps[0]], Ic: [cusps[3]], Ds: [cusps[6]], Mc: [cusps[9]] });
       radix.aspects();
+      return true;
     } catch (e) {
       console.error('차트 그리기 실패', e);
       paper.innerHTML = '<div class="note">차트를 그리지 못했어요. 새로고침한 뒤 다시 시도해 주세요.</div>';
+      return false;
+    }
+  }
+
+  function wantsChartSheetExport() {
+    const cb = $('expWheel');
+    if (cb && !cb.checked) return false;
+    if (!LAST_HOROSCOPE || !LAST_BIRTH || LAST_BIRTH.unknownTime) return false;
+    return true;
+  }
+
+  function buildSheetPlanetTableHtml() {
+    const h = LAST_HOROSCOPE;
+    if (!h) return '';
+    const unknownTime = !!(LAST_BIRTH && LAST_BIRTH.unknownTime);
+    const keys = ['sun','moon','mercury','venus','mars','jupiter','saturn','uranus','neptune','pluto','chiron','northnode','lilith'];
+    let rows = `<table class="sheet-planet-table"><thead><tr><th>천체</th><th>별자리</th><th>도수</th>${unknownTime ? '' : '<th>H</th>'}<th></th></tr></thead><tbody>`;
+    keys.forEach((k) => {
+      const b = (h.CelestialBodies && h.CelestialBodies[k]) || (h.CelestialPoints && h.CelestialPoints[k]);
+      if (!b) return;
+      const d = deg(b); if (d == null) return;
+      const s = M.signFromDegree(d);
+      const pk = bodyKoFromKey(k);
+      const houseId = (b.House && b.House.id) ? b.House.id : '';
+      const isRetro = (typeof b.isRetrograde === 'function') ? b.isRetrograde() : b.isRetrograde;
+      rows += `<tr>
+        <td><span class="glyph">${pk.glyph || ''}</span>${pk.ko || k}</td>
+        <td><span class="glyph">${s.sign.glyph}</span>${s.sign.ko}</td>
+        <td>${fmtDeg(s.degInSign)}</td>
+        ${unknownTime ? '' : `<td>${houseId || '-'}</td>`}
+        <td>${isRetro ? '<span class="retro">R</span>' : ''}</td>
+      </tr>`;
+    });
+    [['fortune','행운점','⊗'], ['vertex','버텍스','Vx'], ['asc','상승궁','Asc'], ['mc','중천점','Mc']].forEach((row) => {
+      const d = NATAL_DEGS[row[0]];
+      if (d == null) return;
+      const s = M.signFromDegree(d);
+      rows += `<tr>
+        <td><span class="glyph">${row[2]}</span>${row[1]}</td>
+        <td><span class="glyph">${s.sign.glyph}</span>${s.sign.ko}</td>
+        <td>${fmtDeg(s.degInSign)}</td>
+        ${unknownTime ? '' : '<td>-</td>'}
+        <td></td>
+      </tr>`;
+    });
+    rows += '</tbody></table>';
+    return rows;
+  }
+
+  function buildSheetBalanceHtml() {
+    if (!LAST_BALANCE) return '';
+    const e = LAST_BALANCE.elements;
+    const m = LAST_BALANCE.modal;
+    return `<table class="sheet-bal-table">
+      <tr><th>원소</th><th>불</th><th>흙</th><th>바람</th><th>물</th></tr>
+      <tr><th>수</th><td>${e['불'] || 0}</td><td>${e['흙'] || 0}</td><td>${e['바람'] || 0}</td><td>${e['물'] || 0}</td></tr>
+      <tr><th>모달</th><th>활동</th><th>고정</th><th colspan="2">변통</th></tr>
+      <tr><th>수</th><td>${m['활동'] || 0}</td><td>${m['고정'] || 0}</td><td colspan="2">${m['변통'] || 0}</td></tr>
+    </table>`;
+  }
+
+  function populateChartSheet() {
+    const sheet = $('chartSheetExport');
+    if (!sheet || !LAST_HOROSCOPE) return false;
+    const name = ($('inName').value || '').trim() || '출생 차트';
+    const birth = fmtBirthLine(LAST_BIRTH, !!(LAST_BIRTH && LAST_BIRTH.unknownTime));
+    const titleEl = $('sheetTitle');
+    if (titleEl) {
+      titleEl.textContent = '';
+      titleEl.appendChild(document.createTextNode(name));
+      const span = document.createElement('span');
+      span.className = 'sheet-birth';
+      span.textContent = ' · ' + birth;
+      titleEl.appendChild(span);
+    }
+    const city = (LAST_COORDS && LAST_COORDS.label) || '';
+    const metaEl = $('sheetMeta');
+    if (metaEl) {
+      const parts = [];
+      if (city) parts.push('출생지: ' + city);
+      parts.push('트로피컬 · 플라시더스');
+      metaEl.textContent = parts.join(' · ');
+    }
+    const foot = $('sheetFoot');
+    if (foot) {
+      foot.textContent = (city ? ('출생지 ' + city + '. ') : '') +
+        '트로피컬 조디악 · 플라시더스 하우스. 출생 시각이 정확할수록 상승궁·하우스 정확도가 올라가요.';
+    }
+    const planetBox = $('sheetPlanetTable');
+    if (planetBox) planetBox.innerHTML = buildSheetPlanetTableHtml();
+    const gridBox = $('sheetAspectGrid');
+    if (gridBox) {
+      const order = GRID_ORDER.filter((k) => NATAL_DEGS[k] != null);
+      gridBox.innerHTML = order.length >= 2 ? buildAspectGridHtml(order, true) : '';
+    }
+    const balBox = $('sheetBalanceMatrix');
+    if (balBox) balBox.innerHTML = buildSheetBalanceHtml();
+    const paper = $('chartSheetPaper');
+    if (paper) {
+      paper.style.width = CHART_SHEET_WHEEL_PX + 'px';
+      paper.style.height = CHART_SHEET_WHEEL_PX + 'px';
+    }
+    return drawWheel(LAST_HOROSCOPE, { paperId: 'chartSheetPaper', size: CHART_SHEET_WHEEL_PX });
+  }
+
+  function clearChartSheetMount() {
+    const sheet = $('chartSheetExport');
+    if (!sheet) return;
+    sheet.classList.remove('is-print-ready');
+    const paper = $('chartSheetPaper');
+    if (paper) paper.innerHTML = '';
+  }
+
+  async function captureChartSheetCanvas() {
+    const sheet = $('chartSheetExport');
+    if (!sheet) return null;
+    if (!populateChartSheet()) return null;
+    const prev = {
+      left: sheet.style.left,
+      top: sheet.style.top,
+      zIndex: sheet.style.zIndex,
+      position: sheet.style.position,
+    };
+    // html2canvas는 화면 밖 요소를 종종 잘라 먹어서, 캡처 중에만 뷰포트 뒤쪽에 둡니다
+    sheet.style.position = 'fixed';
+    sheet.style.left = '0';
+    sheet.style.top = '0';
+    sheet.style.zIndex = '-1';
+    await waitForRepaint();
+    await new Promise((r) => setTimeout(r, 60));
+    try {
+      return await html2canvas(sheet, {
+        backgroundColor: '#ffffff',
+        scale: 2,
+        useCORS: true,
+        logging: false,
+        width: sheet.scrollWidth,
+        height: sheet.scrollHeight,
+        windowWidth: Math.max(sheet.scrollWidth + 40, 960),
+        windowHeight: Math.max(sheet.scrollHeight + 40, 1200),
+      });
+    } finally {
+      sheet.style.left = prev.left;
+      sheet.style.top = prev.top;
+      sheet.style.zIndex = prev.zIndex;
+      sheet.style.position = prev.position;
     }
   }
 
@@ -6224,19 +6469,25 @@ body.export-capturing .ai-result.empty{display:none !important;}
 
   $('btnPrint').addEventListener('click', () => { runExportPrint(); });
 
-  async function captureExportCanvas() {
+  async function captureExportCanvas(opts) {
+    opts = opts || {};
     const result = $('result');
     const toolbar = $('resultToolbar');
     const prevTb = toolbar.style.display;
     toolbar.style.display = 'none';
     const reopen = prepareCapture();
-    if (LAST_HOROSCOPE) drawWheel(LAST_HOROSCOPE);
+    if (opts.skipWheel) {
+      const wheel = $('wheelCard');
+      if (wheel) wheel.classList.add('capture-off');
+    }
+    if (LAST_HOROSCOPE && !opts.skipWheel) drawWheel(LAST_HOROSCOPE);
     await waitForRepaint();
     const canvas = await html2canvas(result, {
       backgroundColor: '#ffffff',
       scale: 2,
       useCORS: true,
       logging: false,
+      ignoreElements: (el) => el && el.id === 'chartSheetExport',
       windowWidth: Math.max(document.documentElement.scrollWidth, result.scrollWidth + 40),
       windowHeight: Math.max(result.scrollHeight + 40, result.offsetHeight + 40),
     });
@@ -6267,7 +6518,7 @@ body.export-capturing .ai-result.empty{display:none !important;}
       pdf.addImage(pageCanvas.toDataURL('image/jpeg', 0.92), 'JPEG', margin, margin, imgW, hMm);
       y += pageContentH;
     }
-    return !isFirstPage || y < imgH;
+    return first;
   }
 
   $('btnPdf').addEventListener('click', async () => {
@@ -6283,12 +6534,35 @@ body.export-capturing .ai-result.empty{display:none !important;}
     const prev = btn.textContent;
     btn.textContent = '⏳ PDF 생성…'; btn.disabled = true;
     try {
-      const canvas = await captureExportCanvas();
-      if (!canvas) throw new Error('no capture');
       const { jsPDF } = window.jspdf;
       const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
       const pageW = 210; const pageH = 297; const margin = 8;
-      addCanvasToPdf(pdf, canvas, pageW, pageH, margin, true);
+      let isFirst = true;
+      const wantSheet = wantsChartSheetExport();
+      let sheetOk = false;
+      if (wantSheet) {
+        btn.textContent = '⏳ 차트 시트…';
+        const sheetCanvas = await captureChartSheetCanvas();
+        if (sheetCanvas) {
+          addCanvasToPdf(pdf, sheetCanvas, pageW, pageH, margin, true);
+          isFirst = false;
+          sheetOk = true;
+        }
+      }
+      // 차트 시트를 넣었으면 본문의 작은 휠은 중복이라 빼고, 나머지 체크 항목만 이어 붙임
+      const hasOtherExport = EXPORT_CB_IDS.some((id) => {
+        if (id === 'expWheel') return false;
+        const cb = $(id);
+        return cb && cb.checked;
+      });
+      if (hasOtherExport || !sheetOk) {
+        btn.textContent = '⏳ PDF 생성…';
+        const canvas = await captureExportCanvas({ skipWheel: sheetOk });
+        if (!canvas) throw new Error('no capture');
+        addCanvasToPdf(pdf, canvas, pageW, pageH, margin, isFirst);
+      } else if (isFirst) {
+        throw new Error('no capture');
+      }
       const nm = ($('inName').value || '네이탈차트').trim().replace(/[\\/:*?"<>|]/g, '_').slice(0, 40);
       pdf.save(`팔자연구소_점성학_${nm}.pdf`);
       flashBtn(btn, '✓ PDF 저장됨');
@@ -6298,6 +6572,7 @@ body.export-capturing .ai-result.empty{display:none !important;}
       btn.textContent = prev; btn.disabled = false;
     } finally {
       clearExportHide();
+      clearChartSheetMount();
     }
   });
 
