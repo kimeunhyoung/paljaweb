@@ -193,7 +193,7 @@
     wallpaper: 'private',
   };
 
-  var BASIC_PRODUCT_GATE_MSG = 'Basic 이상 플랜에서 이용할 수 있습니다.';
+  var BASIC_PRODUCT_GATE_MSG = 'Basic 이상 플랜에서 이용할 수 있어요.';
 
   function productMinPlan(product) {
     return PRODUCT_MIN_PLAN[product] || 'basic';
@@ -210,7 +210,7 @@
   }
 
   function productGateMsg(product) {
-    return planKoLabel(productMinPlan(product)) + ' 이상 플랜에서 이용할 수 있습니다.';
+    return planKoLabel(productMinPlan(product)) + ' 이상 플랜에서 이용할 수 있어요.';
   }
 
   function pageNextUrl() {
@@ -312,7 +312,7 @@
   }
 
   function showPlanLoadingMessage(errEl) {
-    var msg = '플랜 정보를 확인하는 중입니다. 잠시 후 다시 시도해 주세요.';
+    var msg = '플랜 정보를 확인하는 중이에요. 잠시 후 다시 시도해 주세요.';
     if (errEl) {
       errEl.textContent = msg;
       if (errEl.scrollIntoView) {
