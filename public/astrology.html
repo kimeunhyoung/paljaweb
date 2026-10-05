@@ -164,45 +164,45 @@ body{font-family:var(--font-body);background:var(--cream);color:var(--ink);min-h
 
 /* PDF·인쇄용 대형 네이탈 차트 시트 (화면에서는 숨김) */
 #chartSheetExport{
-  position:fixed;left:-12000px;top:0;width:920px;background:#fff;color:#2a2118;
-  padding:18px 20px 16px;box-sizing:border-box;z-index:-1;pointer-events:none;
+  position:fixed;left:-12000px;top:0;width:900px;background:#fff;color:#2a2118;
+  padding:10px 14px 8px;box-sizing:border-box;z-index:-1;pointer-events:none;
   font-family:var(--font-sans,system-ui,sans-serif);
 }
 #chartSheetExport.is-print-ready{
   position:static;left:auto;top:auto;width:auto;max-width:100%;
-  opacity:1;z-index:auto;pointer-events:auto;padding:0 0 12px;
+  opacity:1;z-index:auto;pointer-events:auto;padding:0 0 8px;
   page-break-after:always;break-after:page;
 }
-.sheet-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:10px;border-bottom:1px solid #e6dccb;padding-bottom:10px;}
-.sheet-title{font-family:var(--font-serif);font-size:20px;font-weight:700;color:#3d2e1f;line-height:1.3;}
-.sheet-birth{font-size:14px;font-weight:500;color:#7a6a58;}
-.sheet-meta{font-size:12px;color:#8a7a68;line-height:1.5;margin-top:3px;}
-.sheet-brand{font-size:12px;color:#8a7a68;text-align:right;line-height:1.45;white-space:nowrap;}
-.sheet-brand strong{display:block;font-family:var(--font-serif);font-size:14px;color:#3d2e1f;font-weight:700;}
-.sheet-sec{font-family:var(--font-serif);font-size:15px;font-weight:700;color:#3d2e1f;margin:4px 0 8px;}
-.sheet-wheel{display:flex;justify-content:center;margin:0 auto 12px;}
-#chartSheetPaper{width:820px;height:820px;margin:0 auto;}
-#chartSheetPaper svg{display:block;width:820px!important;height:820px!important;max-width:none!important;}
-.sheet-panels{display:grid;grid-template-columns:1.15fr 1fr auto;gap:12px;align-items:start;}
-.sheet-panel{border:1px solid #e6dccb;border-radius:10px;padding:8px 8px 6px;background:#faf8f4;min-width:0;}
-.sheet-panel-h{font-size:11px;font-weight:700;letter-spacing:.06em;color:#8a7a68;text-align:center;margin-bottom:6px;}
-.sheet-planet-table{width:100%;border-collapse:collapse;font-size:11.5px;}
-.sheet-planet-table th,.sheet-planet-table td{padding:3px 4px;border-bottom:1px solid #eadfce;text-align:left;white-space:nowrap;}
-.sheet-planet-table th{color:#8a7a68;font-weight:600;font-size:10.5px;background:#f3eee4;}
-.sheet-planet-table .glyph{margin-right:3px;color:#8b5e3c;}
-.sheet-planet-table .retro{font-size:10px;}
+.sheet-head{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:6px;border-bottom:1px solid #e6dccb;padding-bottom:6px;}
+.sheet-title{font-family:var(--font-serif);font-size:17px;font-weight:700;color:#3d2e1f;line-height:1.25;}
+.sheet-birth{font-size:13px;font-weight:500;color:#7a6a58;}
+.sheet-meta{font-size:11px;color:#8a7a68;line-height:1.4;margin-top:2px;}
+.sheet-brand{font-size:11px;color:#8a7a68;text-align:right;line-height:1.4;white-space:nowrap;}
+.sheet-brand strong{display:block;font-family:var(--font-serif);font-size:13px;color:#3d2e1f;font-weight:700;}
+.sheet-sec{font-family:var(--font-serif);font-size:13px;font-weight:700;color:#3d2e1f;margin:2px 0 4px;}
+.sheet-wheel{display:flex;justify-content:center;margin:0 auto 6px;}
+#chartSheetPaper{width:640px;height:640px;margin:0 auto;}
+#chartSheetPaper svg{display:block;width:640px!important;height:640px!important;max-width:none!important;}
+.sheet-panels{display:grid;grid-template-columns:1.1fr 1fr auto;gap:8px;align-items:start;}
+.sheet-panel{border:1px solid #e6dccb;border-radius:8px;padding:5px 6px 4px;background:#faf8f4;min-width:0;}
+.sheet-panel-h{font-size:10px;font-weight:700;letter-spacing:.05em;color:#8a7a68;text-align:center;margin-bottom:4px;}
+.sheet-planet-table{width:100%;border-collapse:collapse;font-size:10.5px;}
+.sheet-planet-table th,.sheet-planet-table td{padding:2px 3px;border-bottom:1px solid #eadfce;text-align:left;white-space:nowrap;}
+.sheet-planet-table th{color:#8a7a68;font-weight:600;font-size:9.5px;background:#f3eee4;}
+.sheet-planet-table .glyph{margin-right:2px;color:#8b5e3c;}
+.sheet-planet-table .retro{font-size:9px;}
 .sheet-grid-wrap{overflow:hidden;display:flex;justify-content:center;}
-.sheet-grid-wrap .aspect-grid td{width:18px;height:18px;min-width:18px;font-size:12px;border-color:#e6dccb;}
-.sheet-grid-wrap .aspect-grid .ag-head{font-size:12px;background:rgba(139,111,71,.08);}
-.sheet-bal-table{border-collapse:collapse;font-size:11px;margin:0 auto;}
-.sheet-bal-table th,.sheet-bal-table td{border:1px solid #e0d4c2;padding:4px 7px;text-align:center;min-width:28px;}
+.sheet-grid-wrap .aspect-grid td{width:15px;height:15px;min-width:15px;font-size:10.5px;border-color:#e6dccb;}
+.sheet-grid-wrap .aspect-grid .ag-head{font-size:10.5px;background:rgba(139,111,71,.08);}
+.sheet-bal-table{border-collapse:collapse;font-size:10px;margin:0 auto;}
+.sheet-bal-table th,.sheet-bal-table td{border:1px solid #e0d4c2;padding:3px 5px;text-align:center;min-width:24px;}
 .sheet-bal-table th{background:#f3eee4;color:#6b5a48;font-weight:600;}
 .sheet-bal-table td{background:#fff;font-weight:700;color:#3d2e1f;}
-.sheet-hint{margin-top:8px;font-size:10.5px;color:#8a7a68;line-height:1.5;text-align:center;}
-.sheet-foot{margin-top:10px;padding:8px 10px;background:#f3eee4;border-radius:8px;font-size:10.5px;color:#7a6a58;line-height:1.55;}
+.sheet-hint{margin-top:4px;font-size:9.5px;color:#8a7a68;line-height:1.4;text-align:center;}
+.sheet-foot{margin-top:6px;padding:5px 8px;background:#f3eee4;border-radius:6px;font-size:9.5px;color:#7a6a58;line-height:1.45;}
 @media print{
   #chartSheetExport.is-print-ready #chartSheetPaper,
-  #chartSheetExport.is-print-ready #chartSheetPaper svg{width:min(820px,92vw)!important;height:auto!important;max-width:92vw!important;}
+  #chartSheetExport.is-print-ready #chartSheetPaper svg{width:min(640px,88vw)!important;height:auto!important;max-width:88vw!important;}
 }
 
 table.astro-table{width:100%;border-collapse:collapse;font-size:14.5px;}
@@ -6157,7 +6157,7 @@ body.export-capturing .ai-result.empty{display:none !important;}
 
   // 아스트라·Astro-Seek 스타일: 4원소 색상 링 + 조화/긴장 어스펙트 선
   const WHEEL_MAX_PX = 540;
-  const CHART_SHEET_WHEEL_PX = 820;
+  const CHART_SHEET_WHEEL_PX = 640;
   const ASTRO_CHART_SETTINGS = {
     COLOR_BACKGROUND: '#ffffff',
     CIRCLE_COLOR: '#3d3d3d',
@@ -6521,6 +6521,24 @@ body.export-capturing .ai-result.empty{display:none !important;}
     return first;
   }
 
+  /** 차트 시트는 A4 한 장에 비율 유지로 맞춥니다(잘림 방지). */
+  function addCanvasToPdfFitOnePage(pdf, canvas, pageW, pageH, margin, isFirstPage) {
+    const maxW = pageW - margin * 2;
+    const maxH = pageH - margin * 2;
+    const ratio = canvas.width / canvas.height;
+    let w = maxW;
+    let h = w / ratio;
+    if (h > maxH) {
+      h = maxH;
+      w = h * ratio;
+    }
+    if (!isFirstPage) pdf.addPage();
+    const x = margin + (maxW - w) / 2;
+    const y = margin + Math.max(0, (maxH - h) * 0.08);
+    pdf.addImage(canvas.toDataURL('image/jpeg', 0.94), 'JPEG', x, y, w, h);
+    return false;
+  }
+
   $('btnPdf').addEventListener('click', async () => {
     if (!window.jspdf || !window.jspdf.jsPDF) {
       showStatus('PDF 도구를 불러오지 못했어요. 새로고침 후 다시 시도해 주세요.', 'err');
@@ -6544,7 +6562,7 @@ body.export-capturing .ai-result.empty{display:none !important;}
         btn.textContent = '⏳ 차트 시트…';
         const sheetCanvas = await captureChartSheetCanvas();
         if (sheetCanvas) {
-          addCanvasToPdf(pdf, sheetCanvas, pageW, pageH, margin, true);
+          addCanvasToPdfFitOnePage(pdf, sheetCanvas, pageW, pageH, margin, true);
           isFirst = false;
           sheetOk = true;
         }
