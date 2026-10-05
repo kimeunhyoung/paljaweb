@@ -70,7 +70,7 @@
 <!-- 점성 차트 그리기(UMD 전역 astrochart) -->
 <script src="https://cdn.jsdelivr.net/npm/@astrodraw/astrochart@3.0.2/dist/astrochart.js"></script>
 <!-- 원판은 직접 그리고(js/natal-wheel.js), astrochart는 별자리·행성 기호 모양만 빌려 써요 -->
-<script src="js/natal-wheel.js?v=6"></script>
+<script src="js/natal-wheel.js?v=7"></script>
 <!-- 이미지 저장용 -->
 <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.2/dist/jspdf.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
@@ -6348,7 +6348,7 @@ body.export-capturing .ai-result.empty{display:none !important;}
         const ok = window.PaljaNatalWheel.draw(paperId, size, {
           points: pts,
           cusps,
-          aspectKeys: ['sun','moon','mercury','venus','mars','jupiter','saturn','uranus','neptune','pluto'],
+          aspectKeys: ['sun','moon','mercury','venus','mars','jupiter','saturn','uranus','neptune','pluto','chiron','northnode','southnode','lilith','fortune'],
           withAngles: true,
         });
         if (ok) return true;
