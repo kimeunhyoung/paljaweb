@@ -559,6 +559,8 @@ select.input-field option{background:#fff;color:var(--ink);}
 .nc2-want-tag.off{background:#f4f1ec;color:var(--muted);border-color:var(--border);}
 .nc2-rank-badge{flex-wrap:wrap;}
 .nc2-scores{display:flex;gap:8px;flex-shrink:0;}
+.nc2-score-block{display:flex;flex-direction:column;align-items:flex-end;gap:6px;flex-shrink:0;}
+.nc2-score-note{font-size:11px;line-height:1.4;color:var(--muted);text-align:right;max-width:220px;}
 .nc2-sc{display:flex;flex-direction:column;align-items:center;justify-content:center;min-width:64px;padding:8px 10px;border-radius:12px;background:#faf6ee;border:1px solid var(--border);}
 .nc2-sc-total{min-width:78px;background:#fff;border-color:rgba(139,111,71,.3);box-shadow:0 2px 8px var(--shadow);}
 .nc2-sc-lbl{font-size:11.5px;font-weight:600;color:#7a6448;margin-bottom:3px;white-space:nowrap;}
@@ -570,7 +572,9 @@ select.input-field option{background:#fff;color:var(--ink);}
 .nc2-nums-label{color:#7a6448;font-weight:600;}
 @media(max-width:700px){
   .nc2-header{flex-direction:column;align-items:stretch;gap:12px;}
-  .nc2-scores{width:100%;}
+  .nc2-score-block,.nc2-scores{width:100%;}
+  .nc2-score-block{align-items:stretch;}
+  .nc2-score-note{text-align:center;max-width:none;}
   .nc2-sc{flex:1;min-width:0;}
   .hero{padding:28px 16px 4px;}
   .hero-title{font-size:27px;}
@@ -1672,18 +1676,26 @@ function renderNameCards(results, sortedResults, dist, purposeInput) {
     const vtext = verdictText(verdict, r, dist, pCtx);
 
     // 점수 표시 — 수비학 / 소리균형 / 종합 분리 (고득점은 displayScore로 구분)
-    const numScore = displayScore((r.totalCompat||70) + evaluation.numBonus);
-    const totalDisp = displayScore(r.totalScore);
+    const rawNum = (r.totalCompat||70) + evaluation.numBonus;
+    const rawTotal = r.totalScore;
+    const numScore = displayScore(rawNum);
+    const totalDisp = displayScore(rawTotal);
     const soundBonusDisp = evaluation.soundBonus;
     const soundBonusStr = soundBonusDisp > 0 ? `+${soundBonusDisp}` : `${soundBonusDisp}`;
     const soundBonusColor = soundBonusDisp >= 0 ? 'var(--teal)' : 'var(--red)';
+    const scoreNote = (rawNum > 90 || rawTotal > 90)
+      ? `<div class="nc2-score-note">90점 이상은 차이를 줄여서 표시해요</div>`
+      : '';
 
     const scoreColor = v => v>=80?'var(--teal)':v>=65?'#a8844a':'var(--red)';
     const scoreSvg = `
-      <div class="nc2-scores">
-        <div class="nc2-sc nc2-sc-total"><span class="nc2-sc-lbl">종합</span><span class="nc2-sc-val" style="color:${scoreColor(totalDisp)}">${totalDisp}</span></div>
-        <div class="nc2-sc"><span class="nc2-sc-lbl">수비학</span><span class="nc2-sc-val" style="color:${scoreColor(numScore)}">${numScore}</span></div>
-        <div class="nc2-sc"><span class="nc2-sc-lbl">소리 균형</span><span class="nc2-sc-val" style="color:${soundBonusColor}">${soundBonusStr}</span></div>
+      <div class="nc2-score-block">
+        <div class="nc2-scores">
+          <div class="nc2-sc nc2-sc-total"><span class="nc2-sc-lbl">종합</span><span class="nc2-sc-val" style="color:${scoreColor(totalDisp)}">${totalDisp}</span></div>
+          <div class="nc2-sc"><span class="nc2-sc-lbl">수비학</span><span class="nc2-sc-val" style="color:${scoreColor(numScore)}">${numScore}</span></div>
+          <div class="nc2-sc"><span class="nc2-sc-lbl">소리 균형</span><span class="nc2-sc-val" style="color:${soundBonusColor}">${soundBonusStr}</span></div>
+        </div>
+        ${scoreNote}
       </div>`;
 
     // 강점/주의 박스
