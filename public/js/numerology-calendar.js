@@ -6,18 +6,18 @@ const supabase = createClient(
 );
 
 const DAILY_GUIDE = {
-  1: { key: "시작", do: "작게라도 시작 버튼을 누르세요. 결단이 흐름을 열어요.", dont: "완벽할 때까지 미루지 마세요." },
-  2: { key: "조율", do: "협업과 대화로 간극을 메우세요. 듣는 힘이 성과를 만들어요.", dont: "감정을 쌓아 두었다가 한 번에 터뜨리지 마세요." },
-  3: { key: "표현", do: "아이디어를 말과 글로 꺼내 공유하세요.", dont: "반응이 두려워 표현을 접지 마세요." },
-  4: { key: "정리", do: "루틴 정비, 자료 정리, 우선순위 재배치에 집중하세요.", dont: "근거 없이 일을 늘리지 마세요." },
-  5: { key: "변화", do: "새 도구, 새 관점, 새 방법을 시도해 보세요.", dont: "충동적 결정으로 약속을 흔들지 마세요." },
-  6: { key: "돌봄", do: "관계 회복과 책임 정리에 시간을 쓰세요.", dont: "모든 문제를 혼자 떠안지 마세요." },
-  7: { key: "통찰", do: "분석, 공부, 리서치처럼 깊이 파는 작업에 잘 맞아요.", dont: "답이 빨리 안 나온다고 조급해하지 마세요." },
-  8: { key: "성과", do: "돈, 계약, 목표 관리처럼 결과 지향 업무를 밀어붙이세요.", dont: "관계의 온도를 무시한 채 성과만 보지 마세요." },
-  9: { key: "마무리", do: "정리, 회고, 놓아주기를 통해 다음 사이클을 준비하세요.", dont: "끝난 일을 붙들고 에너지를 소모하지 마세요." },
-  11: { key: "영감", do: "직관이 좋은 날이에요. 기록하고 조용히 실행하세요.", dont: "과한 자극과 소음으로 직관을 흐리지 마세요." },
-  22: { key: "구현", do: "큰 계획을 실제 일정과 구조로 옮기세요.", dont: "완벽주의 때문에 시작을 늦추지 마세요." },
-  33: { key: "치유", do: "누군가를 돕는 행동이 오히려 내 균형을 되찾아 줘요.", dont: "경계를 잃고 무리하게 퍼주지 마세요." },
+  1: { key: "시작", do: "작게라도 시작 버튼을 누르세요. 결단이 흐름을 열어요.", dont: "완벽할 때까지 미루지 마세요.", love: "마음이 있다면 먼저 다가가거나 먼저 연락하는 쪽이 잘 맞아요.", work: "새로 맡은 일이나 혼자 결정해야 하는 일을 먼저 처리하세요.", money: "새로 시작하는 지출은 목적과 한도부터 정해 두세요." },
+  2: { key: "조율", do: "협업과 대화로 간극을 메우세요. 듣는 힘이 성과를 만들어요.", dont: "감정을 쌓아 두었다가 한 번에 터뜨리지 마세요.", love: "내 말보다 상대의 말을 끝까지 듣는 게 관계를 가깝게 해요.", work: "앞에 나서기보다 돕고 연결하는 역할에서 성과가 나기 쉬워요.", money: "큰 결정은 혼자 내리기보다 함께 쓰는 사람과 상의하세요." },
+  3: { key: "표현", do: "아이디어를 말과 글로 꺼내 공유하세요.", dont: "반응이 두려워 표현을 접지 마세요.", love: "고마움이나 좋아하는 마음을 말로 전해 보세요.", work: "기획, 홍보, 디자인처럼 아이디어를 내는 일에 잘 맞아요.", money: "기분 따라 쓰는 돈이 늘기 쉬우니 모임·쇼핑 예산을 정해 두세요." },
+  4: { key: "정리", do: "루틴 정비, 자료 정리, 우선순위 재배치에 집중하세요.", dont: "근거 없이 일을 늘리지 마세요.", love: "시간 약속과 작은 약속을 지키는 게 신뢰가 돼요.", work: "정해진 순서대로 하나씩 끝내는 일, 꼼꼼함이 필요한 일에 잘 맞아요.", money: "고정비와 자동이체를 점검하기 좋아요." },
+  5: { key: "변화", do: "새 도구, 새 관점, 새 방법을 시도해 보세요.", dont: "충동적 결정으로 약속을 흔들지 마세요.", love: "늘 하던 데이트나 대화에서 벗어나 새로운 걸 해 보세요.", work: "출장, 외근, 새로운 사람을 만나는 일처럼 움직이는 일에 잘 맞아요.", money: "즉흥 구매가 늘기 쉬우니 결제 전에 한 번 더 생각하세요." },
+  6: { key: "돌봄", do: "관계 회복과 책임 정리에 시간을 쓰세요.", dont: "모든 문제를 혼자 떠안지 마세요.", love: "가족과 가까운 사람을 챙기는 작은 행동이 마음을 열어요.", work: "팀 분위기를 챙기고 도움이 필요한 동료를 살피면 일이 수월해져요.", money: "집과 가족에 드는 돈을 점검하고, 남을 위한 지출은 형편 안에서 정하세요." },
+  7: { key: "통찰", do: "분석, 공부, 리서치처럼 깊이 파는 작업에 잘 맞아요.", dont: "답이 빨리 안 나온다고 조급해하지 마세요.", love: "혼자만의 시간이 필요할 수 있어요. 거리를 둘 때는 이유를 짧게 말해 주세요.", work: "회의보다 혼자 집중할 시간을 먼저 확보해 두세요.", money: "큰 지출은 오늘 정하기보다 알아보고 비교하는 데 쓰세요." },
+  8: { key: "성과", do: "돈, 계약, 목표 관리처럼 결과 지향 업무를 밀어붙이세요.", dont: "관계의 온도를 무시한 채 성과만 보지 마세요.", love: "관계를 주도하게 되기 쉬운 날이에요. 결정할 때 상대의 의견도 함께 넣어 주세요.", work: "책임을 맡거나 결정을 내려야 하는 일을 미루지 말고 처리하세요.", money: "수입 구조와 큰 지출을 따져 보고 현실적으로 판단하기 좋아요." },
+  9: { key: "마무리", do: "정리, 회고, 놓아주기를 통해 다음 사이클을 준비하세요.", dont: "끝난 일을 붙들고 에너지를 소모하지 마세요.", love: "서운했던 일을 정리하고 너그럽게 놓아주기 좋아요.", work: "새 일을 벌이기보다 마감이 남은 일을 끝내는 데 집중하세요.", money: "쓰지 않는 구독이나 물건을 정리하기 좋아요." },
+  11: { key: "영감", do: "직관이 좋은 날이에요. 기록하고 조용히 실행하세요.", dont: "과한 자극과 소음으로 직관을 흐리지 마세요.", love: "말보다 분위기와 감정을 잘 느끼는 날이에요. 느낀 걸 부드럽게 표현해 보세요.", work: "큰 결정은 느낌을 믿되, 숫자와 사실로 한 번 더 확인하고 정하세요.", money: "마음이 흔들리기 쉬운 날이라 감정적인 소비를 조심하세요." },
+  22: { key: "구현", do: "큰 계획을 실제 일정과 구조로 옮기세요.", dont: "완벽주의 때문에 시작을 늦추지 마세요.", love: "함께할 계획(여행, 생활)을 구체적인 일정으로 정해 보세요.", work: "혼자 다 하려 하기보다 역할을 나누고 맡길 일을 정하세요.", money: "저축이나 큰 구매 같은 장기 계획을 숫자로 세우기 좋아요." },
+  33: { key: "치유", do: "누군가를 돕는 행동이 오히려 내 균형을 되찾아 줘요.", dont: "경계를 잃고 무리하게 퍼주지 마세요.", love: "상대를 위로하고 들어 주는 게 관계를 깊게 해요. 내 마음도 함께 챙기세요.", work: "상담, 교육, 돌봄처럼 사람을 돕는 일에서 보람을 느끼기 쉬워요.", money: "남을 돕는 지출은 미리 정한 한도 안에서 하세요." },
 };
 
 const MONTHLY_MESSAGE = {
@@ -384,9 +384,7 @@ function renderDetail(date, personalYear, personalMonth, personalDay, universalD
     monthMessage,
   };
 
-  const dailyCached = state.aiCache.daily[aiKey(dailyKey)];
   const monthlyCached = state.aiCache.monthly[aiKey(monthlyKey)];
-  const dailyLoading = state.aiBusy.daily && state.aiLoadingKey.daily === aiKey(dailyKey);
   const monthlyLoading = state.aiBusy.monthly && state.aiLoadingKey.monthly === aiKey(monthlyKey);
   const aiDisabled = !state.aiServerOk;
 
@@ -426,16 +424,16 @@ function renderDetail(date, personalYear, personalMonth, personalDay, universalD
         ${guide.dont}
       </div>
     </div>
+    ${guide.love ? `<div class="day-areas">
+      <div class="day-area"><span class="day-area-label">연애·관계</span>${guide.love}</div>
+      <div class="day-area"><span class="day-area-label">일·업무</span>${guide.work}</div>
+      <div class="day-area"><span class="day-area-label">금전</span>${guide.money}</div>
+    </div>` : ""}
     <div class="ai-block">
-      <p class="ai-block-title">✨ AI 맞춤 운세</p>
-      <p class="ai-block-desc">기본 가이드 위에 연애·일·금전까지 풀어 드려요. 날짜·달마다 1크레딧이에요. 같은 날짜·같은 달은 다시 열어도 차감되지 않아요.</p>
+      <p class="ai-block-title">✨ AI 이번 달 흐름</p>
+      <p class="ai-block-desc">개인월수와 개인연도로 이번 달 흐름을 연애·일·금전까지 풀어 드려요. 달마다 1크레딧이에요. 같은 달은 다시 열어도 차감되지 않아요.</p>
       <div class="ai-actions">
-        <button type="button" class="ai-btn" id="btnNumAiDaily"${aiDisabled ? " disabled" : ""}>✨ AI 오늘 운세 (1크레딧)</button>
-      </div>
-      <div class="ai-result${dailyCached && !dailyLoading ? " is-md" : ""}${dailyCached || dailyLoading ? "" : " is-empty"}" id="numAiDailyResult">${dailyLoading ? "해석을 만들고 있어요…" : (dailyCached ? numAiHtml(dailyCached) : "「AI 오늘 운세」를 누르면 이 날짜 맞춤 해석을 받을 수 있어요.")}</div>
-      <p class="ai-time-hint" id="numAiDailyHint">보통 20~40초 정도 걸려요.</p>
-      <div class="ai-actions" style="margin-top:12px;">
-        <button type="button" class="ai-btn ai-btn--soft" id="btnNumAiMonthly"${aiDisabled ? " disabled" : ""}>✨ AI 이번 달 흐름 (1크레딧)</button>
+        <button type="button" class="ai-btn" id="btnNumAiMonthly"${aiDisabled ? " disabled" : ""}>✨ AI 이번 달 흐름 (1크레딧)</button>
       </div>
       <div class="ai-result${monthlyCached && !monthlyLoading ? " is-md" : ""}${monthlyCached || monthlyLoading ? "" : " is-empty"}" id="numAiMonthlyResult">${monthlyLoading ? "해석을 만들고 있어요…" : (monthlyCached ? numAiHtml(monthlyCached) : "「AI 이번 달 흐름」을 누르면 이 달 전체 테마를 풀어 드려요.")}</div>
       <p class="ai-time-hint" id="numAiMonthlyHint">보통 20~40초 정도 걸려요.</p>
@@ -546,19 +544,19 @@ function applyCalendarPlanGate() {
       <ul style="margin:0;padding-left:18px;color:var(--muted);line-height:1.7;">
         <li>월간 수비학 달력 · 개인연도/월수/일수</li>
         <li>날짜별 에너지 가이드 (할 일 / 피할 일)</li>
-        <li><strong style="color:var(--ink);">오늘의 운세</strong> — AI 맞춤 해석 (연애·일·금전)</li>
-        <li>AI 이번 달 흐름</li>
+        <li>날짜별 연애·일·금전 가이드</li>
+        <li><strong style="color:var(--ink);">AI 이번 달 흐름</strong> — 개인월수로 푸는 한 달 해석</li>
       </ul>
     </div>
     <div style="margin-top:14px;display:flex;flex-wrap:wrap;gap:8px;">
-      <a href="ai-buy.html?product=cal_pass_3d" style="display:inline-block;padding:10px 16px;border-radius:8px;background:#4a3520;color:#f5f0e8;text-decoration:none;font-size:14px;font-weight:600;">3일 체험 · 1,900원</a>
+      <a href="lifecode/buy.html?product=basic7" style="display:inline-block;padding:10px 16px;border-radius:8px;background:#4a3520;color:#f5f0e8;text-decoration:none;font-size:14px;font-weight:600;">베이직 7일 · 4,900원</a>
       <a href="pricing.html" style="display:inline-block;padding:10px 16px;border-radius:8px;background:#fff;color:#4a3520;border:1px solid rgba(139,111,71,.35);text-decoration:none;font-size:14px;font-weight:600;">요금제 보기</a>
     </div>
-    <p style="margin:10px 0 0;font-size:12.5px;color:var(--muted);line-height:1.55;">3일 체험 = 달력 열람 + AI 3크레딧. 계속 쓰실 거라면 Basic 월 9,900원 구독이 더 알뜰해요.</p>`;
+    <p style="margin:10px 0 0;font-size:12.5px;color:var(--muted);line-height:1.55;">베이직 7일 이용권 = Basic 기능 7일 + AI 5크레딧, 자동결제 없음. 계속 쓰실 거라면 Basic 월 9,900원 구독이 더 알뜰해요.</p>`;
   const panel = planApi?.productGatePanelHtml
     ? planApi.productGatePanelHtml("calendar", {
         title: "Basic 이상에서 이용 가능",
-        desc: "수비학 달력은 Basic 플랜 이상에서 열려요. 잠깐 써 보고 싶다면 아래 3일 체험을 이용해 보세요.",
+        desc: "수비학 달력은 Basic 플랜 이상에서 열려요. 잠깐 써 보고 싶다면 아래 베이직 7일 이용권을 이용해 보세요.",
         extrasHtml: extras,
         loggedIn,
       })

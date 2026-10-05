@@ -5123,16 +5123,15 @@ function gateHTML(planRequired, title, desc) {
     <p class="gate-quiet-note">테스터 모집 기간에는 결제 없이, 받으신 <strong>체험 코드</strong>로 이용해 주세요.<br>문의: <a href="https://pf.kakao.com/_HXxmwX/chat" target="_blank" rel="noopener noreferrer">카카오톡</a></p>
   </div>`;
   }
-  // 첫 결제는 저가 단품 → 그다음 베이직 7일 (구독 부담 완화)
+  // 첫 결제는 베이직 7일 이용권 (구독 부담 완화)
   const onetimeLinks = planRequired === 'basic'
-    ? `<a class="gate-onetime-primary" href="/ai-buy.html?product=cal_pass_3d">달력 3일 · 1,900원</a>
-    <a class="gate-onetime" href="/lifecode/buy.html?product=basic7">베이직 7일 이용권 (4,900원 · AI 5) · 자동결제 없음</a>
+    ? `<a class="gate-onetime-primary" href="/lifecode/buy.html?product=basic7">베이직 7일 이용권 · 4,900원 (AI 5) · 자동결제 없음</a>
     <a class="gate-onetime" href="/pricing.html#onetime">AI 크레딧 · 단품 더보기</a>`
     : `<a class="gate-onetime" href="/lifecode/buy.html?product=counselor15">상담사 15일 체험권 (29,900원) · 자동결제 없음</a>`;
   return `<div class="feature-gate">
     <div class="gate-icon">🔒</div>
     <div class="gate-title">${title}</div>
-    <div class="gate-desc">${desc}<br><br><strong>${labels[planRequired]} 플랜</strong> 이상에서 이용할 수 있어요.${planRequired === 'basic' ? '<br><span style="display:block;margin-top:8px;font-size:13px;line-height:1.55;opacity:.92">달력·오늘 운세만 궁금하면 3일 체험으로 먼저 써 보세요.</span>' : ''}</div>
+    <div class="gate-desc">${desc}<br><br><strong>${labels[planRequired]} 플랜</strong> 이상에서 이용할 수 있어요.</div>
     <button class="gate-btn" onclick="location.href='pricing.html?highlight=${planRequired}'">플랜 업그레이드 →</button>
     ${guestCta}
     ${onetimeLinks}
