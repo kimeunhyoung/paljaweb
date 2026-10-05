@@ -2876,7 +2876,10 @@
       document.getElementById('pushSaveHourBtn')?.addEventListener('click', savePushHour);
       if (!btn) return;
       if (!('serviceWorker' in navigator) || !('PushManager' in window) || !('Notification' in window)) {
-        setPushStatus('이 브라우저는 푸시 알림을 지원하지 않아요.', 'err');
+        const isIos = /iPhone|iPad|iPod/i.test(navigator.userAgent || '');
+        setPushStatus(isIos
+          ? '아이폰은 Safari에서 「홈 화면에 추가」한 뒤 그 아이콘으로 열면 알림을 켤 수 있어요(iOS 16.4 이상).'
+          : '이 브라우저는 푸시 알림을 지원하지 않아요.', 'err');
         btn.disabled = true;
         return;
       }
@@ -3182,7 +3185,9 @@
       const sel = document.getElementById('sessionRemindSelect');
       if (!sel) return;
       try {
-        const saved = Number(localStorage.getItem(REMIND_LS_KEY));
+        // 저장값이 없으면(null) 기본 30분 유지 — Number(null)=0이라 「끔」으로 덮어쓰던 문제 수정
+        const raw = localStorage.getItem(REMIND_LS_KEY);
+        const saved = raw == null || raw === '' ? NaN : Number(raw);
         if ([0, 10, 20, 30].includes(saved)) sel.value = String(saved);
       } catch (_) { /* ignore */ }
       sel.addEventListener('change', () => {
@@ -3232,12 +3237,23 @@
           if (fired[key]) return;
           fired[key] = 1;
           writeFired(fired);
-          try {
-            new Notification('상담 일정 ' + mins + '분 전', {
-              body: (ev.title || '일정') + (ev.event_time ? ' · ' + ev.event_time : ''),
-              tag: 'counselor-session-' + ev.id,
-            });
-          } catch (_) { /* ignore */ }
+          // 모바일 크롬·설치형 앱은 new Notification()을 막아서, 서비스 워커로 띄우고 안 되면 일반 알림으로
+          const title = (eventKindOf(ev) === 'appointment' ? '상담 약속 ' : '일정 ') + (diff > 0 ? diff + '분 후 시작' : '곧 시작');
+          const opts = {
+            body: (ev.title || '일정') + (ev.event_time ? ' · ' + String(ev.event_time).slice(0, 5) : ''),
+            tag: 'counselor-session-' + ev.id,
+            icon: '/icons/icon-192.png',
+            data: { url: '/counselor.html#hub-calendar' },
+          };
+          const showViaSw = () => (navigator.serviceWorker && navigator.serviceWorker.getRegistration
+            ? navigator.serviceWorker.getRegistration('/').then((reg) => {
+              if (reg && reg.showNotification) return reg.showNotification(title, opts);
+              throw new Error('no_sw');
+            })
+            : Promise.reject(new Error('no_sw')));
+          showViaSw().catch(() => {
+            try { new Notification(title, opts); } catch (_) { /* ignore */ }
+          });
         });
       }
       setInterval(tickRemind, 30000);
