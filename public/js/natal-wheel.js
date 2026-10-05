@@ -169,38 +169,43 @@
       }
     });
 
-    // ── 행성 배치 (겹치지 않게 펼치기) ──
+    // ── 행성 배치 ──
+    // 각도를 옆으로 밀면 하우스·선이 꺾여 보이므로, 실제 도수(lon) 일직선만 쓰고
+    // 겹칠 때는 같은 방향에서 반지름만 안쪽으로 쌓아요.
     var pts = (data.points || []).filter(function (p) { return p && isFinite(p.lon) && SYMBOL[p.key]; })
-      .map(function (p) { return { key: p.key, lon: norm(p.lon), retro: !!p.retro, minor: !!p.minor, disp: norm(p.lon) }; })
+      .map(function (p) { return { key: p.key, lon: norm(p.lon), retro: !!p.retro, minor: !!p.minor, level: 0 }; })
       .sort(function (a, b) { return a.lon - b.lon; });
-    var minSep = (compact ? Math.max(34 * u, 19) : 34 * u) / R_g * 180 / Math.PI;
-    spread(pts, minSep);
+    var minSep = (compact ? 10 : 8); // ° — 이보다 가까우면 같은 묶음으로 반지름 스택
+    var levelStep = (compact ? 20 : 26) * u;
+    var rMinGlyph = R_h + (compact ? 14 : 18) * u;
+    stackRadial(pts, minSep);
 
     var gP = el('g', {}, svg);
     pts.forEach(function (p) {
-      // 실제 위치 표시: 눈금 링 안쪽 짧은 점선 + 기호까지 가는 선
+      var rG = Math.max(rMinGlyph, R_g - p.level * levelStep);
+      // 눈금 틱 + 기호까지 같은 lon으로 일직선
       line(p.lon, R_z, R_t - 2 * u, { stroke: INK, 'stroke-width': 1.4 * u }, gP);
-      var a = pt(p.lon, R_t - 2 * u), b = pt(p.disp, R_g + 10 * u);
-      el('line', { x1: a.x, y1: a.y, x2: b.x, y2: b.y, stroke: SOFT, 'stroke-width': 0.8 * u }, gP);
-      var g = pt(p.disp, R_g);
-      // 보조점(남교점·행운점)은 연한 색·조금 작게
+      if (rG + 8 * u < R_t - 2 * u) {
+        line(p.lon, R_t - 2 * u, rG + 8 * u, { stroke: SOFT, 'stroke-width': 0.8 * u }, gP);
+      }
+      var g = pt(p.lon, rG);
       var ink = p.minor ? '#8a7558' : INK;
       var gs = compact ? Math.max(0.95 * u, 0.68) : 1.1 * u;
       symbol(SYMBOL[p.key], g.x, g.y, ink, p.minor ? gs * 0.88 : gs, gP);
       var si = Math.floor(p.lon / 30);
       var d = p.lon % 30; var w = Math.floor(d); var m = Math.floor((d - w) * 60 + 1e-6);
       if (compact) {
-        var t1 = pt(p.disp, R_g - Math.max(19 * u, 13));
+        var t1 = pt(p.lon, rG - Math.max(17 * u, 12));
         text(t1.x, t1.y, w + '°' + (p.retro ? 'R' : ''), { 'font-size': fs(10, 8.5), 'font-weight': 700, fill: p.retro ? '#c8412f' : ink }, gP);
       } else {
-        var t1b = pt(p.disp, R_g - 23 * u);
+        var t1b = pt(p.lon, rG - 20 * u);
         text(t1b.x, t1b.y, w + '°', { 'font-size': 12 * u, 'font-weight': 700, fill: ink }, gP);
-        var t2 = pt(p.disp, R_g - 41 * u);
+        var t2 = pt(p.lon, rG - 36 * u);
         symbol(SIGN_NAMES[si], t2.x, t2.y, EL_INK[si % 4], 0.62 * u, gP);
-        var t3 = pt(p.disp, R_g - 58 * u);
+        var t3 = pt(p.lon, rG - 50 * u);
         text(t3.x, t3.y, String(m).padStart(2, '0') + "'", { 'font-size': 10.5 * u, fill: '#5d4c3a' }, gP);
         if (p.retro) {
-          var tr = pt(p.disp, R_g - 70 * u);
+          var tr = pt(p.lon, rG - 62 * u);
           text(tr.x, tr.y, 'R', { 'font-size': 9.5 * u, 'font-weight': 700, fill: '#c8412f' }, gP);
         }
       }
@@ -240,32 +245,24 @@
     return true;
   }
 
-  /** 각도 순으로 정렬된 점들을 최소 간격 이상으로 벌린다 (원형) */
-  function spread(pts, sep) {
+  /** 가까운 행성끼리 묶고, 같은 도수 방향에서 안쪽 레벨(0,1,2…)만 나눠요 */
+  function stackRadial(pts, sepDeg) {
     var n = pts.length;
     if (n < 2) return;
-    if (sep * n > 330) sep = 330 / n;
-    for (var it = 0; it < 120; it++) {
-      var moved = false;
-      for (var i = 0; i < n; i++) {
-        var a = pts[i], b = pts[(i + 1) % n];
-        var gap = norm(b.disp - a.disp);
-        if (n === 2 && gap > 180) continue;
-        if (gap < sep) {
-          var push = (sep - gap) / 2 + 0.01;
-          a.disp = norm(a.disp - push);
-          b.disp = norm(b.disp + push);
-          moved = true;
-        }
-      }
-      if (!moved) break;
+    var i, cut = 0, bestGap = -1;
+    // 가장 큰 틈에서 원을 잘라 선형으로 만든 뒤 묶음 처리 (0° wrap 안전)
+    for (i = 0; i < n; i++) {
+      var gap = norm(pts[(i + 1) % n].lon - pts[i].lon);
+      if (gap > bestGap) { bestGap = gap; cut = (i + 1) % n; }
     }
-    // 실제 위치에서 너무 멀어지지 않게(최대 25°) 묶음 중심 유지
-    pts.forEach(function (p) {
-      var d = norm(p.disp - p.lon); if (d > 180) d -= 360;
-      if (d > 25) p.disp = norm(p.lon + 25);
-      if (d < -25) p.disp = norm(p.lon - 25);
-    });
+    var ordered = pts.slice(cut).concat(pts.slice(0, cut));
+    var level = 0;
+    ordered[0].level = 0;
+    for (i = 1; i < ordered.length; i++) {
+      if (angDiff(ordered[i].lon, ordered[i - 1].lon) < sepDeg) level += 1;
+      else level = 0;
+      ordered[i].level = level;
+    }
   }
 
   global.PaljaNatalWheel = { draw: draw };
