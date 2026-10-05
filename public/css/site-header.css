@@ -158,66 +158,62 @@ html {
   }
 }
 
-/* ── 모바일: 상단 액션 한 블록으로 정돈 ── */
+/* ── 모바일: 로고 · 계정(마이페이지) 한 줄 유지 ── */
 @media (max-width: 700px) {
   .site-top .topbar-inner {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 10px;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
   }
 
   .site-top .topbar-left {
-    width: 100%;
+    width: auto;
     min-width: 0;
-    flex: 0 0 auto;
+    flex: 1 1 auto;
+  }
+
+  .site-top .topbar-logo-text {
+    /* 좁은 화면에서 오른쪽 계정 영역과 겹치지 않게 */
+    max-width: 42vw;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 
   .site-top .topbar-right {
-    display: flex;
-    flex-wrap: wrap;
+    display: inline-flex;
+    flex-wrap: nowrap;
     align-items: center;
     justify-content: flex-end;
-    gap: 8px 12px;
-    row-gap: 10px;
-    width: 100%;
+    gap: 6px 8px;
+    width: auto;
+    flex: 0 0 auto;
+    min-width: 0;
   }
 
   .site-top .topbar-right > .plan-badge,
   .site-top .topbar-right > #plan-badge {
-    order: 1;
+    order: 0;
   }
 
   .site-top .topbar-right > [data-topbar-auth-guest] {
-    order: 2;
-    margin-left: auto;
+    order: 0;
+    margin-left: 0;
   }
 
   .site-top .topbar-right > .topbar-export-cluster,
   .site-top .topbar-right > .topbar-export-btns {
-    order: 3;
-    flex: 1 1 100%;
-    width: 100%;
-    justify-content: stretch;
-  }
-
-  .site-top .topbar-export-cluster .topbar-export-btns {
-    width: 100%;
-    display: flex;
-    gap: 8px;
-  }
-
-  .site-top .topbar-export-btns .counselor-bar-btn {
-    flex: 1 1 0;
-    min-width: 0;
-    min-height: 36px;
+    /* 인쇄/PDF는 site-topbar.css에서 모바일 숨김 — 한 줄 유지 */
+    display: none !important;
   }
 
   .site-top .topbar-right > [data-topbar-auth-user] {
-    order: 4;
+    order: 0;
     flex: 0 0 auto;
     display: inline-flex;
     justify-content: flex-end;
-    flex-wrap: wrap;
-    gap: 8px 12px;
+    flex-wrap: nowrap;
+    gap: 5px 8px;
   }
 }

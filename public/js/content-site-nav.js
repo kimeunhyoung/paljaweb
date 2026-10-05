@@ -65,7 +65,7 @@
   );
   ensureLink('/css/site-topbar.css?v=21');
   ensureLink('/css/site-footer.css?v=5');
-  ensureLink('/css/site-header.css?v=7');
+  ensureLink('/css/site-header.css?v=9');
 
   function isGuide() {
     return path.indexOf('/guide') === 0 || /\/guide(\/|\.html|$)/.test(path);
