@@ -6231,7 +6231,7 @@ body.export-capturing .ai-result.empty{display:none !important;}
     return { planets, cusps };
   }
 
-  /** Astro-Seek식: 행성 기호 위·아래에 도 / 분을 붙여 한눈에 읽히게 합니다. */
+  /** 라이브러리가 그린 정수 도수를 기호 옆에서 도·분(2°43')으로 바꿉니다. */
   function enrichWheelDegreeLabels(paperId, planets, _cusps, _size, settings) {
     const paper = $(paperId);
     const svg = paper && paper.querySelector('svg');
@@ -6240,25 +6240,54 @@ body.export-capturing .ai-result.empty{display:none !important;}
     const old = svg.querySelector('#lcDegOverlay');
     if (old) old.remove();
 
-    // astrochart 그룹 id는 "...-radix-planets-Sun" 형태 (points가 아님)
-    svg.querySelectorAll('g[id*="-planets"] text, g[id*="planets"] text').forEach((t) => {
-      const s = String(t.textContent || '').trim();
-      if (/^\d{1,2}$/.test(s)) t.setAttribute('visibility', 'hidden');
-    });
-
-    const fontSize = Math.max(7, Math.round(((settings && settings.POINTS_TEXT_SIZE) || 9) * 0.9));
+    const fontSize = Math.max(7, Math.round(((settings && settings.POINTS_TEXT_SIZE) || 9) * 0.95));
     const g = document.createElementNS(NS, 'g');
     g.setAttribute('id', 'lcDegOverlay');
     g.setAttribute('pointer-events', 'none');
 
+    function fmtDegMin(lon) {
+      const degInSign = ((lon % 30) + 30) % 30;
+      const whole = Math.floor(degInSign);
+      const mins = Math.round((degInSign - whole) * 60) % 60;
+      return whole + '°' + String(mins).padStart(2, '0') + "'";
+    }
+
     Object.keys(planets).forEach((name) => {
       const lon = planets[name] && planets[name][0];
       if (lon == null || !isFinite(lon)) return;
+      const label = fmtDegMin(lon);
       const el =
         svg.querySelector('[id*="-planets-' + name + '"]') ||
         svg.querySelector('[id$="-' + name + '"]');
       if (!el) return;
 
+      // 심볼 바로 다음에 붙는 정수 도수 text를 도·분으로 교체 (가장 안정적)
+      let updated = false;
+      let node = el.nextSibling;
+      while (node) {
+        if (node.nodeType === 1 && String(node.tagName || '').toLowerCase() === 'text') {
+          const s = String(node.textContent || '').trim();
+          if (/^\d{1,2}$/.test(s)) {
+            node.textContent = label;
+            node.setAttribute('font-size', String(fontSize));
+            node.setAttribute('font-weight', '700');
+            node.setAttribute('fill', '#2a2a2a');
+            node.removeAttribute('visibility');
+            updated = true;
+            break;
+          }
+          if (s === '' || s === 'R') {
+            node = node.nextSibling;
+            continue;
+          }
+          break;
+        }
+        if (node.nodeType === 1) break;
+        node = node.nextSibling;
+      }
+      if (updated) return;
+
+      // 폴백: 심볼 bbox 옆에 직접 라벨
       let x = NaN;
       let y = NaN;
       try {
@@ -6270,37 +6299,19 @@ body.export-capturing .ai-result.empty{display:none !important;}
         y = parseFloat(el.getAttribute('y'));
       }
       if (!isFinite(x) || !isFinite(y)) return;
-
-      const degInSign = ((lon % 30) + 30) % 30;
-      const whole = Math.floor(degInSign);
-      const mins = Math.round((degInSign - whole) * 60) % 60;
-
-      const tDeg = document.createElementNS(NS, 'text');
-      tDeg.setAttribute('x', x.toFixed(2));
-      tDeg.setAttribute('y', (y - 10).toFixed(2));
-      tDeg.setAttribute('text-anchor', 'middle');
-      tDeg.setAttribute('dominant-baseline', 'central');
-      tDeg.setAttribute('font-size', String(fontSize));
-      tDeg.setAttribute('font-family', 'ui-sans-serif, system-ui, sans-serif');
-      tDeg.setAttribute('font-weight', '700');
-      tDeg.setAttribute('fill', '#2a2a2a');
-      tDeg.textContent = whole + '°';
-
-      const tMin = document.createElementNS(NS, 'text');
-      tMin.setAttribute('x', x.toFixed(2));
-      tMin.setAttribute('y', (y + 12).toFixed(2));
-      tMin.setAttribute('text-anchor', 'middle');
-      tMin.setAttribute('dominant-baseline', 'central');
-      tMin.setAttribute('font-size', String(Math.max(6, fontSize - 1)));
-      tMin.setAttribute('font-family', 'ui-sans-serif, system-ui, sans-serif');
-      tMin.setAttribute('font-weight', '600');
-      tMin.setAttribute('fill', '#555');
-      tMin.textContent = String(mins).padStart(2, '0') + "'";
-
-      g.appendChild(tDeg);
-      g.appendChild(tMin);
+      const t = document.createElementNS(NS, 'text');
+      t.setAttribute('x', (x + 12).toFixed(2));
+      t.setAttribute('y', y.toFixed(2));
+      t.setAttribute('text-anchor', 'start');
+      t.setAttribute('dominant-baseline', 'central');
+      t.setAttribute('font-size', String(fontSize));
+      t.setAttribute('font-family', 'ui-sans-serif, system-ui, sans-serif');
+      t.setAttribute('font-weight', '700');
+      t.setAttribute('fill', '#2a2a2a');
+      t.textContent = label;
+      g.appendChild(t);
     });
-    svg.appendChild(g);
+    if (g.childNodes.length) svg.appendChild(g);
   }
 
   function drawWheel(horoscope, opts) {
