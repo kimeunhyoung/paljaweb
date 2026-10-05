@@ -555,6 +555,9 @@ select.input-field option{background:#fff;color:var(--ink);}
 .ai-tag{font-family:var(--font-body);font-size:12px;font-weight:700;letter-spacing:.04em;color:#8b6f47;}
 .nc2-header{align-items:center;}
 .nc2-name{font-size:30px;}
+.nc2-want-tag{display:inline-block;font-size:11.5px;font-weight:600;padding:2px 9px;border-radius:20px;background:#fff7e6;color:#8b6f47;border:1px solid rgba(200,169,110,.5);}
+.nc2-want-tag.off{background:#f4f1ec;color:var(--muted);border-color:var(--border);}
+.nc2-rank-badge{flex-wrap:wrap;}
 .nc2-scores{display:flex;gap:8px;flex-shrink:0;}
 .nc2-sc{display:flex;flex-direction:column;align-items:center;justify-content:center;min-width:64px;padding:8px 10px;border-radius:12px;background:#faf6ee;border:1px solid var(--border);}
 .nc2-sc-total{min-width:78px;background:#fff;border-color:rgba(139,111,71,.3);box-shadow:0 2px 8px var(--shadow);}
@@ -1141,6 +1144,15 @@ function compat(a,b){if(!a||!b)return null;const k=[Math.min(a,b),Math.max(a,b)]
 function compatLabel(s){if(s>=88)return'탁월한 조화';if(s>=80)return'높은 공명';if(s>=70)return'자연스러운 흐름';if(s>=60)return'보완적 관계';return'긴장 관계';}
 function compatClass(s){if(s>=80)return'score-high';if(s>=65)return'score-mid';return'score-low';}
 function fillClass(s){if(s>=80)return'fill-high';if(s>=65)return'fill-mid';return'fill-low';}
+/** 표시용 점수: 90 이상은 99로 완만 수렴 (순위·정렬은 raw totalScore 유지) */
+function displayScore(raw){
+  const n = Math.max(0, Number(raw) || 0);
+  if (n <= 90) return Math.round(Math.min(n, 99));
+  // 90→90, 100→93, 105→94, 120→96, 140→97, ∞→99
+  const excess = n - 90;
+  const soft = 90 + 9 * excess / (excess + 18);
+  return Math.min(99, Math.round(Math.min(n, soft)));
+}
 
 // ── 이름 목적(용도) — 점수는 소수 “버킷”으로만 (세부는 AI·문구용) ──
 const PURPOSE_SCORING = {
@@ -1410,6 +1422,7 @@ function evaluateName(r, dist, purposeInput) {
       soundStrengths.push(`모음 에너지 다양해 풍부한 울림 (+5점)`);
       soundBonus += 5;
     } else if(typeSet.size === 2) {
+      soundStrengths.push(`두 가지 모음 에너지가 어우러진 울림 (+2점)`);
       soundBonus += 2;
     }
 
@@ -1658,9 +1671,9 @@ function renderNameCards(results, sortedResults, dist, purposeInput) {
     const verdict = getVerdict(r.totalCompat, evaluation.bonus, isBest);
     const vtext = verdictText(verdict, r, dist, pCtx);
 
-    // 점수 표시 — 수비학 / 소리균형 / 종합 분리
-    const numScore = Math.min((r.totalCompat||70) + evaluation.numBonus, 99);
-    const totalDisp = Math.min(r.totalScore, 99);
+    // 점수 표시 — 수비학 / 소리균형 / 종합 분리 (고득점은 displayScore로 구분)
+    const numScore = displayScore((r.totalCompat||70) + evaluation.numBonus);
+    const totalDisp = displayScore(r.totalScore);
     const soundBonusDisp = evaluation.soundBonus;
     const soundBonusStr = soundBonusDisp > 0 ? `+${soundBonusDisp}` : `${soundBonusDisp}`;
     const soundBonusColor = soundBonusDisp >= 0 ? 'var(--teal)' : 'var(--red)';
@@ -1706,6 +1719,7 @@ function renderNameCards(results, sortedResults, dist, purposeInput) {
               <span class="nc2-rank-num">${rankIdx+1}위</span>
               <span class="nc2-verdict-badge ${verdict.cls}">${verdict.label}</span>
               ${isMaster?`<span class="nc2-master-tag">마스터 ${expr}</span>`:''}
+              ${r.wantedMatch===true?`<span class="nc2-want-tag">원하는 에너지 ${expr}번</span>`:r.wantedMatch===false?`<span class="nc2-want-tag off">원하는 에너지 외 (운명수 ${expr})</span>`:''}
             </div>
             <div class="nc2-name">${r.name}</div>
           </div>
@@ -1792,7 +1806,8 @@ function renderCompareTable(sortedResults, dist, purposeInput) {
   // 수비학 점수만으로 1위 찾기
   const numScores = sortedResults.map(r => {
     const ev = evaluateName(r, dist, pCtx);
-    return { r, numScore: Math.min((r.totalCompat||70) + ev.numBonus, 99), soundBonus: ev.soundBonus };
+    const rawNum = (r.totalCompat||70) + ev.numBonus;
+    return { r, numScore: rawNum, numDisp: displayScore(rawNum), soundBonus: ev.soundBonus };
   });
   const numFirstIdx = numScores.reduce((best, cur, i) =>
     cur.numScore > numScores[best].numScore ? i : best, 0);
@@ -1845,7 +1860,7 @@ function renderCompareTable(sortedResults, dist, purposeInput) {
     } else if(row.numscore){
       sortedResults.forEach((r,i)=>{
         const ev=evaluateName(r,dist,pCtx);
-        const s=Math.min((r.totalCompat||70)+ev.numBonus,99);
+        const s=displayScore((r.totalCompat||70)+ev.numBonus);
         const nb=ev.numBonus>0?`보너스 +${ev.numBonus}`:ev.numBonus<0?`감점 ${ev.numBonus}`:'기본';
         html+=`<td class="score-cell score-section"><span class="sc-num ${compatClass(s)}">${s}</span><div class="sc-bar"><div class="sc-fill ${fillClass(s)}" style="width:${s}%"></div></div><span class="sc-label">${nb}</span></td>`;
       });
@@ -1860,7 +1875,7 @@ function renderCompareTable(sortedResults, dist, purposeInput) {
       });
     } else if(row.total){
       sortedResults.forEach(r=>{
-        const s=Math.min(r.totalScore,99);
+        const s=displayScore(r.totalScore);
         const bonusStr=r.bonus>0?`가산 +${r.bonus}`:r.bonus<0?`감산 ${r.bonus}`:'기본점수';
         html+=`<td class="score-cell" style="background:rgba(200,169,110,.04);"><span class="sc-num ${compatClass(s)}" style="font-size:22px;font-weight:700;">${s}</span><div class="sc-bar"><div class="sc-fill ${fillClass(s)}" style="width:${s}%"></div></div><span class="sc-label" style="font-weight:600;">${bonusStr}</span></td>`;
       });
@@ -1963,7 +1978,7 @@ function renderNameAiStart(results,baseName,birthDate,lp,dist,purposeCtx){
 
 async function callAI(results,baseName,birthDate,lp,dist,purposeInput){
   const pCtx = normalizePurposeArg(purposeInput);
-  const namesStr=results.map(r=>`• ${r.name}: 운명수 ${r.nums.expression.val}(${tr(r.nums.expression.val).name}), 혼의수 ${r.nums.soul.val}(${tr(r.nums.soul.val).name}), 성격수 ${r.nums.personality.val}(${tr(r.nums.personality.val).name}), 종합점수 ${Math.min(r.totalScore,99)}점`).join('\n');
+  const namesStr=results.map(r=>`• ${r.name}: 운명수 ${r.nums.expression.val}(${tr(r.nums.expression.val).name}), 혼의수 ${r.nums.soul.val}(${tr(r.nums.soul.val).name}), 성격수 ${r.nums.personality.val}(${tr(r.nums.personality.val).name}), 종합점수 ${displayScore(r.totalScore)}점`).join('\n');
   const missingStr=dist?.missing.length?`생년월일 부족수: ${dist.missing.map(n=>`${n}번(${tr(n).name})`).join(', ')}`:'';
   const excessStr=dist?.excess.length?`과잉수: ${dist.excess.map(n=>`${n}번(${tr(n).name})`).join(', ')}`:'';
   const lpDesc=lp?`인생여정수 ${lp.val}번 · ${tr(lp.val).name} — ${tr(lp.val).desc}`:'';
@@ -1981,9 +1996,9 @@ async function callAI(results,baseName,birthDate,lp,dist,purposeInput){
     excessStr,
     namesStr,
     topName: results[0]?.name || '',
-    topScore: Math.min(results[0]?.totalScore ?? 0, 99),
+    topScore: displayScore(results[0]?.totalScore ?? 0),
     cautionName: last ? last.name : '',
-    cautionScore: last != null ? Math.min(last.totalScore, 99) : null,
+    cautionScore: last != null ? displayScore(last.totalScore) : null,
   };
   try{
     if (!window.PaljaAiQuota) throw new Error('no_quota_client');
@@ -2121,7 +2136,7 @@ async function runRecommend(){
     const wantNums = chips.map(Number).filter(Boolean);
     const isWanted = (r) => wantNums.length > 0 && wantNums.includes(r.nums.expression.val);
     const sorted = [...scored].sort((a,b) => (isWanted(b) - isWanted(a)) || (b.totalScore - a.totalScore)).slice(0, 5);
-    sorted.forEach((r) => { r.wantedMatch = isWanted(r); });
+    if (wantNums.length) sorted.forEach((r) => { r.wantedMatch = isWanted(r); });
     const wantedNote = wantNums.length
       ? (sorted.some((r) => r.wantedMatch)
         ? `원하는 에너지(${wantNums.join('·')}번)와 운명수가 맞는 이름을 먼저 보여 드려요.`
@@ -2145,7 +2160,7 @@ function renderRecResultFull(sorted, dist, lp, birth, surname, purposeInput, wan
 
   // 상단 요약
   const best = sorted[0];
-  const bestScore = Math.min(best.totalScore, 99);
+  const bestScore = displayScore(best.totalScore);
   const missingFill = dist?.missing.includes(best.nums.expression.val);
 
   const noun = recommendResultNoun(pCtx.scoringKey);
