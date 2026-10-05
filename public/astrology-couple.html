@@ -21,14 +21,14 @@
 <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="js/plan-access.js?v=13"></script>
-<script src="js/ai-quota-client.js?v=2"></script>
+<script src="js/ai-quota-client.js?v=20261003"></script>
 <script src="js/product-plan-bootstrap.js?v=1"></script>
 <script src="js/attribution.js"></script>
   <script src="js/site-topbar.js?v=36" defer></script>
 <script src="js/topbar-session.js?v=14" defer></script>
 <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
 <script src="js/astro-cities.js?v=1"></script>
-<script src="js/astro-meanings.js?v=3"></script>
+<script src="js/astro-meanings.js?v=4"></script>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css" crossorigin />
 <link rel="stylesheet" href="css/site-topbar.css?v=21" />
 <link rel="stylesheet" href="css/site-header.css?v=7" />
@@ -123,15 +123,17 @@ body{font-family:var(--font-body);background:var(--cream);color:var(--ink);min-h
 .syn-item.strong{border-left-color:var(--rose);}
 .syn-title{font-size:14.5px;font-weight:600;color:var(--deep-brown);display:flex;align-items:center;gap:6px;flex-wrap:wrap;}
 .syn-sym{font-size:15px;color:var(--accent);}
-.syn-text{font-size:13px;line-height:1.6;color:var(--muted);margin-top:4px;}
+.syn-text{font-size:14px;line-height:1.65;color:var(--muted);margin-top:4px;}
 .tag{display:inline-block;font-size:12px;font-weight:700;padding:1px 7px;border-radius:10px;margin-left:4px;}
 .tag-easy{background:rgba(95,147,184,.15);color:#3f6f93;}
 .tag-tense{background:rgba(217,139,95,.16);color:#a9602f;}
 .tag-strong{background:var(--rose-lt);color:var(--rose);}
+.tag-unsure{background:rgba(116,96,75,.12);color:var(--muted);}
+.syn-item.unsure{opacity:.82;}
 .who-a{color:var(--teal);font-weight:700;}
 .who-b{color:var(--rose);font-weight:700;}
 
-.note{font-size:13px;color:var(--muted);line-height:1.7;margin-top:12px;background:var(--cream);border-radius:10px;padding:12px 14px;}
+.note{font-size:14px;color:var(--muted);line-height:1.7;margin-top:12px;background:var(--cream);border-radius:10px;padding:12px 14px;}
 .ai-prompt-box{width:100%;border:1px solid var(--border);border-radius:10px;background:var(--cream);padding:13px 15px;font-family:inherit;font-size:13.5px;line-height:1.7;color:var(--ink);resize:vertical;}
 .ai-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px;}
 .ai-result{margin-top:14px;padding:14px 16px;background:rgba(255,255,255,.65);border:1px solid #e8ddcb;border-radius:12px;font-size:14.5px;line-height:1.75;white-space:pre-wrap;}
@@ -160,6 +162,7 @@ body{font-family:var(--font-body);background:var(--cream);color:var(--ink);min-h
 /* 본문 Pretendard · 제목 명조 */
 .card-title,.person-box h3,.result-name,.score-num,.hero-title{font-family:var(--font-serif);}
 .hero-desc,.intro,.syn-text,.note{line-height:1.75;}
+.hero-desc,.intro,.syn-text,.note,.score-detail,.ai-result{word-break:keep-all;overflow-wrap:break-word;}
 .syn-text{color:#6b5844;}
 /* AI 결과 마크다운 */
 .ai-result.ai-md{white-space:normal;font-size:15px;line-height:1.85;color:var(--ink);}
@@ -323,6 +326,7 @@ body{font-family:var(--font-body);background:var(--cream);color:var(--ink);min-h
   let sbClient = null;
   try { if (window.supabase && window.supabase.createClient) sbClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY); } catch (e) {}
   let HAS_BASIC = false;
+  let HAS_SESSION = false;
   let HAS_PROFESSIONAL = false;
   let COUNSELOR_UID = '';
   let COUNSELOR_CLIENT_ROWS = [];
@@ -355,6 +359,7 @@ body{font-family:var(--font-body);background:var(--cream);color:var(--ink);min-h
       if (!sbClient) return;
       const { data: { session } } = await sbClient.auth.getSession();
       if (!session) return;
+      HAS_SESSION = true;
       const { data: profile } = await sbClient.from('profiles').select('plan, plan_active_until').eq('id', session.user.id).single();
       HAS_BASIC = window.PaljaPlan ? window.PaljaPlan.isPlanAtLeast(profile || {}, 'basic') : false;
       HAS_PROFESSIONAL = window.PaljaPlan ? window.PaljaPlan.hasCounselorAccess(profile || {}) : false;
@@ -576,6 +581,10 @@ body{font-family:var(--font-body);background:var(--cream);color:var(--ink);min-h
     const B = readPerson('b'); if (B.err) { showStatus('두 번째 사람: ' + B.err, 'err'); return; }
 
     await accessReady;
+    if (!HAS_BASIC && !HAS_SESSION) {
+      showStatus('커플 차트(시너스트리)는 <strong>로그인 후</strong> 이용할 수 있어요. <a href="login.html?next=' + encodeURIComponent('astrology-couple.html' + location.search) + '" style="color:var(--teal);text-decoration:underline;font-weight:600;">로그인 →</a>', 'err');
+      return;
+    }
     if (!HAS_BASIC) {
       showStatus('커플 차트(시너스트리)는 <strong>Basic 이상 플랜</strong>에서 이용할 수 있어요. <a href="pricing.html" style="color:var(--teal);text-decoration:underline;font-weight:600;">요금제 보기 →</a>', 'err');
       return;
@@ -603,7 +612,7 @@ body{font-family:var(--font-body);background:var(--cream);color:var(--ink);min-h
     function big3Col(h, who, name, unknown) {
       const sun = bigSign(h, 'sun'), moon = bigSign(h, 'moon');
       const asc = unknown ? null : bigSign(h, 'asc');
-      return `<div class="duo-col ${who}"><h4>● ${name}</h4>
+      return `<div class="duo-col ${who}"><h4>● ${escapeCounselorHtml(name)}</h4>
         <div class="duo-line"><span class="g">☉</span>태양 ${sun ? sun.ko : '-'}<br>
         <span class="g">☽</span>달 ${moon ? moon.ko : '-'}<br>
         <span class="g">↑</span>상승궁 ${asc ? asc.ko : '(시간 미상)'}</div></div>`;
@@ -615,7 +624,8 @@ body{font-family:var(--font-body);background:var(--cream);color:var(--ink);min-h
     const degB = planetDegs(hb, !B.unknown);
     const labelKo = { sun:'태양', moon:'달', mercury:'수성', venus:'금성', mars:'화성', jupiter:'목성', saturn:'토성', asc:'상승궁' };
     const meaning = M.ASPECT_MEANING || {};
-    const tagOf = { easy: '<span class="tag tag-easy">조화</span>', tense: '<span class="tag tag-tense">긴장</span>', strong: '<span class="tag tag-strong">강한 끌림</span>' };
+    // 합(☌)은 행성에 따라 끌림이 될 수도 부담이 될 수도 있어서 「강한 연결」로 표시해요
+    const tagOf = { easy: '<span class="tag tag-easy">조화</span>', tense: '<span class="tag tag-tense">긴장</span>', strong: '<span class="tag tag-strong">강한 연결</span>' };
 
     const SYN_ASPECT_TEXT = {
       conjunction: '서로를 강하게 의식하게 되는 연결이에요. 같은 방향이면 큰 힘이 되고, 엇갈리면 부딪힘도 커져요.',
@@ -625,6 +635,26 @@ body{font-family:var(--font-body);background:var(--cream);color:var(--ink);min-h
       opposition: '서로 반대라 끌리기도 하고 줄다리기가 생기기도 해요.',
     };
     const SYN_AREA = { sun: '자아·삶의 방향', moon: '감정·안정감', mercury: '말·생각', venus: '애정·취향', mars: '행동력·욕구', jupiter: '너그러움·성장', saturn: '책임·현실감', asc: '첫인상·태도' };
+    // 행성 쌍의 「주제」만 말해요. 좋고 나쁨은 뒤에 붙는 각(조화·긴장) 설명이 정해요
+    // (예전엔 사각인데도 「너그러운 조합」처럼 좋은 말이 붙어 앞뒤가 엇갈렸어요)
+    const SYN_PAIR_THEME = {
+      moon_sun: '본질(태양)과 정서(달)가 만나는, 궁합의 핵심 축이에요.',
+      sun_venus: '호감과 애정 표현이 오가는 축이에요.',
+      mars_venus: '끌림·설렘·케미를 보여 주는 축이에요.',
+      moon_venus: '정서적 친밀감과 다정함을 보여 주는 축이에요.',
+      mars_moon: '감정(달)과 욕구·행동(화성)이 만나는 축이에요.',
+      mercury_mercury: '대화 방식과 생각의 속도가 맞는지를 보여 줘요.',
+      moon_moon: '두 사람의 감정 리듬을 보여 줘요.',
+      sun_sun: '두 사람의 기본 성향이 닮았는지, 다른지를 보여 줘요.',
+      venus_venus: '취향과 사랑하는 방식을 보여 줘요.',
+      saturn_sun: '책임·신뢰·관계의 틀을 보여 주는 축이에요.',
+      moon_saturn: '정서적 안정감과 감정의 무게를 보여 주는 축이에요.',
+      saturn_venus: '애정의 진지함과 오래가는 힘을 보여 주는 축이에요.',
+      jupiter_sun: '서로의 성장과 너그러움을 보여 주는 축이에요.',
+      jupiter_venus: '즐거움과 다정함을 보여 주는 축이에요.',
+      mars_mars: '추진력과 경쟁심이 만나는 축이에요.',
+    };
+    const pairTheme = (a, b) => SYN_PAIR_THEME[[a, b].sort().join('_')] || '';
     const josaKo = (w, withB, withoutB) => {
       const ch = String(w || '').trim().slice(-1);
       const code = ch.charCodeAt(0) - 0xAC00;
@@ -641,19 +671,25 @@ body{font-family:var(--font-body);background:var(--cream);color:var(--ink);min-h
     });
     hits.sort((a, b) => a.orbOff - b.orbOff);
 
+    // 출생 시간을 모르는 사람의 달은 하루 동안 12° 넘게 움직여서, 달이 낀 각은 참고로만 보여 주고 지수에서는 빼요
+    hits.forEach((h) => { h.unsure = (h.ak === 'moon' && A.unknown) || (h.bk === 'moon' && B.unknown); });
     let easy = 0, tense = 0, strong = 0;
     let synHtml = '';
     hits.slice(0, 16).forEach((h) => {
       const m = meaning[h.key] || { tone: '', text: '' };
-      if (m.tone === 'easy') easy++; else if (m.tone === 'tense') tense++; else if (m.tone === 'strong') strong++;
-      const pairNote = M.synastryPairNote(h.ak, h.bk);
+      if (!h.unsure) {
+        if (m.tone === 'easy') easy++; else if (m.tone === 'tense') tense++; else if (m.tone === 'strong') strong++;
+      }
+      const pairNote = pairTheme(h.ak, h.bk);
       const lead = pairNote ||
         (josaKo(nameA + '의 ' + (SYN_AREA[h.ak] || labelKo[h.ak]), '과', '와') + ' ' +
           josaKo(nameB + '의 ' + (SYN_AREA[h.bk] || labelKo[h.bk]), '이', '가') + ' 만나는 자리예요.');
       const base = lead + ' ' + (SYN_ASPECT_TEXT[h.key] || m.text);
-      synHtml += `<div class="syn-item ${m.tone}">
-        <div class="syn-title"><span class="syn-sym">${ASPECT_SYM[h.key] || ''}</span><span class="who-a">${nameA}</span> ${labelKo[h.ak]} ${ASPECT_KR[h.key]} <span class="who-b">${nameB}</span> ${labelKo[h.bk]}${tagOf[m.tone] || ''}</div>
-        <div class="syn-text">${base}</div>
+      const unsureTag = h.unsure ? '<span class="tag tag-unsure">시간 미상 · 참고</span>' : '';
+      const unsureText = h.unsure ? ' (출생 시간을 몰라 달의 위치가 정확하지 않아서 참고로만 봐 주세요.)' : '';
+      synHtml += `<div class="syn-item ${m.tone}${h.unsure ? ' unsure' : ''}">
+        <div class="syn-title"><span class="syn-sym">${ASPECT_SYM[h.key] || ''}</span><span class="who-a">${escapeCounselorHtml(nameA)}</span> ${labelKo[h.ak]} ${ASPECT_KR[h.key]} <span class="who-b">${escapeCounselorHtml(nameB)}</span> ${labelKo[h.bk]}${tagOf[m.tone] || ''}${unsureTag}</div>
+        <div class="syn-text">${escapeCounselorHtml(base)}${unsureText}</div>
       </div>`;
     });
     $('synList').innerHTML = synHtml || '<div class="note">두 차트 사이에 뚜렷한 주요 각이 적네요. 서로 자극은 덜하지만 편안한 관계일 수 있어요.</div>';
@@ -667,12 +703,15 @@ body{font-family:var(--font-body);background:var(--cream);color:var(--ink);min-h
     $('scoreNum').textContent = score;
     $('scoreFill').style.width = score + '%';
     let label;
-    if (score >= 85) label = '천생연분 케미';
+    if (score >= 85) label = '아주 잘 맞는 케미';
     else if (score >= 72) label = '잘 통하는 사이';
     else if (score >= 58) label = '서로를 키워 주는 관계';
     else label = '노력으로 깊어지는 관계';
     $('scoreLabel').textContent = label;
-    $('scoreDetail').innerHTML = `조화로운 각 <strong>${easy + strong}</strong> · 긴장의 각 <strong>${tense}</strong><br>긴장의 각은 ‘나쁨’이 아니라 서로를 성장시키는 마찰이에요.`;
+    const unsureCnt = hits.slice(0, 16).filter((h) => h.unsure).length;
+    $('scoreDetail').innerHTML = `조화 <strong>${easy}</strong> · 강한 연결 <strong>${strong}</strong> · 긴장 <strong>${tense}</strong>` +
+      (unsureCnt ? `<br>출생 시간을 몰라 달이 낀 각 ${unsureCnt}개는 지수에서 뺐어요.` : '') +
+      `<br>긴장의 각은 ‘나쁨’이 아니라 서로를 성장시키는 마찰이에요.`;
 
     // AI: 데이터만 보관 → 서버가 지시문 조립 (캐시키 동일 유지)
     LAST_AI_PAYLOAD = buildCoupleAiPayload(nameA, nameB, ha, hb, A, B, hits, labelKo);
@@ -731,7 +770,7 @@ body{font-family:var(--font-body);background:var(--cream);color:var(--ink);min-h
     if (hits && hits.length) {
       L.push('[시너스트리 각 — 오차 작은 순]');
       hits.slice(0, 14).forEach((h) => {
-        L.push(' - ' + nameA + ' ' + labelKo[h.ak] + ' ' + ASPECT_KR[h.key] + ' ' + nameB + ' ' + labelKo[h.bk] + ' (오차 ' + h.orbOff.toFixed(1) + '°)');
+        L.push(' - ' + nameA + ' ' + labelKo[h.ak] + ' ' + ASPECT_KR[h.key] + ' ' + nameB + ' ' + labelKo[h.bk] + ' (오차 ' + h.orbOff.toFixed(1) + '°)' + (h.unsure ? ' [시간 미상 — 참고]' : ''));
       });
     } else {
       L.push('[시너스트리 각] 뚜렷한 주요 각이 적어요 — 무난하고 자극이 적은 관계로 읽고, 지어내지 마세요.');
@@ -1043,7 +1082,7 @@ body{font-family:var(--font-body);background:var(--cream);color:var(--ink);min-h
         const parts = [];
         if (mergedA && mergedA.dt) parts.push(counselorPrefillStatus('첫 번째 사람', mergedA));
         if (mergedB && mergedB.dt) parts.push(counselorPrefillStatus('두 번째 사람', mergedB));
-        if (!parts.length) parts.push('두 사람 정보를 불러왔어요. 출생지·시간을 확인한 뒤 “궁합 분석하기”를 눌러주세요.');
+        if (!parts.length) parts.push('두 사람 정보를 불러왔어요. 출생지·시간을 확인한 뒤 “궁합 분석하기”를 눌러 주세요.');
         showStatus(parts.join('<br>'), 'info');
       }
 
