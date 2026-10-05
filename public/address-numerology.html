@@ -289,6 +289,8 @@
       .layout { grid-template-columns: 1fr; }
       .phone-grid, .split-two { grid-template-columns: 1fr; }
     }
+    input[type="text"]:focus, input[type="tel"]:focus { outline: none; border-color: var(--brand); box-shadow: 0 0 0 3px rgba(139,111,71,.15); }
+    .panel a:not(.btn), .seo-block a { color: var(--brand); text-underline-offset: 3px; }
   </style>
 </head>
 <body>
@@ -298,8 +300,8 @@
     <header class="hero">
       <h1>주소 · 전화번호 수비학</h1>
       <p>
-        번지·도로명·아파트 호수·전화 끝자리를 피타고라스식으로 1~9로 줄여 공간의 진동을 참고합니다.
-        이사·번호 선택 전 점검용이며, 투자·의료 조언이 아닙니다.
+        집 번지·아파트 호수·전화번호를 1~9 한 자리 수로 줄여서, 그 공간과 번호가 가진 기운을 읽어 드려요.
+        이사할 집이나 새 번호를 고르기 전에 참고용으로 써 보세요.
       </p>
     </header>
 
@@ -309,41 +311,41 @@
         <div class="field-gap" style="margin-top:0">
           <label class="field-label" for="houseInput">번지 · 건물 번호</label>
           <input id="houseInput" type="text" inputmode="text" placeholder="예: 5517, 578C, 101동" autocomplete="off" />
-          <p class="field-hint">숫자와 영문 호수(예: 3B)를 합산합니다. 가장 강한 영향.</p>
+          <p class="field-hint">숫자와 영문 호수(예: 3B)를 모두 더해요. 집에 가장 큰 영향을 주는 수예요.</p>
         </div>
         <div class="field-gap">
           <label class="field-label" for="roadInput">도로명 (선택)</label>
           <input id="roadInput" type="text" placeholder="예: 16th, Sunlight Beach Rd" autocomplete="off" />
-          <p class="field-hint">영문·숫자만 환산합니다. 한글 도로명은 숫자만 반영됩니다. 최종 주택 수는 번지·도로를 각각 줄인 뒤 합산합니다.</p>
+          <p class="field-hint">영문과 숫자만 계산해요. 한글 도로명은 숫자(예: 16번길)만 반영돼요. 최종 주택 수는 번지와 도로명을 각각 한 자리로 줄인 뒤 더해요.</p>
         </div>
         <div class="field-gap">
           <label class="field-label" for="aptInput">아파트 · 호수 (선택)</label>
           <input id="aptInput" type="text" placeholder="예: 1203, 3B" autocomplete="off" />
-          <p class="field-hint">빌딩(이웃)과 별개로, 거주자에게 직접 닿는 수입니다.</p>
+          <p class="field-hint">건물 전체와 별개로, 그 집에 사는 사람에게 직접 닿는 수예요.</p>
         </div>
         <div class="field-gap">
           <label class="field-label" for="phoneInput">전화번호 (선택)</label>
           <input id="phoneInput" type="tel" placeholder="예: 010-3713-3381" autocomplete="off" />
-          <p class="field-hint">지역번호 제외 합산 + 끝 4자리. 해석은 1~9 공통 의미를 참고로 붙입니다.</p>
+          <p class="field-hint">지역번호·010을 뺀 전체 합과 끝 4자리를 함께 봐요.</p>
         </div>
         <div class="actions">
           <button type="button" class="btn btn-primary" id="calcBtn">계산하기</button>
           <a class="btn btn-secondary" href="analysis.html">내 인생여정수와 맞춰보기</a>
         </div>
         <div class="cta-box">
-          주소 수는 <strong>환경의 진동</strong>이고, 인생여정수는 <strong>나의 길</strong>입니다.
-          <a href="analysis.html">라이프코드</a>로 공명 여부를 함께 보면 이사·선택에 더 도움이 됩니다.
+          주소 수는 <strong>내가 사는 환경의 기운</strong>이고, 인생여정수는 <strong>내가 걷는 길</strong>이에요.
+          <a href="analysis.html">라이프코드</a>로 둘이 잘 맞는지 함께 보면 이사나 번호를 고를 때 더 도움이 돼요.
         </div>
       </aside>
 
       <div>
         <p class="note-banner" id="hangulNote" hidden>
-          한글 글자는 이번 계산에서 제외했습니다. 영문 도로명·숫자·라틴 호수(A~Z)만 피타고라스 환산합니다.
+          한글 글자는 계산에서 빼고, 숫자와 영문(A~Z)만 계산했어요.
         </p>
 
         <div class="panel" id="emptyState">
           <div class="empty-state">
-            왼쪽에서 번지·호수·전화를 입력하면<br />주택 수와 해설이 여기에 표시됩니다.
+            번지·호수·전화번호를 입력하면<br />주택 수와 해석이 여기에 나와요.
           </div>
         </div>
 
@@ -362,12 +364,12 @@
         <section class="panel" style="margin-top:16px">
           <h2>이사 전 체크리스트</h2>
           <ul class="check-list">
-            <li data-check="house">번지·건물 번호를 한 자리로 환원하고, 구성 수(각 자릿수)도 함께 봅니다.</li>
-            <li data-check="road">도로명은 공식 표기 그대로(임의 단어 추가 금지). 이웃 환경의 진동입니다.</li>
-            <li data-check="special">카르마 수(13·14·16·19)·마스터 수(11·22·33)가 있는지 확인합니다.</li>
-            <li data-check="apt">아파트라면 호수 수를 별도로 계산합니다(거주자 직접 영향).</li>
-            <li data-check="phone">자주 쓰는 전화 끝자리도 함께 보면 일상 대화의 톤을 가늠할 수 있습니다.</li>
-            <li>내 인생여정수·올해 목표와 공명하는지 판단합니다. → <a href="analysis.html">라이프코드</a></li>
+            <li data-check="house">번지·건물 번호를 한 자리로 줄이고, 각 자릿수도 함께 봐요.</li>
+            <li data-check="road">도로명은 공식 표기 그대로 입력해요. 동네·이웃 환경의 기운이에요.</li>
+            <li data-check="special">카르마 수(13·14·16·19)나 마스터 수(11·22·33)가 있는지 확인해요.</li>
+            <li data-check="apt">아파트라면 호수도 따로 계산해요. 사는 사람에게 직접 닿는 수예요.</li>
+            <li data-check="phone">자주 쓰는 전화번호 끝자리도 함께 보면 일상 소통의 분위기를 가늠할 수 있어요.</li>
+            <li>내 인생여정수나 올해 목표와 잘 맞는지 확인해요. → <a href="analysis.html">라이프코드</a></li>
           </ul>
         </section>
       </div>
@@ -376,14 +378,14 @@
     <section class="panel seo-block">
       <h2>주소 수비학이란?</h2>
       <p>
-        수비학에서는 집 번지를 한 자리 수(1~9)로 줄여 그 공간의 테마를 읽습니다.
-        도로명은 이웃 환경, 번지·호수는 거주자에게 더 직접적인 영향을 준다고 봅니다.
-        전화번호는 끝 4자리가 가장 중요하며, 지역번호는 범위가 넓어 보조로만 씁니다.
+        수비학에서는 집 번지를 한 자리 수(1~9)로 줄여 그 공간의 테마를 읽어요.
+        도로명은 이웃 환경, 번지·호수는 사는 사람에게 더 직접적인 영향을 준다고 봐요.
+        전화번호는 끝 4자리가 가장 중요하고, 지역번호는 범위가 넓어서 보조로만 써요.
       </p>
       <ul>
-        <li><strong>수 5의 집</strong> — 변화·활동이 많아, 스트레스가 큰 직업에는 부담될 수 있음</li>
-        <li><strong>수 7의 집</strong> — 공부·영적 성장·연구에 잘 맞음</li>
-        <li><strong>수 8의 집</strong> — 재정·비즈니스 전환점이 될 수 있으나 관리 규율이 필요</li>
+        <li><strong>수 5의 집</strong> — 변화와 활동이 많아서, 스트레스가 큰 직업이라면 부담이 될 수 있어요.</li>
+        <li><strong>수 7의 집</strong> — 공부·연구·영적 성장에 잘 맞아요.</li>
+        <li><strong>수 8의 집</strong> — 재정·사업의 전환점이 될 수 있지만, 꼼꼼한 관리가 필요해요.</li>
       </ul>
       <p style="margin-top:12px">
         관련: <a href="numerology-wallpaper.html">에너지 배경</a> ·
@@ -394,6 +396,6 @@
     </section>
   </main>
 
-  <script src="js/address-numerology.js?v=2"></script>
+  <script src="js/address-numerology.js?v=3"></script>
 </body>
 </html>

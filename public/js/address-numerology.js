@@ -18,74 +18,74 @@
   };
 
   var KARMA = {
-    13: '변형·재구성의 진동(카르마 13). 낡은 구조를 깨고 다시 쌓는 기운이 강합니다.',
-    14: '변화·해체와 재편의 진동(카르마 14). 급격한 전환이 올 수 있어 균형이 중요합니다.',
-    16: '각성·재건의 진동(카르마 16). 겉모습이 흔들리며 본질을 다시 보게 합니다.',
-    19: '독립·재출발의 진동(카르마 19). 혼자 서려는 에너지와 책임이 함께 옵니다.'
+    13: '카르마 수 13의 흐름이 있어요. 낡은 틀을 깨고 다시 쌓는 기운이 강해요.',
+    14: '카르마 수 14의 흐름이 있어요. 갑작스러운 변화가 올 수 있어 균형이 중요해요.',
+    16: '카르마 수 16의 흐름이 있어요. 겉모습이 흔들리면서 본질을 다시 보게 돼요.',
+    19: '카르마 수 19의 흐름이 있어요. 혼자 서려는 에너지와 책임이 함께 와요.'
   };
 
   var HOUSE = {
     1: {
       title: '독립과 리더십의 집',
       theme: '개성·용기·추진력',
-      body: '창조적 사업·새 출발을 모색하기에 좋은 진동입니다. 리더십과 자주성이 자랍니다.',
-      caution: '함께 살아도 고독감이 생길 수 있고, 인내심을 키우는 과제가 따릅니다.',
+      body: '창조적인 사업이나 새 출발을 꾀하기에 좋은 집이에요. 리더십과 자주성이 자라요.',
+      caution: '함께 살아도 외로움을 느낄 수 있고, 인내심을 기르는 과제가 따라와요.',
       keywords: '용기 · 독립 · 혁신 · 리더십 · 새로운 시작'
     },
     2: {
       title: '평화와 파트너십의 집',
       theme: '조용함·조화·관계',
-      body: '파트너십·결혼에 긍정적인 집입니다. 직관·예술·음악 감수성이 살아납니다.',
-      caution: '혼자만의 공간을 원하면 맞지 않을 수 있고, 갈등 시 상처가 깊어질 수 있습니다.',
+      body: '동업·결혼 같은 파트너십에 좋은 집이에요. 직관과 예술·음악 감수성이 살아나요.',
+      caution: '혼자만의 공간이 꼭 필요한 사람에게는 답답할 수 있고, 다툼이 생기면 상처가 깊어질 수 있어요.',
       keywords: '인내 · 협동 · 민감성 · 온정 · 조화'
     },
     3: {
       title: '창조와 열정의 집',
       theme: '표현·사회성·로맨스',
-      body: '긍정 에너지와 창조성이 풍부합니다. 자기표현·사회생활·로맨스가 활발해지기 쉽습니다.',
-      caution: '충동적 행동·산만한 에너지에 주의하고, 재정 관리를 꼭 챙기세요.',
+      body: '밝은 에너지와 창의력이 풍부한 집이에요. 자기표현·사교 생활·연애가 활발해지기 쉬워요.',
+      caution: '충동적인 행동과 산만함을 조심하고, 돈 관리를 꼭 챙겨 주세요.',
       keywords: '창조성 · 우정 · 낙관 · 상상력 · 삶의 기쁨'
     },
     4: {
       title: '안전과 안정의 집',
       theme: '질서·실용·토대',
-      body: '질서·검소함·실용성의 집입니다. 근면하고 훈련된 사람에게 안정감을 줍니다.',
-      caution: '가족·친척 이슈가 생길 수 있으나 상식으로 풀어가면 됩니다. 차 번호도 삶의 리듬에 영향을 줄 수 있습니다.',
+      body: '질서·검소함·실용성의 집이에요. 성실하고 꾸준한 사람에게 안정감을 줘요.',
+      caution: '가족·친척 문제가 생길 수 있지만, 상식적으로 차근차근 풀면 괜찮아요.',
       keywords: '안전 · 토대 · 미래계획 · 질서 · 근면'
     },
     5: {
       title: '변화와 활동의 집',
       theme: '이동·자극·네트워크',
-      body: '변화·이동·자극이 잦습니다. 세일즈·네트워크·출판·기업가 정신에 유리합니다.',
-      caution: '혼돈·충동적 결정·잦은 이사가 오기 쉽고, 편안한 휴식은 기대하기 어렵습니다. 스트레스 많은 직업에는 부담이 될 수 있습니다.',
+      body: '변화·이동·자극이 많은 집이에요. 영업·인맥·출판·창업처럼 움직임이 많은 일에 유리해요.',
+      caution: '어수선함, 충동적인 결정, 잦은 이사가 생기기 쉽고 푹 쉬기는 어려워요. 스트레스가 큰 직업이라면 부담이 될 수 있어요.',
       keywords: '변화 · 다양성 · 사교 · 세일즈 · 이동'
     },
     6: {
       title: '가족과 사랑의 집',
       theme: '양육·보금자리·돌봄',
-      body: '가족·아이·반려동물에게 좋은 보금자리입니다. 예술·홈스쿨링·상담에도 잘 맞습니다.',
-      caution: '지나친 희생, 의무와 책임이 이어질 수 있습니다.',
+      body: '가족·아이·반려동물에게 좋은 보금자리예요. 예술·홈스쿨링·상담 일에도 잘 맞아요.',
+      caution: '지나친 희생이나 끝없는 의무·책임이 이어질 수 있어요.',
       keywords: '가족 · 양육 · 사랑 · 책임 · 봉사'
     },
     7: {
       title: '성찰과 수행의 집',
       theme: '명상·연구·내면',
-      body: '명상·연구·내면 탐구의 성지입니다. 작가·과학자·학생에게 이상적입니다. 영적 성장·공부를 원할 때 잘 맞습니다.',
-      caution: '비즈니스·결혼·동거에는 다소 불리할 수 있고, 고독감이 깊어질 수 있습니다.',
+      body: '명상·연구·내면 탐구에 좋은 집이에요. 작가·연구자·학생에게 잘 맞고, 공부나 영적 성장을 원할 때 좋아요.',
+      caution: '사업·결혼·동거에는 다소 불리할 수 있고, 외로움이 깊어질 수 있어요.',
       keywords: '내면 · 전문성 · 분석 · 신비 · 요양'
     },
     8: {
       title: '성공과 권위의 집',
       theme: '번영·비즈니스·재정',
-      body: '물질적 번영·비즈니스 성공의 진동입니다. 재정 어려움이 있던 사람에게 전환점이 되기도 합니다.',
-      caution: '헤프게 쓰면 부담이 커집니다. 생활비가 높을 수 있어 엄격한 재정 규율이 필요합니다.',
+      body: '물질적 번영과 사업 성공의 기운이 있는 집이에요. 돈 문제로 힘들었던 사람에게 전환점이 되기도 해요.',
+      caution: '씀씀이가 크면 부담도 커져요. 생활비가 많이 들 수 있어 꼼꼼한 재정 관리가 필요해요.',
       keywords: '번영 · 권위 · 리더십 · 자기훈련 · 돈 관리'
     },
     9: {
       title: '자비와 인류애의 집',
       theme: '치유·완성·공헌',
-      body: '인도주의·치유·완성의 공간입니다. 지난 노력에 대한 보상과 직관이 열리기 쉽습니다.',
-      caution: '감정이 강하게 올라올 수 있고, 가까운 사람을 소홀히 할 위험이 있습니다.',
+      body: '배려·치유·마무리의 기운이 있는 집이에요. 그동안의 노력에 보상이 오고 직관이 열리기 쉬워요.',
+      caution: '감정이 크게 올라올 수 있고, 남을 돕다가 가까운 사람을 소홀히 할 수 있어요.',
       keywords: '이타 · 인류애 · 관용 · 예술 · 완성'
     }
   };
@@ -127,12 +127,12 @@
     var seenMaster = {};
     var seenKarma = {};
     if (p === 11 || p === 22 || p === 33) {
-      notes.push('마스터 수 ' + p + ' 진동을 거칩니다. 한 자리로 줄여도 본래 울림을 함께 보세요.');
+      notes.push('마스터 수 ' + p + '의 흐름이 있어요. 한 자리로 줄인 수와 함께 본래 울림도 같이 봐 주세요.');
       seenMaster[p] = true;
     }
     while (p > 9) {
       if ((p === 11 || p === 22 || p === 33) && !seenMaster[p]) {
-        notes.push('마스터 수 ' + p + ' 진동을 거칩니다. 한 자리로 줄여도 본래 울림을 함께 보세요.');
+        notes.push('마스터 수 ' + p + '의 흐름이 있어요. 한 자리로 줄인 수와 함께 본래 울림도 같이 봐 주세요.');
         seenMaster[p] = true;
       }
       if (KARMA[p] && !seenKarma[p]) {
@@ -198,7 +198,7 @@
         sum: house.sum,
         path: house.path,
         special: house.special.slice(),
-        formula: '번지/건물 ' + house.single
+        formula: '번지·건물 번호 ' + house.single + ' (도로명 없이 계산)'
       };
     }
     if (!house && road) {
@@ -207,7 +207,7 @@
         sum: road.sum,
         path: road.path,
         special: road.special.slice(),
-        formula: '도로명 ' + road.single
+        formula: '도로명 ' + road.single + ' (번지 없이 계산)'
       };
     }
     var sum = house.single + road.single;
@@ -227,10 +227,8 @@
     if (/^01[016789]\d{7,8}$/.test(d)) return d.slice(3);
     // 서울 02
     if (/^02\d{7,8}$/.test(d)) return d.slice(2);
-    // 지역 0XX
-    if (/^0\d{1,2}\d{7,8}$/.test(d) && d.length >= 9) {
-      return d.length === 10 ? d.slice(2) : d.slice(3);
-    }
+    // 지역번호 0XX(3자리) + 국번 3~4자리 + 4자리 (예: 051-123-4567, 031-1234-5678), 070 등
+    if (/^0[3-9]\d\d{7,8}$/.test(d)) return d.slice(3);
     return d;
   }
 
@@ -287,14 +285,24 @@
     node.hidden = !on;
   }
 
-  function renderCard(containerId, result, label) {
+  function renderCard(containerId, result, label, opts) {
+    opts = opts || {};
     var box = el(containerId);
     if (!box) return;
     if (!result) {
-      box.innerHTML = '<p class="muted">입력 없음</p>';
+      box.innerHTML = '<p class="muted">' + escapeHtml(opts.emptyText || '입력하지 않았어요.') + '</p>';
       return;
     }
     var info = houseCopy(result.single);
+    if (opts.compact && info) {
+      box.innerHTML =
+        '<div class="result-num">' + result.single + '</div>' +
+        '<div class="result-label">' + escapeHtml(label) + '</div>' +
+        '<h3>' + escapeHtml(info.title) + '</h3><p class="theme">' + escapeHtml(info.theme) + '</p>' +
+        '<p class="calc-line">계산: ' + escapeHtml(pathLabel(result.path) || String(result.sum)) +
+        (result.parts && result.parts.length ? ' · (' + escapeHtml(result.parts.join(' + ')) + ')' : '') + '</p>';
+      return;
+    }
     var specialHtml = (result.special || [])
       .filter(function (s, i, arr) {
         return arr.indexOf(s) === i;
@@ -344,7 +352,7 @@
     var box = el('phoneResult');
     if (!box) return;
     if (!phone) {
-      box.innerHTML = '<p class="muted">전화번호를 입력하면 전체 합산과 끝 4자리 해석이 나옵니다.</p>';
+      box.innerHTML = '<p class="muted">전화번호를 입력하면 전체 합과 끝 4자리 해석이 나와요.</p>';
       return;
     }
     var info = houseCopy(phone.end.single);
@@ -369,8 +377,8 @@
           escapeHtml(info.title.replace('의 집', '') || info.title) +
           ' · 끝자리 테마</h3><p>' +
           escapeHtml(info.theme) +
-          ' 진동으로 참고합니다. (전화 전용 표준 체계가 아니라 1~9 공통 의미를 빌려 씁니다.)</p><p>' +
-          escapeHtml(info.body) +
+          '의 기운으로 봐요.</p><p class="keywords">' +
+          escapeHtml(info.keywords) +
           '</p>'
         : '') +
       '</div>' +
@@ -382,12 +390,12 @@
       ' → ' +
       escapeHtml(pathLabel(phone.full.path)) +
       '</p>' +
-      (fullInfo ? '<p>' + escapeHtml(fullInfo.theme) + ' 진동(참고)</p>' : '') +
+      (fullInfo ? '<p>' + escapeHtml(fullInfo.theme) + '의 기운 (참고)</p>' : '') +
       '</div></div>' +
       '<h4>끝자리 각 수</h4><ul class="digit-list">' +
       digits +
       '</ul>' +
-      '<p class="hint-inline">끝자리가 가장 중요합니다. 지역번호·앞자리는 보조로만 봅니다. 아래 해석은 주택 수와 같은 1~9 의미를 참고로 옮긴 것입니다.</p>';
+      '<p class="hint-inline">끝 4자리가 가장 중요하고, 앞자리는 보조로만 봐요. 전화번호 전용 해석이 따로 있는 건 아니라서 집 번호와 같은 1~9 의미를 빌려 써요.</p>';
   }
 
   function run() {
@@ -406,12 +414,18 @@
     show('emptyState', !hasAny);
     show('resultsBlock', hasAny);
 
-    if (house && house.skippedHangul) show('hangulNote', true);
-    else if (road && road.skippedHangul) show('hangulNote', true);
-    else show('hangulNote', false);
+    var roadHasHangul = /[가-힣]/.test(roadRaw);
+    var houseHasHangul = /[가-힣]/.test(houseRaw);
+    show('hangulNote', roadHasHangul || houseHasHangul);
 
-    renderCard('houseCard', house, '번지 · 건물 번호');
-    renderCard('roadCard', road, '도로명 · 이웃 환경');
+    // 최종 주택 수 카드에 해석이 나오므로, 번지·도로 카드는 숫자와 테마만 간단히 보여 줘요
+    renderCard('houseCard', house, '번지 · 건물 번호', { compact: !!finalHouse });
+    renderCard('roadCard', road, '도로명 · 이웃 환경', {
+      compact: !!finalHouse,
+      emptyText: roadRaw.trim()
+        ? '한글 도로명은 숫자로 바꾸지 않아서 계산에 넣지 않았어요. 영문 도로명이나 도로명 속 숫자(예: 16번길)만 계산해요.'
+        : '도로명을 입력하지 않았어요.'
+    });
     if (finalHouse) {
       var finalBox = el('finalCard');
       if (finalBox) {
@@ -450,10 +464,10 @@
     } else {
       setText('finalCard', '');
       var fc = el('finalCard');
-      if (fc) fc.innerHTML = '<p class="muted">번지 또는 도로명을 입력하세요.</p>';
+      if (fc) fc.innerHTML = '<p class="muted">번지나 도로명을 입력하면 최종 주택 수가 나와요.</p>';
     }
 
-    renderCard('aptCard', apt, '아파트 · 호수 (거주자 직접 영향)');
+    renderCard('aptCard', apt, '아파트 · 호수 (거주자 직접 영향)', { emptyText: '호수를 입력하지 않았어요.' });
     renderPhone(phone);
 
     // checklist highlight
