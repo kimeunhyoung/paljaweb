@@ -4614,6 +4614,8 @@ function buildAnalysisPdfClone(el, hiddenIds) {
   pruneEmptyExportContainers(clone, (n) => n.remove());
   pdfForceOpenAllDetailsForPdf(clone);
   clone.querySelectorAll('.lc-group-bar').forEach((n) => n.remove());
+  // 화면용 조작 안내는 PDF에 안 넣어요
+  clone.querySelectorAll('.timeline-hint').forEach((n) => n.remove());
   const flatStyle = document.createElement('style');
   flatStyle.textContent = getPdfFlatCss();
   clone.insertBefore(flatStyle, clone.firstChild);
