@@ -4293,7 +4293,7 @@
     <div class="timeline-bridge">
       <p>아래 <strong>수비학</strong>과 <strong>타로</strong>로 앞으로 10년을 봐요. 막대·연도 카드를 누르면 그 해 해석이 펼쳐져요. <strong>Plus</strong>에서는 수비학 <strong>인생 전반(100년)</strong> 표가, <strong>Private</strong>에서는 타로 10년·100년과 인생리듬이 열려요.</p>
       <p><strong>수비학 개인연도</strong> — 연·월·일을 각각 환원(1~9, 11, 22)한 뒤 더해요. 9년 주기의 완성·새 출발을 읽어요.</p>
-      <p><strong>타로 올해의 수</strong> — 연도 자릿수합+문 넘버(환원 전 합)을 더해 메이저 아르카나 0~21로 읽어요. 현재 흐름의 타로 올해의 수와 같아요.</p>
+      <p><strong>타로 올해의 수</strong> — 연도 자릿수합+문 넘버(환원 전 합)를 더해 메이저 아르카나 0~21로 읽어요. 현재 흐름의 타로 올해의 수와 같아요.</p>
     </div>
     <div id="timelineContent"></div>
   </div>
@@ -5248,6 +5248,8 @@ function buildAnalysisPdfClone(el, hiddenIds) {
   pruneEmptyExportContainers(clone, (n) => n.remove());
   // sticky 탭만 빼고, ①②③ 그룹 제목은 PDF에도 남김
   clone.querySelectorAll('.lc-group-bar').forEach((n) => n.remove());
+  // 화면용 조작 안내(연도 바꾸면 패널이 바뀌어요 등)는 PDF에 안 넣어요
+  clone.querySelectorAll('.timeline-hint').forEach((n) => n.remove());
   // 종이·PDF에서는 펼칠 수 없으니 접힌 항목을 모두 펼쳐 넣어요
   clone.querySelectorAll('.accordion').forEach((a) => a.classList.add('open'));
   pdfForceOpenAllDetailsForPdf(clone);
@@ -6666,7 +6668,7 @@ function createTenYearTimeline(mode, ctx, options) {
       const tarot = TIMELINE_TAROT_MAJOR[tarotNum] || TIMELINE_TAROT_MAJOR[0];
       tarotCardHtml = `<div style="margin-top:20px;padding:16px 18px;background:white;border:1px solid var(--border);border-radius:12px;border-left:3px solid var(--accent);">
         <div class="tdc-tarot-heading">올해의 카드 · ${targetYear}년</div>
-        <div style="font-size:11px;color:var(--muted);line-height:1.5;margin-bottom:10px">연 ${sumYearDigits(targetYear)}+문 ${mnPre}=${yd.pre} → 타로 <strong>${n}</strong>번. 위 올해의 수와 같은 메이저 아르카나예요.</div>
+        <div style="font-size:11px;color:var(--muted);line-height:1.5;margin-bottom:10px">연 ${sumYearDigits(targetYear)}+문 ${mnPre}=${yd.pre} → 타로 <strong>${n}</strong>번. 위 타로 올해의 수와 같은 메이저 아르카나예요.</div>
         <div style="display:flex;align-items:center;gap:14px;margin-bottom:10px;">
           <div style="width:56px;height:56px;border-radius:10px;background:var(--parchment);border:1px solid var(--border);display:flex;flex-direction:column;align-items:center;justify-content:center;flex-shrink:0;">
             <div style="font-size:24px;line-height:1">${tarot.emoji}</div>
@@ -9299,7 +9301,7 @@ async function runAnalysis() {
       </section>
       <section class="timeline-block" id="tlBlockTarot">
         <h3 class="timeline-block-title">10년 타임라인 · 타로 ${lcTierBadge('private')}</h3>
-        <p class="timeline-block-bridge">연도 자릿수합+문 넘버(환원 전 합)을 더해 메이저 아르카나 0~21로 읽어요. <strong>현재 흐름</strong>의 올해의 수와 같으며, Private에서는 100년 인생전반표가 이어져요.</p>
+        <p class="timeline-block-bridge">연도 자릿수합+문 넘버(환원 전 합)를 더해 메이저 아르카나 0~21로 읽어요. <strong>현재 흐름</strong>의 타로 올해의 수와 같으며, Private에서는 100년 인생전반표가 이어져요.</p>
         ${tarotTL.html}
         ${tarotLifeBlock.html}
       </section>
