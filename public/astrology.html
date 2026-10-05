@@ -6240,8 +6240,8 @@ body.export-capturing .ai-result.empty{display:none !important;}
     const old = svg.querySelector('#lcDegOverlay');
     if (old) old.remove();
 
-    // 라이브러리 정수 도수(가운데로 흩어지는 숫자)는 숨기고, 기호 옆에 다시 붙입니다
-    svg.querySelectorAll('g[id*="-points"] text').forEach((t) => {
+    // astrochart 그룹 id는 "...-radix-planets-Sun" 형태 (points가 아님)
+    svg.querySelectorAll('g[id*="-planets"] text, g[id*="planets"] text').forEach((t) => {
       const s = String(t.textContent || '').trim();
       if (/^\d{1,2}$/.test(s)) t.setAttribute('visibility', 'hidden');
     });
@@ -6254,7 +6254,9 @@ body.export-capturing .ai-result.empty{display:none !important;}
     Object.keys(planets).forEach((name) => {
       const lon = planets[name] && planets[name][0];
       if (lon == null || !isFinite(lon)) return;
-      const el = svg.querySelector('[id*="-points-' + name + '"]') || svg.querySelector('[id$="-' + name + '"]');
+      const el =
+        svg.querySelector('[id*="-planets-' + name + '"]') ||
+        svg.querySelector('[id$="-' + name + '"]');
       if (!el) return;
 
       let x = NaN;
@@ -6277,6 +6279,7 @@ body.export-capturing .ai-result.empty{display:none !important;}
       tDeg.setAttribute('x', x.toFixed(2));
       tDeg.setAttribute('y', (y - 10).toFixed(2));
       tDeg.setAttribute('text-anchor', 'middle');
+      tDeg.setAttribute('dominant-baseline', 'central');
       tDeg.setAttribute('font-size', String(fontSize));
       tDeg.setAttribute('font-family', 'ui-sans-serif, system-ui, sans-serif');
       tDeg.setAttribute('font-weight', '700');
@@ -6285,8 +6288,9 @@ body.export-capturing .ai-result.empty{display:none !important;}
 
       const tMin = document.createElementNS(NS, 'text');
       tMin.setAttribute('x', x.toFixed(2));
-      tMin.setAttribute('y', (y + 13).toFixed(2));
+      tMin.setAttribute('y', (y + 12).toFixed(2));
       tMin.setAttribute('text-anchor', 'middle');
+      tMin.setAttribute('dominant-baseline', 'central');
       tMin.setAttribute('font-size', String(Math.max(6, fontSize - 1)));
       tMin.setAttribute('font-family', 'ui-sans-serif, system-ui, sans-serif');
       tMin.setAttribute('font-weight', '600');
