@@ -13,7 +13,7 @@
   <script src="js/plan-access.js?v=13"></script>
   <script src="js/astro-cities.js?v=1"></script>
   <script src="js/ai-quota-client.js?v=4"></script>
-  <script src="js/counselor-copy-summary.js?v=6"></script>
+  <script src="js/counselor-copy-summary.js?v=7"></script>
   <script src="js/attribution.js"></script>
   <script src="js/site-topbar.js?v=36" defer></script>
   <script src="js/topbar-session.js?v=14" defer></script>
@@ -632,6 +632,13 @@
     }
     .ops-form textarea { min-height: 72px; resize: vertical; }
     .ops-form .ops-actions { display: flex; gap: 8px; flex-wrap: wrap; align-items: end; }
+    /* 2026-10-05: 매출 장부 버튼이 좁은 첫 칸에 세로로 쌓이던 문제 → 한 줄 전체 사용 */
+    .ops-form.sales-form .ops-actions { grid-column: 1 / -1; }
+    /* 작은 버튼 글자가 「수/정」처럼 세로로 쪼개지지 않게 */
+    .btn-sm, .dash-upcoming .up-item button, .dash-upcoming .up-item a { white-space: nowrap; flex-shrink: 0; }
+    @media (max-width: 520px) {
+      #clientList .btn-sm { padding: 8px 11px; font-size: 12.5px; }
+    }
     .ops-list { display: grid; gap: 8px; }
     .ops-list-inner { display: grid; gap: 8px; }
     .ops-list-inner.is-scroll { max-height: 260px; overflow-y: auto; padding-right: 2px; }
@@ -1170,8 +1177,8 @@
       </a>
       <a class="link-card alt" href="compatibility.html">
         <div class="tag pair-tag">궁합</div>
-        <div class="t">수비학 궁합</div>
-        <div class="d muted-text">두 사람의 생일·이름으로 관계의 흐름을 비교해요.</div>
+        <div class="t">소울하모니</div>
+        <div class="d muted-text">수비학 궁합 · 두 사람의 생일·이름으로 관계의 흐름을 비교해요.</div>
       </a>
       <a class="link-card alt" href="name.html">
         <div class="tag">이름</div>
@@ -1190,7 +1197,7 @@
       <div class="dash-card"><div class="dash-num" id="dashRecent">—</div><div class="dash-label">최근 상담일</div></div>
       <div class="dash-card"><div class="dash-num" id="dashNew">0</div><div class="dash-label">이번 달 신규 고객</div></div>
       <div class="dash-card"><div class="dash-num" id="dashMonthSessions">0</div><div class="dash-label">이번 달 상담 건수</div></div>
-      <div class="dash-card"><div class="dash-num" id="dashRepeat">0<small>%</small></div><div class="dash-label">재방문율 (2회 이상)</div></div>
+      <div class="dash-card"><div class="dash-num" id="dashRepeat">0<small>%</small></div><div class="dash-label">재방문율 · 상담받은 고객 중 2회 이상</div></div>
       <div class="dash-card"><div class="dash-num" id="dashMonthSales">0</div><div class="dash-label">이번 달 매출(원)</div></div>
     </div>
 
@@ -1547,7 +1554,7 @@
           return { ok: false, error: '직접 입력 시 위도와 경도를 모두 소수로 넣어 주세요. (남위·서경은 −)' };
         }
         if (lat < -90 || lat > 90 || lng < -180 || lng > 180) {
-          return { ok: false, error: '위도는 −90~90, 경도는 −180~180 범위여야 합니다.' };
+          return { ok: false, error: '위도는 −90~90, 경도는 −180~180 범위여야 해요.' };
         }
         return { ok: true, birth_city: null, birth_lat: lat, birth_lng: lng };
       }
@@ -1600,7 +1607,7 @@
 
     function renderClients(rows) {
       if (!rows.length) {
-        listEl.innerHTML = '<p class="list-empty">조건에 맞는 고객이 없습니다.</p>';
+        listEl.innerHTML = '<p class="list-empty">조건에 맞는 고객이 없어요.</p>';
         return;
       }
       listEl.innerHTML = '';
@@ -1680,7 +1687,7 @@
       populateRelSelects();
       populateSaleClientSelect();
       if (!clientRows.length) {
-        listEl.innerHTML = '<p class="list-empty">저장된 고객이 없습니다. 위 폼에서 추가해 보세요.</p>';
+        listEl.innerHTML = '<p class="list-empty">저장된 고객이 없어요. 위 폼에서 추가해 보세요.</p>';
         return;
       }
       applyClientFilter();
@@ -1798,7 +1805,7 @@
         return;
       }
       if (!saleRows.length) {
-        host.innerHTML = '<p class="ops-empty">아직 매출 기록이 없습니다. 위에서 첫 건을 남겨 보세요.</p>';
+        host.innerHTML = '<p class="ops-empty">아직 매출 기록이 없어요. 위에서 첫 건을 남겨 보세요.</p>';
         return;
       }
       const nameById = {};
@@ -1852,7 +1859,7 @@
           if (error) { setSalesMsg(error.message, true); return; }
           await loadSales();
           renderDashboard();
-          setSalesMsg('삭제했습니다.');
+          setSalesMsg('삭제했어요.');
         });
       });
       const moreBtn = host.querySelector('[data-ops-more]');
@@ -1892,7 +1899,7 @@
       }
       const built = PaljaCounselorCopySummary.build(c);
       if (!built.ok) {
-        out.textContent = built.error || '요약을 만들 수 없습니다.';
+        out.textContent = built.error || '요약을 만들 수 없어요.';
         if (title) title.textContent = '수비학 요약';
         if (msg) { msg.textContent = ''; msg.classList.remove('err'); }
         modal.dataset.copyText = '';
@@ -1921,12 +1928,12 @@
           const text = modal.dataset.copyText || '';
           const msg = document.getElementById('copySumMsg');
           if (!text) {
-            if (msg) { msg.textContent = '복사할 내용이 없습니다.'; msg.classList.add('err'); }
+            if (msg) { msg.textContent = '복사할 내용이 없어요.'; msg.classList.add('err'); }
             return;
           }
           try {
             await navigator.clipboard.writeText(text);
-            if (msg) { msg.textContent = '클립보드에 복사했습니다.'; msg.classList.remove('err'); }
+            if (msg) { msg.textContent = '클립보드에 복사했어요.'; msg.classList.remove('err'); }
           } catch (_) {
             if (msg) { msg.textContent = '복사에 실패했어요. 텍스트를 직접 선택해 주세요.'; msg.classList.add('err'); }
           }
@@ -2046,7 +2053,7 @@
           setMsg(error.message, true);
           return;
         }
-        setMsg('저장했습니다.');
+        setMsg('저장했어요.');
       } else {
         const { data: inserted, error } = await sb.from('counselor_clients').insert({
           counselor_id: uid,
@@ -2069,8 +2076,8 @@
         const newId = inserted && inserted.id;
         setMsg(
           newId
-            ? '새 고객 카드를 추가했습니다. → AI 리딩으로 바로 가려면 목록의 「AI 리딩」을 누르세요.'
-            : '새 고객 카드를 추가했습니다.'
+            ? '새 고객 카드를 추가했어요. → AI 리딩으로 바로 가려면 목록의 「AI 리딩」을 누르세요.'
+            : '새 고객 카드를 추가했어요.'
         );
         resetForm();
         await loadClients();
@@ -2197,7 +2204,7 @@
       const host = document.getElementById('dashUpcomingList');
       if (!host) return;
       if (!items.length) {
-        host.innerHTML = '<div class="up-empty">2주 내 예정된 약속이 없습니다.</div>';
+        host.innerHTML = '<div class="up-empty">2주 내 예정된 약속이 없어요.</div>';
         return;
       }
       host.innerHTML = items.map((it) => {
@@ -2386,7 +2393,7 @@
       const appts = dayData.appointments || [];
       const personals = dayData.personals || [];
       if (!dayData.clients.length && !dayData.sessions.length && !appts.length && !personals.length) {
-        list.innerHTML = '<div class="cal-empty">이 날 상담·일정이 없습니다. 아래에서 일정을 추가할 수 있습니다.</div>';
+        list.innerHTML = '<div class="cal-empty">이 날 상담·일정이 없어요. 아래에서 일정을 추가할 수 있어요.</div>';
         return;
       }
       function eventItemHtml(it, kind) {
@@ -2498,7 +2505,7 @@
           if (!confirm('이 일정을 삭제할까요?')) return;
           const id = btn.getAttribute('data-ev-del');
           const { error } = await sb.from('counselor_events').delete().eq('id', id);
-          if (error) { alert('삭제하지 못했습니다: ' + error.message); return; }
+          if (error) { alert('삭제하지 못했어요: ' + error.message); return; }
           await loadEvents();
           renderDashboard();
           renderCalendar();
@@ -2526,7 +2533,7 @@
       const scheduleMap = collectSchedule();
       const dates = Object.keys(scheduleMap).sort();
       if (!dates.length) {
-        alert('보낼 일정이 없습니다.');
+        alert('보낼 일정이 없어요.');
         return;
       }
       const lines = [
@@ -2620,7 +2627,7 @@
 
       if (!upcoming.length && !pastRecent.length) {
         if (titleEl) titleEl.style.display = 'none';
-        host.innerHTML = '<div class="event-empty">등록된 개인 일정이 없습니다. 상담 약속은 위 <strong>다가오는 약속</strong>과 캘린더에서 확인하세요.</div>';
+        host.innerHTML = '<div class="event-empty">등록된 개인 일정이 없어요. 상담 약속은 위 <strong>다가오는 약속</strong>과 캘린더에서 확인하세요.</div>';
         return;
       }
       if (titleEl) titleEl.style.display = '';
@@ -2644,7 +2651,7 @@
       if (shownUpcoming.length) {
         html += shownUpcoming.map((ev) => rowHtml(ev, false)).join('');
       } else if (upcoming.length) {
-        html += '<div class="event-empty">7일 안에 예정된 개인 일정이 없습니다.</div>';
+        html += '<div class="event-empty">7일 안에 예정된 개인 일정이 없어요.</div>';
       }
       if (pastRecent.length) {
         html += '<details class="event-past"><summary>최근 지난 개인 일정 ' + pastRecent.length + '건</summary>' +
@@ -2684,7 +2691,7 @@
           if (!confirm('이 일정을 삭제할까요?')) return;
           const id = btn.getAttribute('data-ev-del');
           const { error } = await sb.from('counselor_events').delete().eq('id', id);
-          if (error) { alert('삭제하지 못했습니다: ' + error.message); return; }
+          if (error) { alert('삭제하지 못했어요: ' + error.message); return; }
           await loadEvents();
           renderDashboard();
           renderCalendar();
@@ -2727,7 +2734,7 @@
           console.warn('counselor_events_kind 필요', msg);
           alert('일정을 저장하지 못했어요. 잠시 후 다시 시도해 주세요.');
         } else {
-          alert('저장하지 못했습니다: ' + msg);
+          alert('저장하지 못했어요: ' + msg);
         }
         return;
       }
@@ -2788,7 +2795,7 @@
     }
 
     function pushStatusOnText() {
-      return formatPushHourLabel(getSelectedPushHour()) + ' 일정 알림이 켜져 있습니다.';
+      return formatPushHourLabel(getSelectedPushHour()) + ' 일정 알림이 켜져 있어요.';
     }
 
     async function loadPushHourFromDb() {
@@ -2847,7 +2854,7 @@
         body: JSON.stringify({ endpoint: pushSubscription.endpoint, morning_hour: hour }),
       });
       if (!res.ok) {
-        alert('알림 시간을 저장하지 못했습니다.');
+        alert('알림 시간을 저장하지 못했어요.');
         return;
       }
       writePushHourLocal(hour);
@@ -2869,7 +2876,7 @@
       document.getElementById('pushSaveHourBtn')?.addEventListener('click', savePushHour);
       if (!btn) return;
       if (!('serviceWorker' in navigator) || !('PushManager' in window) || !('Notification' in window)) {
-        setPushStatus('이 브라우저는 푸시 알림을 지원하지 않습니다.', 'err');
+        setPushStatus('이 브라우저는 푸시 알림을 지원하지 않아요.', 'err');
         btn.disabled = true;
         return;
       }
@@ -2880,12 +2887,12 @@
         try {
           vapidRes = await fetch('/api/counselor/push/vapid-public');
         } catch {
-          setPushStatus('서버에 연결할 수 없습니다.', 'err');
+          setPushStatus('서버에 연결할 수 없어요.', 'err');
           return;
         }
         const vapid = await vapidRes.json();
         if (!vapid.enabled || !vapid.publicKey) {
-          setPushStatus('서버 푸시 설정이 아직 완료되지 않았습니다.', 'off');
+          setPushStatus('서버 푸시 설정이 아직 완료되지 않았어요.', 'off');
           btn.disabled = true;
           return;
         }
@@ -2898,15 +2905,15 @@
           const hadHour = hour !== 9 || readPushHourLocal() != null;
           setPushStatus(
             hadHour
-              ? formatPushHourLabel(hour) + '로 설정해 두었지만, 이 기기에서는 알림이 꺼져 있습니다. 「알림 켜기」를 눌러 주세요.'
-              : '알림이 꺼져 있습니다.',
+              ? formatPushHourLabel(hour) + '로 설정해 두었지만, 이 기기에서는 알림이 꺼져 있어요. 「알림 켜기」를 눌러 주세요.'
+              : '알림이 꺼져 있어요.',
             'off'
           );
         }
         btn.addEventListener('click', () => togglePush(vapid.publicKey));
       } catch (e) {
         console.warn('[push init]', e);
-        setPushStatus('알림 초기화에 실패했습니다.', 'err');
+        setPushStatus('알림 초기화에 실패했어요.', 'err');
       }
     }
 
@@ -2923,7 +2930,7 @@
             body: JSON.stringify({ endpoint }),
           });
           pushSubscription = null;
-          setPushStatus('알림이 꺼져 있습니다.', 'off');
+          setPushStatus('알림이 꺼져 있어요.', 'off');
         } else {
           const perm = await Notification.requestPermission();
           if (perm !== 'granted') {
@@ -2949,7 +2956,7 @@
           if (!res.ok) {
             await pushSubscription.unsubscribe();
             pushSubscription = null;
-            setPushStatus('구독 저장에 실패했습니다.', 'err');
+            setPushStatus('구독 저장에 실패했어요.', 'err');
             return;
           }
           writePushHourLocal(hour);
@@ -2957,7 +2964,7 @@
         }
       } catch (e) {
         console.warn('[push toggle]', e);
-        setPushStatus('알림 설정 중 오류가 났습니다.', 'err');
+        setPushStatus('알림 설정 중 오류가 났어요.', 'err');
       } finally {
         if (btn) btn.disabled = false;
       }
@@ -3063,7 +3070,7 @@
       return buf;
     }
     function exportClientsCsv() {
-      if (!clientRows.length) { alert('내보낼 고객이 없습니다.'); return; }
+      if (!clientRows.length) { alert('내보낼 고객이 없어요.'); return; }
       const header = ['표시이름', '본명', '생년월일', '출생시간', '출생도시', '위도', '경도', '연락처', '태그', '다음약속', '총상담횟수', '최근상담일', '메모', '등록일'];
       const lines = [header.map(csvCell).join('\t')];
       clientRows.forEach((c) => {
@@ -3161,7 +3168,7 @@
           resetSalesForm();
           await loadSales();
           renderDashboard();
-          setSalesMsg(editId ? '매출을 수정했습니다.' : '매출을 저장했습니다.');
+          setSalesMsg(editId ? '매출을 수정했어요.' : '매출을 저장했어요.');
         });
       }
       document.getElementById('saleResetBtn')?.addEventListener('click', () => {
@@ -3299,7 +3306,7 @@
       }
       const rows = sessionRows.filter((s) => s.client_id === activeClientId);
       if (!rows.length) {
-        listElS.innerHTML = '<p class="session-empty">아직 기록이 없습니다. 위에서 첫 세션을 추가해 보세요.</p>';
+        listElS.innerHTML = '<p class="session-empty">아직 기록이 없어요. 위에서 첫 세션을 추가해 보세요.</p>';
         return;
       }
       listElS.innerHTML = rows.map((s) =>
@@ -3457,7 +3464,7 @@
       renderSessionList();
       renderDashboard();
       renderCalendar();
-      if (!sessionMsgEl.textContent) sessionMsgEl.textContent = wasEdit ? '기록을 수정했습니다.' : '기록을 추가했습니다.';
+      if (!sessionMsgEl.textContent) sessionMsgEl.textContent = wasEdit ? '기록을 수정했어요.' : '기록을 추가했어요.';
     });
 
     await loadClients();
