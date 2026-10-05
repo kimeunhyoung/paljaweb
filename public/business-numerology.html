@@ -7,7 +7,7 @@
   <title>상호 수비학 — 사업명·브랜드 숫자 계산 | 팔자연구소 8CODE</title>
   <meta
     name="description"
-    content="상호·브랜드명의 운명수·혼의수·성격수와 업종별 조화 수를 무료로 계산합니다. 제조·서비스·금융·벤처 등 업종 매칭."
+    content="상호·브랜드명의 운명수·혼의수·성격수와 업종별 조화 수를 무료로 계산해요. 제조·서비스·금융·벤처 등 업종과 맞는지 함께 확인해 보세요."
   />
   <meta name="keywords" content="상호 수비학, 사업명 수비학, 브랜드 작명, 상호 작명, 업종 조화 수">
   <link rel="canonical" href="https://8code.kr/business-numerology.html">
@@ -174,9 +174,25 @@
     }
     .seo-block { margin-top: 16px; }
     .seo-block p { margin: 0 0 10px; font-size: 14px; line-height: 1.7; color: var(--muted); }
+    input[type="text"]:focus { outline: none; border-color: var(--brand); box-shadow: 0 0 0 3px rgba(139,111,71,.15); }
+    .panel a:not(.btn), .seo-block a { color: var(--brand); text-underline-offset: 3px; }
+    .btn-primary:hover { background: #765c3a; }
+    .biz-meaning { margin-top: 12px; padding: 14px 16px; border-radius: 14px; background: #faf6ef; border: 1px solid var(--line); border-left: 3px solid var(--brand); }
+    .biz-meaning:empty { display: none; }
+    .biz-meaning-title { font-size: 13px; font-weight: 700; color: var(--deep-brown); margin-bottom: 6px; }
+    .biz-meaning p { margin: 0; font-size: 14px; line-height: 1.7; color: var(--ink); }
+    .calc-rule { margin-top: 12px; font-size: 12.5px; color: var(--muted); }
+    .calc-rule summary { cursor: pointer; font-weight: 700; color: var(--brand); }
+    .calc-rule ul { margin: 8px 0 0; padding-left: 1.1rem; line-height: 1.6; }
     @media (max-width: 860px) {
       .layout { grid-template-columns: 1fr; }
-      .nums-grid { grid-template-columns: 1fr; }
+      .nums-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+      .result-card { padding: 12px 10px; text-align: center; }
+      .result-num { font-size: 34px; }
+      .result-card p:not(.theme):not(.calc-line) { display: none; }
+      .result-label { font-size: 11.5px; }
+      .lbl-sub { display: none; }
+      .theme { font-size: 12px; }
     }
   </style>
 </head>
@@ -187,9 +203,8 @@
     <header class="hero">
       <h1>상호 · 브랜드 수비학</h1>
       <p>
-        사업명·브랜드의 운명수·혼의수·성격수를 피타고라스·한글 자모 규칙으로 계산합니다.
-        숫자(예: 8CODE)는 액면값으로 표현·성격에만 더하고, 혼의수(모음)에는 넣지 않습니다.
-        Inc./주식회사 등 일반 표기는 제외합니다. 업종 조화는 참고용이며, 작명 확정이 아니라 방향 점검용입니다.
+        사업명·브랜드에 담긴 숫자를 계산해서, 상호가 어떤 방향을 갖고 있는지와 어떤 업종에 잘 어울리는지 보여 드려요.
+        새 상호를 고르거나 지금 상호를 점검할 때 참고해 보세요.
       </p>
     </header>
 
@@ -198,20 +213,30 @@
         <h2>상호 입력</h2>
         <label class="field-label" for="brandInput">사업명 · 브랜드</label>
         <input id="brandInput" type="text" placeholder="예: 팔자연구소, 8CODE Studio" autocomplete="off" />
-        <p class="field-hint">한글·영문·숫자 모두 반영. 숫자는 혼의수가 아니라 표현·성격(바깥)에 액면값으로 더합니다.</p>
+        <p class="field-hint">한글·영문·숫자 모두 입력할 수 있어요. 주식회사·㈜·Inc. 같은 회사 형태 표기는 자동으로 빼고 계산해요.</p>
         <div class="actions">
           <button type="button" class="btn btn-primary" id="calcBtn">계산하기</button>
           <a class="btn btn-secondary" href="name.html">개인 이름(네임코드)</a>
         </div>
         <div class="cta-box">
-          표현수·혼의수·성격수를 함께 보고, 대표자 개인 수와 맞추려면
-          <a href="analysis.html">라이프코드</a>·<a href="name.html">네임코드</a>를 함께 보세요.
+          대표자 본인의 수와 상호가 잘 맞는지 보려면
+          <a href="analysis.html">라이프코드</a>와 <a href="name.html">네임코드</a>도 함께 확인해 보세요.
         </div>
+        <details class="calc-rule">
+          <summary>계산 방법</summary>
+          <ul>
+            <li>영문은 피타고라스 방식(A=1 … I=9, J=1 …)으로, 한글은 자음·모음을 숫자로 바꿔 더해요.</li>
+            <li>모음 합은 혼의수, 자음 합은 성격수, 전체 합은 운명수(표현수)예요.</li>
+            <li>숫자(예: 8CODE의 8)는 적힌 값 그대로 성격수·운명수에 더하고, 혼의수에는 넣지 않아요.</li>
+            <li>11·22·33은 마스터 넘버로 그대로 남겨요.</li>
+            <li>겹받침(ㄺ·ㅄ 등)은 구성 자음 값을 더해요. 예: ㄺ = ㄹ(4)+ㄱ(1) → 5.</li>
+          </ul>
+        </details>
       </aside>
 
       <div>
         <div class="panel" id="emptyState">
-          <div class="empty-state">상호를 입력하면<br />숫자와 업종 조화가 여기에 표시됩니다.</div>
+          <div class="empty-state">상호를 입력하면<br />숫자와 어울리는 업종이 여기에 나와요.</div>
         </div>
 
         <div id="resultsBlock" hidden>
@@ -219,11 +244,12 @@
             <h2>상호 수</h2>
             <p class="cleaned" id="cleanedLabel"></p>
             <div class="nums-grid" id="numsGrid"></div>
+            <div class="biz-meaning" id="bizMeaning"></div>
             <div id="industryBox" class="life-tables" style="margin-top:14px"></div>
             <ul class="tips">
-              <li>가족 경영이면 가족 성(姓)·핵심 수와의 조화도 점검하세요.</li>
-              <li>동업이면 동업자 모두의 인생여정수·이름 수를 함께 봅니다.</li>
-              <li>업종 칩이 켜진 조합이 “반드시 성공”을 뜻하지는 않습니다.</li>
+              <li>가족 경영이라면 가족의 성(姓)이나 핵심 수와도 잘 맞는지 함께 봐 주세요.</li>
+              <li>동업이라면 동업자 모두의 인생여정수·이름 수를 함께 보는 게 좋아요.</li>
+              <li>업종이 겹친다고 해서 반드시 성공한다는 뜻은 아니에요. 방향을 점검하는 참고 자료로 써 주세요.</li>
             </ul>
           </div>
         </div>
@@ -233,9 +259,10 @@
     <section class="panel seo-block">
       <h2>상호 수비학이란?</h2>
       <p>
-        상호·브랜드명도 이름처럼 숫자 진동을 갖습니다.
-        수업 노트 기준으로 제조(2·4·8), 서비스·예술(2·3·6·9), 연구(2·7·9), 교육(6·7·9),
-        금융(8·9), 벤처·광고(1·5), 건강(4·7) 등이 자주 맞는 조화 수로 정리됩니다.
+        상호·브랜드명도 사람 이름처럼 저마다의 숫자 에너지를 가져요.
+        수비학에서는 흔히 제조(2·4·8), 서비스·예술(2·3·6·9), 연구(2·7·9), 교육(6·7·9),
+        금융(8·9), 벤처·광고(1·5), 건강(4·7)을 업종별로 잘 맞는 수로 봐요.
+        상호의 운명수나 성격수가 이 수와 겹치면 업종과 어울린다고 해석해요.
       </p>
       <p>
         관련:
@@ -247,6 +274,7 @@
   </main>
 
   <script src="js/numerology-life-tables.js?v=6"></script>
-  <script src="js/business-numerology.js?v=3"></script>
+  <script src="js/hangul-numerology.js?v=1"></script>
+  <script src="js/business-numerology.js?v=5"></script>
 </body>
 </html>

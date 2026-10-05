@@ -259,6 +259,11 @@ function analyzeHangulName(nameStr) {
   const medial = ["ㅏ", "ㅐ", "ㅑ", "ㅒ", "ㅓ", "ㅔ", "ㅕ", "ㅖ", "ㅗ", "ㅘ", "ㅙ", "ㅚ", "ㅛ", "ㅜ", "ㅝ", "ㅞ", "ㅟ", "ㅠ", "ㅡ", "ㅢ", "ㅣ"];
   const final = ["", "ㄱ", "ㄲ", "ㄳ", "ㄴ", "ㄵ", "ㄶ", "ㄷ", "ㄹ", "ㄺ", "ㄻ", "ㄼ", "ㄽ", "ㄾ", "ㄿ", "ㅀ", "ㅁ", "ㅂ", "ㅄ", "ㅅ", "ㅆ", "ㅇ", "ㅈ", "ㅊ", "ㅋ", "ㅌ", "ㅍ", "ㅎ"];
   const consMap = { "ㄱ": 1, "ㄲ": 1, "ㄴ": 2, "ㄷ": 3, "ㄸ": 3, "ㄹ": 4, "ㅁ": 5, "ㅂ": 6, "ㅃ": 6, "ㅅ": 7, "ㅆ": 7, "ㅇ": 8, "ㅈ": 9, "ㅉ": 9, "ㅊ": 1, "ㅋ": 2, "ㅌ": 3, "ㅍ": 4, "ㅎ": 5 };
+  const COMPLEX_JONG = {"ㄳ":["ㄱ","ㅅ"],"ㄵ":["ㄴ","ㅈ"],"ㄶ":["ㄴ","ㅎ"],"ㄺ":["ㄹ","ㄱ"],"ㄻ":["ㄹ","ㅁ"],"ㄼ":["ㄹ","ㅂ"],"ㄽ":["ㄹ","ㅅ"],"ㄾ":["ㄹ","ㅌ"],"ㄿ":["ㄹ","ㅍ"],"ㅀ":["ㄹ","ㅎ"],"ㅄ":["ㅂ","ㅅ"]};
+  function jongConsonantValue(jong) {
+    const parts = jong ? (COMPLEX_JONG[jong] || [jong]) : [];
+    return parts.reduce((s, p) => s + (consMap[p] || 0), 0);
+  }
   const vowelMap = { "ㅏ": 1, "ㅑ": 2, "ㅓ": 3, "ㅕ": 4, "ㅗ": 5, "ㅛ": 6, "ㅜ": 7, "ㅠ": 8, "ㅡ": 9, "ㅣ": 1, "ㅐ": 2, "ㅒ": 3, "ㅔ": 4, "ㅖ": 5, "ㅘ": 6, "ㅙ": 7, "ㅚ": 8, "ㅝ": 9, "ㅞ": 1, "ㅟ": 2, "ㅢ": 3 };
 
   let exprPre = 0;
@@ -275,7 +280,7 @@ function analyzeHangulName(nameStr) {
       const jong = final[sIndex % 28];
       const choVal = consMap[cho] || 0;
       const jungVal = vowelMap[jung] || 0;
-      const jongVal = consMap[jong] || 0;
+      const jongVal = jongConsonantValue(jong);
       exprPre += choVal + jungVal + jongVal;
       soulPre += jungVal;
       personalityPre += choVal + jongVal;
@@ -345,6 +350,7 @@ function collectNameLetterDigits(nameStr) {
     const medial = ["ㅏ", "ㅐ", "ㅑ", "ㅒ", "ㅓ", "ㅔ", "ㅕ", "ㅖ", "ㅗ", "ㅘ", "ㅙ", "ㅚ", "ㅛ", "ㅜ", "ㅝ", "ㅞ", "ㅟ", "ㅠ", "ㅡ", "ㅢ", "ㅣ"];
     const final = ["", "ㄱ", "ㄲ", "ㄳ", "ㄴ", "ㄵ", "ㄶ", "ㄷ", "ㄹ", "ㄺ", "ㄻ", "ㄼ", "ㄽ", "ㄾ", "ㄿ", "ㅀ", "ㅁ", "ㅂ", "ㅄ", "ㅅ", "ㅆ", "ㅇ", "ㅈ", "ㅊ", "ㅋ", "ㅌ", "ㅍ", "ㅎ"];
     const consMap = { "ㄱ": 1, "ㄲ": 1, "ㄴ": 2, "ㄷ": 3, "ㄸ": 3, "ㄹ": 4, "ㅁ": 5, "ㅂ": 6, "ㅃ": 6, "ㅅ": 7, "ㅆ": 7, "ㅇ": 8, "ㅈ": 9, "ㅉ": 9, "ㅊ": 1, "ㅋ": 2, "ㅌ": 3, "ㅍ": 4, "ㅎ": 5 };
+    const COMPLEX_JONG = {"ㄳ":["ㄱ","ㅅ"],"ㄵ":["ㄴ","ㅈ"],"ㄶ":["ㄴ","ㅎ"],"ㄺ":["ㄹ","ㄱ"],"ㄻ":["ㄹ","ㅁ"],"ㄼ":["ㄹ","ㅂ"],"ㄽ":["ㄹ","ㅅ"],"ㄾ":["ㄹ","ㅌ"],"ㄿ":["ㄹ","ㅍ"],"ㅀ":["ㄹ","ㅎ"],"ㅄ":["ㅂ","ㅅ"]};
     const vowelMap = { "ㅏ": 1, "ㅑ": 2, "ㅓ": 3, "ㅕ": 4, "ㅗ": 5, "ㅛ": 6, "ㅜ": 7, "ㅠ": 8, "ㅡ": 9, "ㅣ": 1, "ㅐ": 2, "ㅒ": 3, "ㅔ": 4, "ㅖ": 5, "ㅘ": 6, "ㅙ": 7, "ㅚ": 8, "ㅝ": 9, "ㅞ": 1, "ㅟ": 2, "ㅢ": 3 };
     for (const ch of [...trimmed]) {
       const code = ch.charCodeAt(0);
@@ -355,10 +361,12 @@ function collectNameLetterDigits(nameStr) {
         const jong = final[sIndex % 28];
         const choVal = consMap[cho] || 0;
         const jungVal = vowelMap[jung] || 0;
-        const jongVal = jong ? (consMap[jong] || 0) : 0;
         if (choVal) set.add(choVal);
         if (jungVal) set.add(jungVal);
-        if (jongVal) set.add(jongVal);
+        (COMPLEX_JONG[jong] || (jong ? [jong] : [])).forEach((p) => {
+          const v = consMap[p] || 0;
+          if (v) set.add(v);
+        });
         continue;
       }
       const cVal = consMap[ch] || 0;

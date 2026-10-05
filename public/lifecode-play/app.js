@@ -44,9 +44,18 @@
         soulSum += hv[jungList[jung]] || 0;
         consSum += hc[nCho] || 0;
         if (jong > 0) {
-          const jChar = jongList[jong].substring(0, 1);
-          const nJ = { ㄲ: 'ㄱ', ㄸ: 'ㄷ', ㅃ: 'ㅂ', ㅆ: 'ㅅ', ㅉ: 'ㅈ' }[jChar] || jChar;
-          consSum += hc[nJ] || 0;
+          const jChar = jongList[jong];
+          const COMPLEX_JONG = {
+            ㄳ: ['ㄱ', 'ㅅ'], ㄵ: ['ㄴ', 'ㅈ'], ㄶ: ['ㄴ', 'ㅎ'],
+            ㄺ: ['ㄹ', 'ㄱ'], ㄻ: ['ㄹ', 'ㅁ'], ㄼ: ['ㄹ', 'ㅂ'],
+            ㄽ: ['ㄹ', 'ㅅ'], ㄾ: ['ㄹ', 'ㅌ'], ㄿ: ['ㄹ', 'ㅍ'], ㅀ: ['ㄹ', 'ㅎ'],
+            ㅄ: ['ㅂ', 'ㅅ'],
+          };
+          const parts = COMPLEX_JONG[jChar] || [jChar];
+          for (const p of parts) {
+            const nJ = { ㄲ: 'ㄱ', ㄸ: 'ㄷ', ㅃ: 'ㅂ', ㅆ: 'ㅅ', ㅉ: 'ㅈ' }[p] || p;
+            consSum += hc[nJ] || 0;
+          }
         }
       }
     } else {

@@ -14,6 +14,19 @@
     ㄱ: 1, ㄲ: 1, ㄴ: 2, ㄷ: 3, ㄸ: 3, ㄹ: 4, ㅁ: 5, ㅂ: 6, ㅃ: 6,
     ㅅ: 7, ㅆ: 7, ㅇ: 8, ㅈ: 9, ㅉ: 9, ㅊ: 1, ㅋ: 2, ㅌ: 3, ㅍ: 4, ㅎ: 5,
   };
+  const COMPLEX_JONG = {
+    ㄳ: ['ㄱ', 'ㅅ'], ㄵ: ['ㄴ', 'ㅈ'], ㄶ: ['ㄴ', 'ㅎ'],
+    ㄺ: ['ㄹ', 'ㄱ'], ㄻ: ['ㄹ', 'ㅁ'], ㄼ: ['ㄹ', 'ㅂ'],
+    ㄽ: ['ㄹ', 'ㅅ'], ㄾ: ['ㄹ', 'ㅌ'], ㄿ: ['ㄹ', 'ㅍ'], ㅀ: ['ㄹ', 'ㅎ'],
+    ㅄ: ['ㅂ', 'ㅅ'],
+  };
+  function consonantValue(ch, map) {
+    map = map || HC;
+    if (!ch) return 0;
+    const parts = COMPLEX_JONG[ch];
+    if (parts) return parts.reduce((s, p) => s + (map[p] || 0), 0);
+    return map[ch] || 0;
+  }
   const HV = {
     ㅏ: 1, ㅑ: 2, ㅓ: 3, ㅕ: 4, ㅗ: 5, ㅛ: 6, ㅜ: 7, ㅠ: 8, ㅡ: 9, ㅣ: 1,
     ㅐ: 2, ㅒ: 3, ㅔ: 4, ㅖ: 5, ㅘ: 6, ㅙ: 7, ㅚ: 8, ㅝ: 9, ㅞ: 1, ㅟ: 2, ㅢ: 3,
@@ -159,7 +172,7 @@
         const d = decomposeChar(ch);
         if (d) {
           cv += HC[d.cho] || 0;
-          if (d.jong) cv += HC[d.jong] || 0;
+          if (d.jong) cv += consonantValue(d.jong);
           vv += HV[d.jung] || 0;
           continue;
         }
