@@ -6231,66 +6231,70 @@ body.export-capturing .ai-result.empty{display:none !important;}
     return { planets, cusps };
   }
 
-  /** 라이브러리 정수 도수 라벨을 Astro-Seek식 도·분(15°22')으로 바꿉니다. */
-  function enrichWheelDegreeLabels(paperId, planets, cusps, size, settings) {
+  /** Astro-Seek식: 행성 기호 위·아래에 도 / 분을 붙여 한눈에 읽히게 합니다. */
+  function enrichWheelDegreeLabels(paperId, planets, _cusps, _size, settings) {
     const paper = $(paperId);
     const svg = paper && paper.querySelector('svg');
-    if (!svg || !cusps || cusps[0] == null) return;
+    if (!svg) return;
     const NS = 'http://www.w3.org/2000/svg';
     const old = svg.querySelector('#lcDegOverlay');
     if (old) old.remove();
 
+    // 라이브러리 정수 도수(가운데로 흩어지는 숫자)는 숨기고, 기호 옆에 다시 붙입니다
     svg.querySelectorAll('g[id*="-points"] text').forEach((t) => {
       const s = String(t.textContent || '').trim();
       if (/^\d{1,2}$/.test(s)) t.setAttribute('visibility', 'hidden');
     });
 
-    const margin = (settings && settings.MARGIN) || 36;
-    const cx = size / 2;
-    const cy = size / 2;
-    const radius = size / 2 - margin;
-    const shift = 180 - cusps[0];
-    const shiftIn = 180;
-    const labelR = radius * 0.55;
-    const fontSize = Math.max(8, Math.round(((settings && settings.POINTS_TEXT_SIZE) || 9) * 0.95));
-
+    const fontSize = Math.max(7, Math.round(((settings && settings.POINTS_TEXT_SIZE) || 9) * 0.9));
     const g = document.createElementNS(NS, 'g');
     g.setAttribute('id', 'lcDegOverlay');
     g.setAttribute('pointer-events', 'none');
 
-    const placed = [];
     Object.keys(planets).forEach((name) => {
       const lon = planets[name] && planets[name][0];
       if (lon == null || !isFinite(lon)) return;
-      const chartAng = lon + shift;
-      let r = labelR;
-      for (let tries = 0; tries < 6; tries++) {
-        const rad = (shiftIn - chartAng) * Math.PI / 180;
-        const x = cx + r * Math.cos(rad);
-        const y = cy + r * Math.sin(rad);
-        const hit = placed.some((p) => {
-          const dx = p.x - x; const dy = p.y - y;
-          return (dx * dx + dy * dy) < 14 * 14;
-        });
-        if (!hit) {
-          placed.push({ x, y });
-          const degInSign = ((lon % 30) + 30) % 30;
-          const whole = Math.floor(degInSign);
-          const mins = Math.round((degInSign - whole) * 60) % 60;
-          const t = document.createElementNS(NS, 'text');
-          t.setAttribute('x', x.toFixed(2));
-          t.setAttribute('y', (y + fontSize * 0.35).toFixed(2));
-          t.setAttribute('text-anchor', 'middle');
-          t.setAttribute('font-size', String(fontSize));
-          t.setAttribute('font-family', 'ui-sans-serif, system-ui, sans-serif');
-          t.setAttribute('font-weight', '600');
-          t.setAttribute('fill', '#3d3d3d');
-          t.textContent = whole + '°' + String(mins).padStart(2, '0') + "'";
-          g.appendChild(t);
-          break;
-        }
-        r -= 10;
+      const el = svg.querySelector('[id*="-points-' + name + '"]') || svg.querySelector('[id$="-' + name + '"]');
+      if (!el) return;
+
+      let x = NaN;
+      let y = NaN;
+      try {
+        const bb = el.getBBox();
+        x = bb.x + bb.width / 2;
+        y = bb.y + bb.height / 2;
+      } catch (e) {
+        x = parseFloat(el.getAttribute('x'));
+        y = parseFloat(el.getAttribute('y'));
       }
+      if (!isFinite(x) || !isFinite(y)) return;
+
+      const degInSign = ((lon % 30) + 30) % 30;
+      const whole = Math.floor(degInSign);
+      const mins = Math.round((degInSign - whole) * 60) % 60;
+
+      const tDeg = document.createElementNS(NS, 'text');
+      tDeg.setAttribute('x', x.toFixed(2));
+      tDeg.setAttribute('y', (y - 10).toFixed(2));
+      tDeg.setAttribute('text-anchor', 'middle');
+      tDeg.setAttribute('font-size', String(fontSize));
+      tDeg.setAttribute('font-family', 'ui-sans-serif, system-ui, sans-serif');
+      tDeg.setAttribute('font-weight', '700');
+      tDeg.setAttribute('fill', '#2a2a2a');
+      tDeg.textContent = whole + '°';
+
+      const tMin = document.createElementNS(NS, 'text');
+      tMin.setAttribute('x', x.toFixed(2));
+      tMin.setAttribute('y', (y + 13).toFixed(2));
+      tMin.setAttribute('text-anchor', 'middle');
+      tMin.setAttribute('font-size', String(Math.max(6, fontSize - 1)));
+      tMin.setAttribute('font-family', 'ui-sans-serif, system-ui, sans-serif');
+      tMin.setAttribute('font-weight', '600');
+      tMin.setAttribute('fill', '#555');
+      tMin.textContent = String(mins).padStart(2, '0') + "'";
+
+      g.appendChild(tDeg);
+      g.appendChild(tMin);
     });
     svg.appendChild(g);
   }
