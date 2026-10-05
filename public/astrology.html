@@ -74,7 +74,7 @@
 <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
 <!-- 데이터 -->
 <script src="js/astro-cities.js?v=1"></script>
-<script src="js/astro-meanings.js?v=3"></script>
+<script src="js/astro-meanings.js?v=4"></script>
 <script src="js/astro-timeline.js?v=1"></script>
 <script src="js/astro-timeline-v2.js?v=8"></script>
 <script src="js/astro-house-rulers.js?v=1"></script>
@@ -3542,10 +3542,14 @@ body.export-capturing .ai-result.empty{display:none !important;}
     return null;
   }
 
-  // ── 파생 포인트: 포르투나(Part of Fortune) · 버텍스(Vertex) ──
+  // 파생 포인트: 포르투나(Part of Fortune) · 버텍스(Vertex) · 남교점(북교점+180°)
   // 라이브러리가 계산하지 않으므로 ASC·MC·태양·달 + 위도로 직접 산출(아스트로식 값과 검증 완료)
   function computeDerivedPoints() {
     const N = NATAL_DEGS;
+    // 남교점 = 북교점 정반대(항상 180°)
+    if (N.northnode != null) {
+      N.southnode = (N.northnode + 180) % 360;
+    }
     if (N.asc == null || N.sun == null || N.moon == null) return;
     const D = Math.PI / 180, eps = 23.4393;
     // 포르투나: 낮(태양이 지평선 위) = ASC + 달 − 태양, 밤 = ASC + 태양 − 달
@@ -3588,6 +3592,7 @@ body.export-capturing .ai-result.empty{display:none !important;}
     const tbody = table ? table.querySelector('tbody') : null;
     if (!tbody) return;
     const defs = [
+      { key: 'southnode', glyph: '☋', ko: '남교점', role: '익숙한 과거 패턴·본능적 반응' },
       { key: 'fortune', glyph: '⊗', ko: '행운점', role: '행운·성취의 지점 (포르투나)' },
       { key: 'vertex', glyph: 'Vx', ko: '버텍스', role: '운명적 만남·전환점' },
     ];
@@ -3607,8 +3612,8 @@ body.export-capturing .ai-result.empty{display:none !important;}
   }
 
   // ── 어스펙트 그리드(삼각 표) ──
-  const GRID_ORDER = ['sun','moon','mercury','venus','mars','jupiter','saturn','uranus','neptune','pluto','chiron','northnode','lilith','fortune','vertex','asc','mc'];
-  const GRID_LABEL = { asc: 'AC', mc: 'MC', fortune: '⊗', vertex: 'Vx' };
+  const GRID_ORDER = ['sun','moon','mercury','venus','mars','jupiter','saturn','uranus','neptune','pluto','chiron','northnode','southnode','lilith','fortune','vertex','asc','mc'];
+  const GRID_LABEL = { asc: 'AC', mc: 'MC', fortune: '⊗', vertex: 'Vx', southnode: '☋' };
   // 그리드 전용 어스펙트(메이저 + 마이너), 오브를 조금 넓혀 더 촘촘하게
   const GRID_ASPECTS = [
     { key: 'conjunction', a: 0,   orb: 7, tone: 'strong', sym: '☌', kr: '합' },
@@ -6202,10 +6207,11 @@ body.export-capturing .ai-result.empty{display:none !important;}
       const b = horoscope.CelestialBodies[k]; const d = b ? deg(b) : null;
       if (map[k] && d != null) planets[map[k]] = [d];
     });
-    ['northnode','lilith'].forEach((k) => {
+    ['northnode','southnode','lilith'].forEach((k) => {
       const b = horoscope.CelestialPoints && horoscope.CelestialPoints[k]; const d = b ? deg(b) : null;
       if (map[k] && d != null) planets[map[k]] = [d];
     });
+    if (NATAL_DEGS.southnode != null && planets.SNode == null) planets.SNode = [NATAL_DEGS.southnode];
     if (NATAL_DEGS.lilith != null && planets.Lilith == null) planets.Lilith = [NATAL_DEGS.lilith];
     if (NATAL_DEGS.fortune != null) planets.Fortune = [NATAL_DEGS.fortune];
     if (NATAL_DEGS.vertex != null) planets.Vertex = [NATAL_DEGS.vertex];
@@ -6277,7 +6283,7 @@ body.export-capturing .ai-result.empty{display:none !important;}
         <td>${isRetro ? '<span class="retro">R</span>' : ''}</td>
       </tr>`;
     });
-    [['fortune','행운점','⊗'], ['vertex','버텍스','Vx'], ['asc','상승궁','Asc'], ['mc','중천점','Mc']].forEach((row) => {
+    [['southnode','남교점','☋'], ['fortune','행운점','⊗'], ['vertex','버텍스','Vx'], ['asc','상승궁','Asc'], ['mc','중천점','Mc']].forEach((row) => {
       const d = NATAL_DEGS[row[0]];
       if (d == null) return;
       const s = M.signFromDegree(d);

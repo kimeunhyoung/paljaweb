@@ -49,6 +49,7 @@
     pluto:     { ko: '명왕성', glyph: '♇', role: '변형·심층·권력·재생' },
     chiron:    { ko: '카이런', glyph: '⚷', role: '상처와 치유의 자리' },
     northnode: { ko: '북교점', glyph: '☊', role: '이생에서 향하는 성장 방향' },
+    southnode: { ko: '남교점', glyph: '☋', role: '익숙한 과거 패턴·본능적 반응' },
     lilith:    { ko: '릴리스', glyph: '⚸', role: '억압된 본능·원초적 자아' }
   };
 
@@ -56,7 +57,7 @@
   var CHART_KEY = {
     sun: 'Sun', moon: 'Moon', mercury: 'Mercury', venus: 'Venus', mars: 'Mars',
     jupiter: 'Jupiter', saturn: 'Saturn', uranus: 'Uranus', neptune: 'Neptune',
-    pluto: 'Pluto', chiron: 'Chiron', northnode: 'NNode', lilith: 'Lilith',
+    pluto: 'Pluto', chiron: 'Chiron', northnode: 'NNode', southnode: 'SNode', lilith: 'Lilith',
     fortune: 'Fortune', vertex: 'Vertex'
   };
 
