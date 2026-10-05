@@ -959,7 +959,7 @@
   </div>
   <div id="gate">
     <h2>Professional 플랜 전용</h2>
-    <p>상담사 허브는 <strong>Professional</strong> 요금제에서 이용할 수 있어요.<br>고객 카드·세션 기록(CRM), 일정 캘린더·중요 일정·웹 푸시, 간단 매출 장부, 상담사 대시보드, 상담소 이름·로고를 넣은 고객용 리포트 PDF, 상담 준비 요약, 고객 간 궁합까지. AI 리딩·신입 스크립트는 <a href="counselor-reading.html">별도 페이지</a>예요.</p>
+    <p>상담사 허브는 <strong>Professional</strong> 요금제에서 이용할 수 있어요.<br>고객 카드·세션 기록(CRM), 일정 캘린더·중요 일정·웹 푸시, 간단 매출 장부, 상담사 대시보드, 상담소 이름·로고를 넣은 고객용 리포트 PDF, 상담 준비 요약, 고객 간 궁합까지. 타로 AI·신입 스크립트는 <a href="counselor-reading.html">별도 페이지</a>예요.</p>
     <a class="cta" href="for-counselors.html">Professional 안내 보기</a>
     <a class="cta secondary" href="/lifecode/buy.html?product=counselor15" style="margin-left:8px;background:transparent;border:1.5px solid var(--border);color:var(--deep);">15일 체험 구매</a>
     <a class="cta secondary" href="pricing.html?checkout=professional" style="margin-left:8px;background:transparent;border:1.5px solid var(--border);color:var(--deep);">바로 구독</a>
@@ -1144,7 +1144,7 @@
     </div>
 
     <h2 class="hub-sec" id="hub-tools"><span>상담 도구</span></h2>
-    <h3 class="hub-subhead">AI 리딩</h3>
+    <h3 class="hub-subhead">리딩 AI</h3>
     <div class="links" style="margin-bottom:8px">
       <a class="link-card" href="counselor-reading.html">
         <div class="tag">AI</div>
@@ -1509,6 +1509,20 @@
     const OPS_LIST_PREVIEW = 5;
     const uid = session.user.id;
     const accessToken = session.access_token;
+    /** 허브를 오래 열어 두면 로그인 토큰이 바뀌므로 서버 호출 때마다 최신 토큰을 읽는다 */
+    async function authHeader() {
+      try {
+        const { data } = await sb.auth.getSession();
+        const tok = data && data.session && data.session.access_token;
+        return 'Bearer ' + (tok || accessToken);
+      } catch (_) {
+        return 'Bearer ' + accessToken;
+      }
+    }
+    /** Supabase 오류 원문(영어)은 사용자에게 그대로 보여 주지 않아요 */
+    function friendlyErr(prefix, _error) {
+      return prefix + ' 잠시 후 다시 시도해 주세요.';
+    }
     const REMIND_LS_KEY = 'palja_counselor_session_remind_min_v1';
     const REMIND_FIRED_KEY = 'palja_counselor_remind_fired_v1';
 
@@ -1617,7 +1631,7 @@
         const dn = escapeHtml(row.display_name || '');
         const birth = row.birth_date || '—';
         const ln = (row.legal_name || '').trim();
-        const next = row.next_appointment || '';
+        const next = clientUpcomingDate(row.id, row.next_appointment) || '';
         const tags = (row.tags || '').trim();
         const ls = clientLastSession(row.id);
         const sub = '생일 ' + escapeHtml(birth) +
@@ -1856,7 +1870,7 @@
         btn.addEventListener('click', async () => {
           if (!confirm('이 매출 기록을 삭제할까요?')) return;
           const { error } = await sb.from('counselor_sales').delete().eq('id', btn.getAttribute('data-del-sale'));
-          if (error) { setSalesMsg(error.message, true); return; }
+          if (error) { setSalesMsg(friendlyErr('매출 기록을 삭제하지 못했어요.', error), true); return; }
           await loadSales();
           renderDashboard();
           setSalesMsg('삭제했어요.');
@@ -1981,7 +1995,7 @@
         if (!confirm('이 고객 카드를 삭제할까요?')) return;
         const { error } = await sb.from('counselor_clients').delete().eq('id', id);
         if (error) {
-          setMsg(error.message, true);
+          setMsg(friendlyErr('고객 카드를 삭제하지 못했어요.', error), true);
           return;
         }
         resetForm();
@@ -1991,7 +2005,7 @@
       if (act === 'edit') {
         const { data, error } = await sb.from('counselor_clients').select('*').eq('id', id).single();
         if (error || !data) {
-          setMsg('불러오기 실패', true);
+          setMsg('고객 정보를 불러오지 못했어요. 잠시 후 다시 시도해 주세요.', true);
           return;
         }
         editId.value = data.id;
@@ -2050,7 +2064,7 @@
           updated_at: new Date().toISOString(),
         }).eq('id', cid).eq('counselor_id', uid);
         if (error) {
-          setMsg(error.message, true);
+          setMsg(friendlyErr('고객 정보를 저장하지 못했어요.', error), true);
           return;
         }
         setMsg('저장했어요.');
@@ -2070,13 +2084,13 @@
           notes,
         }).select('id').single();
         if (error) {
-          setMsg(error.message, true);
+          setMsg(friendlyErr('고객을 추가하지 못했어요.', error), true);
           return;
         }
         const newId = inserted && inserted.id;
         setMsg(
           newId
-            ? '새 고객 카드를 추가했어요. → AI 리딩으로 바로 가려면 목록의 「AI 리딩」을 누르세요.'
+            ? '새 고객 카드를 추가했어요. → 바로 리딩하려면 목록의 「타로 AI」를 누르세요.'
             : '새 고객 카드를 추가했어요.'
         );
         resetForm();
@@ -2094,6 +2108,17 @@
     function ymd(d) {
       const y = d.getFullYear(), m = String(d.getMonth() + 1).padStart(2, '0'), da = String(d.getDate()).padStart(2, '0');
       return y + '-' + m + '-' + da;
+    }
+    /** 한국 시간(YYYY-MM-DD). 이번 달 집계 등 UTC 경계가 어긋나지 않게 */
+    function ymdKst(d) {
+      try {
+        return new Intl.DateTimeFormat('en-CA', {
+          timeZone: 'Asia/Seoul',
+          year: 'numeric', month: '2-digit', day: '2-digit',
+        }).format(d instanceof Date ? d : new Date(d));
+      } catch (_) {
+        return ymd(d instanceof Date ? d : new Date(d));
+      }
     }
     function clientLastSession(clientId) {
       const rows = sessionRows
@@ -2115,8 +2140,10 @@
     function daysAgoLabel(dateStr) {
       const d = new Date(dateStr + 'T00:00:00');
       if (isNaN(d.getTime())) return '';
-      const diff = Math.floor((Date.now() - d.getTime()) / 86400000);
-      if (diff <= 0) return '오늘';
+      const t = new Date(); t.setHours(0, 0, 0, 0);
+      const diff = Math.round((t.getTime() - d.getTime()) / 86400000);
+      if (diff < 0) return (-diff) + '일 후';
+      if (diff === 0) return '오늘';
       if (diff === 1) return '어제';
       if (diff < 30) return diff + '일 전';
       if (diff < 365) return Math.floor(diff / 30) + '개월 전';
@@ -2125,12 +2152,17 @@
     function eventKindOf(ev) {
       return ev && ev.event_kind === 'appointment' ? 'appointment' : 'personal';
     }
+    // 그 날짜에 이미 상담 기록이 있으면 그 약속은 끝난 것으로 봐요
+    function hasSessionOn(clientId, dateStr) {
+      const d = String(dateStr || '').slice(0, 10);
+      return !!d && sessionRows.some((s) => s.client_id === clientId && String(s.session_date || '').slice(0, 10) === d);
+    }
     function clientUpcomingDate(clientId, clientNext) {
       const cands = [];
       if (clientNext) cands.push(String(clientNext));
       sessionRows.forEach((s) => { if (s.client_id === clientId && s.next_appointment) cands.push(String(s.next_appointment)); });
       const today = ymd(new Date());
-      const future = cands.filter((x) => x >= today).sort();
+      const future = cands.map((x) => x.slice(0, 10)).filter((x) => x >= today && !hasSessionOn(clientId, x)).sort();
       return future.length ? future[0] : null;
     }
     function collectUpcomingAppointments(todayStr, horizonStr) {
@@ -2177,8 +2209,12 @@
       const recent = sessionRows.length
         ? sessionRows.map((s) => String(s.session_date)).sort().slice(-1)[0]
         : null;
-      const ym = todayStr.slice(0, 7);
-      const newCount = clientRows.filter((c) => String(c.created_at || '').slice(0, 7) === ym).length;
+      const ym = ymdKst(today).slice(0, 7);
+      const newCount = clientRows.filter((c) => {
+        if (!c.created_at) return false;
+        const d = new Date(c.created_at);
+        return !isNaN(d.getTime()) && ymdKst(d).slice(0, 7) === ym;
+      }).length;
       const monthSessions = sessionRows.filter((s) => String(s.session_date || '').slice(0, 7) === ym).length;
       const counts = {};
       sessionRows.forEach((s) => { counts[s.client_id] = (counts[s.client_id] || 0) + 1; });
@@ -2209,7 +2245,7 @@
       }
       host.innerHTML = items.map((it) => {
         const kind = it.source === 'event'
-          ? '<span class="up-kind">일정</span>'
+          ? '<span class="up-kind">약속</span>'
           : '<span class="up-kind">고객</span>';
         const timeLbl = it.time ? formatEventTimeLabel(it.time) : '';
         const time = timeLbl ? ' ' + escapeHtml(timeLbl) : '';
@@ -2268,6 +2304,8 @@
       }
       function addClient(dateStr, clientId, name) {
         if (!dateStr) return;
+        dateStr = String(dateStr).slice(0, 10);
+        if (hasSessionOn(clientId, dateStr)) return;
         const bucket = ensure(dateStr);
         if (!bucket.clients.some((x) => x.clientId === clientId)) {
           bucket.clients.push({ clientId, name: name || '고객' });
@@ -2472,7 +2510,7 @@
           const { error } = await sb.from('counselor_clients')
             .update({ next_appointment: null, updated_at: new Date().toISOString() })
             .eq('id', id).eq('counselor_id', uid);
-          if (error) { alert(error.message); return; }
+          if (error) { alert(friendlyErr('약속을 비우지 못했어요.', error)); return; }
           await loadClients();
           renderDashboard();
           renderCalendar();
@@ -2536,50 +2574,76 @@
         alert('보낼 일정이 없어요.');
         return;
       }
+      // iCalendar 글자 규칙: 역슬래시·쉼표·세미콜론은 \로, 줄바꿈은 \n으로
+      const icsText = (v) => String(v == null ? '' : v)
+        .replace(/\\/g, '\\\\').replace(/;/g, '\\;').replace(/,/g, '\\,')
+        .replace(/\r?\n/g, '\\n');
+      const nextDay = (ymdStr) => {
+        const d = new Date(ymdStr + 'T00:00:00');
+        d.setDate(d.getDate() + 1);
+        return ymd(d).replace(/-/g, '');
+      };
+      const now = new Date();
+      const stamp = now.getUTCFullYear() + String(now.getUTCMonth() + 1).padStart(2, '0') + String(now.getUTCDate()).padStart(2, '0') +
+        'T' + String(now.getUTCHours()).padStart(2, '0') + String(now.getUTCMinutes()).padStart(2, '0') + String(now.getUTCSeconds()).padStart(2, '0') + 'Z';
       const lines = [
         'BEGIN:VCALENDAR',
         'VERSION:2.0',
         'PRODID:-//8CODE//Counselor//KO',
         'CALSCALE:GREGORIAN',
         'METHOD:PUBLISH',
+        'BEGIN:VTIMEZONE',
+        'TZID:Asia/Seoul',
+        'BEGIN:STANDARD',
+        'DTSTART:19700101T000000',
+        'TZOFFSETFROM:+0900',
+        'TZOFFSETTO:+0900',
+        'TZNAME:KST',
+        'END:STANDARD',
+        'END:VTIMEZONE',
       ];
+      const allDay = (dateStr, compact) => {
+        lines.push('DTSTART;VALUE=DATE:' + compact);
+        lines.push('DTEND;VALUE=DATE:' + nextDay(dateStr));
+      };
       dates.forEach((dateStr) => {
         const dayData = scheduleMap[dateStr];
         const compact = dateStr.replace(/-/g, '');
         dayData.clients.forEach((it) => {
           lines.push('BEGIN:VEVENT');
           lines.push('UID:client-' + it.clientId + '-' + compact + '@8code.kr');
-          lines.push('DTSTART;VALUE=DATE:' + compact);
-          lines.push('DTEND;VALUE=DATE:' + compact);
-          lines.push('SUMMARY:상담 약속 — ' + (it.name || '고객').replace(/[,;\\]/g, ' '));
-          lines.push('DESCRIPTION:팔자연구소 상담사 허브');
+          lines.push('DTSTAMP:' + stamp);
+          allDay(dateStr, compact);
+          lines.push('SUMMARY:' + icsText('상담 약속 — ' + (it.name || '고객')));
+          lines.push('DESCRIPTION:' + icsText('팔자연구소 상담사 허브'));
           lines.push('END:VEVENT');
         });
         (dayData.sessions || []).forEach((it) => {
           lines.push('BEGIN:VEVENT');
           lines.push('UID:session-' + it.sessionId + '-' + compact + '@8code.kr');
-          lines.push('DTSTART;VALUE=DATE:' + compact);
-          lines.push('DTEND;VALUE=DATE:' + compact);
-          lines.push('SUMMARY:상담 완료 — ' + (it.name || '고객').replace(/[,;\\]/g, ' '));
-          if (it.summary) lines.push('DESCRIPTION:' + String(it.summary).replace(/[,;\\]/g, ' ').slice(0, 200));
+          lines.push('DTSTAMP:' + stamp);
+          allDay(dateStr, compact);
+          lines.push('SUMMARY:' + icsText('상담 완료 — ' + (it.name || '고객')));
+          if (it.summary) lines.push('DESCRIPTION:' + icsText(String(it.summary).slice(0, 300)));
           lines.push('END:VEVENT');
         });
         [...(dayData.appointments || []), ...(dayData.personals || [])].forEach((it) => {
           lines.push('BEGIN:VEVENT');
           lines.push('UID:event-' + it.id + '-' + compact + '@8code.kr');
-          if (it.event_time) {
-            const tm = String(it.event_time).slice(0, 5).replace(':', '');
-            lines.push('DTSTART;TZID=Asia/Seoul:' + compact + 'T' + tm + '00');
-            const h = Number(String(it.event_time).slice(0, 2));
-            const endH = String((h + 1) % 24).padStart(2, '0');
-            const endMin = String(it.event_time).slice(3, 5);
-            lines.push('DTEND;TZID=Asia/Seoul:' + compact + 'T' + endH + endMin + '00');
+          lines.push('DTSTAMP:' + stamp);
+          const tm = String(it.event_time || '').match(/^(\d{1,2}):(\d{2})/);
+          if (tm) {
+            const h = Number(tm[1]);
+            const mi = tm[2];
+            lines.push('DTSTART;TZID=Asia/Seoul:' + compact + 'T' + String(h).padStart(2, '0') + mi + '00');
+            // 1시간짜리로 표시 — 밤 11시대 일정은 다음 날로 넘어가게
+            const endDate = h + 1 >= 24 ? nextDay(dateStr) : compact;
+            lines.push('DTEND;TZID=Asia/Seoul:' + endDate + 'T' + String((h + 1) % 24).padStart(2, '0') + mi + '00');
           } else {
-            lines.push('DTSTART;VALUE=DATE:' + compact);
-            lines.push('DTEND;VALUE=DATE:' + compact);
+            allDay(dateStr, compact);
           }
-          lines.push('SUMMARY:' + (it.title || '일정').replace(/[,;\\]/g, ' '));
-          if (it.note) lines.push('DESCRIPTION:' + String(it.note).replace(/[,;\\]/g, ' '));
+          lines.push('SUMMARY:' + icsText(it.title || '일정'));
+          if (it.note) lines.push('DESCRIPTION:' + icsText(it.note));
           lines.push('END:VEVENT');
         });
       });
@@ -2588,8 +2652,10 @@
       const a = document.createElement('a');
       a.href = URL.createObjectURL(blob);
       a.download = 'palja-appointments.ics';
+      document.body.appendChild(a);
       a.click();
-      URL.revokeObjectURL(a.href);
+      document.body.removeChild(a);
+      setTimeout(() => URL.revokeObjectURL(a.href), 1000);
     });
 
     function resetEventForm() {
@@ -2850,7 +2916,7 @@
       const hour = getSelectedPushHour();
       const res = await fetch('/api/counselor/push/settings', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + accessToken },
+        headers: { 'Content-Type': 'application/json', Authorization: await authHeader() },
         body: JSON.stringify({ endpoint: pushSubscription.endpoint, morning_hour: hour }),
       });
       if (!res.ok) {
@@ -2929,7 +2995,7 @@
           await pushSubscription.unsubscribe();
           await fetch('/api/counselor/push/unsubscribe', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + accessToken },
+            headers: { 'Content-Type': 'application/json', Authorization: await authHeader() },
             body: JSON.stringify({ endpoint }),
           });
           pushSubscription = null;
@@ -2948,7 +3014,7 @@
           const hour = getSelectedPushHour();
           const res = await fetch('/api/counselor/push/subscribe', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + accessToken },
+            headers: { 'Content-Type': 'application/json', Authorization: await authHeader() },
             body: JSON.stringify({
               endpoint: sub.endpoint,
               keys: sub.keys,
@@ -3167,7 +3233,7 @@
           } else {
             ({ error } = await sb.from('counselor_sales').insert(payload));
           }
-          if (error) { setSalesMsg(error.message, true); return; }
+          if (error) { setSalesMsg(friendlyErr('매출을 저장하지 못했어요.', error), true); return; }
           resetSalesForm();
           await loadSales();
           renderDashboard();
@@ -3345,7 +3411,7 @@
           if (!confirm('이 세션 기록을 삭제할까요?')) return;
           const sid = b.getAttribute('data-del-session');
           const { error } = await sb.from('counselor_sessions').delete().eq('id', sid);
-          if (error) { sessionMsgEl.textContent = error.message; sessionMsgEl.classList.add('err'); return; }
+          if (error) { sessionMsgEl.textContent = friendlyErr('기록을 삭제하지 못했어요.', error); sessionMsgEl.classList.add('err'); return; }
           if (document.getElementById('editSessionId').value === sid) resetSessionForm();
           await loadSessions();
           renderSessionLastBox();
@@ -3465,12 +3531,20 @@
           }
         }
       }
-      if (error) { sessionMsgEl.textContent = error.message; sessionMsgEl.classList.add('err'); return; }
+      if (error) { sessionMsgEl.textContent = friendlyErr('기록을 저장하지 못했어요.', error); sessionMsgEl.classList.add('err'); return; }
       // 다음 약속이 입력되면 고객 카드에도 반영(목록·대시보드 동기화)
       if (next_appointment) {
         await sb.from('counselor_clients')
           .update({ next_appointment, updated_at: new Date().toISOString() })
           .eq('id', activeClientId).eq('counselor_id', uid);
+      } else {
+        // 다음 약속 없이 기록했고, 고객 카드의 약속이 바로 이 상담일이면 → 그 약속은 끝난 것으로 비움
+        const cRow = clientRows.find((x) => x.id === activeClientId);
+        if (cRow && cRow.next_appointment && String(cRow.next_appointment).slice(0, 10) === session_date) {
+          await sb.from('counselor_clients')
+            .update({ next_appointment: null, updated_at: new Date().toISOString() })
+            .eq('id', activeClientId).eq('counselor_id', uid);
+        }
       }
       const wasEdit = !!editId;
       resetSessionForm();
