@@ -32,9 +32,9 @@
 :root {
   --cream:      #f5f0e8;
   --parchment:  #ede5d4;
-  /* 비교표 왼쪽 라벨 열: 페이지/흰 배경과 구분되게 한 톤 어둡게 */
-  --compare-label-bg: #dfd2b8;
-  --compare-label-bg-strong: #d3c4a4;
+  /* 비교표 왼쪽 라벨 열 (크림 톤) */
+  --compare-label-bg: #f3ecdf;
+  --compare-label-bg-strong: #ece2cf;
   --sand:       #d4c4a8;
   --warm-brown: #8b6f47;
   --deep-brown: #4a3520;
@@ -231,9 +231,9 @@ select.input-field option{background:#2d2418;color:#f5f0e8;}
 
 /* ── 생년월일 수 분포 패널 ── */
 .birth-analysis-panel{background:white;border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:32px;box-shadow:0 2px 16px var(--shadow);}
-.bap-header{background:var(--deep-brown);padding:16px 22px;display:flex;align-items:center;justify-content:space-between;}
-.bap-title{font-family:var(--font-serif);font-size:16px;color:var(--cream);}
-.bap-lp{font-family:var(--font-mono);font-size:11.5px;letter-spacing:.12em;color:var(--accent);}
+.bap-header{background:linear-gradient(135deg,#f3ead9,#ede2cc);border-bottom:1px solid var(--border);padding:16px 22px;display:flex;align-items:center;justify-content:space-between;}
+.bap-title{font-family:var(--font-serif);font-size:16px;font-weight:600;color:var(--deep-brown);}
+.bap-lp{font-family:var(--font-body);font-size:11.5px;font-weight:600;letter-spacing:.04em;color:#8b6f47;}
 .bap-body{padding:20px 22px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;}
 .bap-col-title{font-family:var(--font-mono);font-size:11px;letter-spacing:.15em;text-transform:uppercase;margin-bottom:10px;}
 .bap-col-title.good{color:var(--teal);}
@@ -281,7 +281,6 @@ select.input-field option{background:#2d2418;color:#f5f0e8;}
 .nc2-master-tag{display:inline-block;font-size:11.5px;background:rgba(46,139,122,.12);color:var(--teal);border:1px solid rgba(46,139,122,.3);padding:2px 8px;border-radius:20px;margin-left:8px;vertical-align:middle;font-family:var(--font-mono);}
 
 /* 점수 표시 */
-.nc2-score-wrap{text-align:center;flex-shrink:0;}
 .nc2-score-ring{width:72px;height:72px;position:relative;}
 .nc2-score-ring svg{transform:rotate(-90deg);}
 .nc2-score-center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;}
@@ -342,7 +341,7 @@ select.input-field option{background:#2d2418;color:#f5f0e8;}
   box-shadow:0 4px 24px var(--shadow);
 }
 .compare-table{width:100%;min-width:720px;border-collapse:separate;border-spacing:0;}
-.compare-table th{background:var(--deep-brown);color:var(--cream);font-family:var(--font-body);font-size:12px;font-weight:500;padding:14px 16px;text-align:left;letter-spacing:.02em;white-space:nowrap;}
+.compare-table th{background:#efe5d2;color:var(--deep-brown);font-family:var(--font-body);font-size:12px;font-weight:700;padding:14px 16px;text-align:left;letter-spacing:.02em;white-space:nowrap;border-bottom:1px solid rgba(139,111,71,.2);}
 .compare-table th.name-col{font-family:var(--font-serif);font-size:16px;text-align:center;min-width:110px;}
 .compare-table td{padding:11px 16px;border-bottom:1px solid var(--border);font-size:13px;color:var(--ink);vertical-align:middle;}
 .compare-table td.row-label{
@@ -362,6 +361,7 @@ select.input-field option{background:#2d2418;color:#f5f0e8;}
   position:sticky;
   left:0;
   z-index:4;
+  background:#e6d9bf;
   box-shadow:6px 0 10px -4px rgba(44,31,14,.14);
 }
 .compare-table td.row-label{
@@ -407,9 +407,9 @@ select.input-field option{background:#2d2418;color:#f5f0e8;}
 
 /* 추천 결과 */
 .rec-result-wrap{background:white;border:1px solid var(--border);border-radius:12px;overflow:hidden;box-shadow:0 4px 24px var(--shadow);}
-.rec-result-header{background:var(--deep-brown);padding:16px 20px;display:flex;align-items:center;justify-content:space-between;}
-.rec-result-title{font-family:var(--font-serif);font-size:16px;font-weight:400;color:var(--cream);}
-.rec-result-sub{font-family:var(--font-mono);font-size:11px;letter-spacing:.15em;color:rgba(200,169,110,.6);}
+.rec-result-header{background:linear-gradient(135deg,#f3ead9,#ede2cc);border-bottom:1px solid var(--border);padding:16px 20px;display:flex;align-items:center;justify-content:space-between;}
+.rec-result-title{font-family:var(--font-serif);font-size:16px;font-weight:600;color:var(--deep-brown);}
+.rec-result-sub{font-family:var(--font-body);font-size:11px;font-weight:600;letter-spacing:.04em;color:#8b6f47;}
 .rec-name-row{padding:16px 20px;border-bottom:1px solid var(--border);display:grid;grid-template-columns:24px 1fr auto;gap:14px;align-items:center;}
 .rec-name-row:last-child{border-bottom:none;}
 .rec-rank{font-family:var(--font-mono);font-size:11.5px;color:var(--muted);text-align:center;}
@@ -499,6 +499,83 @@ select.input-field option{background:#2d2418;color:#f5f0e8;}
 .name-gate-box:empty{display:none;}
 .name-gate-box{margin-top:16px;padding:18px;border-radius:14px;background:#fffaf2;border:1px solid rgba(200,169,110,.45);}
 .name-gate-box .palja-gate-panel h2{font-size:18px!important;}
+
+/* ── 밝은 크림 톤으로 통일 (2026-10-06): 소울하모니·48궁합과 같은 디자인 ── */
+.hero{background:transparent;padding:44px 32px 8px;}
+.hero::before{color:rgba(139,111,71,.06);top:-20px;}
+.hero-tag{color:#8b6f47;font-family:var(--font-body);font-size:12px;font-weight:600;letter-spacing:.1em;}
+.hero-title{color:var(--deep-brown);font-weight:600;font-size:34px;line-height:1.3;}
+.hero-title em{color:#a8844a;font-style:normal;}
+.hero-desc{color:#6b5a45;font-size:14px;line-height:1.8;max-width:640px;margin-bottom:24px;}
+.hero-desc a{color:#8b6f47;text-decoration:underline;text-underline-offset:3px;}
+.hero-tabs{background:#fff;border:1px solid var(--border);box-shadow:0 2px 10px var(--shadow);border-radius:999px;padding:4px;}
+.hero-tab{color:#7a6448;border-radius:999px;font-size:14px;font-weight:600;padding:9px 26px;}
+.hero-tab.active{background:var(--deep-brown);color:var(--cream);box-shadow:0 2px 8px rgba(44,31,14,.18);}
+.hero-tab:hover:not(.active){color:var(--deep-brown);background:var(--parchment);}
+.input-wrap{background:#fff;border:1px solid var(--border);border-radius:16px;box-shadow:0 6px 24px var(--shadow);padding:28px 32px;}
+.input-section-title{color:var(--deep-brown);font-family:var(--font-body);font-size:14px;font-weight:700;letter-spacing:0;text-transform:none;margin-top:24px;}
+.input-section-title:first-child{margin-top:0;}
+.input-label{color:#7a6448;font-family:var(--font-body);font-size:12.5px;font-weight:600;letter-spacing:0;text-transform:none;}
+.opt-note{color:var(--muted);font-size:11.5px;font-weight:400;}
+.input-field,.name-field{background:var(--cream);border:1px solid rgba(139,111,71,.22);color:var(--ink);color-scheme:light;}
+.input-field:focus,.name-field:focus{background:#fff;border-color:var(--accent);box-shadow:0 0 0 3px rgba(200,169,110,.18);}
+.input-field::placeholder,.name-field::placeholder{color:#b3a28a;}
+.name-field.filled{border-color:var(--accent);background:#fffaf0;}
+select.input-field{background-color:var(--cream);color:var(--ink);color-scheme:light;}
+select.input-field option{background:#fff;color:var(--ink);}
+.name-slot-num{color:#8b6f47;font-family:var(--font-body);font-size:12px;font-weight:600;}
+.names-note{font-size:12px;color:var(--muted);text-align:center;margin-bottom:16px;}
+.analyze-btn{background:var(--deep-brown);color:var(--cream);border-radius:999px;padding:14px 28px;font-size:15px;box-shadow:0 4px 14px rgba(44,31,14,.15);}
+.analyze-btn:hover{background:#3a2a18;}
+.energy-chip,.gender-btn{background:var(--cream);border:1px solid rgba(139,111,71,.2);color:#5c4a33;font-size:13px;}
+.energy-chip:hover,.gender-btn:hover{border-color:var(--accent);color:var(--deep-brown);background:#fffaf0;}
+.energy-chip.selected,.gender-btn.selected{background:var(--deep-brown);border-color:var(--deep-brown);color:var(--cream);}
+.purpose-tier2-wrap{border-top-color:var(--border);}
+.purpose-sub-title{color:#8b6f47;font-family:var(--font-body);font-size:12px;font-weight:600;letter-spacing:0;text-transform:none;}
+.purpose-hint{background:#faf6ee;color:#5c4a33;border-left-color:var(--accent);font-size:12.5px;}
+.purpose-hint strong{color:var(--deep-brown);}
+.field-hint{color:var(--muted);}
+.bap-col-title{font-family:var(--font-body);font-size:12px;font-weight:700;letter-spacing:.02em;text-transform:none;}
+.num-pill .pn{font-weight:600;}
+.rank-header-title{font-weight:600;}
+.rank-count{font-family:var(--font-body);font-size:12px;letter-spacing:0;}
+.nc2-name{font-weight:600;font-size:28px;letter-spacing:.03em;}
+.nc2-rank-num{font-family:var(--font-body);font-size:12px;font-weight:600;letter-spacing:.02em;}
+.nc2-score-num{font-weight:600;}
+.vb-title,.sw-title,.sound-title{letter-spacing:.02em;text-transform:none;font-size:12.5px;}
+.nni-label{font-family:var(--font-body);font-size:12px;font-weight:600;letter-spacing:0;text-transform:none;}
+.nni-val{font-weight:500;}
+.compare-table-wrap{border-radius:14px;}
+.compare-table th.name-col{font-size:16px;font-weight:700;}
+.num-badge .n{font-weight:500;}
+.sc-num{font-weight:600;}
+.compare-table tr.score-divider td{font-family:var(--font-body);font-size:11.5px;letter-spacing:.04em;text-transform:none;}
+.rec-name-kr{font-weight:600;}
+.rec-rank{font-family:var(--font-body);font-weight:600;}
+.ai-tag{font-family:var(--font-body);font-size:12px;font-weight:700;letter-spacing:.04em;color:#8b6f47;}
+.nc2-header{align-items:center;}
+.nc2-name{font-size:30px;}
+.nc2-scores{display:flex;gap:8px;flex-shrink:0;}
+.nc2-sc{display:flex;flex-direction:column;align-items:center;justify-content:center;min-width:64px;padding:8px 10px;border-radius:12px;background:#faf6ee;border:1px solid var(--border);}
+.nc2-sc-total{min-width:78px;background:#fff;border-color:rgba(139,111,71,.3);box-shadow:0 2px 8px var(--shadow);}
+.nc2-sc-lbl{font-size:11.5px;font-weight:600;color:#7a6448;margin-bottom:3px;white-space:nowrap;}
+.nc2-sc-val{font-family:var(--font-serif);font-size:22px;font-weight:600;line-height:1;}
+.nc2-sc-total .nc2-sc-val{font-size:28px;}
+.nc2-soundeval{margin:0 22px 14px;padding:10px 14px;background:#faf6ee;border-radius:10px;border:1px solid var(--border);}
+.nc2-soundeval-title{font-size:12.5px;font-weight:700;color:#7a6448;margin-bottom:8px;}
+.nc2-nums-toggle{background:#f6f0e4;}
+.nc2-nums-label{color:#7a6448;font-weight:600;}
+@media(max-width:700px){
+  .nc2-header{flex-direction:column;align-items:stretch;gap:12px;}
+  .nc2-scores{width:100%;}
+  .nc2-sc{flex:1;min-width:0;}
+  .hero{padding:28px 16px 4px;}
+  .hero-title{font-size:27px;}
+  .hero-desc{font-size:13.5px;}
+  .hero-tabs{width:100%;}
+  .hero-tab{flex:1;padding:9px 10px;}
+  .input-wrap{padding:20px 16px;border-radius:14px;}
+}
 </style>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css" crossorigin />
 <link rel="stylesheet" href="css/site-topbar.css?v=21" />
@@ -512,7 +589,7 @@ select.input-field option{background:#2d2418;color:#f5f0e8;}
   <div class="hero-inner">
     <div class="hero-tag">Name Code · 수비학 네임코드</div>
     <h1 class="hero-title">이름 속에 담긴<br><em>에너지를 읽다</em></h1>
-    <p class="hero-desc">생년월일에 부족한 수, 과잉된 수를 분석해 어떤 이름이 왜 좋은지 명확하게 알려 드려요. <a href="guide/name-code.html" style="color:var(--accent);text-decoration:underline">이름 수비학 가이드</a> · <a href="numerology-wallpaper.html" style="color:var(--accent);text-decoration:underline">에너지 배경</a>도 참고하세요.</p>
+    <p class="hero-desc">이름에서 운명수·혼의수·성격수를 뽑아, 생년월일에 부족하거나 넘치는 수와 비교해요. 어떤 이름이 왜 잘 맞는지 점수와 이유로 보여 드려요. <a href="guide/name-code.html">이름 수비학 가이드</a> · <a href="numerology-wallpaper.html">에너지 배경</a>도 참고하세요.</p>
 
     <div class="hero-tabs">
       <button class="hero-tab active" onclick="switchTab('analyze',this)">✦ 네임코드</button>
@@ -552,11 +629,11 @@ select.input-field option{background:#2d2418;color:#f5f0e8;}
         <div class="input-section-title">기본 정보</div>
         <div class="birth-row" style="margin-bottom:20px;">
           <div class="input-group">
-            <label class="input-label">대상자 이름 / 성 <span style="color:rgba(200,169,110,.7);font-size:11px;">(선택)</span></label>
+            <label class="input-label">대상자 이름 / 성 <span class="opt-note">(선택)</span></label>
             <input class="input-field" id="baseName" type="text" placeholder="예) 김은형 또는 김">
           </div>
-          <div class="input-group birth-field-group">
-            <label class="input-label" for="birthDate">생년월일 <span style="color:rgba(200,169,110,.7);font-size:11px;">(선택 — 입력 시 훨씬 정확해요)</span></label>
+          <div class="input-group birth-field-group birth-field-group--light">
+            <label class="input-label" for="birthDate">생년월일 <span class="opt-note">(선택 — 입력 시 훨씬 정확해요)</span></label>
             <input class="input-field birth-date-native" id="birthDate" type="date">
             <div class="birth-pick" id="birthDatePickRow" role="group" aria-label="생년월일" hidden>
               <button type="button" class="birth-pick-btn is-placeholder" id="birthDateYearBtn">연도</button>
@@ -573,7 +650,7 @@ select.input-field option{background:#2d2418;color:#f5f0e8;}
           <div class="name-slot"><div class="name-slot-num">이름 4</div><div class="name-input-wrap"><input class="name-field" data-idx="3" type="text" placeholder="이름 입력" oninput="onNameInput(this)" autocomplete="off"></div></div>
           <div class="name-slot"><div class="name-slot-num">이름 5</div><div class="name-input-wrap"><input class="name-field" data-idx="4" type="text" placeholder="이름 입력" oninput="onNameInput(this)" autocomplete="off"></div></div>
         </div>
-        <div style="font-size:12px;color:rgba(245,240,232,.62);text-align:center;margin-bottom:16px;">한글 또는 영문 모두 가능 · 이름 1개만 입력해도 분석돼요</div>
+        <div class="names-note">한글 또는 영문 모두 가능 · 이름 1개만 입력해도 분석돼요</div>
         <button class="analyze-btn" id="analyzeBtn" onclick="runAnalysis()">✦ 네임코드 시작</button>
         <div id="nameGateAnalyze" class="name-gate-box"></div>
       </div>
@@ -611,11 +688,11 @@ select.input-field option{background:#2d2418;color:#f5f0e8;}
         <div class="input-section-title">기본 정보</div>
         <div class="birth-row" style="margin-bottom:4px;">
           <div class="input-group">
-            <label class="input-label">성(姓) <span style="color:rgba(200,169,110,.7);font-size:11px;">(선택)</span></label>
+            <label class="input-label">성(姓) <span class="opt-note">(선택)</span></label>
             <input class="input-field" id="recSurname" type="text" placeholder="예) 김">
           </div>
-          <div class="input-group birth-field-group">
-            <label class="input-label" for="recBirth">생년월일 <span style="color:rgba(200,169,110,.7);font-size:11px;">(선택 — 부족수 기반 자동 추천)</span></label>
+          <div class="input-group birth-field-group birth-field-group--light">
+            <label class="input-label" for="recBirth">생년월일 <span class="opt-note">(선택 — 부족수 기반 자동 추천)</span></label>
             <input class="input-field birth-date-native" id="recBirth" type="date">
             <div class="birth-pick" id="recBirthPickRow" role="group" aria-label="생년월일" hidden>
               <button type="button" class="birth-pick-btn is-placeholder" id="recBirthYearBtn">연도</button>
@@ -624,7 +701,7 @@ select.input-field option{background:#2d2418;color:#f5f0e8;}
             </div>
           </div>
         </div>
-        <div class="birth-row" style="margin-bottom:20px;">
+        <div class="birth-row" style="margin:16px 0 20px;">
           <div class="input-group">
             <label class="input-label">이름 음절 수</label>
             <div class="gender-row syllable-row" id="recSyllableRow" style="margin:0;">
@@ -644,7 +721,7 @@ select.input-field option{background:#2d2418;color:#f5f0e8;}
             </div>
           </div>
         </div>
-        <div class="input-section-title">원하는 에너지 <span style="color:rgba(200,169,110,.7);font-size:11px;">(선택 · 복수 가능 · 미선택 시 생년월일 부족수 기반)</span></div>
+        <div class="input-section-title">원하는 에너지 <span class="opt-note">(선택 · 복수 가능 · 미선택 시 생년월일 부족수 기반)</span></div>
         <div class="energy-chips" id="recEnergyChips" style="margin-bottom:20px;">
           <button class="energy-chip" data-val="1" onclick="toggleChip(this)">1 · 독립·추진력</button>
           <button class="energy-chip" data-val="2" onclick="toggleChip(this)">2 · 조화·공감</button>
@@ -659,7 +736,7 @@ select.input-field option{background:#2d2418;color:#f5f0e8;}
           <button class="energy-chip" data-val="22" onclick="toggleChip(this)">22 · 비전·실현 ✦</button>
           <button class="energy-chip" data-val="33" onclick="toggleChip(this)">33 · 치유·사랑 ✦</button>
         </div>
-        <div class="input-section-title">추가 요청 <span style="color:rgba(200,169,110,.7);font-size:11px;">(선택)</span></div>
+        <div class="input-section-title">추가 요청 <span class="opt-note">(선택)</span></div>
         <input class="input-field" id="recExtra" type="text" placeholder="예) 부드러운 발음, 획수 적게, 자연 관련 의미 등">
         <p class="field-hint">업종·분위기·피하고 싶은 느낌을 적으면 AI가 더 반영해요. 최종 순위는 수비학 점수도 함께 봐요.</p>
         <button class="analyze-btn" id="recBtn" onclick="runRecommend()">✧ AI 이름 추천 받기</button>
@@ -1235,7 +1312,7 @@ function evaluateName(r, dist, purposeInput) {
 
   // 1. 생년월일 부족수 채움
   if(dist && dist.missing.includes(expr)) {
-    strengths.push(`운명수 ${expr}번 — 생년월일에 없는 에너지를 이름이 정확히 채워 줘요. 수비학적으로 가장 이상적인 보완이에요.`);
+    strengths.push(`운명수 ${expr}번 — 생년월일에 없는 에너지를 이름이 정확히 채워 줘요. 부족한 에너지를 가장 직접적으로 보완해요.`);
     numBonus += 15;
   }
   if(dist && dist.missing.includes(soul)) {
@@ -1262,7 +1339,7 @@ function evaluateName(r, dist, purposeInput) {
       strengths.push(`인생여정수(${r.lp.val})와 탁월한 조화(${sc}점) — 삶의 방향과 이름 에너지가 강하게 공명해요.`);
       numBonus += 10;
     } else if(sc >= 80) {
-      strengths.push(`인생여정수(${r.lp.val})와 높은 공명(${sc}점) — 이름이 삶의 방향을 자연스럽게 강화해 줘요.`);
+      strengths.push(`인생여정수(${r.lp.val})와 궁합 ${sc}점(높은 공명) — 이름이 삶의 방향을 자연스럽게 강화해 줘요.`);
       numBonus += 5;
     } else if(sc < 55) {
       warnings.push(`인생여정수(${r.lp.val})와의 궁합이 낮아요(${sc}점) — 내면의 긴장감이 생길 수 있어요.`);
@@ -1364,7 +1441,7 @@ function verdictText(v, r, dist, purposeInput) {
   const name = r.name;
   if(v.key === 'best') {
     const reason = r.lp
-      ? `인생여정수(${r.lp.val})와 강하게 공명하며${dist && dist.missing.includes(expr) ? ' 생년월일의 부족한 에너지까지 채워주는' : ''} 이 이름은 수비학적으로 가장 조화로운 선택이에요.`
+      ? `인생여정수(${r.lp.val})와 잘 어울리고${dist && dist.missing.includes(expr) ? ' 생년월일에 부족한 에너지까지 채워 줘서' : ''} 수비학적으로 가장 조화로운 선택이에요.`
       : `${exprT.name}(${expr})의 에너지가 선택하신 목적(${pCtx.label})에 맞는 방향을 제시하는 이름이에요.`;
     return `<strong>${name}</strong>${nameJosaIGa(name)} 가장 좋은 이름이에요. ${reason}`;
   }
@@ -1549,15 +1626,15 @@ function renderRankHeader(results, bestIdx, dist, purposeInput) {
     const sc = best.totalCompat;
     const missing = dist?.missing || [];
     const fillsGap = missing.includes(best.nums.expression.val);
-    text = `<strong class="best-name">${best.name}</strong>${nameJosaIGa(best.name)} 가장 좋은 이름이에요. 인생여정수(${best.lp.val})와 ${compatLabel(sc)}(${sc}점)${fillsGap ? '이며, 생년월일의 부족한 에너지를 채워주는 이상적인 조합' : ''}이에요.`;
+    text = `<strong class="best-name">${best.name}</strong>${nameJosaIGa(best.name)} 가장 좋은 이름이에요. 인생여정수(${best.lp.val})와 궁합이 ${sc}점(${compatLabel(sc)})이에요.${fillsGap ? ' 생년월일에 부족한 에너지까지 채워 주는 조합이에요.' : ''}`;
   } else {
     const isMaster = [11,22,33].includes(best.nums.expression.val);
     text = `<strong class="best-name">${best.name}</strong>${nameJosaIGa(best.name)} 수비학적으로 가장 강한 이름이에요. ${isMaster ? `마스터 넘버 ${best.nums.expression.val}번 — 평범함을 넘어선 깊이를 담고 있어요.` : `${tr(best.nums.expression.val).name}(${best.nums.expression.val})의 에너지가 삶을 긍정적으로 이끌어 줘요.`}`;
   }
   document.getElementById('rankHeader').innerHTML = `
     <div class="rank-header-top">
-      <div class="rank-header-title">${results.length}개 네임코드 분석 완료</div>
-      <div class="rank-count">총 ${results.length}개 분석</div>
+      <div class="rank-header-title">한눈에 보기</div>
+      <div class="rank-count">이름 ${results.length}개 비교</div>
     </div>
     <div class="rank-summary">${text}</div>
     <div style="margin-top:10px;font-size:12px;color:var(--warm-brown);">분석 목적: <strong>${pCtx.label}</strong></div>
@@ -1588,39 +1665,26 @@ function renderNameCards(results, sortedResults, dist, purposeInput) {
     const soundBonusStr = soundBonusDisp > 0 ? `+${soundBonusDisp}` : `${soundBonusDisp}`;
     const soundBonusColor = soundBonusDisp >= 0 ? 'var(--teal)' : 'var(--red)';
 
+    const scoreColor = v => v>=80?'var(--teal)':v>=65?'#a8844a':'var(--red)';
     const scoreSvg = `
-      <div class="nc2-score-wrap" style="min-width:90px;">
-        <div style="display:flex;flex-direction:column;gap:6px;align-items:flex-end;">
-          <div style="text-align:right;">
-            <div style="font-family:var(--font-mono);font-size:10px;letter-spacing:.1em;color:var(--muted);margin-bottom:2px;">수비학</div>
-            <div style="display:flex;align-items:baseline;gap:4px;justify-content:flex-end;">
-              <span style="font-family:var(--font-serif);font-size:26px;font-weight:300;line-height:1;color:${numScore>=80?'var(--teal)':numScore>=65?'var(--accent)':'var(--red)'};">${numScore}</span>
-              <span style="font-size:11.5px;color:var(--muted);">점</span>
-            </div>
-          </div>
-          <div style="text-align:right;padding:6px 8px;background:${soundBonusDisp>=0?'rgba(46,139,122,.06)':'rgba(184,85,85,.06)'};border:1px solid ${soundBonusDisp>=0?'rgba(46,139,122,.2)':'rgba(184,85,85,.2)'};border-radius:6px;min-width:80px;">
-            <div style="font-family:var(--font-mono);font-size:10px;letter-spacing:.1em;color:var(--muted);margin-bottom:2px;">소리균형</div>
-            <div style="font-family:var(--font-serif);font-size:20px;font-weight:300;line-height:1;color:${soundBonusColor};">${soundBonusStr}</div>
-          </div>
-          <div style="text-align:right;border-top:1px solid var(--border);padding-top:6px;width:100%;">
-            <div style="font-family:var(--font-mono);font-size:10px;letter-spacing:.1em;color:var(--muted);margin-bottom:2px;">종합</div>
-            <div style="font-family:var(--font-serif);font-size:22px;font-weight:600;line-height:1;color:${totalDisp>=80?'var(--teal)':totalDisp>=65?'var(--accent)':'var(--red)'};">${totalDisp}</div>
-          </div>
-        </div>
+      <div class="nc2-scores">
+        <div class="nc2-sc nc2-sc-total"><span class="nc2-sc-lbl">종합</span><span class="nc2-sc-val" style="color:${scoreColor(totalDisp)}">${totalDisp}</span></div>
+        <div class="nc2-sc"><span class="nc2-sc-lbl">수비학</span><span class="nc2-sc-val" style="color:${scoreColor(numScore)}">${numScore}</span></div>
+        <div class="nc2-sc"><span class="nc2-sc-lbl">소리 균형</span><span class="nc2-sc-val" style="color:${soundBonusColor}">${soundBonusStr}</span></div>
       </div>`;
 
     // 강점/주의 박스
     const strengthsHtml = evaluation.strengths.length
       ? evaluation.strengths.map(s=>`<div class="sw-item"><span class="sw-dot" style="color:var(--teal)">✦</span><span>${s}</span></div>`).join('')
-      : '<div class="sw-item"><span class="sw-dot" style="color:var(--muted)">·</span><span style="color:var(--muted)">특별한 강점 없음</span></div>';
+      : '<div class="sw-item"><span class="sw-dot" style="color:var(--muted)">·</span><span style="color:var(--muted)">눈에 띄는 강점은 없어요</span></div>';
 
     const warningsHtml = evaluation.warnings.length
       ? evaluation.warnings.map(w=>`<div class="sw-item"><span class="sw-dot" style="color:var(--red)">⚠</span><span>${w}</span></div>`).join('')
-      : '<div class="sw-item"><span class="sw-dot" style="color:var(--muted)">·</span><span style="color:var(--muted)">특별한 주의사항 없음</span></div>';
+      : '<div class="sw-item"><span class="sw-dot" style="color:var(--muted)">·</span><span style="color:var(--muted)">특별히 주의할 점은 없어요</span></div>';
 
     const soundItemsHtml = (evaluation.soundStrengths.length || evaluation.soundWarnings.length) ? `
-      <div style="margin:0 22px 14px;padding:10px 14px;background:var(--parchment);border-radius:8px;border:1px solid var(--border);">
-        <div style="font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:8px;">♪ 소리 균형 평가</div>
+      <div class="nc2-soundeval">
+        <div class="nc2-soundeval-title">♪ 소리 균형 평가</div>
         ${evaluation.soundStrengths.map(s=>`<div class="sw-item"><span class="sw-dot" style="color:var(--teal);font-size:11px;">▲</span><span style="font-size:12px;color:var(--teal);">${s}</span></div>`).join('')}
         ${evaluation.soundWarnings.map(w=>`<div class="sw-item"><span class="sw-dot" style="color:var(--red);font-size:11px;">▼</span><span style="font-size:12px;color:var(--red);">${w}</span></div>`).join('')}
       </div>` : '';
@@ -1782,7 +1846,7 @@ function renderCompareTable(sortedResults, dist, purposeInput) {
       sortedResults.forEach((r,i)=>{
         const ev=evaluateName(r,dist,pCtx);
         const s=Math.min((r.totalCompat||70)+ev.numBonus,99);
-        const nb=ev.numBonus>0?`+${ev.numBonus}보너스`:ev.numBonus<0?`${ev.numBonus}감점`:'기본';
+        const nb=ev.numBonus>0?`보너스 +${ev.numBonus}`:ev.numBonus<0?`감점 ${ev.numBonus}`:'기본';
         html+=`<td class="score-cell score-section"><span class="sc-num ${compatClass(s)}">${s}</span><div class="sc-bar"><div class="sc-fill ${fillClass(s)}" style="width:${s}%"></div></div><span class="sc-label">${nb}</span></td>`;
       });
     } else if(row.soundscore){
@@ -1797,7 +1861,7 @@ function renderCompareTable(sortedResults, dist, purposeInput) {
     } else if(row.total){
       sortedResults.forEach(r=>{
         const s=Math.min(r.totalScore,99);
-        const bonusStr=r.bonus>0?`+${r.bonus}합산`:r.bonus<0?`${r.bonus}합산`:'기본점수';
+        const bonusStr=r.bonus>0?`가산 +${r.bonus}`:r.bonus<0?`감산 ${r.bonus}`:'기본점수';
         html+=`<td class="score-cell" style="background:rgba(200,169,110,.04);"><span class="sc-num ${compatClass(s)}" style="font-size:22px;font-weight:700;">${s}</span><div class="sc-bar"><div class="sc-fill ${fillClass(s)}" style="width:${s}%"></div></div><span class="sc-label" style="font-weight:600;">${bonusStr}</span></td>`;
       });
     } else {
@@ -2087,9 +2151,8 @@ function renderRecResultFull(sorted, dist, lp, birth, surname, purposeInput, wan
   const noun = recommendResultNoun(pCtx.scoringKey);
   let summaryText = `<strong class="best-name">${best.name}</strong>${nameJosaIGa(best.name)} 가장 좋은 ${noun}${nameJosaIeyo(noun)}. `;
   if(lp) {
-    summaryText += `인생여정수(${lp.val})와 ${compatLabel(best.totalCompat)}(${best.totalCompat}점)`;
-    if(missingFill) summaryText += `이며, 생년월일의 부족한 에너지를 채워주는 이상적인 조합`;
-    summaryText += `이에요.`;
+    summaryText += `인생여정수(${lp.val})와 궁합이 ${best.totalCompat}점(${compatLabel(best.totalCompat)})이에요.`;
+    if(missingFill) summaryText += ` 생년월일에 부족한 에너지까지 채워 주는 조합이에요.`;
   } else {
     summaryText += `${tr(best.nums.expression.val).name}(${best.nums.expression.val})의 에너지가 삶을 긍정적으로 이끌어 줘요.`;
   }
