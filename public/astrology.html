@@ -6534,8 +6534,8 @@ body.export-capturing .ai-result.empty{display:none !important;}
   $('calcBtn').addEventListener('click', calculate);
 
   // ── 결과 저장 / 공유 ──
-  function flashBtn(btn, msg) {
-    const prev = btn.textContent;
+  function flashBtn(btn, msg, restoreTo) {
+    const prev = restoreTo != null ? restoreTo : btn.textContent;
     btn.textContent = msg;
     btn.disabled = true;
     setTimeout(() => { btn.textContent = prev; btn.disabled = false; }, 1400);
@@ -6637,7 +6637,7 @@ body.export-capturing .ai-result.empty{display:none !important;}
       return;
     }
     const btn = $('btnPdf');
-    const prev = btn.textContent;
+    const prev = '⬇ PDF 저장';
     btn.textContent = '⏳ PDF 생성…'; btn.disabled = true;
     try {
       const { jsPDF } = window.jspdf;
@@ -6671,7 +6671,7 @@ body.export-capturing .ai-result.empty{display:none !important;}
       }
       const nm = ($('inName').value || '네이탈차트').trim().replace(/[\\/:*?"<>|]/g, '_').slice(0, 40);
       pdf.save(`팔자연구소_점성학_${nm}.pdf`);
-      flashBtn(btn, '✓ PDF 저장됨');
+      flashBtn(btn, '✓ PDF 저장됨', prev);
     } catch (e) {
       console.error(e);
       showStatus('PDF 생성 중 오류가 났어요. 인쇄 기능을 이용해 보세요.', 'err');
