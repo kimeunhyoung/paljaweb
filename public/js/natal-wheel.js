@@ -124,6 +124,8 @@
     }
 
     // ── 하우스 ──
+    // Astro-Seek식: 굵은 ASC/MC 축은 어스펙트 원(R_i) 안쪽만.
+    // 행성·도수 링(R_i~R_z)은 비우고, 별자리 링에서만 얇게 이어 붙여요.
     var gH = el('g', {}, svg);
     el('circle', { cx: c, cy: c, r: R_h, fill: '#fbf6ec', stroke: LINE, 'stroke-width': 1 * u }, gH);
     el('circle', { cx: c, cy: c, r: R_i, fill: '#ffffff', stroke: LINE, 'stroke-width': 1 * u }, gH);
@@ -131,7 +133,8 @@
       var cu = data.cusps[h];
       var axis = h === 0 || h === 3 || h === 6 || h === 9;
       if (axis) {
-        line(cu, R_i, R_out, { stroke: INK, 'stroke-width': 2.6 * u }, gH);
+        line(cu, 0, R_i, { stroke: INK, 'stroke-width': 2.6 * u }, gH);
+        line(cu, R_z, R_out, { stroke: INK, 'stroke-width': 1.35 * u }, gH);
       } else {
         line(cu, R_i, R_z, { stroke: LINE, 'stroke-width': 0.9 * u, 'stroke-opacity': 0.75 }, gH);
       }
@@ -141,20 +144,28 @@
       text(hm.x, hm.y, String(h + 1), { 'font-size': fs(11, 8), fill: '#8a7558', 'font-weight': 600 }, gH);
     }
 
-    // ── 축 이름 (ASC·DSC·MC·IC) ──
+    // ── 축 이름 (ASC·DSC·MC·IC) — 굵은 선이 끝나는 안쪽 원 가장자리에 둠 ──
     var gA = el('g', {}, svg);
     function fmtDM(lon) {
       var d = norm(lon) % 30; var w = Math.floor(d); var m = Math.floor((d - w) * 60 + 1e-6);
       return w + '°' + String(m).padStart(2, '0') + "'";
     }
+    var axisLabelR = R_i + Math.max(11 * u, 10);
     [['ASC', data.cusps[0]], ['DSC', data.cusps[6]], ['MC', data.cusps[9]], ['IC', data.cusps[3]]].forEach(function (a) {
-      var p = pt(a[1], R_out + Math.max(13 * u, 12));
-      text(p.x, p.y, a[0], { 'font-size': fs(11, 8), 'font-weight': 800, fill: INK }, gA);
+      var p = pt(a[1], axisLabelR);
+      // 흰 테두리로 하우스 번호·배경과 겹쳐도 읽히게
+      text(p.x, p.y, a[0], {
+        'font-size': fs(11, 8), 'font-weight': 800, fill: INK,
+        stroke: '#fffdf8', 'stroke-width': 3.5 * u, 'paint-order': 'stroke fill'
+      }, gA);
       if (!compact && (a[0] === 'ASC' || a[0] === 'MC')) {
-        // 축 도수는 이름 옆(바깥쪽 링 위)에 작게
-        var q = pt(a[1] + (a[0] === 'ASC' ? -5.5 : 5.5), R_out + Math.max(13 * u, 12));
+        var degOff = (a[0] === 'ASC' ? -7 : 7);
+        var q = pt(a[1] + degOff, axisLabelR);
         var si = Math.floor(norm(a[1]) / 30);
-        text(q.x, q.y, fmtDM(a[1]), { 'font-size': fs(10, 8), 'font-weight': 700, fill: EL_INK[si % 4] }, gA);
+        text(q.x, q.y, fmtDM(a[1]), {
+          'font-size': fs(10, 8), 'font-weight': 700, fill: EL_INK[si % 4],
+          stroke: '#fffdf8', 'stroke-width': 3.2 * u, 'paint-order': 'stroke fill'
+        }, gA);
       }
     });
 
