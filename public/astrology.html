@@ -6361,36 +6361,31 @@ body.export-capturing .ai-result.empty{display:none !important;}
     const sheet = $('chartSheetExport');
     if (!sheet) return null;
     if (!populateChartSheet()) return null;
-    const prev = {
-      left: sheet.style.left,
-      top: sheet.style.top,
-      zIndex: sheet.style.zIndex,
-      position: sheet.style.position,
-    };
-    // html2canvas는 화면 밖 요소를 종종 잘라 먹어서, 캡처 중에만 뷰포트 뒤쪽에 둡니다
-    sheet.style.position = 'fixed';
-    sheet.style.left = '0';
-    sheet.style.top = '0';
-    sheet.style.zIndex = '-1';
     await waitForRepaint();
-    await new Promise((r) => setTimeout(r, 60));
-    try {
-      return await html2canvas(sheet, {
-        backgroundColor: '#ffffff',
-        scale: 2,
-        useCORS: true,
-        logging: false,
-        width: sheet.scrollWidth,
-        height: sheet.scrollHeight,
-        windowWidth: Math.max(sheet.scrollWidth + 40, 960),
-        windowHeight: Math.max(sheet.scrollHeight + 40, 1200),
-      });
-    } finally {
-      sheet.style.left = prev.left;
-      sheet.style.top = prev.top;
-      sheet.style.zIndex = prev.zIndex;
-      sheet.style.position = prev.position;
-    }
+    await new Promise((r) => setTimeout(r, 40));
+    // 실제 화면은 그대로 두고(왼쪽 밖), 캡처용 복제본만 원점으로 옮겨 겹침 깜빡임을 막아요
+    return await html2canvas(sheet, {
+      backgroundColor: '#ffffff',
+      scale: 2,
+      useCORS: true,
+      logging: false,
+      width: sheet.scrollWidth,
+      height: sheet.scrollHeight,
+      windowWidth: Math.max(sheet.scrollWidth + 40, 960),
+      windowHeight: Math.max(sheet.scrollHeight + 40, 1200),
+      onclone: (clonedDoc) => {
+        const el = clonedDoc.getElementById('chartSheetExport');
+        if (!el) return;
+        el.style.position = 'absolute';
+        el.style.left = '0';
+        el.style.top = '0';
+        el.style.right = 'auto';
+        el.style.zIndex = '1';
+        el.style.opacity = '1';
+        el.style.pointerEvents = 'none';
+        el.classList.remove('is-print-ready');
+      },
+    });
   }
 
   async function calculate() {
