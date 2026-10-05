@@ -5,12 +5,12 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <link rel="icon" href="/favicon.svg" type="image/svg+xml">
   <title>48궁합 — 팔자연구소 8CODE</title>
-  <meta name="description" content="48주기 성격학으로 두 사람의 원소·모달리티 에너지 궁합을 봅니다. 팔자연구소 48궁합."/>
+  <meta name="description" content="48주기 성격학으로 두 사람의 원소·모달리티 에너지 궁합을 봐요. 팔자연구소 48궁합."/>
   <link rel="canonical" href="https://8code.kr/period48-compat.html">
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="팔자연구소 8CODE">
   <meta property="og:title" content="48궁합 — 팔자연구소 8CODE">
-  <meta property="og:description" content="48주기 성격학으로 두 사람의 원소·모달리티 에너지 궁합을 봅니다.">
+  <meta property="og:description" content="48주기 성격학으로 두 사람의 원소·모달리티 에너지 궁합을 봐요.">
   <meta property="og:url" content="https://8code.kr/period48-compat.html">
   <meta property="og:image" content="https://8code.kr/og-share.png">
   <meta property="og:locale" content="ko_KR">
@@ -24,16 +24,17 @@
   <script src="js/attribution.js"></script>
   <script src="js/site-topbar.js?v=35" defer></script>
   <script src="js/topbar-session.js?v=14" defer></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css" crossorigin/>
   <link rel="stylesheet" href="css/birth-date-picker.css">
   <script src="js/period48Data.js" defer></script>
   <script src="js/period48LifeZones.js" defer></script>
   <script src="js/period48Profiles.js" defer></script>
   <script src="js/period48-compat-matrix.js?v=20260521p48c" defer></script>
-  <script src="js/period48-engine.js?v=20260521p48" defer></script>
+  <script src="js/period48-engine.js?v=20261005d" defer></script>
   <script src="js/period48-compat-engine.js?v=20260521p48c" defer></script>
-  <script src="js/period48-relationship-types.js?v=20260522p48d" defer></script>
+  <script src="js/period48-relationship-types.js?v=20261005hy" defer></script>
   <script src="js/period48-core.js?v=20260522p48" defer></script>
-  <script src="js/period48-compat.js?v=20260807p48gate" defer></script>
+  <script src="js/period48-compat.js?v=20261005pick" defer></script>
   <style>
     :root {
       --cream: #f5f0e8;
@@ -46,7 +47,7 @@
       --muted: #9a8570;
       --border: rgba(139,111,71,.15);
       --font-serif: 'Cormorant Garamond', 'Noto Serif KR', serif;
-      --font-body: 'Noto Serif KR', serif;
+      --font-body: 'Pretendard Variable', Pretendard, -apple-system, BlinkMacSystemFont, sans-serif;
     }
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     html { scroll-behavior: smooth; background: var(--cream); }
@@ -90,6 +91,43 @@
     .person-card .card-label {
       font-size: 11px; letter-spacing: .1em;
       color: var(--warm-brown); margin-bottom: 14px; font-weight: 600;
+    }
+    .client-pick-wrap {
+      display: none;
+      margin: 0 0 14px;
+      padding: 0 0 14px;
+      border-bottom: 1px solid var(--border);
+    }
+    .client-pick-wrap.is-visible { display: block; }
+    .client-pick-row {
+      display: grid;
+      grid-template-columns: minmax(100px, 1fr) minmax(140px, 1.4fr);
+      gap: 10px;
+      align-items: end;
+    }
+    .client-pick-hint {
+      margin: 8px 0 0;
+      font-size: 11px;
+      line-height: 1.5;
+      color: var(--muted);
+    }
+    .client-pick-wrap select {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      font-family: inherit;
+      font-size: 14px;
+      background: var(--cream);
+      color: var(--ink);
+      outline: none;
+    }
+    .client-pick-wrap select:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 2px rgba(200,169,110,.2);
+    }
+    @media (max-width: 720px) {
+      .client-pick-row { grid-template-columns: 1fr; }
     }
     .field { margin-bottom: 14px; }
     .field:last-child { margin-bottom: 0; }
@@ -353,12 +391,27 @@
     <div class="brand-badge">팔자연구소 · 48주기 성격학</div>
     <h1 class="brand-title">48궁합</h1>
     <p class="brand-sub">두 사람의 48주간 성격 에너지로 보는 관계</p>
-    <div class="brand-line">matrix4d · 관계 유형 20종</div>
+    <div class="brand-line">관계 유형 20종</div>
   </header>
 
   <div class="input-panel">
     <div class="person-card">
       <div class="card-label">첫 번째 사람</div>
+      <div class="client-pick-wrap" id="clientPickWrap1">
+        <div class="client-pick-row">
+          <div class="field" style="margin-bottom:0">
+            <label for="clientPickSearch1">고객 찾기</label>
+            <input type="search" id="clientPickSearch1" placeholder="이름·생년월일" autocomplete="off">
+          </div>
+          <div class="field" style="margin-bottom:0">
+            <label for="clientPickSelect1">저장된 고객</label>
+            <select id="clientPickSelect1" aria-label="첫 번째 사람 고객 선택">
+              <option value="">— 직접 입력 —</option>
+            </select>
+          </div>
+        </div>
+        <p class="client-pick-hint">고객을 고르면 이름·생년월일이 채워져요.</p>
+      </div>
       <div class="field">
         <label for="p48Name1">이름</label>
         <input type="text" id="p48Name1" placeholder="이름 (선택)" autocomplete="name"/>
@@ -376,6 +429,21 @@
     <div class="divider-col"><div class="hex" aria-hidden="true">48</div></div>
     <div class="person-card">
       <div class="card-label">두 번째 사람</div>
+      <div class="client-pick-wrap" id="clientPickWrap2">
+        <div class="client-pick-row">
+          <div class="field" style="margin-bottom:0">
+            <label for="clientPickSearch2">고객 찾기</label>
+            <input type="search" id="clientPickSearch2" placeholder="이름·생년월일" autocomplete="off">
+          </div>
+          <div class="field" style="margin-bottom:0">
+            <label for="clientPickSelect2">저장된 고객</label>
+            <select id="clientPickSelect2" aria-label="두 번째 사람 고객 선택">
+              <option value="">— 직접 입력 —</option>
+            </select>
+          </div>
+        </div>
+        <p class="client-pick-hint">고객을 고르면 이름·생년월일이 채워져요.</p>
+      </div>
       <div class="field">
         <label for="p48Name2">이름</label>
         <input type="text" id="p48Name2" placeholder="이름 (선택)" autocomplete="name"/>
@@ -435,6 +503,97 @@ PaljaBirthDatePicker.initAll([
   { inputId: 'p48Dob1', pickRowId: 'p48Dob1PickRow', yearBtnId: 'p48Dob1YearBtn', monthBtnId: 'p48Dob1MonthBtn', dayBtnId: 'p48Dob1DayBtn' },
   { inputId: 'p48Dob2', pickRowId: 'p48Dob2PickRow', yearBtnId: 'p48Dob2YearBtn', monthBtnId: 'p48Dob2MonthBtn', dayBtnId: 'p48Dob2DayBtn' },
 ]);
+/* ── 상담사: 저장된 고객으로 A/B 채우기 (소울하모니와 동일) ── */
+const SUPABASE_URL = 'https://sghsryumnrnftyjoqmwf.supabase.co';
+const SUPABASE_ANON_KEY = 'sb_publishable_6S3W_oWrzG-Nv8wLK98gmg_q_KcB2I1';
+let sbP48 = null;
+try {
+  const g = window.supabase;
+  if (g && typeof g.createClient === 'function') {
+    sbP48 = g.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  }
+} catch (_) {}
+let COUNSELOR_CLIENT_ROWS = [];
+let COUNSELOR_UID = '';
+
+function escHtmlP48(s) {
+  return String(s == null ? '' : s)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+
+function populateCounselorClientSelect(side, filterText) {
+  const sel = document.getElementById('clientPickSelect' + side);
+  if (!sel) return;
+  const q = String(filterText || '').trim().toLowerCase().replace(/\s+/g, '');
+  const cur = sel.value;
+  const rows = !q
+    ? COUNSELOR_CLIENT_ROWS
+    : COUNSELOR_CLIENT_ROWS.filter((c) => {
+        const dn = String(c.display_name || '').toLowerCase().replace(/\s+/g, '');
+        const ln = String(c.legal_name || '').toLowerCase().replace(/\s+/g, '');
+        const birth = String(c.birth_date || '').toLowerCase();
+        return dn.includes(q) || ln.includes(q) || birth.includes(q);
+      });
+  sel.innerHTML = '<option value="">— 직접 입력 —</option>' + rows.map((c) => {
+    const label = (c.display_name || c.legal_name || '고객') +
+      (c.birth_date ? ' · ' + String(c.birth_date).slice(0, 10) : '');
+    return '<option value="' + c.id + '">' + escHtmlP48(label) + '</option>';
+  }).join('');
+  if (cur && COUNSELOR_CLIENT_ROWS.some((c) => c.id === cur)) sel.value = cur;
+}
+
+function applyCounselorClientToSide(side, row) {
+  if (!row) return;
+  const nameEl = document.getElementById('p48Name' + side);
+  const dobEl = document.getElementById('p48Dob' + side);
+  const name = ((row.legal_name || row.display_name || '') + '').trim();
+  const birth = row.birth_date ? String(row.birth_date).slice(0, 10) : '';
+  if (nameEl) nameEl.value = name;
+  if (dobEl && birth) {
+    dobEl.value = birth;
+    dobEl.dispatchEvent(new Event('change', { bubbles: true }));
+  }
+}
+
+async function loadCounselorClientPickers() {
+  const wrap1 = document.getElementById('clientPickWrap1');
+  const wrap2 = document.getElementById('clientPickWrap2');
+  if (!wrap1 || !wrap2 || !sbP48 || !COUNSELOR_UID) return;
+  wrap1.classList.add('is-visible');
+  wrap2.classList.add('is-visible');
+
+  const { data, error } = await sbP48
+    .from('counselor_clients')
+    .select('id,display_name,legal_name,birth_date')
+    .eq('counselor_id', COUNSELOR_UID)
+    .order('display_name', { ascending: true });
+
+  COUNSELOR_CLIENT_ROWS = (!error && data) ? data : [];
+  populateCounselorClientSelect(1, (document.getElementById('clientPickSearch1') || {}).value || '');
+  populateCounselorClientSelect(2, (document.getElementById('clientPickSearch2') || {}).value || '');
+
+  [1, 2].forEach((side) => {
+    const sel = document.getElementById('clientPickSelect' + side);
+    const search = document.getElementById('clientPickSearch' + side);
+    if (sel && !sel.dataset.bound) {
+      sel.dataset.bound = '1';
+      sel.addEventListener('change', () => {
+        const id = sel.value;
+        if (!id) return;
+        const row = COUNSELOR_CLIENT_ROWS.find((c) => c.id === id);
+        if (row) applyCounselorClientToSide(side, row);
+      });
+    }
+    if (search && !search.dataset.bound) {
+      search.dataset.bound = '1';
+      search.addEventListener('input', () => populateCounselorClientSelect(side, search.value));
+    }
+  });
+}
+
 (async function () {
   if (window.PaljaProductBootstrap) {
     await PaljaProductBootstrap.bootstrap({ product: 'p48', requireLogin: true });
@@ -450,6 +609,22 @@ PaljaBirthDatePicker.initAll([
       runP48Compat();
     }
   } catch (e) { /* ignore */ }
+
+  try {
+    if (!sbP48) return;
+    const { data: { session } } = await sbP48.auth.getSession();
+    if (!session) return;
+    const { data: profile } = await sbP48
+      .from('profiles')
+      .select('plan, plan_active_until, calendar_pass_until')
+      .eq('id', session.user.id)
+      .single();
+    let hasPro = window.PaljaPlan ? window.PaljaPlan.hasCounselorAccess(profile || {}) : false;
+    if (window.PALJA_DEVICE_LIMIT_HIT) hasPro = false;
+    if (!hasPro) return;
+    COUNSELOR_UID = session.user.id;
+    await loadCounselorClientPickers();
+  } catch (_) { /* ignore */ }
 })();
 </script>
 </body>

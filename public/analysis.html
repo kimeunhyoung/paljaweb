@@ -6198,7 +6198,7 @@ window.NUMEROLOGY_DATA = (() => {
 <script src="js/period48Data.js?v=20261004hy"></script>
 <script src="js/period48Profiles.js?v=20261004hy"></script>
 <script src="js/period48-compat-matrix.js?v=20260521p48"></script>
-<script src="js/period48-engine.js?v=20260521p48"></script>
+<script src="js/period48-engine.js?v=20261005d"></script>
 <script src="js/period48-core.js?v=20260521p48"></script>
 <script src="js/birth-date-picker.js?v=20260610"></script>
 
@@ -8512,9 +8512,10 @@ function buildPeriod48FinalLayout(p) {
   if (profileTheme) {
     block2Parts.push(`<div class="period48-profile-theme">${escapeHtml(profileTheme)}</div>`);
   }
-  if (p.degreeRange || p.dateLabel) {
+  // 2026-10-05: 판정은 날짜표 기준 각도로 통일 — 서로 다른 도수 표기는 숨기고 날짜만 보여 줌
+  if (p.dateLabel) {
     block2Parts.push(
-      `<div class="period48-degree-line">${escapeHtml(p.degreeRange || '')}${p.degreeRange && p.dateLabel ? ' ' : ''}${p.dateLabel ? `(표준 날짜: ${escapeHtml(p.dateLabel)})` : ''}</div>`
+      `<div class="period48-degree-line">날짜: ${escapeHtml(p.dateLabel)} · 해마다 하루 정도 달라질 수 있어요</div>`
     );
   }
   if (p.coreSummary) {
@@ -8707,8 +8708,7 @@ function renderPeriod48(y, m, d) {
 
 function buildPeriod48ExtendedMeta(p) {
   const items = [];
-  if (p.degreeRange) items.push({ label: '황도대 도수', val: p.degreeRange });
-  if (p.dateLabel) items.push({ label: '표준 날짜', val: p.dateLabel });
+  if (p.dateLabel) items.push({ label: '날짜', val: p.dateLabel + ' (해마다 하루 정도 차이)' });
   if (p.developmentStage) items.push({ label: '인간 발달 단계', val: p.developmentStage });
   if (p.tarot) items.push({ label: '타로 카드', val: p.tarot });
   const elVal = period48DisplayElement(p);
