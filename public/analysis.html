@@ -2308,6 +2308,33 @@
       align-items: flex-start;
       margin-bottom: 22px;
     }
+    /* 인생리듬 삼각형 (2026-10-06): 교재 그림처럼 이름·나이·지금 위치 */
+    .pyramid-tri-svg.ptri { width: 400px; max-width: 100%; }
+    .pyramid-top-row .pyramid-tri-col { flex: 0 1 400px; min-width: 0; }
+    .ptri-fill { fill: rgba(46,139,122,.05); stroke: rgba(45,38,28,.08); stroke-width: 1; }
+    .ptri-seg { stroke-width: 8; stroke-linecap: round; }
+    .ptri-seg--active { stroke: rgba(46,139,122,.8); }
+    .ptri-seg--passive { stroke: rgba(192,57,43,.7); }
+    .ptri-seg.is-cur { stroke-width: 11; }
+    .ptri-edge.is-dim .ptri-seg { opacity: .38; }
+    .ptri-tick { stroke: #fff; stroke-width: 1.4; opacity: .9; }
+    .ptri-edge-age { font-size: 12px; font-weight: 600; fill: var(--muted); text-anchor: middle; dominant-baseline: middle; }
+    .ptri-edge-age.is-cur { fill: var(--deep-brown); font-weight: 800; }
+    .ptri-v circle { fill: #fff; stroke: rgba(45,38,28,.3); stroke-width: 1.5; }
+    .ptri-v.is-cur circle { fill: var(--teal); stroke: var(--teal); }
+    .ptri-v-num { font-size: 13px; font-weight: 800; fill: var(--deep-brown); text-anchor: middle; dominant-baseline: central; }
+    .ptri-v.is-cur .ptri-v-num { fill: #fff; }
+    .ptri-v-name { font-size: 13px; font-weight: 700; fill: var(--deep-brown); dominant-baseline: middle; }
+    .ptri-v-age { font-size: 11.5px; font-weight: 500; fill: var(--muted); }
+    .ptri-v.is-cur .ptri-v-name { fill: #1f6e60; }
+    .ptri-now-halo { fill: rgba(46,139,122,.22); }
+    .ptri-now-dot { fill: #fff; stroke: #1f6e60; stroke-width: 3; }
+    .ptri-now-pill { fill: #1f6e60; }
+    .ptri-now-text { font-size: 11.5px; font-weight: 700; fill: #fff; text-anchor: middle; dominant-baseline: central; }
+    .ptri-cycle { font-size: 11.5px; fill: var(--muted); text-anchor: middle; font-weight: 600; }
+    .ptri-restart { fill: none; stroke: rgba(45,38,28,.35); stroke-width: 1.5; stroke-dasharray: 4 4; }
+    .ptri-arrow { fill: rgba(45,38,28,.45); }
+    .ptri-descent { font-size: 11px; fill: var(--muted); text-anchor: middle; dominant-baseline: middle; }
     .pyramid-tri-col { flex: 0 0 auto; }
     .pyramid-status-col { flex: 1; min-width: min(100%, 220px); }
     .pyramid-tri-svg { width: min(100%, 300px); height: auto; display: block; }
@@ -2486,7 +2513,45 @@
     .utg-pyr-s2 { background: rgba(33,150,243,.06); }
     .utg-pyr-s3 { background: rgba(156,39,176,.06); }
     .utg-pyr-s4 { background: rgba(255,152,0,.06); }
-    .utg-foot { font-size: 12px; color: var(--muted); margin-top: 8px; }
+    .utg-foot { font-size: 12px; color: var(--muted); margin-top: 8px; line-height: 1.6; }
+    /* 한눈에 보기 개선 (2026-10-06) */
+    .utg-table td { min-width: 30px; padding: 5px 4px; }
+    .utg-table td.utg-dec, .utg-table th + td.utg-dec { border-left: 2px solid rgba(45,38,28,.35); }
+    .utg-age { font-size: 11.5px; color: var(--muted); }
+    .utg-age-dec { color: var(--deep-brown); font-weight: 800; }
+    .utg-year { font-size: 10.5px; color: var(--muted); }
+    .utg-band { text-align: left !important; padding: 6px 8px !important; font-weight: 700; white-space: nowrap; }
+    .utg-band-in { position: sticky; left: 88px; display: inline-block; }
+    .utg-band-text { color: var(--deep-brown); }
+    .utg-band { overflow: visible; }
+    .utg-band-range { margin-left: 6px; font-size: 10.5px; font-weight: 500; color: var(--muted); }
+    .utg-cur-band { box-shadow: inset 0 0 0 2px var(--teal); }
+    .utg-band.utg-pin { background: rgba(46,139,122,.05); }
+    .utg-band.utg-pin .utg-band-text { color: var(--teal); }
+    .utg-band.utg-ch { background: rgba(139,111,71,.05); }
+    .utg-band.utg-ch .utg-band-text { color: var(--warm-brown); }
+    .utg-pyr-pre { background: rgba(45,38,28,.03); }
+    .utg-rhythm-row td { font-weight: 600; font-size: 11.5px; }
+    .utg-pyr-active { background: rgba(46,139,122,.16) !important; color: #23705f; }
+    .utg-pyr-passive { background: rgba(192,57,43,.11) !important; color: #9b3d30; }
+    .utg-pyr-start { background: rgba(255,152,0,.28) !important; color: #8a4b00; font-weight: 800; }
+    .utg-rh-none { color: var(--muted); }
+    .utg-now { margin: 0 0 14px; padding: 14px 16px; border-radius: 12px; background: #fffdf9; border: 1px solid rgba(168,132,74,.28); }
+    .utg-now-head { font-size: 13px; font-weight: 700; color: var(--deep-brown); margin-bottom: 10px; }
+    .utg-now-head span { margin-left: 6px; font-weight: 500; color: var(--muted); }
+    .utg-now-grid { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 8px; }
+    .utg-now-chip { border-radius: 10px; padding: 9px 10px; border: 1px solid rgba(45,38,28,.08); display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+    .utg-now-chip strong { font-size: 15px; color: var(--deep-brown); }
+    .utg-now-label { font-size: 11px; color: var(--muted); font-weight: 600; }
+    .utg-now-next { font-size: 11px; color: var(--muted); line-height: 1.45; margin-top: 2px; }
+    .utg-legend { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 8px; font-size: 11.5px; color: var(--muted); }
+    .utg-legend span { display: inline-flex; align-items: center; gap: 5px; }
+    .utg-legend i { width: 14px; height: 10px; border-radius: 3px; display: inline-block; }
+    .utg-legend i.utg-cur-swatch { background: rgba(46,139,122,.18); border: 2px solid var(--teal); box-sizing: border-box; }
+    @media (max-width: 700px) {
+      .utg-now-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .utg-now-chip:first-child { grid-column: 1 / -1; }
+    }
 
     .pyramid-cycle-head th {
       text-align: left;
@@ -5894,7 +5959,7 @@ window.NUMEROLOGY_DATA = (() => {
         loshuStrategyWith5:"생일에 <strong>5번</strong>이 있어요. 중심 칸으로, 변화 속에서도 방향을 잡는 축으로 읽는 경우가 많아요. 흔들릴 땐 짧은 루틴이나 한 줄 기록만으로도 중심이 돌아와요.",
         loshuStrategyWithout5:"생일에 <strong>5번</strong>이 없어요. 불리하다는 뜻은 아니에요. 바깥 일정에 끌리기 쉬운 때는 호흡·몸의 리듬·짧은 일기처럼 <strong>고정 루틴 하나</strong>가 큰 도움이 돼요.",
         seqArrowBridgeHtml:"<p><strong>풀 애로우 · 순차 격자</strong>는 1~9를 <strong>3·6·9 / 2·5·8 / 1·4·7</strong> 순으로 배치한 <em>서양식</em> 격자예요. 위의 로슈 마방진과 <strong>칸 위치·화살 줄이 달라요.</strong> 가로·세로·대각 8줄 중 해당 숫자가 <strong>모두 있으면 풀 화살</strong>, <strong>모두 없으면 빈 화살</strong>이에요. 아래 해설은 각 줄의 숫자가 어떻게 이어지는지, 일상에서 어떻게 읽으면 되는지를 덧붙여요.</p>",
-        pyramidBridgeHtml:"<p><strong>인생리듬</strong>은 생년월일 숫자를 바탕으로 만든 <strong>팔자연구소 자체 시각화</strong>예요. 인생여정수는 <strong>생년월일 전체 자릿수 합</strong>을 환원한 수(표기 <strong>11/2</strong>에서는 뒤 숫자)를 사용하며, 네 구간마다 <strong>활동·정비 리듬</strong>이 이어져요. 첫 <strong>36년 순환표</strong> 시작은 <strong>36 − 보정값</strong>(1→10, 2→20, 그 외 숫자 그대로)이고, 각 구간은 9년씩 진행되어 같은 패턴이 <strong>100세</strong>까지 반복돼요.</p>",
+        pyramidBridgeHtml:"<p><strong>인생리듬</strong>은 생년월일 숫자를 바탕으로 만든 <strong>팔자연구소 자체 시각화</strong>예요. 인생여정수는 <strong>생년월일 전체 자릿수 합</strong>을 환원한 수를 쓰고, <strong>11·22</strong>는 마스터 수 그대로 써요. 네 구간마다 <strong>적극기·소극기 리듬</strong>이 이어져요. 첫 <strong>36년 순환표</strong> 시작은 <strong>36 − 보정값</strong>(1→10, 2→20, 11·22를 포함한 그 외 숫자는 그대로)이고, 각 구간은 9년씩 진행되어 같은 패턴이 <strong>100세</strong>까지 반복돼요.</p>",
         seqArrowFootNote:"로슈 격자와 동일하게 출생일 자릿수만 반영해요. 두 격자를 나란히 보면 강점이 다른 각도에서 드러나요."
     };
     const SEQ_ARROW_STRENGTH_RULES = [
@@ -7789,7 +7854,7 @@ function buildReadingGuideCatalogInnerHtml() {
       ${grp('② 인생 흐름')}
       ${lcReadingGuideCatalogRow(lcModuleNav('#nav-major-cycle', '대주기', 'basic'), `인생을 세 번의 큰 주기로 나눠 봐요.`)}
       ${lcReadingGuideCatalogRow(lcModuleNav('#nav-life-four', '인생 4단계', 'basic'), `네 구간의 절정수(환경)와 도전수(과제).`)}
-      ${lcReadingGuideCatalogRow(lcModuleNav('#pyramidRhythmSection', '인생리듬', 'private'), `활동기·정비기가 반복되는 36년 순환표.`)}
+      ${lcReadingGuideCatalogRow(lcModuleNav('#pyramidRhythmSection', '인생리듬', 'private'), `적극기·소극기가 반복되는 36년 순환표.`)}
       ${lcReadingGuideCatalogRow(lcModuleNav('#timelineSection', '10년 타임라인 · 수비학', 'basic'), `앞으로 10년의 개인연도. <strong>Plus</strong> 이상은 100년 표 포함.`)}
       ${lcReadingGuideCatalogRow(lcModuleNav('#tlBlockTarot', '10년 타임라인 · 타로', 'private'), `타로 올해의 수 10년 차트와 100년 표.`)}
       ${lcReadingGuideCatalogRow(lcModuleNav('#monthlySection', '월간 흐름', 'basic'), `올해 열두 달의 개인월수.`)}
@@ -7846,7 +7911,7 @@ function computeCurrentCycleGlance(lp, birthY, curY, mr_r, dr_r, yr_r) {
   };
 }
 
-const PYRAMID_STAGE_LABELS = ['① 1구간', '② 2구간', '③ 3구간', '④ 4구간'];
+const PYRAMID_STAGE_LABELS = ['① 출발기', '② 발전기', '③ 충실기', '④ 완성기'];
 const PYRAMID_STAGE_DESC = [
   '새 출발과 방향을 잡는 시기. 기반과 리듬을 익히는 단계예요.',
   '밖으로 나가 성과와 경험을 키우는 확장기예요.',
@@ -7854,12 +7919,18 @@ const PYRAMID_STAGE_DESC = [
   '정리·완성 후 에너지가 하강하며, 다음 36년 순환표를 준비하는 단계예요.',
 ];
 const PYRAMID_RHYTHM_HINTS = {
-  active: '활동성이 올라가는 구간이에요. 새 시도·관계·일에서 실행력을 내기 좋은 시기예요.',
-  passive: '정비와 점검에 적합한 구간이에요. 속도를 잠시 낮추고 루틴·우선순위를 가다듬으면 다음 활동기에 힘이 붙어요.',
+  active: '적극기예요. 에너지가 바깥으로 뻗어서 새 시도·관계·일에서 실행력을 내기 좋은 시기예요.',
+  passive: '소극기예요. 속도를 잠시 낮추고 점검·정리에 힘쓰면 다음 적극기에 힘이 붙어요.',
 };
 
 const PYRAMID_MAX_AGE = 100;
 const PYRAMID_CYCLE_YEARS = 36;
+
+/** 인생리듬용 인생여정수 — 생년월일 전체 자릿수 합을 환원하되 교재 표대로 11·22는 그대로 둬요 (33은 표에 없어 6으로 봐요) */
+function pyramidRhythmNumber(lpSAlt) {
+  const r = reduceToSingle(Number(lpSAlt) || 0, true);
+  return r === 33 ? 6 : r;
+}
 
 function getPyramidRhythmSubtract(lifePathSingle) {
   if (lifePathSingle === 1) return 10;
@@ -7870,9 +7941,9 @@ function getPyramidRhythmSubtract(lifePathSingle) {
 function buildPyramidStagePeriods(stageStart, maxAge) {
   const raw = [
     { kind: 'active', label: '시작', start: stageStart, end: stageStart },
-    { kind: 'active', label: '활동기 2년', start: stageStart + 1, end: stageStart + 2 },
-    { kind: 'passive', label: '정비기 3년', start: stageStart + 3, end: stageStart + 5 },
-    { kind: 'active', label: '활동기 3년', start: stageStart + 6, end: stageStart + 8 },
+    { kind: 'active', label: '적극기 2년', start: stageStart + 1, end: stageStart + 2 },
+    { kind: 'passive', label: '소극기 3년', start: stageStart + 3, end: stageStart + 5 },
+    { kind: 'active', label: '적극기 3년', start: stageStart + 6, end: stageStart + 8 },
   ];
   return raw
     .map((p) => ({ ...p, start: p.start, end: Math.min(p.end, maxAge) }))
@@ -7952,7 +8023,7 @@ function locatePyramidRhythmPosition(timeline, age) {
       phase: 'after',
       cycle: lastCycle,
       stage: lastStage,
-      message: `${maxAge}세 이후 구간이에요. 표는 <strong>${maxAge}세</strong>까지의 36년 순환표만 펼쳐 두었어요. 그 이후도 같은 활동/정비 리듬이 이어져요.`,
+      message: `${maxAge}세 이후 구간이에요. 표는 <strong>${maxAge}세</strong>까지의 36년 순환표만 펼쳐 두었어요. 그 이후도 같은 적극기·소극기 리듬이 이어져요.`,
     };
   }
   return { phase: 'unknown' };
@@ -7963,9 +8034,9 @@ function formatPyramidAgeRange(start, end) {
 }
 
 const PYRAMID_EDGE_RHYTHM = [
-  { kind: 'active', label: '활동', frac: 1 / 3 },
-  { kind: 'passive', label: '정비', frac: 1 / 3 },
-  { kind: 'active', label: '활동', frac: 1 / 3 },
+  { kind: 'active', label: '적극', frac: 1 / 3 },
+  { kind: 'passive', label: '소극', frac: 1 / 3 },
+  { kind: 'active', label: '적극', frac: 1 / 3 },
 ];
 
 function pyramidRhythmSegmentIndex(period, stageStart) {
@@ -8109,40 +8180,105 @@ function renderPyramidTriangleLegend(pos) {
       const cur = i === curSeg ? ' pyramid-leg--cur' : '';
       return `<span><i class="pyramid-leg--${seg.kind}${cur}"></i>${seg.label}</span>`;
     }).join('')}
-    <span>각 변·하강선 = 활동·정비·활동</span>
+    <span>각 변은 9년 · 눈금 1칸 = 1년 (시작+적극 2년 · 소극 3년 · 적극 3년)</span>
   </div>`;
 }
 
-function renderPyramidTriangleSvg(pos) {
-  const curStageIdx = pos.stage ? pos.stage.index : 0;
-  const { start, develop, faithful, peak } = getPyramidTriangleLayout();
-  const rightOut = pyramidOutwardNormalRight(develop, peak);
-  const faithfulLbl = pyramidOffsetPoint(faithful, rightOut.nx, rightOut.ny, 28);
-  const leftOut = pyramidOutwardNormalLeft(peak, start);
-  const descentMid = pyramidPointOnEdge(peak, start, 0.52);
-  const descentLbl = pyramidOffsetPoint(descentMid, leftOut.nx, leftOut.ny, 14);
-  const verts = [
-    { idx: 0, cx: start.x, cy: start.y, lx: start.x, ly: start.y + 30, name: '1구간', anchor: 'middle' },
-    { idx: 1, cx: develop.x, cy: develop.y, lx: develop.x, ly: develop.y + 30, name: '2구간', anchor: 'middle' },
-    { idx: 2, cx: faithful.x, cy: faithful.y, lx: faithfulLbl.x, ly: faithfulLbl.y, name: '3구간', anchor: 'start', cls: 'pyramid-v-label--out' },
-    { idx: 3, cx: peak.x, cy: peak.y, lx: peak.x, ly: peak.y - 32, name: '4구간', anchor: 'middle', cls: 'pyramid-v-label--out' },
+/** 인생리듬 삼각형 — 교재 「피라밋 리듬표」 그림처럼: 꼭짓점 이름·시작 나이, 변마다 나이, 지금 위치 점 */
+function renderPyramidTriangleSvg(pos, timeline) {
+  const W = 400, H = 330;
+  const A = { x: 96, y: 258 };   // ① 출발기
+  const B = { x: 346, y: 258 };  // ② 발전기
+  const D = { x: 221, y: 56 };   // ④ 완성기
+  const C = { x: (B.x + D.x) / 2, y: (B.y + D.y) / 2 }; // ③ 충실기
+  const G = { x: (A.x + B.x + D.x) / 3, y: (A.y + B.y + D.y) / 3 };
+  const edgesDef = [[A, B], [B, C], [C, D], [D, A]];
+  const cycles = (timeline && timeline.cycles) || [];
+  const cycle = pos.phase === 'in' ? pos.cycle : (pos.phase === 'after' ? cycles[cycles.length - 1] : cycles[0]);
+  const stages = cycle ? cycle.stages : [];
+  const curStageIdx = pos.phase === 'in' ? pos.stage.index : -1;
+  const lerp = (p, q, t) => ({ x: p.x + (q.x - p.x) * t, y: p.y + (q.y - p.y) * t });
+  const r1 = (v) => Math.round(v * 10) / 10;
+  const outward = (m, d) => {
+    const vx = m.x - G.x, vy = m.y - G.y; const L = Math.hypot(vx, vy) || 1;
+    return { x: m.x + vx / L * d, y: m.y + vy / L * d };
+  };
+  const TRIM = 20;
+
+  let edgesSvg = '';
+  edgesDef.forEach(([P, Q], si) => {
+    const L = Math.hypot(Q.x - P.x, Q.y - P.y);
+    const t0 = TRIM / L, t1 = 1 - TRIM / L;
+    const at = (f) => lerp(P, Q, t0 + (t1 - t0) * f);
+    const isCurStage = si === curStageIdx;
+    const dim = curStageIdx >= 0 && !isCurStage;
+    const curSeg = isCurStage ? pyramidRhythmSegmentIndex(pos.period, pos.stage.start) : -1;
+    // 3등분: 시작+적극 2년 / 소극 3년 / 적극 3년
+    const segs = [['active', 0, 3], ['passive', 3, 6], ['active', 6, 9]];
+    edgesSvg += `<g class="ptri-edge${dim ? ' is-dim' : ''}${isCurStage ? ' is-cur' : ''}">`;
+    segs.forEach(([kind, y0, y1], k) => {
+      const a = at(y0 / 9 + (k ? 0.012 : 0)), b = at(y1 / 9 - (k < 2 ? 0.012 : 0));
+      edgesSvg += `<line class="ptri-seg ptri-seg--${kind}${k === curSeg ? ' is-cur' : ''}" x1="${r1(a.x)}" y1="${r1(a.y)}" x2="${r1(b.x)}" y2="${r1(b.y)}"/>`;
+    });
+    // 1년 눈금
+    const nx = -(Q.y - P.y) / L, ny = (Q.x - P.x) / L;
+    for (let yv = 1; yv < 9; yv++) {
+      const m = at(yv / 9);
+      edgesSvg += `<line class="ptri-tick" x1="${r1(m.x - nx * 4)}" y1="${r1(m.y - ny * 4)}" x2="${r1(m.x + nx * 4)}" y2="${r1(m.y + ny * 4)}"/>`;
+    }
+    // 변 나이 라벨
+    const st = stages[si];
+    if (st) {
+      const mid = at(0.5);
+      const lp = outward(mid, si === 0 ? -16 : -26);
+      edgesSvg += `<text class="ptri-edge-age${isCurStage ? ' is-cur' : ''}" x="${r1(lp.x)}" y="${r1(lp.y)}">${st.start}~${st.end}세</text>`;
+    }
+    edgesSvg += '</g>';
+  });
+
+  // 꼭짓점: 번호 + 이름 + 시작 나이
+  const names = ['출발기', '발전기', '충실기', '완성기'];
+  const vPos = [A, B, C, D];
+  const vLbl = [
+    { x: A.x - 4, y: A.y + 32, anchor: 'middle' },
+    { x: B.x + 4, y: B.y + 32, anchor: 'middle' },
+    { x: C.x + 24, y: C.y - 4, anchor: 'start' },
+    { x: D.x, y: D.y - 30, anchor: 'middle' },
   ];
-  const edges = renderPyramidEdgeRhythm(start.x, start.y, develop.x, develop.y, 0, pos)
-    + renderPyramidEdgeRhythm(develop.x, develop.y, faithful.x, faithful.y, 1, pos)
-    + renderPyramidEdgeRhythm(faithful.x, faithful.y, peak.x, peak.y, 2, pos)
-    + renderPyramidEdgeRhythm(peak.x, peak.y, start.x, start.y, 3, pos);
-  const vNodes = verts.map((v) => {
-    const cur = v.idx === curStageIdx ? ' is-current' : '';
-    const labelCls = `pyramid-v-label${v.cls ? ` ${v.cls}` : ''}`;
-    return `<g class="pyramid-v${cur}"><circle cx="${v.cx}" cy="${v.cy}" r="16"/><text x="${v.cx}" y="${v.cy}">${v.idx + 1}</text><text class="${labelCls}" x="${v.lx}" y="${v.ly}" text-anchor="${v.anchor}">${v.name}</text></g>`;
-  }).join('');
+  let vertsSvg = '';
+  vPos.forEach((v, i) => {
+    const st = stages[i];
+    const cur = i === curStageIdx ? ' is-cur' : '';
+    const l = vLbl[i];
+    vertsSvg += `<g class="ptri-v${cur}"><circle cx="${r1(v.x)}" cy="${r1(v.y)}" r="15"/><text class="ptri-v-num" x="${r1(v.x)}" y="${r1(v.y)}">${i + 1}</text>`
+      + `<text class="ptri-v-name" x="${r1(l.x)}" y="${r1(l.y)}" text-anchor="${l.anchor}">${names[i]}${st ? `<tspan class="ptri-v-age" dx="4">${st.start}세</tspan>` : ''}</text></g>`;
+  });
+
+  // 지금 위치 점
+  let nowSvg = '';
+  if (pos.phase === 'in' && typeof pos.age === 'number') {
+    const [P, Q] = edgesDef[pos.stage.index];
+    const L = Math.hypot(Q.x - P.x, Q.y - P.y);
+    const t0 = TRIM / L, t1 = 1 - TRIM / L;
+    const f = Math.min(1, Math.max(0, (pos.age - pos.stage.start + 0.5) / 9));
+    const m = lerp(P, Q, t0 + (t1 - t0) * f);
+    const lab = outward(m, 32);
+    nowSvg = `<g class="ptri-now"><circle class="ptri-now-halo" cx="${r1(m.x)}" cy="${r1(m.y)}" r="12"/><circle class="ptri-now-dot" cx="${r1(m.x)}" cy="${r1(m.y)}" r="6.5"/>`
+      + `<rect class="ptri-now-pill" x="${r1(lab.x - 34)}" y="${r1(lab.y - 11)}" width="68" height="22" rx="11"/>`
+      + `<text class="ptri-now-text" x="${r1(lab.x)}" y="${r1(lab.y)}">지금 ${pos.age}세</text></g>`;
+  }
+
+  const cycleTxt = cycle ? `${cycle.cycleNum}차 순환 · ${cycle.cycleStart}~${cycle.cycleEnd}세` : '';
   return `<div class="pyramid-tri-wrap">
-    <svg viewBox="0 -14 300 262" class="pyramid-tri-svg" role="img" aria-label="인생리듬 4단계와 각 변의 활동·정비 리듬">
-      <polygon points="${peak.x},${peak.y} ${develop.x},${develop.y} ${start.x},${start.y}" fill="rgba(46,139,122,.04)" stroke="none"/>
-      ${edges}
-      <text class="pyramid-descent-label" x="${descentLbl.x}" y="${descentLbl.y}">하강</text>
-      <text class="pyramid-restart-label" x="${start.x}" y="${start.y + 44}">재출발 →</text>
-      ${vNodes}
+    <svg viewBox="0 0 ${W} ${H}" class="pyramid-tri-svg ptri" role="img" aria-label="인생리듬 삼각형: 출발기·발전기·충실기·완성기와 적극기·소극기 리듬">
+      <polygon points="${A.x},${A.y} ${B.x},${B.y} ${D.x},${D.y}" class="ptri-fill"/>
+      <path class="ptri-restart" d="M ${D.x - 24} ${D.y + 4} Q ${A.x - 44} ${(A.y + D.y) / 2 - 10} ${A.x - 16} ${A.y - 8}" marker-end="url(#ptriArrow)"/>
+      <defs><marker id="ptriArrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="ptri-arrow"/></marker></defs>
+      <text class="ptri-descent" x="${A.x - 62}" y="${(A.y + D.y) / 2}"><tspan x="${A.x - 62}" dy="-7">하강</tspan><tspan x="${A.x - 62}" dy="15">재출발</tspan></text>
+      ${edgesSvg}
+      ${cycleTxt ? `<text class="ptri-cycle" x="${W / 2}" y="${H - 6}">${cycleTxt}</text>` : ''}
+      ${vertsSvg}
+      ${nowSvg}
     </svg>
     ${renderPyramidTriangleLegend(pos)}
     ${renderPyramidStageZoomBar(pos)}
@@ -8159,7 +8295,7 @@ function renderPyramidRhythmHTML(lifePathSingle, userAge) {
   let nowHtml = '';
   if (pos.phase === 'in') {
     const badgeCls = pos.period.kind === 'passive' ? 'pyramid-rhythm-badge--passive' : 'pyramid-rhythm-badge--active';
-    const badgeTxt = pos.period.kind === 'passive' ? '정비기' : '활동기';
+    const badgeTxt = pos.period.kind === 'passive' ? '소극기' : '적극기';
     const cycleLabel = pos.cycle.cycleNum > 1 ? `<span class="pyramid-rhythm-badge pyramid-rhythm-badge--active">${pos.cycle.cycleNum}차 36년 순환표</span>` : '';
     nowHtml = `<div class="pyramid-now-card">
       <div class="pyramid-now-kicker">지금 이 순간</div>
@@ -8193,7 +8329,7 @@ function renderPyramidRhythmHTML(lifePathSingle, userAge) {
   return `<div class="pyramid-wrap">
     <div class="pyramid-board">
       <div class="pyramid-top-row">
-        <div class="pyramid-tri-col">${renderPyramidTriangleSvg(pos)}</div>
+        <div class="pyramid-tri-col">${renderPyramidTriangleSvg(pos, timeline)}</div>
         <div class="pyramid-status-col">
           <p class="loshu-snapshot" style="margin-bottom:12px">전체 자릿수 합 인생여정수 <strong>${lifePathSingle}</strong>번 · 첫 36년 순환표 시작 <strong>${s1}세</strong> (${formulaNote}) · 올해 <strong>${userAge}세</strong>가 되는 해 · 표 기준 <strong>${maxAge}세</strong>까지 36년 순환표 <strong>${cycles.length}</strong>회</p>
           ${nowHtml}
@@ -8201,13 +8337,13 @@ function renderPyramidRhythmHTML(lifePathSingle, userAge) {
       </div>
       <div class="pyramid-table-wrap">
         <table class="pyramid-table">
-          <thead><tr><th class="pyramid-stage-head">단계</th><th>시작</th><th>활동 2년</th><th>정비 3년</th><th>활동 3년</th></tr></thead>
+          <thead><tr><th class="pyramid-stage-head">단계</th><th>시작</th><th>적극 2년</th><th>소극 3년</th><th>적극 3년</th></tr></thead>
           <tbody>${tableRows}</tbody>
         </table>
       </div>
       <div class="pyramid-foot">
-        <p style="margin:0 0 8px">네 구간 한 바퀴(①→②→③→④)가 <strong>36년 순환표</strong> 하나예요. 마지막 구간 뒤 하강·재출발로 같은 활동/정비 리듬이 반복되며, 이 표는 <strong>${maxAge}세</strong>까지 펼쳤어요.</p>
-        <p style="margin:0">인생리듬은 인생여정수 <strong>전체 자릿수 합</strong>(11/2 표기의 <strong>뒤 숫자</strong>) 기준이에요. 대주기·절정수와 계산 방식이 달라요.</p>
+        <p style="margin:0 0 8px">네 구간 한 바퀴(①→②→③→④)가 <strong>36년 순환표</strong> 하나예요. 마지막 구간 뒤 하강·재출발로 같은 적극기·소극기 리듬이 반복되며, 이 표는 <strong>${maxAge}세</strong>까지 펼쳤어요.</p>
+        <p style="margin:0">인생리듬은 생년월일 <strong>전체 자릿수 합</strong>으로 구한 인생여정수 기준이에요. 교재 표대로 <strong>11·22는 줄이지 않고</strong> 그대로 써요(11 → 25세, 22 → 14세 시작). 대주기·절정수와 계산 방식이 달라요.</p>
       </div>
     </div>
   </div>`;
@@ -9622,7 +9758,7 @@ async function runAnalysis() {
   // ── 11. 인생리듬 (Private 전용) ──
   const userAgePyramid = curY - y;
   if (hasSpecialAccess()) {
-    document.getElementById('pyramidRhythmContent').innerHTML = renderPyramidRhythmHTML(lpAlt, userAgePyramid);
+    document.getElementById('pyramidRhythmContent').innerHTML = renderPyramidRhythmHTML(pyramidRhythmNumber(lpSAlt), userAgePyramid);
     if (pyramidBridgeHost) {
       pyramidBridgeHost.innerHTML = (INTERPRETATION_TEXTS && INTERPRETATION_TEXTS.pyramidBridgeHtml) || '';
     }
@@ -9630,7 +9766,7 @@ async function runAnalysis() {
     document.getElementById('pyramidRhythmContent').innerHTML = gateHTML(
       'private',
       '인생리듬',
-      '인생여정수 기준 네 구간·활동/정비 리듬과 36년 순환표를 시각화해요.',
+      '인생여정수 기준 네 구간·적극기/소극기 리듬과 36년 순환표를 시각화해요.',
     );
     if (pyramidBridgeHost) pyramidBridgeHost.innerHTML = '';
   }
@@ -9642,86 +9778,144 @@ async function runAnalysis() {
   if (hasSpecialAccess()) {
     const utgHost = document.getElementById('unifiedTimelineGrid');
     if (utgHost) {
-      const pyramidTL = buildPyramidRhythmTimeline(lpAlt);
-      const utgMaxAge = 79;
-      const PYR_STAGE_NAMES = ['1구간', '2구간', '3구간', '4구간'];
+      const pyramidTL = buildPyramidRhythmTimeline(pyramidRhythmNumber(lpSAlt));
+      const utgMaxAge = 100;
+      const PYR_STAGE_NAMES = ['출발기', '발전기', '충실기', '완성기'];
+
+      // 나이별 값을 먼저 모은 뒤, 같은 값이 이어지는 칸은 하나로 합쳐서 보여 줘요
+      const rows = [];
+      for (let age = 0; age <= utgMaxAge; age++) {
+        let major, majorCls;
+        if (age <= age1) { major = `1대주기 · ${mr_r}`; majorCls = 'utg-major1'; }
+        else if (age <= age1 + 27) { major = `2대주기 · ${dr_r}`; majorCls = 'utg-major2'; }
+        else { major = `3대주기 · ${yr_r}`; majorCls = 'utg-major3'; }
+
+        let stage = '준비', stageCls = 'utg-pyr-pre', rhythm = '—', rhythmCls = 'utg-rh-none', stageKey = 'pre';
+        if (age >= pyramidTL.s1) {
+          stage = '—'; stageKey = 'none';
+          outer: for (let ci = 0; ci < pyramidTL.cycles.length; ci++) {
+            for (const st of pyramidTL.cycles[ci].stages) {
+              if (age >= st.start && age <= st.end) {
+                stage = PYR_STAGE_NAMES[st.index] || '';
+                stageCls = `utg-pyr-s${st.index + 1}`;
+                stageKey = `${ci}-${st.index}`;
+                const offset = age - st.start;
+                if (offset === 0) { rhythm = '시작'; rhythmCls = 'utg-pyr-start'; }
+                else if (offset <= 2) { rhythm = '적극'; rhythmCls = 'utg-pyr-active'; }
+                else if (offset <= 5) { rhythm = '소극'; rhythmCls = 'utg-pyr-passive'; }
+                else { rhythm = '적극'; rhythmCls = 'utg-pyr-active'; }
+                break outer;
+              }
+            }
+          }
+        }
+
+        let pn, cn, pk;
+        if (age <= age1) { pn = pin1; cn = ch1; pk = 1; }
+        else if (age <= age1 + 9) { pn = pin2; cn = ch2; pk = 2; }
+        else if (age <= age1 + 18) { pn = reduceToSingle(pin1 + pin2); cn = ch3; pk = 3; }
+        else { pn = pin4; cn = ch4; pk = 4; }
+
+        rows.push({ age, year: y + age, major, majorCls, stage, stageCls, stageKey, rhythm, rhythmCls, pn, cn, pk });
+      }
+
+      const curIdx = Math.max(0, Math.min(rows.length - 1, userAge));
+      const decCls = (age) => (age > 0 && age % 10 === 0 ? ' utg-dec' : '');
+
+      // 같은 값이 이어지는 구간을 colspan 한 칸으로
+      function mergedRow(label, keyFn, textFn, clsFn) {
+        let html = `<th class="utg-row-label">${label}</th>`;
+        let i = 0;
+        while (i < rows.length) {
+          const k = keyFn(rows[i]);
+          let j = i;
+          while (j + 1 < rows.length && keyFn(rows[j + 1]) === k) j++;
+          const span = j - i + 1;
+          const hasCur = curIdx >= i && curIdx <= j;
+          const range = i === j ? `${rows[i].age}세` : `${rows[i].age}~${rows[j].age}세`;
+          html += `<td colspan="${span}" class="utg-band ${clsFn(rows[i])}${hasCur ? ' utg-cur-band' : ''}${decCls(rows[i].age)}" title="${range}">`
+            + `<span class="utg-band-in"><span class="utg-band-text">${textFn(rows[i])}</span>${span >= 3 ? `<span class="utg-band-range">${range}</span>` : ''}</span></td>`;
+          i = j + 1;
+        }
+        return html;
+      }
 
       let headerRow = '<th class="utg-row-label">나이</th>';
       let yearRow = '<th class="utg-row-label">연도</th>';
-      let majorRow = '<th class="utg-row-label">대주기</th>';
-      let pyrStageRow = '<th class="utg-row-label">피라미드</th>';
-      let pyrRhythmRow = '<th class="utg-row-label">리듬</th>';
-      let pinRow = '<th class="utg-row-label">절정수</th>';
-      let chalRow = '<th class="utg-row-label">도전수</th>';
+      let rhythmRow = '<th class="utg-row-label">리듬</th>';
+      rows.forEach((r, i) => {
+        const cur = i === curIdx ? ' utg-cur' : '';
+        const dec = decCls(r.age);
+        headerRow += `<td class="utg-age${cur}${dec}${r.age % 10 === 0 ? ' utg-age-dec' : ''}">${r.age}</td>`;
+        yearRow += `<td class="utg-year${cur}${dec}">${String(r.year).slice(2)}</td>`;
+        rhythmRow += `<td class="${r.rhythmCls}${cur}${dec}">${r.rhythm}</td>`;
+      });
+      const majorRow = mergedRow('대주기', (r) => r.major, (r) => r.major, (r) => r.majorCls);
+      const stageRow = mergedRow('피라미드', (r) => r.stageKey, (r) => r.stage, (r) => r.stageCls);
+      const pinRow = mergedRow('절정수', (r) => r.pk, (r) => `절정수 ${r.pn}`, () => 'utg-pin');
+      const chalRow = mergedRow('도전수', (r) => r.pk, (r) => `도전수 ${r.cn}`, () => 'utg-ch');
 
-      for (let age = 0; age <= utgMaxAge; age++) {
-        const isCur = age === userAge;
-        const cur = isCur ? ' utg-cur' : '';
-        headerRow += `<td class="${cur}">${age}</td>`;
-        yearRow += `<td class="${cur}">${y + age}</td>`;
-
-        // 대주기
-        let mCls = '', mLabel = '';
-        if (age <= age1) { mCls = ' utg-major1'; mLabel = `1(${mr_r})`; }
-        else if (age <= age1 + 27) { mCls = ' utg-major2'; mLabel = `2(${dr_r})`; }
-        else { mCls = ' utg-major3'; mLabel = `3(${yr_r})`; }
-        majorRow += `<td class="${mCls}${cur}">${mLabel}</td>`;
-
-        // 피라미드 구간 + 리듬
-        let stageName = '', rhythmLabel = '', pyrCls = '', stgCls = '';
-        if (age < pyramidTL.s1) {
-          stageName = '준비';
-          rhythmLabel = '—';
-        } else {
-          let found = false;
-          for (const cyc of pyramidTL.cycles) {
-            for (const st of cyc.stages) {
-              if (age >= st.start && age <= st.end) {
-                stageName = PYR_STAGE_NAMES[st.index] || '';
-                stgCls = ` utg-pyr-s${st.index + 1}`;
-                const offset = age - st.start;
-                if (offset === 0) { pyrCls = ' utg-pyr-start'; rhythmLabel = '시작'; }
-                else if (offset <= 2) { pyrCls = ' utg-pyr-active'; rhythmLabel = '활동'; }
-                else if (offset <= 5) { pyrCls = ' utg-pyr-passive'; rhythmLabel = '정비'; }
-                else { pyrCls = ' utg-pyr-active'; rhythmLabel = '활동'; }
-                found = true; break;
-              }
-            }
-            if (found) break;
-          }
-          if (!found) { stageName = '—'; rhythmLabel = '—'; }
+      // 올해 한눈에 + 다음에 바뀌는 해
+      const now = rows[curIdx];
+      function nextChange(keyFn) {
+        const k = keyFn(now);
+        for (let i = curIdx + 1; i < rows.length; i++) {
+          if (keyFn(rows[i]) !== k) return rows[i];
         }
-        pyrStageRow += `<td class="${stgCls}${cur}">${stageName}</td>`;
-        pyrRhythmRow += `<td class="${pyrCls}${cur}">${rhythmLabel}</td>`;
-
-        // 절정수/도전수
-        let pn = '', cn = '';
-        if (age <= age1) { pn = pin1; cn = ch1; }
-        else if (age <= age1 + 9) { pn = pin2; cn = ch2; }
-        else if (age <= age1 + 18) { pn = reduceToSingle(pin1 + pin2); cn = ch3; }
-        else { pn = pin4; cn = ch4; }
-        pinRow += `<td class="utg-pin${cur}">${pn}</td>`;
-        chalRow += `<td class="utg-ch${cur}">${cn}</td>`;
+        return null;
       }
+      function nowChip(label, value, cls, keyFn, nextText) {
+        const nx = nextChange(keyFn);
+        const nxHtml = nx ? `<span class="utg-now-next">${nx.year}년(${nx.age}세)부터 ${nextText(nx)}</span>` : '';
+        return `<div class="utg-now-chip ${cls}"><span class="utg-now-label">${label}</span><strong>${value}</strong>${nxHtml}</div>`;
+      }
+      const nowHtml = `
+        <div class="utg-now">
+          <div class="utg-now-head">올해 한눈에 보기 <span>${now.year}년 · ${now.age}세</span></div>
+          <div class="utg-now-grid">
+            ${nowChip('대주기', now.major, now.majorCls, (r) => r.major, (n) => n.major)}
+            ${nowChip('피라미드', now.stage, now.stageCls, (r) => r.stageKey, (n) => n.stage)}
+            ${nowChip('리듬', now.rhythm, now.rhythmCls, (r) => r.rhythm, (n) => n.rhythm)}
+            ${nowChip('절정수', now.pn, 'utg-pin', (r) => r.pk, (n) => `절정수 ${n.pn}`)}
+            ${nowChip('도전수', now.cn, 'utg-ch', (r) => r.pk, (n) => `도전수 ${n.cn}`)}
+          </div>
+        </div>`;
 
       utgHost.innerHTML = `
         <div class="utg-wrap">
           <div class="utg-title">통합 타임라인 격자표</div>
+          ${nowHtml}
           <div class="utg-scroll">
             <table class="utg-table">
               <thead><tr>${headerRow}</tr></thead>
               <tbody>
                 <tr>${yearRow}</tr>
                 <tr>${majorRow}</tr>
-                <tr>${pyrStageRow}</tr>
-                <tr>${pyrRhythmRow}</tr>
+                <tr>${stageRow}</tr>
+                <tr class="utg-rhythm-row">${rhythmRow}</tr>
                 <tr>${pinRow}</tr>
                 <tr>${chalRow}</tr>
               </tbody>
             </table>
           </div>
-          <p class="utg-foot">가로 스크롤로 전체 나이를 탐색하세요. 올해 나이(${userAge}세가 되는 해)는 강조 표시돼요.</p>
+          <div class="utg-legend">
+            <span><i class="utg-pyr-start"></i>시작</span>
+            <span><i class="utg-pyr-active"></i>적극기</span>
+            <span><i class="utg-pyr-passive"></i>소극기</span>
+            <span><i class="utg-cur-swatch"></i>올해</span>
+          </div>
+          <p class="utg-foot">같은 값이 이어지는 기간은 한 칸으로 묶었어요. 연도는 뒤 두 자리만 적었고, 10살 단위마다 굵은 선이 있어요. 표는 올해 위치로 자동으로 맞춰져요.</p>
         </div>`;
+
+      // 올해 칸이 화면 가운데 오도록 스크롤
+      requestAnimationFrame(() => {
+        const sc = utgHost.querySelector('.utg-scroll');
+        const curCell = utgHost.querySelector('thead .utg-cur');
+        if (sc && curCell) {
+          const labelW = (utgHost.querySelector('.utg-row-label') || {}).offsetWidth || 0;
+          sc.scrollLeft = Math.max(0, curCell.offsetLeft - labelW - (sc.clientWidth - labelW) / 2 + curCell.offsetWidth / 2);
+        }
+      });
     }
   }
 

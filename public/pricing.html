@@ -905,6 +905,13 @@
     .compare-table td { font-size: 13px; }
     .compare-table td:first-child { font-size: 13px; color: var(--ink); }
     .category-row td { font-family: var(--font-body); font-size: 12.5px; letter-spacing: .02em; font-weight: 700; color: var(--deep-brown); text-transform: none; }
+    .plan-upsell { margin: 14px 0 0; padding: 12px 14px; border-radius: 10px; background: var(--parchment, #ede5d4); font-size: 12.5px; line-height: 1.65; color: var(--muted); word-break: keep-all; }
+    .plan-upsell strong { color: var(--deep-brown); margin-right: 4px; }
+    .plan-card.featured .plan-upsell { background: rgba(245,240,232,.08); color: rgba(245,240,232,.7); }
+    .plan-card.featured .plan-upsell strong { color: #e8c77a; }
+    .plan-card .feature-list { flex: 0 0 auto; margin-bottom: 20px; }
+    .plan-card .plan-upsell { margin: -6px 0 20px; }
+    .plan-card > :last-child { margin-top: auto; }
   </style>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css" crossorigin />
   <link rel="stylesheet" href="css/site-topbar.css?v=21" />
@@ -945,20 +952,9 @@
         <li><div class="feature-check">✓</div><span>핵심 수 숫자 카드 전체</span></li>
         <li><div class="feature-check">✓</div><span><strong>인생여정수 해설 무료 공개</strong></span></li>
         <li><div class="feature-check">✓</div><span>타로코드 · 카드 뽑기</span></li>
-        <li class="no"><div class="feature-x">×</div><span>타로코드 AI 리딩 (Basic 크레딧)</span></li>
         <li><div class="feature-check">✓</div><span>점성학 출생 차트 · 빅3 · 행성 해석</span></li>
-        <li class="no"><div class="feature-x">×</div><span>점성학 어스펙트 해설 · 트랜짓 · 커플 · AI</span></li>
-        <li class="no"><div class="feature-x">×</div><span>수비학 달력 · AI 운세</span></li>
-        <li class="no"><div class="feature-x">×</div><span><strong>AI 해석 · 월 크레딧 (Basic부터)</strong></span></li>
-        <li class="no"><div class="feature-x">×</div><span>나머지 숫자 해설 · 통합 스토리</span></li>
-        <li class="no"><div class="feature-x">×</div><span>현재 흐름 · 7일 · 월간 흐름</span></li>
-        <li class="no"><div class="feature-x">×</div><span>스토리 · 별자리 상세 · 48주기</span></li>
-        <li class="no"><div class="feature-x">×</div><span>대주기 · 인생 4단계</span></li>
-        <li class="no"><div class="feature-x">×</div><span>10년 차트 · 인생전반표</span></li>
-        <li class="no"><div class="feature-x">×</div><span>월간 흐름 분석</span></li>
-        <li class="no"><div class="feature-x">×</div><span>Growth Map</span></li>
-        <li class="no"><div class="feature-x">×</div><span>PDF 저장</span></li>
       </ul>
+      <div class="plan-upsell"><strong>Basic부터</strong> AI 해석 · 나머지 숫자 해설 · 현재·월간·7일 흐름 · 별자리 상세 · 48주기 · 대주기 · 10년 차트 · 트랜짓·커플 · 수비학 달력 · 타로코드 AI</div>
       <a href="analysis.html" class="plan-btn plan-btn-outline">무료로 시작</a>
     </div>
 
@@ -976,9 +972,6 @@
         <li><div class="feature-check">✓</div><span>월간 흐름 12개월</span></li>
         <li><div class="feature-check">✓</div><span>향후 7일 에너지 흐름</span></li>
         <li><div class="feature-check">✓</div><span>10년 차트 (수비학)</span></li>
-        <li class="no"><div class="feature-x">×</div><span>타로 10년·100년 타임라인</span></li>
-        <li class="no"><div class="feature-x">×</div><span>인생리듬</span></li>
-        <li class="no"><div class="feature-x">×</div><span>에너지 배경</span></li>
         <li><div class="feature-check">✓</div><span>대주기 · 인생 4단계</span></li>
         <li><div class="feature-check">✓</div><span>수비학 달력 · AI 이번 달 흐름</span></li>
         <li><div class="feature-check">✓</div><span><strong>점성학 심화</strong> (트랜짓·커플 차트)</span></li>
@@ -986,10 +979,8 @@
         <li><div class="feature-check">✓</div><span>타로코드 AI 리딩 (공용 크레딧)</span></li>
         <li><div class="feature-check">✓</div><span><strong>소울하모니 · 48궁합</strong></span></li>
         <li><div class="feature-check">✓</div><span>월 AI 크레딧 <strong>10회</strong></span></li>
-        <li class="no"><div class="feature-x">×</div><span>네임코드 · AI 이름 추천</span></li>
-        <li class="no"><div class="feature-x">×</div><span>인생전반표 · Growth Map</span></li>
-        <li class="no"><div class="feature-x">×</div><span>로슈 격자 · PDF 저장</span></li>
       </ul>
+      <div class="plan-upsell"><strong>Plus부터</strong> 네임코드 · AI 이름 추천 · 인생전반표 · Growth Map · 로슈 격자 · PDF 저장</div>
       <button class="plan-btn plan-btn-cream" onclick="handleSubscribe('basic')">시작하기</button>
     </div>
 
@@ -1005,9 +996,6 @@
         <li><div class="feature-check">✓</div><span>Basic 모든 기능</span></li>
         <li><div class="feature-check">✓</div><span>네임코드 · AI 이름 추천</span></li>
         <li><div class="feature-check">✓</div><span>인생전반표 (수비학 0~100세)</span></li>
-        <li class="no"><div class="feature-x">×</div><span>타로 10년·100년 타임라인</span></li>
-        <li class="no"><div class="feature-x">×</div><span>인생리듬</span></li>
-        <li class="no"><div class="feature-x">×</div><span>에너지 배경</span></li>
         <li><div class="feature-check">✓</div><span>Growth Map · 성장 지도</span></li>
         <li><div class="feature-check">✓</div><span>로슈 격자 · 순차 격자 심층 분석</span></li>
         <li><div class="feature-check">✓</div><span>PDF 저장 · 공유</span></li>
@@ -1036,9 +1024,6 @@
         <li><div class="feature-check">✓</div><span>상담소 이름·로고를 넣은 고객용 리포트 PDF</span></li>
         <li><div class="feature-check">✓</div><span>상담 준비 요약 카드 · 고객 간 궁합</span></li>
         <li><div class="feature-check">✓</div><span>고객·상담 기록 CSV 내보내기(백업)</span></li>
-        <li class="no"><div class="feature-x">×</div><span>타로 10년·100년 타임라인</span></li>
-        <li class="no"><div class="feature-x">×</div><span>인생리듬</span></li>
-        <li class="no"><div class="feature-x">×</div><span>에너지 배경</span></li>
         <li><div class="feature-check">✓</div><span>월 AI 크레딧 <strong>120회</strong></span></li>
       </ul>
       <div class="professional-actions">
@@ -1056,10 +1041,11 @@
       <ul class="feature-list">
         <li><div class="feature-check">✓</div><span>Professional 모든 기능</span></li>
         <li><div class="feature-check">✓</div><span>타로 10년·100년 타임라인</span></li>
-        <li><div class="feature-check">✓</div><span>인생리듬 (활동/정비 · 36년 순환표)</span></li>
+        <li><div class="feature-check">✓</div><span>인생리듬 (적극기/소극기 · 36년 순환표)</span></li>
         <li><div class="feature-check">✓</div><span>에너지 배경 (수비학 폰·스토리 PNG)</span></li>
         <li><div class="feature-check">✓</div><span>월 AI 크레딧 <strong>10회</strong></span></li>
       </ul>
+      <a href="https://pf.kakao.com/_HXxmwX/chat" target="_blank" rel="noopener noreferrer" class="plan-btn plan-btn-outline">카카오톡으로 문의</a>
     </div>
 
   </div>
@@ -1216,7 +1202,7 @@
         <td><span class="check">✓</span></td>
       </tr>
       <tr>
-        <td>인생리듬 (활동/정비 · 36년 순환표)</td>
+        <td>인생리듬 (적극기/소극기 · 36년 순환표)</td>
         <td><span class="cross">—</span></td>
         <td class="featured-col"><span class="cross">—</span></td>
         <td><span class="cross">—</span></td>
