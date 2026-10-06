@@ -175,7 +175,7 @@
       color: var(--deep-brown);
       line-height: 1.2;
     }
-    .greeting-main em { font-style: italic; color: var(--warm-brown); }
+    .greeting-main em { font-style: normal; color: var(--warm-brown); }
 
     @keyframes fadeUp {
       from { opacity: 0; transform: translateY(12px); }
@@ -372,6 +372,7 @@
       display: grid;
       grid-template-columns: 1fr 320px;
       gap: 24px;
+      align-items: start;
       opacity: 0;
       animation: fadeUp .6s ease .55s forwards;
     }
@@ -717,6 +718,10 @@
       .service-hero { padding: 28px 24px; }
       .stat { padding: 18px 12px; }
       .stat-value { font-size: 26px; }
+      .profile-edit-field { flex: 1 1 100%; }
+      .profile-edit-input, #profile_birth { min-width: 0 !important; width: 100%; box-sizing: border-box; }
+      .profile-edit-actions { flex: 1 1 100%; }
+      .profile-edit-actions button { flex: 1; }
     }
 
   </style>
@@ -834,7 +839,6 @@
         </div>
       </details>
       <a href="counselor.html">상담사 허브</a>
-      <a href="pricing.html">요금제</a>
     </div>
   </nav>
   </header>
