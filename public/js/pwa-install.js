@@ -45,8 +45,9 @@
       (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
   }
 
-  function isAndroid() {
-    return /Android/i.test(navigator.userAgent || '');
+  /** 카카오톡·네이버·인스타그램 등 앱 안 브라우저 — 홈 화면 추가가 안 돼요 */
+  function isInAppBrowser() {
+    return /KAKAOTALK|NAVER\(inapp|NAVER|Instagram|FBAN|FBAV|Line\/|DaumApps|everytimeApp|BAND\//i.test(navigator.userAgent || '');
   }
 
   function isDismissed() {
@@ -95,6 +96,9 @@
       '#pwaInstallBar .pwa-kicker{display:block;font-size:11px;font-weight:700;letter-spacing:.04em;' +
       'color:#9b7b6a;margin-bottom:2px}' +
       '#pwaInstallBar .pwa-title{display:block;font-size:14px;font-weight:700;color:#3d2b1f;line-height:1.3}' +
+      '#pwaInstallBar .pwa-sub{display:block;font-size:12px;color:#7a6452;line-height:1.4;margin-top:2px}' +
+      '#pwaInstallSheet .pwa-sheet-note{font-size:12.5px;color:#8a7262;margin:-4px 0 14px}' +
+      '#pwaInstallSheet ol li{margin-bottom:6px}' +
       '#pwaInstallBarBtn{flex:0 0 auto;border:0;cursor:pointer;background:#c4603a;color:#fff;' +
       'font-weight:700;font-size:13px;border-radius:999px;padding:10px 14px;line-height:1;font-family:inherit}' +
       '#pwaInstallBarBtn:disabled{opacity:.55;cursor:wait}' +
@@ -108,6 +112,7 @@
       '.topbar-install-btn:hover{background:rgba(196,96,58,.16)}' +
       '.topbar-install-btn:disabled{opacity:.55;cursor:wait}' +
       '@media (max-width:820px){.topbar-install-btn{display:inline-flex}}' +
+      '.topbar-install-btn[hidden]{display:none!important}' +
       '#pwaInstallSheet{position:fixed;inset:0;z-index:2147483001;display:flex;align-items:flex-end;' +
       'justify-content:center;background:rgba(44,31,14,.42);padding:16px;box-sizing:border-box}' +
       '#pwaInstallSheet[hidden]{display:none!important}' +
@@ -131,6 +136,8 @@
   function removeBar() {
     var bar = document.getElementById('pwaInstallBar');
     if (bar) bar.remove();
+    // 아래 바를 닫으면 상단 '앱 설치' 버튼만 남겨요
+    injectTopbarBtn();
   }
 
   function closeSheet() {
@@ -140,43 +147,17 @@
 
   function syncButtonLabels() {
     var barBtn = document.getElementById('pwaInstallBarBtn');
-    var barTitle = document.querySelector('#pwaInstallBar .pwa-title');
     var topBtn = document.querySelector('.topbar-install-btn');
-
-    if (isIos()) {
-      if (barBtn) {
-        barBtn.disabled = false;
-        barBtn.textContent = '홈 화면 추가';
-      }
-      if (barTitle) barTitle.textContent = '홈 화면에 추가';
-      if (topBtn) {
-        topBtn.disabled = false;
-        topBtn.innerHTML = '<span aria-hidden="true">⬇</span><span>홈 추가</span>';
-      }
-      return;
-    }
-
-    if (promptReady && deferredPrompt) {
-      if (barBtn) {
-        barBtn.disabled = false;
-        barBtn.textContent = '홈 화면 추가';
-      }
-      if (barTitle) barTitle.textContent = '홈 화면에 추가';
-      if (topBtn) {
-        topBtn.disabled = false;
-        topBtn.innerHTML = '<span aria-hidden="true">⬇</span><span>홈 추가</span>';
-      }
-      return;
-    }
-
+    var ready = isIos() || (promptReady && deferredPrompt);
+    // 안드로이드는 바로 설치창, 아이폰은 추가 방법 안내
+    var label = isIos() ? '추가 방법' : '설치하기';
     if (barBtn) {
-      barBtn.disabled = true;
-      barBtn.textContent = '홈 화면 추가';
+      barBtn.disabled = !ready;
+      barBtn.textContent = label;
     }
-    if (barTitle) barTitle.textContent = '홈 화면에 추가';
     if (topBtn) {
-      topBtn.disabled = true;
-      topBtn.innerHTML = '<span aria-hidden="true">⬇</span><span>홈 추가</span>';
+      topBtn.disabled = !ready;
+      topBtn.innerHTML = '<span aria-hidden="true">⬇</span><span>앱 설치</span>';
     }
   }
 
@@ -191,13 +172,23 @@
       sheet.setAttribute('aria-labelledby', 'pwaInstallSheetTitle');
       sheet.innerHTML =
         '<div class="pwa-sheet">' +
-        '<h2 id="pwaInstallSheetTitle">홈 화면에 추가</h2>' +
+        '<h2 id="pwaInstallSheetTitle">아이폰 홈 화면에 추가하기</h2>' +
+        (isInAppBrowser()
+          ? '<p>카카오톡·네이버 같은 앱 안에서는 홈 화면에 추가할 수 없어요.</p>' +
+            '<ol>' +
+            '<li>화면 오른쪽 아래(또는 위)의 <strong>⋯</strong> 메뉴를 눌러요.</li>' +
+            '<li><strong>Safari로 열기</strong>(다른 브라우저로 열기)를 눌러요.</li>' +
+            '<li>Safari에서 아래 방법으로 추가해요.</li>' +
+            '</ol>'
+          : '') +
         '<ol>' +
-        '<li><strong>공유</strong> 버튼</li>' +
-        '<li><strong>홈 화면에 추가</strong></li>' +
+        '<li>화면 아래(또는 주소창 옆)의 <strong>공유 버튼</strong>(네모에 위 화살표)을 눌러요.</li>' +
+        '<li>메뉴를 아래로 내려 <strong>홈 화면에 추가</strong>를 눌러요.</li>' +
+        '<li>오른쪽 위 <strong>추가</strong>를 누르면 끝이에요.</li>' +
         '</ol>' +
+        '<p class="pwa-sheet-note">홈 화면의 팔자연구소 아이콘을 누르면 앱처럼 바로 열려요.</p>' +
         '<div class="pwa-sheet-actions">' +
-        '<button type="button" class="pwa-sheet-btn primary" id="pwaSheetOk">확인</button>' +
+        '<button type="button" class="pwa-sheet-btn primary" id="pwaSheetOk">알겠어요</button>' +
         '<button type="button" class="pwa-sheet-btn ghost" id="pwaSheetLater">닫기</button>' +
         '</div></div>';
       document.body.appendChild(sheet);
@@ -225,10 +216,10 @@
       sheet.setAttribute('aria-labelledby', 'pwaInstallSheetTitle');
       sheet.innerHTML =
         '<div class="pwa-sheet">' +
-        '<h2 id="pwaInstallSheetTitle">홈 화면에 추가</h2>' +
+        '<h2 id="pwaInstallSheetTitle">홈 화면에 추가하기</h2>' +
         '<ol id="pwaInstallSheetSteps"></ol>' +
         '<div class="pwa-sheet-actions">' +
-        '<button type="button" class="pwa-sheet-btn primary" id="pwaSheetOk">확인</button>' +
+        '<button type="button" class="pwa-sheet-btn primary" id="pwaSheetOk">알겠어요</button>' +
         '<button type="button" class="pwa-sheet-btn ghost" id="pwaSheetLater">닫기</button>' +
         '</div></div>';
       document.body.appendChild(sheet);
@@ -242,12 +233,12 @@
       });
       document.getElementById('pwaSheetLater').addEventListener('click', closeSheet);
     }
-    document.getElementById('pwaInstallSheetTitle').textContent = '홈 화면에 추가';
+    document.getElementById('pwaInstallSheetTitle').textContent = '홈 화면에 추가하기';
     var lead = document.getElementById('pwaInstallSheetLead');
     if (lead) lead.remove();
     document.getElementById('pwaInstallSheetSteps').innerHTML =
-      '<li>메뉴(⋮)</li>' +
-      '<li><strong>앱 설치</strong> 또는 <strong>홈 화면에 추가</strong></li>';
+      '<li>브라우저 메뉴(오른쪽 위 <strong>⋮</strong>, 삼성 인터넷은 아래 <strong>≡</strong>)를 열어요.</li>' +
+      '<li><strong>앱 설치</strong> 또는 <strong>홈 화면에 추가</strong>를 눌러요.</li>';
     sheet.hidden = false;
   }
 
@@ -285,10 +276,10 @@
     bar.id = 'pwaInstallBar';
     bar.innerHTML =
       '<div class="pwa-copy">' +
-      '<span class="pwa-kicker">8code.kr</span>' +
-      '<span class="pwa-title">홈 화면에 추가</span>' +
+      '<span class="pwa-title">팔자연구소를 앱처럼 쓰기</span>' +
+      '<span class="pwa-sub">홈 화면 아이콘으로 바로 열려요</span>' +
       '</div>' +
-      '<button type="button" id="pwaInstallBarBtn">홈 화면 추가</button>' +
+      '<button type="button" id="pwaInstallBarBtn">' + (isIos() ? '추가 방법' : '설치하기') + '</button>' +
       '<button type="button" id="pwaInstallBarClose" aria-label="닫기">×</button>';
     document.body.appendChild(bar);
     document.getElementById('pwaInstallBarBtn').addEventListener('click', function () {
@@ -299,6 +290,8 @@
       removeBar();
     });
     syncButtonLabels();
+    var tb = document.querySelector('.topbar-install-btn');
+    if (tb) tb.hidden = true;
   }
 
   function injectTopbarBtn() {
@@ -310,12 +303,17 @@
       btn = document.createElement('button');
       btn.type = 'button';
       btn.className = 'topbar-install-btn';
-      btn.setAttribute('aria-label', '홈 화면에 추가');
-      btn.innerHTML = '<span aria-hidden="true">⬇</span><span>홈 추가</span>';
+      btn.setAttribute('aria-label', '앱 설치 (홈 화면에 추가)');
+      btn.innerHTML = '<span aria-hidden="true">⬇</span><span>앱 설치</span>';
       btn.addEventListener('click', function () {
         runInstall();
       });
       right.insertBefore(btn, right.firstChild);
+    }
+    // 아래 바가 떠 있으면 상단 버튼은 숨겨요 (같은 버튼이 두 번 보이지 않게)
+    if (document.getElementById('pwaInstallBar')) {
+      btn.hidden = true;
+      return;
     }
     // Android: 설치 준비 전엔 탑바 버튼 숨김 → 준비되면 바로 설치만
     if (!isIos() && !(promptReady && deferredPrompt)) {
