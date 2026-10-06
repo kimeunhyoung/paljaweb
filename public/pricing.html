@@ -894,6 +894,17 @@
       .pricing-grid { grid-template-columns: 1fr; }
       .hero { padding: 48px 20px 40px; }
     }
+
+    /* 정리 (2026-10-06): 작은 글씨·한글 자간·가짜 기울임 */
+    .hero-title em { font-style: normal; color: #a8844a; }
+    .hero-tag, .cta-tag { font-family: var(--font-body); font-size: 12px; letter-spacing: .12em; font-weight: 600; }
+    .plan-name { font-size: 11.5px; letter-spacing: .14em; font-weight: 700; }
+    .feature-check, .feature-x { font-size: 10px; }
+    .feature-list li > span { flex: 1; min-width: 0; }
+    .compare-table th { font-family: var(--font-body); font-size: 11.5px; letter-spacing: .06em; font-weight: 700; }
+    .compare-table td { font-size: 13px; }
+    .compare-table td:first-child { font-size: 13px; color: var(--ink); }
+    .category-row td { font-family: var(--font-body); font-size: 12.5px; letter-spacing: .02em; font-weight: 700; color: var(--deep-brown); text-transform: none; }
   </style>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css" crossorigin />
   <link rel="stylesheet" href="css/site-topbar.css?v=21" />
@@ -905,7 +916,7 @@
 <div class="site-top" data-topbar-title="요금제" data-nav-current="pricing" data-login-next="pricing.html"></div>
 
 <div class="palja-tester-banner" style="display:none;max-width:720px;margin:16px auto 0;padding:14px 18px;background:#fff7ed;border:1px solid #fdba74;border-radius:12px;font-size:0.9rem;line-height:1.55;color:#9a3412;">
-  테스터 모집 기간에는 <strong>결제를 잠시 닫아 두었습니다.</strong>
+  테스터 모집 기간에는 <strong>결제를 잠시 닫아 두었어요.</strong>
   받으신 체험 코드로 연결해 이용해 주세요.
   문의: <a href="https://pf.kakao.com/_HXxmwX/chat" target="_blank" rel="noopener noreferrer">카카오톡</a>
 </div>
@@ -914,9 +925,9 @@
 <section class="hero">
   <div class="hero-tag">Pricing · 요금제</div>
   <h1 class="hero-title">나에게 맞는<br><em>플랜을 선택하세요</em></h1>
-  <p class="hero-desc">언제든지 업그레이드하거나 취소할 수 있어요.<br>모든 유료 플랜은 <strong>월간 정기결제</strong>로 제공됩니다.</p>
+  <p class="hero-desc">언제든지 업그레이드하거나 취소할 수 있어요.<br>모든 유료 플랜은 <strong>매달 자동 결제</strong>되는 월 구독이에요.</p>
   <p class="hero-note"><strong>출시 기념 할인</strong> — Plus·Professional 할인가 적용 중. 부담 없이 먼저 시작해 보세요.</p>
-  <p class="hero-note">참고: 월 구독·단품·체험 모두 계정당 기기 최대 4대까지 이용할 수 있습니다.</p>
+  <p class="hero-note">월 구독·단품·체험 모두 한 계정으로 기기 최대 4대까지 쓸 수 있어요.</p>
   <p class="hero-counselor-link"><a href="for-counselors.html">수비학·타로 상담사이신가요? Professional 도입 안내 →</a></p>
 </section>
 
@@ -931,22 +942,22 @@
       <p class="plan-tagline">처음 만나는 수비학.<br>핵심 수만 무료로.</p>
       <div class="plan-divider"></div>
       <ul class="feature-list">
-        <li><div class="feature-check">✓</div>핵심 수 숫자 카드 전체</li>
-        <li><div class="feature-check">✓</div><strong>인생여정수 해설 무료 공개</strong></li>
-        <li><div class="feature-check">✓</div>타로코드 · 카드 뽑기</li>
-        <li class="no"><div class="feature-x">×</div>타로코드 AI 리딩 (Basic 크레딧)</li>
-        <li><div class="feature-check">✓</div>점성학 출생 차트 · 빅3 · 행성 해석</li>
-        <li class="no"><div class="feature-x">×</div>점성학 어스펙트 해설 · 트랜짓 · 커플 · AI</li>
-        <li class="no"><div class="feature-x">×</div>수비학 달력 · AI 운세</li>
-        <li class="no"><div class="feature-x">×</div><strong>AI 해석 · 월 크레딧 (Basic부터)</strong></li>
-        <li class="no"><div class="feature-x">×</div>나머지 숫자 해설 · 통합 스토리</li>
-        <li class="no"><div class="feature-x">×</div>현재 흐름 · 7일 · 월간 흐름</li>
-        <li class="no"><div class="feature-x">×</div>스토리 · 별자리 상세 · 48주기</li>
-        <li class="no"><div class="feature-x">×</div>대주기 · 인생 4단계</li>
-        <li class="no"><div class="feature-x">×</div>10년 차트 · 인생전반표</li>
-        <li class="no"><div class="feature-x">×</div>월간 흐름 분석</li>
-        <li class="no"><div class="feature-x">×</div>Growth Map</li>
-        <li class="no"><div class="feature-x">×</div>PDF 저장</li>
+        <li><div class="feature-check">✓</div><span>핵심 수 숫자 카드 전체</span></li>
+        <li><div class="feature-check">✓</div><span><strong>인생여정수 해설 무료 공개</strong></span></li>
+        <li><div class="feature-check">✓</div><span>타로코드 · 카드 뽑기</span></li>
+        <li class="no"><div class="feature-x">×</div><span>타로코드 AI 리딩 (Basic 크레딧)</span></li>
+        <li><div class="feature-check">✓</div><span>점성학 출생 차트 · 빅3 · 행성 해석</span></li>
+        <li class="no"><div class="feature-x">×</div><span>점성학 어스펙트 해설 · 트랜짓 · 커플 · AI</span></li>
+        <li class="no"><div class="feature-x">×</div><span>수비학 달력 · AI 운세</span></li>
+        <li class="no"><div class="feature-x">×</div><span><strong>AI 해석 · 월 크레딧 (Basic부터)</strong></span></li>
+        <li class="no"><div class="feature-x">×</div><span>나머지 숫자 해설 · 통합 스토리</span></li>
+        <li class="no"><div class="feature-x">×</div><span>현재 흐름 · 7일 · 월간 흐름</span></li>
+        <li class="no"><div class="feature-x">×</div><span>스토리 · 별자리 상세 · 48주기</span></li>
+        <li class="no"><div class="feature-x">×</div><span>대주기 · 인생 4단계</span></li>
+        <li class="no"><div class="feature-x">×</div><span>10년 차트 · 인생전반표</span></li>
+        <li class="no"><div class="feature-x">×</div><span>월간 흐름 분석</span></li>
+        <li class="no"><div class="feature-x">×</div><span>Growth Map</span></li>
+        <li class="no"><div class="feature-x">×</div><span>PDF 저장</span></li>
       </ul>
       <a href="analysis.html" class="plan-btn plan-btn-outline">무료로 시작</a>
     </div>
@@ -959,25 +970,25 @@
       <p class="plan-tagline">지금의 리듬을 읽는 분.<br>흐름·월간·7일 중심.</p>
       <div class="plan-divider"></div>
       <ul class="feature-list">
-        <li><div class="feature-check">✓</div>무료 숫자 카드 + 해설·스토리·별자리 상세·48주기</li>
-        <li><div class="feature-check">✓</div>수비학 개인연도 · 타로 올해의 수</li>
-        <li><div class="feature-check">✓</div>현재 흐름 (올해·이번 달·오늘)</li>
-        <li><div class="feature-check">✓</div>월간 흐름 12개월</li>
-        <li><div class="feature-check">✓</div>향후 7일 에너지 흐름</li>
-        <li><div class="feature-check">✓</div>10년 차트 (수비학)</li>
-        <li class="no"><div class="feature-x">×</div>타로 10년·100년 타임라인</li>
-        <li class="no"><div class="feature-x">×</div>인생리듬</li>
-        <li class="no"><div class="feature-x">×</div>에너지 배경</li>
-        <li><div class="feature-check">✓</div>대주기 · 인생 4단계</li>
-        <li><div class="feature-check">✓</div>수비학 달력 · AI 이번 달 흐름</li>
-        <li><div class="feature-check">✓</div><strong>점성학 심화</strong> (트랜짓·커플 차트)</li>
-        <li><div class="feature-check">✓</div>AI 맞춤 해석 (점성학 차트·트랜짓 운세)</li>
-        <li><div class="feature-check">✓</div>타로코드 AI 리딩 (공용 크레딧)</li>
-        <li><div class="feature-check">✓</div><strong>소울하모니 · 48궁합</strong></li>
-        <li><div class="feature-check">✓</div>월 AI 크레딧 <strong>10회</strong></li>
-        <li class="no"><div class="feature-x">×</div>네임코드 · AI 이름 추천</li>
-        <li class="no"><div class="feature-x">×</div>인생전반표 · Growth Map</li>
-        <li class="no"><div class="feature-x">×</div>로슈 격자 · PDF 저장</li>
+        <li><div class="feature-check">✓</div><span>무료 숫자 카드 + 해설·스토리·별자리 상세·48주기</span></li>
+        <li><div class="feature-check">✓</div><span>수비학 개인연도 · 타로 올해의 수</span></li>
+        <li><div class="feature-check">✓</div><span>현재 흐름 (올해·이번 달·오늘)</span></li>
+        <li><div class="feature-check">✓</div><span>월간 흐름 12개월</span></li>
+        <li><div class="feature-check">✓</div><span>향후 7일 에너지 흐름</span></li>
+        <li><div class="feature-check">✓</div><span>10년 차트 (수비학)</span></li>
+        <li class="no"><div class="feature-x">×</div><span>타로 10년·100년 타임라인</span></li>
+        <li class="no"><div class="feature-x">×</div><span>인생리듬</span></li>
+        <li class="no"><div class="feature-x">×</div><span>에너지 배경</span></li>
+        <li><div class="feature-check">✓</div><span>대주기 · 인생 4단계</span></li>
+        <li><div class="feature-check">✓</div><span>수비학 달력 · AI 이번 달 흐름</span></li>
+        <li><div class="feature-check">✓</div><span><strong>점성학 심화</strong> (트랜짓·커플 차트)</span></li>
+        <li><div class="feature-check">✓</div><span>AI 맞춤 해석 (점성학 차트·트랜짓 운세)</span></li>
+        <li><div class="feature-check">✓</div><span>타로코드 AI 리딩 (공용 크레딧)</span></li>
+        <li><div class="feature-check">✓</div><span><strong>소울하모니 · 48궁합</strong></span></li>
+        <li><div class="feature-check">✓</div><span>월 AI 크레딧 <strong>10회</strong></span></li>
+        <li class="no"><div class="feature-x">×</div><span>네임코드 · AI 이름 추천</span></li>
+        <li class="no"><div class="feature-x">×</div><span>인생전반표 · Growth Map</span></li>
+        <li class="no"><div class="feature-x">×</div><span>로슈 격자 · PDF 저장</span></li>
       </ul>
       <button class="plan-btn plan-btn-cream" onclick="handleSubscribe('basic')">시작하기</button>
     </div>
@@ -991,17 +1002,17 @@
       <p class="plan-tagline">깊이 있는 분석이 필요한 분.<br>타임라인·로슈·PDF 포함.</p>
       <div class="plan-divider"></div>
       <ul class="feature-list">
-        <li><div class="feature-check">✓</div>Basic 모든 기능</li>
-        <li><div class="feature-check">✓</div>네임코드 · AI 이름 추천</li>
-        <li><div class="feature-check">✓</div>인생전반표 (수비학 0~100세)</li>
-        <li class="no"><div class="feature-x">×</div>타로 10년·100년 타임라인</li>
-        <li class="no"><div class="feature-x">×</div>인생리듬</li>
-        <li class="no"><div class="feature-x">×</div>에너지 배경</li>
-        <li><div class="feature-check">✓</div>Growth Map · 성장 지도</li>
-        <li><div class="feature-check">✓</div>로슈 격자 · 순차 격자 심층 분석</li>
-        <li><div class="feature-check">✓</div>PDF 저장 · 공유</li>
-        <li><div class="feature-check">✓</div>분석 히스토리 저장</li>
-        <li><div class="feature-check">✓</div>월 AI 크레딧 <strong>50회</strong></li>
+        <li><div class="feature-check">✓</div><span>Basic 모든 기능</span></li>
+        <li><div class="feature-check">✓</div><span>네임코드 · AI 이름 추천</span></li>
+        <li><div class="feature-check">✓</div><span>인생전반표 (수비학 0~100세)</span></li>
+        <li class="no"><div class="feature-x">×</div><span>타로 10년·100년 타임라인</span></li>
+        <li class="no"><div class="feature-x">×</div><span>인생리듬</span></li>
+        <li class="no"><div class="feature-x">×</div><span>에너지 배경</span></li>
+        <li><div class="feature-check">✓</div><span>Growth Map · 성장 지도</span></li>
+        <li><div class="feature-check">✓</div><span>로슈 격자 · 순차 격자 심층 분석</span></li>
+        <li><div class="feature-check">✓</div><span>PDF 저장 · 공유</span></li>
+        <li><div class="feature-check">✓</div><span>분석 히스토리 저장</span></li>
+        <li><div class="feature-check">✓</div><span>월 AI 크레딧 <strong>50회</strong></span></li>
       </ul>
       <button class="plan-btn plan-btn-accent" onclick="handleSubscribe('plus')">시작하기</button>
     </div>
@@ -1015,20 +1026,20 @@
       <p class="plan-tagline">수비학 상담사를 위한 플랜.<br>고객 관리·상담 도구 포함.</p>
       <div class="plan-divider"></div>
       <ul class="feature-list">
-        <li><div class="feature-check">✓</div>Plus 모든 기능</li>
-        <li><div class="feature-check">✓</div><strong>상담사 허브 · CRM · 캘린더 · 푸시</strong> 포함</li>
-        <li><div class="feature-check">✓</div>상담사 허브 · 대시보드(상담 통계·재방문율)</li>
-        <li><div class="feature-check">✓</div>고객 카드 <strong>무제한</strong> + 세션 기록(CRM)</li>
-        <li><div class="feature-check">✓</div>일정 캘린더 · 중요 일정 · ICS 보내기</li>
-        <li><div class="feature-check">✓</div>웹 푸시 · 오늘 일정 요약 알림</li>
-        <li><div class="feature-check">✓</div>상담일·다음 약속 관리 · 재방문율 통계</li>
-        <li><div class="feature-check">✓</div>상담소 이름·로고를 넣은 고객용 리포트 PDF</li>
-        <li><div class="feature-check">✓</div>상담 준비 요약 카드 · 고객 간 궁합</li>
-        <li><div class="feature-check">✓</div>고객·상담 기록 CSV 내보내기(백업)</li>
-        <li class="no"><div class="feature-x">×</div>타로 10년·100년 타임라인</li>
-        <li class="no"><div class="feature-x">×</div>인생리듬</li>
-        <li class="no"><div class="feature-x">×</div>에너지 배경</li>
-        <li><div class="feature-check">✓</div>월 AI 크레딧 <strong>120회</strong></li>
+        <li><div class="feature-check">✓</div><span>Plus 모든 기능</span></li>
+        <li><div class="feature-check">✓</div><span><strong>상담사용 타로·레노먼드·주역 AI</strong> 리딩 초안</span></li>
+        <li><div class="feature-check">✓</div><span>상담사 허브 · 대시보드(상담 통계·재방문율)</span></li>
+        <li><div class="feature-check">✓</div><span>고객 카드 <strong>무제한</strong> + 세션 기록(CRM)</span></li>
+        <li><div class="feature-check">✓</div><span>일정 캘린더 · 중요 일정 · ICS 보내기</span></li>
+        <li><div class="feature-check">✓</div><span>웹 푸시 · 오늘 일정 요약 알림</span></li>
+        <li><div class="feature-check">✓</div><span>상담일·다음 약속 관리 · 재방문율 통계</span></li>
+        <li><div class="feature-check">✓</div><span>상담소 이름·로고를 넣은 고객용 리포트 PDF</span></li>
+        <li><div class="feature-check">✓</div><span>상담 준비 요약 카드 · 고객 간 궁합</span></li>
+        <li><div class="feature-check">✓</div><span>고객·상담 기록 CSV 내보내기(백업)</span></li>
+        <li class="no"><div class="feature-x">×</div><span>타로 10년·100년 타임라인</span></li>
+        <li class="no"><div class="feature-x">×</div><span>인생리듬</span></li>
+        <li class="no"><div class="feature-x">×</div><span>에너지 배경</span></li>
+        <li><div class="feature-check">✓</div><span>월 AI 크레딧 <strong>120회</strong></span></li>
       </ul>
       <div class="professional-actions">
         <a href="for-counselors.html" class="plan-sub-link">상담사 기능 자세히 보기 →</a>
@@ -1043,11 +1054,11 @@
       <p class="plan-tagline">Professional 기반 + 추가 확장.<br>인생리듬·타로 타임라인 제공.</p>
       <div class="plan-divider"></div>
       <ul class="feature-list">
-        <li><div class="feature-check">✓</div>Professional 모든 기능</li>
-        <li><div class="feature-check">✓</div>타로 10년·100년 타임라인</li>
-        <li><div class="feature-check">✓</div>인생리듬 (활동/정비 · 36년 순환표)</li>
-        <li><div class="feature-check">✓</div>에너지 배경 (수비학 폰·스토리 PNG)</li>
-        <li><div class="feature-check">✓</div>월 AI 크레딧 <strong>10회</strong></li>
+        <li><div class="feature-check">✓</div><span>Professional 모든 기능</span></li>
+        <li><div class="feature-check">✓</div><span>타로 10년·100년 타임라인</span></li>
+        <li><div class="feature-check">✓</div><span>인생리듬 (활동/정비 · 36년 순환표)</span></li>
+        <li><div class="feature-check">✓</div><span>에너지 배경 (수비학 폰·스토리 PNG)</span></li>
+        <li><div class="feature-check">✓</div><span>월 AI 크레딧 <strong>10회</strong></span></li>
       </ul>
     </div>
 
@@ -1057,36 +1068,36 @@
   <div class="lifecode-onetime" id="onetime">
     <div class="lifecode-onetime-kicker">건별 · 1회 결제</div>
     <h3 class="lifecode-onetime-title">가볍게 먼저 써보기</h3>
-    <p class="lifecode-onetime-lede">정기 결제·자동 갱신 없이 한 번만 결제합니다. <strong>기간 이용권</strong>과 <strong>AI 크레딧</strong>을 골라 보세요.</p>
+    <p class="lifecode-onetime-lede">자동 갱신 없이 한 번만 결제해요. <strong>기간 이용권</strong>과 <strong>AI 크레딧</strong>을 골라 보세요.</p>
     <div class="lifecode-onetime-grid">
       <div class="lifecode-onetime-card">
         <div class="lifecode-onetime-card-label">베이직 7일 이용권</div>
         <div class="lifecode-onetime-card-price">4,900<span>원 · 7일 · AI 5크레딧</span></div>
-        <p class="lifecode-onetime-card-desc">Basic 기능 7일 — 해설·흐름·10년·대주기·인생4단계·수비학 달력. AI 5크레딧 포함.</p>
+        <p class="lifecode-onetime-card-desc">Basic 기능을 7일 동안 써 볼 수 있어요. 해설·흐름·10년 차트·대주기·인생 4단계·수비학 달력에 AI 5크레딧이 들어 있어요.</p>
         <a href="/lifecode/buy.html?product=basic7" class="plan-btn plan-btn-outline">7일 체험하기</a>
       </div>
       <div class="lifecode-onetime-card">
         <div class="lifecode-onetime-card-label">상담사 15일 체험권</div>
         <div class="lifecode-onetime-card-price">29,900<span>원 · 15일 · AI 25크레딧</span></div>
-        <p class="lifecode-onetime-card-desc">Professional 전 기능 15일 — 상담사 허브·CRM·캘린더·푸시·PDF. AI 25크레딧 포함.</p>
+        <p class="lifecode-onetime-card-desc">Professional 기능을 15일 동안 모두 써 볼 수 있어요. 상담사 허브·고객 관리·캘린더·알림·PDF에 AI 25크레딧이 들어 있어요.</p>
         <a href="/lifecode/buy.html?product=counselor15" class="plan-btn plan-btn-outline">15일 체험하기</a>
       </div>
       <div class="lifecode-onetime-card lifecode-onetime-card--featured">
         <div class="lifecode-onetime-card-label lifecode-onetime-card-label--accent">AI 크레딧 +2</div>
         <div class="lifecode-onetime-card-price">1,000<span>원 · 2크레딧</span></div>
-        <p class="lifecode-onetime-card-desc">점성학·수비학 달력 AI에 사용. 트랜짓·이번 달 흐름 등 1크레딧 기능 2회.</p>
+        <p class="lifecode-onetime-card-desc">트랜짓·이번 달 흐름·타로코드 리딩처럼 1크레딧짜리 AI를 2번 쓸 수 있어요.</p>
         <a href="/ai-buy.html?product=ai_2" class="plan-btn plan-btn-accent">구매하기</a>
       </div>
       <div class="lifecode-onetime-card">
         <div class="lifecode-onetime-card-label">AI 크레딧 +5</div>
         <div class="lifecode-onetime-card-price">2,000<span>원 · 5크레딧</span></div>
-        <p class="lifecode-onetime-card-desc">점성학 차트·커플 궁합, 수비학 달력 AI 등에 사용.</p>
+        <p class="lifecode-onetime-card-desc">점성학 차트 해석(3)이나 커플 궁합(4)처럼 조금 큰 AI도 한 번에 쓸 수 있어요.</p>
         <a href="/ai-buy.html?product=ai_5" class="plan-btn plan-btn-outline">구매하기</a>
       </div>
       <div class="lifecode-onetime-card">
         <div class="lifecode-onetime-card-label">AI 크레딧 +10</div>
         <div class="lifecode-onetime-card-price">3,500<span>원 · 10크레딧</span></div>
-        <p class="lifecode-onetime-card-desc">점성학·수비학 달력 AI 공통 크레딧. 구독 중이면 네임코드 AI에도 사용.</p>
+        <p class="lifecode-onetime-card-desc">점성학·수비학 달력·타로코드 AI에 함께 쓰는 크레딧이에요. Plus 이상이면 네임코드 AI에도 쓸 수 있어요.</p>
         <a href="/ai-buy.html?product=ai_10" class="plan-btn plan-btn-outline">크레딧 추가</a>
       </div>
     </div>
@@ -1097,7 +1108,7 @@
 <div class="compare-section">
   <div class="compare-header">
     <h2 class="compare-title">플랜 상세 비교</h2>
-    <p class="compare-desc">어떤 플랜이 나에게 맞는지 한눈에 확인하세요.</p>
+    <p class="compare-desc">어떤 플랜이 나에게 맞는지 한눈에 확인해 보세요.</p>
   </div>
   <table class="compare-table">
     <thead>
@@ -1339,6 +1350,14 @@
 
       <tr class="category-row"><td colspan="6">상담사 전용</td></tr>
       <tr>
+        <td>상담사용 타로·레노먼드·주역 AI</td>
+        <td><span class="cross">—</span></td>
+        <td class="featured-col"><span class="cross">—</span></td>
+        <td><span class="cross">—</span></td>
+        <td><span class="check">✓</span></td>
+        <td><span class="check">✓</span></td>
+      </tr>
+      <tr>
         <td>상담사 허브 · 대시보드</td>
         <td><span class="cross">—</span></td>
         <td class="featured-col"><span class="cross">—</span></td>
@@ -1422,39 +1441,39 @@
 
   <div class="faq-item" onclick="this.classList.toggle('open')">
     <div class="faq-q">언제든지 취소할 수 있나요? <span class="faq-arrow">▼</span></div>
-    <div class="faq-a">네, 언제든지 해지할 수 있어요. 해지하면 <strong>다음 자동 결제일부터 청구되지 않으며</strong>, 이미 결제한 이용 기간이 끝날 때까지는 계속 이용할 수 있습니다. 마이페이지 또는 고객센터에서 해지 신청이 가능합니다.</div>
+    <div class="faq-a">네, 언제든지 해지할 수 있어요. 해지하면 <strong>다음 자동 결제일부터 청구되지 않으며</strong>, 이미 결제한 이용 기간이 끝날 때까지는 계속 이용할 수 있어요. 해지는 마이페이지에서 바로 하거나, 카카오톡으로 요청해 주세요.</div>
   </div>
   <div class="faq-item" onclick="this.classList.toggle('open')">
     <div class="faq-q">라이프코드만 따로 쓸 수 있나요? <span class="faq-arrow">▼</span></div>
-    <div class="faq-a">네. <a href="/lifecode/buy.html">라이프코드 건별 이용권</a>·상담사 체험·AI·달력 체험을 1회 결제하면 바로 이용할 수 있습니다. 월 구독과 별개이며 자동 갱신은 없습니다.</div>
+    <div class="faq-a">네. <a href="/lifecode/buy.html">베이직 7일 이용권</a>·상담사 15일 체험권·AI 크레딧은 한 번만 결제하면 바로 쓸 수 있어요. 월 구독과 별개이고 자동 갱신도 없어요.</div>
   </div>
   <div class="faq-item" onclick="this.classList.toggle('open')">
     <div class="faq-q">등록 기기는 어디서 해제하나요? <span class="faq-arrow">▼</span></div>
-    <div class="faq-a"><a href="dashboard.html#devices">마이페이지 → 등록 기기</a>에서 목록을 보고 직접 해제할 수 있습니다. 계정당 최대 4대입니다.</div>
+    <div class="faq-a"><a href="dashboard.html#devices">마이페이지 → 등록 기기</a>에서 목록을 보고 직접 해제할 수 있어요. 계정당 최대 4대예요.</div>
   </div>
   <div class="faq-item" onclick="this.classList.toggle('open')">
     <div class="faq-q">라이프코드 건별 이용권은 여러 기기에서 쓸 수 있나요? <span class="faq-arrow">▼</span></div>
-    <div class="faq-a">단품·체험·월 구독 모두 <strong>기기 최대 4대</strong>까지 이용할 수 있습니다. 가득 차면 <a href="dashboard.html#devices">마이페이지</a>에서 다른 기기를 해제한 뒤 새 기기에서 이용해 주세요.</div>
+    <div class="faq-a">단품·체험·월 구독 모두 <strong>기기 최대 4대</strong>까지 쓸 수 있어요. 가득 차면 <a href="dashboard.html#devices">마이페이지</a>에서 다른 기기를 해제한 뒤 새 기기에서 이용해 주세요.</div>
   </div>
   <div class="faq-item" onclick="this.classList.toggle('open')">
     <div class="faq-q">AI 맞춤 해석은 어떻게 쓰나요? <span class="faq-arrow">▼</span></div>
-    <div class="faq-a">Basic 이상에서 <strong>월 AI 크레딧</strong>으로 점성학·수비학 달력 AI를 이용할 수 있어요. 점성학 <strong>차트 해석 3크레딧</strong>·<strong>커플 궁합 4크레딧</strong>, 트랜짓·수비학 달력 운세는 <strong>각 1크레딧</strong>입니다. 트랜짓은 <strong>같은 각 구성</strong>이면, 그 외는 같은 날짜·내용이면 캐시되어 크레딧이 다시 차감되지 않아요. <strong>Plus</strong>에서는 네임코드 AI 이름 추천도 이용할 수 있습니다. 건별로는 <strong>AI 크레딧 +2/+5/+10</strong>을 구매할 수 있고, 체험권은 베이직 7일 <strong>AI 5</strong>·상담사 15일 <strong>AI 25</strong>입니다.</div>
+    <div class="faq-a">Basic 이상이면 매달 <strong>AI 크레딧</strong>이 들어와서 점성학·수비학 달력·타로코드 AI에 함께 쓸 수 있어요. 점성학 <strong>차트 해석 3크레딧</strong>·<strong>커플 궁합 4크레딧</strong>이고, 트랜짓·수비학 달력 운세·타로코드 리딩은 <strong>각 1크레딧</strong>이에요. 같은 날짜·같은 내용으로 다시 보면 저장된 결과를 보여 줘서 크레딧이 또 빠지지 않아요. <strong>Plus</strong> 이상이면 네임코드 AI(1크레딧)도 쓸 수 있어요. Free여도 <strong>AI 크레딧 +2/+5/+10</strong>을 사 두면 Basic급 AI(점성학 차트·트랜짓·타로코드 등)는 쓸 수 있어요. 다만 <strong>커플 차트·수비학 달력</strong>처럼 페이지 자체가 Basic인 기능은 플랜이 필요해요. 체험권에는 베이직 7일 <strong>AI 5</strong>·상담사 15일 <strong>AI 25</strong>가 들어 있어요.</div>
   </div>
   <div class="faq-item" onclick="this.classList.toggle('open')">
     <div class="faq-q">플랜 업그레이드는 언제 적용되나요? <span class="faq-arrow">▼</span></div>
-    <div class="faq-a">업그레이드는 결제 즉시 적용됩니다. 상위 플랜의 모든 기능을 바로 이용할 수 있어요.</div>
+    <div class="faq-a">업그레이드는 결제하는 즉시 적용돼요. 상위 플랜의 모든 기능을 바로 이용할 수 있어요.</div>
   </div>
   <div class="faq-item" onclick="this.classList.toggle('open')">
     <div class="faq-q">결제 수단은 무엇을 지원하나요? <span class="faq-arrow">▼</span></div>
-    <div class="faq-a">신용·체크카드 정기결제를 지원합니다. 첫 결제 시 카드가 등록되며, 이후 이용 기간마다 자동으로 갱신됩니다.</div>
+    <div class="faq-a">신용·체크카드로 결제할 수 있어요. 첫 결제 때 카드가 등록되고, 그다음부터는 매달 자동으로 결제돼요.</div>
   </div>
 </div>
 
 <!-- CTA -->
 <section class="cta-section">
-  <div class="cta-tag">지금 시작하세요</div>
+  <div class="cta-tag">지금 시작해 보세요</div>
   <h2 class="cta-title">무료로 먼저<br>경험해보세요</h2>
-  <p class="cta-desc">신용카드 없이 바로 시작할 수 있습니다.</p>
+  <p class="cta-desc">카드 등록 없이 바로 시작할 수 있어요.</p>
   <a href="analysis.html" class="cta-btn">무료 분석 시작하기 →</a>
 </section>
 
@@ -1507,7 +1526,7 @@ async function handleSubscribe(plan) {
     return;
   }
 
-  showToast('알 수 없는 플랜입니다.');
+  showToast('알 수 없는 플랜이에요.');
 }
 
 // 현재 플랜 표시
@@ -1528,11 +1547,11 @@ async function initAuth() {
     : plan;
 
   if (activePlan === 'free' && plan !== 'free') {
-    showToast('이용 기간이 만료되어 Free 플랜입니다. 아래에서 다시 구독할 수 있어요.');
+    showToast('이용 기간이 끝나서 지금은 Free 플랜이에요. 아래에서 다시 구독할 수 있어요.');
     return;
   }
 
-  showToast(`현재 ${activePlan.charAt(0).toUpperCase() + activePlan.slice(1)} 플랜을 이용 중입니다.`);
+  showToast(`현재 ${activePlan.charAt(0).toUpperCase() + activePlan.slice(1)} 플랜을 이용 중이에요.`);
 }
 
 initAuth();
