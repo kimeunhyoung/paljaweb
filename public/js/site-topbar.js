@@ -48,6 +48,14 @@
     document.head.appendChild(lp);
   }
 
+  if (!document.querySelector('script[data-palja-pwa-install]')) {
+    var pi = document.createElement('script');
+    pi.src = '/js/pwa-install.js?v=2';
+    pi.defer = true;
+    pi.setAttribute('data-palja-pwa-install', '1');
+    document.head.appendChild(pi);
+  }
+
   /** 루트 절대 경로 — /guide · /nakshatra 하위에서도 링크가 깨지지 않게 */
   function rootHref(href) {
     var h = String(href || '');
