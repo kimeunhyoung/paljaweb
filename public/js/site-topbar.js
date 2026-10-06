@@ -50,7 +50,7 @@
 
   if (!document.querySelector('script[data-palja-pwa-install]')) {
     var pi = document.createElement('script');
-    pi.src = '/js/pwa-install.js?v=3';
+    pi.src = '/js/pwa-install.js?v=4';
     pi.defer = true;
     pi.setAttribute('data-palja-pwa-install', '1');
     document.head.appendChild(pi);

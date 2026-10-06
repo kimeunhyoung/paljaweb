@@ -1,8 +1,8 @@
 /**
- * 8code.kr 홈 화면 설치·바로가기 CTA (Play 스토어 앱이 아님)
- * - 모바일 웹에서만 노출 (이미 홈 화면/standalone이면 숨김)
- * - Android Chrome: PWA 설치창 → 없으면 「메뉴 → 앱 설치/홈 화면에 추가」 안내
- * - iOS Safari: 「공유 → 홈 화면에 추가」 안내
+ * 8code.kr 홈 화면 설치·바로가기 CTA (Play 스토어 앱 아님)
+ *
+ * - Android Chrome/Samsung: beforeinstallprompt 준비되면 클릭 → 바로 설치창
+ * - iOS: Apple이 JS로 「홈 화면에 추가」를 여는 API를 안 줌 → 안내만 가능
  */
 (function () {
   if (window.__paljaPwaInstallInit) return;
@@ -11,6 +11,7 @@
   var DISMISS_KEY = 'palja:pwaInstallDismissedAt';
   var DISMISS_DAYS = 14;
   var deferredPrompt = null;
+  var promptReady = false;
 
   function isStandalone() {
     try {
@@ -68,6 +69,21 @@
     } catch (e) {}
   }
 
+  function ensureManifestLink() {
+    if (document.querySelector('link[rel="manifest"]')) return;
+    var link = document.createElement('link');
+    link.rel = 'manifest';
+    link.href = '/manifest.json';
+    document.head.appendChild(link);
+  }
+
+  function ensureServiceWorker() {
+    if (!('serviceWorker' in navigator)) return Promise.resolve(null);
+    return navigator.serviceWorker.register('/sw.js').catch(function () {
+      return null;
+    });
+  }
+
   function injectStyle() {
     if (document.getElementById('pwaInstallStyle')) return;
     var css =
@@ -82,6 +98,7 @@
       '#pwaInstallBar .pwa-title{display:block;font-size:14px;font-weight:700;color:#3d2b1f;line-height:1.3}' +
       '#pwaInstallBarBtn{flex:0 0 auto;border:0;cursor:pointer;background:#c4603a;color:#fff;' +
       'font-weight:700;font-size:13px;border-radius:999px;padding:10px 14px;line-height:1;font-family:inherit}' +
+      '#pwaInstallBarBtn:disabled{opacity:.55;cursor:wait}' +
       '#pwaInstallBarClose{border:0;background:transparent;cursor:pointer;color:#9b7b6a;' +
       'font-size:20px;line-height:1;padding:6px 8px;border-radius:999px}' +
       '#pwaInstallBarClose:hover{background:rgba(61,43,31,.06)}' +
@@ -90,6 +107,7 @@
       'background:rgba(196,96,58,.1);color:#a84a2a;font-weight:700;font-size:12px;line-height:1;' +
       'border-radius:999px;padding:7px 11px;cursor:pointer;font-family:inherit;white-space:nowrap}' +
       '.topbar-install-btn:hover{background:rgba(196,96,58,.16)}' +
+      '.topbar-install-btn:disabled{opacity:.55;cursor:wait}' +
       '@media (max-width:820px){.topbar-install-btn{display:inline-flex}}' +
       '#pwaInstallSheet{position:fixed;inset:0;z-index:2147483001;display:flex;align-items:flex-end;' +
       'justify-content:center;background:rgba(44,31,14,.42);padding:16px;box-sizing:border-box}' +
@@ -121,40 +139,51 @@
     if (sheet) sheet.hidden = true;
   }
 
-  function howtoContent() {
+  function syncButtonLabels() {
+    var barBtn = document.getElementById('pwaInstallBarBtn');
+    var barTitle = document.querySelector('#pwaInstallBar .pwa-title');
+    var topBtn = document.querySelector('.topbar-install-btn');
+
     if (isIos()) {
-      return {
-        title: '홈 화면에 추가하기',
-        lead: 'Safari에서 8code.kr을 홈 화면에 두면 앱처럼 바로 열 수 있어요. (플레이스토어 앱이 아니에요)',
-        steps:
-          '<li>하단(또는 상단) <strong>공유</strong> 버튼을 눌러요</li>' +
-          '<li><strong>홈 화면에 추가</strong>를 선택해요</li>' +
-          '<li>추가를 누르면 아이콘 바로가기가 생겨요</li>',
-      };
+      if (barBtn) {
+        barBtn.disabled = false;
+        barBtn.textContent = '방법 보기';
+      }
+      if (barTitle) barTitle.textContent = '홈 화면에 두고 바로 열어보세요';
+      if (topBtn) {
+        topBtn.disabled = false;
+        topBtn.innerHTML = '<span aria-hidden="true">⬇</span><span>홈 추가</span>';
+      }
+      return;
     }
-    if (isAndroid()) {
-      return {
-        title: '홈 화면에 설치하기',
-        lead: 'Chrome에서 8code.kr을 홈 화면에 설치하면 앱처럼 바로 열 수 있어요. (플레이스토어 앱이 아니에요)',
-        steps:
-          '<li>오른쪽 위 <strong>메뉴(⋮)</strong>를 눌러요</li>' +
-          '<li><strong>앱 설치</strong> 또는 <strong>홈 화면에 추가</strong>를 선택해요</li>' +
-          '<li>설치하면 홈 화면에 8CODE 아이콘이 생겨요</li>',
-      };
+
+    if (promptReady && deferredPrompt) {
+      if (barBtn) {
+        barBtn.disabled = false;
+        barBtn.textContent = '바로 설치';
+      }
+      if (barTitle) barTitle.textContent = '누르면 설치창이 바로 열려요';
+      if (topBtn) {
+        topBtn.disabled = false;
+        topBtn.innerHTML = '<span aria-hidden="true">⬇</span><span>바로 설치</span>';
+      }
+      return;
     }
-    return {
-      title: '홈 화면에 추가하기',
-      lead: '브라우저 메뉴에서 「홈 화면에 추가」 또는 「앱 설치」를 누르면 바로가기가 생겨요.',
-      steps:
-        '<li>브라우저 메뉴를 열어요</li>' +
-        '<li><strong>홈 화면에 추가</strong> / <strong>앱 설치</strong>를 선택해요</li>' +
-        '<li>추가하면 홈 화면에서 바로 열 수 있어요</li>',
-    };
+
+    // Android: 설치 이벤트 대기 중
+    if (barBtn) {
+      barBtn.disabled = true;
+      barBtn.textContent = '준비 중…';
+    }
+    if (barTitle) barTitle.textContent = '홈 화면 설치를 준비하는 중이에요';
+    if (topBtn) {
+      topBtn.disabled = true;
+      topBtn.innerHTML = '<span aria-hidden="true">⬇</span><span>준비 중</span>';
+    }
   }
 
-  function showHowtoSheet() {
+  function showIosSheet() {
     injectStyle();
-    var c = howtoContent();
     var sheet = document.getElementById('pwaInstallSheet');
     if (!sheet) {
       sheet = document.createElement('div');
@@ -164,7 +193,43 @@
       sheet.setAttribute('aria-labelledby', 'pwaInstallSheetTitle');
       sheet.innerHTML =
         '<div class="pwa-sheet">' +
-        '<h2 id="pwaInstallSheetTitle"></h2>' +
+        '<h2 id="pwaInstallSheetTitle">홈 화면에 추가</h2>' +
+        '<p>아이폰은 Safari가 앱처럼 「한 번에 설치」를 열어 주지 않아요. 아래처럼 직접 추가해 주세요.</p>' +
+        '<ol>' +
+        '<li>하단(또는 상단) <strong>공유</strong> 버튼을 눌러요</li>' +
+        '<li><strong>홈 화면에 추가</strong>를 선택해요</li>' +
+        '<li>추가하면 홈 화면에 바로가기가 생겨요</li>' +
+        '</ol>' +
+        '<div class="pwa-sheet-actions">' +
+        '<button type="button" class="pwa-sheet-btn primary" id="pwaSheetOk">확인했어요</button>' +
+        '<button type="button" class="pwa-sheet-btn ghost" id="pwaSheetLater">나중에</button>' +
+        '</div></div>';
+      document.body.appendChild(sheet);
+      sheet.addEventListener('click', function (e) {
+        if (e.target === sheet) closeSheet();
+      });
+      document.getElementById('pwaSheetOk').addEventListener('click', function () {
+        setDismissed();
+        removeBar();
+        closeSheet();
+      });
+      document.getElementById('pwaSheetLater').addEventListener('click', closeSheet);
+    }
+    sheet.hidden = false;
+  }
+
+  function showAndroidFallbackSheet() {
+    injectStyle();
+    var sheet = document.getElementById('pwaInstallSheet');
+    if (!sheet) {
+      sheet = document.createElement('div');
+      sheet.id = 'pwaInstallSheet';
+      sheet.setAttribute('role', 'dialog');
+      sheet.setAttribute('aria-modal', 'true');
+      sheet.setAttribute('aria-labelledby', 'pwaInstallSheetTitle');
+      sheet.innerHTML =
+        '<div class="pwa-sheet">' +
+        '<h2 id="pwaInstallSheetTitle">홈 화면에 추가</h2>' +
         '<p id="pwaInstallSheetLead"></p>' +
         '<ol id="pwaInstallSheetSteps"></ol>' +
         '<div class="pwa-sheet-actions">' +
@@ -182,31 +247,44 @@
       });
       document.getElementById('pwaSheetLater').addEventListener('click', closeSheet);
     }
-    document.getElementById('pwaInstallSheetTitle').textContent = c.title;
-    document.getElementById('pwaInstallSheetLead').textContent = c.lead;
-    document.getElementById('pwaInstallSheetSteps').innerHTML = c.steps;
+    document.getElementById('pwaInstallSheetTitle').textContent = '홈 화면에 추가';
+    document.getElementById('pwaInstallSheetLead').textContent =
+      '이 브라우저에서는 아직 바로 설치창을 열 수 없어요. Chrome 메뉴에서 추가해 주세요.';
+    document.getElementById('pwaInstallSheetSteps').innerHTML =
+      '<li>오른쪽 위 <strong>메뉴(⋮)</strong>를 눌러요</li>' +
+      '<li><strong>앱 설치</strong> 또는 <strong>홈 화면에 추가</strong>를 선택해요</li>';
     sheet.hidden = false;
   }
 
   async function runInstall() {
-    // Chrome 등이 준 설치 이벤트가 있으면 → 사이트 PWA 설치(홈 화면)
+    // 사용자 제스처 안에서 바로 호출해야 Chrome 설치창이 열림
     if (deferredPrompt) {
       deferredPrompt.prompt();
       try {
         await deferredPrompt.userChoice;
       } catch (e) {}
       deferredPrompt = null;
+      promptReady = false;
       setDismissed();
       removeBar();
       return;
     }
-    // 없으면 OS별 「홈 화면에 추가」 안내 (스토어로 보내지 않음)
-    showHowtoSheet();
+    if (isIos()) {
+      showIosSheet();
+      return;
+    }
+    showAndroidFallbackSheet();
   }
 
   function showBar() {
     if (isDismissed()) return;
-    if (document.getElementById('pwaInstallBar')) return;
+    if (document.getElementById('pwaInstallBar')) {
+      syncButtonLabels();
+      return;
+    }
+    // Android: 원클릭 가능할 때만 배너 노출 (준비되면 뜸). iOS는 안내용으로 바로 노출.
+    if (!isIos() && !(promptReady && deferredPrompt)) return;
+
     injectStyle();
     var bar = document.createElement('div');
     bar.id = 'pwaInstallBar';
@@ -215,7 +293,7 @@
       '<span class="pwa-kicker">8code.kr</span>' +
       '<span class="pwa-title">홈 화면에 두고 바로 열어보세요</span>' +
       '</div>' +
-      '<button type="button" id="pwaInstallBarBtn">홈 화면 추가</button>' +
+      '<button type="button" id="pwaInstallBarBtn">바로 설치</button>' +
       '<button type="button" id="pwaInstallBarClose" aria-label="닫기">×</button>';
     document.body.appendChild(bar);
     document.getElementById('pwaInstallBarBtn').addEventListener('click', function () {
@@ -225,39 +303,71 @@
       setDismissed();
       removeBar();
     });
+    syncButtonLabels();
   }
 
   function injectTopbarBtn() {
     var right = document.querySelector('.site-top .topbar-right');
-    if (!right || right.querySelector('.topbar-install-btn')) return;
-    injectStyle();
-    var btn = document.createElement('button');
-    btn.type = 'button';
-    btn.className = 'topbar-install-btn';
-    btn.setAttribute('aria-label', '홈 화면에 추가');
-    btn.innerHTML = '<span aria-hidden="true">⬇</span><span>홈 추가</span>';
-    btn.addEventListener('click', function () {
-      runInstall();
-    });
-    right.insertBefore(btn, right.firstChild);
+    if (!right) return;
+    var btn = right.querySelector('.topbar-install-btn');
+    if (!btn) {
+      injectStyle();
+      btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'topbar-install-btn';
+      btn.setAttribute('aria-label', '홈 화면에 추가');
+      btn.innerHTML = '<span aria-hidden="true">⬇</span><span>홈 추가</span>';
+      btn.addEventListener('click', function () {
+        runInstall();
+      });
+      right.insertBefore(btn, right.firstChild);
+    }
+    // Android: 설치 준비 전엔 탑바 버튼 숨김 → 준비되면 바로 설치만
+    if (!isIos() && !(promptReady && deferredPrompt)) {
+      btn.hidden = true;
+      return;
+    }
+    btn.hidden = false;
+    syncButtonLabels();
+  }
+
+  function onPromptReady(e) {
+    e.preventDefault();
+    deferredPrompt = e;
+    promptReady = true;
+    if (isStandalone() || !isMobileWeb() || isDismissed()) return;
+    showBar();
+    injectTopbarBtn();
   }
 
   function mount() {
     if (isStandalone() || !isMobileWeb()) return;
+    ensureManifestLink();
+    ensureServiceWorker();
+
+    if (isIos()) {
+      injectTopbarBtn();
+      setTimeout(injectTopbarBtn, 400);
+      if (!isDismissed()) showBar();
+      return;
+    }
+
+    // Android: SW 등록 후 이벤트 대기. 준비되면 배너/버튼 노출 → 클릭=바로 설치창
     injectTopbarBtn();
     setTimeout(injectTopbarBtn, 400);
-    setTimeout(injectTopbarBtn, 1200);
-    if (!isDismissed()) showBar();
+    setTimeout(injectTopbarBtn, 1500);
+    // 이벤트가 이미 늦었을 수 있어 SW ready 후 한 번 더 UI sync
+    ensureServiceWorker().then(function () {
+      syncButtonLabels();
+      injectTopbarBtn();
+    });
   }
 
-  window.addEventListener('beforeinstallprompt', function (e) {
-    e.preventDefault();
-    deferredPrompt = e;
-    if (!isStandalone() && isMobileWeb() && !isDismissed()) showBar();
-  });
+  window.addEventListener('beforeinstallprompt', onPromptReady);
 
   window.addEventListener('appinstalled', function () {
     deferredPrompt = null;
+    promptReady = false;
     setDismissed();
     removeBar();
     closeSheet();
