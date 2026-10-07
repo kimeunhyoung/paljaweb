@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<title>질문점(프라슈나) — 지금 이 순간으로 읽는 답 | 팔자연구소 8CODE</title>
+<meta name="description" content="생시 없이, 질문을 올린 순간의 하늘로 답을 봅니다. 부동산·일·연애·금전·선택 질문점(프라슈나).">
+<link rel="canonical" href="https://8code.kr/prashna.html">
+<meta name="robots" content="index,follow">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@400;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="/js/plan-access.js?v=13"></script>
+<script src="/js/site-topbar.js?v=40" defer></script>
+<script src="/js/topbar-session.js?v=14" defer></script>
+<script src="/js/astro-cities.js?v=1"></script>
+<script src="/js/vedic-core.js?v=2"></script>
+<script src="/js/prashna-engine.js?v=1"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css" crossorigin>
+<link rel="stylesheet" href="/css/site-topbar.css?v=23">
+<link rel="stylesheet" href="/css/site-header.css?v=9">
+<style>
+:root{
+  --cream:#f5f0e8;--ink:#2c1f0e;--deep:#4a3520;--muted:#8a7a68;--line:rgba(139,111,71,.15);
+  --terra:#c4603a;--gold:#a8844a;--soft:#f3ebe1;
+  --font:'Pretendard Variable',Pretendard,'Noto Sans KR',sans-serif;
+  --serif:'Noto Serif KR',serif;
+}
+*{box-sizing:border-box}
+body{margin:0;font-family:var(--font);background:var(--cream);color:var(--ink);min-height:100vh}
+.wrap{max-width:720px;margin:0 auto;padding:24px 18px 80px}
+.hero{text-align:center;padding:8px 0 18px}
+.tag{display:inline-block;font-size:12px;font-weight:700;letter-spacing:.08em;color:var(--terra);margin-bottom:8px}
+h1{font-family:var(--serif);font-size:clamp(24px,5vw,32px);margin:0 0 8px;color:var(--deep);line-height:1.3}
+.lead{color:var(--muted);font-size:15px;line-height:1.7;margin:0 auto;max-width:34em}
+.steps{display:flex;gap:6px;justify-content:center;margin:18px 0 8px}
+.steps span{width:28px;height:6px;border-radius:99px;background:rgba(139,111,71,.18)}
+.steps span.on{background:var(--terra)}
+.panel{display:none;background:#fff;border:1px solid var(--line);border-radius:16px;padding:22px 18px;box-shadow:0 10px 28px rgba(44,31,14,.06);margin-top:14px}
+.panel.on{display:block}
+.panel h2{font-family:var(--serif);font-size:18px;margin:0 0 6px;color:var(--deep)}
+.panel .hint{font-size:13.5px;color:var(--muted);line-height:1.6;margin:0 0 16px}
+.cats{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+@media(min-width:560px){.cats{grid-template-columns:1fr 1fr 1fr}}
+.cat{border:1px solid var(--line);border-radius:14px;padding:14px 12px;background:#fffdf9;cursor:pointer;text-align:left;font:inherit;color:inherit}
+.cat:hover,.cat.on{border-color:var(--terra);background:#fff8f3}
+.cat b{display:block;font-size:15px;color:var(--deep);margin-bottom:4px}
+.cat span{font-size:12.5px;color:var(--muted);line-height:1.45}
+label.field{display:block;font-size:13px;font-weight:600;color:var(--deep);margin:12px 0 6px}
+textarea,select,input[type=text]{width:100%;padding:12px 14px;border:1px solid var(--line);border-radius:12px;background:var(--soft);font:inherit;font-size:15px;color:var(--ink)}
+textarea{min-height:96px;resize:vertical;line-height:1.55}
+.ex{font-size:12.5px;color:var(--muted);margin-top:8px;line-height:1.55}
+.ex button{border:0;background:transparent;color:var(--terra);font:inherit;font-size:12.5px;padding:0;cursor:pointer;text-decoration:underline}
+.navrow{display:flex;gap:10px;margin-top:18px;flex-wrap:wrap}
+.btn{flex:1;min-width:120px;border:0;border-radius:999px;padding:13px 16px;font:inherit;font-weight:700;font-size:15px;cursor:pointer}
+.btn.pri{background:var(--terra);color:#fff}
+.btn.ghost{background:transparent;border:1px solid var(--line);color:var(--deep)}
+.btn:disabled{opacity:.55;cursor:wait}
+.status{margin-top:14px;padding:12px 14px;border-radius:12px;font-size:14px;line-height:1.6;display:none}
+.status.on{display:block}
+.status.err{background:rgba(184,85,85,.1);color:#a94442;border:1px solid rgba(184,85,85,.25)}
+.status.info{background:rgba(46,139,122,.1);color:#2e8b7a;border:1px solid rgba(46,139,122,.22)}
+.result-head{padding:18px;border-radius:14px;background:linear-gradient(135deg,#3a2a22,#5b3d2c);color:#f6e7d3;margin-bottom:14px}
+.result-head .kicker{font-size:12px;letter-spacing:.06em;color:#d9b48c;margin:0 0 6px}
+.result-head h3{font-family:var(--serif);font-size:22px;margin:0 0 8px;color:#fff6ea;line-height:1.35}
+.result-head p{margin:0;font-size:13.5px;opacity:.9;line-height:1.55}
+.block{margin:0 0 14px;padding:14px 14px 10px;border:1px solid var(--line);border-radius:12px;background:#fff}
+.block h4{margin:0 0 8px;font-size:14px;color:var(--deep)}
+.block ul{margin:0;padding-left:1.1em;font-size:14.5px;line-height:1.7;color:#4a3a2c}
+.block li{margin-bottom:4px}
+.meta{font-size:12.5px;color:var(--muted);line-height:1.6;margin-top:10px}
+.disc{font-size:12.5px;color:#8a6a58;background:#f7f2ec;border-left:3px solid #cdb6a2;padding:10px 12px;border-radius:0 10px 10px 0;margin-top:12px;line-height:1.6}
+</style>
+</head>
+<body>
+<div class="site-top" data-topbar-title="질문점" data-nav-current="prashna" data-login-next="prashna.html"></div>
+<main class="wrap">
+  <header class="hero">
+    <div class="tag">PRASHNA</div>
+    <h1>질문점 · 지금 이 순간의 답</h1>
+    <p class="lead">생시 없이, 질문을 올리는 <b>그 시각·그 도시</b>의 하늘로 읽습니다. 확정 예언이 아니라 경향과 시기 후보를 드려요.</p>
+    <div class="steps" id="stepDots" aria-hidden="true"><span class="on"></span><span></span><span></span><span></span></div>
+  </header>
+
+  <section class="panel on" id="step1" data-step="1">
+    <h2>1. 무엇을 묻나요?</h2>
+    <p class="hint">한 번에 한 주제만 고르세요. 같은 종류는 30일 안에 다시 묻기 어려워요.</p>
+    <div class="cats" id="catGrid"></div>
+    <div class="navrow"><button type="button" class="btn pri" id="to2" disabled>다음</button></div>
+  </section>
+
+  <section class="panel" id="step2" data-step="2">
+    <h2>2. 질문과 현재 도시</h2>
+    <p class="hint">마음이 흐트러지지 않게, 한 문장으로 또렷이 적어 주세요. 도시는 지금 있는 곳이에요.</p>
+    <label class="field" for="qText">질문</label>
+    <textarea id="qText" maxlength="160" placeholder="예: 지금 내놓은 아파트는 언제쯤 팔릴까요?"></textarea>
+    <p class="ex" id="qEx"></p>
+    <label class="field" for="qCity">현재 도시</label>
+    <select id="qCity"></select>
+    <div class="navrow">
+      <button type="button" class="btn ghost" id="back1">이전</button>
+      <button type="button" class="btn pri" id="to3">다음</button>
+    </div>
+  </section>
+
+  <section class="panel" id="step3" data-step="3">
+    <h2>3. 질문 올리기</h2>
+    <p class="hint">아래 버튼을 누르는 <b>서버 시각</b>이 차트의 기준이 됩니다. (로그인 필요 · 현재는 체험)</p>
+    <div class="block" id="confirmBox"></div>
+    <div class="navrow">
+      <button type="button" class="btn ghost" id="back2">이전</button>
+      <button type="button" class="btn pri" id="submitBtn">질문 올리기</button>
+    </div>
+    <div class="status" id="status"></div>
+  </section>
+
+  <section class="panel" id="step4" data-step="4">
+    <h2>4. 결과</h2>
+    <div id="resultBox"></div>
+    <div class="navrow">
+      <button type="button" class="btn ghost" id="againBtn">처음으로</button>
+      <a class="btn pri" href="/vedic.html" style="text-align:center;text-decoration:none;line-height:1.2;padding-top:14px">인도점성학 차트</a>
+    </div>
+  </section>
+</main>
+
+<script>
+(function () {
+  var SB_URL = 'https://sghsryumnrnftyjoqmwf.supabase.co';
+  var SB_KEY = 'sb_publishable_6S3W_oWrzG-Nv8wLK98gmg_q_KcB2I1';
+  var PE = window.PrashnaEngine;
+  var Origin = null, Horoscope = null;
+  var state = { category: null, question: '', city: null, stamp: null, result: null };
+
+  function $(id) { return document.getElementById(id); }
+  function showStatus(msg, kind) {
+    var el = $('status');
+    el.textContent = msg || '';
+    el.className = 'status on ' + (kind || 'info');
+  }
+  function hideStatus() { $('status').className = 'status'; }
+
+  function setStep(n) {
+    document.querySelectorAll('.panel').forEach(function (p) {
+      p.classList.toggle('on', Number(p.getAttribute('data-step')) === n);
+    });
+    document.querySelectorAll('#stepDots span').forEach(function (s, i) {
+      s.classList.toggle('on', i < n);
+    });
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  function fillCats() {
+    var grid = $('catGrid');
+    grid.innerHTML = '';
+    PE.CATEGORIES.forEach(function (c) {
+      var b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'cat';
+      b.innerHTML = '<b>' + c.label + '</b><span>' + c.desc + '</span>';
+      b.addEventListener('click', function () {
+        state.category = c.id;
+        grid.querySelectorAll('.cat').forEach(function (x) { x.classList.remove('on'); });
+        b.classList.add('on');
+        $('to2').disabled = false;
+        var ex = c.examples[0] || '';
+        $('qEx').innerHTML = '예시: <button type="button" id="useEx">' + ex + '</button>';
+        var use = $('useEx');
+        if (use) use.onclick = function () { $('qText').value = ex; };
+      });
+      grid.appendChild(b);
+    });
+  }
+
+  function fillCities() {
+    var sel = $('qCity');
+    var cities = (window.ASTRO_CITIES || []).filter(function (c) { return c.group === 'kr' || c.group === 'world'; });
+    sel.innerHTML = '<option value="">도시 선택</option>';
+    cities.forEach(function (c) {
+      var o = document.createElement('option');
+      o.value = c.ko;
+      o.textContent = c.ko;
+      o.dataset.lat = c.lat;
+      o.dataset.lng = c.lng;
+      sel.appendChild(o);
+    });
+    // 기본 서울
+    sel.value = '서울';
+  }
+
+  async function loadLib() {
+    try {
+      var CNH = await import('https://cdn.jsdelivr.net/npm/circular-natal-horoscope-js@1.1.0/+esm');
+      Origin = CNH.Origin || (CNH.default && CNH.default.Origin);
+      Horoscope = CNH.Horoscope || (CNH.default && CNH.default.Horoscope);
+    } catch (e) {
+      console.error(e);
+    }
+  }
+
+  async function getSession() {
+    var g = window.supabase;
+    if (!g) return null;
+    var sb = g.createClient(SB_URL, SB_KEY);
+    var res = await sb.auth.getSession();
+    return res.data && res.data.session;
+  }
+
+  function pickedCity() {
+    var sel = $('qCity');
+    var opt = sel.options[sel.selectedIndex];
+    if (!opt || !opt.value) return null;
+    return { ko: opt.value, lat: Number(opt.dataset.lat), lng: Number(opt.dataset.lng) };
+  }
+
+  $('to2').onclick = function () { setStep(2); };
+  $('back1').onclick = function () { setStep(1); };
+  $('back2').onclick = function () { setStep(2); };
+  $('to3').onclick = function () {
+    var q = ($('qText').value || '').trim();
+    var city = pickedCity();
+    if (q.length < 4) { alert('질문을 한 문장으로 적어 주세요.'); return; }
+    if (PE.BLOCKED.test(q)) { alert('건강·수명·소송·투자 주제는 다루지 않아요.'); return; }
+    if (!city) { alert('현재 도시를 선택해 주세요.'); return; }
+    state.question = q;
+    state.city = city;
+    var cat = PE.catById(state.category);
+    $('confirmBox').innerHTML =
+      '<p style="margin:0 0 8px;font-size:14.5px;line-height:1.7"><b>주제</b> ' + (cat ? cat.label : '') + '</p>' +
+      '<p style="margin:0 0 8px;font-size:14.5px;line-height:1.7"><b>질문</b> ' + q.replace(/</g, '&lt;') + '</p>' +
+      '<p style="margin:0;font-size:14.5px;line-height:1.7"><b>도시</b> ' + city.ko + '</p>';
+    setStep(3);
+  };
+
+  $('againBtn').onclick = function () {
+    state = { category: null, question: '', city: null, stamp: null, result: null };
+    $('qText').value = '';
+    $('catGrid').querySelectorAll('.cat').forEach(function (x) { x.classList.remove('on'); });
+    $('to2').disabled = true;
+    hideStatus();
+    setStep(1);
+  };
+
+  async function runSubmit() {
+    hideStatus();
+    var btn = $('submitBtn');
+    btn.disabled = true;
+    showStatus('질문 시각을 서버에서 확인하고 있어요…', 'info');
+    try {
+      if (!Origin || !Horoscope || !window.VedicCore) {
+        showStatus('계산 엔진을 불러오지 못했어요. 새로고침해 주세요.', 'err');
+        return;
+      }
+      var session = await getSession();
+      if (!session) {
+        location.replace('/login.html?next=' + encodeURIComponent('prashna.html'));
+        return;
+      }
+      var stampRes = await fetch('/api/prashna/stamp', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: 'Bearer ' + session.access_token,
+        },
+        body: JSON.stringify({
+          category: state.category,
+          question: state.question,
+          city: state.city.ko,
+          lat: state.city.lat,
+          lng: state.city.lng,
+        }),
+      });
+      var stampBody = await stampRes.json().catch(function () { return {}; });
+      if (stampRes.status === 401) {
+        location.replace('/login.html?next=' + encodeURIComponent('prashna.html'));
+        return;
+      }
+      if (stampRes.status === 429 && stampBody.previous) {
+        showStatus(stampBody.message || '재질문 제한', 'err');
+        if (stampBody.previous.result) {
+          renderResult(stampBody.previous.result, {
+            askedAt: stampBody.previous.askedAt,
+            city: state.city.ko,
+            question: stampBody.previous.question,
+            reused: true,
+          });
+          setStep(4);
+        }
+        return;
+      }
+      if (!stampRes.ok) {
+        showStatus(stampBody.message || '질문을 받지 못했어요.', 'err');
+        return;
+      }
+      state.stamp = stampBody;
+      showStatus('그 순간의 하늘을 계산하고 있어요…', 'info');
+
+      // 서버 UTC → 질문 도시 대략 벽시계 (국내·일본 근방은 KST/+9)
+      var civil = (function (iso, lng) {
+        var d = new Date(iso);
+        if (lng >= 120 && lng <= 150) {
+          var k = new Date(d.getTime() + 9 * 3600 * 1000);
+          return {
+            y: k.getUTCFullYear(), mo: k.getUTCMonth() + 1, da: k.getUTCDate(),
+            hh: k.getUTCHours(), mi: k.getUTCMinutes(),
+          };
+        }
+        return {
+          y: d.getFullYear(), mo: d.getMonth() + 1, da: d.getDate(),
+          hh: d.getHours(), mi: d.getMinutes(),
+        };
+      })(stampBody.askedAt, state.city.lng);
+      var origin = new Origin({
+        year: civil.y, month: civil.mo - 1, date: civil.da, hour: civil.hh, minute: civil.mi,
+        latitude: state.city.lat, longitude: state.city.lng,
+      });
+      var horoscope = new Horoscope({
+        origin: origin, houseSystem: 'placidus', zodiac: 'tropical',
+        aspectPoints: ['bodies'], aspectWithPoints: ['bodies'], aspectTypes: ['major'], language: 'en',
+      });
+      var data = window.VedicCore.build(horoscope, { y: civil.y, mo: civil.mo, da: civil.da }, {});
+      var judged = PE.judge(data, { category: state.category, question: state.question });
+      if (!judged.ok) {
+        showStatus(judged.message || '판정할 수 없어요.', 'err');
+        return;
+      }
+      state.result = judged;
+      await fetch('/api/prashna/complete', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: 'Bearer ' + session.access_token,
+        },
+        body: JSON.stringify({
+          category: state.category,
+          question: state.question,
+          askedAt: stampBody.askedAt,
+          result: judged,
+        }),
+      }).catch(function () {});
+
+      renderResult(judged, {
+        askedAt: stampBody.askedAt,
+        city: state.city.ko,
+        question: state.question,
+      });
+      hideStatus();
+      setStep(4);
+    } catch (e) {
+      console.error(e);
+      showStatus('처리 중 오류가 났어요. 잠시 후 다시 시도해 주세요.', 'err');
+    } finally {
+      btn.disabled = false;
+    }
+  }
+
+  function renderResult(r, meta) {
+    var when = meta.askedAt ? new Date(meta.askedAt).toLocaleString('ko-KR') : '';
+    var timings = (r.timings || []).map(function (t) {
+      return '<li><b>' + t.label + '</b> — ' + t.reason + '</li>';
+    }).join('');
+    var evidence = (r.evidence || []).map(function (e) { return '<li>' + e + '</li>'; }).join('');
+    var advice = (r.advice || []).map(function (a) { return '<li>' + a + '</li>'; }).join('');
+    $('resultBox').innerHTML =
+      '<div class="result-head">' +
+      '<p class="kicker">' + (meta.reused ? '이전 결과' : '한 줄 결론') + '</p>' +
+      '<h3>' + (r.conclusion || '') + '</h3>' +
+      '<p>' + (meta.question || '').replace(/</g, '&lt;') + '</p>' +
+      '</div>' +
+      '<div class="block"><h4>시기 후보</h4><ul>' + timings + '</ul></div>' +
+      '<div class="block"><h4>차트 근거</h4><ul>' + evidence + '</ul></div>' +
+      '<div class="block"><h4>조언</h4><ul>' + advice + '</ul></div>' +
+      '<p class="meta">기준 시각 ' + when + (meta.city ? ' · ' + meta.city : '') +
+      (r.lagna ? ' · 상승 ' + r.lagna.label : '') + '</p>' +
+      '<p class="disc">' + (r.disclaimer || '') + '</p>';
+  }
+
+  $('submitBtn').onclick = runSubmit;
+
+  fillCats();
+  fillCities();
+  loadLib();
+})();
+</script>
+</body>
+</html>

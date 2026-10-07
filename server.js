@@ -14,6 +14,7 @@ const { registerSignupNotifyRoutes, providerLabel } = require('./lib/signup-noti
 const { buildSignupStats } = require('./lib/admin-signup-stats');
 const { registerVerifyRemindRoutes } = require('./lib/verify-remind');
 const { registerClassContentRoutes } = require('./lib/class-content');
+const { registerPrashnaRoutes } = require('./lib/prashna');
 
 const app = express();
 
@@ -898,6 +899,9 @@ registerAiOneTimeRoutes(app, {
 
 // Private 전용 수업자료 본문 (public 밖 private-content/class)
 registerClassContentRoutes(app, { getUserIdFromAuth, getProfile });
+
+// 질문점(프라슈나) — 서버 시각 스탬프 + 카테고리 쿨다운
+registerPrashnaRoutes(app, { getUserIdFromAuth });
 
 app.get('/favicon.ico', (req, res) => {
   res.type('image/svg+xml');
