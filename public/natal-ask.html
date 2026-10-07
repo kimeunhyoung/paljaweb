@@ -905,9 +905,14 @@ textarea:focus,select:focus,input:focus,.client-pick-wrap input:focus,.client-pi
       ((r.cuspWarnings || []).length
         ? '<p class="invest-note"><b>생시 확인</b>' + esc((r.cuspWarnings || []).join(' ')) + '</p>'
         : '') +
-      (r.dasha && r.dasha.label
-        ? '<div class="block"><h4>지금 다샤</h4><ul><li>' + esc(r.dasha.label) +
-          (r.toneLabel ? ' · ' + esc(r.toneLabel) : '') + '</li></ul></div>'
+      (r.dasha && (r.dasha.softLabel || r.dasha.label)
+        ? '<div class="block"><h4>지금 운의 시기</h4><ul><li>' +
+          esc(r.dasha.softLabel || r.dasha.label) +
+          (r.toneLabel ? ' · ' + esc(r.toneLabel) : '') +
+          (r.dasha.techLabel
+            ? '</li><li class="meta" style="list-style:none;margin-top:4px">근거 · ' + esc(r.dasha.techLabel) + '</li>'
+            : '</li>') +
+          '</ul></div>'
         : '') +
       '<div class="block"><h4>시기 후보</h4><ul class="tl">' + timings + '</ul></div>' +
       (advice ? '<div class="block"><h4>조언</h4><ul>' + advice + '</ul></div>' : '') +
