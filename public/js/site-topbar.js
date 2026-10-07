@@ -6,8 +6,15 @@
   if (!document.querySelector('link[href*="/css/site-topbar.css"]')) {
     var tbCss = document.createElement('link');
     tbCss.rel = 'stylesheet';
-    tbCss.href = '/css/site-topbar.css?v=22';
+    tbCss.href = '/css/site-topbar.css?v=23';
     (document.head || document.documentElement).appendChild(tbCss);
+  }
+  if (!document.querySelector('link[href*="fonts.googleapis.com"][href*="Noto+Sans+KR"]')) {
+    var fontCss = document.createElement('link');
+    fontCss.rel = 'stylesheet';
+    fontCss.href =
+      'https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700&family=Noto+Serif+KR:wght@400;500;600;700&display=swap';
+    (document.head || document.documentElement).appendChild(fontCss);
   }
   // 첫 페인트 전에 레이아웃·배지·로그인 깜빡임 방지 CSS를 즉시 주입
   // (동적 stylesheet보다 먼저 적용돼 FOUC를 막음. id가 있어도 내용을 덮어씀)

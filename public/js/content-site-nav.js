@@ -73,23 +73,33 @@
     '.site-top .program-nav-dd-menu{display:none}' +
     '[data-topbar-auth]:not([data-auth-ready="1"]) [data-topbar-auth-guest]{visibility:hidden!important;pointer-events:none}' +
     '[data-topbar-auth-user][hidden],[data-topbar-auth-guest][hidden]{display:none!important}';
-  var crit = document.getElementById('palja-topbar-critical');
-  if (!crit) {
-    crit = document.createElement('style');
-    crit.id = 'palja-topbar-critical';
-    (document.head || document.documentElement).insertBefore(
-      crit,
-      (document.head || document.documentElement).firstChild
+  function applyTopbarChrome() {
+    var el = document.getElementById('palja-topbar-critical');
+    if (!el) {
+      el = document.createElement('style');
+      el.id = 'palja-topbar-critical';
+      (document.head || document.documentElement).insertBefore(
+        el,
+        (document.head || document.documentElement).firstChild
+      );
+    }
+    el.textContent = CRITICAL_TOPBAR_CSS;
+    ensureLink(
+      'https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css',
+      { crossorigin: 'anonymous' }
     );
+    ensureLink(
+      'https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700&family=Noto+Serif+KR:wght@400;500;600;700&display=swap'
+    );
+    ensureLink('/css/site-topbar.css?v=23');
+    ensureLink('/css/site-footer.css?v=5');
+    ensureLink('/css/site-header.css?v=9');
   }
-  crit.textContent = CRITICAL_TOPBAR_CSS;
-  ensureLink(
-    'https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css',
-    { crossorigin: 'anonymous' }
-  );
-  ensureLink('/css/site-topbar.css?v=22');
-  ensureLink('/css/site-footer.css?v=5');
-  ensureLink('/css/site-header.css?v=9');
+  applyTopbarChrome();
+  /* 뒤로가기(bfcache) 복원 시 동적 CSS가 빠지는 경우 다시 걸기 */
+  window.addEventListener('pageshow', function (ev) {
+    if (ev && ev.persisted) applyTopbarChrome();
+  });
 
   function isGuide() {
     return path.indexOf('/guide') === 0 || /\/guide(\/|\.html|$)/.test(path);
@@ -137,7 +147,7 @@
 
   ensureScript('/js/plan-access.js?v=13');
   ensureScript('/js/site-footer.js?v=5');
-  ensureScript('/js/site-topbar.js?v=37', function () {
+  ensureScript('/js/site-topbar.js?v=38', function () {
     ensureScript('/js/topbar-session.js?v=14');
   });
 })();

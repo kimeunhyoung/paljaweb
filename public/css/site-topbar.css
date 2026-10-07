@@ -2,8 +2,11 @@
  * 팔자연구소 — 공통 상단 탑바·프로그램 내비
  * 페이지 :root 변수와 충돌하지 않도록 --tb-* 스코프 변수만 사용합니다.
  * 페이지 인라인 CSS(세리프 body 등)보다 우선하도록 .site-top 하위로 고정합니다.
+ *
+ * 주의: 여기에 @import(구글 폰트)를 두지 마세요.
+ * @import가 있으면 시트 전체 적용이 폰트 응답까지 미뤄져 뒤로가기/첫 페인트 FOUC가 납니다.
+ * 폰트는 HTML 또는 JS에서 별도 <link>로 겁니다.
  */
-@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700&family=Noto+Serif+KR:wght@400;500;600;700&display=swap');
 
 .site-top {
   --tb-cream: #f5f0e8;
