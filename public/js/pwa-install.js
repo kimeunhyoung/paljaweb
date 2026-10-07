@@ -100,7 +100,7 @@
       'border-radius:999px;padding:10px 12px 10px 11px;cursor:pointer;font-family:inherit;' +
       'box-shadow:0 8px 22px rgba(61,43,31,.16)}' +
       '#pwaInstallFabBtn:active{transform:scale(.98)}' +
-      '#pwaInstallFabBtn .pwa-fab-ico{width:18px;height:18px;border-radius:6px;background:#4a3520;color:#f5f0e8;' +
+      '#pwaInstallFabBtn .pwa-fab-ico{width:18px;height:18px;border-radius:6px;background:#c4603a;color:#fffdf8;' +
       'display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-weight:700}' +
       '#pwaInstallFabClose{border:0;background:rgba(255,253,248,.92);color:#9b7b6a;cursor:pointer;' +
       'width:28px;height:28px;margin-left:4px;border-radius:999px;font-size:16px;line-height:1;' +
@@ -253,9 +253,9 @@
     fab = document.createElement('div');
     fab.id = 'pwaInstallFab';
     fab.innerHTML =
-      '<button type="button" id="pwaInstallFabBtn" aria-label="앱처럼 쓰기 (홈 화면에 추가)">' +
+      '<button type="button" id="pwaInstallFabBtn" aria-label="앱 설치 (홈 화면에 추가)">' +
       '<span class="pwa-fab-ico" aria-hidden="true">八</span>' +
-      '<span>앱</span>' +
+      '<span>앱설치</span>' +
       '</button>' +
       '<button type="button" id="pwaInstallFabClose" aria-label="닫기">×</button>';
     document.body.appendChild(fab);
