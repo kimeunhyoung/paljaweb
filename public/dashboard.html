@@ -290,6 +290,21 @@
       color: inherit;
       display: block;
     }
+    .class-vault-card[hidden] { display: none !important; }
+    .class-vault-card {
+      display: flex; align-items: center; gap: 16px;
+      margin: -20px 0 40px; padding: 18px 22px;
+      background: #3a2a22; color: #f3dfc4; border-radius: 14px;
+      text-decoration: none; transition: transform .2s, box-shadow .2s;
+    }
+    .class-vault-card:hover { transform: translateY(-2px); box-shadow: 0 14px 36px var(--shadow); }
+    .cv-icon { flex: 0 0 auto; width: 44px; height: 44px; border-radius: 10px; background: rgba(243,223,196,.14); display: flex; align-items: center; justify-content: center; font-family: var(--font-serif); font-size: 20px; font-weight: 600; }
+    .cv-body { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+    .cv-label { font-size: 11.5px; letter-spacing: .04em; opacity: .75; }
+    .cv-title { font-family: var(--font-serif); font-size: 18px; font-weight: 600; color: #fff6ea; }
+    .cv-desc { font-size: 13px; opacity: .8; line-height: 1.6; }
+    .cv-go { flex: 0 0 auto; font-size: 13px; color: #e8c79a; white-space: nowrap; }
+    @media (max-width: 600px) { .class-vault-card { padding: 16px; gap: 12px; } .cv-go { display: none; } }
     .card:hover {
       border-color: rgba(200,169,110,.42);
       box-shadow: 0 14px 36px var(--shadow);
@@ -745,7 +760,7 @@
       </a>
       <ul class="nav-links">
         <li><a href="guide/index.html">가이드</a></li>
-        <li><a href="nakshatra/index.html">학습자료실</a></li>
+        <li><a href="study/index.html">학습자료실</a></li>
         <li><a href="pricing.html">요금제</a></li>
       </ul>
       <div class="nav-actions">
@@ -786,7 +801,7 @@
         <li><a href="counselor.html">상담사 허브</a></li>
         <li class="mobile-nav-group">기타</li>
         <li><a href="guide/index.html">가이드</a></li>
-        <li><a href="nakshatra/index.html">학습자료실</a></li>
+        <li><a href="study/index.html">학습자료실</a></li>
         <li><a href="pricing.html">요금제</a></li>
       </ul>
     </div>
@@ -956,6 +971,17 @@
           </div>
         </a>
       </div>
+
+      <!-- Private 전용 수업자료실 바로가기 (Private일 때만 표시) -->
+      <a class="class-vault-card" id="classVaultCard" href="study/class/index.html" hidden>
+        <span class="cv-icon" aria-hidden="true">八</span>
+        <span class="cv-body">
+          <span class="cv-label">Private 전용</span>
+          <span class="cv-title">수비학 수업자료실</span>
+          <span class="cv-desc">수업에서 다룬 내용을 정리한 자료를 볼 수 있어요.</span>
+        </span>
+        <span class="cv-go">들어가기 →</span>
+      </a>
 
       <!-- 통계 -->
       <div class="stats-row" id="myReportSection">
@@ -1456,6 +1482,8 @@
       const baseDesc = planDescByTier[normalizedDisplayPlan] || planDescByTier.free;
       if (descEl) descEl.dataset.baseHtml = baseDesc;
       if (tierEl) tierEl.textContent = planLabel;
+      const classVaultCard = document.getElementById('classVaultCard');
+      if (classVaultCard) classVaultCard.hidden = normalizedDisplayPlan !== 'private';
       if (upgradeBtn) {
         if (normalizedDisplayPlan === 'private') {
           upgradeBtn.textContent = '이쁜 은형이 전용 VIP 플랜 사용중';

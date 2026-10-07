@@ -1,0 +1,28 @@
+/* 학습자료실 허브·수업자료실 공통 */
+.hub{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:22px 0 10px}
+.hub-card{display:flex;flex-direction:column;gap:8px;padding:22px 22px 18px;background:#fff;border:1px solid var(--line);border-radius:14px;text-decoration:none;color:var(--ink);transition:border-color .2s,box-shadow .2s,transform .2s}
+main a.hub-card{color:var(--ink)}
+.hub-card:hover{border-color:#d9a98c;box-shadow:0 12px 30px rgba(120,70,40,.10);transform:translateY(-2px)}
+.hub-top{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:4px}
+.hub-icon{width:40px;height:40px;border-radius:10px;background:var(--soft);color:var(--navy);display:flex;align-items:center;justify-content:center;font-size:19px;font-family:'Noto Serif KR',serif;font-weight:600}
+.hub-badge{font-size:12px;padding:3px 10px;border-radius:999px;white-space:nowrap;line-height:1.5}
+.b-basic{background:#eef4ea;color:#3f6a35;border:1px solid #c8dcbf}
+.b-private{background:#3a2a22;color:#f3dfc4;border:1px solid #3a2a22}
+.hub-title{font-size:19px;color:var(--navy);font-family:'Noto Serif KR',serif;font-weight:600;line-height:1.4}
+.hub-desc{font-size:14.5px;color:#6a5a50;line-height:1.7;flex:1}
+.hub-go{font-size:14px;color:var(--gold);font-weight:500;margin-top:6px}
+.hub-private{background:linear-gradient(180deg,#fffaf3 0%,#fff 60%);border-color:#e3cdb6}
+.hub-private .hub-icon{background:#3a2a22;color:#f3dfc4}
+.hub-note{text-align:center;margin-top:18px}
+@media (max-width:640px){.hub{grid-template-columns:1fr}.hub-card{padding:18px 16px 16px}.hub-title{font-size:18px}}
+/* 수업자료실 */
+.class-lock{margin:26px 0;padding:26px 22px;border:1px solid #e3cdb6;border-radius:14px;background:#fffaf3;text-align:center}
+.class-lock h2{border:0;margin:6px 0 8px;padding:0}
+.class-lock p{color:#6a5a50}
+.class-lock .btns{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:14px}
+.class-lock .btns a{display:inline-block;padding:10px 18px;border-radius:999px;text-decoration:none;font-size:15px}
+.class-lock .btns a.pri{background:#3a2a22;color:#f3dfc4}
+.class-lock .btns a.sec{border:1px solid var(--line);color:var(--navy);background:#fff}
+.class-empty{margin:26px 0;padding:30px 20px;border:1px dashed #d9c4b0;border-radius:14px;text-align:center;color:#7a6a60;background:#fff}
+.class-empty b{display:block;font-size:17px;color:var(--navy);margin-bottom:6px}
+[data-class-state]{display:none}

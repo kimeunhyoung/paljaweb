@@ -65,7 +65,7 @@
       '<nav class="site-footer-nav" aria-label="사이트 정보">' +
       '<a href="/pricing.html">요금제</a>' +
       '<a href="/guide/index.html">가이드</a>' +
-      '<a href="/nakshatra/index.html">학습자료실</a>' +
+      '<a href="/study/index.html">학습자료실</a>' +
       '<a href="/faq.html">FAQ</a>' +
       '<a href="/contact.html">문의</a>' +
       '<a href="/about.html">소개</a>' +

@@ -130,7 +130,7 @@
 
   var NAV_CONTENT = {
     guide: { id: 'guide', href: '/guide/index.html', label: '가이드' },
-    study: { id: 'study', href: '/nakshatra/index.html', label: '학습자료실' },
+    study: { id: 'study', href: '/study/index.html', label: '학습자료실' },
     faq: { id: 'faq', href: '/faq.html', label: 'FAQ' },
     pricing: { id: 'pricing', href: '/pricing.html', label: '요금제' },
     about: { id: 'about', href: '/about.html', label: '소개' },
@@ -447,7 +447,7 @@
       '</div>' +
       '<nav class="topbar-links" aria-label="사이트 메뉴">' +
       '<a href="/guide/index.html">가이드</a>' +
-      '<a href="/nakshatra/index.html">학습자료실</a>' +
+      '<a href="/study/index.html">학습자료실</a>' +
       '<a href="/pricing.html">요금제</a>' +
       '</nav>' +
       '<div class="topbar-right" data-topbar-auth' + authReadyAttr + ' aria-label="계정">' +
