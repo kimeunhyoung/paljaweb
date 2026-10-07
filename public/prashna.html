@@ -660,9 +660,12 @@ input[type=number]:focus{outline:none;background:#fff}
       var whenTxt = t.start ? fmtDay(t.start, baseYear) + (t.end ? ' ~ ' + fmtDay(t.end, baseYear) : '') : (t.label || '');
       var why = t.reason_text || t.reason || '';
       var isNow = /지금 진행 중/.test(why) || (t.start && t.start <= todayIso);
+      var whyClean = fmtText(why.replace(/\s*\(지금 진행 중\)|지금 진행 중,\s*/g, ''), baseYear);
+      // AI 설명(note)을 본문으로, 계산 근거(행성·하우스)는 작은 글씨로 — 같은 말이 두 번 나오지 않게
       return '<li><span class="when">' + esc(whenTxt) + (isNow ? '<span class="now">진행 중</span>' : '') + '</span>' +
-        '<span class="why">' + esc(fmtText(why.replace(/\s*\(지금 진행 중\)|지금 진행 중,\s*/g, ''), baseYear)) + '</span>' +
-        (t.note ? '<span class="note">' + esc(t.note) + '</span>' : '') + '</li>';
+        (t.note
+          ? '<span class="why">' + esc(t.note) + '</span><span class="note">근거 · ' + esc(whyClean) + '</span>'
+          : '<span class="why">' + esc(whyClean) + '</span>') + '</li>';
     }).join('');
     if (!timings) {
       timings = r.nearTerm
