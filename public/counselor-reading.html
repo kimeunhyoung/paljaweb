@@ -1785,7 +1785,10 @@
       }
 
       function updateCreditHint() {
-        const n = readFilledCards().length || Math.max(1, slots.filter((s) => s.num != null).length || 1);
+        // 아직 안 뽑은 칸도 배열 장수에 포함해 예상 크레딧을 보여 줌
+        const filled = readFilledCards().length;
+        const planned = Math.max(1, slots.length || 1);
+        const n = Math.max(filled, planned);
         const { cost } = resolveCounselorFeature(n, readingDepth);
         if (creditHintEl) {
           creditHintEl.innerHTML = '이번 리딩 <b>' + cost + '</b> 크레딧' +
