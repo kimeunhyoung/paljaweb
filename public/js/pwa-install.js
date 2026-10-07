@@ -1,7 +1,9 @@
 /**
  * 8code.kr 홈 화면 추가 CTA
- * Android: beforeinstallprompt → 클릭 시 설치창
- * iOS: 공유 → 홈 화면에 추가 단계만 안내
+ * 모바일 브라우저: 우측 하단 작은 플로팅 버튼
+ * Android: beforeinstallprompt → 클릭 시 설치창 (없으면 안내)
+ * iOS: 공유 → 홈 화면에 추가 안내
+ * 홈 아이콘(standalone) / 닫기(14일) 시 숨김
  */
 (function () {
   if (window.__paljaPwaInstallInit) return;
@@ -87,32 +89,22 @@
   function injectStyle() {
     if (document.getElementById('pwaInstallStyle')) return;
     var css =
-      '#pwaInstallBar{position:fixed;left:12px;right:12px;bottom:12px;z-index:2147483000;' +
-      'display:flex;align-items:center;gap:8px;padding:10px 10px 10px 14px;' +
-      'background:#fffdf8;border:1px solid rgba(61,43,31,.14);border-radius:16px;' +
-      'box-shadow:0 10px 28px rgba(61,43,31,.18);animation:pwaBarIn .28s ease both;' +
-      'font-family:"Noto Sans KR",Pretendard,-apple-system,BlinkMacSystemFont,sans-serif}' +
-      '#pwaInstallBar .pwa-copy{flex:1;min-width:0}' +
-      '#pwaInstallBar .pwa-kicker{display:block;font-size:11px;font-weight:700;letter-spacing:.04em;' +
-      'color:#9b7b6a;margin-bottom:2px}' +
-      '#pwaInstallBar .pwa-title{display:block;font-size:14px;font-weight:700;color:#3d2b1f;line-height:1.3}' +
-      '#pwaInstallBar .pwa-sub{display:block;font-size:12px;color:#7a6452;line-height:1.4;margin-top:2px}' +
-      '#pwaInstallSheet .pwa-sheet-note{font-size:12.5px;color:#8a7262;margin:-4px 0 14px}' +
-      '#pwaInstallSheet ol li{margin-bottom:6px}' +
-      '#pwaInstallBarBtn{flex:0 0 auto;border:0;cursor:pointer;background:#c4603a;color:#fff;' +
-      'font-weight:700;font-size:13px;border-radius:999px;padding:10px 14px;line-height:1;font-family:inherit}' +
-      '#pwaInstallBarBtn:disabled{opacity:.55;cursor:wait}' +
-      '#pwaInstallBarClose{border:0;background:transparent;cursor:pointer;color:#9b7b6a;' +
-      'font-size:20px;line-height:1;padding:6px 8px;border-radius:999px}' +
-      '#pwaInstallBarClose:hover{background:rgba(61,43,31,.06)}' +
-      '@keyframes pwaBarIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}' +
-      '.topbar-install-btn{display:none;align-items:center;gap:4px;border:1px solid rgba(196,96,58,.35);' +
-      'background:rgba(196,96,58,.1);color:#a84a2a;font-weight:700;font-size:12px;line-height:1;' +
-      'border-radius:999px;padding:7px 11px;cursor:pointer;font-family:inherit;white-space:nowrap}' +
-      '.topbar-install-btn:hover{background:rgba(196,96,58,.16)}' +
-      '.topbar-install-btn:disabled{opacity:.55;cursor:wait}' +
-      '@media (max-width:820px){.topbar-install-btn{display:inline-flex}}' +
-      '.topbar-install-btn[hidden]{display:none!important}' +
+      '#pwaInstallFab{position:fixed;right:14px;bottom:calc(14px + env(safe-area-inset-bottom,0px));' +
+      'z-index:2147483000;display:flex;align-items:center;gap:0;' +
+      'font-family:"Noto Sans KR",Pretendard,-apple-system,BlinkMacSystemFont,sans-serif;' +
+      'animation:pwaFabIn .28s ease both}' +
+      '#pwaInstallFab[hidden]{display:none!important}' +
+      '#pwaInstallFabBtn{display:inline-flex;align-items:center;gap:6px;border:1px solid rgba(61,43,31,.14);' +
+      'background:#fffdf8;color:#4a3520;font-weight:700;font-size:12px;line-height:1;' +
+      'border-radius:999px;padding:10px 12px 10px 11px;cursor:pointer;font-family:inherit;' +
+      'box-shadow:0 8px 22px rgba(61,43,31,.16)}' +
+      '#pwaInstallFabBtn:active{transform:scale(.98)}' +
+      '#pwaInstallFabBtn .pwa-fab-ico{width:18px;height:18px;border-radius:6px;background:#4a3520;color:#f5f0e8;' +
+      'display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-weight:700}' +
+      '#pwaInstallFabClose{border:0;background:rgba(255,253,248,.92);color:#9b7b6a;cursor:pointer;' +
+      'width:28px;height:28px;margin-left:4px;border-radius:999px;font-size:16px;line-height:1;' +
+      'box-shadow:0 4px 12px rgba(61,43,31,.1);border:1px solid rgba(61,43,31,.1);padding:0}' +
+      '@keyframes pwaFabIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}' +
       '#pwaInstallSheet{position:fixed;inset:0;z-index:2147483001;display:flex;align-items:flex-end;' +
       'justify-content:center;background:rgba(44,31,14,.42);padding:16px;box-sizing:border-box}' +
       '#pwaInstallSheet[hidden]{display:none!important}' +
@@ -122,22 +114,24 @@
       '#pwaInstallSheet h2{margin:0 0 8px;font-size:18px;color:#2c1f0e}' +
       '#pwaInstallSheet p{margin:0 0 12px;font-size:14px;line-height:1.55;color:#5c4a3a}' +
       '#pwaInstallSheet ol{margin:0 0 16px;padding-left:1.2em;font-size:14px;line-height:1.6;color:#3d2b1f}' +
+      '#pwaInstallSheet ol li{margin-bottom:6px}' +
+      '#pwaInstallSheet .pwa-sheet-note{font-size:12.5px;color:#8a7262;margin:-4px 0 14px}' +
       '#pwaInstallSheet .pwa-sheet-actions{display:flex;gap:8px;flex-wrap:wrap}' +
       '#pwaInstallSheet .pwa-sheet-btn{flex:1;min-width:120px;border:0;border-radius:999px;padding:12px 14px;' +
       'font-weight:700;font-size:14px;cursor:pointer;font-family:inherit}' +
       '#pwaInstallSheet .pwa-sheet-btn.primary{background:#c4603a;color:#fff}' +
-      '#pwaInstallSheet .pwa-sheet-btn.ghost{background:transparent;color:#6b5545;border:1px solid rgba(61,43,31,.16)}';
+      '#pwaInstallSheet .pwa-sheet-btn.ghost{background:transparent;color:#6b5545;border:1px solid rgba(61,43,31,.16)}' +
+      /* 예전 상단/하단 CTA 잔여 숨김 */
+      '.topbar-install-btn,#pwaInstallBar{display:none!important}';
     var style = document.createElement('style');
     style.id = 'pwaInstallStyle';
     style.textContent = css;
     document.head.appendChild(style);
   }
 
-  function removeBar() {
-    var bar = document.getElementById('pwaInstallBar');
-    if (bar) bar.remove();
-    // 아래 바를 닫으면 상단 '앱 설치' 버튼만 남겨요
-    injectTopbarBtn();
+  function removeFab() {
+    var fab = document.getElementById('pwaInstallFab');
+    if (fab) fab.remove();
   }
 
   function closeSheet() {
@@ -145,20 +139,22 @@
     if (sheet) sheet.hidden = true;
   }
 
-  function syncButtonLabels() {
-    var barBtn = document.getElementById('pwaInstallBarBtn');
-    var topBtn = document.querySelector('.topbar-install-btn');
-    var ready = isIos() || (promptReady && deferredPrompt);
-    // 안드로이드는 바로 설치창, 아이폰은 추가 방법 안내
-    var label = isIos() ? '추가 방법' : '설치하기';
-    if (barBtn) {
-      barBtn.disabled = !ready;
-      barBtn.textContent = label;
+  function bindSheetOnce(sheet) {
+    if (sheet.getAttribute('data-bound') === '1') return;
+    sheet.setAttribute('data-bound', '1');
+    sheet.addEventListener('click', function (e) {
+      if (e.target === sheet) closeSheet();
+    });
+    var ok = document.getElementById('pwaSheetOk');
+    var later = document.getElementById('pwaSheetLater');
+    if (ok) {
+      ok.addEventListener('click', function () {
+        setDismissed();
+        removeFab();
+        closeSheet();
+      });
     }
-    if (topBtn) {
-      topBtn.disabled = !ready;
-      topBtn.innerHTML = '<span aria-hidden="true">⬇</span><span>앱 설치</span>';
-    }
+    if (later) later.addEventListener('click', closeSheet);
   }
 
   function showIosSheet() {
@@ -192,15 +188,7 @@
         '<button type="button" class="pwa-sheet-btn ghost" id="pwaSheetLater">닫기</button>' +
         '</div></div>';
       document.body.appendChild(sheet);
-      sheet.addEventListener('click', function (e) {
-        if (e.target === sheet) closeSheet();
-      });
-      document.getElementById('pwaSheetOk').addEventListener('click', function () {
-        setDismissed();
-        removeBar();
-        closeSheet();
-      });
-      document.getElementById('pwaSheetLater').addEventListener('click', closeSheet);
+      bindSheetOnce(sheet);
     }
     sheet.hidden = false;
   }
@@ -217,33 +205,24 @@
       sheet.innerHTML =
         '<div class="pwa-sheet">' +
         '<h2 id="pwaInstallSheetTitle">홈 화면에 추가하기</h2>' +
-        '<ol id="pwaInstallSheetSteps"></ol>' +
+        (isInAppBrowser()
+          ? '<p>카카오톡·네이버 같은 앱 안에서는 홈 화면에 추가가 어려워요. 메뉴에서 <strong>브라우저로 열기</strong> 후 다시 시도해 주세요.</p>'
+          : '') +
+        '<ol id="pwaInstallSheetSteps">' +
+        '<li>브라우저 메뉴(오른쪽 위 <strong>⋮</strong>, 삼성 인터넷은 아래 <strong>≡</strong>)를 열어요.</li>' +
+        '<li><strong>앱 설치</strong> 또는 <strong>홈 화면에 추가</strong>를 눌러요.</li>' +
+        '</ol>' +
         '<div class="pwa-sheet-actions">' +
         '<button type="button" class="pwa-sheet-btn primary" id="pwaSheetOk">알겠어요</button>' +
         '<button type="button" class="pwa-sheet-btn ghost" id="pwaSheetLater">닫기</button>' +
         '</div></div>';
       document.body.appendChild(sheet);
-      sheet.addEventListener('click', function (e) {
-        if (e.target === sheet) closeSheet();
-      });
-      document.getElementById('pwaSheetOk').addEventListener('click', function () {
-        setDismissed();
-        removeBar();
-        closeSheet();
-      });
-      document.getElementById('pwaSheetLater').addEventListener('click', closeSheet);
+      bindSheetOnce(sheet);
     }
-    document.getElementById('pwaInstallSheetTitle').textContent = '홈 화면에 추가하기';
-    var lead = document.getElementById('pwaInstallSheetLead');
-    if (lead) lead.remove();
-    document.getElementById('pwaInstallSheetSteps').innerHTML =
-      '<li>브라우저 메뉴(오른쪽 위 <strong>⋮</strong>, 삼성 인터넷은 아래 <strong>≡</strong>)를 열어요.</li>' +
-      '<li><strong>앱 설치</strong> 또는 <strong>홈 화면에 추가</strong>를 눌러요.</li>';
     sheet.hidden = false;
   }
 
   async function runInstall() {
-    // 사용자 제스처 안에서 바로 호출해야 Chrome 설치창이 열림
     if (deferredPrompt) {
       deferredPrompt.prompt();
       try {
@@ -252,7 +231,7 @@
       deferredPrompt = null;
       promptReady = false;
       setDismissed();
-      removeBar();
+      removeFab();
       return;
     }
     if (isIos()) {
@@ -262,66 +241,30 @@
     showAndroidFallbackSheet();
   }
 
-  function showBar() {
-    if (isDismissed()) return;
-    if (document.getElementById('pwaInstallBar')) {
-      syncButtonLabels();
+  function showFab() {
+    if (isStandalone() || !isMobileWeb() || isDismissed()) return;
+    injectStyle();
+    var fab = document.getElementById('pwaInstallFab');
+    if (fab) {
+      fab.hidden = false;
       return;
     }
-    // Android: 원클릭 가능할 때만 배너 노출 (준비되면 뜸). iOS는 안내용으로 바로 노출.
-    if (!isIos() && !(promptReady && deferredPrompt)) return;
-
-    injectStyle();
-    var bar = document.createElement('div');
-    bar.id = 'pwaInstallBar';
-    bar.innerHTML =
-      '<div class="pwa-copy">' +
-      '<span class="pwa-title">팔자연구소를 앱처럼 쓰기</span>' +
-      '<span class="pwa-sub">홈 화면 아이콘으로 바로 열려요</span>' +
-      '</div>' +
-      '<button type="button" id="pwaInstallBarBtn">' + (isIos() ? '추가 방법' : '설치하기') + '</button>' +
-      '<button type="button" id="pwaInstallBarClose" aria-label="닫기">×</button>';
-    document.body.appendChild(bar);
-    document.getElementById('pwaInstallBarBtn').addEventListener('click', function () {
+    fab = document.createElement('div');
+    fab.id = 'pwaInstallFab';
+    fab.innerHTML =
+      '<button type="button" id="pwaInstallFabBtn" aria-label="앱처럼 쓰기 (홈 화면에 추가)">' +
+      '<span class="pwa-fab-ico" aria-hidden="true">八</span>' +
+      '<span>앱</span>' +
+      '</button>' +
+      '<button type="button" id="pwaInstallFabClose" aria-label="닫기">×</button>';
+    document.body.appendChild(fab);
+    document.getElementById('pwaInstallFabBtn').addEventListener('click', function () {
       runInstall();
     });
-    document.getElementById('pwaInstallBarClose').addEventListener('click', function () {
+    document.getElementById('pwaInstallFabClose').addEventListener('click', function () {
       setDismissed();
-      removeBar();
+      removeFab();
     });
-    syncButtonLabels();
-    var tb = document.querySelector('.topbar-install-btn');
-    if (tb) tb.hidden = true;
-  }
-
-  function injectTopbarBtn() {
-    var right = document.querySelector('.site-top .topbar-right');
-    if (!right) return;
-    var btn = right.querySelector('.topbar-install-btn');
-    if (!btn) {
-      injectStyle();
-      btn = document.createElement('button');
-      btn.type = 'button';
-      btn.className = 'topbar-install-btn';
-      btn.setAttribute('aria-label', '앱 설치 (홈 화면에 추가)');
-      btn.innerHTML = '<span aria-hidden="true">⬇</span><span>앱 설치</span>';
-      btn.addEventListener('click', function () {
-        runInstall();
-      });
-      right.insertBefore(btn, right.firstChild);
-    }
-    // 아래 바가 떠 있으면 상단 버튼은 숨겨요 (같은 버튼이 두 번 보이지 않게)
-    if (document.getElementById('pwaInstallBar')) {
-      btn.hidden = true;
-      return;
-    }
-    // Android: 설치 준비 전엔 탑바 버튼 숨김 → 준비되면 바로 설치만
-    if (!isIos() && !(promptReady && deferredPrompt)) {
-      btn.hidden = true;
-      return;
-    }
-    btn.hidden = false;
-    syncButtonLabels();
   }
 
   function onPromptReady(e) {
@@ -329,31 +272,20 @@
     deferredPrompt = e;
     promptReady = true;
     if (isStandalone() || !isMobileWeb() || isDismissed()) return;
-    showBar();
-    injectTopbarBtn();
+    showFab();
   }
 
   function mount() {
     if (isStandalone() || !isMobileWeb()) return;
     ensureManifestLink();
     ensureServiceWorker();
+    // 예전 UI 잔여 제거
+    var oldBar = document.getElementById('pwaInstallBar');
+    if (oldBar) oldBar.remove();
+    var oldTop = document.querySelectorAll('.topbar-install-btn');
+    for (var i = 0; i < oldTop.length; i++) oldTop[i].remove();
 
-    if (isIos()) {
-      injectTopbarBtn();
-      setTimeout(injectTopbarBtn, 400);
-      if (!isDismissed()) showBar();
-      return;
-    }
-
-    // Android: SW 등록 후 이벤트 대기. 준비되면 배너/버튼 노출 → 클릭=바로 설치창
-    injectTopbarBtn();
-    setTimeout(injectTopbarBtn, 400);
-    setTimeout(injectTopbarBtn, 1500);
-    // 이벤트가 이미 늦었을 수 있어 SW ready 후 한 번 더 UI sync
-    ensureServiceWorker().then(function () {
-      syncButtonLabels();
-      injectTopbarBtn();
-    });
+    if (!isDismissed()) showFab();
   }
 
   window.addEventListener('beforeinstallprompt', onPromptReady);
@@ -362,7 +294,7 @@
     deferredPrompt = null;
     promptReady = false;
     setDismissed();
-    removeBar();
+    removeFab();
     closeSheet();
   });
 
