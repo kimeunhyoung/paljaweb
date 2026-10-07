@@ -16,7 +16,7 @@
 <script src="/js/ai-quota-client.js?v=12"></script>
 <script src="/js/site-topbar.js?v=42" defer></script>
 <script src="/js/topbar-session.js?v=14" defer></script>
-<script src="/js/astro-cities.js?v=2"></script>
+<script src="/js/astro-cities.js?v=3"></script>
 <script src="/js/vedic-core.js?v=3"></script>
 <script src="/js/prashna-engine.js?v=6"></script>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css" crossorigin>
@@ -284,15 +284,19 @@ input[type=number]:focus{outline:none;background:#fff}
     <label class="field" for="qCity">출생 도시</label>
     <select id="qCity"></select>
     <div class="manual-coords" id="manualCoords">
+      <div style="grid-column:1/-1">
+        <label class="field" for="qPlaceName">지역명 (결과 표시용)</label>
+        <input type="text" id="qPlaceName" maxlength="40" placeholder="예: 안동 · 경북 안동">
+      </div>
       <div>
         <label class="field" for="qLat">위도</label>
-        <input type="number" id="qLat" step="0.0001" placeholder="예: 37.5665" inputmode="decimal">
+        <input type="number" id="qLat" step="0.0001" placeholder="예: 36.5684" inputmode="decimal">
       </div>
       <div>
         <label class="field" for="qLng">경도</label>
-        <input type="number" id="qLng" step="0.0001" placeholder="예: 126.9780" inputmode="decimal">
+        <input type="number" id="qLng" step="0.0001" placeholder="예: 128.7294" inputmode="decimal">
       </div>
-      <p class="client-pick-hint" style="grid-column:1/-1;margin-top:0">위·경도 직접 입력은 <b>한국 시간(Asia/Seoul)</b>으로 계산해요. 해외 출생이면 도시 목록에서 해당 도시를 골라 주세요.</p>
+      <p class="client-pick-hint" style="grid-column:1/-1;margin-top:0"><b>Asia/Seoul</b>은 도시명이 아니라 한국 표준시예요(안동·부산도 동일). 해외 출생이면 도시 목록에서 골라 주세요.</p>
     </div>
     <div class="credit-callout" id="creditCallout" style="margin-top:16px"><b>AI 해석 2크레딧</b>이 차감됩니다. 잔여가 없으면 규칙 판정(무료)으로 보여 드려요.</div>
     <p class="inline-err" id="formErr" role="alert"></p>
@@ -504,6 +508,7 @@ input[type=number]:focus{outline:none;background:#fff}
     if (wrap) wrap.classList.remove('show');
     if ($('qLat')) $('qLat').value = '';
     if ($('qLng')) $('qLng').value = '';
+    if ($('qPlaceName')) $('qPlaceName').value = '';
   }
 
   function setCityByName(cityName) {
@@ -556,6 +561,10 @@ input[type=number]:focus{outline:none;background:#fff}
     return true;
   }
 
+  function setManualPlace(placeName) {
+    if ($('qPlaceName') && placeName) $('qPlaceName').value = String(placeName).trim();
+  }
+
   function sbClient() {
     if (!window.supabase) return null;
     return window.supabase.createClient(SB_URL, SB_KEY);
@@ -604,6 +613,10 @@ input[type=number]:focus{outline:none;background:#fff}
     var byCoords = false;
     if (!byName && row.birth_lat != null && row.birth_lng != null) {
       byCoords = setCityByCoords(row.birth_lat, row.birth_lng);
+      // 좌표만 맞고 목록에 없으면 직접입력 + 고객에 저장된 지역명 표시
+      if ($('qCity') && $('qCity').value === 'manual' && row.birth_city) {
+        setManualPlace(row.birth_city);
+      }
     }
     if (!byName && !byCoords) {
       formErr('이 고객의 출생지를 목록에서 찾지 못했어요. 도시 또는 위·경도를 확인해 주세요.');
@@ -687,7 +700,8 @@ input[type=number]:focus{outline:none;background:#fff}
       var lng = Number(($('qLng') && $('qLng').value) || '');
       if (!Number.isFinite(lat) || !Number.isFinite(lng)) return null;
       if (lat < -90 || lat > 90 || lng < -180 || lng > 180) return null;
-      return { ko: '직접입력', lat: lat, lng: lng, tz: 'Asia/Seoul', manual: true };
+      var place = String(($('qPlaceName') && $('qPlaceName').value) || '').trim() || '직접입력';
+      return { ko: place, lat: lat, lng: lng, tz: 'Asia/Seoul', manual: true };
     }
     return {
       ko: opt.value,
@@ -995,7 +1009,12 @@ input[type=number]:focus{outline:none;background:#fff}
       if (o.date) $('qBirthDate').value = o.date;
       if (o.time) $('qBirthTime').value = o.time;
       if (o.manual && o.lat != null && o.lng != null) {
-        setCityByCoords(o.lat, o.lng);
+        var matched = setCityByCoords(o.lat, o.lng);
+        if ($('qCity') && $('qCity').value === 'manual') {
+          setManualPlace(o.city && o.city !== '직접입력' ? o.city : '');
+        } else if (!matched && o.city) {
+          setCityByName(o.city);
+        }
       } else if (o.city && o.city !== '직접입력') {
         setCityByName(o.city);
       }
