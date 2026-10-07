@@ -296,7 +296,7 @@ input[type=number]:focus{outline:none;background:#fff}
         <label class="field" for="qLng">경도</label>
         <input type="number" id="qLng" step="0.0001" placeholder="예: 128.7294" inputmode="decimal">
       </div>
-      <p class="client-pick-hint" style="grid-column:1/-1;margin-top:0"><b>Asia/Seoul</b>은 도시명이 아니라 한국 표준시예요(안동·부산도 동일). 해외 출생이면 도시 목록에서 골라 주세요.</p>
+      <p class="client-pick-hint" style="grid-column:1/-1;margin-top:0">위·경도는 <b>출생지 좌표</b>이고, 시각은 <b>한국표준시</b>로 계산해요. 지역명을 적으면 결과에 그 이름으로 나와요. 해외 출생이면 도시 목록에서 골라 주세요.</p>
     </div>
     <div class="credit-callout" id="creditCallout" style="margin-top:16px"><b>AI 해석 2크레딧</b>이 차감됩니다. 잔여가 없으면 규칙 판정(무료)으로 보여 드려요.</div>
     <p class="inline-err" id="formErr" role="alert"></p>
@@ -378,6 +378,10 @@ input[type=number]:focus{outline:none;background:#fff}
   }
 
   function $(id) { return document.getElementById(id); }
+  /** 예전 결과에 남은 Asia/Seoul → 한국표준시 (도시명 오해 방지) */
+  function softTzLabel(s) {
+    return String(s == null ? '' : s).replace(/\(Asia\/Seoul\)/g, '(한국표준시)');
+  }
   function esc(s) {
     return String(s == null ? '' : s)
       .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
@@ -732,7 +736,7 @@ input[type=number]:focus{outline:none;background:#fff}
           if (row === 1 && col === 1) {
             html +=
               '<div class="mid"><b>출생 차트</b><span>' +
-              esc(chart.dateLabel || '') + '<br>' + esc(chart.place || '') +
+              esc(softTzLabel(chart.dateLabel || '')) + '<br>' + esc(chart.place || '') +
               '<br>라히리 항성황도</span></div>';
           }
           continue;
@@ -984,7 +988,7 @@ input[type=number]:focus{outline:none;background:#fff}
       (advice ? '<div class="block"><h4>조언</h4><ul>' + advice + '</ul></div>' : '') +
       '<details class="block"><summary>차트 근거</summary><ul>' + evidence + '</ul></details>' +
       chartHtml +
-      '<p class="meta">출생 ' + esc((r.birth && r.birth.label) || when) +
+      '<p class="meta">출생 ' + esc(softTzLabel((r.birth && r.birth.label) || when)) +
       (meta.city ? ' · ' + esc(meta.city) : '') +
       (r.lagna ? ' · 상승 ' + esc(r.lagna.label) : '') +
       (state.isCounselor && r.dasha && r.dasha.techLabel ? ' · ' + esc(r.dasha.techLabel) : '') +

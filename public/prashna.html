@@ -308,6 +308,11 @@ input[type=number]:focus{outline:none;background:#fff}
   }
 
   function $(id) { return document.getElementById(id); }
+  function softTzLabel(s) {
+    return String(s == null ? '' : s)
+      .replace(/\(Asia\/Seoul\)/g, '(한국표준시)')
+      .replace(/^Asia\/Seoul$/, '한국표준시');
+  }
   function esc(s) {
     return String(s == null ? '' : s)
       .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
@@ -494,7 +499,7 @@ input[type=number]:focus{outline:none;background:#fff}
           if (row === 1 && col === 1) {
             html +=
               '<div class="mid"><b>질문 차트</b><span>' +
-              esc(chart.dateLabel || '') + '<br>' + esc(chart.place || '') +
+              esc(softTzLabel(chart.dateLabel || '')) + '<br>' + esc(chart.place || '') +
               '<br>라히리 항성황도</span></div>';
           }
           continue;
@@ -697,7 +702,7 @@ input[type=number]:focus{outline:none;background:#fff}
       chartHtml +
       '<p class="meta">기준 시각 ' + esc(when) +
       (meta.city ? ' · ' + esc(meta.city) : '') +
-      (meta.tz ? ' · ' + esc(meta.tz) : '') +
+      (meta.tz ? ' · ' + esc(softTzLabel(meta.tz)) : '') +
       (r.lagna ? ' · 상승 ' + esc(r.lagna.label) : '') +
       (r.aiUsed ? ' · AI 해석 · ' + cost + '크레딧 차감' : ' · 규칙 판정 · 크레딧 없음') + '</p>' +
       aiFailNote(r) +
