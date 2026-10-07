@@ -110,6 +110,7 @@
         { id: 'astro', href: '/astrology.html', label: '점성학 차트' },
         { id: 'vedic', href: '/vedic.html', label: '인도점성학 차트' },
         { id: 'prashna', href: '/prashna.html', label: '질문점(프라슈나)' },
+        { id: 'natal-ask', href: '/natal-ask.html', label: '내 차트로 묻기' },
       ],
     },
     {

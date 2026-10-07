@@ -15,6 +15,7 @@ const { buildSignupStats } = require('./lib/admin-signup-stats');
 const { registerVerifyRemindRoutes } = require('./lib/verify-remind');
 const { registerClassContentRoutes } = require('./lib/class-content');
 const { registerPrashnaRoutes } = require('./lib/prashna');
+const { registerNatalAskRoutes } = require('./lib/natal-ask');
 
 const app = express();
 
@@ -902,6 +903,8 @@ registerClassContentRoutes(app, { getUserIdFromAuth, getProfile });
 
 // 질문점(프라슈나) — 서버 시각 스탬프 + 카테고리 쿨다운
 registerPrashnaRoutes(app, { getUserIdFromAuth, getProfile, getUserEmail });
+// 내 차트로 묻기 — 출생 차트 + 트랜짓 시기
+registerNatalAskRoutes(app, { getUserIdFromAuth, getProfile, getUserEmail });
 
 app.get('/favicon.ico', (req, res) => {
   res.type('image/svg+xml');

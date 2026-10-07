@@ -4,9 +4,9 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
-<title>질문점(프라슈나) — 지금 이 순간으로 읽는 답 | 팔자연구소 8CODE</title>
-<meta name="description" content="생시 없이, 질문을 올린 순간의 하늘로 답을 봅니다. 부동산·일·연애·금전·선택 질문점(프라슈나).">
-<link rel="canonical" href="https://8code.kr/prashna.html">
+<title>내 차트로 묻기 — 출생 차트로 읽는 답 | 팔자연구소 8CODE</title>
+<meta name="description" content="생년월일시로 출생 차트를 만들고, 질문 주제에 맞춰 흐름과 시기 후보를 읽어요. 질문점(프라슈나)과 다른 모드입니다.">
+<link rel="canonical" href="https://8code.kr/natal-ask.html">
 <meta name="robots" content="index,follow">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -73,9 +73,13 @@ h1{font-family:var(--serif);font-size:clamp(24px,5vw,32px);margin:0 0 8px;color:
 .picked .ic svg{width:18px;height:18px}
 .picked button{margin-left:auto;border:0;background:none;color:var(--terra);font:inherit;font-size:12.5px;cursor:pointer;text-decoration:underline}
 label.field{display:block;font-size:13px;font-weight:600;color:var(--deep);margin:12px 0 6px}
-textarea,select,input[type=text]{width:100%;padding:12px 14px;border:1px solid var(--line);border-radius:12px;background:var(--soft);font:inherit;font-size:15px;color:var(--ink)}
+textarea,select,input[type=text],input[type=date],input[type=time]{width:100%;padding:12px 14px;border:1px solid var(--line);border-radius:12px;background:var(--soft);font:inherit;font-size:15px;color:var(--ink)}
 textarea{min-height:96px;resize:vertical;line-height:1.55}
-textarea:focus,select:focus,input[type=text]:focus{outline:none;border-color:var(--terra);box-shadow:0 0 0 3px rgba(196,96,58,.14);background:#fff}
+textarea:focus,select:focus,input[type=text]:focus,input[type=date]:focus,input[type=time]:focus{outline:none;border-color:var(--terra);box-shadow:0 0 0 3px rgba(196,96,58,.14);background:#fff}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media(max-width:480px){.row2{grid-template-columns:1fr}}
+.alt-link{margin:14px 0 0;font-size:13.5px;line-height:1.6;color:var(--muted);text-align:center}
+.alt-link a{color:var(--terra);font-weight:600}
 .ex{font-size:12.5px;color:var(--muted);margin-top:8px;line-height:1.55}
 .ex button{border:0;background:transparent;color:var(--terra);font:inherit;font-size:12.5px;padding:0;cursor:pointer;text-decoration:underline}
 .navrow{display:flex;gap:10px;margin-top:18px;flex-wrap:wrap}
@@ -151,7 +155,7 @@ a.btn{display:inline-flex;align-items:center;justify-content:center;text-decorat
 </style>
 </head>
 <body>
-<div class="site-top" data-topbar-title="질문점" data-nav-current="prashna" data-login-next="prashna.html"></div>
+<div class="site-top" data-topbar-title="내 차트로 묻기" data-nav-current="natal-ask" data-login-next="natal-ask.html"></div>
 <main class="wrap">
   <header class="hero">
     <div class="sky" aria-hidden="true"><svg viewBox="0 0 420 420" fill="none" stroke="rgba(139,111,71,.16)">
@@ -161,15 +165,15 @@ a.btn{display:inline-flex;align-items:center;justify-content:center;text-decorat
       <line x1="110" y1="383" x2="135" y2="340"/><line x1="37" y1="310" x2="80" y2="285"/><line x1="37" y1="110" x2="80" y2="135"/><line x1="110" y1="37" x2="135" y2="80"/></g>
       <g fill="rgba(196,96,58,.35)" stroke="none"><circle cx="300" cy="96" r="2.2"/><circle cx="118" cy="128" r="1.6"/><circle cx="332" cy="250" r="1.8"/><circle cx="92" cy="282" r="2"/><circle cx="250" cy="352" r="1.5"/></g>
     </svg></div>
-    <div class="tag">PRASHNA</div>
-    <h1>질문점 · 지금 이 순간의 답</h1>
-    <p class="lead">태어난 시간을 몰라도 괜찮아요. 질문을 올리는 <b>그 시각, 그 도시</b>의 하늘로 답을 읽어요. 생년월일시가 있으면 <a href="/natal-ask.html" style="color:var(--terra);font-weight:600">내 차트로 묻기</a>를 이용해 주세요.</p>
-    <ol class="steps" id="stepDots" aria-label="진행 단계"><li class="on"><i>1</i>주제</li><li><i>2</i>질문</li><li><i>3</i>하늘 계산</li><li><i>4</i>답·시기</li></ol>
+    <div class="tag">NATAL ASK</div>
+    <h1>내 차트로 묻기</h1>
+    <p class="lead"><b>생년월일시</b>로 출생 차트를 만들고, 질문 주제에 맞춰 흐름과 시기 후보를 읽어요. 생시를 모를 때는 <a href="/prashna.html" style="color:var(--terra);font-weight:600">질문점(프라슈나)</a>을 이용해 주세요.</p>
+    <ol class="steps" id="stepDots" aria-label="진행 단계"><li class="on"><i>1</i>주제</li><li><i>2</i>질문·출생</li><li><i>3</i>차트 계산</li><li><i>4</i>답·시기</li></ol>
   </header>
 
   <aside class="notice" id="pageNotice" aria-label="이용 안내">
-    <p class="credit"><span class="pill">요금</span><span><b>AI 해석은 1크레딧</b>이에요. 크레딧이 없으면 <b>규칙 판정</b>으로 무료로 보여 드려요.</span></p>
-    <p class="warn" id="pageNoticeWarn"><b>볼 수 없는 질문</b> 법적·의료·윤리적 문제가 생길 수 있는 질문은 받지 않아요. 건강·질병, 생사, 소송·범죄, 도박, 몰래 알아보기(뒷조사·위치 추적), 특정 종목의 매매 시점이 해당돼요. 투자는 종목이나 시점이 아닌 <b>흐름</b>으로만 물어볼 수 있어요.<span class="sub">결과는 그 순간의 하늘을 읽은 참고 해석이에요. 의료·법률·투자 결정은 꼭 전문가와 상의해 주세요.</span></p>
+    <p class="credit"><span class="pill">요금</span><span><b>AI 해석은 2크레딧</b>이에요. 크레딧이 없으면 <b>규칙 판정</b>으로 무료로 보여 드려요.</span></p>
+    <p class="warn" id="pageNoticeWarn"><b>볼 수 없는 질문</b> 법적·의료·윤리적 문제가 생길 수 있는 질문은 받지 않아요. 건강·질병, 생사, 소송·범죄, 도박, 몰래 알아보기(뒷조사·위치 추적), 특정 종목의 매매 시점이 해당돼요. 투자는 종목이나 시점이 아닌 <b>흐름</b>으로만 물어볼 수 있어요.<span class="sub">결과는 출생 차트와 트랜짓을 읽은 참고 해석이에요. 의료·법률·투자 결정은 꼭 전문가와 상의해 주세요.</span></p>
   </aside>
 
   <section class="panel on" id="step1" data-step="1">
@@ -180,9 +184,9 @@ a.btn{display:inline-flex;align-items:center;justify-content:center;text-decorat
   </section>
 
   <section class="panel" id="step2" data-step="2">
-    <h2><span class="no">STEP 2</span>질문과 지금 있는 도시</h2>
+    <h2><span class="no">STEP 2</span>질문과 출생 정보</h2>
     <div class="picked" id="pickedCat"></div>
-    <p class="hint">마음속으로 질문을 충분히 정리한 뒤, 한 문장으로 또렷하게 적어 주세요. 도시는 지금 머물고 있는 곳을 골라 주세요.</p>
+    <p class="hint">질문을 한 문장으로 적어 주세요. 출생 날짜·시간·도시는 차트의 뼈대가 돼요. 생시를 모르면 <a href="/prashna.html">질문점</a>을 이용해 주세요.</p>
     <label class="field" for="qText">질문</label>
     <textarea id="qText" maxlength="160" placeholder="예: 지금 내놓은 아파트는 언제쯤 팔릴까요?"></textarea>
     <p class="ex" id="qEx"></p>
@@ -190,7 +194,17 @@ a.btn{display:inline-flex;align-items:center;justify-content:center;text-decorat
       <label class="field" for="qClient">고객 메모 (선택 · 상담사만)</label>
       <input type="text" id="qClient" maxlength="80" placeholder="예: 김○○ 님 · 매도 상담">
     </div>
-    <label class="field" for="qCity">현재 도시</label>
+    <div class="row2">
+      <div>
+        <label class="field" for="qBirthDate">출생 날짜</label>
+        <input type="date" id="qBirthDate" min="1900-01-01" max="2100-12-31">
+      </div>
+      <div>
+        <label class="field" for="qBirthTime">출생 시간</label>
+        <input type="time" id="qBirthTime" step="60">
+      </div>
+    </div>
+    <label class="field" for="qCity">출생 도시</label>
     <select id="qCity"></select>
     <p class="inline-err" id="step2Err" role="alert"></p>
     <div class="navrow">
@@ -201,23 +215,24 @@ a.btn{display:inline-flex;align-items:center;justify-content:center;text-decorat
 
   <section class="panel" id="step3" data-step="3">
     <h2><span class="no">STEP 3</span>질문 올리기</h2>
-    <p class="hint"><b>질문 올리기</b>를 누르는 바로 그 순간이 차트의 기준이 돼요. 마음이 준비되었을 때 눌러 주세요. (로그인이 필요해요)</p>
-    <div class="credit-callout" id="creditCallout"><b>AI 해석 1크레딧</b>이 차감됩니다. 잔여가 없으면 규칙 판정(무료)으로 보여 드려요.</div>
+    <p class="hint">출생 차트로 주제를 읽고, 앞으로의 트랜짓으로 시기 후보를 골라 드려요. (로그인이 필요해요)</p>
+    <div class="credit-callout" id="creditCallout"><b>AI 해석 2크레딧</b>이 차감됩니다. 잔여가 없으면 규칙 판정(무료)으로 보여 드려요.</div>
     <div class="block" id="confirmBox"></div>
     <div class="navrow">
       <button type="button" class="btn ghost" id="back2">이전</button>
-      <button type="button" class="btn pri" id="submitBtn">질문 올리기 (AI 1크레딧)</button>
+      <button type="button" class="btn pri" id="submitBtn">질문 올리기 (AI 2크레딧)</button>
     </div>
     <div class="status" id="status"></div>
   </section>
 
   <section class="panel" id="step4" data-step="4">
-    <h2><span class="no">RESULT</span>그 순간의 하늘이 답한 내용</h2>
+    <h2><span class="no">RESULT</span>출생 차트가 답한 내용</h2>
     <div id="resultBox"></div>
     <div class="navrow">
       <button type="button" class="btn ghost" id="againBtn">처음으로</button>
-      <a class="btn pri" href="/vedic.html">인도점성학 차트</a>
+      <a class="btn pri" href="/astrology.html">점성학 차트</a>
     </div>
+    <p class="alt-link">생시 없이 지금 순간으로 보려면 <a href="/prashna.html">질문점(프라슈나)</a></p>
   </section>
 </main>
 
@@ -228,8 +243,9 @@ a.btn{display:inline-flex;align-items:center;justify-content:center;text-decorat
   var PE = window.PrashnaEngine;
   var state = {
     category: null, question: '', city: null, clientLabel: '',
+    birthDate: '', birthTime: '',
     result: null, isCounselor: false, isAdmin: false, isPrivate: false,
-    creditCost: 1, creditRemaining: null,
+    creditCost: 2, creditRemaining: null,
   };
 
   function syncSubmitBtn() {
@@ -246,7 +262,7 @@ a.btn{display:inline-flex;align-items:center;justify-content:center;text-decorat
     if (callout) {
       callout.classList.toggle('free', !!noCredit);
       if (noCredit) {
-        callout.innerHTML = '지금은 잔여 AI 크레딧이 없어 <b>규칙 판정(무료)</b>으로 보여 드려요. AI 해석은 1크레딧이에요.';
+        callout.innerHTML = '지금은 잔여 AI 크레딧이 없어 <b>규칙 판정(무료)</b>으로 보여 드려요. AI 해석은 ' + cost + '크레딧이에요.';
       } else if (rem != null) {
         callout.innerHTML = '이번 질문에서 <b>AI 해석 ' + cost + '크레딧</b>이 차감됩니다. (이번 달 잔여 ' + rem + ')';
       } else {
@@ -259,13 +275,14 @@ a.btn{display:inline-flex;align-items:center;justify-content:center;text-decorat
     var warn = $('pageNoticeWarn');
     if (!warn) return;
     // Private 등 내부 등급 안내는 고객 화면에 노출하지 않음
-    warn.innerHTML = '<b>볼 수 없는 질문</b> 법적·의료·윤리적 문제가 생길 수 있는 질문은 받지 않아요. 건강·질병, 생사, 소송·범죄, 도박, 몰래 알아보기(뒷조사·위치 추적), 특정 종목의 매매 시점이 해당돼요. 투자는 종목이나 시점이 아닌 <b>흐름</b>으로만 물어볼 수 있어요.<span class="sub">결과는 그 순간의 하늘을 읽은 참고 해석이에요. 의료·법률·투자 결정은 꼭 전문가와 상의해 주세요.</span>';
+    warn.innerHTML = '<b>볼 수 없는 질문</b> 법적·의료·윤리적 문제가 생길 수 있는 질문은 받지 않아요. 건강·질병, 생사, 소송·범죄, 도박, 몰래 알아보기(뒷조사·위치 추적), 특정 종목의 매매 시점이 해당돼요. 투자는 종목이나 시점이 아닌 <b>흐름</b>으로만 물어볼 수 있어요.<span class="sub">결과는 출생 차트와 트랜짓을 읽은 참고 해석이에요. 의료·법률·투자 결정은 꼭 전문가와 상의해 주세요.</span>';
   }
 
   function aiFailNote(r) {
     if (r.aiUsed || !r.aiReason) return '';
+    var cost = Math.max(2, Number(state.creditCost) || 2);
     var map = {
-      no_credits: 'AI 크레딧이 없어 규칙 판정으로 보여 드렸어요. AI 해석은 1크레딧이에요. <a href="/pricing.html#onetime" style="color:var(--terra)">크레딧 보기</a>',
+      no_credits: 'AI 크레딧이 없어 규칙 판정으로 보여 드렸어요. AI 해석은 ' + cost + '크레딧이에요. <a href="/pricing.html#onetime" style="color:var(--terra)">크레딧 보기</a>',
       ai_unavailable: 'AI 연결이 잠시 어려워 규칙 판정으로 보여 드렸어요. 잠시 후 다시 시도해 주세요.',
       upstream: 'AI 응답이 불안정해 규칙 판정으로 보여 드렸어요. 잠시 후 다시 시도해 주세요.',
       bad_json: 'AI 해석을 정리하지 못해 규칙 판정으로 보여 드렸어요. 같은 질문으로 다시 올려 주세요.',
@@ -392,10 +409,10 @@ a.btn{display:inline-flex;align-items:center;justify-content:center;text-decorat
     try {
       var s2 = await getSession();
       if (!s2) return;
-      var mr = await fetch('/api/prashna/meta', { headers: { Authorization: 'Bearer ' + s2.access_token }, cache: 'no-store' });
+      var mr = await fetch('/api/natal-ask/meta', { headers: { Authorization: 'Bearer ' + s2.access_token }, cache: 'no-store' });
       var mj = await mr.json().catch(function () { return {}; });
       state.isAdmin = !!mj.isAdmin;
-      if (mj.creditCost != null) state.creditCost = Number(mj.creditCost) || 1;
+      if (mj.creditCost != null) state.creditCost = Number(mj.creditCost) || 2;
     } catch (e) { /* ignore */ }
     try {
       if (window.PaljaAiQuota && PaljaAiQuota.fetchQuota) {
@@ -438,7 +455,7 @@ a.btn{display:inline-flex;align-items:center;justify-content:center;text-decorat
         if ((row === 1 || row === 2) && (col === 1 || col === 2)) {
           if (row === 1 && col === 1) {
             html +=
-              '<div class="mid"><b>질문 차트</b><span>' +
+              '<div class="mid"><b>출생 차트</b><span>' +
               esc(chart.dateLabel || '') + '<br>' + esc(chart.place || '') +
               '<br>라히리 항성황도</span></div>';
           }
@@ -455,8 +472,8 @@ a.btn{display:inline-flex;align-items:center;justify-content:center;text-decorat
       }
     }
     return (
-      '<div class="block"><h4>질문 순간의 라시 차트</h4>' +
-      '<div class="si" id="prashnaSi">' + html + '</div>' +
+      '<div class="block"><h4>출생 라시 차트</h4>' +
+      '<div class="si" id="natalAskSi">' + html + '</div>' +
       '<p class="si-legend">남인도식 · Asc=상승궁 · ↑고양 · ↓하강 · (R)역행</p></div>'
     );
   }
@@ -467,6 +484,8 @@ a.btn{display:inline-flex;align-items:center;justify-content:center;text-decorat
   $('to3').onclick = function () {
     var q = ($('qText').value || '').trim();
     var city = pickedCity();
+    var birthDate = ($('qBirthDate').value || '').trim();
+    var birthTime = ($('qBirthTime').value || '').trim();
     var clientLabel = ($('qClient').value || '').trim();
     function err(msg) {
       $('step2Err').textContent = msg;
@@ -480,16 +499,20 @@ a.btn{display:inline-flex;align-items:center;justify-content:center;text-decorat
       return;
     }
     if (bc.blocked && bc.always) {
-      err('지금 많이 힘드신가요? 이 질문은 질문점으로 볼 수 없지만, 혼자 견디지 않으셨으면 해요. 자살예방상담전화 109(24시간)에서 바로 이야기를 들어 드려요.');
+      err('지금 많이 힘드신가요? 이 질문은 여기서 볼 수 없지만, 혼자 견디지 않으셨으면 해요. 자살예방상담전화 109(24시간)에서 바로 이야기를 들어 드려요.');
       return;
     }
     if (bc.blocked) {
-      err('법적·의료·윤리적 문제가 생길 수 있는 질문(건강·질병, 생사, 소송·범죄, 도박, 몰래 알아보기)은 질문점으로 보지 않아요. 다른 질문으로 바꿔 주세요.');
+      err('법적·의료·윤리적 문제가 생길 수 있는 질문(건강·질병, 생사, 소송·범죄, 도박, 몰래 알아보기)은 받지 않아요. 다른 질문으로 바꿔 주세요.');
       return;
     }
-    if (!city || !city.tz) { err('현재 도시를 선택해 주세요.'); return; }
+    if (!birthDate) { err('출생 날짜를 입력해 주세요.'); return; }
+    if (!birthTime) { err('출생 시간을 입력해 주세요. 생시를 모르면 질문점을 이용해 주세요.'); return; }
+    if (!city || !city.tz) { err('출생 도시를 선택해 주세요.'); return; }
     state.question = q;
     state.city = city;
+    state.birthDate = birthDate;
+    state.birthTime = birthTime;
     state.clientLabel = state.isCounselor ? clientLabel : '';
     var cat = PE.catById(state.category);
     $('confirmBox').innerHTML =
@@ -498,7 +521,8 @@ a.btn{display:inline-flex;align-items:center;justify-content:center;text-decorat
       (state.clientLabel
         ? '<p style="margin:0 0 8px;font-size:14.5px;line-height:1.7"><b>고객</b> ' + esc(state.clientLabel) + '</p>'
         : '') +
-      '<p style="margin:0;font-size:14.5px;line-height:1.7"><b>도시</b> ' + esc(city.ko) +
+      '<p style="margin:0 0 8px;font-size:14.5px;line-height:1.7"><b>출생</b> ' + esc(birthDate) + ' ' + esc(birthTime) + '</p>' +
+      '<p style="margin:0;font-size:14.5px;line-height:1.7"><b>출생 도시</b> ' + esc(city.ko) +
       ' <span style="color:#8a7a68">(' + esc(city.tz) + ')</span></p>' +
       (bc.invest
         ? '<p class="invest-note" style="margin:12px 0 0"><b>투자 관련 질문이에요</b>결과는 흐름을 읽는 참고 해석이며, 종목 추천이나 매매 시점 조언이 아니에요.</p>'
@@ -510,10 +534,14 @@ a.btn{display:inline-flex;align-items:center;justify-content:center;text-decorat
     state.category = null;
     state.question = '';
     state.city = null;
+    state.birthDate = '';
+    state.birthTime = '';
     state.clientLabel = '';
     state.result = null;
     $('qText').value = '';
     $('qClient').value = '';
+    $('qBirthDate').value = '';
+    $('qBirthTime').value = '';
     $('catGrid').querySelectorAll('.cat').forEach(function (x) { x.classList.remove('on'); });
     $('to2').disabled = true;
     hideStatus();
@@ -524,14 +552,14 @@ a.btn{display:inline-flex;align-items:center;justify-content:center;text-decorat
     hideStatus();
     var btn = $('submitBtn');
     btn.disabled = true;
-    showStatus('서버에서 질문 시각·차트·시기를 계산하고 있어요… (최대 약 1분)', 'info');
+    showStatus('서버에서 출생 차트·시기를 계산하고 있어요… (최대 약 1분)', 'info');
     try {
       var session = await getSession();
       if (!session) {
-        location.replace('/login.html?next=' + encodeURIComponent('prashna.html'));
+        location.replace('/login.html?next=' + encodeURIComponent('natal-ask.html'));
         return;
       }
-      var res = await fetch('/api/prashna/ask', {
+      var res = await fetch('/api/natal-ask/ask', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -540,6 +568,8 @@ a.btn{display:inline-flex;align-items:center;justify-content:center;text-decorat
         body: JSON.stringify({
           category: state.category,
           question: state.question,
+          birthDate: state.birthDate,
+          birthTime: state.birthTime,
           city: state.city.ko,
           lat: state.city.lat,
           lng: state.city.lng,
@@ -549,7 +579,7 @@ a.btn{display:inline-flex;align-items:center;justify-content:center;text-decorat
       });
       var body = await res.json().catch(function () { return {}; });
       if (res.status === 401) {
-        location.replace('/login.html?next=' + encodeURIComponent('prashna.html'));
+        location.replace('/login.html?next=' + encodeURIComponent('natal-ask.html'));
         return;
       }
       if (res.status === 429 && body.previous) {
@@ -651,9 +681,8 @@ a.btn{display:inline-flex;align-items:center;justify-content:center;text-decorat
       (advice ? '<div class="block"><h4>조언</h4><ul>' + advice + '</ul></div>' : '') +
       '<details class="block"><summary>차트 근거</summary><ul>' + evidence + '</ul></details>' +
       chartHtml +
-      '<p class="meta">기준 시각 ' + esc(when) +
+      '<p class="meta">출생 ' + esc((r.birth && r.birth.label) || when) +
       (meta.city ? ' · ' + esc(meta.city) : '') +
-      (meta.tz ? ' · ' + esc(meta.tz) : '') +
       (r.lagna ? ' · 상승 ' + esc(r.lagna.label) : '') +
       (r.aiUsed ? ' · AI 해석 · ' + cost + '크레딧 차감' : ' · 규칙 판정 · 크레딧 없음') + '</p>' +
       aiFailNote(r) +
