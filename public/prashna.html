@@ -13,6 +13,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@400;600;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="/js/plan-access.js?v=13"></script>
+<script src="/js/ai-quota-client.js?v=12"></script>
 <script src="/js/site-topbar.js?v=40" defer></script>
 <script src="/js/topbar-session.js?v=14" defer></script>
 <script src="/js/astro-cities.js?v=2"></script>
@@ -211,7 +212,34 @@ a.btn{display:inline-flex;align-items:center;justify-content:center;text-decorat
   var state = {
     category: null, question: '', city: null, clientLabel: '',
     result: null, isCounselor: false, isAdmin: false, isPrivate: false,
+    creditCost: 1, creditRemaining: null,
   };
+
+  function syncSubmitBtn() {
+    var btn = $('submitBtn');
+    if (!btn) return;
+    var cost = Math.max(1, Number(state.creditCost) || 1);
+    var rem = state.creditRemaining;
+    if (rem != null && rem < cost) {
+      btn.textContent = '질문 올리기 (규칙 판정 · 무료)';
+    } else {
+      btn.textContent = '질문 올리기 (AI ' + cost + '크레딧)';
+    }
+  }
+
+  function aiFailNote(r) {
+    if (r.aiUsed || !r.aiReason) return '';
+    var map = {
+      no_credits: 'AI 크레딧이 없어 규칙 판정으로 보여 드렸어요. AI 해석은 1크레딧이에요. <a href="/pricing.html#onetime" style="color:var(--terra)">크레딧 보기</a>',
+      ai_unavailable: 'AI 연결이 잠시 어려워 규칙 판정으로 보여 드렸어요. 잠시 후 다시 시도해 주세요.',
+      upstream: 'AI 응답이 불안정해 규칙 판정으로 보여 드렸어요. 잠시 후 다시 시도해 주세요.',
+      bad_json: 'AI 해석을 정리하지 못해 규칙 판정으로 보여 드렸어요. 같은 질문으로 다시 올려 주세요.',
+      consume_failed: '크레딧 차감에 실패해 규칙 판정으로 보여 드렸어요. 잔여 크레딧을 확인한 뒤 다시 시도해 주세요.',
+      ai_failed: 'AI 해석을 만들지 못해 규칙 판정으로 보여 드렸어요. 잠시 후 다시 시도해 주세요.',
+    };
+    var msg = map[r.aiReason] || map.ai_failed;
+    return '<p class="meta">' + msg + '</p>';
+  }
 
   function $(id) { return document.getElementById(id); }
   function esc(s) {
@@ -333,7 +361,15 @@ a.btn{display:inline-flex;align-items:center;justify-content:center;text-decorat
       var mr = await fetch('/api/prashna/meta', { headers: { Authorization: 'Bearer ' + s2.access_token }, cache: 'no-store' });
       var mj = await mr.json().catch(function () { return {}; });
       state.isAdmin = !!mj.isAdmin;
+      if (mj.creditCost != null) state.creditCost = Number(mj.creditCost) || 1;
     } catch (e) { /* ignore */ }
+    try {
+      if (window.PaljaAiQuota && PaljaAiQuota.fetchQuota) {
+        var q = await PaljaAiQuota.fetchQuota();
+        if (q && q.remaining != null) state.creditRemaining = Number(q.remaining);
+      }
+    } catch (e) { /* ignore */ }
+    syncSubmitBtn();
   }
 
   function pickedCity() {
@@ -526,6 +562,10 @@ a.btn{display:inline-flex;align-items:center;justify-content:center;text-decorat
     delayed: '조율이 필요',
     difficult: '지금은 어려움',
   };
+  function toneBadge(r) {
+    if (r.toneLabel) return r.toneLabel;
+    return TONE_LABEL[r.tone] || '';
+  }
   /** 2026-10-07 → 10월 7일 (기준 연도와 다르면 2027년 1월 3일) */
   function fmtDay(iso, baseYear) {
     var m = String(iso || '').match(/^(\d{4})-(\d{2})-(\d{2})$/);
@@ -555,14 +595,16 @@ a.btn{display:inline-flex;align-items:center;justify-content:center;text-decorat
     var advice = (r.advice || []).map(function (a) { return '<li>' + esc(a) + '</li>'; }).join('');
     var chartHtml = drawSouthChartHtml(r.chart);
     var tone = TONE_LABEL[r.tone] ? r.tone : '';
+    var badge = toneBadge(r);
+    var cost = Math.max(1, Number(r.creditCost || state.creditCost) || 1);
     var kicker = meta.reused
       ? '이전 결과'
-      : (r.aiUsed ? 'AI 해석 · 1크레딧' : '규칙 판정 · 무료');
+      : (r.aiUsed ? 'AI 해석 · ' + cost + '크레딧' : '규칙 판정 · 무료');
     $('resultBox').innerHTML =
       '<div class="result-head' + (tone ? ' t-' + tone : '') + '">' +
       '<p class="kicker">' + kicker + '</p>' +
       '<h3>' + esc(r.conclusion || '') + '</h3>' +
-      (tone ? '<div class="verdict"><span class="lv"><i></i><i></i><i></i><i></i></span><span class="tone">' + TONE_LABEL[tone] + '</span></div>' : '') +
+      (badge ? '<div class="verdict"><span class="lv"><i></i><i></i><i></i><i></i></span><span class="tone">' + esc(badge) + '</span></div>' : '') +
       '<p class="q">Q. ' + esc(meta.question || '') + '</p>' +
       (meta.clientLabel ? '<p style="opacity:.85;margin-top:6px">고객 · ' + esc(meta.clientLabel) + '</p>' : '') +
       '</div>' +
@@ -576,14 +618,17 @@ a.btn{display:inline-flex;align-items:center;justify-content:center;text-decorat
       (meta.city ? ' · ' + esc(meta.city) : '') +
       (meta.tz ? ' · ' + esc(meta.tz) : '') +
       (r.lagna ? ' · 상승 ' + esc(r.lagna.label) : '') +
-      (r.aiUsed ? ' · AI 해석 · 1크레딧 차감' : ' · 규칙 판정 · 크레딧 없음') + '</p>' +
-      (!r.aiUsed && r.aiReason === 'no_credits'
-        ? '<p class="meta">AI 크레딧이 없어 규칙 판정으로 보여 드렸어요. AI 해석은 1크레딧이에요. <a href="/pricing.html#onetime" style="color:var(--terra)">크레딧 보기</a></p>'
-        : '') +
+      (r.aiUsed ? ' · AI 해석 · ' + cost + '크레딧 차감' : ' · 규칙 판정 · 크레딧 없음') + '</p>' +
+      aiFailNote(r) +
       '<p class="disc">' + esc(r.disclaimer || '') + '</p>';
+    if (r.aiUsed && state.creditRemaining != null) {
+      state.creditRemaining = Math.max(0, state.creditRemaining - cost);
+      syncSubmitBtn();
+    }
   }
 
   $('submitBtn').onclick = runSubmit;
+  syncSubmitBtn();
 
   fillCats();
   fillCities();
