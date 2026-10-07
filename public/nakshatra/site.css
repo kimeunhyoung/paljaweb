@@ -5,7 +5,6 @@ main a{color:#a24a26}
 /* 상단 고정 메뉴(약 93~118px)에 제목이 가려지지 않게 */
 main [id]{scroll-margin-top:110px}
 @media (max-width:600px){main [id]{scroll-margin-top:136px}}
-.banner{background:#fbf1e8;border-left:4px solid var(--gold);padding:8px 14px;font-size:14px;margin:0 0 18px}
 main h1{font-size:28px;color:var(--navy);margin:8px 0 6px;padding-bottom:8px;border-bottom:3px solid var(--gold);line-height:1.35}
 main h1 small{font-size:15px;color:#9a7a68;font-weight:400;margin-left:8px}
 main h2{font-size:20px;color:var(--navy);margin:34px 0 10px;padding-bottom:5px;border-bottom:1px solid var(--line);line-height:1.4}
@@ -65,3 +64,5 @@ footer:not(.site-footer){max-width:860px;margin:0 auto;padding:0 16px 40px;font-
  body *{visibility:hidden!important}
  body::before{visibility:visible!important;content:"이 학습자료는 인쇄를 지원하지 않습니다. 팔자연구소(8code.kr)에서 온라인으로 읽어 주세요.";display:block;padding:40px;font-size:16pt}
 }
+
+.end-note{margin:22px 0 0;font-size:13px;color:#8a7a70;text-align:center}
