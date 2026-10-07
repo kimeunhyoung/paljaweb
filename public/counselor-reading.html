@@ -911,7 +911,7 @@
         </button>
         <button type="button" class="ai-depth-btn" id="aiDepthIntegrated" data-depth="integrated" role="tab" aria-selected="false">
           <strong>타로 + 수비학·점성학</strong>
-          <span>고객 생년월일 흐름을 해석에 함께 녹여요 · 고객 선택 필요 · <b>+1 크레딧</b></span>
+          <span>고객 생년월일 흐름을 해석에 함께 녹여요 · 고객 선택 필요 · <b id="aiDepthExtraCost">+2 크레딧</b></span>
         </button>
       </div>
         <div class="ai-step full"><span class="ai-step-num">5</span><span class="ai-step-title">카드</span><span class="ai-step-sub">직접 입력 · 음성 · 덱에서 뽑기</span></div>
@@ -1785,11 +1785,17 @@
       }
 
       function updateCreditHint() {
-        if (!creditHintEl) return;
         const n = readFilledCards().length || Math.max(1, slots.filter((s) => s.num != null).length || 1);
         const { cost } = resolveCounselorFeature(n, readingDepth);
-        creditHintEl.innerHTML = '이번 리딩 <b>' + cost + '</b> 크레딧' +
-          (readingDepth === 'integrated' ? ' <span>· 수비학·점성학 포함</span>' : '');
+        if (creditHintEl) {
+          creditHintEl.innerHTML = '이번 리딩 <b>' + cost + '</b> 크레딧' +
+            (readingDepth === 'integrated' ? ' <span>· 수비학·점성학 포함</span>' : '');
+        }
+        const extraEl = document.getElementById('aiDepthExtraCost');
+        if (extraEl) {
+          const add = resolveCounselorFeature(n, 'integrated').cost - resolveCounselorFeature(n, 'card').cost;
+          extraEl.textContent = '+' + add + ' 크레딧';
+        }
       }
 
       function setMode(next) {
