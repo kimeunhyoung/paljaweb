@@ -17,7 +17,7 @@
 <script src="/js/topbar-session.js?v=14" defer></script>
 <script src="/js/astro-cities.js?v=2"></script>
 <script src="/js/vedic-core.js?v=2"></script>
-<script src="/js/prashna-engine.js?v=3"></script>
+<script src="/js/prashna-engine.js?v=5"></script>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css" crossorigin>
 <link rel="stylesheet" href="/css/site-topbar.css?v=23">
 <link rel="stylesheet" href="/css/site-header.css?v=9">
@@ -96,6 +96,8 @@ details.block[open] summary::after{content:'접기 ▴'}
 details.block[open] summary{margin-bottom:8px}
 .inline-err{display:none;margin:12px 0 0;padding:10px 12px;border-radius:10px;font-size:13.5px;line-height:1.55;background:rgba(184,85,85,.08);color:#a94442;border:1px solid rgba(184,85,85,.22)}
 .inline-err.on{display:block}
+.invest-note{font-size:13px;color:#7a4a1c;background:#fff6e8;border:1px solid #f0d9b5;border-left:3px solid #d99a3c;padding:10px 12px;border-radius:0 10px 10px 0;margin:0 0 14px;line-height:1.6}
+.invest-note b{display:block;font-size:12.5px;margin-bottom:2px}
 a.btn{display:inline-flex;align-items:center;justify-content:center;text-decoration:none;box-sizing:border-box}
 .counselor-only.on{display:block}
 .si{display:grid;grid-template-columns:repeat(4,1fr);grid-template-rows:repeat(4,minmax(72px,auto));max-width:440px;margin:0 auto;border:2px solid #8b6f47;background:#fff}
@@ -176,7 +178,7 @@ a.btn{display:inline-flex;align-items:center;justify-content:center;text-decorat
   var PE = window.PrashnaEngine;
   var state = {
     category: null, question: '', city: null, clientLabel: '',
-    result: null, isCounselor: false,
+    result: null, isCounselor: false, isAdmin: false, isPrivate: false,
   };
 
   function $(id) { return document.getElementById(id); }
@@ -266,10 +268,20 @@ a.btn{display:inline-flex;align-items:center;justify-content:center;text-decorat
       var prof = await sb.from('profiles').select('plan, plan_active_until').eq('id', session.user.id).maybeSingle();
       var PA = window.PaljaPlan;
       state.isCounselor = !!(PA && PA.isCounselorPlan && PA.isCounselorPlan(prof.data));
+      state.isPrivate = !!(PA && PA.effectivePlan && PA.effectivePlan(prof.data) === 'private');
       $('clientLabelWrap').classList.toggle('on', state.isCounselor);
-      if (state.isCounselor) {
+      if (state.isPrivate) {
+        $('step1Hint').textContent = '한 번에 한 주제만 고르세요. Private 계정은 재질문·하루 건수·주제 제한 없이 볼 수 있어요.';
+      } else if (state.isCounselor) {
         $('step1Hint').textContent = '한 번에 한 주제만 고르세요. 상담사 계정은 재질문 제한 없이 하루 20건까지 볼 수 있어요.';
       }
+    } catch (e) { /* ignore */ }
+    try {
+      var s2 = await getSession();
+      if (!s2) return;
+      var mr = await fetch('/api/prashna/meta', { headers: { Authorization: 'Bearer ' + s2.access_token }, cache: 'no-store' });
+      var mj = await mr.json().catch(function () { return {}; });
+      state.isAdmin = !!mj.isAdmin;
     } catch (e) { /* ignore */ }
   }
 
@@ -341,10 +353,18 @@ a.btn{display:inline-flex;align-items:center;justify-content:center;text-decorat
     }
     $('step2Err').classList.remove('on');
     if (q.length < 4) { err('질문을 한 문장으로 적어 주세요.'); return; }
-    var bc = PE.blockCheck ? PE.blockCheck(q) : { blocked: PE.isBlockedQuestion(q) };
+    var bc = PE.blockCheck ? PE.blockCheck(q, { allowInvest: state.isAdmin, allowAll: state.isPrivate }) : { blocked: PE.isBlockedQuestion(q) };
+    if (bc.blocked && bc.invest) {
+      err('특정 종목이나 사고팔 시점은 질문점으로 보지 않아요. "올해 투자 흐름은 어떨까요?"처럼 흐름을 물어봐 주세요.');
+      return;
+    }
+    if (bc.blocked && bc.always) {
+      err('지금 많이 힘드신가요? 이 질문은 질문점으로 볼 수 없지만, 혼자 견디지 않으셨으면 해요. 자살예방상담전화 109(24시간)에서 바로 이야기를 들어 드려요.');
+      return;
+    }
     if (bc.blocked) {
       err((bc.topic ? '「' + bc.topic + '」 관련 질문은 다루지 않아요. ' : '') +
-        '건강·소송·주식·코인·도박은 질문점으로 보지 않아요. 다른 질문으로 바꿔 주세요.');
+        '건강·소송·도박·불법 감시는 질문점으로 보지 않아요. 다른 질문으로 바꿔 주세요.');
       return;
     }
     if (!city || !city.tz) { err('현재 도시를 선택해 주세요.'); return; }
@@ -359,7 +379,10 @@ a.btn{display:inline-flex;align-items:center;justify-content:center;text-decorat
         ? '<p style="margin:0 0 8px;font-size:14.5px;line-height:1.7"><b>고객</b> ' + esc(state.clientLabel) + '</p>'
         : '') +
       '<p style="margin:0;font-size:14.5px;line-height:1.7"><b>도시</b> ' + esc(city.ko) +
-      ' <span style="color:#8a7a68">(' + esc(city.tz) + ')</span></p>';
+      ' <span style="color:#8a7a68">(' + esc(city.tz) + ')</span></p>' +
+      (bc.invest
+        ? '<p class="invest-note" style="margin:12px 0 0"><b>투자 관련 질문이에요</b>결과는 흐름을 읽는 참고 해석이며, 종목 추천이나 매매 시점 조언이 아니에요.</p>'
+        : '');
     setStep(3);
   };
 
@@ -490,6 +513,8 @@ a.btn{display:inline-flex;align-items:center;justify-content:center;text-decorat
       '<p class="q">Q. ' + esc(meta.question || '') + '</p>' +
       (meta.clientLabel ? '<p style="opacity:.85;margin-top:6px">고객 · ' + esc(meta.clientLabel) + '</p>' : '') +
       '</div>' +
+      (r.sensitiveNotice ? '<p class="invest-note"><b>민감 주제 주의</b>' + esc(r.sensitiveNotice) + '</p>' : '') +
+      (r.investNotice ? '<p class="invest-note"><b>투자 판단 주의</b>' + esc(r.investNotice) + '</p>' : '') +
       '<div class="block"><h4>시기 후보</h4><ul class="tl">' + timings + '</ul></div>' +
       (advice ? '<div class="block"><h4>조언</h4><ul>' + advice + '</ul></div>' : '') +
       '<details class="block"><summary>차트 근거</summary><ul>' + evidence + '</ul></details>' +

@@ -1763,24 +1763,24 @@
         if (cardCount <= 1) {
           return {
             feature: integrated ? 'counselor_integrated_basic' : 'counselor_session_basic',
-            cost: integrated ? 2 : 1,
+            cost: integrated ? 3 : 1,
           };
         }
         if (cardCount <= 3) {
           return {
             feature: integrated ? 'counselor_integrated' : 'counselor_session',
-            cost: integrated ? 3 : 2,
+            cost: integrated ? 4 : 2,
           };
         }
         if (cardCount <= 6) {
           return {
             feature: integrated ? 'counselor_integrated_plus' : 'counselor_session_plus',
-            cost: integrated ? 4 : 3,
+            cost: integrated ? 5 : 4,
           };
         }
         return {
           feature: integrated ? 'counselor_integrated_full' : 'counselor_session_full',
-          cost: integrated ? 5 : 4,
+          cost: integrated ? 6 : 5,
         };
       }
 
