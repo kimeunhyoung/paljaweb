@@ -168,12 +168,12 @@ a.btn{display:inline-flex;align-items:center;justify-content:center;text-decorat
 
   <aside class="notice" id="pageNotice" aria-label="이용 안내">
     <p class="credit"><span class="pill">요금</span><span><b>AI 해석 1크레딧</b>이 차감됩니다. 크레딧이 없으면 <b>규칙 판정(무료)</b>으로 보여 드려요.</span></p>
-    <p class="warn" id="pageNoticeWarn"><b>다루지 않는 질문</b> · 건강·질병·생사, 소송·범죄, 도박·로또, 불법 감시, 특정 종목·매매 시점. 투자 <b>흐름</b> 질문은 가능해요. 결과는 참고용이며 의료·법률·투자 판단의 근거로 쓰지 마세요.</p>
+    <p class="warn" id="pageNoticeWarn"><b>다루지 않는 질문</b> · 건강·질병·생사, 소송·범죄, 도박·로또, 불법 감시, 특정 종목·매매 시점. 투자 <b>흐름</b> 질문은 가능해요. 같은 질문을 바로 반복하기보다, 상황이 달라진 뒤 다시 물어보세요. 결과는 참고용이며 의료·법률·투자 판단의 근거로 쓰지 마세요.</p>
   </aside>
 
   <section class="panel on" id="step1" data-step="1">
     <h2><span class="no">STEP 1</span>무엇을 묻나요?</h2>
-    <p class="hint" id="step1Hint">한 번에 한 주제만 고르세요. 같은 종류의 질문은 30일 안에 다시 볼 수 없고, 그동안은 이전 결과를 보여 드려요.</p>
+    <p class="hint" id="step1Hint">한 번에 한 주제만 고르세요. 같은 주제라도 질문이 다르면 다시 볼 수 있어요. 다만 같은 문장을 바로 반복하기보다, 상황이 바뀐 뒤 물어보는 편이 좋아요.</p>
     <div class="cats" id="catGrid"></div>
     <button type="button" id="to2" hidden disabled></button>
   </section>
@@ -258,9 +258,9 @@ a.btn{display:inline-flex;align-items:center;justify-content:center;text-decorat
     var warn = $('pageNoticeWarn');
     if (!warn) return;
     if (state.isPrivate) {
-      warn.innerHTML = '<b>Private 안내</b> · 민감 주제도 볼 수 있어요. 다만 의료·법률·투자 결과는 단정하지 않으며, 의사·변호사·전문가 상담이 우선이에요. 결과는 참고용입니다.';
+      warn.innerHTML = '<b>Private 안내</b> · 민감 주제도 볼 수 있어요. 다만 의료·법률·투자 결과는 단정하지 않으며, 의사·변호사·전문가 상담이 우선이에요. 같은 질문을 바로 반복하기보다 상황이 달라진 뒤 다시 물어보세요. 결과는 참고용입니다.';
     } else {
-      warn.innerHTML = '<b>다루지 않는 질문</b> · 건강·질병·생사, 소송·범죄, 도박·로또, 불법 감시, 특정 종목·매매 시점. 투자 <b>흐름</b> 질문은 가능해요. 결과는 참고용이며 의료·법률·투자 판단의 근거로 쓰지 마세요.';
+      warn.innerHTML = '<b>다루지 않는 질문</b> · 건강·질병·생사, 소송·범죄, 도박·로또, 불법 감시, 특정 종목·매매 시점. 투자 <b>흐름</b> 질문은 가능해요. 같은 질문을 바로 반복하기보다, 상황이 달라진 뒤 다시 물어보세요. 결과는 참고용이며 의료·법률·투자 판단의 근거로 쓰지 마세요.';
     }
   }
 
@@ -387,9 +387,9 @@ a.btn{display:inline-flex;align-items:center;justify-content:center;text-decorat
       state.isPrivate = !!(PA && PA.effectivePlan && PA.effectivePlan(prof.data) === 'private');
       $('clientLabelWrap').classList.toggle('on', state.isCounselor);
       if (state.isPrivate) {
-        $('step1Hint').textContent = '한 번에 한 주제만 고르세요. Private 계정은 재질문·하루 건수·주제 제한 없이 볼 수 있어요.';
+        $('step1Hint').textContent = '한 번에 한 주제만 고르세요. Private는 주제·하루 건수 제한 없이 볼 수 있어요. 같은 문장은 바로 반복하기보다 상황이 바뀐 뒤 물어보세요.';
       } else if (state.isCounselor) {
-        $('step1Hint').textContent = '한 번에 한 주제만 고르세요. 상담사 계정은 재질문 제한 없이 하루 20건까지 볼 수 있어요.';
+        $('step1Hint').textContent = '한 번에 한 주제만 고르세요. 상담사 계정은 하루 20건까지 볼 수 있어요. 같은 주제라도 질문이 다르면 다시 볼 수 있어요.';
       }
       syncPageNotice();
     } catch (e) { /* ignore */ }
