@@ -9,7 +9,8 @@
   if (window.__paljaPwaInstallInit) return;
   window.__paljaPwaInstallInit = true;
 
-  var DISMISS_KEY = 'palja:pwaInstallDismissedAt';
+  /* 예전 하단 배너 dismiss 키와 분리 — 예전 × 눌러도 새 FAB는 다시 보여요 */
+  var DISMISS_KEY = 'palja:pwaFabDismissedAt';
   var DISMISS_DAYS = 14;
   var deferredPrompt = null;
   var promptReady = false;
@@ -36,10 +37,10 @@
     var ua = navigator.userAgent || '';
     if (/Android|iPhone|iPad|iPod|Mobile/i.test(ua)) return true;
     try {
-      return window.matchMedia('(max-width: 820px)').matches && 'ontouchstart' in window;
-    } catch (e) {
-      return false;
-    }
+      // 좁은 화면이면 표시 (DevTools 기기 모드 포함). PC 와이드는 제외.
+      if (window.matchMedia('(max-width: 820px)').matches) return true;
+    } catch (e) {}
+    return false;
   }
 
   function isIos() {
@@ -285,7 +286,13 @@
     var oldTop = document.querySelectorAll('.topbar-install-btn');
     for (var i = 0; i < oldTop.length; i++) oldTop[i].remove();
 
-    if (!isDismissed()) showFab();
+    function tryShow() {
+      if (!isDismissed()) showFab();
+    }
+    tryShow();
+    // body/레이아웃이 늦게 붙는 페이지 대비
+    setTimeout(tryShow, 300);
+    setTimeout(tryShow, 1200);
   }
 
   window.addEventListener('beforeinstallprompt', onPromptReady);
