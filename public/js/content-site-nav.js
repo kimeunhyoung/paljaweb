@@ -142,7 +142,7 @@
 
   ensureScript('/js/plan-access.js?v=13');
   ensureScript('/js/site-footer.js?v=6');
-  ensureScript('/js/site-topbar.js?v=40', function () {
+  ensureScript('/js/site-topbar.js?v=41', function () {
     ensureScript('/js/topbar-session.js?v=14');
   });
 })();
