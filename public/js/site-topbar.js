@@ -6,24 +6,44 @@
   if (!document.querySelector('link[href*="/css/site-topbar.css"]')) {
     var tbCss = document.createElement('link');
     tbCss.rel = 'stylesheet';
-    tbCss.href = '/css/site-topbar.css?v=21';
+    tbCss.href = '/css/site-topbar.css?v=22';
     (document.head || document.documentElement).appendChild(tbCss);
   }
-  // 첫 페인트 전에 자리 + 로그인 깜빡임 방지 CSS를 즉시 주입
-  // (topbar-session.js보다 먼저 그려지므로, 게스트 문구는 auth-ready 전까지 숨김)
-  if (!document.getElementById('palja-topbar-critical')) {
-    var crit = document.createElement('style');
-    crit.id = 'palja-topbar-critical';
-    crit.textContent =
-      '.site-top{min-height:92px;box-sizing:border-box;background:#f5f0e8}' +
-
-      '[data-topbar-auth]:not([data-auth-ready="1"]) [data-topbar-auth-guest]{visibility:hidden!important;pointer-events:none}' +
-      '[data-topbar-auth-user][hidden],[data-topbar-auth-guest][hidden]{display:none!important}';
+  // 첫 페인트 전에 레이아웃·배지·로그인 깜빡임 방지 CSS를 즉시 주입
+  // (동적 stylesheet보다 먼저 적용돼 FOUC를 막음. id가 있어도 내용을 덮어씀)
+  var CRITICAL_TOPBAR_CSS =
+    '.site-top{min-height:92px;box-sizing:border-box;background:#f5f0e8!important;font-family:"Noto Sans KR",system-ui,sans-serif;-webkit-font-smoothing:antialiased}' +
+    '.site-top .topbar{min-height:52px;padding:10px 32px;border-bottom:1px solid rgba(139,111,71,.15);box-sizing:border-box;background:#f5f0e8!important}' +
+    '.site-top .topbar-inner{max-width:1140px;margin:0 auto;width:100%;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:nowrap;min-width:0}' +
+    '.site-top .topbar-left{display:flex;align-items:center;gap:12px;min-width:0}' +
+    '.site-top .topbar-logo{display:inline-flex;align-items:center;gap:8px;text-decoration:none;color:#4a3520;font-weight:700;white-space:nowrap}' +
+    '.site-top .topbar-logo-mark{display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:8px;background:#4a3520;color:#f5f0e8;font-size:14px}' +
+    '.site-top .topbar-title{font-size:13px;color:#8a7a68;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}' +
+    '.site-top .topbar-links{display:flex;align-items:center;gap:22px;margin-left:auto;margin-right:8px;flex-shrink:0}' +
+    '.site-top .topbar-links a{font-size:14px;font-weight:500;color:#8a7a68;text-decoration:none;white-space:nowrap}' +
+    '.site-top .topbar-right{display:flex;align-items:center;gap:10px;flex-shrink:0}' +
+    '.site-top .topbar-auth-row{display:inline-flex;align-items:center;gap:6px}' +
+    '.site-top .topbar-auth-link,.site-top .back-btn{font-size:12px;font-weight:600;color:#8a7a68;text-decoration:none;white-space:nowrap;background:none;border:0;padding:0;cursor:pointer;font-family:inherit}' +
+    '.site-top .plan-badge-short{display:none!important}' +
+    '.site-top .plan-badge{font-size:10px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;padding:5px 11px;border-radius:999px;color:#f5f0e8;background:#4a3520;white-space:nowrap}' +
+    '.site-top .program-nav{background:#fff!important;border-bottom:1px solid rgba(139,111,71,.15);padding:0 32px}' +
+    '.site-top .program-nav-inner{max-width:1140px;margin:0 auto;display:flex;flex-wrap:wrap;align-items:center;gap:0 14px;min-height:40px;font-size:12px;font-weight:600}' +
+    '.site-top .program-nav-inner>a,.site-top .program-nav-inner>.program-nav-current,.site-top .program-nav-inner>.program-nav-dd{display:inline-flex;align-items:center;min-height:40px;color:#4a3520;text-decoration:none}' +
+    '.site-top .program-nav-dd{position:relative}' +
+    '.site-top .program-nav-dd-btn{border:0;background:transparent;font:inherit;cursor:pointer;display:inline-flex;align-items:center;gap:4px;padding:0;color:#4a3520;font-size:12px;font-weight:600}' +
+    '.site-top .program-nav-dd-menu{display:none}' +
+    '[data-topbar-auth]:not([data-auth-ready="1"]) [data-topbar-auth-guest]{visibility:hidden!important;pointer-events:none}' +
+    '[data-topbar-auth-user][hidden],[data-topbar-auth-guest][hidden]{display:none!important}';
+  var critEl = document.getElementById('palja-topbar-critical');
+  if (!critEl) {
+    critEl = document.createElement('style');
+    critEl.id = 'palja-topbar-critical';
     (document.head || document.documentElement).insertBefore(
-      crit,
+      critEl,
       (document.head || document.documentElement).firstChild
     );
   }
+  critEl.textContent = CRITICAL_TOPBAR_CSS;
 
   if (!document.querySelector('script[data-palja-analytics]')) {
     var a = document.createElement('script');
