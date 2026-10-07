@@ -161,7 +161,7 @@ a.btn{display:inline-flex;align-items:center;justify-content:center;text-decorat
 h1{font-size:clamp(26px,5vw,40px);font-weight:600;line-height:1.25;margin:0}
 h1 em{font-style:normal;color:#a8844a}
 .lead{margin-top:14px;max-width:600px;line-height:1.8}
-.lead a{color:#8b6a33 !important;text-decoration:underline;text-underline-offset:3px}
+.lead a,.panel .hint a,.alt-link a{color:#8b6a33 !important;text-decoration:underline;text-underline-offset:3px;font-weight:600}
 .astro-subnav{display:flex;justify-content:center;gap:10px;margin:22px auto 0;max-width:380px}
 .astro-subnav a,.astro-subnav span{flex:1;text-align:center;padding:13px 10px;border-radius:14px;font-size:15px;font-weight:700;text-decoration:none;border:2px solid var(--line);background:rgba(255,255,255,.55);color:var(--deep);transition:border-color .15s,background .15s,transform .12s;white-space:nowrap}
 .astro-subnav a:hover{border-color:var(--accent);background:rgba(255,255,255,.9);transform:translateY(-1px)}
@@ -183,9 +183,9 @@ h1 em{font-style:normal;color:#a8844a}
 .cat b{font-family:var(--serif);font-weight:600}
 .cat .q{color:#7a5f3a}
 .btn{border-radius:12px;padding:14px 16px}
-.btn.pri{background:#a8844a}
+.btn.pri{background:#a8844a;flex:1.4}
 .btn.pri:hover{background:#b8955a}
-.btn.ghost{background:#fff}
+.btn.ghost{background:#fff;flex:0 0 auto;min-width:96px}
 textarea:focus,select:focus,input:focus{border-color:var(--accent) !important;box-shadow:0 0 0 3px rgba(200,169,110,.18) !important}
 .credit-callout{background:rgba(200,169,110,.1);border-color:rgba(168,132,74,.3)}
 .credit-callout b{color:#8b6a33}
@@ -212,7 +212,7 @@ textarea:focus,select:focus,input:focus{border-color:var(--accent) !important;bo
     </svg></div>
     <div class="tag">점성학 · 내 차트로 묻기</div>
     <h1>내 차트로 묻기<br><em>출생 차트로 보는 질문의 답</em></h1>
-    <p class="lead"><b>생년월일시</b>로 출생 차트를 만들고, 질문 주제에 맞춰 흐름과 시기 후보를 읽어요. 생시를 모를 때는 <a href="/prashna.html" style="color:var(--terra);font-weight:600">질문점(프라슈나)</a>을 이용해 주세요.</p>
+    <p class="lead"><b>생년월일시</b>로 출생 차트를 만들고, 질문 주제에 맞춰 흐름과 시기 후보를 읽어요. 생시를 모를 때는 <a href="/prashna.html">질문점(프라슈나)</a>을 이용해 주세요.</p>
     <nav class="astro-subnav" aria-label="질문점 메뉴">
       <a href="/prashna.html">✧ 질문점</a>
       <span class="is-current" aria-current="page">☉ 내 차트로 묻기</span>
