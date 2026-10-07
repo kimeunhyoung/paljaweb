@@ -118,7 +118,7 @@ a.btn{display:inline-flex;align-items:center;justify-content:center;text-decorat
 <div class="site-top" data-topbar-title="질문점" data-nav-current="prashna" data-login-next="prashna.html"></div>
 <main class="wrap">
   <header class="hero">
-    <div class="tag">PRASHNA · 체험판</div>
+    <div class="tag">PRASHNA · AI 1크레딧</div>
     <h1>질문점 · 지금 이 순간의 답</h1>
     <p class="lead">생시 없이, 질문을 올리는 <b>그 시각·그 도시</b>의 하늘로 읽습니다. 확정 예언이 아니라 경향과 시기 후보를 드려요.</p>
     <div class="steps" id="stepDots" aria-hidden="true"><span class="on"></span><span></span><span></span><span></span></div>
@@ -152,11 +152,11 @@ a.btn{display:inline-flex;align-items:center;justify-content:center;text-decorat
 
   <section class="panel" id="step3" data-step="3">
     <h2>3. 질문 올리기</h2>
-    <p class="hint">아래 버튼을 누르는 <b>서버 시각</b>이 차트의 기준이 됩니다. 계산은 서버에서만 이뤄져요. (로그인 필요 · 체험판)</p>
+    <p class="hint">아래 버튼을 누르는 <b>서버 시각</b>이 차트의 기준이 됩니다. <b>AI 해석 1크레딧</b>이 차감되고, 크레딧이 없으면 <b>규칙 판정(무료)</b>으로 보여 드려요. 계산은 서버에서만 이뤄져요. (로그인 필요)</p>
     <div class="block" id="confirmBox"></div>
     <div class="navrow">
       <button type="button" class="btn ghost" id="back2">이전</button>
-      <button type="button" class="btn pri" id="submitBtn">질문 올리기</button>
+      <button type="button" class="btn pri" id="submitBtn">질문 올리기 (AI 1크레딧)</button>
     </div>
     <div class="status" id="status"></div>
   </section>
@@ -504,7 +504,9 @@ a.btn{display:inline-flex;align-items:center;justify-content:center;text-decorat
     var advice = (r.advice || []).map(function (a) { return '<li>' + esc(a) + '</li>'; }).join('');
     var chartHtml = drawSouthChartHtml(r.chart);
     var tone = TONE_LABEL[r.tone] ? r.tone : '';
-    var kicker = meta.reused ? '이전 결과' : (r.trial ? '체험판 · 한 줄 결론' : '한 줄 결론');
+    var kicker = meta.reused
+      ? '이전 결과'
+      : (r.aiUsed ? 'AI 해석 · 1크레딧' : '규칙 판정 · 무료');
     $('resultBox').innerHTML =
       '<div class="result-head' + (tone ? ' t-' + tone : '') + '">' +
       '<p class="kicker">' + kicker + '</p>' +
@@ -523,7 +525,10 @@ a.btn{display:inline-flex;align-items:center;justify-content:center;text-decorat
       (meta.city ? ' · ' + esc(meta.city) : '') +
       (meta.tz ? ' · ' + esc(meta.tz) : '') +
       (r.lagna ? ' · 상승 ' + esc(r.lagna.label) : '') +
-      (r.aiUsed ? ' · AI 해석' : ' · 규칙 판정') + '</p>' +
+      (r.aiUsed ? ' · AI 해석 · 1크레딧 차감' : ' · 규칙 판정 · 크레딧 없음') + '</p>' +
+      (!r.aiUsed && r.aiReason === 'no_credits'
+        ? '<p class="meta">AI 크레딧이 없어 규칙 판정으로 보여 드렸어요. AI 해석은 1크레딧이에요. <a href="/pricing.html#onetime" style="color:var(--terra)">크레딧 보기</a></p>'
+        : '') +
       '<p class="disc">' + esc(r.disclaimer || '') + '</p>';
   }
 
