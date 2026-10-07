@@ -123,6 +123,16 @@ details.block[open] summary{margin-bottom:8px}
 .inline-err.on{display:block}
 .invest-note{font-size:13px;color:#7a4a1c;background:#fff6e8;border:1px solid #f0d9b5;border-left:3px solid #d99a3c;padding:10px 12px;border-radius:0 10px 10px 0;margin:0 0 14px;line-height:1.6}
 .invest-note b{display:block;font-size:12.5px;margin-bottom:2px}
+.notice{margin:14px 0 0;padding:14px 14px 12px;border-radius:14px;background:#fff;border:1px solid var(--line);box-shadow:0 6px 18px rgba(44,31,14,.05);text-align:left}
+.notice .credit{display:flex;align-items:flex-start;gap:10px;margin:0 0 10px;padding-bottom:10px;border-bottom:1px dashed rgba(139,111,71,.22);font-size:14px;line-height:1.55;color:var(--deep)}
+.notice .credit b{color:var(--terra)}
+.notice .credit .pill{flex:0 0 auto;font-size:11.5px;font-weight:700;letter-spacing:.04em;color:#fff;background:var(--terra);border-radius:99px;padding:4px 9px;margin-top:1px}
+.notice .warn{margin:0;font-size:13px;line-height:1.65;color:#6a5544}
+.notice .warn b{color:var(--deep)}
+.credit-callout{margin:0 0 12px;padding:12px 14px;border-radius:12px;background:rgba(196,96,58,.08);border:1px solid rgba(196,96,58,.28);color:var(--deep);font-size:14px;line-height:1.55}
+.credit-callout b{color:var(--terra)}
+.credit-callout.free{background:rgba(46,139,122,.08);border-color:rgba(46,139,122,.25)}
+.credit-callout.free b{color:#2e8b7a}
 a.btn{display:inline-flex;align-items:center;justify-content:center;text-decoration:none;box-sizing:border-box}
 .counselor-only.on{display:block}
 .si{display:grid;grid-template-columns:repeat(4,1fr);grid-template-rows:repeat(4,minmax(72px,auto));max-width:440px;margin:0 auto;border:2px solid #8b6f47;background:#fff}
@@ -150,11 +160,16 @@ a.btn{display:inline-flex;align-items:center;justify-content:center;text-decorat
       <line x1="110" y1="383" x2="135" y2="340"/><line x1="37" y1="310" x2="80" y2="285"/><line x1="37" y1="110" x2="80" y2="135"/><line x1="110" y1="37" x2="135" y2="80"/></g>
       <g fill="rgba(196,96,58,.35)" stroke="none"><circle cx="300" cy="96" r="2.2"/><circle cx="118" cy="128" r="1.6"/><circle cx="332" cy="250" r="1.8"/><circle cx="92" cy="282" r="2"/><circle cx="250" cy="352" r="1.5"/></g>
     </svg></div>
-    <div class="tag">PRASHNA · AI 1크레딧</div>
+    <div class="tag">PRASHNA</div>
     <h1>질문점 · 지금 이 순간의 답</h1>
     <p class="lead">생시 없이, 질문을 올리는 <b>그 시각·그 도시</b>의 하늘로 읽습니다. 확정 예언이 아니라 경향과 시기 후보를 드려요.</p>
     <ol class="steps" id="stepDots" aria-label="진행 단계"><li class="on"><i>1</i>주제</li><li><i>2</i>질문</li><li><i>3</i>하늘 계산</li><li><i>4</i>답·시기</li></ol>
   </header>
+
+  <aside class="notice" id="pageNotice" aria-label="이용 안내">
+    <p class="credit"><span class="pill">요금</span><span><b>AI 해석 1크레딧</b>이 차감됩니다. 크레딧이 없으면 <b>규칙 판정(무료)</b>으로 보여 드려요.</span></p>
+    <p class="warn" id="pageNoticeWarn"><b>다루지 않는 질문</b> · 건강·질병·생사, 소송·범죄, 도박·로또, 불법 감시, 특정 종목·매매 시점. 투자 <b>흐름</b> 질문은 가능해요. 결과는 참고용이며 의료·법률·투자 판단의 근거로 쓰지 마세요.</p>
+  </aside>
 
   <section class="panel on" id="step1" data-step="1">
     <h2><span class="no">STEP 1</span>무엇을 묻나요?</h2>
@@ -166,7 +181,7 @@ a.btn{display:inline-flex;align-items:center;justify-content:center;text-decorat
   <section class="panel" id="step2" data-step="2">
     <h2><span class="no">STEP 2</span>질문과 지금 있는 도시</h2>
     <div class="picked" id="pickedCat"></div>
-    <p class="hint">마음이 흐트러지지 않게, 한 문장으로 또렷이 적어 주세요. 도시는 지금 있는 곳이에요.</p>
+    <p class="hint">마음이 흐트러지지 않게, 한 문장으로 또렷이 적어 주세요. 도시는 지금 있는 곳이에요. 건강·소송·도박·종목 매매 시점은 막아 두었어요.</p>
     <label class="field" for="qText">질문</label>
     <textarea id="qText" maxlength="160" placeholder="예: 지금 내놓은 아파트는 언제쯤 팔릴까요?"></textarea>
     <p class="ex" id="qEx"></p>
@@ -185,7 +200,8 @@ a.btn{display:inline-flex;align-items:center;justify-content:center;text-decorat
 
   <section class="panel" id="step3" data-step="3">
     <h2><span class="no">STEP 3</span>질문 올리기</h2>
-    <p class="hint">아래 버튼을 누르는 <b>서버 시각</b>이 차트의 기준이 됩니다. <b>AI 해석 1크레딧</b>이 차감되고, 크레딧이 없으면 <b>규칙 판정(무료)</b>으로 보여 드려요. 계산은 서버에서만 이뤄져요. (로그인 필요)</p>
+    <p class="hint">아래 버튼을 누르는 <b>서버 시각</b>이 차트의 기준이 됩니다. 계산은 서버에서만 이뤄져요. (로그인 필요)</p>
+    <div class="credit-callout" id="creditCallout"><b>AI 해석 1크레딧</b>이 차감됩니다. 잔여가 없으면 규칙 판정(무료)으로 보여 드려요.</div>
     <div class="block" id="confirmBox"></div>
     <div class="navrow">
       <button type="button" class="btn ghost" id="back2">이전</button>
@@ -217,13 +233,34 @@ a.btn{display:inline-flex;align-items:center;justify-content:center;text-decorat
 
   function syncSubmitBtn() {
     var btn = $('submitBtn');
-    if (!btn) return;
+    var callout = $('creditCallout');
     var cost = Math.max(1, Number(state.creditCost) || 1);
     var rem = state.creditRemaining;
-    if (rem != null && rem < cost) {
-      btn.textContent = '질문 올리기 (규칙 판정 · 무료)';
+    var noCredit = rem != null && rem < cost;
+    if (btn) {
+      btn.textContent = noCredit
+        ? '질문 올리기 (규칙 판정 · 무료)'
+        : '질문 올리기 (AI ' + cost + '크레딧 차감)';
+    }
+    if (callout) {
+      callout.classList.toggle('free', !!noCredit);
+      if (noCredit) {
+        callout.innerHTML = '지금은 잔여 AI 크레딧이 없어 <b>규칙 판정(무료)</b>으로 보여 드려요. AI 해석은 1크레딧이에요.';
+      } else if (rem != null) {
+        callout.innerHTML = '이번 질문에서 <b>AI 해석 ' + cost + '크레딧</b>이 차감됩니다. (이번 달 잔여 ' + rem + ')';
+      } else {
+        callout.innerHTML = '이번 질문에서 <b>AI 해석 ' + cost + '크레딧</b>이 차감됩니다. 잔여가 없으면 규칙 판정(무료)으로 보여 드려요.';
+      }
+    }
+  }
+
+  function syncPageNotice() {
+    var warn = $('pageNoticeWarn');
+    if (!warn) return;
+    if (state.isPrivate) {
+      warn.innerHTML = '<b>Private 안내</b> · 민감 주제도 볼 수 있어요. 다만 의료·법률·투자 결과는 단정하지 않으며, 의사·변호사·전문가 상담이 우선이에요. 결과는 참고용입니다.';
     } else {
-      btn.textContent = '질문 올리기 (AI ' + cost + '크레딧)';
+      warn.innerHTML = '<b>다루지 않는 질문</b> · 건강·질병·생사, 소송·범죄, 도박·로또, 불법 감시, 특정 종목·매매 시점. 투자 <b>흐름</b> 질문은 가능해요. 결과는 참고용이며 의료·법률·투자 판단의 근거로 쓰지 마세요.';
     }
   }
 
@@ -354,6 +391,7 @@ a.btn{display:inline-flex;align-items:center;justify-content:center;text-decorat
       } else if (state.isCounselor) {
         $('step1Hint').textContent = '한 번에 한 주제만 고르세요. 상담사 계정은 재질문 제한 없이 하루 20건까지 볼 수 있어요.';
       }
+      syncPageNotice();
     } catch (e) { /* ignore */ }
     try {
       var s2 = await getSession();
