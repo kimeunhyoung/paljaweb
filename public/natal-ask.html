@@ -95,7 +95,9 @@ textarea:focus,select:focus,input[type=text]:focus,input[type=date]:focus,input[
 .client-pick-wrap label{display:block;font-size:13px;font-weight:600;color:var(--deep);margin:0 0 6px}
 .client-pick-wrap input,.client-pick-wrap select{width:100%;padding:12px 14px;border:1px solid var(--line);border-radius:12px;background:var(--soft);font:inherit;font-size:15px;color:var(--ink)}
 .client-pick-hint{margin:8px 0 0;font-size:12.5px;line-height:1.5;color:var(--muted)}
-@media(max-width:680px){.client-pick-row{grid-template-columns:1fr}}
+.manual-coords{display:none;grid-template-columns:1fr 1fr;gap:12px;margin-top:4px}
+.manual-coords.show{display:grid}
+@media(max-width:680px){.client-pick-row{grid-template-columns:1fr}.manual-coords{grid-template-columns:1fr}}
 .verdict{display:flex;align-items:center;gap:10px;margin:12px 0 4px}
 .verdict .lv{display:flex;gap:4px}
 .verdict .lv i{display:block;width:26px;height:6px;border-radius:99px;background:rgba(246,231,211,.22)}
@@ -262,6 +264,16 @@ textarea:focus,select:focus,input:focus,.client-pick-wrap input:focus,.client-pi
     </div>
     <label class="field" for="qCity">출생 도시</label>
     <select id="qCity"></select>
+    <div class="manual-coords" id="manualCoords">
+      <div>
+        <label class="field" for="qLat">위도</label>
+        <input type="number" id="qLat" step="0.0001" placeholder="예: 37.5665" inputmode="decimal">
+      </div>
+      <div>
+        <label class="field" for="qLng">경도</label>
+        <input type="number" id="qLng" step="0.0001" placeholder="예: 126.9780" inputmode="decimal">
+      </div>
+    </div>
     <div class="credit-callout" id="creditCallout" style="margin-top:16px"><b>AI 해석 2크레딧</b>이 차감됩니다. 잔여가 없으면 규칙 판정(무료)으로 보여 드려요.</div>
     <p class="inline-err" id="formErr" role="alert"></p>
     <div class="navrow">
@@ -428,6 +440,13 @@ textarea:focus,select:focus,input:focus,.client-pick-wrap input:focus,.client-pi
     });
   }
 
+  function syncManualCoordsUi() {
+    var sel = $('qCity');
+    var wrap = $('manualCoords');
+    if (!sel || !wrap) return;
+    wrap.classList.toggle('show', sel.value === 'manual');
+  }
+
   function fillCities() {
     var sel = $('qCity');
     var cities = (window.ASTRO_CITIES || []).filter(function (c) { return c.group === 'kr' || c.group === 'world'; });
@@ -440,13 +459,81 @@ textarea:focus,select:focus,input:focus,.client-pick-wrap input:focus,.client-pi
     cities.forEach(function (c) {
       var o = document.createElement('option');
       o.value = c.ko;
-      o.textContent = c.ko + (c.tz ? '' : '');
+      o.textContent = c.ko;
       o.dataset.lat = c.lat;
       o.dataset.lng = c.lng;
       o.dataset.tz = c.tz || '';
       groups[c.group === 'kr' ? 'kr' : 'world'].appendChild(o);
     });
+    var manual = document.createElement('option');
+    manual.value = 'manual';
+    manual.textContent = '직접 입력 (위·경도)';
+    sel.appendChild(manual);
     sel.value = '서울';
+    if (!sel.dataset.manualBound) {
+      sel.dataset.manualBound = '1';
+      sel.addEventListener('change', syncManualCoordsUi);
+    }
+    syncManualCoordsUi();
+  }
+
+  function resetBirthPlaceFields() {
+    var sel = $('qCity');
+    if (sel) sel.value = '';
+    var wrap = $('manualCoords');
+    if (wrap) wrap.classList.remove('show');
+    if ($('qLat')) $('qLat').value = '';
+    if ($('qLng')) $('qLng').value = '';
+  }
+
+  function setCityByName(cityName) {
+    var sel = $('qCity');
+    var city = String(cityName || '').trim();
+    if (!city || !sel) return false;
+    var i, v;
+    for (i = 0; i < sel.options.length; i++) {
+      v = sel.options[i].value;
+      if (!v || v === 'manual') continue;
+      if (v === city) { sel.selectedIndex = i; syncManualCoordsUi(); return true; }
+    }
+    for (i = 0; i < sel.options.length; i++) {
+      v = sel.options[i].value;
+      if (!v || v === 'manual') continue;
+      if (city.indexOf(v) !== -1 || v.indexOf(city) !== -1) {
+        sel.selectedIndex = i;
+        syncManualCoordsUi();
+        return true;
+      }
+    }
+    return false;
+  }
+
+  function setCityByCoords(latRaw, lngRaw) {
+    var lat = Number(latRaw);
+    var lng = Number(lngRaw);
+    if (!Number.isFinite(lat) || !Number.isFinite(lng)) return false;
+    var sel = $('qCity');
+    var bestIdx = -1;
+    var bestDist = Infinity;
+    var i, o, dlat, dlng, dist;
+    for (i = 0; i < sel.options.length; i++) {
+      o = sel.options[i];
+      if (!o.dataset.lat || o.value === 'manual') continue;
+      dlat = Number(o.dataset.lat) - lat;
+      dlng = Number(o.dataset.lng) - lng;
+      dist = dlat * dlat + dlng * dlng;
+      if (dist < bestDist) { bestDist = dist; bestIdx = i; }
+    }
+    if (bestIdx >= 0 && bestDist < 0.15 * 0.15) {
+      sel.selectedIndex = bestIdx;
+      syncManualCoordsUi();
+      return true;
+    }
+    sel.value = 'manual';
+    if ($('qLat')) $('qLat').value = String(Math.round(lat * 10000) / 10000);
+    if ($('qLng')) $('qLng').value = String(Math.round(lng * 10000) / 10000);
+    syncManualCoordsUi();
+    return true;
   }
 
   function sbClient() {
@@ -486,34 +573,22 @@ textarea:focus,select:focus,input:focus,.client-pick-wrap input:focus,.client-pi
     if (!row) return;
     var name = (row.display_name || row.legal_name || '').trim();
     if (name) $('qClient').value = name;
+    else $('qClient').value = '';
     if (row.birth_date) $('qBirthDate').value = String(row.birth_date).slice(0, 10);
+    else $('qBirthDate').value = '';
     if (row.birth_time) $('qBirthTime').value = String(row.birth_time).slice(0, 5);
-    if (row.birth_city || (row.birth_lat != null && row.birth_lng != null)) {
-      var sel = $('qCity');
-      var city = String(row.birth_city || '').trim();
-      var found = false;
-      var i;
-      for (i = 0; i < sel.options.length; i++) {
-        var v = sel.options[i].value;
-        if (!v) continue;
-        if (v === city || (city && v.indexOf(city) === 0) || (city && city.indexOf(v) === 0)) {
-          sel.selectedIndex = i;
-          found = true;
-          break;
-        }
-      }
-      if (!found && row.birth_lat != null && row.birth_lng != null) {
-        var lat = Number(row.birth_lat);
-        var lng = Number(row.birth_lng);
-        for (i = 0; i < sel.options.length; i++) {
-          var o = sel.options[i];
-          if (!o.dataset.lat) continue;
-          if (Math.abs(Number(o.dataset.lat) - lat) < 0.08 && Math.abs(Number(o.dataset.lng) - lng) < 0.08) {
-            sel.selectedIndex = i;
-            break;
-          }
-        }
-      }
+    else $('qBirthTime').value = '';
+    // 이전 고객의 도시(예: 부산)가 남지 않도록 항상 초기화 후 다시 채움
+    resetBirthPlaceFields();
+    var byName = setCityByName(row.birth_city);
+    var byCoords = false;
+    if (!byName && row.birth_lat != null && row.birth_lng != null) {
+      byCoords = setCityByCoords(row.birth_lat, row.birth_lng);
+    }
+    if (!byName && !byCoords) {
+      formErr('이 고객의 출생지를 목록에서 찾지 못했어요. 도시 또는 위·경도를 확인해 주세요.');
+    } else {
+      formErr('');
     }
   }
 
@@ -534,7 +609,10 @@ textarea:focus,select:focus,input:focus,.client-pick-wrap input:focus,.client-pi
       sel.dataset.bound = '1';
       sel.addEventListener('change', function () {
         var id = sel.value;
-        if (!id) return;
+        if (!id) {
+          formErr('');
+          return;
+        }
         var row = COUNSELOR_CLIENT_ROWS.find(function (c) { return c.id === id; });
         if (row) applyCounselorClientRow(row);
       });
@@ -583,6 +661,13 @@ textarea:focus,select:focus,input:focus,.client-pick-wrap input:focus,.client-pi
     var sel = $('qCity');
     var opt = sel.options[sel.selectedIndex];
     if (!opt || !opt.value) return null;
+    if (opt.value === 'manual') {
+      var lat = Number(($('qLat') && $('qLat').value) || '');
+      var lng = Number(($('qLng') && $('qLng').value) || '');
+      if (!Number.isFinite(lat) || !Number.isFinite(lng)) return null;
+      if (lat < -90 || lat > 90 || lng < -180 || lng > 180) return null;
+      return { ko: '직접입력', lat: lat, lng: lng, tz: 'Asia/Seoul', manual: true };
+    }
     return {
       ko: opt.value,
       lat: Number(opt.dataset.lat),
@@ -658,7 +743,10 @@ textarea:focus,select:focus,input:focus,.client-pick-wrap input:focus,.client-pi
     }
     if (!birthDate) { formErr('출생 날짜를 입력해 주세요.'); return null; }
     if (!birthTime) { formErr('출생 시간을 입력해 주세요. 생시를 모르면 질문점을 이용해 주세요.'); return null; }
-    if (!city || !city.tz) { formErr('출생 도시를 선택해 주세요.'); return null; }
+    if (!city || !Number.isFinite(city.lat) || !Number.isFinite(city.lng) || !city.tz) {
+      formErr('출생 도시를 선택하거나 위·경도를 직접 입력해 주세요.');
+      return null;
+    }
     state.question = q;
     state.city = city;
     state.birthDate = birthDate;
@@ -849,12 +937,12 @@ textarea:focus,select:focus,input:focus,.client-pick-wrap input:focus,.client-pi
       var o = JSON.parse(raw);
       if (o.date) $('qBirthDate').value = o.date;
       if (o.time) $('qBirthTime').value = o.time;
-      if (o.city) {
-        var sel = $('qCity');
-        for (var i = 0; i < sel.options.length; i++) {
-          if (sel.options[i].value === o.city) { sel.selectedIndex = i; break; }
-        }
+      if (o.manual && o.lat != null && o.lng != null) {
+        setCityByCoords(o.lat, o.lng);
+      } else if (o.city && o.city !== '직접입력') {
+        setCityByName(o.city);
       }
+      syncManualCoordsUi();
     } catch (e) { /* ignore */ }
   }
   function saveBirth() {
@@ -863,6 +951,9 @@ textarea:focus,select:focus,input:focus,.client-pick-wrap input:focus,.client-pi
         date: state.birthDate,
         time: state.birthTime,
         city: state.city && state.city.ko,
+        manual: !!(state.city && state.city.manual),
+        lat: state.city && state.city.lat,
+        lng: state.city && state.city.lng,
       }));
     } catch (e) { /* ignore */ }
   }
