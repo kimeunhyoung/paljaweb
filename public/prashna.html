@@ -623,7 +623,11 @@ a.btn{display:inline-flex;align-items:center;justify-content:center;text-decorat
         '<span class="why">' + esc(fmtText(why.replace(/\s*\(지금 진행 중\)|지금 진행 중,\s*/g, ''), baseYear)) + '</span>' +
         (t.note ? '<span class="note">' + esc(t.note) + '</span>' : '') + '</li>';
     }).join('');
-    if (!timings) timings = '<li><span class="why">앞으로 12개월 안에는 뚜렷한 시기가 보이지 않아요. 조건이 바뀌면 다시 살펴보세요.</span></li>';
+    if (!timings) {
+      timings = r.nearTerm
+        ? '<li><span class="why">가까운 1~2개월 안에는 뚜렷한 시기가 보이지 않아요. 지금 시점의 흐름은 위 결론을 참고해 주세요.</span></li>'
+        : '<li><span class="why">앞으로 12개월 안에는 뚜렷한 시기가 보이지 않아요. 조건이 바뀌면 다시 살펴보세요.</span></li>';
+    }
     var evidence = (r.evidence || []).map(function (e) { return '<li>' + esc(e) + '</li>'; }).join('');
     var advice = (r.advice || []).map(function (a) { return '<li>' + esc(a) + '</li>'; }).join('');
     var chartHtml = drawSouthChartHtml(r.chart);
