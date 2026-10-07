@@ -43,12 +43,28 @@
     },
   ];
 
-  var BLOCKED_WORDS = [
-    '수명', '사망', '죽을', '자살', '시한부', '소송', '재판', '고소', '도박',
-    '임신중절', '낙태', '건강', '질병', '병원', '수술', '검진', '암', '임신',
-    '바람', '외도', '불륜',
+  /*
+   * 민감 주제 차단 — 단어 하나가 아니라 "문맥 패턴"으로 거름
+   * (매도·매수·병원·건강·바람 같은 일상 단어는 단독으로 막지 않음)
+   */
+  var BLOCK_EXCEPTIONS = /(주식회사|고소득|고소한\s*(맛|빵|향|냄새|커피|카페|참기름)|고소하게|바람직|바람대로|코인\s*(노래방|세탁|빨래|게임))/g;
+  var BLOCK_RULES = [
+    { topic: '건강·질병', re: /(수술|질병|투병|완치|시한부|수명|치매|우울증|공황장애|입원|퇴원|병세|난임|불임|임신|낙태|임신중절|유산\s*(될|할|위험)|진단\s*(결과|받)|검진\s*결과|건강\s*(이|은|상태|문제|악화|회복|검진)|병(이|에\s*걸|을\s*고|세)|(폐|위|간|대장|유방|갑상선|췌장|자궁|전립선|혈액)암|(^|[\s,.])암(이|으로|에|\s*(진단|수술|검사|치료|재발|판정|환자)))/ },
+    { topic: '생사', re: /(사망|자살|죽을까|죽나요|죽는|죽음|목숨)/ },
+    { topic: '소송·범죄', re: /(소송|재판|판결|고소|고발|기소|구속|형사\s*(사건|처벌|고소)|합의금|범죄|경찰\s*조사|교도소|감옥)/ },
+    { topic: '주식·코인 투자', re: /(주식|주가|코인|비트코인|이더리움|가상\s*화폐|암호\s*화폐|ETF|선물\s*옵션|상장\s*폐지|레버리지)/i },
+    { topic: '도박', re: /(도박|로또|토토|카지노|경마|복권)/ },
+    { topic: '타인 사생활', re: /((남|여)?편|와이프|배우자|애인|상대).{0,8}바람|바람\s*(을|이)?\s*(피|폈|핀|났|나|난|있|있나|있어요|인가요)|외도|불륜|양다리|뒷조사|몰래\s*(만나|연락)|위치\s*추적/ },
   ];
-  var BLOCKED_INVEST_WORDS = ['주식', '코인', '종목', '매수', '매도'];
+
+  function blockCheck(question) {
+    var q = String(question || '').replace(BLOCK_EXCEPTIONS, ' ');
+    for (var i = 0; i < BLOCK_RULES.length; i++) {
+      var m = q.match(BLOCK_RULES[i].re);
+      if (m) return { blocked: true, topic: BLOCK_RULES[i].topic, word: m[0].trim() };
+    }
+    return { blocked: false };
+  }
 
   function catById(id) {
     for (var i = 0; i < CATEGORIES.length; i++) if (CATEGORIES[i].id === id) return CATEGORIES[i];
@@ -56,21 +72,14 @@
   }
 
   function isBlockedQuestion(question) {
-    var q = String(question || '');
-    var i;
-    for (i = 0; i < BLOCKED_WORDS.length; i++) {
-      if (q.indexOf(BLOCKED_WORDS[i]) !== -1) return true;
-    }
-    for (i = 0; i < BLOCKED_INVEST_WORDS.length; i++) {
-      if (q.indexOf(BLOCKED_INVEST_WORDS[i]) !== -1) return true;
-    }
-    return false;
+    return blockCheck(question).blocked;
   }
 
   root.PrashnaEngine = {
     CATEGORIES: CATEGORIES,
     catById: catById,
     isBlockedQuestion: isBlockedQuestion,
+    blockCheck: blockCheck,
     BLOCKED: { test: isBlockedQuestion },
   };
 })(typeof window !== 'undefined' ? window : this);
