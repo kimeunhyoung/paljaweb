@@ -13,6 +13,7 @@ const { registerAiOneTimeRoutes } = require('./lib/ai-one-time');
 const { registerSignupNotifyRoutes, providerLabel } = require('./lib/signup-notify');
 const { buildSignupStats } = require('./lib/admin-signup-stats');
 const { registerVerifyRemindRoutes } = require('./lib/verify-remind');
+const { registerClassContentRoutes } = require('./lib/class-content');
 
 const app = express();
 
@@ -894,6 +895,9 @@ registerAiOneTimeRoutes(app, {
   getUserIdFromAuth,
   getProfile,
 });
+
+// Private 전용 수업자료 본문 (public 밖 private-content/class)
+registerClassContentRoutes(app, { getUserIdFromAuth, getProfile });
 
 app.get('/favicon.ico', (req, res) => {
   res.type('image/svg+xml');

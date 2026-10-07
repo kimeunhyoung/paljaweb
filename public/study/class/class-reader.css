@@ -1,0 +1,109 @@
+/* 수업자료 열람 화면 */
+.lp-main{max-width:900px}
+.lp-crumb{font-size:13px;color:#9a8678;margin:0 0 10px;display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.lp-crumb a{color:#9a8678;text-decoration:none}
+.lp-crumb a:hover{color:var(--navy)}
+.lp-crumb span{opacity:.6}
+.lp-tabs{display:flex;gap:6px;overflow-x:auto;-webkit-overflow-scrolling:touch;padding:4px 0 12px;margin:0 0 8px;border-bottom:1px solid var(--line);scrollbar-width:none}
+.lp-tabs::-webkit-scrollbar{display:none}
+.lp-tabs a{flex:0 0 auto;min-width:38px;text-align:center;padding:6px 12px;border:1px solid var(--line);border-radius:999px;background:#fff;color:var(--navy);text-decoration:none;font-size:14px;line-height:1.4}
+.lp-tabs a:hover{background:var(--soft)}
+.lp-tabs a.on{background:#3a2a22;border-color:#3a2a22;color:#f3dfc4}
+
+/* 목차 */
+.lp-index-title{margin-top:18px}
+.lp-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:18px 0 8px}
+main a.lp-card{display:flex;flex-direction:column;gap:2px;padding:16px 16px 14px;border:1px solid var(--line);border-radius:12px;background:#fff;text-decoration:none;color:var(--ink);transition:transform .15s,box-shadow .15s,border-color .15s}
+main a.lp-card:hover{transform:translateY(-2px);box-shadow:0 10px 24px rgba(120,70,40,.10);border-color:#d9a98c}
+.lp-card-n{width:38px;height:38px;border-radius:50%;background:#3a2a22;color:#f3dfc4;display:flex;align-items:center;justify-content:center;font-family:'Playfair Display','Noto Serif KR',serif;font-size:19px;margin-bottom:8px}
+.lp-card-t{font-size:12px;color:#9a8678}
+.lp-card b{font-family:'Noto Serif KR',serif;font-weight:600;font-size:16.5px;color:var(--navy)}
+main a.lp-card-sum{background:#fbf4ec}
+.lp-card-sum .lp-card-n{background:var(--gold)}
+
+/* 본문 */
+.lp-protect{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+.lp{margin-top:14px}
+.lp-hero{display:flex;gap:22px;align-items:flex-start;padding:24px 24px 22px;border-radius:16px;background:linear-gradient(135deg,#3a2a22 0%,#5b3d2c 100%);color:#f6e7d3;margin-bottom:14px}
+.lp-num{flex:0 0 auto;width:84px;height:84px;border-radius:50%;border:1px solid rgba(243,223,196,.35);display:flex;align-items:center;justify-content:center;font-family:'Playfair Display',serif;font-size:50px;line-height:1;color:#f3dfc4;background:rgba(243,223,196,.06)}
+.lp-hero-txt{flex:1;min-width:0}
+.lp-kicker{margin:2px 0 2px!important;font-size:13px;letter-spacing:.06em;color:#d9b48c}
+main .lp-name{margin:0 0 10px;padding:0;border:0;font-family:'Noto Serif KR',serif;font-size:28px;font-weight:600;color:#fff6ea;line-height:1.35}
+.lp-kw{margin:0 0 8px!important;font-size:15px;line-height:1.75;color:#f0dcc4}
+.lp-kw b{display:inline-block;font-size:12px;font-weight:500;padding:1px 9px;margin-right:8px;border-radius:999px;background:rgba(243,223,196,.16);color:#f3dfc4;vertical-align:1px}
+.lp-lead{margin:0!important;font-size:15.5px;line-height:1.8;color:#fff3e3}
+.lp-hero .lp-note{background:rgba(255,255,255,.08);border-color:rgba(243,223,196,.4);color:#ead7c0}
+.lp-hero .lp-note b{color:#f3dfc4}
+.lp-hero-sm{padding:20px 22px}
+.lp-hero-sm .lp-name{font-size:23px;margin:0}
+
+.lp-toc{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 6px;padding:12px 14px;background:#fff;border:1px solid var(--line);border-radius:12px}
+.lp-toc a{font-size:13.5px;padding:4px 10px;border-radius:999px;background:var(--soft);color:var(--navy);text-decoration:none}
+.lp-toc a:hover{background:#f1dfd2}
+
+.lp-sec{margin:0;padding:26px 0 6px;border-bottom:1px solid #efe2d8}
+.lp-sec:last-child{border-bottom:0}
+main .lp-sec h2{display:flex;align-items:center;gap:10px;margin:0 0 12px;padding:0;border:0;font-size:20px;color:var(--navy);font-family:'Noto Serif KR',serif;font-weight:600}
+main .lp-sec h2::before{content:'';width:4px;height:20px;border-radius:2px;background:var(--gold);flex:0 0 auto}
+.lp-sec p{font-size:16px;line-height:1.85}
+.lp-list{list-style:none;padding-left:0!important;margin:4px 0 12px!important}
+.lp-list li{position:relative;padding:9px 0 9px 22px;margin:0!important;font-size:16px;line-height:1.85;border-bottom:1px dashed #f0e4da}
+.lp-list li:last-child{border-bottom:0}
+.lp-list li::before{content:'';position:absolute;left:4px;top:20px;width:7px;height:7px;transform:rotate(45deg);background:#d9a98c}
+.lab{color:#7a3e22;font-weight:600;margin-right:2px}
+.lp-note{display:block;margin:8px 0 2px;padding:9px 12px;font-size:14px;line-height:1.7;color:#6a5a50;background:#f7f2ec;border-left:3px solid #cdb6a2;border-radius:0 8px 8px 0}
+.lp-note b{display:block;font-size:12px;font-weight:600;color:#8a6a58;margin-bottom:2px;letter-spacing:.02em}
+
+/* 수업 프린트 섹션은 종이 느낌 */
+.lp-sec-print{background:#fbf6ef;border:1px solid #eadccd;border-radius:14px;padding:22px 22px 8px;margin:18px 0 6px}
+.lp-sec-print .lp-list li{border-bottom-color:#eadccd}
+
+/* 상징표 */
+.lp-sym{display:grid;grid-template-columns:.8fr .5fr 1.8fr 1fr 1fr;gap:0;margin:12px 0 8px;border:1px solid var(--line);border-radius:12px;overflow:hidden;background:#fff}
+.lp-sym div{padding:12px 14px;border-right:1px solid var(--line)}
+.lp-sym div:last-child{border-right:0}
+.lp-sym dt{font-size:12px;color:#9a8678;margin-bottom:4px}
+.lp-sym dd{margin:0;font-size:15.5px;color:var(--ink);line-height:1.55;font-weight:500}
+
+/* 표 */
+.lp-tw{overflow-x:auto;-webkit-overflow-scrolling:touch;margin:10px 0 14px}
+main table.lp-people{width:auto;min-width:360px;border-radius:10px;overflow:hidden}
+main table.lp-people td:nth-child(2),main table.lp-people td:nth-child(3){font-variant-numeric:tabular-nums;white-space:nowrap}
+main table.lp-people td:first-child{font-weight:500}
+main table.lp-sumtbl{min-width:640px}
+main table.lp-sumtbl td:first-child{text-align:center;width:44px}
+a.lp-numlink{display:inline-flex;width:28px;height:28px;border-radius:50%;background:#3a2a22;color:#f3dfc4!important;align-items:center;justify-content:center;text-decoration:none;font-family:'Playfair Display',serif}
+
+/* 이전·다음 */
+.lp-pn{display:flex;justify-content:space-between;gap:10px;margin:30px 0 0;padding-top:16px;border-top:1px solid var(--line)}
+.lp-pn:empty{display:none}
+.lp-pn a{flex:1;padding:12px 14px;border:1px solid var(--line);border-radius:10px;background:#fff;color:var(--navy);text-decoration:none;font-size:15px}
+.lp-pn a:hover{background:var(--soft)}
+.lp-pn a.next{text-align:right}
+.lp-legal{margin:22px 0 0;font-size:12.5px;color:#9a8678;text-align:center}
+
+/* 워터마크 */
+.lp-wm{position:fixed;inset:0;pointer-events:none;z-index:40;background-repeat:repeat;display:none}
+.lp-wm.on{display:block}
+
+/* 인쇄 막기 */
+@media print{
+  body.lp-body *{visibility:hidden!important}
+  body.lp-body::after{content:'수업자료는 인쇄할 수 없어요.';visibility:visible;position:fixed;top:40%;left:0;right:0;text-align:center;font-size:20px}
+}
+
+@media (max-width:640px){
+  .lp-grid{grid-template-columns:1fr 1fr}
+  .lp-hero{flex-direction:column;gap:12px;padding:20px 18px}
+  .lp-num{width:60px;height:60px;font-size:36px}
+  main .lp-name{font-size:24px}
+  .lp-sym{grid-template-columns:1fr 1fr}
+  .lp-sym div{border-right:0;border-bottom:1px solid var(--line)}
+  .lp-sym div:nth-child(1),.lp-sym div:nth-child(4){border-right:1px solid var(--line)}
+  .lp-sym div:nth-child(3){grid-column:1/-1}
+  .lp-sym div:nth-child(4),.lp-sym div:nth-child(5){border-bottom:0}
+  .lp-sec-print{padding:18px 14px 6px;margin-left:-2px;margin-right:-2px}
+  .lp-list li,.lp-sec p{font-size:15.5px}
+  .lp-pn{flex-direction:column}
+  .lp-pn a.next{text-align:right}
+}

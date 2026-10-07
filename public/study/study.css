@@ -26,3 +26,4 @@ main a.hub-card{color:var(--ink)}
 .class-empty{margin:26px 0;padding:30px 20px;border:1px dashed #d9c4b0;border-radius:14px;text-align:center;color:#7a6a60;background:#fff}
 .class-empty b{display:block;font-size:17px;color:var(--navy);margin-bottom:6px}
 [data-class-state]{display:none}
+.class-list .hub-icon{font-size:13px;letter-spacing:-.02em;background:#3a2a22;color:#f3dfc4}

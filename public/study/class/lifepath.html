@@ -1,16 +1,16 @@
 <!DOCTYPE html>
 <html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>수비학 수업자료실 | 팔자연구소</title>
-<meta name="description" content="Private 회원 전용 수비학 수업자료실">
+<title>인생여정수 1~9 | 수비학 수업자료실 | 팔자연구소</title>
+<meta name="description" content="Private 회원 전용 수비학 수업자료 · 인생여정수 1~9">
 <meta name="robots" content="noindex,nofollow">
 <link rel="stylesheet" href="/css/style.css?v=20260818a">
 <link rel="stylesheet" href="/css/content-pages.css?v=3">
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Noto+Sans+KR:wght@400;500&family=Noto+Serif+KR:wght@400;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/nakshatra/site.css">
 <link rel="stylesheet" href="/study/study.css?v=1">
+<link rel="stylesheet" href="/study/class/class-reader.css?v=1">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="/study/class/class-gate.js?v=1"></script>
-</head><body>
+</head><body class="lp-body">
 <nav class="navbar" id="navbar">
   <div class="nav-inner">
     <a href="/index.html" class="nav-logo"><div class="logo-mark">八</div><span class="logo-text">팔자연구소</span></a>
@@ -18,37 +18,35 @@
   </div>
 </nav>
 <script src="/js/content-site-nav.js?v=11"></script>
-<main>
-<h1>수비학 수업자료실 <small>Private 전용</small></h1>
-<p class="tagline">수업자료실이에요. Private 회원만 열람할 수 있어요.</p>
+<main class="lp-main">
+<p class="lp-crumb"><a href="/study/index.html">학습자료실</a><span>›</span><a href="/study/class/index.html">수업자료실</a><span>›</span><a href="/study/class/lifepath.html">인생여정수 1~9</a></p>
+<nav class="lp-tabs" id="lpTabs" aria-label="인생여정수 번호"></nav>
 
-<div data-class-state="checking" class="class-empty" style="display:block"><b>회원 정보를 확인하고 있어요</b>잠시만 기다려 주세요.</div>
-
+<div data-class-state="checking" class="class-empty" style="display:block"><b>자료를 불러오고 있어요</b>잠시만 기다려 주세요.</div>
 <div data-class-state="locked" class="class-lock">
   <div class="hub-icon" style="margin:0 auto;background:#3a2a22;color:#f3dfc4">八</div>
-  <h2>Private 회원 전용 자료실이에요</h2>
+  <h2>Private 회원 전용 자료예요</h2>
   <p>수업자료는 Private 플랜 회원만 열람할 수 있어요.<br>현재 플랜: <b id="classPlan">-</b></p>
   <div class="btns"><a class="pri" href="/pricing.html?from=class">요금제 보기</a><a class="sec" href="/study/index.html">학습자료실로</a></div>
 </div>
-
 <div data-class-state="error" class="class-lock">
-  <h2>회원 정보를 확인하지 못했어요</h2>
+  <h2>자료를 불러오지 못했어요</h2>
   <p>잠시 후 새로고침해 주세요. 계속되면 문의해 주세요.</p>
-  <div class="btns"><a class="sec" href="/study/index.html">학습자료실로</a></div>
+  <div class="btns"><a class="sec" href="/study/class/index.html">수업자료실로</a></div>
 </div>
 
 <div data-class-state="open">
-  <div class="hub class-list">
-    <a class="hub-card" href="/study/class/lifepath.html">
-      <div class="hub-top"><span class="hub-icon" aria-hidden="true">1~9</span><span class="hub-badge b-private">수비학 기초</span></div>
-      <b class="hub-title">인생여정수 1~9</b>
-      <span class="hub-desc">숫자마다 상징과 수업 프린트 정리, 성격·연애·일·사업·금전·역효과·시너지, 예시 인물까지 정리했어요.</span>
-      <span class="hub-go">자료 보기 →</span>
-    </a>
+  <div id="lpIndex" hidden>
+    <h1 class="lp-index-title">인생여정수 1~9</h1>
+    <p class="tagline">숫자마다 상징, 수업 프린트 정리, 성격·연애·일·사업·금전·역효과·시너지, 예시 인물을 정리했어요.</p>
+    <div class="lp-grid" id="lpGrid"></div>
   </div>
-  <p class="small hub-note">수업자료는 계속 추가될 예정이에요.</p>
+  <div id="lpContent" class="lp-protect"></div>
+  <nav class="lp-pn" id="lpPn"></nav>
+  <p class="lp-legal">이 자료는 Private 회원 개인 학습용이에요. 복제·캡처·공유를 금지하며, 화면에 열람자 정보가 표시돼요.</p>
 </div>
-
 </main>
+<div class="lp-wm" id="lpWm" aria-hidden="true"></div>
 <footer>© 팔자연구소 (8code.kr) · 무단 복제·배포 금지</footer>
+<script src="/study/class/class-reader.js?v=1"></script>
 </body></html>

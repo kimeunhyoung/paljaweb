@@ -198,7 +198,7 @@
     if (window.PaljaDevice) return;
     if (document.querySelector('script[data-palja-device]')) return;
     var s = document.createElement('script');
-    s.src = 'js/account-device-client.js?v=1';
+    s.src = '/js/account-device-client.js?v=1';
     s.setAttribute('data-palja-device', '1');
     document.head.appendChild(s);
   }
