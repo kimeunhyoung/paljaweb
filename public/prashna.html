@@ -148,6 +148,51 @@ a.btn{display:inline-flex;align-items:center;justify-content:center;text-decorat
 .si .mid b{font-family:var(--serif);font-size:14px;color:var(--deep)}
 .si .mid span{font-size:11px;color:var(--muted);line-height:1.5;margin-top:3px}
 .si-legend{max-width:440px;margin:8px auto 0;font-size:11.5px;color:var(--muted);line-height:1.55;text-align:center}
+/* === 디자인 통일: astrology.html 톤 (gold · serif hero · pill subnav) === */
+:root{--terra:#a8844a;--muted:#74604b;--accent:#c8a96e;--soft:#f5efe4}
+.wrap{max-width:760px}
+.hero{padding:40px 0 4px}
+.hero .sky{display:none}
+.tag{font-size:13px;letter-spacing:.16em;color:var(--accent);margin-bottom:12px}
+h1{font-size:clamp(26px,5vw,40px);font-weight:600;line-height:1.25;margin:0}
+h1 em{font-style:normal;color:#a8844a}
+.lead{margin-top:14px;max-width:600px;line-height:1.8}
+.lead a{color:#8b6a33 !important;text-decoration:underline;text-underline-offset:3px}
+.astro-subnav{display:flex;justify-content:center;gap:10px;margin:22px auto 0;max-width:380px}
+.astro-subnav a,.astro-subnav span{flex:1;text-align:center;padding:13px 10px;border-radius:14px;font-size:15px;font-weight:700;text-decoration:none;border:2px solid var(--line);background:rgba(255,255,255,.55);color:var(--deep);transition:border-color .15s,background .15s,transform .12s;white-space:nowrap}
+.astro-subnav a:hover{border-color:var(--accent);background:rgba(255,255,255,.9);transform:translateY(-1px)}
+.astro-subnav .is-current{background:var(--accent);color:#fff;border-color:var(--accent);box-shadow:0 4px 14px rgba(139,111,71,.28)}
+@media(max-width:480px){.astro-subnav{gap:6px}.astro-subnav a,.astro-subnav span{font-size:13.5px;padding:11px 4px;border-radius:12px}}
+.steps{margin:26px auto 4px}
+.steps li.on i{background:#a8844a;border-color:#a8844a}
+.notice{background:rgba(255,255,255,.6);box-shadow:none;border-radius:14px;padding:13px 16px 11px;margin-top:18px}
+.notice .credit .pill{background:transparent;color:#8b6a33;border:1px solid rgba(168,132,74,.5)}
+.notice .credit b{color:#8b6a33}
+.panel{border-radius:16px;padding:26px 24px;box-shadow:0 10px 30px rgba(44,31,14,.08);margin-top:22px}
+.panel h2{font-size:18px;font-weight:600;margin-bottom:10px;gap:8px}
+.panel h2 .no{display:none}
+.panel h2::before{content:'✦';color:#a8844a;font-size:16px}
+.cat{background:#fffdf9}
+.cat:hover{border-color:rgba(168,132,74,.6)}
+.cat.on{border-color:#a8844a;background:#fffaf0}
+.cat .ic{color:#a8844a;background:#f5efe4}
+.cat b{font-family:var(--serif);font-weight:600}
+.cat .q{color:#7a5f3a}
+.btn{border-radius:12px;padding:14px 16px}
+.btn.pri{background:#a8844a}
+.btn.pri:hover{background:#b8955a}
+.btn.ghost{background:#fff}
+textarea:focus,select:focus,input:focus{border-color:var(--accent) !important;box-shadow:0 0 0 3px rgba(200,169,110,.18) !important}
+.credit-callout{background:rgba(200,169,110,.1);border-color:rgba(168,132,74,.3)}
+.credit-callout b{color:#8b6a33}
+.result-head{background:linear-gradient(135deg,#3d2c1a,#5a4226)}
+.result-head .kicker{color:#e0c48e}
+.t-favorable .lv i:nth-child(-n+4),.t-mixed .lv i:nth-child(-n+3),.t-delayed .lv i:nth-child(-n+2),.t-difficult .lv i:nth-child(-n+1){background:#e0c48e}
+.tl li::before{background:#a8844a}
+.tl li::after{background:rgba(168,132,74,.3)}
+.tl .now{background:#a8844a}
+.picked .ic,.picked button,.ex button{color:#8b6a33}
+@media(max-width:480px){.panel{padding:22px 16px}.hero{padding-top:28px}}
 </style>
 </head>
 <body>
@@ -161,9 +206,13 @@ a.btn{display:inline-flex;align-items:center;justify-content:center;text-decorat
       <line x1="110" y1="383" x2="135" y2="340"/><line x1="37" y1="310" x2="80" y2="285"/><line x1="37" y1="110" x2="80" y2="135"/><line x1="110" y1="37" x2="135" y2="80"/></g>
       <g fill="rgba(196,96,58,.35)" stroke="none"><circle cx="300" cy="96" r="2.2"/><circle cx="118" cy="128" r="1.6"/><circle cx="332" cy="250" r="1.8"/><circle cx="92" cy="282" r="2"/><circle cx="250" cy="352" r="1.5"/></g>
     </svg></div>
-    <div class="tag">PRASHNA</div>
-    <h1>질문점 · 지금 이 순간의 답</h1>
+    <div class="tag">점성학 · 질문점</div>
+    <h1>질문점<br><em>지금 이 순간의 하늘로 답하기</em></h1>
     <p class="lead">태어난 시간을 몰라도 괜찮아요. 질문을 올리는 <b>그 시각, 그 도시</b>의 하늘로 답을 읽어요. 생년월일시가 있으면 <a href="/natal-ask.html" style="color:var(--terra);font-weight:600">내 차트로 묻기</a>를 이용해 주세요.</p>
+    <nav class="astro-subnav" aria-label="질문점 메뉴">
+      <span class="is-current" aria-current="page">✧ 질문점</span>
+      <a href="/natal-ask.html">☉ 내 차트로 묻기</a>
+    </nav>
     <ol class="steps" id="stepDots" aria-label="진행 단계"><li class="on"><i>1</i>주제</li><li><i>2</i>질문</li><li><i>3</i>하늘 계산</li><li><i>4</i>답·시기</li></ol>
   </header>
 
