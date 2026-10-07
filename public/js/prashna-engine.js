@@ -1,8 +1,9 @@
 /**
  * 프라슈나 UI용 — 카테고리·차단 단어 (계산·판정은 서버 /api/prashna/ask)
  *
- * 카테고리 ↔ 하우스 (서버 lib/prashna-engine.js 와 동일 · 확정 전)
+ * 카테고리 ↔ 하우스 (서버 lib/prashna-engine.js 와 동일)
  * property 4,7,11 | career 10,6,11 | love 7,5,11 | money 2,11,8 | decision 1,7,10
+ * exam 4,5,9 | move 3,9,12 | family 4,5,9 | lost 2,4,11 | other 1,7,10
  */
 (function (root) {
   var CATEGORIES = [
@@ -12,13 +13,15 @@
       desc: '집·땅·매도·계약',
       houses: [4, 7, 11],
       examples: ['지금 내놓은 아파트는 언제쯤 팔릴까요?', '이번 달 안에 계약이 될까요?'],
+      keywords: /(아파트|부동산|매매|매도|매수|전세|월세|분양|입주|집\s*팔|집\s*사|땅\s*팔|재건축)/,
     },
     {
       id: 'career',
       label: '일·이직',
-      desc: '직장·이직·합격',
+      desc: '직장·이직·승진',
       houses: [10, 6, 11],
       examples: ['이번 면접은 잘 될까요?', '이직을 지금 추진해도 될까요?'],
+      keywords: /(이직|직장|회사|취업|승진|연봉|퇴사|창업|사업|업무|직장생활|면접(?!\s*시험)|채용|입사)/,
     },
     {
       id: 'love',
@@ -26,6 +29,7 @@
       desc: '만남·관계·결혼',
       houses: [7, 5, 11],
       examples: ['이 사람과 관계가 이어질까요?', '올해 안에 좋은 만남이 있을까요?'],
+      keywords: /(연애|남자친구|여자친구|결혼|커플|헤어진|재회|썸|배우자|애인|연인|프로포즈|이별)/,
     },
     {
       id: 'money',
@@ -33,6 +37,7 @@
       desc: '수입·회수·정산',
       houses: [2, 11, 8],
       examples: ['밀린 대금은 언제 들어올까요?', '이번 분기 수입이 나아질까요?'],
+      keywords: /(금전|수입|대금|정산|빚|대출|회수|월급|보너스|용돈|미수금|대금\s*받)/,
     },
     {
       id: 'decision',
@@ -40,6 +45,47 @@
       desc: '가부·타이밍',
       houses: [1, 7, 10],
       examples: ['이 제안을 받아도 될까요?', '지금 움직이는 게 나을까요?'],
+      keywords: /(선택|결정|제안\s*받|할까\s*말까|어느\s*쪽|A안|B안|받아도\s*될|지금\s*움직)/,
+    },
+    {
+      id: 'exam',
+      label: '시험·공부',
+      desc: '시험·합격·학습',
+      houses: [4, 5, 9],
+      examples: ['이번 시험에 합격할까요?', '자격증 공부는 잘 풀릴까요?'],
+      keywords: /(시험|수능|자격증|공부|입시|토익|고시|논문|수험|합격할까요|성적|학원)/,
+    },
+    {
+      id: 'move',
+      label: '이사·여행·해외',
+      desc: '이동·유학·출장',
+      houses: [3, 9, 12],
+      examples: ['유학 준비가 잘 될까요?', '이번 이사 타이밍이 괜찮을까요?'],
+      keywords: /(이사|이주|해외|유학|이민|출장|여행|어학연수|워홀|전근|발령|해외\s*거주)/,
+    },
+    {
+      id: 'family',
+      label: '가족·자녀',
+      desc: '가족·자녀·가정',
+      houses: [4, 5, 9],
+      examples: ['아이 입학이 잘 될까요?', '가족 분위기가 나아질까요?'],
+      keywords: /(가족|자녀|아이|아들|딸|부모|시부모|장모|시댁|처가|육아|전학|우리\s*집\s*분위기)/,
+    },
+    {
+      id: 'lost',
+      label: '분실물',
+      desc: '잃어버린 물건',
+      houses: [2, 4, 11],
+      examples: ['잃어버린 지갑을 찾을 수 있을까요?', '분실한 휴대폰이 나올까요?'],
+      keywords: /(분실|잃어|잃은|찾을\s*수|찾아질|지갑|열쇠|분실물|놓고\s*온)/,
+    },
+    {
+      id: 'other',
+      label: '기타',
+      desc: '위에 없는 질문',
+      houses: [1, 7, 10],
+      examples: ['지금 흐름이 어떤가요?', '이 일은 어떻게 흘러갈까요?'],
+      keywords: null,
     },
   ];
 
@@ -96,6 +142,17 @@
     return null;
   }
 
+  function suggestCategory(question) {
+    var q = String(question || '').trim();
+    if (q.length < 2) return null;
+    var order = ['lost', 'exam', 'move', 'family', 'property', 'career', 'love', 'money', 'decision'];
+    for (var i = 0; i < order.length; i++) {
+      var cat = catById(order[i]);
+      if (cat && cat.keywords && cat.keywords.test(q)) return cat.id;
+    }
+    return null;
+  }
+
   function isBlockedQuestion(question) {
     return blockCheck(question).blocked;
   }
@@ -103,6 +160,7 @@
   root.PrashnaEngine = {
     CATEGORIES: CATEGORIES,
     catById: catById,
+    suggestCategory: suggestCategory,
     isBlockedQuestion: isBlockedQuestion,
     blockCheck: blockCheck,
     BLOCKED: { test: isBlockedQuestion },

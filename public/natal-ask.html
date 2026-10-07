@@ -18,7 +18,7 @@
 <script src="/js/topbar-session.js?v=14" defer></script>
 <script src="/js/astro-cities.js?v=2"></script>
 <script src="/js/vedic-core.js?v=3"></script>
-<script src="/js/prashna-engine.js?v=5"></script>
+<script src="/js/prashna-engine.js?v=6"></script>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css" crossorigin>
 <link rel="stylesheet" href="/css/site-topbar.css?v=23">
 <link rel="stylesheet" href="/css/site-header.css?v=9">
@@ -373,17 +373,25 @@ textarea:focus,select:focus,input:focus,.client-pick-wrap input:focus,.client-pi
     el.classList.add('on');
   }
 
+  var categoryLocked = false;
   var CAT_ICON = {
     property: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-7 9 7"/><path d="M5 10v10h14V10"/><path d="M10 20v-5h4v5"/></svg>',
     career: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M9 7V5a2 2 0 012-2h2a2 2 0 012 2v2"/><path d="M3 13h18"/></svg>',
     love: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20s-7-4.4-7-10a4 4 0 017-2.6A4 4 0 0119 10c0 5.6-7 10-7 10z"/></svg>',
     money: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><path d="M8.5 9l2 6 1.5-4 1.5 4 2-6"/><path d="M8 12h8"/></svg>',
     decision: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21V11"/><path d="M12 11l-6-6"/><path d="M12 11l6-6"/><path d="M4 5h4M4 5v4"/><path d="M20 5h-4M20 5v4"/></svg>',
+    exam: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/><path d="M8 7h8M8 11h5"/></svg>',
+    move: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h13"/><path d="M12 5l7 7-7 7"/><path d="M3 5v14"/></svg>',
+    family: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="7" r="3"/><circle cx="17" cy="8" r="2.5"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6"/><path d="M15.5 20c.3-2.2 2-4 4.5-4 .8 0 1.5.2 2.2.5"/></svg>',
+    lost: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/><path d="M8 11h6M11 8v6"/></svg>',
+    other: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M8 12h8M12 8v8"/></svg>',
   };
 
-  function selectCategory(c) {
+  function selectCategory(c, opts) {
     if (!c) return;
+    opts = opts || {};
     state.category = c.id;
+    if (!opts.fromSuggest) categoryLocked = true;
     var grid = $('catGrid');
     grid.querySelectorAll('.chip').forEach(function (x) {
       x.classList.toggle('on', x.getAttribute('data-id') === c.id);
@@ -391,8 +399,16 @@ textarea:focus,select:focus,input:focus,.client-pick-wrap input:focus,.client-pi
     var ex = (c.examples && c.examples[0]) || '';
     $('qEx').innerHTML = ex ? '예시: <button type="button" id="useEx">' + esc(ex) + '</button>' : '';
     var use = $('useEx');
-    if (use) use.onclick = function () { $('qText').value = ex; };
+    if (use) use.onclick = function () { $('qText').value = ex; maybeSuggestCategory(); };
     $('qText').setAttribute('placeholder', ex ? '예: ' + ex : '질문을 한 문장으로 적어 주세요');
+  }
+
+  function maybeSuggestCategory() {
+    if (categoryLocked || !PE.suggestCategory) return;
+    var id = PE.suggestCategory(($('qText').value || '').trim());
+    if (!id) return;
+    var c = PE.catById(id);
+    if (c && state.category !== c.id) selectCategory(c, { fromSuggest: true });
   }
 
   function fillCats() {
@@ -408,7 +424,7 @@ textarea:focus,select:focus,input:focus,.client-pick-wrap input:focus,.client-pi
         '<span>' + esc(c.label) + '</span>';
       b.addEventListener('click', function () { selectCategory(c); });
       grid.appendChild(b);
-      if (idx === 0) selectCategory(c);
+      if (idx === 0) selectCategory(c, { fromSuggest: true });
     });
   }
 
@@ -655,13 +671,17 @@ textarea:focus,select:focus,input:focus,.client-pick-wrap input:focus,.client-pi
     state.question = '';
     state.clientLabel = '';
     state.result = null;
+    categoryLocked = false;
     $('qText').value = '';
     hideStatus();
     formErr('');
     hideResult();
+    if (PE.CATEGORIES[0]) selectCategory(PE.CATEGORIES[0], { fromSuggest: true });
     try { $('askPanel').scrollIntoView({ behavior: 'smooth', block: 'start' }); } catch (e) {}
     try { $('qText').focus({ preventScroll: true }); } catch (e) {}
   };
+
+  $('qText').addEventListener('input', maybeSuggestCategory);
 
   async function runSubmit() {
     if (!collectAndValidate()) return;
