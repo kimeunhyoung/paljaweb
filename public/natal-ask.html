@@ -52,26 +52,14 @@ h1{font-family:var(--serif);font-size:clamp(24px,5vw,32px);margin:0 0 8px;color:
 .panel h2{font-family:var(--serif);font-size:19px;margin:0 0 6px;color:var(--deep);display:flex;align-items:center;gap:10px}
 .panel h2 .no{font-family:var(--font);font-size:11px;font-weight:700;letter-spacing:.08em;color:var(--terra);background:rgba(196,96,58,.09);border-radius:99px;padding:3px 9px}
 .panel .hint{font-size:13.5px;color:var(--muted);line-height:1.6;margin:0 0 16px}
-.cats{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
-.cats .cat:last-child{grid-column:1/-1}
-@media(min-width:600px){
-  .cats{grid-template-columns:repeat(6,1fr);gap:12px}
-  .cats .cat{grid-column:span 2}
-  .cats .cat:nth-child(4){grid-column:2/4}
-  .cats .cat:nth-child(5){grid-column:4/6}
-}
-.cat{display:flex;flex-direction:column;align-items:flex-start;gap:4px;border:1px solid var(--line);border-radius:16px;padding:16px 14px 14px;background:#fffdf9;cursor:pointer;text-align:left;font:inherit;color:inherit;transition:border-color .15s,box-shadow .15s,transform .15s}
-.cat:hover{border-color:rgba(196,96,58,.55);box-shadow:0 8px 20px rgba(44,31,14,.07);transform:translateY(-2px)}
-.cat.on{border-color:var(--terra);background:#fff8f3}
-.cat .ic{width:38px;height:38px;border-radius:12px;background:var(--soft);color:var(--terra);display:flex;align-items:center;justify-content:center;margin-bottom:6px}
-.cat .ic svg{width:21px;height:21px}
-.cat b{display:block;font-size:15.5px;color:var(--deep)}
-.cat .d{font-size:12.5px;color:var(--muted);line-height:1.45}
-.cat .q{font-size:12.5px;color:#8a5a3c;line-height:1.5;margin-top:6px;padding-top:8px;border-top:1px dashed rgba(139,111,71,.2);width:100%}
-.picked{display:flex;align-items:center;gap:8px;margin:0 0 14px;padding:9px 12px;border-radius:12px;background:var(--soft);font-size:13.5px;color:var(--deep)}
-.picked .ic{color:var(--terra);display:flex}
-.picked .ic svg{width:18px;height:18px}
-.picked button{margin-left:auto;border:0;background:none;color:var(--terra);font:inherit;font-size:12.5px;cursor:pointer;text-decoration:underline}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 18px}
+.chip{border:1.5px solid var(--line);background:#fffdf9;color:var(--deep);border-radius:999px;padding:9px 14px;font:inherit;font-size:14px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:7px;transition:border-color .15s,background .15s,color .15s,transform .12s}
+.chip .ic{width:18px;height:18px;display:flex;color:var(--terra);flex:0 0 auto}
+.chip .ic svg{width:18px;height:18px}
+.chip:hover{border-color:rgba(168,132,74,.55);transform:translateY(-1px)}
+.chip.on{background:var(--terra);border-color:var(--terra);color:#fff}
+.chip.on .ic{color:#fff}
+.ask-meta{font-size:13px;color:var(--muted);line-height:1.55;margin:10px 0 0}
 label.field{display:block;font-size:13px;font-weight:600;color:var(--deep);margin:12px 0 6px}
 textarea,select,input[type=text],input[type=date],input[type=time]{width:100%;padding:12px 14px;border:1px solid var(--line);border-radius:12px;background:var(--soft);font:inherit;font-size:15px;color:var(--ink)}
 textarea{min-height:96px;resize:vertical;line-height:1.55}
@@ -182,16 +170,15 @@ h1 em{font-style:normal;color:#a8844a}
 .panel h2{font-size:18px;font-weight:600;margin-bottom:10px;gap:8px}
 .panel h2 .no{display:none}
 .panel h2::before{content:'✦';color:#a8844a;font-size:16px}
-.cat{background:#fffdf9}
-.cat:hover{border-color:rgba(168,132,74,.6)}
-.cat.on{border-color:#a8844a;background:#fffaf0}
-.cat .ic{color:#a8844a;background:#f5efe4}
-.cat b{font-family:var(--serif);font-weight:600}
-.cat .q{color:#7a5f3a}
+.chip.on{background:#a8844a;border-color:#a8844a}
+.chip .ic{color:#a8844a}
+.chip.on .ic{color:#fff}
 .btn{border-radius:12px;padding:14px 16px}
 .btn.pri{background:#a8844a;flex:1.4}
 .btn.pri:hover{background:#b8955a}
 .btn.ghost{background:#fff;flex:0 0 auto;min-width:96px}
+#resultPanel{display:none}
+#resultPanel.on{display:block}
 textarea:focus,select:focus,input:focus,.client-pick-wrap input:focus,.client-pick-wrap select:focus{border-color:var(--accent) !important;box-shadow:0 0 0 3px rgba(200,169,110,.18) !important;outline:none;background:#fff !important}
 .client-pick-wrap{border-bottom-color:rgba(139,111,71,.18)}
 .credit-callout{background:rgba(200,169,110,.1);border-color:rgba(168,132,74,.3)}
@@ -202,15 +189,14 @@ textarea:focus,select:focus,input:focus,.client-pick-wrap input:focus,.client-pi
 .tl li::before{background:#a8844a}
 .tl li::after{background:rgba(168,132,74,.3)}
 .tl .now{background:#a8844a}
-.picked .ic,.picked button,.ex button{color:#8b6a33}
+.ex button{color:#8b6a33}
 @media(max-width:480px){.panel{padding:22px 16px}.hero{padding-top:28px}}
 /* 폭: 타로 페이지와 동일 (960px) */
 .wrap{max-width:960px;padding:24px 28px 80px}
 .notice{padding:14px 20px 12px}
 .panel{padding:28px 30px}
-@media(min-width:900px){.cats{grid-template-columns:repeat(5,1fr);gap:14px}.cats .cat,.cats .cat:nth-child(4),.cats .cat:nth-child(5),.cats .cat:last-child{grid-column:auto}}
-@media(min-width:900px){.navrow{justify-content:flex-end}.navrow .btn.pri{flex:0 0 260px}}
-@media(max-width:480px){.panel{padding:22px 16px}}
+@media(min-width:900px){.navrow{justify-content:flex-end}.navrow .btn.pri{flex:0 0 280px}}
+@media(max-width:480px){.panel{padding:22px 16px}.chip{font-size:13px;padding:8px 12px}}
 </style>
 </head>
 <body>
@@ -231,7 +217,6 @@ textarea:focus,select:focus,input:focus,.client-pick-wrap input:focus,.client-pi
       <a href="/prashna.html">✧ 질문점</a>
       <span class="is-current" aria-current="page">☉ 내 차트로 묻기</span>
     </nav>
-    <ol class="steps" id="stepDots" aria-label="진행 단계"><li class="on"><i>1</i>주제</li><li><i>2</i>질문·출생</li><li><i>3</i>차트 계산</li><li><i>4</i>답·시기</li></ol>
   </header>
 
   <aside class="notice" id="pageNotice" aria-label="이용 안내">
@@ -239,17 +224,10 @@ textarea:focus,select:focus,input:focus,.client-pick-wrap input:focus,.client-pi
     <p class="warn" id="pageNoticeWarn"><b>볼 수 없는 질문</b> 법적·의료·윤리적 문제가 생길 수 있는 질문은 받지 않아요. 건강·질병, 생사, 소송·범죄, 도박, 몰래 알아보기(뒷조사·위치 추적), 특정 종목의 매매 시점이 해당돼요. 투자는 종목이나 시점이 아닌 <b>흐름</b>으로만 물어볼 수 있어요.<span class="sub">결과는 출생 차트와 트랜짓을 읽은 참고 해석이에요. 의료·법률·투자 결정은 꼭 전문가와 상의해 주세요.</span></p>
   </aside>
 
-  <section class="panel on" id="step1" data-step="1">
-    <h2><span class="no">STEP 1</span>무엇을 묻나요?</h2>
-    <p class="hint" id="step1Hint">한 번에 한 가지만 물어봐 주세요. 같은 주제라도 질문이 다르면 언제든 다시 볼 수 있어요. 같은 질문을 곧바로 되풀이하면 답이 흔들릴 수 있으니, 상황이 달라졌을 때 다시 물어봐 주세요.</p>
-    <div class="cats" id="catGrid"></div>
-    <button type="button" id="to2" hidden disabled></button>
-  </section>
-
-  <section class="panel" id="step2" data-step="2">
-    <h2><span class="no">STEP 2</span>질문과 출생 정보</h2>
-    <div class="picked" id="pickedCat"></div>
-    <p class="hint">질문을 한 문장으로 적어 주세요. 출생 날짜·시간·도시는 차트의 뼈대가 돼요. 생시를 모르면 <a href="/prashna.html">질문점</a>을 이용해 주세요.</p>
+  <section class="panel on" id="askPanel">
+    <h2>무엇을 묻나요?</h2>
+    <p class="hint" id="formHint">주제를 고르고 질문·출생 정보를 적어 주세요. 생시를 모르면 <a href="/prashna.html">질문점</a>을 이용해 주세요.</p>
+    <div class="chips" id="catGrid" role="group" aria-label="질문 주제"></div>
     <label class="field" for="qText">질문</label>
     <textarea id="qText" maxlength="160" placeholder="예: 지금 내놓은 아파트는 언제쯤 팔릴까요?"></textarea>
     <p class="ex" id="qEx"></p>
@@ -284,30 +262,20 @@ textarea:focus,select:focus,input:focus,.client-pick-wrap input:focus,.client-pi
     </div>
     <label class="field" for="qCity">출생 도시</label>
     <select id="qCity"></select>
-    <p class="inline-err" id="step2Err" role="alert"></p>
+    <div class="credit-callout" id="creditCallout" style="margin-top:16px"><b>AI 해석 2크레딧</b>이 차감됩니다. 잔여가 없으면 규칙 판정(무료)으로 보여 드려요.</div>
+    <p class="inline-err" id="formErr" role="alert"></p>
     <div class="navrow">
-      <button type="button" class="btn ghost" id="back1">이전</button>
-      <button type="button" class="btn pri" id="to3">다음</button>
-    </div>
-  </section>
-
-  <section class="panel" id="step3" data-step="3">
-    <h2><span class="no">STEP 3</span>질문 올리기</h2>
-    <p class="hint">출생 차트로 주제를 읽고, 앞으로의 트랜짓으로 시기 후보를 골라 드려요. (로그인이 필요해요)</p>
-    <div class="credit-callout" id="creditCallout"><b>AI 해석 2크레딧</b>이 차감됩니다. 잔여가 없으면 규칙 판정(무료)으로 보여 드려요.</div>
-    <div class="block" id="confirmBox"></div>
-    <div class="navrow">
-      <button type="button" class="btn ghost" id="back2">이전</button>
       <button type="button" class="btn pri" id="submitBtn">질문 올리기 (AI 2크레딧)</button>
     </div>
+    <p class="ask-meta">로그인이 필요해요. 출생 차트로 흐름과 시기 후보를 읽어요.</p>
     <div class="status" id="status"></div>
   </section>
 
-  <section class="panel" id="step4" data-step="4">
-    <h2><span class="no">RESULT</span>출생 차트가 답한 내용</h2>
+  <section class="panel" id="resultPanel">
+    <h2>출생 차트가 답한 내용</h2>
     <div id="resultBox"></div>
     <div class="navrow">
-      <button type="button" class="btn ghost" id="againBtn">처음으로</button>
+      <button type="button" class="btn ghost" id="againBtn">다시 묻기</button>
       <a class="btn pri" href="/astrology.html">점성학 차트</a>
     </div>
     <p class="alt-link">생시 없이 지금 순간으로 보려면 <a href="/prashna.html">질문점(프라슈나)</a></p>
@@ -386,14 +354,23 @@ textarea:focus,select:focus,input:focus,.client-pick-wrap input:focus,.client-pi
   }
   function hideStatus() { $('status').className = 'status'; }
 
-  function setStep(n) {
-    document.querySelectorAll('.panel').forEach(function (p) {
-      p.classList.toggle('on', Number(p.getAttribute('data-step')) === n);
-    });
-    document.querySelectorAll('#stepDots li').forEach(function (s, i) {
-      s.classList.toggle('on', i < n);
-    });
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+  function showResult() {
+    var panel = $('resultPanel');
+    if (!panel) return;
+    panel.classList.add('on');
+    try { panel.scrollIntoView({ behavior: 'smooth', block: 'start' }); } catch (e) { window.scrollTo({ top: panel.offsetTop - 20, behavior: 'smooth' }); }
+  }
+  function hideResult() {
+    var panel = $('resultPanel');
+    if (panel) panel.classList.remove('on');
+    $('resultBox').innerHTML = '';
+  }
+  function formErr(msg) {
+    var el = $('formErr');
+    if (!el) return;
+    if (!msg) { el.textContent = ''; el.classList.remove('on'); return; }
+    el.textContent = msg;
+    el.classList.add('on');
   }
 
   var CAT_ICON = {
@@ -404,36 +381,34 @@ textarea:focus,select:focus,input:focus,.client-pick-wrap input:focus,.client-pi
     decision: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21V11"/><path d="M12 11l-6-6"/><path d="M12 11l6-6"/><path d="M4 5h4M4 5v4"/><path d="M20 5h-4M20 5v4"/></svg>',
   };
 
+  function selectCategory(c) {
+    if (!c) return;
+    state.category = c.id;
+    var grid = $('catGrid');
+    grid.querySelectorAll('.chip').forEach(function (x) {
+      x.classList.toggle('on', x.getAttribute('data-id') === c.id);
+    });
+    var ex = (c.examples && c.examples[0]) || '';
+    $('qEx').innerHTML = ex ? '예시: <button type="button" id="useEx">' + esc(ex) + '</button>' : '';
+    var use = $('useEx');
+    if (use) use.onclick = function () { $('qText').value = ex; };
+    $('qText').setAttribute('placeholder', ex ? '예: ' + ex : '질문을 한 문장으로 적어 주세요');
+  }
+
   function fillCats() {
     var grid = $('catGrid');
     grid.innerHTML = '';
-    PE.CATEGORIES.forEach(function (c) {
+    PE.CATEGORIES.forEach(function (c, idx) {
       var b = document.createElement('button');
       b.type = 'button';
-      b.className = 'cat';
-      var ex = c.examples[0] || '';
+      b.className = 'chip';
+      b.setAttribute('data-id', c.id);
       b.innerHTML =
         '<span class="ic" aria-hidden="true">' + (CAT_ICON[c.id] || '') + '</span>' +
-        '<b>' + esc(c.label) + '</b><span class="d">' + esc(c.desc) + '</span>' +
-        (ex ? '<span class="q">“' + esc(ex) + '”</span>' : '');
-      b.addEventListener('click', function () {
-        state.category = c.id;
-        grid.querySelectorAll('.cat').forEach(function (x) { x.classList.remove('on'); });
-        b.classList.add('on');
-        $('to2').disabled = false;
-        $('qEx').innerHTML = '예시: <button type="button" id="useEx">' + esc(ex) + '</button>';
-        var use = $('useEx');
-        if (use) use.onclick = function () { $('qText').value = ex; };
-        $('pickedCat').innerHTML =
-          '<span class="ic" aria-hidden="true">' + (CAT_ICON[c.id] || '') + '</span>' +
-          '<span><b>' + esc(c.label) + '</b> 질문이에요</span>' +
-          '<button type="button" id="changeCat">주제 바꾸기</button>';
-        $('changeCat').onclick = function () { setStep(1); };
-        $('qText').setAttribute('placeholder', ex ? '예: ' + ex : '질문을 한 문장으로 적어 주세요');
-        setStep(2);
-        setTimeout(function () { try { $('qText').focus({ preventScroll: true }); } catch (e) {} }, 350);
-      });
+        '<span>' + esc(c.label) + '</span>';
+      b.addEventListener('click', function () { selectCategory(c); });
       grid.appendChild(b);
+      if (idx === 0) selectCategory(c);
     });
   }
 
@@ -566,7 +541,7 @@ textarea:focus,select:focus,input:focus,.client-pick-wrap input:focus,.client-pi
       state.isPrivate = !!(PA && PA.effectivePlan && PA.effectivePlan(prof.data) === 'private');
       $('clientLabelWrap').classList.toggle('on', state.isCounselor);
       if (state.isCounselor && !state.isPrivate) {
-        $('step1Hint').textContent = '한 번에 한 가지만 물어봐 주세요. 상담사 계정은 하루 20건까지 볼 수 있어요.';
+        $('formHint').innerHTML = '주제를 고르고 질문·출생 정보를 적어 주세요. 상담사 계정은 하루 20건까지 볼 수 있어요. 생시를 모르면 <a href="/prashna.html">질문점</a>을 이용해 주세요.';
       }
       if (state.isCounselor) await loadCounselorClientPicker(sb, session.user.id);
       syncPageNotice();
@@ -643,82 +618,53 @@ textarea:focus,select:focus,input:focus,.client-pick-wrap input:focus,.client-pi
     );
   }
 
-  $('to2').onclick = function () { setStep(2); };
-  $('back1').onclick = function () { setStep(1); };
-  $('back2').onclick = function () { setStep(2); };
-  $('to3').onclick = function () {
+  function collectAndValidate() {
     var q = ($('qText').value || '').trim();
     var city = pickedCity();
     var birthDate = ($('qBirthDate').value || '').trim();
     var birthTime = ($('qBirthTime').value || '').trim();
     var clientLabel = ($('qClient').value || '').trim();
-    function err(msg) {
-      $('step2Err').textContent = msg;
-      $('step2Err').classList.add('on');
-    }
-    $('step2Err').classList.remove('on');
-    if (q.length < 4) { err('질문을 한 문장으로 적어 주세요.'); return; }
+    formErr('');
+    if (!state.category) { formErr('주제를 골라 주세요.'); return null; }
+    if (q.length < 4) { formErr('질문을 한 문장으로 적어 주세요.'); return null; }
     var bc = PE.blockCheck ? PE.blockCheck(q, { allowInvest: state.isAdmin, allowAll: state.isPrivate }) : { blocked: PE.isBlockedQuestion(q) };
     if (bc.blocked && bc.invest) {
-      err('특정 종목을 언제 사고팔지는 투자 자문에 해당할 수 있어 답하지 않아요. "올해 투자 흐름은 어떨까요?"처럼 흐름으로 물어봐 주세요.');
-      return;
+      formErr('특정 종목을 언제 사고팔지는 투자 자문에 해당할 수 있어 답하지 않아요. "올해 투자 흐름은 어떨까요?"처럼 흐름으로 물어봐 주세요.');
+      return null;
     }
     if (bc.blocked && bc.always) {
-      err('지금 많이 힘드신가요? 이 질문은 여기서 볼 수 없지만, 혼자 견디지 않으셨으면 해요. 자살예방상담전화 109(24시간)에서 바로 이야기를 들어 드려요.');
-      return;
+      formErr('지금 많이 힘드신가요? 이 질문은 여기서 볼 수 없지만, 혼자 견디지 않으셨으면 해요. 자살예방상담전화 109(24시간)에서 바로 이야기를 들어 드려요.');
+      return null;
     }
     if (bc.blocked) {
-      err('법적·의료·윤리적 문제가 생길 수 있는 질문(건강·질병, 생사, 소송·범죄, 도박, 몰래 알아보기)은 받지 않아요. 다른 질문으로 바꿔 주세요.');
-      return;
+      formErr('법적·의료·윤리적 문제가 생길 수 있는 질문(건강·질병, 생사, 소송·범죄, 도박, 몰래 알아보기)은 받지 않아요. 다른 질문으로 바꿔 주세요.');
+      return null;
     }
-    if (!birthDate) { err('출생 날짜를 입력해 주세요.'); return; }
-    if (!birthTime) { err('출생 시간을 입력해 주세요. 생시를 모르면 질문점을 이용해 주세요.'); return; }
-    if (!city || !city.tz) { err('출생 도시를 선택해 주세요.'); return; }
+    if (!birthDate) { formErr('출생 날짜를 입력해 주세요.'); return null; }
+    if (!birthTime) { formErr('출생 시간을 입력해 주세요. 생시를 모르면 질문점을 이용해 주세요.'); return null; }
+    if (!city || !city.tz) { formErr('출생 도시를 선택해 주세요.'); return null; }
     state.question = q;
     state.city = city;
     state.birthDate = birthDate;
     state.birthTime = birthTime;
     state.clientLabel = state.isCounselor ? clientLabel : '';
-    var cat = PE.catById(state.category);
-    $('confirmBox').innerHTML =
-      '<p style="margin:0 0 8px;font-size:14.5px;line-height:1.7"><b>주제</b> ' + esc(cat ? cat.label : '') + '</p>' +
-      '<p style="margin:0 0 8px;font-size:14.5px;line-height:1.7"><b>질문</b> ' + esc(q) + '</p>' +
-      (state.clientLabel
-        ? '<p style="margin:0 0 8px;font-size:14.5px;line-height:1.7"><b>고객</b> ' + esc(state.clientLabel) + '</p>'
-        : '') +
-      '<p style="margin:0 0 8px;font-size:14.5px;line-height:1.7"><b>출생</b> ' + esc(birthDate) + ' ' + esc(birthTime) + '</p>' +
-      '<p style="margin:0;font-size:14.5px;line-height:1.7"><b>출생 도시</b> ' + esc(city.ko) +
-      ' <span style="color:#8a7a68">(' + esc(city.tz) + ')</span></p>' +
-      (bc.invest
-        ? '<p class="invest-note" style="margin:12px 0 0"><b>투자 관련 질문이에요</b>결과는 흐름을 읽는 참고 해석이며, 종목 추천이나 매매 시점 조언이 아니에요.</p>'
-        : '');
-    setStep(3);
-  };
+    return true;
+  }
 
   $('againBtn').onclick = function () {
-    state.category = null;
     state.question = '';
-    state.city = null;
-    state.birthDate = '';
-    state.birthTime = '';
     state.clientLabel = '';
     state.result = null;
     $('qText').value = '';
-    $('qClient').value = '';
-    $('qBirthDate').value = '';
-    $('qBirthTime').value = '';
-    var cps = $('clientPickSelect');
-    if (cps) cps.value = '';
-    var cpSearch = $('clientPickSearch');
-    if (cpSearch) cpSearch.value = '';
-    if (COUNSELOR_CLIENT_ROWS.length) populateCounselorClientSelect('');
-    $('catGrid').querySelectorAll('.cat').forEach(function (x) { x.classList.remove('on'); });
-    $('to2').disabled = true;
     hideStatus();
-    setStep(1);
+    formErr('');
+    hideResult();
+    try { $('askPanel').scrollIntoView({ behavior: 'smooth', block: 'start' }); } catch (e) {}
+    try { $('qText').focus({ preventScroll: true }); } catch (e) {}
   };
 
   async function runSubmit() {
+    if (!collectAndValidate()) return;
     hideStatus();
     var btn = $('submitBtn');
     btn.disabled = true;
@@ -762,7 +708,7 @@ textarea:focus,select:focus,input:focus,.client-pick-wrap input:focus,.client-pi
             clientLabel: body.previous.clientLabel,
             reused: true,
           });
-          setStep(4);
+          showResult();
         }
         return;
       }
@@ -781,7 +727,7 @@ textarea:focus,select:focus,input:focus,.client-pick-wrap input:focus,.client-pi
         tz: body.tz,
       });
       hideStatus();
-      setStep(4);
+      showResult();
     } catch (e) {
       console.error(e);
       showStatus('처리 중 오류가 났어요. 잠시 후 다시 시도해 주세요.', 'err');
