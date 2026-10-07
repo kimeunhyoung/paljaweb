@@ -15,9 +15,9 @@
 <script src="/js/plan-access.js?v=13"></script>
 <script src="/js/site-topbar.js?v=40" defer></script>
 <script src="/js/topbar-session.js?v=14" defer></script>
-<script src="/js/astro-cities.js?v=1"></script>
+<script src="/js/astro-cities.js?v=2"></script>
 <script src="/js/vedic-core.js?v=2"></script>
-<script src="/js/prashna-engine.js?v=1"></script>
+<script src="/js/prashna-engine.js?v=2"></script>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css" crossorigin>
 <link rel="stylesheet" href="/css/site-topbar.css?v=23">
 <link rel="stylesheet" href="/css/site-header.css?v=9">
@@ -72,13 +72,27 @@ textarea{min-height:96px;resize:vertical;line-height:1.55}
 .block li{margin-bottom:4px}
 .meta{font-size:12.5px;color:var(--muted);line-height:1.6;margin-top:10px}
 .disc{font-size:12.5px;color:#8a6a58;background:#f7f2ec;border-left:3px solid #cdb6a2;padding:10px 12px;border-radius:0 10px 10px 0;margin-top:12px;line-height:1.6}
+.counselor-only{display:none}
+.counselor-only.on{display:block}
+.si{display:grid;grid-template-columns:repeat(4,1fr);grid-template-rows:repeat(4,minmax(72px,auto));max-width:440px;margin:0 auto;border:2px solid #8b6f47;background:#fff}
+.si .c{border:1px solid #d4c4a8;padding:4px 5px 6px;position:relative;min-width:0}
+.si .c .sn{font-size:10px;color:var(--muted);display:block;margin-bottom:2px}
+.si .c .g{display:block;font-size:12px;line-height:1.4;color:var(--ink)}
+.si .c .g.moon{color:#2e6b8b}
+.si .c.lagna{background:linear-gradient(135deg,rgba(196,96,58,.28) 0,rgba(196,96,58,.28) 18px,transparent 18px)}
+.si .c.lagna::before{content:'Asc';position:absolute;top:1px;left:3px;font-size:9px;font-weight:700;color:var(--deep)}
+.si .c.lagna .sn{text-align:right}
+.si .mid{grid-column:2/4;grid-row:2/4;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:8px;border:1px solid #d4c4a8;background:var(--soft)}
+.si .mid b{font-family:var(--serif);font-size:14px;color:var(--deep)}
+.si .mid span{font-size:11px;color:var(--muted);line-height:1.5;margin-top:3px}
+.si-legend{max-width:440px;margin:8px auto 0;font-size:11.5px;color:var(--muted);line-height:1.55;text-align:center}
 </style>
 </head>
 <body>
 <div class="site-top" data-topbar-title="질문점" data-nav-current="prashna" data-login-next="prashna.html"></div>
 <main class="wrap">
   <header class="hero">
-    <div class="tag">PRASHNA</div>
+    <div class="tag">PRASHNA · 체험판</div>
     <h1>질문점 · 지금 이 순간의 답</h1>
     <p class="lead">생시 없이, 질문을 올리는 <b>그 시각·그 도시</b>의 하늘로 읽습니다. 확정 예언이 아니라 경향과 시기 후보를 드려요.</p>
     <div class="steps" id="stepDots" aria-hidden="true"><span class="on"></span><span></span><span></span><span></span></div>
@@ -97,6 +111,10 @@ textarea{min-height:96px;resize:vertical;line-height:1.55}
     <label class="field" for="qText">질문</label>
     <textarea id="qText" maxlength="160" placeholder="예: 지금 내놓은 아파트는 언제쯤 팔릴까요?"></textarea>
     <p class="ex" id="qEx"></p>
+    <div class="counselor-only" id="clientLabelWrap">
+      <label class="field" for="qClient">고객 메모 (선택 · 상담사만)</label>
+      <input type="text" id="qClient" maxlength="80" placeholder="예: 김○○ 님 · 매도 상담">
+    </div>
     <label class="field" for="qCity">현재 도시</label>
     <select id="qCity"></select>
     <div class="navrow">
@@ -107,7 +125,7 @@ textarea{min-height:96px;resize:vertical;line-height:1.55}
 
   <section class="panel" id="step3" data-step="3">
     <h2>3. 질문 올리기</h2>
-    <p class="hint">아래 버튼을 누르는 <b>서버 시각</b>이 차트의 기준이 됩니다. (로그인 필요 · 현재는 체험)</p>
+    <p class="hint">아래 버튼을 누르는 <b>서버 시각</b>이 차트의 기준이 됩니다. 계산은 서버에서만 이뤄져요. (로그인 필요 · 체험판)</p>
     <div class="block" id="confirmBox"></div>
     <div class="navrow">
       <button type="button" class="btn ghost" id="back2">이전</button>
@@ -131,10 +149,17 @@ textarea{min-height:96px;resize:vertical;line-height:1.55}
   var SB_URL = 'https://sghsryumnrnftyjoqmwf.supabase.co';
   var SB_KEY = 'sb_publishable_6S3W_oWrzG-Nv8wLK98gmg_q_KcB2I1';
   var PE = window.PrashnaEngine;
-  var Origin = null, Horoscope = null;
-  var state = { category: null, question: '', city: null, stamp: null, result: null };
+  var state = {
+    category: null, question: '', city: null, clientLabel: '',
+    result: null, isCounselor: false,
+  };
 
   function $(id) { return document.getElementById(id); }
+  function esc(s) {
+    return String(s == null ? '' : s)
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
+  }
   function showStatus(msg, kind) {
     var el = $('status');
     el.textContent = msg || '';
@@ -166,7 +191,7 @@ textarea{min-height:96px;resize:vertical;line-height:1.55}
         b.classList.add('on');
         $('to2').disabled = false;
         var ex = c.examples[0] || '';
-        $('qEx').innerHTML = '예시: <button type="button" id="useEx">' + ex + '</button>';
+        $('qEx').innerHTML = '예시: <button type="button" id="useEx">' + esc(ex) + '</button>';
         var use = $('useEx');
         if (use) use.onclick = function () { $('qText').value = ex; };
       });
@@ -181,38 +206,93 @@ textarea{min-height:96px;resize:vertical;line-height:1.55}
     cities.forEach(function (c) {
       var o = document.createElement('option');
       o.value = c.ko;
-      o.textContent = c.ko;
+      o.textContent = c.ko + (c.tz ? '' : '');
       o.dataset.lat = c.lat;
       o.dataset.lng = c.lng;
+      o.dataset.tz = c.tz || '';
       sel.appendChild(o);
     });
-    // 기본 서울
     sel.value = '서울';
   }
 
-  async function loadLib() {
-    try {
-      var CNH = await import('https://cdn.jsdelivr.net/npm/circular-natal-horoscope-js@1.1.0/+esm');
-      Origin = CNH.Origin || (CNH.default && CNH.default.Origin);
-      Horoscope = CNH.Horoscope || (CNH.default && CNH.default.Horoscope);
-    } catch (e) {
-      console.error(e);
-    }
+  function sbClient() {
+    if (!window.supabase) return null;
+    return window.supabase.createClient(SB_URL, SB_KEY);
   }
 
   async function getSession() {
-    var g = window.supabase;
-    if (!g) return null;
-    var sb = g.createClient(SB_URL, SB_KEY);
+    var sb = sbClient();
+    if (!sb) return null;
     var res = await sb.auth.getSession();
     return res.data && res.data.session;
+  }
+
+  async function detectCounselor() {
+    try {
+      var sb = sbClient();
+      if (!sb) return;
+      var session = await getSession();
+      if (!session) return;
+      var prof = await sb.from('profiles').select('plan, plan_active_until').eq('id', session.user.id).maybeSingle();
+      var PA = window.PaljaPlan;
+      state.isCounselor = !!(PA && PA.isCounselorPlan && PA.isCounselorPlan(prof.data));
+      $('clientLabelWrap').classList.toggle('on', state.isCounselor);
+    } catch (e) { /* ignore */ }
   }
 
   function pickedCity() {
     var sel = $('qCity');
     var opt = sel.options[sel.selectedIndex];
     if (!opt || !opt.value) return null;
-    return { ko: opt.value, lat: Number(opt.dataset.lat), lng: Number(opt.dataset.lng) };
+    return {
+      ko: opt.value,
+      lat: Number(opt.dataset.lat),
+      lng: Number(opt.dataset.lng),
+      tz: opt.dataset.tz || '',
+    };
+  }
+
+  function drawSouthChartHtml(chart) {
+    if (!chart || !window.VedicCore) return '';
+    var V = window.VedicCore;
+    var POS = { 11: [0, 0], 0: [0, 1], 1: [0, 2], 2: [0, 3], 3: [1, 3], 4: [2, 3], 5: [3, 3], 6: [3, 2], 7: [3, 1], 8: [3, 0], 9: [2, 0], 10: [1, 0] };
+    var cells = {};
+    for (var r = 0; r < 12; r++) cells[r] = [];
+    (chart.grahas || []).forEach(function (g) {
+      var mark = '';
+      if (g.dignity === 'exalted') mark = '↑';
+      else if (g.dignity === 'debilitated') mark = '↓';
+      if (g.retro && g.key !== 'rahu' && g.key !== 'ketu') mark += '(R)';
+      var label = (V.GRAHA_SHORT[g.key] || g.key) + ' ' + g.deg + '°' + mark;
+      cells[g.rashi].push('<span class="g' + (g.key === 'moon' ? ' moon' : '') + '">' + esc(label) + '</span>');
+    });
+    var html = '';
+    for (var row = 0; row < 4; row++) {
+      for (var col = 0; col < 4; col++) {
+        if ((row === 1 || row === 2) && (col === 1 || col === 2)) {
+          if (row === 1 && col === 1) {
+            html +=
+              '<div class="mid"><b>질문 차트</b><span>' +
+              esc(chart.dateLabel || '') + '<br>' + esc(chart.place || '') +
+              '<br>라히리 항성황도</span></div>';
+          }
+          continue;
+        }
+        var sign = null;
+        Object.keys(POS).forEach(function (k) {
+          if (POS[k][0] === row && POS[k][1] === col) sign = Number(k);
+        });
+        var isL = chart.lagnaRashi != null && chart.lagnaRashi === sign;
+        html +=
+          '<div class="c' + (isL ? ' lagna' : '') + '"><span class="sn">' +
+          esc(V.SIGNS[sign].sa) + '</span>' + (cells[sign] || []).join('') + '</div>';
+      }
+    }
+    return (
+      '<div class="block"><h4>질문 순간의 라시 차트</h4>' +
+      '<div class="si" id="prashnaSi">' + html + '</div>' +
+      '<p class="si-legend">남인도식 · Asc=상승궁 · ↑고양 · ↓하강 · (R)역행</p></div>'
+    );
   }
 
   $('to2').onclick = function () { setStep(2); };
@@ -221,22 +301,36 @@ textarea{min-height:96px;resize:vertical;line-height:1.55}
   $('to3').onclick = function () {
     var q = ($('qText').value || '').trim();
     var city = pickedCity();
+    var clientLabel = ($('qClient').value || '').trim();
     if (q.length < 4) { alert('질문을 한 문장으로 적어 주세요.'); return; }
-    if (PE.BLOCKED.test(q)) { alert('건강·수명·소송·투자 주제는 다루지 않아요.'); return; }
-    if (!city) { alert('현재 도시를 선택해 주세요.'); return; }
+    if (PE.isBlockedQuestion(q)) {
+      alert('건강·수명·소송·타인 사생활·주식·코인 주제는 다루지 않아요.');
+      return;
+    }
+    if (!city || !city.tz) { alert('현재 도시를 선택해 주세요.'); return; }
     state.question = q;
     state.city = city;
+    state.clientLabel = state.isCounselor ? clientLabel : '';
     var cat = PE.catById(state.category);
     $('confirmBox').innerHTML =
-      '<p style="margin:0 0 8px;font-size:14.5px;line-height:1.7"><b>주제</b> ' + (cat ? cat.label : '') + '</p>' +
-      '<p style="margin:0 0 8px;font-size:14.5px;line-height:1.7"><b>질문</b> ' + q.replace(/</g, '&lt;') + '</p>' +
-      '<p style="margin:0;font-size:14.5px;line-height:1.7"><b>도시</b> ' + city.ko + '</p>';
+      '<p style="margin:0 0 8px;font-size:14.5px;line-height:1.7"><b>주제</b> ' + esc(cat ? cat.label : '') + '</p>' +
+      '<p style="margin:0 0 8px;font-size:14.5px;line-height:1.7"><b>질문</b> ' + esc(q) + '</p>' +
+      (state.clientLabel
+        ? '<p style="margin:0 0 8px;font-size:14.5px;line-height:1.7"><b>고객</b> ' + esc(state.clientLabel) + '</p>'
+        : '') +
+      '<p style="margin:0;font-size:14.5px;line-height:1.7"><b>도시</b> ' + esc(city.ko) +
+      ' <span style="color:#8a7a68">(' + esc(city.tz) + ')</span></p>';
     setStep(3);
   };
 
   $('againBtn').onclick = function () {
-    state = { category: null, question: '', city: null, stamp: null, result: null };
+    state.category = null;
+    state.question = '';
+    state.city = null;
+    state.clientLabel = '';
+    state.result = null;
     $('qText').value = '';
+    $('qClient').value = '';
     $('catGrid').querySelectorAll('.cat').forEach(function (x) { x.classList.remove('on'); });
     $('to2').disabled = true;
     hideStatus();
@@ -247,18 +341,14 @@ textarea{min-height:96px;resize:vertical;line-height:1.55}
     hideStatus();
     var btn = $('submitBtn');
     btn.disabled = true;
-    showStatus('질문 시각을 서버에서 확인하고 있어요…', 'info');
+    showStatus('서버에서 질문 시각·차트·시기를 계산하고 있어요… (최대 약 1분)', 'info');
     try {
-      if (!Origin || !Horoscope || !window.VedicCore) {
-        showStatus('계산 엔진을 불러오지 못했어요. 새로고침해 주세요.', 'err');
-        return;
-      }
       var session = await getSession();
       if (!session) {
         location.replace('/login.html?next=' + encodeURIComponent('prashna.html'));
         return;
       }
-      var stampRes = await fetch('/api/prashna/stamp', {
+      var res = await fetch('/api/prashna/ask', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -270,81 +360,41 @@ textarea{min-height:96px;resize:vertical;line-height:1.55}
           city: state.city.ko,
           lat: state.city.lat,
           lng: state.city.lng,
+          tz: state.city.tz,
+          clientLabel: state.clientLabel || undefined,
         }),
       });
-      var stampBody = await stampRes.json().catch(function () { return {}; });
-      if (stampRes.status === 401) {
+      var body = await res.json().catch(function () { return {}; });
+      if (res.status === 401) {
         location.replace('/login.html?next=' + encodeURIComponent('prashna.html'));
         return;
       }
-      if (stampRes.status === 429 && stampBody.previous) {
-        showStatus(stampBody.message || '재질문 제한', 'err');
-        if (stampBody.previous.result) {
-          renderResult(stampBody.previous.result, {
-            askedAt: stampBody.previous.askedAt,
-            city: state.city.ko,
-            question: stampBody.previous.question,
+      if (res.status === 429 && body.previous) {
+        showStatus(body.message || '재질문 제한', 'err');
+        if (body.previous.result) {
+          renderResult(body.previous.result, {
+            askedAt: body.previous.askedAt,
+            city: body.previous.city || state.city.ko,
+            question: body.previous.question,
+            clientLabel: body.previous.clientLabel,
             reused: true,
           });
           setStep(4);
         }
         return;
       }
-      if (!stampRes.ok) {
-        showStatus(stampBody.message || '질문을 받지 못했어요.', 'err');
+      if (!res.ok) {
+        showStatus(body.message || '질문을 받지 못했어요.', 'err');
         return;
       }
-      state.stamp = stampBody;
-      showStatus('그 순간의 하늘을 계산하고 있어요…', 'info');
-
-      // 서버 UTC → 질문 도시 대략 벽시계 (국내·일본 근방은 KST/+9)
-      var civil = (function (iso, lng) {
-        var d = new Date(iso);
-        if (lng >= 120 && lng <= 150) {
-          var k = new Date(d.getTime() + 9 * 3600 * 1000);
-          return {
-            y: k.getUTCFullYear(), mo: k.getUTCMonth() + 1, da: k.getUTCDate(),
-            hh: k.getUTCHours(), mi: k.getUTCMinutes(),
-          };
-        }
-        return {
-          y: d.getFullYear(), mo: d.getMonth() + 1, da: d.getDate(),
-          hh: d.getHours(), mi: d.getMinutes(),
-        };
-      })(stampBody.askedAt, state.city.lng);
-      var origin = new Origin({
-        year: civil.y, month: civil.mo - 1, date: civil.da, hour: civil.hh, minute: civil.mi,
-        latitude: state.city.lat, longitude: state.city.lng,
-      });
-      var horoscope = new Horoscope({
-        origin: origin, houseSystem: 'placidus', zodiac: 'tropical',
-        aspectPoints: ['bodies'], aspectWithPoints: ['bodies'], aspectTypes: ['major'], language: 'en',
-      });
-      var data = window.VedicCore.build(horoscope, { y: civil.y, mo: civil.mo, da: civil.da }, {});
-      var judged = PE.judge(data, { category: state.category, question: state.question });
-      if (!judged.ok) {
-        showStatus(judged.message || '판정할 수 없어요.', 'err');
-        return;
-      }
-      state.result = judged;
-      await fetch('/api/prashna/complete', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: 'Bearer ' + session.access_token,
-        },
-        body: JSON.stringify({
-          category: state.category,
-          question: state.question,
-          askedAt: stampBody.askedAt,
-          result: judged,
-        }),
-      }).catch(function () {});
-
-      renderResult(judged, {
-        askedAt: stampBody.askedAt,
-        city: state.city.ko,
+      state.result = body.result;
+      renderResult(body.result, {
+        askedAt: body.askedAt,
+        city: body.city,
         question: state.question,
+        clientLabel: body.clientLabel,
+        civil: body.civil,
+        tz: body.tz,
       });
       hideStatus();
       setStep(4);
@@ -359,29 +409,38 @@ textarea{min-height:96px;resize:vertical;line-height:1.55}
   function renderResult(r, meta) {
     var when = meta.askedAt ? new Date(meta.askedAt).toLocaleString('ko-KR') : '';
     var timings = (r.timings || []).map(function (t) {
-      return '<li><b>' + t.label + '</b> — ' + t.reason + '</li>';
+      var label = t.label || ((t.start || '') + (t.end ? ' ~ ' + t.end : ''));
+      return '<li><b>' + esc(label) + '</b> — ' + esc(t.reason || t.reason_text || '') + '</li>';
     }).join('');
-    var evidence = (r.evidence || []).map(function (e) { return '<li>' + e + '</li>'; }).join('');
-    var advice = (r.advice || []).map(function (a) { return '<li>' + a + '</li>'; }).join('');
+    if (!timings) timings = '<li>가까운 12개월에서 뚜렷한 후보가 적어요. 조율 구간으로 두세요.</li>';
+    var evidence = (r.evidence || []).map(function (e) { return '<li>' + esc(e) + '</li>'; }).join('');
+    var advice = (r.advice || []).map(function (a) { return '<li>' + esc(a) + '</li>'; }).join('');
+    var chartHtml = drawSouthChartHtml(r.chart);
+    var kicker = meta.reused ? '이전 결과' : (r.trial ? '체험판 · 한 줄 결론' : '한 줄 결론');
     $('resultBox').innerHTML =
       '<div class="result-head">' +
-      '<p class="kicker">' + (meta.reused ? '이전 결과' : '한 줄 결론') + '</p>' +
-      '<h3>' + (r.conclusion || '') + '</h3>' +
-      '<p>' + (meta.question || '').replace(/</g, '&lt;') + '</p>' +
+      '<p class="kicker">' + kicker + '</p>' +
+      '<h3>' + esc(r.conclusion || '') + '</h3>' +
+      '<p>' + esc(meta.question || '') + '</p>' +
+      (meta.clientLabel ? '<p style="opacity:.85;margin-top:6px">고객 · ' + esc(meta.clientLabel) + '</p>' : '') +
       '</div>' +
+      chartHtml +
       '<div class="block"><h4>시기 후보</h4><ul>' + timings + '</ul></div>' +
       '<div class="block"><h4>차트 근거</h4><ul>' + evidence + '</ul></div>' +
       '<div class="block"><h4>조언</h4><ul>' + advice + '</ul></div>' +
-      '<p class="meta">기준 시각 ' + when + (meta.city ? ' · ' + meta.city : '') +
-      (r.lagna ? ' · 상승 ' + r.lagna.label : '') + '</p>' +
-      '<p class="disc">' + (r.disclaimer || '') + '</p>';
+      '<p class="meta">기준 시각 ' + esc(when) +
+      (meta.city ? ' · ' + esc(meta.city) : '') +
+      (meta.tz ? ' · ' + esc(meta.tz) : '') +
+      (r.lagna ? ' · 상승 ' + esc(r.lagna.label) : '') +
+      (r.aiUsed ? ' · AI 해석' : ' · 규칙 판정') + '</p>' +
+      '<p class="disc">' + esc(r.disclaimer || '') + '</p>';
   }
 
   $('submitBtn').onclick = runSubmit;
 
   fillCats();
   fillCities();
-  loadLib();
+  detectCounselor();
 })();
 </script>
 </body>
