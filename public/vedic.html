@@ -114,11 +114,21 @@ table.t{border-collapse:collapse;width:100%;min-width:560px;}
 table.t th,table.t td{border-bottom:1px solid var(--border);padding:10px 10px;text-align:left;font-size:14px;line-height:1.5;white-space:nowrap;}
 table.t th{background:var(--cream);color:var(--warm-brown);font-size:12.5px;}
 table.t tr.cur td{background:rgba(200,169,110,.22);font-weight:600;}
+table.t tr.sel td{outline:2px solid rgba(139,111,71,.45);outline-offset:-2px;}
+table.t tr.clickable{cursor:pointer;}
+table.t tr.clickable:hover td{background:rgba(200,169,110,.12);}
 table.t a{color:var(--warm-brown);text-decoration:none;border-bottom:1px dotted rgba(139,111,71,.45);}
 table.t a:hover{border-bottom-style:solid;}
 table.t th:first-child,table.t td:first-child{position:sticky;left:0;background:#fff;z-index:1;}
 table.t th:first-child{background:var(--cream);}
 table.t tr.cur td:first-child{background:#f3e9d3;}
+table.t tr.sel td:first-child{background:#f7f0e2;}
+.dasha-ctrl{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin:12px 0 6px;padding:12px 14px;border-radius:12px;background:var(--cream);border:1px solid var(--border);}
+.dasha-ctrl label{font-size:13.5px;font-weight:600;color:var(--deep-brown);display:flex;align-items:center;gap:8px;}
+.dasha-ctrl input[type=date]{padding:8px 10px;border:1px solid var(--border);border-radius:10px;font:inherit;font-size:14px;background:#fff;color:var(--deep-brown);}
+.dasha-ctrl button{border:1px solid var(--border);background:#fff;border-radius:999px;padding:8px 14px;font:inherit;font-size:13px;font-weight:600;color:var(--deep-brown);cursor:pointer;}
+.dasha-ctrl button:hover{border-color:var(--accent);}
+.dasha-ctrl .hint{font-size:12.5px;color:var(--muted);line-height:1.5;flex:1 1 180px;}
 .chart-pair{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-top:26px;}
 .chart-pair .card{margin-top:0;}
 @media (max-width:960px){.chart-pair{grid-template-columns:1fr;}}
@@ -261,13 +271,18 @@ table.t tr.cur td:first-child{background:#f3e9d3;}
     <div class="card" id="vDasha">
       <div class="card-title">✦ 빔쇼타리 다샤 <span style="font-size:13px;font-weight:400;color:var(--muted)">달의 낙샤트라 기준 120년 주기</span></div>
       <p style="font-size:14px;color:var(--deep-brown);line-height:1.8;" id="dashaIntro"></p>
+      <div class="dasha-ctrl" id="dashaCtrl">
+        <label for="dashaAt">기준 시점 <input type="date" id="dashaAt"></label>
+        <button type="button" id="dashaToday">오늘</button>
+        <span class="hint" id="dashaAtHint">마하다샤 행을 누르면 그 대주기의 안타르·프라얀타르를 볼 수 있어요.</span>
+      </div>
       <div class="sub-title">마하다샤 (대주기)</div>
       <div class="tbl-wrap"><table class="t" id="mahaTbl"></table></div>
-      <div class="sub-title" id="antarTitle">현재 마하다샤의 안타르다샤 (소주기)</div>
+      <div class="sub-title" id="antarTitle">선택한 마하다샤의 안타르다샤 (소주기)</div>
       <div class="tbl-wrap"><table class="t" id="antarTbl"></table></div>
-      <div class="sub-title" id="pratTitle">현재 안타르다샤의 프라얀타르다샤 (세부)</div>
+      <div class="sub-title" id="pratTitle">선택한 안타르다샤의 프라얀타르다샤 (세부)</div>
       <div class="tbl-wrap"><table class="t" id="pratTbl"></table></div>
-      <div class="sub-title">지금 시기 읽기</div>
+      <div class="sub-title" id="readTitle">선택 시점 읽기</div>
       <div id="nowDasha" style="font-size:14px;color:var(--deep-brown);line-height:1.8;"></div>
       <div class="note">다샤 날짜는 1년을 항성년 <b>365.256364일</b>로 계산한 값이에요. 프로그램마다 1년의 길이를 다르게 잡아 며칠 정도 차이가 날 수 있어요. 첫 마하다샤는 출생 전에 이미 시작되어 있으면, 표에는 출생 시점의 남은 기간이 반영된 종료일이 나와요.</div>
     </div>
@@ -418,8 +433,25 @@ table.t tr.cur td:first-child{background:#f3e9d3;}
     card.style.display = '';
   }
   const PUBLIC_DASHA = [1, 3, 4];
-  function renderNow(cur, now, lagna, grahas) {
-    const sub = cur.subs.find((s) => now >= s.start && now < s.end);
+  let DASHA_STATE = null;
+
+  function isoFromMs(ms) {
+    const d = new Date(ms);
+    return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+  }
+  function msFromIsoLocal(iso) {
+    const m = String(iso || '').match(/^(\d{4})-(\d{2})-(\d{2})$/);
+    if (!m) return Date.now();
+    return new Date(Number(m[1]), Number(m[2]) - 1, Number(m[3]), 12, 0, 0).getTime();
+  }
+  function findAt(list, atMs) {
+    for (let i = 0; i < list.length; i++) {
+      if (atMs >= list[i].start && atMs < list[i].end) return { item: list[i], index: i };
+    }
+    return null;
+  }
+
+  function renderNow(cur, atMs, lagna, grahas, antar, prat) {
     function block(key, pageKey, anchorKey) {
       const g = grahas.find((x) => x.key === key);
       const n = GNUM[pageKey];
@@ -436,10 +468,137 @@ table.t tr.cur td:first-child{background:#f3e9d3;}
       }
       return t + ' · <a href="' + href + '">' + (anchorKey ? GK[pageKey] + '–' + GK[anchorKey] + ' 읽기' : GK[pageKey] + ' 마하다샤 읽기') + '</a>';
     }
-    let html = '<p style="margin:0 0 6px"><b>마하다샤</b> ' + block(cur.lord, cur.lord, null) + '</p>';
+    const sub = antar || cur.subs.find((s) => atMs >= s.start && atMs < s.end);
+    let pratCur = prat;
+    if (!pratCur && sub && Array.isArray(sub.prats)) {
+      const hit = sub.prats.find((p) => atMs >= p.start && atMs < p.end);
+      if (hit) pratCur = hit;
+    }
+    let html = '<p style="margin:0 0 6px"><b>기준 시점</b> ' + esc(fmtDate(atMs)) + '</p>';
+    html += '<p style="margin:0 0 6px"><b>마하다샤</b> ' + block(cur.lord, cur.lord, null) + '</p>';
     if (sub) html += '<p style="margin:0 0 6px"><b>안타르다샤</b> ' + block(sub.lord, cur.lord, sub.lord) + '</p>';
+    if (pratCur) {
+      html += '<p style="margin:0 0 6px"><b>프라얀타르</b> ' + grahaLink(pratCur.lord) +
+        ' · ' + esc(fmtDate(pratCur.start)) + ' ~ ' + esc(fmtDate(pratCur.end)) + '</p>';
+    }
     html += '<p style="margin:0;font-size:12.5px;color:var(--muted)">위 내용은 기본 읽기로 가는 링크이며, 시기와 사건을 확정하지 않아요. 일부 해설은 회원 전용이에요.</p>';
     $('nowDasha').innerHTML = html;
+  }
+
+  function renderDashaPanels() {
+    if (!DASHA_STATE || !DASHA_STATE.pack) return;
+    const st = DASHA_STATE;
+    const pack = st.pack;
+    const atMs = st.atMs;
+    const birthMs = st.birthMs;
+    const todayIso = isoFromMs(Date.now());
+    const atIso = isoFromMs(atMs);
+    const isToday = atIso === todayIso;
+
+    const activeMaha = findAt(pack.list, atMs);
+    if (st.selMahaIdx == null && activeMaha) st.selMahaIdx = activeMaha.index;
+    if (st.selMahaIdx == null) st.selMahaIdx = 0;
+    const selMaha = pack.list[st.selMahaIdx] || pack.list[0];
+    if (!selMaha) return;
+
+    let mt = '<tr><th>마하다샤</th><th>기간(년)</th><th>시작</th><th>종료</th></tr>';
+    pack.list.forEach((m, i) => {
+      const isActive = !!(activeMaha && activeMaha.index === i);
+      const isSel = st.selMahaIdx === i;
+      const cls = ['clickable'];
+      if (isActive) cls.push('cur');
+      if (isSel) cls.push('sel');
+      const tag = isActive ? (isToday ? ' · 현재' : ' · 기준 시점') : '';
+      mt += '<tr class="' + cls.join(' ') + '" data-maha-idx="' + i + '"><td>' + GK[m.lord] + tag +
+        (isSel && !isActive ? ' · 보는 중' : '') +
+        '</td><td>' + m.years + (i === 0 ? ' (출생 후 잔여 ' + pack.balanceYears.toFixed(1) + ')' : '') +
+        '</td><td>' + (i === 0 ? '출생 이전' : fmtDate(m.start)) + '</td><td>' + fmtDate(m.end) + '</td></tr>';
+    });
+    $('mahaTbl').innerHTML = mt;
+    $('mahaTbl').querySelectorAll('tr[data-maha-idx]').forEach((tr) => {
+      tr.addEventListener('click', () => {
+        st.selMahaIdx = Number(tr.getAttribute('data-maha-idx'));
+        st.selAntarIdx = null;
+        renderDashaPanels();
+      });
+    });
+
+    $('antarTitle').textContent = GK[selMaha.lord] + ' 마하다샤의 안타르다샤 (소주기)';
+    const activeAntarInSel = findAt(selMaha.subs, atMs);
+    if (st.selAntarIdx == null && activeAntarInSel) st.selAntarIdx = activeAntarInSel.index;
+    if (st.selAntarIdx == null) {
+      const firstVisible = selMaha.subs.findIndex((s) => s.end > birthMs);
+      st.selAntarIdx = firstVisible >= 0 ? firstVisible : 0;
+    }
+    let at = '<tr><th>안타르다샤</th><th>시작</th><th>종료</th></tr>';
+    selMaha.subs.forEach((s, j) => {
+      if (s.end <= birthMs) return;
+      const isActive = atMs >= s.start && atMs < s.end;
+      const isSel = st.selAntarIdx === j;
+      const cls = ['clickable'];
+      if (isActive) cls.push('cur');
+      if (isSel) cls.push('sel');
+      at += '<tr class="' + cls.join(' ') + '" data-antar-idx="' + j + '"><td>' + GK[selMaha.lord] + '–' + GK[s.lord] +
+        (isActive ? (isToday ? ' · 현재' : ' · 기준 시점') : '') +
+        (isSel && !isActive ? ' · 보는 중' : '') +
+        '</td><td>' + (s.start < birthMs ? '출생 이전' : fmtDate(s.start)) + '</td><td>' + fmtDate(s.end) + '</td></tr>';
+    });
+    $('antarTbl').innerHTML = at;
+    $('antarTbl').querySelectorAll('tr[data-antar-idx]').forEach((tr) => {
+      tr.addEventListener('click', () => {
+        st.selAntarIdx = Number(tr.getAttribute('data-antar-idx'));
+        renderDashaPanels();
+      });
+    });
+
+    const selAntar = selMaha.subs[st.selAntarIdx] || null;
+    if (selAntar && Array.isArray(selAntar.prats) && selAntar.prats.length) {
+      $('pratTitle').textContent = GK[selMaha.lord] + '–' + GK[selAntar.lord] + ' 안타르의 프라얀타르다샤 (세부 · 3단계)';
+      let pt = '<tr><th>프라얀타르</th><th>시작</th><th>종료</th></tr>';
+      let activePrat = null;
+      selAntar.prats.forEach((p) => {
+        if (p.end <= birthMs) return;
+        const isActive = atMs >= p.start && atMs < p.end;
+        if (isActive) activePrat = p;
+        pt += '<tr' + (isActive ? ' class="cur"' : '') + '><td>' + GK[selMaha.lord] + '–' + GK[selAntar.lord] + '–' + GK[p.lord] +
+          (isActive ? (isToday ? ' · 현재' : ' · 기준 시점') : '') +
+          '</td><td>' + (p.start < birthMs ? '출생 이전' : fmtDate(p.start)) + '</td><td>' + fmtDate(p.end) + '</td></tr>';
+      });
+      $('pratTbl').innerHTML = pt;
+      $('readTitle').textContent = isToday ? '지금 시기 읽기' : '선택 시점 읽기';
+      renderNow(selMaha, atMs, st.lagna, st.grahas, selAntar, activePrat);
+      $('dashaAtHint').textContent =
+        (isToday ? '오늘 기준이에요. ' : fmtDate(atMs) + ' 기준이에요. ') +
+        '마하·안타르 행을 눌러 다른 구간도 볼 수 있어요.';
+    } else {
+      $('pratTitle').textContent = '프라얀타르다샤';
+      $('pratTbl').innerHTML = '<tr><td>이 구간의 프라얀타르를 찾지 못했어요.</td></tr>';
+      $('readTitle').textContent = isToday ? '지금 시기 읽기' : '선택 시점 읽기';
+      if (selMaha) renderNow(selMaha, atMs, st.lagna, st.grahas, selAntar, null);
+    }
+  }
+
+  function bindDashaControls() {
+    const inp = $('dashaAt');
+    const btn = $('dashaToday');
+    if (!inp || inp._bound) return;
+    inp._bound = true;
+    inp.addEventListener('change', () => {
+      if (!DASHA_STATE) return;
+      DASHA_STATE.atMs = msFromIsoLocal(inp.value);
+      DASHA_STATE.selMahaIdx = null;
+      DASHA_STATE.selAntarIdx = null;
+      renderDashaPanels();
+    });
+    btn.addEventListener('click', () => {
+      if (!DASHA_STATE) return;
+      const now = Date.now();
+      inp.value = isoFromMs(now);
+      DASHA_STATE.atMs = now;
+      DASHA_STATE.selMahaIdx = null;
+      DASHA_STATE.selAntarIdx = null;
+      renderDashaPanels();
+    });
   }
   function grahaLink(key) {
     const n = GNUM[key];
@@ -744,47 +903,28 @@ table.t tr.cur td:first-child{background:#f3e9d3;}
 
     const d = V.dasha(moon.sid, ctx.birthMs);
     const now = Date.now();
-    $('dashaIntro').innerHTML = '달이 ' + nakLink(moon.nak, nakName(moon.nak)) + '(주인 ' + GK[moon.nakLord] + ')에 있어서 <b>' + GK[d.firstLord] + ' 마하다샤</b>로 시작해요. 출생 시점에 이 마하다샤가 약 <b>' + d.balanceYears.toFixed(1) + '년</b> 남아 있었어요.';
-    let mt = '<tr><th>마하다샤</th><th>기간(년)</th><th>시작</th><th>종료</th></tr>';
-    let cur = null;
-    d.list.forEach((m, i) => {
-      const isCur = now >= m.start && now < m.end;
-      if (isCur) cur = m;
-      mt += '<tr' + (isCur ? ' class="cur"' : '') + '><td>' + GK[m.lord] + (isCur ? ' · 현재' : '') + '</td><td>' + m.years + (i === 0 ? ' (출생 후 잔여 ' + d.balanceYears.toFixed(1) + ')' : '') + '</td><td>' + (i === 0 ? '출생 이전' : fmtDate(m.start)) + '</td><td>' + fmtDate(m.end) + '</td></tr>';
-    });
-    $('mahaTbl').innerHTML = mt;
-    if (cur) {
-      $('antarTitle').textContent = GK[cur.lord] + ' 마하다샤의 안타르다샤 (소주기)';
-      let at = '<tr><th>안타르다샤</th><th>시작</th><th>종료</th></tr>';
-      let curAntar = null;
-      cur.subs.forEach((s) => {
-        if (s.end <= ctx.birthMs) return;
-        const isCur = now >= s.start && now < s.end;
-        if (isCur) curAntar = s;
-        at += '<tr' + (isCur ? ' class="cur"' : '') + '><td>' + GK[cur.lord] + '–' + GK[s.lord] + (isCur ? ' · 현재' : '') + '</td><td>' + (s.start < ctx.birthMs ? '출생 이전' : fmtDate(s.start)) + '</td><td>' + fmtDate(s.end) + '</td></tr>';
-      });
-      $('antarTbl').innerHTML = at;
-      if (curAntar && Array.isArray(curAntar.prats) && curAntar.prats.length) {
-        $('pratTitle').textContent = GK[cur.lord] + '–' + GK[curAntar.lord] + ' 안타르의 프라얀타르다샤 (세부 · 3단계)';
-        let pt = '<tr><th>프라얀타르</th><th>시작</th><th>종료</th></tr>';
-        curAntar.prats.forEach((p) => {
-          if (p.end <= ctx.birthMs) return;
-          const isCur = now >= p.start && now < p.end;
-          pt += '<tr' + (isCur ? ' class="cur"' : '') + '><td>' + GK[cur.lord] + '–' + GK[curAntar.lord] + '–' + GK[p.lord] + (isCur ? ' · 현재' : '') + '</td><td>' + (p.start < ctx.birthMs ? '출생 이전' : fmtDate(p.start)) + '</td><td>' + fmtDate(p.end) + '</td></tr>';
-        });
-        $('pratTbl').innerHTML = pt;
-      } else {
-        $('pratTitle').textContent = '프라얀타르다샤';
-        $('pratTbl').innerHTML = '<tr><td>현재 안타르 구간을 찾지 못했어요.</td></tr>';
-      }
-      renderNow(cur, now, lagna, grahas);
-    } else {
-      $('nowDasha').innerHTML = '';
-      $('antarTitle').textContent = '현재 마하다샤 정보 없음';
-      $('antarTbl').innerHTML = '<tr><td>120년 주기를 벗어난 날짜예요.</td></tr>';
-      $('pratTitle').textContent = '프라얀타르다샤';
-      $('pratTbl').innerHTML = '<tr><td>120년 주기를 벗어난 날짜예요.</td></tr>';
+    $('dashaIntro').innerHTML = '달이 ' + nakLink(moon.nak, nakName(moon.nak)) + '(주인 ' + GK[moon.nakLord] + ')에 있어서 <b>' + GK[d.firstLord] + ' 마하다샤</b>로 시작해요. 출생 시점에 이 마하다샤가 약 <b>' + d.balanceYears.toFixed(1) + '년</b> 남아 있었어요. 아래 <b>기준 시점</b>을 바꾸거나 마하다샤 행을 눌러 다른 연도·구간도 볼 수 있어요.';
+    DASHA_STATE = {
+      pack: d,
+      birthMs: ctx.birthMs,
+      lagna: lagna,
+      grahas: grahas,
+      atMs: now,
+      selMahaIdx: null,
+      selAntarIdx: null,
+    };
+    const dashaAt = $('dashaAt');
+    if (dashaAt) {
+      dashaAt.value = isoFromMs(now);
+      const firstStart = d.list[0] ? d.list[0].start : now;
+      const lastEnd = d.list.length ? d.list[d.list.length - 1].end : now;
+      try {
+        dashaAt.min = isoFromMs(Math.min(firstStart, ctx.birthMs));
+        dashaAt.max = isoFromMs(lastEnd);
+      } catch (e) { /* ignore */ }
     }
+    bindDashaControls();
+    renderDashaPanels();
 
     $('result').classList.add('show');
     $('result').scrollIntoView({ behavior: 'smooth', block: 'start' });
