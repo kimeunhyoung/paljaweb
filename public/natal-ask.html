@@ -199,6 +199,13 @@ textarea:focus,select:focus,input:focus,.client-pick-wrap input:focus,.client-pi
 .panel{padding:28px 30px}
 @media(min-width:900px){.navrow{justify-content:flex-end}.navrow .btn.pri{flex:0 0 280px}}
 @media(max-width:480px){.panel{padding:22px 16px}.chip{font-size:13px;padding:8px 12px}}
+/* 한 페이지 폼 다듬기 */
+input[type=number]{width:100%;padding:12px 14px;border:1px solid var(--line);border-radius:12px;background:var(--soft);font:inherit;font-size:15px;color:var(--ink);-moz-appearance:textfield}
+input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+input[type=number]:focus{outline:none;background:#fff}
+@media(min-width:900px){.chips{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}.chip{justify-content:center}}
+#submitBtn{flex:1 1 100% !important;padding:15px 16px;font-size:16px}
+.ask-meta{text-align:center}
 </style>
 </head>
 <body>
@@ -273,13 +280,14 @@ textarea:focus,select:focus,input:focus,.client-pick-wrap input:focus,.client-pi
         <label class="field" for="qLng">경도</label>
         <input type="number" id="qLng" step="0.0001" placeholder="예: 126.9780" inputmode="decimal">
       </div>
+      <p class="client-pick-hint" style="grid-column:1/-1;margin-top:0">위·경도 직접 입력은 <b>한국 시간(Asia/Seoul)</b>으로 계산해요. 해외 출생이면 도시 목록에서 해당 도시를 골라 주세요.</p>
     </div>
     <div class="credit-callout" id="creditCallout" style="margin-top:16px"><b>AI 해석 2크레딧</b>이 차감됩니다. 잔여가 없으면 규칙 판정(무료)으로 보여 드려요.</div>
     <p class="inline-err" id="formErr" role="alert"></p>
     <div class="navrow">
       <button type="button" class="btn pri" id="submitBtn">질문 올리기 (AI 2크레딧)</button>
     </div>
-    <p class="ask-meta">로그인이 필요해요. 출생 차트로 흐름과 시기 후보를 읽어요.</p>
+    <p class="ask-meta"><span id="loginNeed">로그인이 필요해요. </span>출생 차트로 흐름과 시기 후보를 읽어요.</p>
     <div class="status" id="status"></div>
   </section>
 
@@ -629,6 +637,7 @@ textarea:focus,select:focus,input:focus,.client-pick-wrap input:focus,.client-pi
       if (!sb) return;
       var session = await getSession();
       if (!session) return;
+      if ($('loginNeed')) $('loginNeed').hidden = true;
       var prof = await sb.from('profiles').select('plan, plan_active_until').eq('id', session.user.id).maybeSingle();
       var PA = window.PaljaPlan;
       state.isCounselor = !!(PA && PA.isCounselorPlan && PA.isCounselorPlan(prof.data));
