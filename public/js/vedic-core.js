@@ -79,8 +79,13 @@
     return { ayanamsa: ay, grahas: grahas, lagna: lagna };
   }
 
-  /** 빔쇼타리 다샤: 출생 달 낙샤트라 기준 */
-  var YEAR_MS = 365.25 * 86400000;
+  /**
+   * 빔쇼타리 다샤: 출생 달 낙샤트라 기준
+   * - 1년 = 항성년 365.256364일 (다샤 앱·표준력과 맞춤)
+   * - 3단계까지: 마하 → 안타르 → 프라얀타르 (subs[].prats)
+   */
+  var DASHA_YEAR_DAYS = 365.256364;
+  var YEAR_MS = DASHA_YEAR_DAYS * 86400000;
   function dasha(moonSid, birthMs) {
     var n = nakOf(moonSid);
     var startIdx = DASHA_ORDER.indexOf(n.lord);
@@ -95,13 +100,28 @@
       for (var j = 0; j < 9; j++) {
         var sl = DASHA_ORDER[(startIdx + i + j) % 9];
         var sy = yrs * DASHA_YEARS[sl] / 120;
-        subs.push({ lord: sl, start: st, end: st + sy * YEAR_MS });
-        st += sy * YEAR_MS;
+        var subEnd = st + sy * YEAR_MS;
+        var antarIdx = DASHA_ORDER.indexOf(sl);
+        var prats = [], pt = st;
+        for (var k = 0; k < 9; k++) {
+          var pl = DASHA_ORDER[(antarIdx + k) % 9];
+          var py = sy * DASHA_YEARS[pl] / 120;
+          prats.push({ lord: pl, start: pt, end: pt + py * YEAR_MS });
+          pt += py * YEAR_MS;
+        }
+        subs.push({ lord: sl, start: st, end: subEnd, prats: prats });
+        st = subEnd;
       }
       list.push({ lord: lord, years: yrs, start: t, end: end, subs: subs });
       t = end;
     }
-    return { list: list, balanceYears: firstFull - elapsed, firstLord: n.lord };
+    return {
+      list: list,
+      balanceYears: firstFull - elapsed,
+      firstLord: n.lord,
+      yearDays: DASHA_YEAR_DAYS,
+      levels: 3,
+    };
   }
 
   /** 나밤샤(D9): 한 별자리를 3°20'씩 9칸으로 나눔. 불(양)·흙(염소)·바람(천칭)·물(게) 순서 규칙을 한 식으로 */
@@ -132,7 +152,8 @@
 
   var api = {
     SIGNS: SIGNS, SIGN_LORD: SIGN_LORD, NAK: NAK, GRAHA_KO: GRAHA_KO, GRAHA_SHORT: GRAHA_SHORT,
-    DASHA_YEARS: DASHA_YEARS, NAK_SPAN: NAK_SPAN, PADA_SPAN: PADA_SPAN,
+    DASHA_YEARS: DASHA_YEARS, DASHA_YEAR_DAYS: DASHA_YEAR_DAYS, DASHA_ORDER: DASHA_ORDER,
+    NAK_SPAN: NAK_SPAN, PADA_SPAN: PADA_SPAN,
     lahiriAyanamsa: lahiriAyanamsa, build: build, dasha: dasha, norm: norm,
     navamsaOf: navamsaOf, dignity: dignity, drishtiSigns: drishtiSigns, DRISHTI: DRISHTI
   };

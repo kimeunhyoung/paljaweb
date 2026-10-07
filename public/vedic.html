@@ -36,7 +36,7 @@
 <script src="js/site-topbar.js?v=41" defer></script>
 <script src="js/topbar-session.js?v=14" defer></script>
 <script src="js/astro-cities.js?v=1"></script>
-<script src="js/vedic-core.js?v=2"></script>
+<script src="js/vedic-core.js?v=3"></script>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css" crossorigin />
 <link rel="stylesheet" href="css/site-topbar.css?v=21" />
 <link rel="stylesheet" href="css/site-header.css?v=9" />
@@ -265,9 +265,11 @@ table.t tr.cur td:first-child{background:#f3e9d3;}
       <div class="tbl-wrap"><table class="t" id="mahaTbl"></table></div>
       <div class="sub-title" id="antarTitle">현재 마하다샤의 안타르다샤 (소주기)</div>
       <div class="tbl-wrap"><table class="t" id="antarTbl"></table></div>
+      <div class="sub-title" id="pratTitle">현재 안타르다샤의 프라얀타르다샤 (세부)</div>
+      <div class="tbl-wrap"><table class="t" id="pratTbl"></table></div>
       <div class="sub-title">지금 시기 읽기</div>
       <div id="nowDasha" style="font-size:14px;color:var(--deep-brown);line-height:1.8;"></div>
-      <div class="note">다샤 날짜는 1년을 365.25일로 계산한 값이에요. 프로그램마다 1년의 길이를 다르게 잡아 며칠 정도 차이가 날 수 있어요. 첫 마하다샤는 출생 전에 이미 시작되어 있으면, 표에는 출생 시점의 남은 기간이 반영된 종료일이 나와요.</div>
+      <div class="note">다샤 날짜는 1년을 항성년 <b>365.256364일</b>로 계산한 값이에요. 프로그램마다 1년의 길이를 다르게 잡아 며칠 정도 차이가 날 수 있어요. 첫 마하다샤는 출생 전에 이미 시작되어 있으면, 표에는 출생 시점의 남은 기간이 반영된 종료일이 나와요.</div>
     </div>
 
     <div class="card" id="vLimits">
@@ -754,17 +756,34 @@ table.t tr.cur td:first-child{background:#f3e9d3;}
     if (cur) {
       $('antarTitle').textContent = GK[cur.lord] + ' 마하다샤의 안타르다샤 (소주기)';
       let at = '<tr><th>안타르다샤</th><th>시작</th><th>종료</th></tr>';
+      let curAntar = null;
       cur.subs.forEach((s) => {
         if (s.end <= ctx.birthMs) return;
         const isCur = now >= s.start && now < s.end;
+        if (isCur) curAntar = s;
         at += '<tr' + (isCur ? ' class="cur"' : '') + '><td>' + GK[cur.lord] + '–' + GK[s.lord] + (isCur ? ' · 현재' : '') + '</td><td>' + (s.start < ctx.birthMs ? '출생 이전' : fmtDate(s.start)) + '</td><td>' + fmtDate(s.end) + '</td></tr>';
       });
       $('antarTbl').innerHTML = at;
+      if (curAntar && Array.isArray(curAntar.prats) && curAntar.prats.length) {
+        $('pratTitle').textContent = GK[cur.lord] + '–' + GK[curAntar.lord] + ' 안타르의 프라얀타르다샤 (세부 · 3단계)';
+        let pt = '<tr><th>프라얀타르</th><th>시작</th><th>종료</th></tr>';
+        curAntar.prats.forEach((p) => {
+          if (p.end <= ctx.birthMs) return;
+          const isCur = now >= p.start && now < p.end;
+          pt += '<tr' + (isCur ? ' class="cur"' : '') + '><td>' + GK[cur.lord] + '–' + GK[curAntar.lord] + '–' + GK[p.lord] + (isCur ? ' · 현재' : '') + '</td><td>' + (p.start < ctx.birthMs ? '출생 이전' : fmtDate(p.start)) + '</td><td>' + fmtDate(p.end) + '</td></tr>';
+        });
+        $('pratTbl').innerHTML = pt;
+      } else {
+        $('pratTitle').textContent = '프라얀타르다샤';
+        $('pratTbl').innerHTML = '<tr><td>현재 안타르 구간을 찾지 못했어요.</td></tr>';
+      }
       renderNow(cur, now, lagna, grahas);
     } else {
       $('nowDasha').innerHTML = '';
       $('antarTitle').textContent = '현재 마하다샤 정보 없음';
       $('antarTbl').innerHTML = '<tr><td>120년 주기를 벗어난 날짜예요.</td></tr>';
+      $('pratTitle').textContent = '프라얀타르다샤';
+      $('pratTbl').innerHTML = '<tr><td>120년 주기를 벗어난 날짜예요.</td></tr>';
     }
 
     $('result').classList.add('show');
