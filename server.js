@@ -901,7 +901,7 @@ registerAiOneTimeRoutes(app, {
 registerClassContentRoutes(app, { getUserIdFromAuth, getProfile });
 
 // 질문점(프라슈나) — 서버 시각 스탬프 + 카테고리 쿨다운
-registerPrashnaRoutes(app, { getUserIdFromAuth });
+registerPrashnaRoutes(app, { getUserIdFromAuth, getProfile });
 
 app.get('/favicon.ico', (req, res) => {
   res.type('image/svg+xml');
