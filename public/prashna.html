@@ -344,7 +344,7 @@ a.btn{display:inline-flex;align-items:center;justify-content:center;text-decorat
     var bc = PE.blockCheck ? PE.blockCheck(q) : { blocked: PE.isBlockedQuestion(q) };
     if (bc.blocked) {
       err((bc.topic ? '「' + bc.topic + '」 관련 질문은 다루지 않아요. ' : '') +
-        '건강·소송·주식·코인·도박·타인 사생활은 질문점으로 보지 않아요. 다른 질문으로 바꿔 주세요.');
+        '건강·소송·주식·코인·도박은 질문점으로 보지 않아요. 다른 질문으로 바꿔 주세요.');
       return;
     }
     if (!city || !city.tz) { err('현재 도시를 선택해 주세요.'); return; }
