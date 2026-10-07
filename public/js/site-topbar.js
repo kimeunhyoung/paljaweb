@@ -527,7 +527,7 @@
       return;
     }
     var s = document.createElement('script');
-    s.src = '/js/site-footer.js?v=5';
+    s.src = '/js/site-footer.js?v=6';
     s.defer = true;
     s.setAttribute('data-palja-site-footer', '1');
     s.addEventListener('load', run);

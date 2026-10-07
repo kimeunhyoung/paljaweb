@@ -106,7 +106,11 @@
     options = options || {};
     if (document.body && document.body.getAttribute('data-no-site-footer') === '1') return null;
     var existingMarked = document.querySelector('[' + FOOTER_ATTR + ']');
-    if (existingMarked) return existingMarked;
+    if (existingMarked) {
+      var root = document.body || document.documentElement;
+      if (root) root.appendChild(existingMarked);
+      return existingMarked;
+    }
 
     // 이미 풀 푸터(메인·소개 등)가 있으면 그걸 쓰고 중복 삽입 안 함
     var rich =
@@ -128,14 +132,35 @@
     var wrap = document.createElement('div');
     wrap.innerHTML = footerHtml();
     var footer = wrap.firstChild;
-    (document.body || document.documentElement).appendChild(footer);
 
-    ensureCss(function () {
-      // 한 프레임 양보해서 스타일 적용 후 표시
-      requestAnimationFrame(function () {
-        revealFooter(footer);
+    function placeAtBodyEnd() {
+      var root = document.body || document.documentElement;
+      if (!root) return;
+      root.appendChild(footer);
+    }
+
+    /* content-site-nav가 <main>보다 먼저 실행되면 푸터가 본문 위에 끼는 FOUC 방지 */
+    if (document.readyState === 'loading') {
+      document.addEventListener(
+        'DOMContentLoaded',
+        function () {
+          placeAtBodyEnd();
+          ensureCss(function () {
+            requestAnimationFrame(function () {
+              revealFooter(footer);
+            });
+          });
+        },
+        { once: true }
+      );
+    } else {
+      placeAtBodyEnd();
+      ensureCss(function () {
+        requestAnimationFrame(function () {
+          revealFooter(footer);
+        });
       });
-    });
+    }
     return footer;
   }
 

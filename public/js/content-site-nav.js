@@ -104,16 +104,11 @@
   function isGuide() {
     return path.indexOf('/guide') === 0 || /\/guide(\/|\.html|$)/.test(path);
   }
-  function isStudy() {
-    return (
-      path.indexOf('/nakshatra') === 0 ||
-      /\/nakshatra(\/|\.html|$)/.test(path) ||
-      path.indexOf('/study') === 0 ||
-      /\/study(\/|\.html|$)/.test(path)
-    );
+  function isStudyHub() {
+    return path.indexOf('/study') === 0 || /\/study(\/|\.html|$)/.test(path);
   }
   function pageMeta() {
-    if (isStudy()) return { title: '학습자료실', current: 'study' };
+    if (isStudyHub()) return { title: '학습자료실', current: 'study' };
     if (isGuide()) return { title: '가이드', current: 'guide' };
     if (/about\.html$/.test(path)) return { title: '소개', current: 'about' };
     if (/faq\.html$/.test(path)) return { title: 'FAQ', current: 'faq' };
@@ -146,8 +141,8 @@
   }
 
   ensureScript('/js/plan-access.js?v=13');
-  ensureScript('/js/site-footer.js?v=5');
-  ensureScript('/js/site-topbar.js?v=38', function () {
+  ensureScript('/js/site-footer.js?v=6');
+  ensureScript('/js/site-topbar.js?v=39', function () {
     ensureScript('/js/topbar-session.js?v=14');
   });
 })();
