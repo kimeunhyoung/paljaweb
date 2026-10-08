@@ -61,6 +61,19 @@
         { id: 'summary', name: '한눈에 보는 요약표' },
       ],
     },
+    birthchart: {
+      page: '/study/class/birthchart.html',
+      title: '출생도 · 그 사람의 프로필',
+      unit: function (id) { return id; },
+      parts: [
+        { id: 'guide', name: '출생도 그리는 법', tab: '그리는 법', mark: '①', top: '먼저 읽기', special: true },
+        { id: 'chart', name: '수업 프린트 정리', tab: '수업노트', mark: '②', top: '수업노트', special: true },
+        { id: 'lines', name: '가로·세로·대각 8줄 읽기', tab: '8줄', mark: '③', top: '보완', special: true },
+        { id: 'cells', name: '칸 1~9와 숫자 개수', tab: '칸·개수', mark: '④', top: '보완', special: true },
+        { id: 'example', name: '예시로 읽기', tab: '예시', mark: '⑤', top: '보완', special: true },
+        { id: 'summary', name: '사이트 화면과의 대응', tab: '요약' },
+      ],
+    },
   };
   var COURSE = (document.body && document.body.getAttribute('data-course')) || 'lifepath';
   if (!COURSES[COURSE]) COURSE = 'lifepath';
