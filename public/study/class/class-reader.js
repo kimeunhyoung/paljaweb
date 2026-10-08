@@ -5,20 +5,48 @@
 (function () {
   var SB_URL = 'https://sghsryumnrnftyjoqmwf.supabase.co';
   var SB_KEY = 'sb_publishable_6S3W_oWrzG-Nv8wLK98gmg_q_KcB2I1';
-  var COURSE = 'lifepath';
   var LABEL = { free: 'Free', basic: 'Basic', plus: 'Plus', pro: 'Plus', professional: 'Professional', private: 'Private' };
-  var PARTS = [
-    { id: '1', name: '개척자, 리더' },
-    { id: '2', name: '조율자, 파트너' },
-    { id: '3', name: '표현가, 엔터테이너' },
-    { id: '4', name: '건축가, 관리자' },
-    { id: '5', name: '모험가, 자유인' },
-    { id: '6', name: '보호자, 양육자' },
-    { id: '7', name: '탐구자, 사색가' },
-    { id: '8', name: '경영자, 실력자' },
-    { id: '9', name: '인도주의자, 완성자' },
-    { id: 'summary', name: '한눈에 보는 요약' },
-  ];
+  /** 과목별 설정 — 페이지 <body data-course="..."> 로 고름 (없으면 인생여정수) */
+  var COURSES = {
+    lifepath: {
+      page: '/study/class/lifepath.html',
+      title: '인생여정수 1~9',
+      unit: function (id) { return id + '번'; },
+      parts: [
+        { id: '1', name: '개척자, 리더' },
+        { id: '2', name: '조율자, 파트너' },
+        { id: '3', name: '표현가, 엔터테이너' },
+        { id: '4', name: '건축가, 관리자' },
+        { id: '5', name: '모험가, 자유인' },
+        { id: '6', name: '보호자, 양육자' },
+        { id: '7', name: '탐구자, 사색가' },
+        { id: '8', name: '경영자, 실력자' },
+        { id: '9', name: '인도주의자, 완성자' },
+        { id: 'summary', name: '한눈에 보는 요약' },
+      ],
+    },
+    'personal-year': {
+      page: '/study/class/personal-year.html',
+      title: '개인연도 1~9',
+      unit: function (id) { return id + '의 해'; },
+      parts: [
+        { id: '1', name: '씨앗을 심는 해' },
+        { id: '2', name: '뿌리를 내리는 해' },
+        { id: '3', name: '밖으로 피어나는 해' },
+        { id: '4', name: '기초를 다지는 해' },
+        { id: '5', name: '틀을 깨고 움직이는 해' },
+        { id: '6', name: '돌보고 책임지는 해' },
+        { id: '7', name: '멈추고 돌아보는 해' },
+        { id: '8', name: '거두고 보상받는 해' },
+        { id: '9', name: '마무리하고 비우는 해' },
+        { id: 'summary', name: '계산법과 9년 주기' },
+      ],
+    },
+  };
+  var COURSE = (document.body && document.body.getAttribute('data-course')) || 'lifepath';
+  if (!COURSES[COURSE]) COURSE = 'lifepath';
+  var CONF = COURSES[COURSE];
+  var PARTS = CONF.parts;
 
   function $(id) { return document.getElementById(id); }
   function show(state, plan) {
@@ -33,7 +61,7 @@
     for (var i = 0; i < PARTS.length; i++) if (PARTS[i].id === n) return PARTS[i];
     return null;
   }
-  function href(p) { return '/study/class/lifepath.html' + (p ? '?n=' + p.id : ''); }
+  function href(p) { return CONF.page + (p ? '?n=' + p.id : ''); }
 
   function renderTabs(cur) {
     var h = '<a href="' + href(null) + '"' + (cur ? '' : ' class="on"') + '>목차</a>';
@@ -49,7 +77,7 @@
       var isSum = p.id === 'summary';
       h += '<a class="lp-card' + (isSum ? ' lp-card-sum' : '') + '" href="' + href(p) + '">' +
         '<span class="lp-card-n">' + (isSum ? '∑' : p.id) + '</span>' +
-        '<span class="lp-card-t">' + (isSum ? '부록' : p.id + '번') + '</span>' +
+        '<span class="lp-card-t">' + (isSum ? '부록' : CONF.unit(p.id)) + '</span>' +
         '<b>' + p.name + '</b></a>';
     });
     $('lpGrid').innerHTML = h;
@@ -59,7 +87,7 @@
     var i = PARTS.indexOf(cur);
     var prev = i > 0 ? PARTS[i - 1] : null;
     var next = i < PARTS.length - 1 ? PARTS[i + 1] : null;
-    function lab(p) { return p.id === 'summary' ? '부록 · ' + p.name : p.id + '번 · ' + p.name; }
+    function lab(p) { return p.id === 'summary' ? '부록 · ' + p.name : CONF.unit(p.id) + ' · ' + p.name; }
     $('lpPn').innerHTML =
       (prev ? '<a href="' + href(prev) + '">← ' + lab(prev) + '</a>' : '<a href="' + href(null) + '">← 목차</a>') +
       (next ? '<a class="next" href="' + href(next) + '">' + lab(next) + ' →</a>' : '<a class="next" href="' + href(null) + '">목차 →</a>');
@@ -126,7 +154,7 @@
       if (cur) {
         $('lpContent').innerHTML = data.html || '';
         renderPn(cur);
-        document.title = (cur.id === 'summary' ? '요약' : cur.id + '번 ' + cur.name) + ' | 인생여정수 1~9 | 팔자연구소';
+        document.title = (cur.id === 'summary' ? '요약' : CONF.unit(cur.id) + ' ' + cur.name) + ' | ' + CONF.title + ' | 팔자연구소';
         if (location.hash) {
           var t = document.getElementById(location.hash.slice(1));
           if (t) t.scrollIntoView();
