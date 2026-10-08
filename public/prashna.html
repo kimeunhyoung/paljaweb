@@ -86,6 +86,12 @@ textarea:focus,select:focus,input[type=text]:focus{outline:none;border-color:var
 .meta{font-size:12.5px;color:var(--muted);line-height:1.6;margin-top:10px}
 .disc{font-size:12.5px;color:#8a6a58;background:#f7f2ec;border-left:3px solid #cdb6a2;padding:10px 12px;border-radius:0 10px 10px 0;margin-top:12px;line-height:1.6}
 .counselor-only{display:none}
+.client-pick-wrap{margin:0 0 14px;padding:0 0 14px;border-bottom:1px solid var(--line)}
+.client-pick-row{display:grid;grid-template-columns:minmax(120px,1fr) minmax(160px,1.4fr);gap:10px;align-items:end}
+.client-pick-wrap label{display:block;font-size:13px;font-weight:600;color:var(--deep);margin:0 0 6px}
+.client-pick-wrap input,.client-pick-wrap select{width:100%;padding:12px 14px;border:1px solid var(--line);border-radius:12px;background:var(--soft);font:inherit;font-size:15px;color:var(--ink)}
+.client-pick-hint{margin:8px 0 0;font-size:12.5px;line-height:1.5;color:var(--muted)}
+@media(max-width:680px){.client-pick-row{grid-template-columns:1fr}}
 .verdict{display:flex;align-items:center;gap:10px;margin:12px 0 4px}
 .verdict .lv{display:flex;gap:4px}
 .verdict .lv i{display:block;width:26px;height:6px;border-radius:99px;background:rgba(246,231,211,.22)}
@@ -228,7 +234,22 @@ input[type=number]:focus{outline:none;background:#fff}
     <textarea id="qText" maxlength="160" placeholder="예: 지금 내놓은 아파트는 언제쯤 팔릴까요?"></textarea>
     <p class="ex" id="qEx"></p>
     <div class="counselor-only" id="clientLabelWrap">
-      <label class="field" for="qClient">고객 메모 (선택 · 상담사만)</label>
+      <div class="client-pick-wrap" id="clientPickWrap">
+        <div class="client-pick-row">
+          <div>
+            <label for="clientPickSearch">고객 찾기</label>
+            <input id="clientPickSearch" type="search" placeholder="이름·생년월일" autocomplete="off">
+          </div>
+          <div>
+            <label for="clientPickSelect">저장된 고객</label>
+            <select id="clientPickSelect" aria-label="저장된 고객 선택">
+              <option value="">— 직접 입력 —</option>
+            </select>
+          </div>
+        </div>
+        <p class="client-pick-hint">고객을 고르면 답변이 <b>고객 카드 · 질문 이력</b>에 남아요.</p>
+      </div>
+      <label class="field" for="qClient">고객 메모 (선택)</label>
       <input type="text" id="qClient" maxlength="80" placeholder="예: 김○○ 님 · 매도 상담">
     </div>
     <label class="field" for="qCity">현재 도시</label>
@@ -258,10 +279,11 @@ input[type=number]:focus{outline:none;background:#fff}
   var SB_KEY = 'sb_publishable_6S3W_oWrzG-Nv8wLK98gmg_q_KcB2I1';
   var PE = window.PrashnaEngine;
   var state = {
-    category: null, question: '', city: null, clientLabel: '',
+    category: null, question: '', city: null, clientLabel: '', clientId: '',
     result: null, isCounselor: false, isAdmin: false, isPrivate: false,
     creditCost: 1, creditRemaining: null,
   };
+  var COUNSELOR_CLIENT_ROWS = [];
 
   function syncSubmitBtn() {
     var btn = $('submitBtn');
@@ -432,6 +454,57 @@ input[type=number]:focus{outline:none;background:#fff}
     return res.data && res.data.session;
   }
 
+  function populateCounselorClientSelect(filterText) {
+    var sel = $('clientPickSelect');
+    if (!sel) return;
+    var q = String(filterText || '').trim().toLowerCase().replace(/\s+/g, '');
+    var cur = sel.value;
+    var rows = !q
+      ? COUNSELOR_CLIENT_ROWS
+      : COUNSELOR_CLIENT_ROWS.filter(function (c) {
+          var dn = String(c.display_name || '').toLowerCase().replace(/\s+/g, '');
+          var ln = String(c.legal_name || '').toLowerCase().replace(/\s+/g, '');
+          var birth = String(c.birth_date || '').toLowerCase();
+          return dn.indexOf(q) >= 0 || ln.indexOf(q) >= 0 || birth.indexOf(q) >= 0;
+        });
+    sel.innerHTML = '<option value="">— 직접 입력 —</option>' + rows.map(function (c) {
+      var label = (c.display_name || c.legal_name || '고객') +
+        (c.birth_date ? ' · ' + String(c.birth_date).slice(0, 10) : '');
+      return '<option value="' + c.id + '">' + esc(label) + '</option>';
+    }).join('');
+    if (cur && COUNSELOR_CLIENT_ROWS.some(function (c) { return c.id === cur; })) sel.value = cur;
+  }
+
+  async function loadCounselorClientPicker(sb, userId) {
+    var sel = $('clientPickSelect');
+    var search = $('clientPickSearch');
+    if (!sel || !sb || !userId) return;
+    var res = await sb
+      .from('counselor_clients')
+      .select('id,display_name,legal_name,birth_date')
+      .eq('counselor_id', userId)
+      .order('display_name', { ascending: true });
+    COUNSELOR_CLIENT_ROWS = (!res.error && res.data) ? res.data : [];
+    populateCounselorClientSelect((search && search.value) || '');
+    if (!sel.dataset.bound) {
+      sel.dataset.bound = '1';
+      sel.addEventListener('change', function () {
+        var id = sel.value;
+        state.clientId = id || '';
+        if (!id) return;
+        var row = COUNSELOR_CLIENT_ROWS.find(function (c) { return c.id === id; });
+        if (row) {
+          var name = (row.display_name || row.legal_name || '').trim();
+          if (name) $('qClient').value = name;
+        }
+      });
+    }
+    if (search && !search.dataset.bound) {
+      search.dataset.bound = '1';
+      search.addEventListener('input', function () { populateCounselorClientSelect(search.value); });
+    }
+  }
+
   async function detectCounselor() {
     try {
       var sb = sbClient();
@@ -444,6 +517,7 @@ input[type=number]:focus{outline:none;background:#fff}
       state.isCounselor = !!(PA && PA.isCounselorPlan && PA.isCounselorPlan(prof.data));
       state.isPrivate = !!(PA && PA.effectivePlan && PA.effectivePlan(prof.data) === 'private');
       $('clientLabelWrap').classList.toggle('on', state.isCounselor);
+      if (state.isCounselor) await loadCounselorClientPicker(sb, session.user.id);
       if (state.isCounselor && !state.isPrivate) {
         $('formHint').textContent = '주제를 고르고 질문을 적어 주세요. 상담사 계정은 하루 20건까지 볼 수 있어요. 질문 올리기를 누르는 그 순간이 차트의 기준이 돼요.';
       }
@@ -545,16 +619,24 @@ input[type=number]:focus{outline:none;background:#fff}
     state.question = q;
     state.city = city;
     state.clientLabel = state.isCounselor ? clientLabel : '';
+    if (state.isCounselor) {
+      var pick = $('clientPickSelect');
+      state.clientId = (pick && pick.value) || state.clientId || '';
+    } else {
+      state.clientId = '';
+    }
     return true;
   }
 
   $('againBtn').onclick = function () {
     state.question = '';
     state.clientLabel = '';
+    state.clientId = '';
     state.result = null;
     categoryLocked = false;
     $('qText').value = '';
     $('qClient').value = '';
+    if ($('clientPickSelect')) $('clientPickSelect').value = '';
     hideStatus();
     formErr('');
     hideResult();
@@ -591,6 +673,7 @@ input[type=number]:focus{outline:none;background:#fff}
           lng: state.city.lng,
           tz: state.city.tz,
           clientLabel: state.clientLabel || undefined,
+          clientId: state.clientId || undefined,
         }),
       });
       var body = await res.json().catch(function () { return {}; });

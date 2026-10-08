@@ -266,7 +266,7 @@ input[type=number]:focus{outline:none;background:#fff}
             </select>
           </div>
         </div>
-        <p class="client-pick-hint">고객을 고르면 이름·생년월일·출생 시간·출생지가 채워져요.</p>
+        <p class="client-pick-hint">고객을 고르면 이름·생년월일·출생 시간·출생지가 채워지고, 답변이 <b>고객 카드 · 질문 이력</b>에 남아요.</p>
       </div>
       <label class="field" for="qClient">고객 메모 (선택)</label>
       <input type="text" id="qClient" maxlength="80" placeholder="예: 김○○ 님 · 매도 상담">
@@ -324,7 +324,7 @@ input[type=number]:focus{outline:none;background:#fff}
   var SB_KEY = 'sb_publishable_6S3W_oWrzG-Nv8wLK98gmg_q_KcB2I1';
   var PE = window.PrashnaEngine;
   var state = {
-    category: null, question: '', city: null, clientLabel: '',
+    category: null, question: '', city: null, clientLabel: '', clientId: '',
     birthDate: '', birthTime: '',
     result: null, isCounselor: false, isAdmin: false, isPrivate: false,
     creditCost: 2, creditRemaining: null,
@@ -646,6 +646,7 @@ input[type=number]:focus{outline:none;background:#fff}
       sel.dataset.bound = '1';
       sel.addEventListener('change', function () {
         var id = sel.value;
+        state.clientId = id || '';
         if (!id) {
           formErr('');
           return;
@@ -791,15 +792,23 @@ input[type=number]:focus{outline:none;background:#fff}
     state.birthDate = birthDate;
     state.birthTime = birthTime;
     state.clientLabel = state.isCounselor ? clientLabel : '';
+    if (state.isCounselor) {
+      var pick = $('clientPickSelect');
+      state.clientId = (pick && pick.value) || state.clientId || '';
+    } else {
+      state.clientId = '';
+    }
     return true;
   }
 
   $('againBtn').onclick = function () {
     state.question = '';
     state.clientLabel = '';
+    state.clientId = '';
     state.result = null;
     categoryLocked = false;
     $('qText').value = '';
+    if ($('clientPickSelect')) $('clientPickSelect').value = '';
     hideStatus();
     formErr('');
     hideResult();
@@ -838,6 +847,7 @@ input[type=number]:focus{outline:none;background:#fff}
           lng: state.city.lng,
           tz: state.city.tz,
           clientLabel: state.clientLabel || undefined,
+          clientId: state.clientId || undefined,
         }),
       });
       var body = await res.json().catch(function () { return {}; });

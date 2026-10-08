@@ -924,6 +924,21 @@
     .session-last .sl-topic { font-weight: 600; margin-bottom: 4px; }
     .session-last .sl-sum { color: var(--ink); white-space: pre-wrap; }
     .session-last .sl-focus { margin-top: 6px; color: #5a4a32; }
+    .session-tabs { display: flex; gap: 6px; margin: 0 0 14px; flex-wrap: wrap; }
+    .session-tab {
+      border: 1px solid var(--border); background: #fff; color: var(--deep);
+      border-radius: 999px; padding: 7px 14px; font: inherit; font-size: 13px; font-weight: 600; cursor: pointer;
+    }
+    .session-tab.is-on { background: var(--deep); color: #fff; border-color: var(--deep); }
+    .ask-item { background: #fff; border: 1px solid var(--border); border-radius: 10px; padding: 12px 14px; }
+    .ask-item .a-meta { font-size: 12.5px; color: var(--muted); display: flex; justify-content: space-between; gap: 8px; flex-wrap: wrap; }
+    .ask-item .a-mode { font-weight: 700; color: var(--teal); }
+    .ask-item .a-q { font-size: 14px; font-weight: 600; color: var(--deep); margin-top: 6px; line-height: 1.45; }
+    .ask-item .a-sum { font-size: 13.5px; color: var(--ink); line-height: 1.6; margin-top: 6px; white-space: pre-wrap; }
+    .ask-item .a-actions { margin-top: 8px; display: flex; gap: 8px; flex-wrap: wrap; }
+    .ask-item .a-actions button { font-size: 12px; padding: 5px 10px; border-radius: 8px; border: 1px solid var(--border); background: #fff; color: var(--deep); cursor: pointer; font-weight: 600; }
+    .ask-item .a-actions button:hover { border-color: var(--accent); }
+    #askHistoryList { display: flex; flex-direction: column; gap: 10px; }
     @media (max-width: 640px) {
       #app { padding: 20px 16px 56px; }
       .hub-intro { padding: 14px; border-radius: 12px; }
@@ -994,7 +1009,7 @@
     </div>
     <h2 class="hub-sec" id="hub-clients"><span>고객</span></h2>
     <div class="client-panel">
-      <p class="client-intro">고객의 생일·이름을 저장해 두면 <strong>요약 복사</strong>, <strong>라이프코드 분석</strong>, <strong>상담 기록</strong>을 바로 열 수 있어요.</p>
+      <p class="client-intro">고객의 생일·이름을 저장해 두면 <strong>요약 복사</strong>, <strong>라이프코드 분석</strong>, <strong>상담 기록</strong>·<strong>질문 이력</strong>을 바로 열 수 있어요.</p>
       <details class="client-form-box" id="clientFormBox">
         <summary><span class="cfb-plus">+</span> 새 고객 추가 <span class="cfb-sub">· 수정할 때도 여기서 열려요</span></summary>
       <form id="clientForm" class="client-form" autocomplete="off">
@@ -1344,43 +1359,58 @@
     </div>
     <div class="modal-body">
       <div id="sessionAstro" class="session-astro" style="display:none;white-space:pre-wrap;font-size:12.5px;line-height:1.7;color:#4a3520;background:#f5efe3;border:1px solid rgba(139,111,71,.2);border-left:3px solid #c8a96e;border-radius:10px;padding:11px 14px;margin-bottom:14px;"></div>
-      <div id="sessionLast" class="session-last" aria-live="polite">
-        <div class="sl-label">지난 회차 · 재상담 이어가기</div>
-        <div class="sl-meta" id="sessionLastMeta"></div>
-        <div class="sl-topic" id="sessionLastTopic"></div>
-        <div class="sl-sum" id="sessionLastSum"></div>
-        <div class="sl-focus" id="sessionLastFocus"></div>
+      <div class="session-tabs" role="tablist" aria-label="고객 기록 구분">
+        <button type="button" class="session-tab is-on" data-session-tab="sessions" role="tab" aria-selected="true">상담 기록</button>
+        <button type="button" class="session-tab" data-session-tab="asks" role="tab" aria-selected="false">질문 이력</button>
       </div>
-      <form id="sessionForm" class="session-add" autocomplete="off">
-        <input type="hidden" id="editSessionId" value=""/>
-        <div>
-          <label for="sDate">상담일</label>
-          <input id="sDate" type="date" required/>
+      <div id="sessionTabSessions">
+        <div id="sessionLast" class="session-last" aria-live="polite">
+          <div class="sl-label">지난 회차 · 재상담 이어가기</div>
+          <div class="sl-meta" id="sessionLastMeta"></div>
+          <div class="sl-topic" id="sessionLastTopic"></div>
+          <div class="sl-sum" id="sessionLastSum"></div>
+          <div class="sl-focus" id="sessionLastFocus"></div>
         </div>
-        <div>
-          <label for="sNext">다음 약속 (선택) · 캘린더·고객 카드에 자동 반영</label>
-          <input id="sNext" type="date"/>
+        <form id="sessionForm" class="session-add" autocomplete="off">
+          <input type="hidden" id="editSessionId" value=""/>
+          <div>
+            <label for="sDate">상담일</label>
+            <input id="sDate" type="date" required/>
+          </div>
+          <div>
+            <label for="sNext">다음 약속 (선택) · 캘린더·고객 카드에 자동 반영</label>
+            <input id="sNext" type="date"/>
+          </div>
+          <div class="full">
+            <label for="sTopic">이번 주제 / 질문 (선택)</label>
+            <input id="sTopic" type="text" maxlength="200" placeholder="예: 이직 타이밍, 연애 흐름"/>
+          </div>
+          <div class="full">
+            <label for="sSummary">세션 요약</label>
+            <textarea id="sSummary" placeholder="고객 반응, 핵심 해석, 과제 등"></textarea>
+          </div>
+          <div class="full">
+            <label for="sNextFocus">다음 상담 포인트 (선택)</label>
+            <input id="sNextFocus" type="text" maxlength="300" placeholder="다음에 꼭 이어갈 말·확인할 것"/>
+          </div>
+          <div class="full modal-actions">
+            <button type="submit" class="btn-sm" id="sessionSaveBtn">기록 추가</button>
+            <button type="button" class="btn-sm outline" id="sessionResetBtn">새 기록</button>
+            <a class="btn-sm outline" id="sessionAnalyzeLink" href="analysis.html">분석 열기</a>
+          </div>
+        </form>
+        <p id="sessionMsg" class="form-msg"></p>
+        <div id="sessionList" class="session-list"></div>
+      </div>
+      <div id="sessionTabAsks" hidden>
+        <p class="event-hint" style="margin-top:0">질문점·내 차트로 묻기에서 이 고객을 고르고 물은 기록이에요. 상담 기록과는 따로 쌓여요.</p>
+        <p id="askHistoryMsg" class="form-msg"></p>
+        <div id="askHistoryList"></div>
+        <div class="modal-actions" style="margin-top:12px">
+          <a class="btn-sm outline" href="prashna.html">질문점 열기</a>
+          <a class="btn-sm outline" href="natal-ask.html">내 차트로 묻기</a>
         </div>
-        <div class="full">
-          <label for="sTopic">이번 주제 / 질문 (선택)</label>
-          <input id="sTopic" type="text" maxlength="200" placeholder="예: 이직 타이밍, 연애 흐름"/>
-        </div>
-        <div class="full">
-          <label for="sSummary">세션 요약</label>
-          <textarea id="sSummary" placeholder="고객 반응, 핵심 해석, 과제 등"></textarea>
-        </div>
-        <div class="full">
-          <label for="sNextFocus">다음 상담 포인트 (선택)</label>
-          <input id="sNextFocus" type="text" maxlength="300" placeholder="다음에 꼭 이어갈 말·확인할 것"/>
-        </div>
-        <div class="full modal-actions">
-          <button type="submit" class="btn-sm" id="sessionSaveBtn">기록 추가</button>
-          <button type="button" class="btn-sm outline" id="sessionResetBtn">새 기록</button>
-          <a class="btn-sm outline" id="sessionAnalyzeLink" href="analysis.html">분석 열기</a>
-        </div>
-      </form>
-      <p id="sessionMsg" class="form-msg"></p>
-      <div id="sessionList" class="session-list"></div>
+      </div>
     </div>
   </div>
 </div>
@@ -3502,10 +3532,125 @@
       sessionMsgEl.classList.remove('err');
     }
 
+    let askHistoryRows = [];
+    let askHistoryAvailable = true;
+
+    function setSessionModalTab(tab) {
+      const wantAsks = tab === 'asks';
+      document.querySelectorAll('[data-session-tab]').forEach((btn) => {
+        const on = btn.getAttribute('data-session-tab') === (wantAsks ? 'asks' : 'sessions');
+        btn.classList.toggle('is-on', on);
+        btn.setAttribute('aria-selected', on ? 'true' : 'false');
+      });
+      const sess = document.getElementById('sessionTabSessions');
+      const asks = document.getElementById('sessionTabAsks');
+      if (sess) sess.hidden = wantAsks;
+      if (asks) asks.hidden = !wantAsks;
+      const c = clientRows.find((x) => x.id === activeClientId);
+      const title = document.getElementById('sessionModalTitle');
+      if (title) {
+        title.textContent = (wantAsks ? '질문 이력 · ' : '상담 기록 · ') + (c ? (c.display_name || '') : '');
+      }
+      if (wantAsks) renderAskHistoryList();
+    }
+
+    function askModeLabel(category) {
+      return String(category || '').indexOf('natal:') === 0 ? '내 차트로 묻기' : '질문점';
+    }
+
+    function fmtAskWhen(iso) {
+      try {
+        return new Date(iso).toLocaleString('ko-KR', {
+          timeZone: 'Asia/Seoul',
+          year: 'numeric', month: '2-digit', day: '2-digit',
+          hour: '2-digit', minute: '2-digit',
+        });
+      } catch (e) {
+        return String(iso || '').slice(0, 16);
+      }
+    }
+
+    async function loadAskHistory() {
+      const msg = document.getElementById('askHistoryMsg');
+      if (!activeClientId || !uid) {
+        askHistoryRows = [];
+        return;
+      }
+      const { data, error } = await sb
+        .from('prashna_readings')
+        .select('id,category,question,asked_at,conclusion,tone,city')
+        .eq('user_id', uid)
+        .eq('client_id', activeClientId)
+        .order('asked_at', { ascending: false })
+        .limit(40);
+      if (error) {
+        askHistoryAvailable = false;
+        askHistoryRows = [];
+        if (msg) {
+          msg.textContent = /client_id/i.test(error.message || '')
+            ? '질문 이력 연결이 아직 준비되지 않았어요. DB에 client_id 컬럼을 추가해 주세요.'
+            : '질문 이력을 불러오지 못했어요.';
+          msg.classList.add('err');
+        }
+        return;
+      }
+      askHistoryAvailable = true;
+      askHistoryRows = data || [];
+      if (msg) {
+        msg.textContent = '';
+        msg.classList.remove('err');
+      }
+    }
+
+    function renderAskHistoryList() {
+      const listEl = document.getElementById('askHistoryList');
+      if (!listEl) return;
+      if (!askHistoryAvailable) {
+        listEl.innerHTML = '<p class="session-empty">질문 이력을 불러오지 못했어요.</p>';
+        return;
+      }
+      if (!askHistoryRows.length) {
+        listEl.innerHTML = '<p class="session-empty">아직 질문 이력이 없어요. 질문점·내 차트로 묻기에서 이 고객을 고르고 물어보면 여기에 쌓여요.</p>';
+        return;
+      }
+      listEl.innerHTML = askHistoryRows.map((r) => {
+        const mode = askModeLabel(r.category);
+        const q = escapeHtml(String(r.question || ''));
+        const sum = escapeHtml(truncateText(r.conclusion || '', 220));
+        const when = escapeHtml(fmtAskWhen(r.asked_at));
+        return (
+          '<div class="ask-item" data-ask-id="' + r.id + '">' +
+          '<div class="a-meta"><span class="a-mode">' + escapeHtml(mode) + '</span><span>' + when + '</span></div>' +
+          '<div class="a-q">' + q + '</div>' +
+          (sum ? '<div class="a-sum">' + sum + '</div>' : '') +
+          '<div class="a-actions">' +
+          '<button type="button" data-ask-to-session="' + r.id + '">상담 기록에 넣기</button>' +
+          '</div></div>'
+        );
+      }).join('');
+      listEl.querySelectorAll('button[data-ask-to-session]').forEach((b) => {
+        b.addEventListener('click', () => {
+          const row = askHistoryRows.find((x) => x.id === b.getAttribute('data-ask-to-session'));
+          if (!row) return;
+          setSessionModalTab('sessions');
+          resetSessionForm();
+          const mode = askModeLabel(row.category);
+          document.getElementById('sTopic').value = truncateText(mode + ' · ' + (row.question || ''), 200);
+          document.getElementById('sSummary').value = String(row.conclusion || '').trim();
+          sessionMsgEl.textContent = '질문 내용을 상담 기록 칸에 넣었어요. 확인하고 저장해 주세요.';
+          sessionMsgEl.classList.remove('err');
+          document.getElementById('sessionForm')?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        });
+      });
+    }
+
+    document.querySelectorAll('[data-session-tab]').forEach((btn) => {
+      btn.addEventListener('click', () => setSessionModalTab(btn.getAttribute('data-session-tab')));
+    });
+
     function openSessionModal(clientId, sessionId) {
       activeClientId = clientId;
       const c = clientRows.find((x) => x.id === clientId);
-      document.getElementById('sessionModalTitle').textContent = '상담 기록 · ' + (c ? (c.display_name || '') : '');
       document.getElementById('sessionModalSub').textContent = c
         ? ('생일 ' + (c.birth_date || '—') + (c.birth_time ? ' ' + c.birth_time : '') + (c.legal_name ? ' · 본명 ' + c.legal_name : '')) : '';
       const astroEl = document.getElementById('sessionAstro');
@@ -3532,6 +3677,12 @@
       resetSessionForm();
       renderSessionLastBox();
       renderSessionList();
+      setSessionModalTab(sessionId ? 'sessions' : 'sessions');
+      loadAskHistory().then(() => {
+        if (document.getElementById('sessionTabAsks') && !document.getElementById('sessionTabAsks').hidden) {
+          renderAskHistoryList();
+        }
+      });
       sessionModal.classList.add('open');
       if (sessionId) fillSessionForm(sessionId);
     }
