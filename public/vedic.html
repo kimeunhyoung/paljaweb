@@ -110,11 +110,12 @@ body{font-family:var(--font-body);background:var(--cream);color:var(--ink);min-h
 .si .mid span{font-size:12px;color:var(--muted);line-height:1.6;margin-top:4px;}
 .legend{max-width:560px;margin:10px auto 0;font-size:12px;color:var(--muted);line-height:1.7;text-align:center;}
 .tbl-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;}
-table.t{border-collapse:collapse;width:100%;min-width:560px;}
-table.t th,table.t td{border-bottom:1px solid var(--border);padding:10px 10px;text-align:left;font-size:14px;line-height:1.5;white-space:nowrap;}
+table.t{border-collapse:collapse;width:100%;min-width:560px;table-layout:fixed;}
+table.t th,table.t td{border-bottom:1px solid var(--border);padding:10px 10px;text-align:left;font-size:14px;line-height:1.5;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;box-sizing:border-box;}
 table.t th{background:var(--cream);color:var(--warm-brown);font-size:12.5px;}
 table.t tr.cur td{background:rgba(200,169,110,.22);font-weight:600;}
-table.t tr.sel td{outline:2px solid rgba(139,111,71,.45);outline-offset:-2px;}
+/* 선택 표시는 칸 너비에 영향 없는 inset 그림자 (outline/border면 클릭 시 폭이 흔들림) */
+table.t tr.sel td{box-shadow:inset 0 0 0 2px rgba(139,111,71,.45);background:rgba(200,169,110,.12);}
 table.t tr.clickable{cursor:pointer;}
 table.t tr.clickable:hover td{background:rgba(200,169,110,.12);}
 table.t a{color:var(--warm-brown);text-decoration:none;border-bottom:1px dotted rgba(139,111,71,.45);}
@@ -123,6 +124,18 @@ table.t th:first-child,table.t td:first-child{position:sticky;left:0;background:
 table.t th:first-child{background:var(--cream);}
 table.t tr.cur td:first-child{background:#f3e9d3;}
 table.t tr.sel td:first-child{background:#f7f0e2;}
+table.t .tag{color:var(--muted);font-weight:500;font-size:12.5px;}
+/* 다샤 표: 열 비율 고정 → 행 클릭·「보는 중」 붙어도 칸 넓이 유지 */
+#mahaTbl th:nth-child(1),#mahaTbl td:nth-child(1){width:30%;}
+#mahaTbl th:nth-child(2),#mahaTbl td:nth-child(2){width:16%;}
+#mahaTbl th:nth-child(3),#mahaTbl td:nth-child(3),
+#mahaTbl th:nth-child(4),#mahaTbl td:nth-child(4){width:27%;}
+#antarTbl th:nth-child(1),#antarTbl td:nth-child(1),
+#pratTbl th:nth-child(1),#pratTbl td:nth-child(1){width:44%;}
+#antarTbl th:nth-child(2),#antarTbl td:nth-child(2),
+#antarTbl th:nth-child(3),#antarTbl td:nth-child(3),
+#pratTbl th:nth-child(2),#pratTbl td:nth-child(2),
+#pratTbl th:nth-child(3),#pratTbl td:nth-child(3){width:28%;}
 .dasha-ctrl{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin:12px 0 6px;padding:12px 14px;border-radius:12px;background:var(--cream);border:1px solid var(--border);}
 .dasha-ctrl label{font-size:13.5px;font-weight:600;color:var(--deep-brown);display:flex;align-items:center;gap:8px;}
 .dasha-ctrl input[type=date]{padding:8px 10px;border:1px solid var(--border);border-radius:10px;font:inherit;font-size:14px;background:#fff;color:var(--deep-brown);}
@@ -507,10 +520,12 @@ table.t tr.sel td:first-child{background:#f7f0e2;}
       const cls = ['clickable'];
       if (isActive) cls.push('cur');
       if (isSel) cls.push('sel');
-      const tag = isActive ? (isToday ? ' · 현재' : ' · 기준 시점') : '';
+      const tag = isActive
+        ? '<span class="tag"> · ' + (isToday ? '현재' : '기준 시점') + '</span>'
+        : (isSel ? '<span class="tag"> · 보는 중</span>' : '');
       mt += '<tr class="' + cls.join(' ') + '" data-maha-idx="' + i + '"><td>' + GK[m.lord] + tag +
-        (isSel && !isActive ? ' · 보는 중' : '') +
-        '</td><td>' + m.years + (i === 0 ? ' (출생 후 잔여 ' + pack.balanceYears.toFixed(1) + ')' : '') +
+        '</td><td title="' + (i === 0 ? '출생 후 잔여 ' + pack.balanceYears.toFixed(1) + '년' : '') + '">' +
+        m.years + (i === 0 ? ' <span class="tag">잔여 ' + pack.balanceYears.toFixed(1) + '</span>' : '') +
         '</td><td>' + (i === 0 ? '출생 이전' : fmtDate(m.start)) + '</td><td>' + fmtDate(m.end) + '</td></tr>';
     });
     $('mahaTbl').innerHTML = mt;
@@ -537,9 +552,10 @@ table.t tr.sel td:first-child{background:#f7f0e2;}
       const cls = ['clickable'];
       if (isActive) cls.push('cur');
       if (isSel) cls.push('sel');
-      at += '<tr class="' + cls.join(' ') + '" data-antar-idx="' + j + '"><td>' + GK[selMaha.lord] + '–' + GK[s.lord] +
-        (isActive ? (isToday ? ' · 현재' : ' · 기준 시점') : '') +
-        (isSel && !isActive ? ' · 보는 중' : '') +
+      const aTag = isActive
+        ? '<span class="tag"> · ' + (isToday ? '현재' : '기준 시점') + '</span>'
+        : (isSel ? '<span class="tag"> · 보는 중</span>' : '');
+      at += '<tr class="' + cls.join(' ') + '" data-antar-idx="' + j + '"><td>' + GK[selMaha.lord] + '–' + GK[s.lord] + aTag +
         '</td><td>' + (s.start < birthMs ? '출생 이전' : fmtDate(s.start)) + '</td><td>' + fmtDate(s.end) + '</td></tr>';
     });
     $('antarTbl').innerHTML = at;
@@ -560,7 +576,7 @@ table.t tr.sel td:first-child{background:#f7f0e2;}
         const isActive = atMs >= p.start && atMs < p.end;
         if (isActive) activePrat = p;
         pt += '<tr' + (isActive ? ' class="cur"' : '') + '><td>' + GK[selMaha.lord] + '–' + GK[selAntar.lord] + '–' + GK[p.lord] +
-          (isActive ? (isToday ? ' · 현재' : ' · 기준 시점') : '') +
+          (isActive ? '<span class="tag"> · ' + (isToday ? '현재' : '기준 시점') + '</span>' : '') +
           '</td><td>' + (p.start < birthMs ? '출생 이전' : fmtDate(p.start)) + '</td><td>' + fmtDate(p.end) + '</td></tr>';
       });
       $('pratTbl').innerHTML = pt;
