@@ -192,6 +192,7 @@ textarea:focus,select:focus,input:focus{border-color:var(--accent) !important;bo
 .panel{padding:28px 30px}
 @media(min-width:900px){.navrow{justify-content:flex-end}.navrow .btn.pri{flex:0 0 280px}}
 @media(max-width:480px){.panel{padding:22px 16px}.chip{font-size:13px;padding:8px 12px}}
+.tl .now.top{background:#5a4226}
 /* 한 페이지 폼 다듬기 */
 input[type=number]{width:100%;padding:12px 14px;border:1px solid var(--line);border-radius:12px;background:var(--soft);font:inherit;font-size:15px;color:var(--ink);-moz-appearance:textfield}
 input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
@@ -744,13 +745,17 @@ input[type=number]:focus{outline:none;background:#fff}
     var baseYear = asked.getFullYear();
     var todayIso = meta.askedAt ? String(meta.askedAt).slice(0, 10) : '';
     var when = meta.askedAt ? asked.toLocaleString('ko-KR') : '';
-    var timings = (r.timings || []).map(function (t) {
+    // 시기 후보는 날짜순 (AI가 고른 순서와 상관없이)
+    var timingList = (r.timings || []).slice().sort(function (a, b) {
+      return String(a.start || '').localeCompare(String(b.start || ''));
+    });
+    var timings = timingList.map(function (t) {
       var whenTxt = t.start ? fmtDay(t.start, baseYear) + (t.end ? ' ~ ' + fmtDay(t.end, baseYear) : '') : (t.label || '');
       var why = t.reason_text || t.reason || '';
       var isNow = /지금 진행 중/.test(why) || (t.start && t.start <= todayIso);
       var whyClean = fmtText(why.replace(/\s*\(지금 진행 중\)|지금 진행 중,\s*/g, ''), baseYear);
       // AI 설명(note)을 본문으로, 계산 근거(행성·하우스)는 작은 글씨로 — 같은 말이 두 번 나오지 않게
-      return '<li><span class="when">' + esc(whenTxt) + (isNow ? '<span class="now">진행 중</span>' : '') + '</span>' +
+      return '<li><span class="when">' + esc(whenTxt) + (isNow ? '<span class="now">진행 중</span>' : '') + (t.top && timingList.length > 1 ? '<span class="now top">가장 유력</span>' : '') + '</span>' +
         (t.note
           ? '<span class="why">' + esc(t.note) + '</span><span class="note">근거 · ' + esc(whyClean) + '</span>'
           : '<span class="why">' + esc(whyClean) + '</span>') + '</li>';

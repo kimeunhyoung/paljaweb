@@ -211,6 +211,7 @@ textarea:focus,select:focus,input:focus,.client-pick-wrap input:focus,.client-pi
 .dasha-sum{margin:10px 0 0;padding-top:10px;border-top:1px dashed rgba(139,111,71,.22);font-size:14px;color:var(--deep)}
 .dasha-sum b{color:#8b6a33}
 @media(max-width:560px){.dasha-tbl tr{display:grid;grid-template-columns:1fr auto}.dasha-tbl th{grid-column:1}.dasha-tbl td.rg{grid-column:2;text-align:right;padding-left:0}.dasha-tbl td:last-child{grid-column:1/-1;padding-top:0;border-top:0}}
+.tl .now.top{background:#5a4226}
 /* 한 페이지 폼 다듬기 */
 input[type=number]{width:100%;padding:12px 14px;border:1px solid var(--line);border-radius:12px;background:var(--soft);font:inherit;font-size:15px;color:var(--ink);-moz-appearance:textfield}
 input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
@@ -935,11 +936,13 @@ input[type=number]:focus{outline:none;background:#fff}
       return '<tr><th>' + esc(p.title || '') + '<small>' + esc(p.scale || '') + '</small></th>' +
         '<td class="rg">' + esc(range) + '</td><td>' + mean + '</td></tr>';
     }).join('');
-    var sum = r.toneLabel === '이 질문에 유리한 시기'
-      ? '지금 운의 시기는 이 질문에 <b>유리한 편</b>이에요.'
-      : r.toneLabel === '이 질문엔 조율이 필요한 시기'
-        ? '지금 운의 시기는 이 질문과 조금 엇갈려 <b>조율이 필요</b>해요.'
-        : '지금 운의 시기는 이 질문과 <b>중간 정도</b>로 맞닿아 있어요.';
+    var fit = d.fit || (r.toneLabel === '이 질문에 유리한 시기' ? 'support' : r.toneLabel === '이 질문엔 조율이 필요한 시기' ? 'friction' : 'neutral');
+    var sum = (fit === 'support'
+      ? '지금 운의 시기는 이 주제에 <b>힘을 실어 주는 편</b>이에요.'
+      : fit === 'friction'
+        ? '지금 운의 시기는 이 주제와 조금 엇갈려 <b>조율이 필요</b>해요.'
+        : '지금 운의 시기는 이 주제와 <b>중간 정도</b>로 맞닿아 있어요.') +
+      ' 실제로 일이 움직이는 때는 아래 시기 후보를 함께 보세요.';
     return '<div class="block"><h4>지금 운의 시기</h4>' +
       '<table class="dasha-tbl">' + rows + '</table>' +
       '<p class="dasha-sum">' + sum + '</p>' +
@@ -955,13 +958,17 @@ input[type=number]:focus{outline:none;background:#fff}
     var baseYear = asked.getFullYear();
     var todayIso = meta.askedAt ? String(meta.askedAt).slice(0, 10) : '';
     var when = meta.askedAt ? asked.toLocaleString('ko-KR') : '';
-    var timings = (r.timings || []).map(function (t) {
+    // 시기 후보는 날짜순 (AI가 고른 순서와 상관없이)
+    var timingList = (r.timings || []).slice().sort(function (a, b) {
+      return String(a.start || '').localeCompare(String(b.start || ''));
+    });
+    var timings = timingList.map(function (t) {
       var whenTxt = t.start ? fmtDay(t.start, baseYear) + (t.end ? ' ~ ' + fmtDay(t.end, baseYear) : '') : (t.label || '');
       var why = t.reason_text || t.reason || '';
       var isNow = /지금 진행 중/.test(why) || (t.start && t.start <= todayIso);
       var whyClean = fmtText(why.replace(/\s*\(지금 진행 중\)|지금 진행 중,\s*/g, ''), baseYear);
       // AI 설명(note)을 본문으로, 계산 근거(행성·하우스)는 작은 글씨로 — 같은 말이 두 번 나오지 않게
-      return '<li><span class="when">' + esc(whenTxt) + (isNow ? '<span class="now">진행 중</span>' : '') + '</span>' +
+      return '<li><span class="when">' + esc(whenTxt) + (isNow ? '<span class="now">진행 중</span>' : '') + (t.top && timingList.length > 1 ? '<span class="now top">가장 유력</span>' : '') + '</span>' +
         (t.note
           ? '<span class="why">' + esc(t.note) + '</span><span class="note">근거 · ' + esc(whyClean) + '</span>'
           : '<span class="why">' + esc(whyClean) + '</span>') + '</li>';
