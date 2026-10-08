@@ -171,7 +171,6 @@ main .lp-sec h2 .cy-sub{font-family:'Noto Sans KR',sans-serif;font-size:13px;fon
 .bc-tag.t1{left:calc((100% - 4px) * 3 / 4.15 - 80px);color:#c0392b}
 .bc-tag.t2{left:0;color:#2f6f9f}
 .bc-fig figcaption{text-align:center;font-size:13px;color:#9a8678;margin-top:8px}
-.bc-flow{font-size:14.5px!important;color:#7a5f3a;background:#fff;border:1px dashed #e0cdb8;border-radius:10px;padding:8px 12px;margin:4px 0 6px}
 main table.bc-tbl{min-width:640px}
 main table.bc-tbl td{font-size:14px;line-height:1.6;vertical-align:top}
 .bc-ln{white-space:nowrap;font-weight:600;color:var(--navy)}
