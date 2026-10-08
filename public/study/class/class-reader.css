@@ -135,3 +135,12 @@ a.lp-numlink{display:inline-flex;width:28px;height:28px;border-radius:50%;backgr
   .py-grid{grid-template-columns:1fr 1fr}
   .py-two,.py-phase{grid-template-columns:1fr}
 }
+
+/* 절정수·도전수·대주기 과목 */
+main .lp-sec h2 .cy-sub{font-family:'Noto Sans KR',sans-serif;font-size:13px;font-weight:500;color:#9a8678}
+.cy-three{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:6px 0 10px}
+.cy-three div{padding:14px;border:1px solid var(--line);border-radius:12px;background:#fff}
+.cy-three span{display:block;font-size:12px;color:#9a8678}
+.cy-three b{display:block;font-family:'Noto Serif KR',serif;font-weight:600;font-size:16px;color:var(--navy);margin:2px 0 6px}
+.cy-three p{margin:0;font-size:14.5px;line-height:1.7}
+@media (max-width:640px){.cy-three{grid-template-columns:1fr}}

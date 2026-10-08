@@ -42,6 +42,25 @@
         { id: 'summary', name: '계산법과 9년 주기' },
       ],
     },
+    cycles: {
+      page: '/study/class/cycles.html',
+      title: '절정수·도전수·대주기',
+      unit: function (id) { return id === '0' ? '도전수 0' : '수 ' + id; },
+      parts: [
+        { id: 'guide', name: '계산법과 읽는 순서', tab: '계산법', mark: '∑', top: '먼저 읽기', special: true },
+        { id: '1', name: '독립과 리더십' },
+        { id: '2', name: '협력과 조화' },
+        { id: '3', name: '표현과 기쁨' },
+        { id: '4', name: '토대와 성실' },
+        { id: '5', name: '변화와 자유' },
+        { id: '6', name: '사랑과 책임' },
+        { id: '7', name: '탐구와 성찰' },
+        { id: '8', name: '힘과 성취' },
+        { id: '9', name: '완성과 사랑' },
+        { id: '0', name: '선택의 도전' },
+        { id: 'summary', name: '한눈에 보는 요약표' },
+      ],
+    },
   };
   var COURSE = (document.body && document.body.getAttribute('data-course')) || 'lifepath';
   if (!COURSES[COURSE]) COURSE = 'lifepath';
@@ -66,7 +85,7 @@
   function renderTabs(cur) {
     var h = '<a href="' + href(null) + '"' + (cur ? '' : ' class="on"') + '>목차</a>';
     PARTS.forEach(function (p) {
-      var t = p.id === 'summary' ? '요약' : p.id;
+      var t = p.tab || (p.id === 'summary' ? '요약' : p.id);
       h += '<a href="' + href(p) + '"' + (cur && cur.id === p.id ? ' class="on" aria-current="page"' : '') + '>' + t + '</a>';
     });
     $('lpTabs').innerHTML = h;
@@ -74,10 +93,10 @@
   function renderIndex() {
     var h = '';
     PARTS.forEach(function (p) {
-      var isSum = p.id === 'summary';
+      var isSum = p.id === 'summary' || p.special;
       h += '<a class="lp-card' + (isSum ? ' lp-card-sum' : '') + '" href="' + href(p) + '">' +
-        '<span class="lp-card-n">' + (isSum ? '∑' : p.id) + '</span>' +
-        '<span class="lp-card-t">' + (isSum ? '부록' : CONF.unit(p.id)) + '</span>' +
+        '<span class="lp-card-n">' + (p.mark || (p.id === 'summary' ? '∑' : p.id)) + '</span>' +
+        '<span class="lp-card-t">' + (p.top || (p.id === 'summary' ? '부록' : CONF.unit(p.id))) + '</span>' +
         '<b>' + p.name + '</b></a>';
     });
     $('lpGrid').innerHTML = h;
@@ -87,7 +106,7 @@
     var i = PARTS.indexOf(cur);
     var prev = i > 0 ? PARTS[i - 1] : null;
     var next = i < PARTS.length - 1 ? PARTS[i + 1] : null;
-    function lab(p) { return p.id === 'summary' ? '부록 · ' + p.name : CONF.unit(p.id) + ' · ' + p.name; }
+    function lab(p) { return p.id === 'summary' ? '부록 · ' + p.name : p.special ? p.name : CONF.unit(p.id) + ' · ' + p.name; }
     $('lpPn').innerHTML =
       (prev ? '<a href="' + href(prev) + '">← ' + lab(prev) + '</a>' : '<a href="' + href(null) + '">← 목차</a>') +
       (next ? '<a class="next" href="' + href(next) + '">' + lab(next) + ' →</a>' : '<a class="next" href="' + href(null) + '">목차 →</a>');
@@ -154,7 +173,7 @@
       if (cur) {
         $('lpContent').innerHTML = data.html || '';
         renderPn(cur);
-        document.title = (cur.id === 'summary' ? '요약' : CONF.unit(cur.id) + ' ' + cur.name) + ' | ' + CONF.title + ' | 팔자연구소';
+        document.title = (cur.id === 'summary' ? '요약' : cur.special ? cur.name : CONF.unit(cur.id) + ' ' + cur.name) + ' | ' + CONF.title + ' | 팔자연구소';
         if (location.hash) {
           var t = document.getElementById(location.hash.slice(1));
           if (t) t.scrollIntoView();
