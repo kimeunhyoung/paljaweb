@@ -110,12 +110,23 @@ body{font-family:var(--font-body);background:var(--cream);color:var(--ink);min-h
 .si .mid span{font-size:12px;color:var(--muted);line-height:1.6;margin-top:4px;}
 .legend{max-width:560px;margin:10px auto 0;font-size:12px;color:var(--muted);line-height:1.7;text-align:center;}
 .tbl-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;}
-table.t{border-collapse:collapse;width:100%;min-width:560px;table-layout:fixed;}
+table.t{border-collapse:collapse;width:100%;min-width:640px;table-layout:fixed;}
 table.t th,table.t td{border-bottom:1px solid var(--border);padding:10px 10px;text-align:left;font-size:14px;line-height:1.5;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;box-sizing:border-box;}
 table.t th{background:var(--cream);color:var(--warm-brown);font-size:12.5px;}
+/* 긴 텍스트 열은 줄바꿈 허용 (… 잘림 방지) */
+#grahaTbl th:nth-child(4),#grahaTbl td:nth-child(4){width:22%;min-width:9.5em;}
+#grahaTbl th:nth-child(2),#grahaTbl td:nth-child(2),
+#grahaTbl th:nth-child(8),#grahaTbl td:nth-child(8),
+#grahaTbl th:nth-child(7),#grahaTbl td:nth-child(7){min-width:6.5em;}
+#drishtiTbl{min-width:720px;}
+#drishtiTbl th:nth-child(3),#drishtiTbl td:nth-child(3){width:42%;}
+table.t td.nak-cell,table.t td.wrap-cell{white-space:normal;overflow:visible;text-overflow:clip;line-height:1.45;word-break:keep-all;}
+table.t td.nak-cell .nak-pada{display:inline-block;margin-left:.35em;white-space:nowrap;font-weight:600;color:var(--deep-brown);}
 table.t tr.cur td{background:rgba(200,169,110,.22);font-weight:600;}
-/* 선택 표시는 칸 너비에 영향 없는 inset 그림자 (outline/border면 클릭 시 폭이 흔들림) */
-table.t tr.sel td{box-shadow:inset 0 0 0 2px rgba(139,111,71,.45);background:rgba(200,169,110,.12);}
+/* 선택 행: 칸마다 테두리 대신 행 외곽만 (폭 흔들림 없는 inset) */
+table.t tr.sel td{background:rgba(200,169,110,.12);box-shadow:inset 0 2px 0 rgba(139,111,71,.45),inset 0 -2px 0 rgba(139,111,71,.45);}
+table.t tr.sel td:first-child{box-shadow:inset 2px 0 0 rgba(139,111,71,.45),inset 0 2px 0 rgba(139,111,71,.45),inset 0 -2px 0 rgba(139,111,71,.45);background:#f7f0e2;}
+table.t tr.sel td:last-child{box-shadow:inset -2px 0 0 rgba(139,111,71,.45),inset 0 2px 0 rgba(139,111,71,.45),inset 0 -2px 0 rgba(139,111,71,.45);}
 table.t tr.clickable{cursor:pointer;}
 table.t tr.clickable:hover td{background:rgba(200,169,110,.12);}
 table.t a{color:var(--warm-brown);text-decoration:none;border-bottom:1px dotted rgba(139,111,71,.45);}
@@ -123,7 +134,6 @@ table.t a:hover{border-bottom-style:solid;}
 table.t th:first-child,table.t td:first-child{position:sticky;left:0;background:#fff;z-index:1;}
 table.t th:first-child{background:var(--cream);}
 table.t tr.cur td:first-child{background:#f3e9d3;}
-table.t tr.sel td:first-child{background:#f7f0e2;}
 table.t .tag{color:var(--muted);font-weight:500;font-size:12.5px;}
 /* 다샤 표: 열 비율 고정 → 행 클릭·「보는 중」 붙어도 칸 넓이 유지 */
 #mahaTbl th:nth-child(1),#mahaTbl td:nth-child(1){width:30%;}
@@ -998,9 +1008,9 @@ details.dasha-acc .tbl-wrap{margin-top:2px;}
     rows.forEach((g) => {
       const isL = g.key === 'lagna';
       const note = (g.retro && !isL && g.key !== 'rahu' && g.key !== 'ketu') ? '역행' : '';
-      tb += '<tr><td>' + (isL ? '상승궁' : grahaLink(g.key)) + '</td><td>' + signLink(g.rashi) + '</td><td>' + fmtDeg(g.deg) + '</td><td>' +
-        nakLink(g.nak, nakName(g.nak)) + ' ' + g.pada + '파다</td><td>' + grahaLink(g.nakLord) + '</td>' +
-        (lagna ? '<td>' + houseLink(isL ? 1 : g.house) + '</td>' : '') + '<td>' + (DIG_KO[g.dignity] || '') + '</td><td>' + signLabel(g.d9) + (g.d9 === g.rashi ? ' · 바르고타마' : '') + '</td><td>' + note + '</td></tr>';
+      tb += '<tr><td>' + (isL ? '상승궁' : grahaLink(g.key)) + '</td><td class="wrap-cell">' + signLink(g.rashi) + '</td><td>' + fmtDeg(g.deg) + '</td><td class="nak-cell">' +
+        nakLink(g.nak, nakName(g.nak)) + '<span class="nak-pada">' + g.pada + '파다</span></td><td>' + grahaLink(g.nakLord) + '</td>' +
+        (lagna ? '<td>' + houseLink(isL ? 1 : g.house) + '</td>' : '') + '<td>' + (DIG_KO[g.dignity] || '') + '</td><td class="wrap-cell">' + signLabel(g.d9) + (g.d9 === g.rashi ? ' · 바르고타마' : '') + '</td><td>' + note + '</td></tr>';
     });
     $('grahaTbl').innerHTML = tb;
     renderLords(lagna, grahas);
@@ -1012,7 +1022,7 @@ details.dasha-acc .tbl-wrap{margin-top:2px;}
       const targets = ds.map((d) => d.nth + '번째 ' + V.SIGNS[d.rashi].sa + (lagna ? '(' + (((d.rashi - lagna.rashi + 12) % 12) + 1) + '하우스)' : '')).join(', ');
       const hit = [];
       ds.forEach((d) => grahas.forEach((o) => { if (o.key !== g.key && o.rashi === d.rashi) hit.push(GK[o.key]); }));
-      dt += '<tr><td>' + grahaLink(g.key) + '</td><td>' + where + '</td><td>' + targets + '</td><td>' + (hit.length ? hit.join(', ') : '—') + '</td></tr>';
+      dt += '<tr><td>' + grahaLink(g.key) + '</td><td class="wrap-cell">' + where + '</td><td class="wrap-cell">' + targets + '</td><td class="wrap-cell">' + (hit.length ? hit.join(', ') : '—') + '</td></tr>';
     });
     $('drishtiTbl').innerHTML = dt;
     $('houseNote').innerHTML = lagna ? '하우스는 전체별자리 방식이에요. 상승궁이 ' + signLabel(lagna.rashi) + '이므로 이 별자리가 1하우스이고, 다음 별자리가 2하우스예요.' : '출생 시간을 모르면 상승궁과 하우스를 계산하지 않아요.';
