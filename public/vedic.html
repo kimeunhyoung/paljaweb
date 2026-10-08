@@ -36,7 +36,7 @@
 <script src="js/site-topbar.js?v=41" defer></script>
 <script src="js/topbar-session.js?v=14" defer></script>
 <script src="js/astro-cities.js?v=1"></script>
-<script src="js/vedic-core.js?v=3"></script>
+<script src="js/vedic-core.js?v=4"></script>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css" crossorigin />
 <link rel="stylesheet" href="css/site-topbar.css?v=21" />
 <link rel="stylesheet" href="css/site-header.css?v=9" />
@@ -131,11 +131,22 @@ table.t .tag{color:var(--muted);font-weight:500;font-size:12.5px;}
 #mahaTbl th:nth-child(3),#mahaTbl td:nth-child(3),
 #mahaTbl th:nth-child(4),#mahaTbl td:nth-child(4){width:27%;}
 #antarTbl th:nth-child(1),#antarTbl td:nth-child(1),
-#pratTbl th:nth-child(1),#pratTbl td:nth-child(1){width:44%;}
+#pratTbl th:nth-child(1),#pratTbl td:nth-child(1),
+#sukshmaTbl th:nth-child(1),#sukshmaTbl td:nth-child(1){width:44%;}
 #antarTbl th:nth-child(2),#antarTbl td:nth-child(2),
 #antarTbl th:nth-child(3),#antarTbl td:nth-child(3),
 #pratTbl th:nth-child(2),#pratTbl td:nth-child(2),
-#pratTbl th:nth-child(3),#pratTbl td:nth-child(3){width:28%;}
+#pratTbl th:nth-child(3),#pratTbl td:nth-child(3),
+#sukshmaTbl th:nth-child(2),#sukshmaTbl td:nth-child(2),
+#sukshmaTbl th:nth-child(3),#sukshmaTbl td:nth-child(3){width:28%;}
+details.dasha-acc{margin:18px 0 0;border:1px solid var(--border);border-radius:12px;background:rgba(255,255,255,.55);overflow:hidden;}
+details.dasha-acc > summary{list-style:none;cursor:pointer;padding:12px 14px;font-size:14px;font-weight:700;color:var(--deep-brown);display:flex;align-items:center;gap:8px;user-select:none;}
+details.dasha-acc > summary::-webkit-details-marker{display:none;}
+details.dasha-acc > summary::before{content:'▸';color:var(--warm-brown);font-size:12px;width:1em;flex:0 0 auto;}
+details.dasha-acc[open] > summary::before{content:'▾';}
+details.dasha-acc > summary .acc-hint{margin-left:auto;font-size:12px;font-weight:500;color:var(--muted);}
+details.dasha-acc .acc-body{padding:0 12px 12px;}
+details.dasha-acc .tbl-wrap{margin-top:2px;}
 .dasha-ctrl{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin:12px 0 6px;padding:12px 14px;border-radius:12px;background:var(--cream);border:1px solid var(--border);}
 .dasha-ctrl label{font-size:13.5px;font-weight:600;color:var(--deep-brown);display:flex;align-items:center;gap:8px;}
 .dasha-ctrl input[type=date]{padding:8px 10px;border:1px solid var(--border);border-radius:10px;font:inherit;font-size:14px;background:#fff;color:var(--deep-brown);}
@@ -286,17 +297,29 @@ table.t .tag{color:var(--muted);font-weight:500;font-size:12.5px;}
       <div class="dasha-ctrl" id="dashaCtrl">
         <label for="dashaAt">기준 시점 <input type="date" id="dashaAt"></label>
         <button type="button" id="dashaToday">오늘</button>
-        <span class="hint" id="dashaAtHint">마하다샤 행을 누르면 그 대주기의 안타르·프라얀타르를 볼 수 있어요.</span>
+        <span class="hint" id="dashaAtHint">마하다샤 행을 누르면 그 대주기의 안타르를 볼 수 있어요. 3·4단계는 아래 아코디언에서 펼쳐 보세요.</span>
       </div>
-      <div class="sub-title">마하다샤 (대주기)</div>
+      <div class="sub-title">마하다샤 (대주기 · 1단계)</div>
       <div class="tbl-wrap"><table class="t" id="mahaTbl"></table></div>
-      <div class="sub-title" id="antarTitle">선택한 마하다샤의 안타르다샤 (소주기)</div>
+      <div class="sub-title" id="antarTitle">선택한 마하다샤의 안타르다샤 (소주기 · 2단계)</div>
       <div class="tbl-wrap"><table class="t" id="antarTbl"></table></div>
-      <div class="sub-title" id="pratTitle">선택한 안타르다샤의 프라얀타르다샤 (세부)</div>
-      <div class="tbl-wrap"><table class="t" id="pratTbl"></table></div>
+      <details class="dasha-acc" id="pratAcc" open>
+        <summary id="pratSummary"><span id="pratTitle">프라얀타르다샤 (세부 · 3단계)</span><span class="acc-hint">펼치기/접기</span></summary>
+        <div class="acc-body">
+          <p class="tbl-hint">표가 길면 옆으로 밀어서 보세요 →</p>
+          <div class="tbl-wrap"><table class="t" id="pratTbl"></table></div>
+        </div>
+      </details>
+      <details class="dasha-acc" id="sukshmaAcc">
+        <summary id="sukshmaSummary"><span id="sukshmaTitle">숙슈마다샤 (더 세부 · 4단계)</span><span class="acc-hint">기본 접힘 · 필요할 때 펼치기</span></summary>
+        <div class="acc-body">
+          <p class="tbl-hint">표가 길면 옆으로 밀어서 보세요 →</p>
+          <div class="tbl-wrap"><table class="t" id="sukshmaTbl"></table></div>
+        </div>
+      </details>
       <div class="sub-title" id="readTitle">선택 시점 읽기</div>
       <div id="nowDasha" style="font-size:14px;color:var(--deep-brown);line-height:1.8;"></div>
-      <div class="note">다샤 날짜는 1년을 항성년 <b>365.256364일</b>로 계산한 값이에요. 프로그램마다 1년의 길이를 다르게 잡아 며칠 정도 차이가 날 수 있어요. 첫 마하다샤는 출생 전에 이미 시작되어 있으면, 표에는 출생 시점의 남은 기간이 반영된 종료일이 나와요.</div>
+      <div class="note">다샤 날짜는 1년을 항성년 <b>365.256364일</b>로 계산한 값이에요. 프로그램마다 1년의 길이를 다르게 잡아 며칠 정도 차이가 날 수 있어요. 첫 마하다샤는 출생 전에 이미 시작되어 있으면, 표에는 출생 시점의 남은 기간이 반영된 종료일이 나와요. <b>1·2단계</b>는 항상 보이고, <b>3단계(프라얀타르)</b>·<b>4단계(숙슈마)</b>는 아코디언으로 접을 수 있어요. 숙슈마는 며칠~2주 단위라 필요할 때만 펼쳐 보세요.</div>
     </div>
 
     <div class="card" id="vLimits">
@@ -463,7 +486,7 @@ table.t .tag{color:var(--muted);font-weight:500;font-size:12.5px;}
     return null;
   }
 
-  function renderNow(cur, atMs, lagna, grahas, antar, prat) {
+  function renderNow(cur, atMs, lagna, grahas, antar, prat, sukshma) {
     function block(key, pageKey, anchorKey) {
       const g = grahas.find((x) => x.key === key);
       const n = GNUM[pageKey];
@@ -486,12 +509,21 @@ table.t .tag{color:var(--muted);font-weight:500;font-size:12.5px;}
       const hit = sub.prats.find((p) => atMs >= p.start && atMs < p.end);
       if (hit) pratCur = hit;
     }
+    let sukCur = sukshma;
+    if (!sukCur && pratCur && Array.isArray(pratCur.sukshmas)) {
+      const hitS = pratCur.sukshmas.find((s) => atMs >= s.start && atMs < s.end);
+      if (hitS) sukCur = hitS;
+    }
     let html = '<p style="margin:0 0 6px"><b>기준 시점</b> ' + esc(fmtDate(atMs)) + '</p>';
     html += '<p style="margin:0 0 6px"><b>마하다샤</b> ' + block(cur.lord, cur.lord, null) + '</p>';
     if (sub) html += '<p style="margin:0 0 6px"><b>안타르다샤</b> ' + block(sub.lord, cur.lord, sub.lord) + '</p>';
     if (pratCur) {
       html += '<p style="margin:0 0 6px"><b>프라얀타르</b> ' + grahaLink(pratCur.lord) +
         ' · ' + esc(fmtDate(pratCur.start)) + ' ~ ' + esc(fmtDate(pratCur.end)) + '</p>';
+    }
+    if (sukCur) {
+      html += '<p style="margin:0 0 6px"><b>숙슈마</b> ' + grahaLink(sukCur.lord) +
+        ' · ' + esc(fmtDate(sukCur.start)) + ' ~ ' + esc(fmtDate(sukCur.end)) + '</p>';
     }
     html += '<p style="margin:0;font-size:12.5px;color:var(--muted)">위 내용은 기본 읽기로 가는 링크이며, 시기와 사건을 확정하지 않아요. 일부 해설은 회원 전용이에요.</p>';
     $('nowDasha').innerHTML = html;
@@ -533,11 +565,12 @@ table.t .tag{color:var(--muted);font-weight:500;font-size:12.5px;}
       tr.addEventListener('click', () => {
         st.selMahaIdx = Number(tr.getAttribute('data-maha-idx'));
         st.selAntarIdx = null;
+        st.selPratIdx = null;
         renderDashaPanels();
       });
     });
 
-    $('antarTitle').textContent = GK[selMaha.lord] + ' 마하다샤의 안타르다샤 (소주기)';
+    $('antarTitle').textContent = GK[selMaha.lord] + ' 마하다샤의 안타르다샤 (소주기 · 2단계)';
     const activeAntarInSel = findAt(selMaha.subs, atMs);
     if (st.selAntarIdx == null && activeAntarInSel) st.selAntarIdx = activeAntarInSel.index;
     if (st.selAntarIdx == null) {
@@ -562,40 +595,107 @@ table.t .tag{color:var(--muted);font-weight:500;font-size:12.5px;}
     $('antarTbl').querySelectorAll('tr[data-antar-idx]').forEach((tr) => {
       tr.addEventListener('click', () => {
         st.selAntarIdx = Number(tr.getAttribute('data-antar-idx'));
+        st.selPratIdx = null;
         renderDashaPanels();
       });
     });
 
     const selAntar = selMaha.subs[st.selAntarIdx] || null;
+    const pratAcc = $('pratAcc');
+    const sukshmaAcc = $('sukshmaAcc');
+    if (pratAcc && st.pratOpen === false) pratAcc.open = false;
+    else if (pratAcc && st.pratOpen !== false) pratAcc.open = true;
+    if (sukshmaAcc) sukshmaAcc.open = !!st.sukshmaOpen;
+
     if (selAntar && Array.isArray(selAntar.prats) && selAntar.prats.length) {
       $('pratTitle').textContent = GK[selMaha.lord] + '–' + GK[selAntar.lord] + ' 안타르의 프라얀타르다샤 (세부 · 3단계)';
+      const activePratHit = findAt(selAntar.prats, atMs);
+      if (st.selPratIdx == null && activePratHit) st.selPratIdx = activePratHit.index;
+      if (st.selPratIdx == null) {
+        const firstPrat = selAntar.prats.findIndex((p) => p.end > birthMs);
+        st.selPratIdx = firstPrat >= 0 ? firstPrat : 0;
+      }
       let pt = '<tr><th>프라얀타르</th><th>시작</th><th>종료</th></tr>';
       let activePrat = null;
-      selAntar.prats.forEach((p) => {
+      selAntar.prats.forEach((p, k) => {
         if (p.end <= birthMs) return;
         const isActive = atMs >= p.start && atMs < p.end;
+        const isSel = st.selPratIdx === k;
         if (isActive) activePrat = p;
-        pt += '<tr' + (isActive ? ' class="cur"' : '') + '><td>' + GK[selMaha.lord] + '–' + GK[selAntar.lord] + '–' + GK[p.lord] +
-          (isActive ? '<span class="tag"> · ' + (isToday ? '현재' : '기준 시점') + '</span>' : '') +
+        const cls = ['clickable'];
+        if (isActive) cls.push('cur');
+        if (isSel) cls.push('sel');
+        const pTag = isActive
+          ? '<span class="tag"> · ' + (isToday ? '현재' : '기준 시점') + '</span>'
+          : (isSel ? '<span class="tag"> · 보는 중</span>' : '');
+        pt += '<tr class="' + cls.join(' ') + '" data-prat-idx="' + k + '"><td>' +
+          GK[selMaha.lord] + '–' + GK[selAntar.lord] + '–' + GK[p.lord] + pTag +
           '</td><td>' + (p.start < birthMs ? '출생 이전' : fmtDate(p.start)) + '</td><td>' + fmtDate(p.end) + '</td></tr>';
       });
       $('pratTbl').innerHTML = pt;
+      $('pratTbl').querySelectorAll('tr[data-prat-idx]').forEach((tr) => {
+        tr.addEventListener('click', () => {
+          st.selPratIdx = Number(tr.getAttribute('data-prat-idx'));
+          st.sukshmaOpen = true;
+          renderDashaPanels();
+        });
+      });
+
+      const selPrat = selAntar.prats[st.selPratIdx] || null;
+      let activeSuk = null;
+      if (selPrat && Array.isArray(selPrat.sukshmas) && selPrat.sukshmas.length) {
+        $('sukshmaTitle').textContent =
+          GK[selMaha.lord] + '–' + GK[selAntar.lord] + '–' + GK[selPrat.lord] +
+          ' 프라얀타르의 숙슈마다샤 (더 세부 · 4단계)';
+        let stbl = '<tr><th>숙슈마</th><th>시작</th><th>종료</th></tr>';
+        selPrat.sukshmas.forEach((s) => {
+          if (s.end <= birthMs) return;
+          const isActive = atMs >= s.start && atMs < s.end;
+          if (isActive) activeSuk = s;
+          stbl += '<tr' + (isActive ? ' class="cur"' : '') + '><td>' +
+            GK[selMaha.lord] + '–' + GK[selAntar.lord] + '–' + GK[selPrat.lord] + '–' + GK[s.lord] +
+            (isActive ? '<span class="tag"> · ' + (isToday ? '현재' : '기준 시점') + '</span>' : '') +
+            '</td><td>' + (s.start < birthMs ? '출생 이전' : fmtDate(s.start)) +
+            '</td><td>' + fmtDate(s.end) + '</td></tr>';
+        });
+        $('sukshmaTbl').innerHTML = stbl;
+      } else {
+        $('sukshmaTitle').textContent = '숙슈마다샤 (더 세부 · 4단계)';
+        $('sukshmaTbl').innerHTML = '<tr><td>이 구간의 숙슈마를 찾지 못했어요.</td></tr>';
+      }
+
       $('readTitle').textContent = isToday ? '지금 시기 읽기' : '선택 시점 읽기';
-      renderNow(selMaha, atMs, st.lagna, st.grahas, selAntar, activePrat);
+      renderNow(selMaha, atMs, st.lagna, st.grahas, selAntar, activePrat || selPrat, activeSuk);
       $('dashaAtHint').textContent =
         (isToday ? '오늘 기준이에요. ' : fmtDate(atMs) + ' 기준이에요. ') +
-        '마하·안타르 행을 눌러 다른 구간도 볼 수 있어요.';
+        '마하·안타르를 고르고, 프라얀타르 행을 누르면 숙슈마(4단계)가 열려요.';
     } else {
-      $('pratTitle').textContent = '프라얀타르다샤';
+      $('pratTitle').textContent = '프라얀타르다샤 (세부 · 3단계)';
       $('pratTbl').innerHTML = '<tr><td>이 구간의 프라얀타르를 찾지 못했어요.</td></tr>';
+      $('sukshmaTitle').textContent = '숙슈마다샤 (더 세부 · 4단계)';
+      $('sukshmaTbl').innerHTML = '<tr><td>프라얀타르를 먼저 선택해 주세요.</td></tr>';
       $('readTitle').textContent = isToday ? '지금 시기 읽기' : '선택 시점 읽기';
-      if (selMaha) renderNow(selMaha, atMs, st.lagna, st.grahas, selAntar, null);
+      if (selMaha) renderNow(selMaha, atMs, st.lagna, st.grahas, selAntar, null, null);
     }
   }
 
   function bindDashaControls() {
     const inp = $('dashaAt');
     const btn = $('dashaToday');
+    const pratAcc = $('pratAcc');
+    const sukshmaAcc = $('sukshmaAcc');
+    if (pratAcc && !pratAcc._bound) {
+      pratAcc._bound = true;
+      pratAcc.addEventListener('toggle', () => {
+        if (DASHA_STATE) DASHA_STATE.pratOpen = pratAcc.open;
+      });
+    }
+    if (sukshmaAcc && !sukshmaAcc._bound) {
+      sukshmaAcc._bound = true;
+      sukshmaAcc.addEventListener('toggle', () => {
+        if (DASHA_STATE) DASHA_STATE.sukshmaOpen = sukshmaAcc.open;
+      });
+    }
     if (!inp || inp._bound) return;
     inp._bound = true;
     inp.addEventListener('change', () => {
@@ -603,6 +703,7 @@ table.t .tag{color:var(--muted);font-weight:500;font-size:12.5px;}
       DASHA_STATE.atMs = msFromIsoLocal(inp.value);
       DASHA_STATE.selMahaIdx = null;
       DASHA_STATE.selAntarIdx = null;
+      DASHA_STATE.selPratIdx = null;
       renderDashaPanels();
     });
     btn.addEventListener('click', () => {
@@ -612,6 +713,7 @@ table.t .tag{color:var(--muted);font-weight:500;font-size:12.5px;}
       DASHA_STATE.atMs = now;
       DASHA_STATE.selMahaIdx = null;
       DASHA_STATE.selAntarIdx = null;
+      DASHA_STATE.selPratIdx = null;
       renderDashaPanels();
     });
   }

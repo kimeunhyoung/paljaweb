@@ -82,7 +82,8 @@
   /**
    * 빔쇼타리 다샤: 출생 달 낙샤트라 기준
    * - 1년 = 항성년 365.256364일 (다샤 앱·표준력과 맞춤)
-   * - 3단계까지: 마하 → 안타르 → 프라얀타르 (subs[].prats)
+   * - 4단계: 마하 → 안타르 → 프라얀타르 → 숙슈마 (subs[].prats[].sukshmas)
+   * - 고객용(내 차트로 묻기)은 보통 3단계까지만 씀
    */
   var DASHA_YEAR_DAYS = 365.256364;
   var YEAR_MS = DASHA_YEAR_DAYS * 86400000;
@@ -106,8 +107,17 @@
         for (var k = 0; k < 9; k++) {
           var pl = DASHA_ORDER[(antarIdx + k) % 9];
           var py = sy * DASHA_YEARS[pl] / 120;
-          prats.push({ lord: pl, start: pt, end: pt + py * YEAR_MS });
-          pt += py * YEAR_MS;
+          var pratEnd = pt + py * YEAR_MS;
+          var pratIdx = DASHA_ORDER.indexOf(pl);
+          var sukshmas = [], qt = pt;
+          for (var m = 0; m < 9; m++) {
+            var ql = DASHA_ORDER[(pratIdx + m) % 9];
+            var qy = py * DASHA_YEARS[ql] / 120;
+            sukshmas.push({ lord: ql, start: qt, end: qt + qy * YEAR_MS });
+            qt += qy * YEAR_MS;
+          }
+          prats.push({ lord: pl, start: pt, end: pratEnd, sukshmas: sukshmas });
+          pt = pratEnd;
         }
         subs.push({ lord: sl, start: st, end: subEnd, prats: prats });
         st = subEnd;
@@ -120,7 +130,7 @@
       balanceYears: firstFull - elapsed,
       firstLord: n.lord,
       yearDays: DASHA_YEAR_DAYS,
-      levels: 3,
+      levels: 4,
     };
   }
 
