@@ -922,7 +922,7 @@
     }
     .session-last .sl-meta { font-size: 13px; font-weight: 700; margin-bottom: 4px; }
     .session-last .sl-topic { font-weight: 600; margin-bottom: 4px; }
-    .session-last .sl-sum { color: var(--ink); white-space: pre-wrap; }
+    .session-last .sl-sum { color: var(--ink); white-space: pre-wrap; max-height: 240px; overflow: auto; }
     .session-last .sl-focus { margin-top: 6px; color: #5a4a32; }
     .session-tabs { display: flex; gap: 6px; margin: 0 0 14px; flex-wrap: wrap; }
     .session-tab {
@@ -3431,6 +3431,68 @@
       return t.slice(0, n) + '…';
     }
 
+    function fmtAskDayKo(iso) {
+      const m = String(iso || '').match(/^(\d{4})-(\d{2})-(\d{2})/);
+      if (!m) return String(iso || '');
+      return Number(m[2]) + '월 ' + Number(m[3]) + '일';
+    }
+
+    function fmtAskRangeKo(start, end) {
+      if (!start) return '';
+      if (!end || end === start) return fmtAskDayKo(start);
+      return fmtAskDayKo(start) + ' ~ ' + fmtAskDayKo(end);
+    }
+
+    /** 질문점·내 차트로 묻기 → 상담 기록용 요약 (결론 + 시기 후보 + 배경 + 조언) */
+    function buildAskSessionSummary(row) {
+      const rj = row && row.result_json && typeof row.result_json === 'object' ? row.result_json : {};
+      const lines = [];
+      const conclusion = String((row && row.conclusion) || rj.conclusion || '').trim();
+      if (conclusion) lines.push(conclusion);
+
+      const timings = Array.isArray(rj.timings) ? rj.timings : [];
+      if (timings.length) {
+        lines.push('');
+        lines.push('[시기 후보]');
+        timings.forEach((t) => {
+          if (!t) return;
+          const when = fmtAskRangeKo(t.start, t.end);
+          const tags = [];
+          if (t.top) tags.push('가장 유력');
+          if (t.ongoing || /\(지금 진행 중\)|지금 진행 중/.test(String(t.reason_text || ''))) tags.push('진행 중');
+          const tag = tags.length ? ' (' + tags.join(' · ') + ')' : '';
+          const note = String(t.note || '').trim();
+          const reason = String(t.reason_text || '').trim().replace(/\s*\(지금 진행 중\)/g, '');
+          const body = note || reason;
+          lines.push('· ' + when + tag + (body ? ' — ' + body : ''));
+        });
+      }
+
+      const bg = Array.isArray(rj.background) ? rj.background : [];
+      if (bg.length) {
+        lines.push('');
+        lines.push('[지금 깔려 있는 흐름]');
+        bg.forEach((b) => {
+          if (!b) return;
+          const until = b.end ? ' (~' + fmtAskDayKo(b.end) + '까지)' : '';
+          const text = String(b.reason_text || '').trim();
+          if (text) lines.push('· ' + text + until);
+        });
+      }
+
+      const advice = Array.isArray(rj.advice) ? rj.advice : [];
+      if (advice.length) {
+        lines.push('');
+        lines.push('[조언]');
+        advice.forEach((a) => {
+          const t = String(a || '').trim();
+          if (t) lines.push('· ' + t);
+        });
+      }
+
+      return lines.join('\n').trim();
+    }
+
     function renderSessionLastBox() {
       const box = document.getElementById('sessionLast');
       if (!box) return;
@@ -3456,9 +3518,8 @@
       topicEl.textContent = topic ? '주제: ' + topic : '';
       topicEl.style.display = topic ? 'block' : 'none';
       const sumEl = document.getElementById('sessionLastSum');
-      const sumShort = truncateText(sum, 160);
-      sumEl.textContent = sumShort;
-      sumEl.style.display = sumShort ? 'block' : 'none';
+      sumEl.textContent = sum;
+      sumEl.style.display = sum ? 'block' : 'none';
       const focusEl = document.getElementById('sessionLastFocus');
       focusEl.textContent = focus ? '다음 포인트: ' + focus : '';
       focusEl.style.display = focus ? 'block' : 'none';
@@ -3578,7 +3639,7 @@
       }
       const { data, error } = await sb
         .from('prashna_readings')
-        .select('id,category,question,asked_at,conclusion,tone,city')
+        .select('id,category,question,asked_at,conclusion,tone,city,result_json')
         .eq('user_id', uid)
         .eq('client_id', activeClientId)
         .order('asked_at', { ascending: false })
@@ -3636,8 +3697,11 @@
           resetSessionForm();
           const mode = askModeLabel(row.category);
           document.getElementById('sTopic').value = truncateText(mode + ' · ' + (row.question || ''), 200);
-          document.getElementById('sSummary').value = String(row.conclusion || '').trim();
-          sessionMsgEl.textContent = '질문 내용을 상담 기록 칸에 넣었어요. 확인하고 저장해 주세요.';
+          const packed = buildAskSessionSummary(row);
+          document.getElementById('sSummary').value = packed || String(row.conclusion || '').trim();
+          sessionMsgEl.textContent = packed && packed.indexOf('[시기 후보]') >= 0
+            ? '결론·시기 후보를 상담 기록 칸에 넣었어요. 확인하고 저장해 주세요.'
+            : '질문 내용을 상담 기록 칸에 넣었어요. 확인하고 저장해 주세요.';
           sessionMsgEl.classList.remove('err');
           document.getElementById('sessionForm')?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
         });
