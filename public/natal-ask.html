@@ -976,7 +976,9 @@ input[type=number]:focus{outline:none;background:#fff}
     if (!timings) {
       timings = r.nearTerm
         ? '<li><span class="why">가까운 1~2개월 안에는 뚜렷한 시기가 보이지 않아요. 지금 시점의 흐름은 위 결론을 참고해 주세요.</span></li>'
-        : '<li><span class="why">앞으로 12개월 안에는 뚜렷한 시기가 보이지 않아요. 조건이 바뀌면 다시 살펴보세요.</span></li>';
+        : ((r.background || []).length
+          ? '<li><span class="why">새로 시작되는 뚜렷한 시기는 보이지 않아요. 아래 「지금 깔려 있는 흐름」이 이 질문의 바탕이에요.</span></li>'
+          : '<li><span class="why">앞으로 12개월 안에는 뚜렷한 시기가 보이지 않아요. 조건이 바뀌면 다시 살펴보세요.</span></li>');
     }
     var evidence = (r.evidence || []).map(function (e) { return '<li>' + esc(e) + '</li>'; }).join('');
     var advice = (r.advice || []).map(function (a) { return '<li>' + esc(a) + '</li>'; }).join('');
@@ -1002,6 +1004,14 @@ input[type=number]:focus{outline:none;background:#fff}
         : '') +
       dashaBlockHtml(r, baseYear) +
       '<div class="block"><h4>시기 후보</h4><ul class="tl">' + timings + '</ul></div>' +
+      ((r.background || []).length
+        ? '<div class="block bg-flow"><h4>지금 깔려 있는 흐름</h4><p class="meta" style="margin:0 0 8px">' + (r.nearTerm ? '이미 몇 달째 이어지고 있는 큰 배경이에요. 이번 일도 이 분위기 안에서 움직여요.' : '이미 진행 중이고 몇 달 이상 이어지는 배경이에요. 그 위에서 위 시기들이 움직여요.') + '</p><ul>' +
+          (r.background || []).map(function (b) {
+            // 가까운 시점 질문이면 먼 끝 날짜 대신 「지금 작용 중」으로
+            var lab = r.nearTerm ? '지금 작용 중' : fmtDay(b.end, baseYear) + '까지';
+            return '<li><b>' + esc(lab) + '</b> · ' + esc(fmtText(b.reason_text || '', baseYear)) + '</li>';
+          }).join('') + '</ul></div>'
+        : '') +
       (advice ? '<div class="block"><h4>조언</h4><ul>' + advice + '</ul></div>' : '') +
       '<details class="block"><summary>차트 근거</summary><ul>' + evidence + '</ul></details>' +
       chartHtml +
