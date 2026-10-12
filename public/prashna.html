@@ -19,6 +19,7 @@
 <script src="/js/astro-cities.js?v=3"></script>
 <script src="/js/vedic-core.js?v=3"></script>
 <script src="/js/prashna-engine.js?v=6"></script>
+<script src="/js/ask-to-session.js?v=1"></script>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css" crossorigin>
 <link rel="stylesheet" href="/css/site-topbar.css?v=23">
 <link rel="stylesheet" href="/css/site-header.css?v=9">
@@ -86,6 +87,11 @@ textarea:focus,select:focus,input[type=text]:focus{outline:none;border-color:var
 .meta{font-size:12.5px;color:var(--muted);line-height:1.6;margin-top:10px}
 .disc{font-size:12.5px;color:#8a6a58;background:#f7f2ec;border-left:3px solid #cdb6a2;padding:10px 12px;border-radius:0 10px 10px 0;margin-top:12px;line-height:1.6}
 .counselor-only{display:none}
+.session-save-bar{margin:14px 0 0;padding:14px;border:1px solid var(--line);border-radius:12px;background:#f7f2ec;display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.session-save-bar.muted{background:#fff;opacity:.95}
+.session-save-bar .btn{flex:0 0 auto;min-width:0;padding:10px 14px;font-size:13.5px}
+.session-save-msg{margin:0;flex:1 1 180px;font-size:13px;line-height:1.5;color:var(--muted)}
+.session-save-msg a{color:var(--terra);font-weight:600}
 .client-pick-wrap{margin:0 0 14px;padding:0 0 14px;border-bottom:1px solid var(--line)}
 .client-pick-row{display:grid;grid-template-columns:minmax(120px,1fr) minmax(160px,1.4fr);gap:10px;align-items:end}
 .client-pick-wrap label{display:block;font-size:13px;font-weight:600;color:var(--deep);margin:0 0 6px}
@@ -512,6 +518,7 @@ input[type=number]:focus{outline:none;background:#fff}
       if (!sb) return;
       var session = await getSession();
       if (!session) return;
+      state.userId = session.user.id;
       if ($('loginNeed')) $('loginNeed').hidden = true;
       var prof = await sb.from('profiles').select('plan, plan_active_until').eq('id', session.user.id).maybeSingle();
       var PA = window.PaljaPlan;
@@ -690,6 +697,7 @@ input[type=number]:focus{outline:none;background:#fff}
             city: body.previous.city || state.city.ko,
             question: body.previous.question,
             clientLabel: body.previous.clientLabel,
+            clientId: body.previous.clientId || state.clientId || '',
             reused: true,
           });
           showResult();
@@ -701,11 +709,13 @@ input[type=number]:focus{outline:none;background:#fff}
         return;
       }
       state.result = body.result;
+      if (body.clientId) state.clientId = body.clientId;
       renderResult(body.result, {
         askedAt: body.askedAt,
         city: body.city,
         question: state.question,
         clientLabel: body.clientLabel,
+        clientId: body.clientId || state.clientId || '',
         civil: body.civil,
         tz: body.tz,
       });
@@ -804,7 +814,23 @@ input[type=number]:focus{outline:none;background:#fff}
       (r.lagna ? ' · 상승 ' + esc(r.lagna.label) : '') +
       (r.aiUsed ? ' · AI 해석 · ' + cost + '크레딧 차감' : ' · 규칙 판정 · 크레딧 없음') + '</p>' +
       aiFailNote(r) +
-      '<p class="disc">' + esc(r.disclaimer || '') + '</p>';
+      '<p class="disc">' + esc(r.disclaimer || '') + '</p>' +
+      (window.AskToSession
+        ? AskToSession.actionHtml({
+            isCounselor: state.isCounselor,
+            clientId: meta.clientId || state.clientId || '',
+          })
+        : '');
+    if (window.AskToSession) {
+      AskToSession.bindAction({
+        supabase: sbClient(),
+        counselorId: state.userId,
+        clientId: meta.clientId || state.clientId || '',
+        result: r,
+        modeLabel: '질문점',
+        question: meta.question || state.question || '',
+      });
+    }
     if (r.aiUsed && state.creditRemaining != null) {
       state.creditRemaining = Math.max(0, state.creditRemaining - cost);
       syncSubmitBtn();
