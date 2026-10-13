@@ -3443,12 +3443,28 @@
       return fmtAskDayKo(start) + ' ~ ' + fmtAskDayKo(end);
     }
 
-    /** 질문점·내 차트로 묻기 → 상담 기록용 요약 (결론 + 시기 후보 + 배경 + 조언) */
+    function askSignalText(x) {
+      if (!x) return '';
+      if (typeof x === 'string') return String(x).trim();
+      return String(x.text || '').trim();
+    }
+
+    /** 질문점·내 차트로 묻기 → 상담 기록용 요약 (점수표 제외) */
     function buildAskSessionSummary(row) {
       const rj = row && row.result_json && typeof row.result_json === 'object' ? row.result_json : {};
       const lines = [];
       const conclusion = String((row && row.conclusion) || rj.conclusion || '').trim();
       if (conclusion) lines.push(conclusion);
+
+      const sig = rj.signals || {};
+      const goods = Array.isArray(sig.good) ? sig.good.map(askSignalText).filter(Boolean) : [];
+      const warns = Array.isArray(sig.caution) ? sig.caution.map(askSignalText).filter(Boolean) : [];
+      if (goods.length || warns.length) {
+        lines.push('');
+        lines.push('[지금 흐름 한눈에]');
+        goods.forEach((t) => lines.push('· 도와주는 · ' + t));
+        warns.forEach((t) => lines.push('· 조심 · ' + t));
+      }
 
       const timings = Array.isArray(rj.timings) ? rj.timings : [];
       if (timings.length) {
@@ -3459,11 +3475,12 @@
           const when = fmtAskRangeKo(t.start, t.end);
           const tags = [];
           if (t.top) tags.push('가장 유력');
+          if (t.caution) tags.push('주의');
           if (t.ongoing || /\(지금 진행 중\)|지금 진행 중/.test(String(t.reason_text || ''))) tags.push('진행 중');
           const tag = tags.length ? ' (' + tags.join(' · ') + ')' : '';
           const note = String(t.note || '').trim();
           const reason = String(t.reason_text || '').trim().replace(/\s*\(지금 진행 중\)/g, '');
-          const body = note || reason;
+          const body = note || (t.caution ? '조심할 흐름과 맞물리는 때' : reason);
           lines.push('· ' + when + tag + (body ? ' — ' + body : ''));
         });
       }

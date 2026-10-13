@@ -36,12 +36,28 @@
     return fmtDayKo(start) + ' ~ ' + fmtDayKo(end);
   }
 
-  /** result 객체 → 세션 요약 텍스트 (결론 + 시기 후보 + 배경 + 조언) */
+  function signalText(x) {
+    if (!x) return '';
+    if (typeof x === 'string') return String(x).trim();
+    return String(x.text || '').trim();
+  }
+
+  /** result 객체 → 세션 요약 (결론 + 흐름 + 시기 후보 + 배경 + 조언). 점수표는 넣지 않음 */
   function buildSummary(result) {
     var r = result && typeof result === 'object' ? result : {};
     var lines = [];
     var conclusion = String(r.conclusion || '').trim();
     if (conclusion) lines.push(conclusion);
+
+    var sig = r.signals || {};
+    var goods = Array.isArray(sig.good) ? sig.good.map(signalText).filter(Boolean) : [];
+    var warns = Array.isArray(sig.caution) ? sig.caution.map(signalText).filter(Boolean) : [];
+    if (goods.length || warns.length) {
+      lines.push('');
+      lines.push('[지금 흐름 한눈에]');
+      goods.forEach(function (t) { lines.push('· 도와주는 · ' + t); });
+      warns.forEach(function (t) { lines.push('· 조심 · ' + t); });
+    }
 
     var timings = Array.isArray(r.timings) ? r.timings : [];
     if (timings.length) {
@@ -52,13 +68,15 @@
         var when = fmtRangeKo(t.start, t.end);
         var tags = [];
         if (t.top) tags.push('가장 유력');
+        if (t.caution) tags.push('주의');
         if (t.ongoing || /\(지금 진행 중\)|지금 진행 중/.test(String(t.reason_text || ''))) {
           tags.push('진행 중');
         }
         var tag = tags.length ? ' (' + tags.join(' · ') + ')' : '';
         var note = String(t.note || '').trim();
         var reason = String(t.reason_text || '').trim().replace(/\s*\(지금 진행 중\)/g, '');
-        var body = note || reason;
+        // 조심 구간은 위 흐름과 겹치므로 note 우선, 없으면 짧은 안내
+        var body = note || (t.caution ? '조심할 흐름과 맞물리는 때' : reason);
         lines.push('· ' + when + tag + (body ? ' — ' + body : ''));
       });
     }

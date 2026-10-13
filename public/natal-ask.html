@@ -19,7 +19,7 @@
 <script src="/js/astro-cities.js?v=3"></script>
 <script src="/js/vedic-core.js?v=5"></script>
 <script src="/js/prashna-engine.js?v=6"></script>
-<script src="/js/ask-to-session.js?v=1"></script>
+<script src="/js/ask-to-session.js?v=2"></script>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css" crossorigin>
 <link rel="stylesheet" href="/css/site-topbar.css?v=23">
 <link rel="stylesheet" href="/css/site-header.css?v=9">
@@ -226,6 +226,8 @@ textarea:focus,select:focus,input:focus,.client-pick-wrap input:focus,.client-pi
 .sig-col b{display:block;font-size:13px;margin-bottom:4px}
 .sig-col ul{margin:0;padding-left:18px}
 .sig-col li{font-size:14px;line-height:1.6;margin:0 0 6px}
+.sig-col li b.sig-when{display:inline;font-size:inherit;margin:0;color:var(--deep)}
+.sig-tech{display:block;font-size:12px;color:var(--muted);margin-top:1px}
 .sig-good{background:rgba(46,139,122,.07);border:1px solid rgba(46,139,122,.2)}
 .sig-good b{color:#2e7d6e}
 .sig-warn{background:rgba(169,68,66,.05);border:1px solid rgba(169,68,66,.18)}
@@ -977,19 +979,43 @@ input[type=number]:focus{outline:none;background:#fff}
   function fmtText(t, baseYear) {
     return String(t || '').replace(/(\d{4}-\d{2}-\d{2})/g, function (d) { return fmtDay(d, baseYear); });
   }
-  /** 지금 하늘의 신호 — 받쳐 주는 것 / 주의할 것 */
+  /** 지금 흐름 한눈에 — 고객용 쉬운 문장 / 상담사만 근거 */
   function signalsBlockHtml(r, baseYear) {
     var s = r.signals;
     if (!s) return '';
-    var good = (s.good || []).map(function (x) { return '<li>' + esc(fmtText(x, baseYear)) + '</li>'; }).join('');
-    var warn = (s.caution || []).map(function (x) { return '<li>' + esc(fmtText(x, baseYear)) + '</li>'; }).join('');
+    function item(x) {
+      var text = typeof x === 'string' ? x : (x && x.text) || '';
+      var tech = typeof x === 'string' ? '' : (x && x.tech) || '';
+      // 「지금~11월 22일」「11월 6일~11월 12일」 기간 굵게
+      var body = esc(fmtText(text, baseYear)).replace(
+        /((?:지금\s*)?(?:\d{4}년\s*)?\d{1,2}월\s*\d{1,2}일\s*~\s*(?:\d{4}년\s*)?\d{1,2}월\s*\d{1,2}일|지금\s*~\s*(?:\d{4}년\s*)?\d{1,2}월\s*\d{1,2}일)/g,
+        '<b class="sig-when">$1</b>'
+      );
+      return '<li>' + body +
+        (state.isCounselor && tech ? '<span class="sig-tech">근거 · ' + esc(tech) + '</span>' : '') + '</li>';
+    }
+    var good = (s.good || []).map(item).join('');
+    var warn = (s.caution || []).map(item).join('');
     if (!good && !warn) return '';
-    return '<div class="block sig"><h4>지금 하늘의 신호</h4>' +
-      '<p class="meta" style="margin:0 0 10px">출생 차트 위로 지금 행성들이 어떻게 지나가는지예요. 두 쪽을 함께 저울질해 위 결론이 나왔어요.</p>' +
+    return '<div class="block sig"><h4>지금 흐름 한눈에 보기</h4>' +
+      '<p class="meta" style="margin:0 0 10px">지금 이 일을 도와주는 흐름과 조심할 흐름이에요. 두 쪽을 함께 저울질해 위 결론이 나왔어요.</p>' +
       '<div class="sig-cols">' +
-      '<div class="sig-col sig-good"><b>받쳐 주는 신호 ' + (s.good || []).length + '</b>' + (good ? '<ul>' + good + '</ul>' : '<p class="meta" style="margin:0 0 8px">뚜렷한 것이 없어요.</p>') + '</div>' +
-      '<div class="sig-col sig-warn"><b>주의 신호 ' + (s.caution || []).length + '</b>' + (warn ? '<ul>' + warn + '</ul>' : '<p class="meta" style="margin:0 0 8px">뚜렷한 것이 없어요.</p>') + '</div>' +
+      '<div class="sig-col sig-good"><b>도와주는 흐름 ' + (s.good || []).length + '</b>' + (good ? '<ul>' + good + '</ul>' : '<p class="meta" style="margin:0 0 8px">뚜렷한 것이 없어요.</p>') + '</div>' +
+      '<div class="sig-col sig-warn"><b>조심할 흐름 ' + (s.caution || []).length + '</b>' + (warn ? '<ul>' + warn + '</ul>' : '<p class="meta" style="margin:0 0 8px">뚜렷한 것이 없어요.</p>') + '</div>' +
       '</div></div>';
+  }
+  function timingOverlapsCautionFlow(t, signals) {
+    if (!t || !t.caution || !signals || !Array.isArray(signals.caution)) return false;
+    var a0 = String(t.start || '');
+    var a1 = String(t.end || t.start || '');
+    if (!a0) return false;
+    return signals.caution.some(function (x) {
+      if (!x || typeof x === 'string') return false;
+      var b0 = String(x.from || '');
+      var b1 = String(x.to || '');
+      if (!b0 || !b1) return false;
+      return a0 <= b1 && a1 >= b0;
+    });
   }
 
   function renderResult(r, meta) {
@@ -1006,11 +1032,18 @@ input[type=number]:focus{outline:none;background:#fff}
       var why = t.reason_text || t.reason || '';
       var isNow = /지금 진행 중/.test(why) || (t.start && t.start <= todayIso);
       var whyClean = fmtText(why.replace(/\s*\(지금 진행 중\)|지금 진행 중,\s*/g, ''), baseYear);
-      // AI 설명(note)을 본문으로, 계산 근거(행성·하우스)는 작은 글씨로 — 같은 말이 두 번 나오지 않게
+      // 조심할 흐름과 날짜가 겹치면 본문은 짧게, 자세한 말은 위 블록에 맡김
+      var overlapCaution = timingOverlapsCautionFlow(t, r.signals);
+      var mainWhy = t.note
+        ? esc(t.note)
+        : (overlapCaution
+          ? '위의 「조심할 흐름」과 맞물리는 때예요. 이 구간은 서두르기보다 조율하는 편이 좋아요.'
+          : esc(whyClean));
+      var techLine = (t.note || overlapCaution)
+        ? (state.isCounselor && whyClean ? '<span class="note">근거 · ' + esc(whyClean) + '</span>' : '')
+        : '';
       return '<li><span class="when">' + esc(whenTxt) + (isNow ? '<span class="now">진행 중</span>' : '') + (t.top && timingList.length > 1 ? '<span class="now top">가장 유력</span>' : '') + (t.caution ? '<span class="now warn">주의</span>' : '') + '</span>' +
-        (t.note
-          ? '<span class="why">' + esc(t.note) + '</span><span class="note">근거 · ' + esc(whyClean) + '</span>'
-          : '<span class="why">' + esc(whyClean) + '</span>') + '</li>';
+        '<span class="why">' + mainWhy + '</span>' + techLine + '</li>';
     }).join('');
     if (!timings) {
       timings = r.nearTerm
