@@ -17,7 +17,7 @@
 <script src="/js/site-topbar.js?v=42" defer></script>
 <script src="/js/topbar-session.js?v=14" defer></script>
 <script src="/js/astro-cities.js?v=3"></script>
-<script src="/js/vedic-core.js?v=3"></script>
+<script src="/js/vedic-core.js?v=5"></script>
 <script src="/js/prashna-engine.js?v=6"></script>
 <script src="/js/ask-to-session.js?v=1"></script>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css" crossorigin>
@@ -218,6 +218,18 @@ textarea:focus,select:focus,input:focus,.client-pick-wrap input:focus,.client-pi
 .dasha-sum b{color:#8b6a33}
 @media(max-width:560px){.dasha-tbl tr{display:grid;grid-template-columns:1fr auto}.dasha-tbl th{grid-column:1}.dasha-tbl td.rg{grid-column:2;text-align:right;padding-left:0}.dasha-tbl td:last-child{grid-column:1/-1;padding-top:0;border-top:0}}
 .tl .now.top{background:#5a4226}
+.tl .now.warn{background:#fff;color:#a94442;border:1px solid rgba(169,68,66,.45)}
+/* 지금 하늘의 신호 */
+.sig-cols{display:grid;grid-template-columns:1fr;gap:12px}
+@media(min-width:720px){.sig-cols{grid-template-columns:1fr 1fr}}
+.sig-col{border-radius:10px;padding:10px 12px 4px}
+.sig-col b{display:block;font-size:13px;margin-bottom:4px}
+.sig-col ul{margin:0;padding-left:18px}
+.sig-col li{font-size:14px;line-height:1.6;margin:0 0 6px}
+.sig-good{background:rgba(46,139,122,.07);border:1px solid rgba(46,139,122,.2)}
+.sig-good b{color:#2e7d6e}
+.sig-warn{background:rgba(169,68,66,.05);border:1px solid rgba(169,68,66,.18)}
+.sig-warn b{color:#a94442}
 /* 한 페이지 폼 다듬기 */
 input[type=number]{width:100%;padding:12px 14px;border:1px solid var(--line);border-radius:12px;background:var(--soft);font:inherit;font-size:15px;color:var(--ink);-moz-appearance:textfield}
 input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
@@ -936,10 +948,13 @@ input[type=number]:focus{outline:none;background:#fff}
         : '';
     }
     var showTech = !!state.isCounselor;
-    var rows = periods.map(function (p) {
-      var range = p.level === 'prat'
-        ? '~ ' + fmtDay(p.end, baseYear)
-        : fmtMonth(p.start) + ' ~ ' + fmtMonth(p.end);
+    // 며칠 단위(이번 주 무렵)는 상담사에게만
+    var rows = periods.filter(function (p) { return !(p.counselorOnly && !showTech); }).map(function (p) {
+      var range = p.level === 'sook'
+        ? fmtDay(p.start, baseYear) + ' ~ ' + fmtDay(p.end, baseYear)
+        : p.level === 'prat'
+          ? '~ ' + fmtDay(p.end, baseYear)
+          : fmtMonth(p.start) + ' ~ ' + fmtMonth(p.end);
       var mean = esc(p.meaning || '') +
         (showTech && p.tech ? ' <span class="tech">(' + esc(p.tech) + ')</span>' : '') +
         (p.next ? '<span class="nx">다음: ' + esc(p.next) + (showTech && p.nextTech ? ' (' + esc(p.nextTech) + ')' : '') + '</span>' : '');
@@ -962,6 +977,20 @@ input[type=number]:focus{outline:none;background:#fff}
   function fmtText(t, baseYear) {
     return String(t || '').replace(/(\d{4}-\d{2}-\d{2})/g, function (d) { return fmtDay(d, baseYear); });
   }
+  /** 지금 하늘의 신호 — 받쳐 주는 것 / 주의할 것 */
+  function signalsBlockHtml(r, baseYear) {
+    var s = r.signals;
+    if (!s) return '';
+    var good = (s.good || []).map(function (x) { return '<li>' + esc(fmtText(x, baseYear)) + '</li>'; }).join('');
+    var warn = (s.caution || []).map(function (x) { return '<li>' + esc(fmtText(x, baseYear)) + '</li>'; }).join('');
+    if (!good && !warn) return '';
+    return '<div class="block sig"><h4>지금 하늘의 신호</h4>' +
+      '<p class="meta" style="margin:0 0 10px">출생 차트 위로 지금 행성들이 어떻게 지나가는지예요. 두 쪽을 함께 저울질해 위 결론이 나왔어요.</p>' +
+      '<div class="sig-cols">' +
+      '<div class="sig-col sig-good"><b>받쳐 주는 신호 ' + (s.good || []).length + '</b>' + (good ? '<ul>' + good + '</ul>' : '<p class="meta" style="margin:0 0 8px">뚜렷한 것이 없어요.</p>') + '</div>' +
+      '<div class="sig-col sig-warn"><b>주의 신호 ' + (s.caution || []).length + '</b>' + (warn ? '<ul>' + warn + '</ul>' : '<p class="meta" style="margin:0 0 8px">뚜렷한 것이 없어요.</p>') + '</div>' +
+      '</div></div>';
+  }
 
   function renderResult(r, meta) {
     var asked = meta.askedAt ? new Date(meta.askedAt) : new Date();
@@ -978,7 +1007,7 @@ input[type=number]:focus{outline:none;background:#fff}
       var isNow = /지금 진행 중/.test(why) || (t.start && t.start <= todayIso);
       var whyClean = fmtText(why.replace(/\s*\(지금 진행 중\)|지금 진행 중,\s*/g, ''), baseYear);
       // AI 설명(note)을 본문으로, 계산 근거(행성·하우스)는 작은 글씨로 — 같은 말이 두 번 나오지 않게
-      return '<li><span class="when">' + esc(whenTxt) + (isNow ? '<span class="now">진행 중</span>' : '') + (t.top && timingList.length > 1 ? '<span class="now top">가장 유력</span>' : '') + '</span>' +
+      return '<li><span class="when">' + esc(whenTxt) + (isNow ? '<span class="now">진행 중</span>' : '') + (t.top && timingList.length > 1 ? '<span class="now top">가장 유력</span>' : '') + (t.caution ? '<span class="now warn">주의</span>' : '') + '</span>' +
         (t.note
           ? '<span class="why">' + esc(t.note) + '</span><span class="note">근거 · ' + esc(whyClean) + '</span>'
           : '<span class="why">' + esc(whyClean) + '</span>') + '</li>';
@@ -1012,6 +1041,7 @@ input[type=number]:focus{outline:none;background:#fff}
       ((r.cuspWarnings || []).length
         ? '<p class="invest-note"><b>생시 확인</b>' + esc((r.cuspWarnings || []).join(' ')) + '</p>'
         : '') +
+      signalsBlockHtml(r, baseYear) +
       dashaBlockHtml(r, baseYear) +
       '<div class="block"><h4>시기 후보</h4><ul class="tl">' + timings + '</ul></div>' +
       ((r.background || []).length

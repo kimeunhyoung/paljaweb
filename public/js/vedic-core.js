@@ -30,11 +30,43 @@
 
   function norm(d) { d = d % 360; return d < 0 ? d + 360 : d; }
 
-  /** 라히리 아야남사 근사: J2000에서 23.85306°, 일반 세차 속도 적용 */
+  /** 라히리 아야남사: J2000 기준값 23.857092°(표준 천문력 Lahiri와 1900~2050년 0.0001° 안쪽으로 일치) + 일반 세차 */
   function lahiriAyanamsa(year, month, day) {
     var jd = Date.UTC(year, month - 1, day, 12) / 86400000 + 2440587.5;
     var T = (jd - 2451545.0) / 36525;
-    return 23.85306 + (5028.796195 * T + 1.1054348 * T * T) / 3600;
+    return 23.857092 + (5028.796195 * T + 1.1054348 * T * T) / 3600;
+  }
+
+  /**
+   * ΔT(초) = 지구시(TT) − 세계시(UT). Espenak·Meeus 다항식.
+   * 계산 라이브러리가 세계시를 그대로 써서 달 위치가 ΔT만큼(1967년 약 38초 = 약 0.005°) 늦게 나옴 → 다샤 날짜가 2일쯤 밀렸음
+   */
+  function deltaTSeconds(year, month) {
+    var y = year + ((month || 6) - 0.5) / 12;
+    var t;
+    if (y < 1900) return 0;
+    if (y < 1920) { t = y - 1900; return -2.79 + 1.494119 * t - 0.0598939 * t * t + 0.0061966 * t * t * t - 0.000197 * t * t * t * t; }
+    if (y < 1941) { t = y - 1920; return 21.20 + 0.84493 * t - 0.0761 * t * t + 0.0020936 * t * t * t; }
+    if (y < 1961) { t = y - 1950; return 29.07 + 0.407 * t - t * t / 233 + t * t * t / 2547; }
+    if (y < 1986) { t = y - 1975; return 45.45 + 1.067 * t - t * t / 260 - t * t * t / 718; }
+    if (y < 2005) { t = y - 2000; return 63.86 + 0.3345 * t - 0.060374 * t * t + 0.0017275 * t * t * t + 0.000651814 * Math.pow(t, 4) + 0.00002373599 * Math.pow(t, 5); }
+    if (y < 2050) { t = y - 2000; return 62.92 + 0.32217 * t + 0.005589 * t * t; }
+    return -20 + 32 * Math.pow((y - 1820) / 100, 2) - 0.5628 * (2150 - y);
+  }
+  var MOON_MEAN_DEG_PER_SEC = 13.176358 / 86400;
+
+  /**
+   * 황경 장동 Δψ(도). 행성 위치(겉보기 황경)에서 항성 위치로 바꿀 때 표준 천문력과 같게 맞추려면 아야남사에 더해야 함 (최대 약 0.005°)
+   */
+  function nutationLonDeg(year, month, day) {
+    var jd = Date.UTC(year, month - 1, day, 12) / 86400000 + 2440587.5;
+    var T = (jd - 2451545.0) / 36525;
+    var r = Math.PI / 180;
+    var om = (125.04452 - 1934.136261 * T) * r;
+    var Ls = (280.4665 + 36000.7698 * T) * r;
+    var Lm = (218.3165 + 481267.8813 * T) * r;
+    var arcsec = -17.20 * Math.sin(om) - 1.32 * Math.sin(2 * Ls) - 0.23 * Math.sin(2 * Lm) + 0.21 * Math.sin(2 * om);
+    return arcsec / 3600;
   }
 
   function rashiOf(lon) { return Math.floor(lon / 30); }
@@ -52,11 +84,20 @@
   function build(horoscope, birth, opts) {
     opts = opts || {};
     var ay = lahiriAyanamsa(birth.y, birth.mo, birth.da);
+    // 겉보기 황경 기준이라 장동만큼 더해 줌 (표준 천문력의 항성 위치와 일치)
+    var ayEff = ay + nutationLonDeg(birth.y, birth.mo, birth.da);
     var keys = ['sun', 'moon', 'mars', 'mercury', 'jupiter', 'venus', 'saturn'];
     var grahas = [];
     keys.forEach(function (k) {
       var b = horoscope.CelestialBodies[k];
-      grahas.push({ key: k, trop: dd(b), retro: !!b.isRetrograde });
+      var trop = dd(b);
+      if (k === 'moon') {
+        // 달은 빠르게 움직여 ΔT 보정이 필요 — 정확한 값이 주어지면 그걸 쓰고, 아니면 평균 속도로 보정
+        trop = Number.isFinite(opts.moonTrop)
+          ? opts.moonTrop
+          : norm(trop + MOON_MEAN_DEG_PER_SEC * deltaTSeconds(birth.y, birth.mo));
+      }
+      grahas.push({ key: k, trop: trop, retro: !!b.isRetrograde });
     });
     var rahuTrop = dd(horoscope.CelestialPoints.northnode);
     grahas.push({ key: 'rahu', trop: rahuTrop, retro: true });
@@ -65,7 +106,7 @@
     if (!opts.unknownTime) lagna = { key: 'lagna', trop: dd(horoscope.Ascendant), retro: false };
     var all = grahas.slice(); if (lagna) all.push(lagna);
     all.forEach(function (g) {
-      g.sid = norm(g.trop - ay);
+      g.sid = norm(g.trop - ayEff);
       g.rashi = rashiOf(g.sid);
       g.deg = g.sid - g.rashi * 30;
       var n = nakOf(g.sid); g.nak = n.index; g.pada = n.pada; g.nakLord = n.lord; g.nakFrac = n.frac;
@@ -164,7 +205,7 @@
     SIGNS: SIGNS, SIGN_LORD: SIGN_LORD, NAK: NAK, GRAHA_KO: GRAHA_KO, GRAHA_SHORT: GRAHA_SHORT,
     DASHA_YEARS: DASHA_YEARS, DASHA_YEAR_DAYS: DASHA_YEAR_DAYS, DASHA_ORDER: DASHA_ORDER,
     NAK_SPAN: NAK_SPAN, PADA_SPAN: PADA_SPAN,
-    lahiriAyanamsa: lahiriAyanamsa, build: build, dasha: dasha, norm: norm,
+    lahiriAyanamsa: lahiriAyanamsa, deltaTSeconds: deltaTSeconds, build: build, dasha: dasha, norm: norm,
     navamsaOf: navamsaOf, dignity: dignity, drishtiSigns: drishtiSigns, DRISHTI: DRISHTI
   };
   if (typeof module !== 'undefined' && module.exports) module.exports = api; else root.VedicCore = api;
