@@ -768,7 +768,7 @@ input[type=number]:focus{outline:none;background:#fff}
       // AI 설명(note)을 본문으로, 계산 근거(행성·하우스)는 작은 글씨로 — 같은 말이 두 번 나오지 않게
       return '<li><span class="when">' + esc(whenTxt) + (isNow ? '<span class="now">진행 중</span>' : '') + (t.top && timingList.length > 1 ? '<span class="now top">가장 유력</span>' : '') + (t.caution ? '<span class="now warn">주의</span>' : '') + '</span>' +
         (t.note
-          ? '<span class="why">' + esc(t.note) + '</span><span class="note">근거 · ' + esc(whyClean) + '</span>'
+          ? '<span class="why">' + esc(t.note) + '</span><span class="note">근거: ' + esc(whyClean) + '</span>'
           : '<span class="why">' + esc(whyClean) + '</span>') + '</li>';
     }).join('');
     if (!timings) {

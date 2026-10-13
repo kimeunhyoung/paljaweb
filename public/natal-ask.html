@@ -976,7 +976,7 @@ input[type=number]:focus{outline:none;background:#fff}
     return '<div class="block"><h4>지금 운의 시기</h4>' +
       '<table class="dasha-tbl">' + rows + '</table>' +
       '<p class="dasha-sum">' + sum + '</p>' +
-      (showTech && d.techLabel ? '<p class="meta" style="margin-top:4px">근거 · ' + esc(d.techLabel) + ' (빔쇼타리)</p>' : '') +
+      (showTech && d.techLabel ? '<p class="meta" style="margin-top:4px">근거: ' + esc(d.techLabel) + ' (빔쇼타리)</p>' : '') +
       '</div>';
   }
   function fmtText(t, baseYear) {
@@ -1003,7 +1003,7 @@ input[type=number]:focus{outline:none;background:#fff}
         '<b class="sig-when">$1</b>'
       );
       return '<li>' + body +
-        (state.isCounselor && tech ? '<span class="sig-tech">근거 · ' + esc(tech) + '</span>' : '') + '</li>';
+        (state.isCounselor && tech ? '<span class="sig-tech">근거: ' + esc(tech) + '</span>' : '') + '</li>';
     }
     var good = (s.good || []).map(item).join('');
     var warn = (s.caution || []).map(item).join('');
@@ -1051,7 +1051,7 @@ input[type=number]:focus{outline:none;background:#fff}
           ? '위의 「조심할 흐름」과 맞물리는 때예요. 이 구간은 서두르기보다 조율하는 편이 좋아요.'
           : esc(whyClean));
       var techLine = (t.note || overlapCaution)
-        ? (state.isCounselor && whyClean ? '<span class="note">근거 · ' + esc(whyClean) + '</span>' : '')
+        ? (state.isCounselor && whyClean ? '<span class="note">근거: ' + esc(whyClean) + '</span>' : '')
         : '';
       return '<li><span class="when">' + esc(whenTxt) + (isNow ? '<span class="now">진행 중</span>' : '') + (t.top && timingList.length > 1 ? '<span class="now top">가장 유력</span>' : '') + (t.caution ? '<span class="now warn">주의</span>' : '') + '</span>' +
         '<span class="why">' + mainWhy + '</span>' + techLine + '</li>';
