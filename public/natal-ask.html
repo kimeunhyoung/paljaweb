@@ -3,11 +3,14 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <title>내 차트로 묻기 — 출생 차트로 읽는 답 | 팔자연구소 8CODE</title>
 <meta name="description" content="생년월일시로 출생 차트를 만들고, 질문 주제에 맞춰 흐름과 시기 후보를 읽어요. 질문점(프라슈나)과 다른 모드입니다.">
 <link rel="canonical" href="https://8code.kr/natal-ask.html">
 <meta name="robots" content="index,follow">
+<!-- ui-build: 20261013c signals-text -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@400;600;700&display=swap" rel="stylesheet">
@@ -219,7 +222,7 @@ textarea:focus,select:focus,input:focus,.client-pick-wrap input:focus,.client-pi
 @media(max-width:560px){.dasha-tbl tr{display:grid;grid-template-columns:1fr auto}.dasha-tbl th{grid-column:1}.dasha-tbl td.rg{grid-column:2;text-align:right;padding-left:0}.dasha-tbl td:last-child{grid-column:1/-1;padding-top:0;border-top:0}}
 .tl .now.top{background:#5a4226}
 .tl .now.warn{background:#fff;color:#a94442;border:1px solid rgba(169,68,66,.45)}
-/* 지금 하늘의 신호 */
+/* 지금 흐름 한눈에 */
 .sig-cols{display:grid;grid-template-columns:1fr;gap:12px;align-items:start}
 @media(min-width:720px){.sig-cols{grid-template-columns:1fr 1fr}}
 .sig-col{border-radius:10px;padding:10px 12px 4px}
@@ -984,8 +987,16 @@ input[type=number]:focus{outline:none;background:#fff}
     var s = r.signals;
     if (!s) return '';
     function item(x) {
-      var text = typeof x === 'string' ? x : (x && x.text) || '';
-      var tech = typeof x === 'string' ? '' : (x && x.tech) || '';
+      // 서버는 { text, tech } 객체. 옛 캐시 HTML이 객체를 그대로 찍으면 [object Object]가 됨
+      var text = '';
+      var tech = '';
+      if (typeof x === 'string') {
+        text = x;
+      } else if (x && typeof x === 'object') {
+        text = String(x.text || x.line || x.reason_text || '');
+        tech = String(x.tech || '');
+      }
+      if (!text) return '';
       // 「지금~11월 22일」「11월 6일~11월 12일」 기간 굵게
       var body = esc(fmtText(text, baseYear)).replace(
         /((?:지금\s*)?(?:\d{4}년\s*)?\d{1,2}월\s*\d{1,2}일\s*~\s*(?:\d{4}년\s*)?\d{1,2}월\s*\d{1,2}일|지금\s*~\s*(?:\d{4}년\s*)?\d{1,2}월\s*\d{1,2}일)/g,
