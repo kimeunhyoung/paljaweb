@@ -109,6 +109,7 @@
         { id: 'astrology-all', href: '/services.html#astrology', label: '전체 보기' },
         { id: 'astro', href: '/astrology.html', label: '점성학 차트' },
         { id: 'vedic', href: '/vedic.html', label: '인도점성학 차트' },
+        { id: 'nakshatra-color', href: '/study/class/rasi.html?n=color', label: '낙샤트라 컬러' },
         { id: 'prashna', href: '/prashna.html', label: '질문점(프라슈나)' },
         { id: 'natal-ask', href: '/natal-ask.html', label: '내 차트로 묻기' },
       ],
