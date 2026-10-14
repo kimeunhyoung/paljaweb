@@ -27,3 +27,6 @@ main a.hub-card{color:var(--ink)}
 .class-empty b{display:block;font-size:17px;color:var(--navy);margin-bottom:6px}
 [data-class-state]{display:none}
 .class-list .hub-icon{font-size:13px;letter-spacing:-.02em;background:#3a2a22;color:#f3dfc4}
+.hub-group{margin:28px 0 4px}
+.hub-group h2{margin:0;padding:0 2px;border:0;font-family:'Noto Serif KR',serif;font-size:18px;font-weight:600;color:var(--navy);line-height:1.4}
+.hub-group .hub{margin-top:12px}
