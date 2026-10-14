@@ -82,6 +82,7 @@
         { id: 'nakshatra', name: '27 낙샤트라 범위와 지배 행성', tab: '낙샤트라', mark: '②', top: '보완', special: true },
         { id: 'cycle', name: '지배 행성 9개와 3회차', tab: '3회차', mark: '③', top: '보완', special: true },
         { id: 'pada', name: '108 파다 키워드', tab: '파다', mark: '④', top: '수업노트', special: true },
+        { id: 'color', name: '108 파다 컬러', tab: '컬러', mark: '⑤', top: '수업노트', special: true },
         { id: 'summary', name: '한눈에 보는 숫자', tab: '요약' },
       ],
     },
