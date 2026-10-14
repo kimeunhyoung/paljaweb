@@ -73,6 +73,17 @@
         { id: 'summary', name: '사이트 화면과의 대응', tab: '요약' },
       ],
     },
+    rasi: {
+      page: '/study/class/rasi.html',
+      title: '라시 차트 · 낙샤트라',
+      unit: function (id) { return id; },
+      parts: [
+        { id: 'chart', name: '라시 차트와 읽는 법', tab: '차트', mark: '①', top: '수업노트', special: true },
+        { id: 'nakshatra', name: '27 낙샤트라 범위와 지배 행성', tab: '낙샤트라', mark: '②', top: '보완', special: true },
+        { id: 'cycle', name: '지배 행성 9개와 3회차', tab: '3회차', mark: '③', top: '보완', special: true },
+        { id: 'summary', name: '한눈에 보는 숫자', tab: '요약' },
+      ],
+    },
   };
   var COURSE = (document.body && document.body.getAttribute('data-course')) || 'lifepath';
   if (!COURSES[COURSE]) COURSE = 'lifepath';
