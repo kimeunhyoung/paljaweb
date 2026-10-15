@@ -37,6 +37,7 @@
 <script src="js/topbar-session.js?v=14" defer></script>
 <script src="js/astro-cities.js?v=1"></script>
 <script src="js/vedic-core.js?v=5"></script>
+<script src="js/nakshatra-color.js?v=2"></script>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css" crossorigin />
 <link rel="stylesheet" href="css/site-topbar.css?v=21" />
 <link rel="stylesheet" href="css/site-header.css?v=9" />
@@ -191,6 +192,40 @@ details.dasha-acc .tbl-wrap{margin-top:2px;}
   .si .c .g{font-size:12px;}
 }
 
+/* 나의 낙샤트라 컬러 */
+.nc-intro{font-size:14px;color:var(--deep-brown);line-height:1.8;margin:0 0 12px}
+.nc-chips{display:flex;flex-wrap:wrap;gap:6px 12px;margin:0 0 12px}
+.nc-chip{display:inline-flex;align-items:center;gap:6px;font-size:13.5px;color:var(--deep-brown)}
+.nc-chip i{width:18px;height:18px;border-radius:5px;border:1px solid rgba(0,0,0,.08)}
+.nc-chip small{color:var(--muted);font-size:12px}
+.nc-mix{font-size:14px;margin:0 0 14px;padding:10px 14px;border-radius:12px;background:#fbf6ee;border:1px solid var(--border);color:var(--deep-brown);line-height:1.6}
+.nc-mix b{color:#8b6a33}
+.nc-it{display:grid;grid-template-columns:130px 1fr;border:1px solid var(--border);border-radius:14px;overflow:hidden;margin:0 0 12px;background:#fff}
+.nc-sw{padding:16px 14px;display:flex;flex-direction:column;gap:6px}
+.nc-sw b{font-size:19px}.nc-sw span{font-size:13.5px;font-weight:700;line-height:1.4}.nc-sw small{font-size:11.5px;opacity:.85}
+.nc-bd{padding:14px 18px 10px;min-width:0}
+.nc-bd h3{margin:0 0 4px;font-size:17px;color:var(--deep-brown)}
+.nc-area{margin:0 0 6px;font-size:14px;color:var(--deep-brown)}.nc-area b{color:#8b6a33}
+.nc-sec{border-top:1px dashed var(--border);padding:8px 0 4px}
+.nc-sec h4{margin:0 0 4px;font-size:14px;color:#8b6a33;display:flex;gap:8px;flex-wrap:wrap;align-items:baseline}
+.nc-sec h4 span{font-weight:400;font-size:12.5px;color:var(--muted)}
+.nc-sec p,.nc-sec ul{margin:0;font-size:14px;line-height:1.7;color:var(--ink)}
+.nc-sec ul{padding-left:18px}
+.nc-tech{font-size:12.5px!important;color:var(--muted)!important;margin-top:4px!important;font-style:italic}
+.nc-edge{font-size:12.5px;color:#a0522d;margin:6px 0 0;background:#fff6e8;border-radius:8px;padding:6px 10px}
+.nc-subt{font-size:15px;font-weight:700;color:var(--deep-brown);margin:18px 0 8px}.nc-subt span{font-size:12px;font-weight:400;color:var(--muted);margin-left:6px}
+.nc-fold{display:block}
+.nc-fold summary{list-style:none;cursor:pointer;padding:12px 16px;font-size:14.5px;color:var(--deep-brown);display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.nc-fold summary::-webkit-details-marker{display:none}
+.nc-fold summary::after{content:'펼치기 ▾';margin-left:auto;font-size:12px;color:var(--muted)}
+.nc-fold[open] summary::after{content:'접기 ▴'}
+.nc-fold summary em{font-style:normal;color:var(--muted);font-size:13px}
+.nc-dot{width:16px;height:16px;border-radius:50%;border:1px solid rgba(0,0,0,.08);flex:0 0 auto}
+.nc-fold-in{display:grid;grid-template-columns:130px 1fr;border-top:1px solid var(--border)}
+.nc-lock{padding:16px 18px;border-radius:12px;background:#fbf6ee;border:1px dashed var(--accent);font-size:14px;line-height:1.7;color:var(--deep-brown)}
+.nc-lock b{display:block;font-size:15px;margin-bottom:2px}
+.nc-lock a{display:inline-block;margin-top:8px;padding:7px 14px;border-radius:99px;background:var(--accent);color:#fff;text-decoration:none;font-weight:700;font-size:13.5px}
+@media(max-width:560px){.nc-it,.nc-fold-in{grid-template-columns:1fr}.nc-sw{flex-direction:row;flex-wrap:wrap;align-items:baseline;gap:4px 10px;padding:12px 14px}.nc-sw span br{display:none}.nc-bd{padding:12px 14px 8px}}
 </style>
 </head>
 <body>
@@ -262,7 +297,7 @@ details.dasha-acc .tbl-wrap{margin-top:2px;}
     </div>
 
     <nav class="vjump" aria-label="결과 바로가기">
-      <a href="#vCharts">차트</a><a href="#vGrahas">행성·품위</a><a href="#vDrishti">시선</a><a href="#lordCard" id="vjumpLord">하우스 주인</a><a href="#vDasha">다샤</a><a href="#vLimits">계산 기준</a>
+      <a href="#vCharts">차트</a><a href="#vGrahas">행성·품위</a><a href="#vColor">나의 컬러</a><a href="#vDrishti">시선</a><a href="#lordCard" id="vjumpLord">하우스 주인</a><a href="#vDasha">다샤</a><a href="#vLimits">계산 기준</a>
     </nav>
 
     <div class="chart-pair" id="vCharts">
@@ -287,6 +322,12 @@ details.dasha-acc .tbl-wrap{margin-top:2px;}
       <div class="tbl-wrap"><table class="t" id="grahaTbl"></table></div>
       <div class="note" id="houseNote"></div>
       <div class="note">품위: <b>고양</b>(가장 힘이 좋은 자리) · <b>물라트리코나</b>(자기 별자리 중 특히 편한 구간) · <b>자기 별자리</b> · <b>쇠약</b>(힘을 쓰기 어려운 자리). 파라샤라 기준이에요. 라후·케투의 품위는 학파마다 달라 표시하지 않았어요.</div>
+    </div>
+
+    <div class="card" id="vColor">
+      <div class="card-title">✦ 나의 낙샤트라 컬러 <span style="font-size:13px;font-weight:400;color:var(--muted)">행성이 놓인 낙샤트라·파다의 색</span></div>
+      <p class="nc-intro">행성마다 놓인 낙샤트라와 파다를 색으로 바꿔 봤어요. 색 계열은 그 칸의 라시가, 밝기는 라시 안 파다의 순서가 정해요. 상승궁·달·태양을 대표 색으로 먼저 보여 드려요.</p>
+      <div id="nakColor"></div>
     </div>
 
     <div class="card" id="vDrishti">
@@ -915,6 +956,22 @@ details.dasha-acc .tbl-wrap{margin-top:2px;}
     }
   }
 
+  let VEDIC_PROFILE = null;
+  /** 나의 낙샤트라 컬러 — 베이직 이상 · 상담사는 근거(상징·신격)까지 */
+  function renderNakColor(lagna, grahas) {
+    const el = $('nakColor');
+    if (!el || !window.PaljaNakColor) return;
+    const draw = () => {
+      const prof = VEDIC_PROFILE || { plan: 'free' };
+      const P = window.PaljaPlan;
+      const canView = !!(P && P.isPlanAtLeast(prof, 'basic'));
+      const isCounselor = !!(P && P.hasCounselorAccess(prof)) && !window.PALJA_DEVICE_LIMIT_HIT;
+      window.PaljaNakColor.render(el, { lagna, grahas, canView, isCounselor });
+    };
+    draw();
+    accessReady.then(draw).catch(() => {});
+  }
+
   const accessReady = (async () => {
     try {
       if (!sbClient) return;
@@ -925,6 +982,7 @@ details.dasha-acc .tbl-wrap{margin-top:2px;}
         .select('plan, plan_active_until, calendar_pass_until')
         .eq('id', session.user.id)
         .single();
+      VEDIC_PROFILE = profile || { plan: 'free' };
       if (window.PaljaDevice && typeof window.PaljaDevice.ensurePaidAccess === 'function') {
         await window.PaljaDevice.ensurePaidAccess(session.access_token, profile || { plan: 'free' });
       } else if (window.PaljaDevice && typeof window.PaljaDevice.whenReady === 'function') {
@@ -1015,6 +1073,7 @@ details.dasha-acc .tbl-wrap{margin-top:2px;}
     });
     $('grahaTbl').innerHTML = tb;
     renderLords(lagna, grahas);
+    renderNakColor(lagna, grahas);
     let dt = '<tr><th>행성</th><th>있는 자리</th><th>바라보는 자리</th><th>시선을 받는 행성</th></tr>';
     grahas.forEach((g) => {
       const ds = V.drishtiSigns(g.key, g.rashi);
