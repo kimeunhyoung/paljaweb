@@ -51,17 +51,18 @@
     if (!list.length) { el.innerHTML = ''; return; }
     var chips = list.map(function (x) {
       var cn = D.color[x.c.sign];
-      return '<span class="nc-chip"><i style="background:' + x.c.hex + '"></i>' + D.area[x.key][0] + ' <small>' + esc(cn[1]) + '</small></span>';
+      return '<span class="nc-chip"><i style="background:' + x.c.hex + '"></i>' + D.area[x.key][0] + ' <small>' + esc(cn[0]) + '</small></span>';
     }).join('');
-    // 같은 색 계열이 몇 번 나왔는지
-    var cnt = {};
-    list.forEach(function (x) { var nm = D.color[x.c.sign][1] + '(' + D.rasi[x.c.sign][0] + ')'; cnt[nm] = (cnt[nm] || 0) + 1; });
-    var many = Object.keys(cnt).filter(function (k) { return cnt[k] > 1; }).sort(function (a, b) { return cnt[b] - cnt[a]; });
-    var mix = many.length
-      ? '<p class="nc-mix">색 분포 · <b>' + many.map(function (k) { return esc(k) + ' ' + cnt[k] + '개'; }).join(' · ') + '</b> — 같은 색이 여러 번 나오면 그 색(라시)의 성격이 특히 강하게 드러나요.</p>'
-      : '<p class="nc-mix">색 분포 · 여러 색에 고르게 퍼져 있어요.</p>';
+    var cnt = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+    list.forEach(function (x) { cnt[x.c.sign] += 1; });
+    var cols = cnt.map(function (n, i) {
+      var cn = D.color[i];
+      return '<div class="nc-col" data-n="' + n + '" title="' + esc(cn[1]) + ' · ' + esc(D.rasi[i][0]) + ' ' + n + '개">' +
+        '<i style="background:' + D.pal[3][i] + '"></i><b>' + n + '</b><small>' + esc(cn[0]) + '</small></div>';
+    }).join('');
+    var mix = '<div class="nc-cols" aria-label="12열 기본색 개수">' + cols + '</div>';
     if (!opt.canView) {
-      el.innerHTML = '<div class="nc-chips">' + chips + '</div>' +
+      el.innerHTML = '<div class="nc-chips">' + chips + '</div>' + mix +
         '<div class="nc-lock"><b>Private 회원에게 열려요</b>각 색이 어떤 낙샤트라·파다에서 나왔는지, 그 뜻과 라시의 성격까지 풀어서 보여 드려요.' +
         '<br><a href="pricing.html?from=vedic-color">요금제 보기</a></div>';
       return;
