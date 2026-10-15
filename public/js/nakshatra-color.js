@@ -62,7 +62,7 @@
       : '<p class="nc-mix">색 분포 · 여러 색에 고르게 퍼져 있어요.</p>';
     if (!opt.canView) {
       el.innerHTML = '<div class="nc-chips">' + chips + '</div>' +
-        '<div class="nc-lock"><b>베이직 이상 회원에게 열려요</b>각 색이 어떤 낙샤트라·파다에서 나왔는지, 그 뜻과 라시의 성격까지 풀어서 보여 드려요.' +
+        '<div class="nc-lock"><b>Private 회원에게 열려요</b>각 색이 어떤 낙샤트라·파다에서 나왔는지, 그 뜻과 라시의 성격까지 풀어서 보여 드려요.' +
         '<br><a href="pricing.html?from=vedic-color">요금제 보기</a></div>';
       return;
     }
