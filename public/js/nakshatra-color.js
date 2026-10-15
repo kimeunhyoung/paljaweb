@@ -29,7 +29,7 @@
     var body =
       '<p class="nc-area">' + ar[0] + josa(ar[0], '은', '는') + ' <b>' + esc(ar[1]) + '</b>을 보여 줘요.</p>' +
       '<div class="nc-sec"><h4>낙샤트라 · ' + esc(n.name) + ' <span>지배 행성 ' + esc(n.lord) + '</span></h4><ul>' + traits + '</ul>' +
-      (isCounselor ? '<p class="nc-tech">근거 · 상징 ' + esc(n.sym) + ' · 신격 ' + esc(n.deity) + '</p>' : '') + '</div>' +
+      (isCounselor ? '<p class="nc-tech">상징: ' + esc(n.sym) + ' — 신격: ' + esc(n.deity) + '</p>' : '') + '</div>' +
       '<div class="nc-sec"><h4>' + c.pada + '파다 · 나밤사 ' + esc(D.rasi[c.nav][0]) + '</h4><p>이 파다는 나밤사로 <b>' + esc(D.rasi[c.nav][0]) +
       '</b>에 해당해서, 낙샤트라의 힘이 <b>' + esc(D.flow[c.nav]) + '</b> 향해요. 삶의 목적으로는 ' + esc(D.aim[String(c.pada)]) + '이에요.</p></div>' +
       '<div class="nc-sec"><h4>색 · ' + esc(rs[0]) + '(' + esc(rs[1]) + ') · ' + esc(D.tone[c.row]) + ' ' + esc(cn[1]) + '</h4><p>이 칸의 색은 <b>' + esc(rs[0]) +
