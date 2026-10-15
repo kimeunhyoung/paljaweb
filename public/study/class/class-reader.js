@@ -160,15 +160,44 @@
     window.addEventListener('beforeprint', function () { box.setAttribute('data-print', '1'); });
   }
 
+  function client() {
+    if (window.__paljaSupabaseClient) return window.__paljaSupabaseClient;
+    var g = window.supabase || globalThis.supabase;
+    if (!g || typeof g.createClient !== 'function') return null;
+    window.__paljaSupabaseClient = g.createClient(SB_URL, SB_KEY);
+    return window.__paljaSupabaseClient;
+  }
+
+  function waitSession(sb) {
+    return new Promise(function (resolve) {
+      var done = false;
+      var sub = null;
+      function finish(session) {
+        if (done) return;
+        done = true;
+        try { if (sub) sub.unsubscribe(); } catch (e) {}
+        resolve(session || null);
+      }
+      var watch = sb.auth.onAuthStateChange(function (event, session) {
+        if (event === 'INITIAL_SESSION') finish(session);
+      });
+      sub = watch && watch.data && watch.data.subscription;
+      setTimeout(function () {
+        if (done) return;
+        sb.auth.getSession().then(function (res) {
+          finish(res.data && res.data.session);
+        }).catch(function () { finish(null); });
+      }, 2000);
+    });
+  }
+
   async function run() {
     var cur = currentPart();
     renderTabs(cur);
     try {
-      var g = window.supabase || globalThis.supabase;
-      if (!g || typeof g.createClient !== 'function') { show('error'); return; }
-      var sb = g.createClient(SB_URL, SB_KEY);
-      var res = await sb.auth.getSession();
-      var session = res.data && res.data.session;
+      var sb = client();
+      if (!sb) { show('error'); return; }
+      var session = await waitSession(sb);
       if (!session) {
         location.replace('/login.html?next=' + encodeURIComponent(location.pathname + location.search));
         return;
@@ -179,6 +208,17 @@
         headers: { Authorization: 'Bearer ' + session.access_token },
         cache: 'no-store',
       });
+      if (r.status === 401) {
+        var again = await sb.auth.getSession();
+        var fresh = again.data && again.data.session;
+        if (fresh && fresh.access_token && fresh.access_token !== session.access_token) {
+          session = fresh;
+          r = await fetch('/api/class/' + COURSE + '/' + part, {
+            headers: { Authorization: 'Bearer ' + session.access_token },
+            cache: 'no-store',
+          });
+        }
+      }
       if (r.status === 401) {
         location.replace('/login.html?next=' + encodeURIComponent(location.pathname + location.search));
         return;

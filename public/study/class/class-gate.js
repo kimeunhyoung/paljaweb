@@ -29,13 +29,42 @@
     document.documentElement.setAttribute('data-class-access', state);
   }
 
+  function client() {
+    if (window.__paljaSupabaseClient) return window.__paljaSupabaseClient;
+    var g = window.supabase || globalThis.supabase;
+    if (!g || typeof g.createClient !== 'function') return null;
+    window.__paljaSupabaseClient = g.createClient(SB_URL, SB_KEY);
+    return window.__paljaSupabaseClient;
+  }
+
+  function waitSession(sb) {
+    return new Promise(function (resolve) {
+      var done = false;
+      var sub = null;
+      function finish(session) {
+        if (done) return;
+        done = true;
+        try { if (sub) sub.unsubscribe(); } catch (e) {}
+        resolve(session || null);
+      }
+      var watch = sb.auth.onAuthStateChange(function (event, session) {
+        if (event === 'INITIAL_SESSION') finish(session);
+      });
+      sub = watch && watch.data && watch.data.subscription;
+      setTimeout(function () {
+        if (done) return;
+        sb.auth.getSession().then(function (res) {
+          finish(res.data && res.data.session);
+        }).catch(function () { finish(null); });
+      }, 2000);
+    });
+  }
+
   async function run() {
     try {
-      var g = window.supabase || globalThis.supabase;
-      if (!g || typeof g.createClient !== 'function') { show('error'); return; }
-      var sb = g.createClient(SB_URL, SB_KEY);
-      var res = await sb.auth.getSession();
-      var session = res.data && res.data.session;
+      var sb = client();
+      if (!sb) { show('error'); return; }
+      var session = await waitSession(sb);
       if (!session) {
         location.replace('/login.html?next=' + encodeURIComponent(nextPath()));
         return;
